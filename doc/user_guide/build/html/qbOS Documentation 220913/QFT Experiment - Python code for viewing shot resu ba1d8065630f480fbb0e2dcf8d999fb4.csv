@@ -1,0 +1,4 @@
+﻿Name,Qubits,QPU Kernel (quantum circuit),Options,Options 0,Options 1
+Experiment 0 (2-qubit QFT),tqb.qn[0][:],tqb.instring[0][:],,print(tqb.out_raw[0][0]),print(tqb.out_raw[0][1])
+Experiment 1 (4-qubit QFT),tqb.qn[1][:],tqb.instring[1][:],,print(tqb.out_raw[1][0]),print(tqb.out_raw[1][1])
+,,,Noise flag:,tqb.noise[:][0],tqb.noise[:][1]

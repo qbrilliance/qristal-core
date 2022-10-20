@@ -1,0 +1,26 @@
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+.col-md-9 img {
+    background-color: #000;     
+    padding: 7px;
+    border: 1px solid #ddd;
+    border-radius: 1px;
+}
+
+.fa-arrow-left:before {
+    content: "<=";
+}
+
+.fa-arrow-right:before {
+    content: "=>";
+}

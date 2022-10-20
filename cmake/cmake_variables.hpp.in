@@ -1,0 +1,8 @@
+// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+
+#pragma once
+
+#define gGIT_VERSION "@FULL_VERSION@"
+#define gGIT_VERSION_SHORT "@SHORT_VERSION@"
+
+#define SDK_DIR "@CMAKE_CURRENT_SOURCE_DIR@"

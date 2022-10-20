@@ -1,0 +1,14 @@
+{
+    "accs": [
+        {
+            "acc": "qb-lambda",
+            "url": "ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com",
+            "poll_secs": 6, 
+            "poll_retrys": 100,
+            "over_request": 8,
+            "recursive_request": true,
+            "resample": false,
+            "resample_above_percentage": 50
+        }
+    ]
+}

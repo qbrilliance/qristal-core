@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Variational Quantum Eigensolver (VQE) in qbOS - qbOS Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
+        <link href="../css/extra.css" rel="stylesheet">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="../index.html">qbOS Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../index.html" class="nav-link">qbOS Documentation</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx01.html" class="nav-link">0. About qbOS</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx02.html" class="nav-link">1. Quickstart</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx03.html" class="nav-link">2. Learn Quantum Gates</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx04.html" class="nav-link">3. Circuit builders</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx05.html" class="nav-link">4. qbOS Modules and Applications</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx06.html" class="nav-link">5. Hardware Specifications and Limitations</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx07.html" class="nav-link">6. Types and Arrays in qbOS (more examples)</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx08.html" class="nav-link">7. Download and Installation</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx09.html" class="nav-link">8. Starting a qbOS Jupyter session</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx10.html" class="nav-link">9. Glossary of Tools and Quantum Gates</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx11.html" class="nav-link">10. Parallel Operations in qbOS</a>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">qbOS Documentation 220913 <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="AWS%20Braket%20offload%20in%20qbOS%204631d07005d74d5898dc4ee153199663.html" class="dropdown-item">AWS Braket offload in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="AWS%20Spot-Market%20instances%20695d2d72ff0b4916aec906b3ac43b74a.html" class="dropdown-item">AWS Spot-Market instances</a>
+</li>
+                                    
+<li>
+    <a href="Amplitude%20Amplification%20in%20qbOS%20625436cc7b4d465c93c94af9da6d9457.html" class="dropdown-item">Amplitude Amplification in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Amplitude%20Estimation%20in%20qbOS%20197b2063bef447718fdfa185d82d829f.html" class="dropdown-item">Amplitude Estimation in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Compare%20in%20qbOS%20%28coming%20220807%29%20961e0695a65f4cae8c12e8148a2b204b.html" class="dropdown-item">Compare > in qbOS (coming 220807)</a>
+</li>
+                                    
+<li>
+    <a href="Configuring%20qbOS%20for%20Quantum%20Brilliance%20%28QDK%29%20hard%20ff8b9b8aff664cba9c89e2637922ebba.html" class="dropdown-item">Configuring qbOS for Quantum Brilliance (QDK) hardware</a>
+</li>
+                                    
+<li>
+    <a href="Efficient%20Encoding%20in%20qbOS%202407bb4867fd495294d9274e85923f4a.html" class="dropdown-item">Efficient Encoding in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Exponential%20Search%20in%20qbOS%209daf531c584f4cadb31697f8cb94b544.html" class="dropdown-item">Exponential Search in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="First%20Release%20Notes%20%28Sept%202021%29%2057042bb79eef463d9ebab68eddcad6e5.html" class="dropdown-item">First Release Notes (Sept 2021)</a>
+</li>
+                                    
+<li>
+    <a href="GUI%20circuit%20composition%20and%20conversion%20to%20QPU%20kern%204f46ef713a5743e192aa79ec6f804d5d.html" class="dropdown-item">GUI circuit composition and conversion to QPU kernel for execution in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="GUI%20circuit%20composition%20with%20pyQuirk%20f7161f17d431491c9497e928d3486cdc.html" class="dropdown-item">GUI circuit composition with pyQuirk</a>
+</li>
+                                    
+<li>
+    <a href="Inverse%20Circuit%20in%20qbOS%205c88dd6ec8eb45d998fc2e184584d6c9.html" class="dropdown-item">Inverse Circuit in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Multiplication%20in%20qbOS%20331e71fa0f40468abdc6d33ef990796d.html" class="dropdown-item">Multiplication in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Optimisation%20with%20QAOA%20in%20qbOS%2069aae61a872045adac72410f02d977e5.html" class="dropdown-item">Optimisation with QAOA in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Pawsey%20Nimbus%20Cloud%2039cb71b3471045b388e4593d7ae2d240.html" class="dropdown-item">Pawsey Nimbus Cloud</a>
+</li>
+                                    
+<li>
+    <a href="Proper%20Fraction%20Division%20in%20qbOS%200a0a79f708ec4025a5893b0509c3e931.html" class="dropdown-item">Proper Fraction Division in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="QAOA%20extensions%20in%20qbOS%201ce0bfe95e304a978cad6dada58ef0fd.html" class="dropdown-item">QAOA extensions in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Comparator%20in%20qbOS%20036f305a7273456ab87315e6f4cb44db.html" class="dropdown-item">Quantum Comparator in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Equality%20Checker%20in%20qbOS%2020fb41766e754abc814df7e5bae350f6.html" class="dropdown-item">Quantum Equality Checker in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Fourier%20Transform%20%28QFT%29%20086133df66464393834202921b561874.html" class="dropdown-item">Quantum Fourier Transform (QFT)</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Gates%207820f4f28e564f69bd74a585bc527471.html" class="dropdown-item">Quantum Gates</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Phase%20Estimation%20in%20qbOS%20ede1f2c66aff426f870bf620002c31ee.html" class="dropdown-item">Quantum Phase Estimation in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20arithmetic%20operations%20912925f8ab1644d8821fd5645df3e911.html" class="dropdown-item">Quantum arithmetic operations</a>
+</li>
+                                    
+<li>
+    <a href="Random%20quantum%20circuit%20sampling%20with%20qbOS%20ad6a723f9ebf49e7a0967b999a63f132.html" class="dropdown-item">Random quantum circuit sampling with qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Ripple%20Carry%20Adder%20in%20qbOS%20c90a303c2b7641e2903b0e299d29d0df.html" class="dropdown-item">Ripple Carry Adder in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Subtraction%20in%20qbOS%20d894d29f00284d878a498964be70f399.html" class="dropdown-item">Subtraction in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Usage%20examples%20of%20qbos%20MapNC%20type%20e04ad5447638476184ed7a21f05e966b.html" class="dropdown-item">Usage/examples of qbos.MapNC type</a>
+</li>
+                                    
+<li>
+    <a href="Usage%20examples%20of%20qbos%20MapND%20type%20807974c9c8c94f0c842b601924105d17.html" class="dropdown-item">Usage/examples of qbos.MapND type</a>
+</li>
+                                    
+<li>
+    <a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2.html" class="dropdown-item active">Variational Quantum Eigensolver (VQE) in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Visualisation%20and%20Data%20Science%20in%20qbOS%20e375e48655ea4a04889a3b915daded2c.html" class="dropdown-item">Visualisation and Data Science in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="v0%20Python%20Plugin%2017de6406325c411db2bffa0b9c6e38d0.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+<li>
+    <a href="v0%20Python%20Plugin%20c7728f45b0344bca8115c48dbbfd078b.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+<li>
+    <a href="v0%20Python%20Plugin%20cb380f16dca64c419ff2b339dd34f0ed.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment   Python code for viewing fixed glo d4800077ec6f41edbee7a34819f21dcc</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/Shots%20068cdd3c91ac405dbb6dc6598b56b4a4.html" class="dropdown-item">Shots</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/Simulator%20f7521595c2924452b7201e93cac56955.html" class="dropdown-item">Simulator</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/XASM%20flag%204cc1565f647642849005b9f4d659499c.html" class="dropdown-item">XASM flag</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment   Python code for viewing shot resu ba1d8065630f480fbb0e2dcf8d999fb4</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Experiment%200%20%282-qubit%20QFT%29%20bb722e94bfd94e6188da4250a581cc91.html" class="dropdown-item">Experiment 0 (2-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Experiment%201%20%284-qubit%20QFT%29%20b3d275a493494fe7a8a0e64aa572e2f1.html" class="dropdown-item">Experiment 1 (4-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Untitled%20289ae712a41947dab8cd4a75ac3dadad.html" class="dropdown-item">Untitled</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment Design 97159967bced45808d9bbef5fc861dea</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Experiment%200%20%282-qubit%20QFT%29%20dbef22cef93445d98b308bcade1e01e9.html" class="dropdown-item">Experiment 0 (2-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Experiment%201%20%284-qubit%20QFT%29%20fcfefecc80774e1982015894888395fb.html" class="dropdown-item">Experiment 1 (4-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Untitled%20a2a2550ee27f46d287613510dc2dde81.html" class="dropdown-item">Untitled</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment Fixed Global Options de0784ece18847ebb02a5475c69aca97</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/Shots%2038c179952af342b4ad5494946a33ad31.html" class="dropdown-item">Shots</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/Simulator%20d43da6148a9f40f6b88fc733646a8d15.html" class="dropdown-item">Simulator</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/XASM%20flag%2074588cd5eeb9487d9942d01418756044.html" class="dropdown-item">XASM flag</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a rel="prev" href="Usage%20examples%20of%20qbos%20MapND%20type%20807974c9c8c94f0c842b601924105d17.html" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="Visualisation%20and%20Data%20Science%20in%20qbOS%20e375e48655ea4a04889a3b915daded2c.html" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#variational-quantum-eigensolver-vqe-in-qbos" class="nav-link">Variational Quantum Eigensolver (VQE) in qbOS</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#introduction-to-vqe" class="nav-link">Introduction to VQE</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#usage-options-and-examples" class="nav-link">Usage Options and Examples</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#3qnansatz_depth-9-parameters-set-the-length-of-initial-values-to-9" class="nav-link">3qnansatz_depth = 9 parameters - set the length of initial values to 9</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#deuteron-hamiltonian-with-aswap-1-particle-ansatz" class="nav-link">Deuteron Hamiltonian with aswap 1-particle ansatz</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#24-parameters-in-the-user-defined-ansatz-provide-24-initial-values" class="nav-link">24 parameters in the user-defined ansatz =&gt; provide 24 initial values</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#deuteron-hamiltonian-with-aswap-1-particle-ansatz_1" class="nav-link">Deuteron Hamiltonian with aswap 1-particle ansatz</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#direct-energy-evaluation" class="nav-link">Direct energy evaluation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+  integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs"
+  crossorigin="anonymous" />
+
+<style type="text/css">
+    .katex img {
+      object-fit: fill;
+      padding: unset;
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: inherit;
+    }
+</style>
+<h1 id="variational-quantum-eigensolver-vqe-in-qbos">Variational Quantum Eigensolver (VQE) in qbOS</h1>
+<h2 id="introduction-to-vqe">Introduction to VQE</h2>
+<p>In VQE, a <strong>classical optimiser</strong> is used to minimise an objective function that contains a <strong>quantum kernel</strong>. It is because it combines classical optimisation steps with the evaluation of a quantum kernel at each iteration, therefore, VQE is classed as a <strong>quantum-classical (hybrid) algorithm.</strong></p>
+<p>VQE finds the <strong>ground state energy</strong> of physical systems that are characterised by a <strong>Hamiltonian</strong>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi></mrow><annotation encoding="application/x-tex">H</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.08125em;">H</span></span></span></span> that is Hermitian. See [<a href="https://arxiv.org/abs/1304.3061">Peruzzo et al. 2013</a>, <a href="https://arxiv.org/abs/1512.06860">O'Malley et al. 2015</a>] for details.</p>
+<h3 id="quantum-kernel">Quantum kernel</h3>
+<p>The quantum kernel has 3 inputs:</p>
+<ul>
+<li><strong>theta</strong>: Input parameters, usually rotation angles with units in radians.</li>
+<li><strong>ansatz</strong>: A quantum circuit that prepares a quantum state and is conditioned by the values of theta (ie. the input parameters mentioned above).</li>
+<li><strong>observable/measurement</strong>:  A Hamiltonian, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi></mrow><annotation encoding="application/x-tex">H</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.08125em;">H</span></span></span></span>, that is Hermitian.</li>
+</ul>
+<p>The output from measurement is reduced to a scalar quantity - the <strong>energy</strong>.   The output is called <strong>stochastic</strong> when this energy is calculated from the shot-count statistics (samples) produced by a quantum computer.  With simulators, a <strong>non-stochastic</strong> energy quantity can also be output.</p>
+<h3 id="classical-optimiser">Classical optimiser</h3>
+<p>VQE is open to use with any type of optimiser.  In particular, the optimiser can be gradient-based or gradient-free.  Stochastic optimisation algorithms can also be used. See below for examples.</p>
+<h3 id="hamiltonians-in-qbos">Hamiltonians in qbOS</h3>
+<p>While the user provides a Hamiltonian that has been transformed from their problem/system of interest, special attention is needed on the resulting format of the Hamiltonian so that it is valid as an input to qbOS.  In particular:</p>
+<ul>
+<li>the Hamiltonian must be formatted as a <strong>string</strong>.  This string is an expression of a weighted sum of <strong>Pauli terms</strong>.</li>
+<li><strong>Spaces</strong> must be used to separate <strong>all</strong> of the following: the Pauli terms, their respective weights, and the arithmetic +/- symbols.</li>
+<li>In all Pauli terms, any <strong>Identity (I) operators are implicit - do not show I operator explicitly.</strong></li>
+</ul>
+<p>Examples of valid Hamiltonians (but with no physical meaning):</p>
+<pre><code>&quot;-1.2 + 1.1 Z0Z1 + 4.1 Z1 - 11.8 Z0&quot;
+</code></pre>
+<pre><code>&quot;12.3 + 0.002 Z0X1X2 - 1.2 X0Z2 - 3.3 Z1 - 5.0 Y2&quot;
+</code></pre>
+<pre><code>&quot;5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + (0.3,0.21829) Z0 + 0.34 Z0Z1Z2Z3&quot;
+
+Note: (0.3,0.21829) == 0.3 + 0.21829j
+</code></pre>
+<p>Example of a physically valid Hamiltonian (for deuteron):</p>
+<pre><code>&quot;5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1&quot;
+</code></pre>
+<h3 id="geometries-in-qbos">Geometries in qbOS</h3>
+<p>In addition to Hamiltonian inputs, qbOS VQE allows users to describe the molecular geometry in terms of the elements and coordinates of all atoms in the system.</p>
+<p>qbOS follows the PySCF-style XYZ syntax, i.e.,
+ <code>{element symbol} {x_coord} {y_coord} {z_coord};...</code></p>
+<p>For example, an <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">H_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> molecule with an atomic distance of 0.735 angstroms (Å) can be described by the following geometry string:</p>
+<p><code>H 0.0 0.0 0.0; H 0.0 0.0 0.735</code></p>
+<p>❗Important: the default unit of coordinates is ANGSTROM. </p>
+<p>By default, qbOS uses the <a href="https://en.wikipedia.org/wiki/STO-nG_basis_sets">sto-3g</a> basis set and the Jordan-Wigner fermion-to-qubit mapping.</p>
+<h3 id="ansatze-in-qbos">Ansätze in qbOS</h3>
+<p>As in all parameterised models, choice of model architecture, or <em>ansatz</em>, is an important parameter in the success of the optimisation.</p>
+<p><strong>Built in ansätze:</strong></p>
+<ul>
+<li>
+<p>Default ansatz:  the <a href="https://www.nature.com/articles/nature23879">Hardware Efficient Ansatz</a> (HEA)</p>
+<p>HEA provides a framework for general Hamiltonians where the problem substructure is less well defined.   HEA is often parameterised by <strong>depth</strong>: the number of base circuit repetitions.  </p>
+<p>A larger depth allows for modelling more complexity at the cost of increasing training difficulty.  </p>
+<p>One instance of HEA ansatz is demonstrated in <a href="https://pennylane.ai/qml/demos/tutorial_vqe.html">Pennylane's VQE tutorial</a>. </p>
+</li>
+<li>
+<p><a href="https://arxiv.org/abs/1904.10910">ASWAP</a> ansatz: useful for quantum chemistry</p>
+<p>ASWAP is well-suited to the types of Hamiltonians generated by quantum chemistry problems and is parameterised by the <strong>number of particles</strong> to use. </p>
+</li>
+<li>
+<p><a href="https://onlinelibrary.wiley.com/doi/full/10.1002/qua.21198">UCCSD</a> ansatz: useful for quantum chemistry</p>
+<p><em>Unitary coupled-cluster singles and doubles</em> (UCCSD) ansatz is based on the unitary coupled cluster (UCC) theory.</p>
+<p>UCCSD ansatz is parameterised by the number of particles (e.g., electrons) and the number of spin orbitals.</p>
+<p>(the number of spin orbitals is equal to the number of qubits required)</p>
+</li>
+<li>
+<p>❗ <strong>Important:</strong> Convention of mapping spin orbitals onto qubits</p>
+<ul>
+<li>The built-in ASWAP and UCCSD ansätze in qbOS map all alpha (up) spins <strong>then</strong> all beta (down) spins. Thus, care must be taken to make sure that the input Pauli Hamiltonian follows the same mapping convention.</li>
+<li>If the Hamiltonian input is provided as a <a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2.html">molecular geometry</a> string, the mapping is guaranteed to be compatible with the above convention.</li>
+<li>Tips: Among some other open-source platforms, Qiskit is using the same qubit mapping as stated above. Pennylane, on the other hand, alternates alpha and beta (up and down) spins.</li>
+</ul>
+</li>
+</ul>
+<p><strong>User-defined ansatz:</strong></p>
+<p><a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2/qbOS_VQECustom.ipynb">qbOS_VQECustom.ipynb</a></p>
+<p>This functionality requires using the XASM format.  An example of this is shown below:</p>
+<aside>
+❗ **Important:** 
+Do **not** change the first two lines:
+`.compiler xasm
+ .circuit qbos_ansatz`
+
+You can use the parameter (declared here as `theta`) as a 0-indexed array, ie `theta[0], theta[1], theta[2]`, ..., etc.
+
+</aside>
+
+<pre><code class="language-bash">.compiler xasm
+.circuit qbos_ansatz
+.parameters theta
+.qbit q
+  X(q[0]);
+  X(q[1]);
+  U(q[0], theta[0], theta[1], theta[2]);
+  U(q[1], theta[3], theta[4], theta[5]);
+  U(q[2], theta[6], theta[7], theta[8]);
+  U(q[3], theta[9], theta[10], theta[11]);
+  CNOT(q[0], q[1]);
+  CNOT(q[1], q[2]);
+  CNOT(q[2], q[3]);
+  U(q[0], theta[12], theta[13], theta[14]);
+  U(q[1], theta[15], theta[16], theta[17]);
+  U(q[2], theta[18], theta[19], theta[20]);
+  U(q[3], theta[21], theta[22], theta[23]);
+  CNOT(q[0], q[1]);
+  CNOT(q[1], q[2]);
+  CNOT(q[2], q[3]);
+</code></pre>
+<h2 id="usage-options-and-examples">Usage Options and Examples</h2>
+<h3 id="general-usage-operations"><strong>General usage operations</strong></h3>
+<ul>
+<li>
+<p>Importing the Python package</p>
+<p><code>python
+import qbos_op</code></p>
+</li>
+<li>
+<p><code>qbos_op.vqe()</code> creates an instance to access the functionality in qbOS VQE</p>
+<p><code>python
+import qbos_op
+qv = qbos_op.vqe()</code></p>
+</li>
+</ul>
+<h3 id="options-related-to-the-quantum-kernel"><strong>Options related to the quantum kernel</strong></h3>
+<ul>
+<li>
+<p><code>theta</code> sets the <strong>initial value</strong> of the parameters used by the ansatz, default: 1.0</p>
+<p><aside>
+⚙ The <strong>length</strong> of <code>theta</code> (the number of elements) must match the <strong>required number of parameters</strong> in the ansatz.  </p>
+<p>For the default ansatz in qbOS, it is required to that:
+ <code>len(theta) == 3*qn*ansatz_depth</code></p>
+</aside>
+<p>Example:  initial value of theta set by a <strong>scalar</strong>.  Broadcast is performed of this value to all elements required by the ansatz.</p>
+<p>```python
+import qbos_op
+import numpy as np
+qv = qbos_op.vqe()
+qv.theta = qbos_op.avqvND() # this type holds a list of maps from integer-&gt;double</p>
+<p>example_scalar = 0.12*np.pi
+qv.theta[0][0][0] = example_scalar
+```</p>
+<p>Example: initial value of theta set to a list of length equal to the number of parameters used by the ansatz.</p>
+<p>```python
+import qbos_op
+import numpy as np
+qv = qbos_op.vqe()
+qv.theta = qbos_op.ND() # this type holds a list of maps from integer-&gt;double</p>
+<p>example_rx = -0.2<em>np.pi
+example_ry = -0.5</em>np.pi
+example_rz =  0.5*np.pi</p>
+<p>qv.theta[0][0][0] = example_rx
+qv.theta[0][0][1] = example_ry
+qv.theta[0][0][2] = example_rz
+```</p>
+</li>
+<li>
+<p><code>qn</code> sets the number of physical qubits, default: 1</p>
+<p><aside>
+❗ The number of qubits must be consistent with the Hamiltonian</p>
+</aside>
+<p><aside>
+⚙ For the default ansatz in qbOS, it is required to that:
+ <code>len(theta) == 3*qn*ansatz_depth</code></p>
+</aside>
+<p>Example: set up 2 qubits</p>
+<p>```python
+import qbos_op
+qv = qbos_op.vqe()
+qv.theta = qbos_op.ND() # this type holds a list of maps from integer-&gt;double</p>
+<p>qv.qn = 2
+```</p>
+</li>
+<li>
+<p><code>ansatz</code> sets the ansätz, default: "default"</p>
+<ul>
+<li>
+<p><code>"default"</code> is the built-in Hardware Efficient Ansatz</p>
+<ul>
+<li>
+<p><code>ansatz_depth</code> sets the number of repeated layers in the default ansatz, default: 1</p>
+<p>Example: using a 1-qubit, 3-layer ansatz</p>
+<p>```python
+import qbos_op
+import numpy as np
+qv = qbos_op.vqe()
+qv.theta = qbos_op.ND() # this type holds a list of maps from integer-&gt;double</p>
+<p>qv.ansatz = "default"
+qv.qn = 1;
+qv.ansatz_depth = 3</p>
+<h1 id="3qnansatz_depth-9-parameters-set-the-length-of-initial-values-to-9">3<em>qn</em>ansatz_depth = 9 parameters - set the length of initial values to 9</h1>
+<p>for ite in range(3<em>qv.qn[0][0]</em>qv.ansatz_depth[0][0]) :
+    qv.theta[0][0][ite] = 0.125*np.pi <br />
+```</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>"aswap"</code> is the built-in ASWAP ansatz</p>
+<ul>
+<li>
+<p><code>aswapn</code> sets the number of particles in the ASWAP ansatz, default: 1</p>
+<p>Example: deuteron</p>
+<p>```python
+import qbos_op
+qv = qbos_op.vqe()
+qv.theta = qbos_op.ND() # this type holds a list of maps from integer-&gt;double</p>
+<h1 id="deuteron-hamiltonian-with-aswap-1-particle-ansatz">Deuteron Hamiltonian with aswap 1-particle ansatz</h1>
+<p>qv.qn = 2  # Number of qubits
+qv.ham = "5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1"
+qv.ansatz = "aswap"
+qv.aswapn = 1
+qv.theta[0][0][0] = 0.11
+```</p>
+</li>
+</ul>
+</li>
+<li>
+<p>User-defined XASM format ansatz</p>
+<p>Example: reusing the user-defined 4-qubit ansatz described previously</p>
+<p>```python
+import qbos_op
+qv = qbos_op.vqe()
+qv.theta = qbos_op.ND() # this type holds a list of maps from integer-&gt;double</p>
+<p>qv.qn = 4
+qv.ham = "1.2 - 1.45 Z0 + 2.1 Z1 + 3.2 Z2 - 0.2 Z3 - 3.1 Z1Z3"
+self_anz = '''
+.compiler xasm
+.circuit qbos_ansatz
+.parameters theta
+.qbit q
+  X(q[0]);
+  X(q[1]);
+  U(q[0], theta[0], theta[1], theta[2]);
+  U(q[1], theta[3], theta[4], theta[5]);
+  U(q[2], theta[6], theta[7], theta[8]);
+  U(q[3], theta[9], theta[10], theta[11]);
+  CNOT(q[0], q[1]);
+  CNOT(q[1], q[2]);
+  CNOT(q[2], q[3]);
+  U(q[0], theta[12], theta[13], theta[14]);
+  U(q[1], theta[15], theta[16], theta[17]);
+  U(q[2], theta[18], theta[19], theta[20]);
+  U(q[3], theta[21], theta[22], theta[23]);
+  CNOT(q[0], q[1]);
+  CNOT(q[1], q[2]);
+  CNOT(q[2], q[3]);
+'''</p>
+<p>qv.ansatz = self_anz</p>
+<h1 id="24-parameters-in-the-user-defined-ansatz-provide-24-initial-values">24 parameters in the user-defined ansatz =&gt; provide 24 initial values</h1>
+<p>for ite in range(24) :
+    qv.theta[0][0][ite] = 0.125*np.pi</p>
+<p>```</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>ham</code> sets the Hamiltonian, default: "1.0 Z0"</p>
+<p>Example: deuteron</p>
+<p>```python
+import qbos_op
+qv = qbos_op.vqe()
+qv.theta = qbos_op.ND() # this type holds a list of maps from integer-&gt;double</p>
+<h1 id="deuteron-hamiltonian-with-aswap-1-particle-ansatz_1">Deuteron Hamiltonian with aswap 1-particle ansatz</h1>
+<p>qv.qn = 2  # Number of qubits
+qv.ham = "5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1"
+qv.ansatz = "aswap"
+qv.aswapn = 1
+qv.theta[0][0][0] = 0.11
+```</p>
+</li>
+<li>
+<p><code>sn</code> sets the number of shots, default: 256</p>
+<p><aside>
+✅ Non-stochastic VQE is performed when <code>sn</code> = 0</p>
+</aside>
+</li>
+<li>
+<p><code>noise</code> enables a noise-model of Quantum Brilliance's hardware, default: False (ie. noiseless)</p>
+<p><aside>
+ℹ️ This option automatically forces the use of the <code>"aer"</code> back-end.  An important effect of this is that bit-strings will print out in <strong>reverse order</strong> compared to the default (<code>"qpp"</code>) back-end.</p>
+</aside>
+</li>
+<li>
+<p><code>acc</code> selects the back-end accelerator, default: "qpp"</p>
+<p><aside>
+❗ The <code>acc</code> option has no effect when <code>noise</code> = True</p>
+</aside>
+<p>The following values are accepted:</p>
+<ul>
+<li><code>"qpp"</code></li>
+<li><code>"tnqvm"</code></li>
+<li><code>"aer"</code></li>
+</ul>
+<p><aside>
+⚠️ <strong>WARNING</strong>
+The <code>"aer"</code> accelerator has some known incompatibilities and issues with the VQE for some specific Hamiltonian inputs. If you are facing such problems, please choose the default, ie <code>"qpp"</code>.</p>
+</aside>
+</li>
+<li>
+<p><code>direct_expectation</code> enables direct expectation calculation if the selected Accelerator backend is a state-vector-based simulator. Default: <code>False</code> (disabled, i.e., running observed circuits to compute the expectation value)</p>
+<p><aside>
+➡️ If direct energy evaluation is not feasible (e.g., the Accelerator doesn’t support retrieval of the state vector), this option will be ignored, i.e., fall back to the conventional method of observing the Hamiltonian expectation value.</p>
+</aside>
+<p><strong>Example</strong>:</p>
+<p>```python
+import qbos_op
+vqe = qbos_op.vqe()
+vqe.sn = 0 </p>
+<h1 id="direct-energy-evaluation">Direct energy evaluation</h1>
+<p>vqe.direct_expectation = True
+```</p>
+</li>
+</ul>
+<h3 id="how-to-make-function-calls-for-a-python-level-optimiser">How to make function calls for a Python-level optimiser?</h3>
+<p>In order to use the optimisation algorithms in <code>scipy.optimize</code> or <code>skquant.opt</code>  for VQE, it is necessary to provide a function that accepts the parameter values at the current iteration and returns the energy.  The function below provides this.  Note: it accepts an input (<code>theta</code>) that is a NumPy array:</p>
+<pre><code class="language-python">#
+# Wrapper that accepts a parameter, theta (type is NumPy ndarray)
+# and calls qbOS VQE for 1 iteration.  The energy is returned.
+#
+def qbvqe(theta):
+    qv=qbos_op.vqe()
+    qv.theta = qbos_op.ND()
+    qv.sn = 64   # Number of shots.  Set to 0 for non-stochastic VQE
+
+    # Deuteron Hamiltonian with aswap ansatz
+    qv.qn = 2  # Number of qubits
+    qv.ham = &quot;5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1&quot;
+    qv.ansatz = &quot;aswap&quot;
+
+    qv.maxeval = 1  # initial energy only - no internal optimisation steps
+    if (theta.size == 1):
+        qv.theta[0][0][0] = theta
+    else :
+        for el in range(theta.size):
+            qv.theta[0][0][el] = theta[el]
+
+    qv.run()
+    return qv.out_energy[0][0][0]
+</code></pre>
+<p>With small modifications, the function shown above can be adapted to return other quantities needed (eg. Jacobian) by the optimisation algorithm.</p>
+<h3 id="python-minimize-from-scipyoptimize">Python <code>minimize()</code> from <code>scipy.optimize</code></h3>
+<p>These classical methods have been tested with qbOS:</p>
+<ul>
+<li>
+<p><code>"SLSQP"</code></p>
+<p>```python
+import qbos_op
+from scipy.optimize import Bounds,minimize
+import numpy as np</p>
+<p>theta0 = np.array([0.01*np.pi])
+qvbound = Bounds(-np.pi,np.pi,True)</p>
+<p>def qbvqe(theta):
+    qv=qbos_op.vqe()
+    qv.theta = qbos_op.ND()
+    qv.sn = 1024   # Number of shots.  Set to 0 for non-stochastic VQE</p>
+<pre><code># Deuteron Hamiltonian with aswap ansatz
+qv.qn = 2  # Number of qubits
+qv.ham = "5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1"
+qv.ansatz = "aswap"
+qv.aswapn = 1
+qv.maxeval = 1  # initial energy only - no internal optimisation steps
+if (theta.size == 1):
+    qv.theta[0][0][0] = theta
+else :
+    for el in range(theta.size):
+        qv.theta[0][0][el] = theta[el]
+
+qv.run()
+return qv.out_energy[0][0][0]
+</code></pre>
+<p>res = minimize(qbvqe, theta0, method='SLSQP', options={'maxiter': 200, 'ftol': 1e-9}, bounds=qvbound)
+print(res.fun, res.x[0] , res.nit)
+```</p>
+</li>
+<li>
+<p><code>NFT (Nakanishi-Fujii-Todo)</code></p>
+<p><a href="https://github.com/ken-nakanishi/nftopt">GitHub - ken-nakanishi/nftopt: Nakanishi-Fujii-Todo method for scipy.optimize</a></p>
+<p>```python
+import numpy as np
+from scipy.optimize import minimize
+from nftopt import nakanishi_fujii_todo
+import qbos_op</p>
+<p>def qbvqe(theta):
+    qv=qbos_op.vqe()
+    qv.sn = 0   # No shots - deterministic VQE
+    qv.ham = "0.04207897647782276 + 0.17771287465139946 Z0 + 0.1777128746513994 Z1 + -0.24274280513140462 Z2 - 0.17059738328801052 Z0Z1 + 0.6622334 Z0Z1Z2Z3"
+    qv.qn = 4  # Number of qubits
+    qv.ansatz = "default"
+    qv.ansatz_depth = 2
+    qv.maxeval = 1
+    qv.theta = qbos_op.ND()</p>
+<pre><code># Adjust all elements of theta to be within [-pi,pi]
+for el in range(len(theta)):
+    pz0 = theta[el]
+    while (pz0 &gt; 3.14159) :
+        pz0 -= 2*3.14159
+    while (pz0 &lt; -3.14159) :
+        pz0 += 2*3.14159
+    qv.theta[0][0][el] = pz0
+qv.run()
+return qv.out_energy[0][0][0]
+</code></pre>
+<p>res = minimize(qbvqe, [0.51<em>np.pi]</em>24, args=(), method=nakanishi_fujii_todo, options={'maxfev': 1024})
+print(res.fun, res.x, res.nit)</p>
+<p>```</p>
+</li>
+<li>
+<p>Other methods</p>
+<p><a href="https://docs.scipy.org/doc/scipy/reference/optimize.html">Optimization and root finding (scipy.optimize) - SciPy v1.7.1 Manual</a></p>
+</li>
+</ul>
+<h3 id="python-minimize-from-skquantopt">Python <code>minimize()</code> from <code>skquant.opt</code></h3>
+<p>These methods have been tested with qbOS:</p>
+<ul>
+<li>
+<p><code>"imfil"</code></p>
+<p>```python
+import qbos_op
+import numpy as np
+import skquant.opt</p>
+<p>theta0 = np.array([0.01*np.pi])
+qvboundskq = np.array([[-3.14159,3.14159]],dtype=float)</p>
+<p>def qbvqe(theta):
+    qv=qbos_op.vqe()
+    qv.theta = qbos_op.ND()
+    qv.sn = 1024   # Number of shots.  Set to 0 for non-stochastic VQE</p>
+<pre><code># Deuteron Hamiltonian with aswap ansatz
+qv.qn = 2  # Number of qubits
+qv.ham = "5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1"
+qv.ansatz = "aswap"
+qv.aswapn = 1
+qv.maxeval = 1  # initial energy only - no internal optimisation steps
+if (theta.size == 1):
+    qv.theta[0][0][0] = theta
+else :
+    for el in range(theta.size):
+        qv.theta[0][0][el] = theta[el]
+
+qv.run()
+return qv.out_energy[0][0][0]
+</code></pre>
+<p>reskq,history = skquant.opt.minimize(qbvqe, np.array([0.01*np.pi]), qvboundskq, 200, method='imfil')
+print(reskq.optval, reskq.optpar, history.size)
+```</p>
+</li>
+<li>
+<p>Other methods</p>
+<p><a href="https://scikit-quant.readthedocs.io/en/latest/snobfit.html">SnobFit - sckit-quant 0.8.1 documentation</a></p>
+</li>
+</ul>
+<h3 id="built-in-qbos-classical-optimisers">Built-in qbOS classical optimisers</h3>
+<p>These internal options can be enabled by setting <code>maxeval</code> to a value &gt; 1.</p>
+<ul>
+<li><code>maxeval</code> sets the number of evaluations of the quantum kernel by the internal optimiser, default: 1 (no internal optimisation loop)</li>
+<li><code>method</code> sets the algorithm used by the internal optimiser, default: "nelder-mead"<ul>
+<li><code>"nelder-mead"</code></li>
+<li><code>"l-bfgs"</code></li>
+<li><code>"cobyla"</code></li>
+<li><code>"adam"</code></li>
+<li><code>"sgd"</code></li>
+<li><code>"momentum-sgd"</code></li>
+<li><code>"momentum-nestorov"</code></li>
+<li><code>"rms-prop"</code></li>
+<li><code>"gd"</code></li>
+</ul>
+</li>
+<li><code>functol</code> sets the function tolerance, default: 1.0e-6</li>
+<li><code>gradient_strategy</code> sets the method for calculating gradients, default: "parameter-shift"<ul>
+<li><code>"parameter-shift"</code></li>
+<li><code>"central"</code></li>
+<li><code>"forward"</code></li>
+<li><code>"backward"</code></li>
+<li>
+<p><code>"autodiff"</code></p>
+<p><aside>
+❗ <code>"autodiff"</code> is not compatible with <code>u</code> (the universal single-qubit rotation gate). </p>
+<p>In your ansatz, convert any <code>u</code> gates into the equivalent <code>Rx</code> and <code>Rz</code> gate sequence using this expression:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo stretchy="false">(</mo><mi>θ</mi><mo separator="true">,</mo><mi>ϕ</mi><mo separator="true">,</mo><mi>λ</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>R</mi><mi>z</mi></msub><mo stretchy="false">(</mo><mi>ϕ</mi><mo stretchy="false">)</mo><mo>∗</mo><msub><mi>R</mi><mi>x</mi></msub><mo stretchy="false">(</mo><mo>−</mo><mn>0.5</mn><mi>π</mi><mo stretchy="false">)</mo><mo>∗</mo><msub><mi>R</mi><mi>z</mi></msub><mo stretchy="false">(</mo><mi>θ</mi><mo stretchy="false">)</mo><mo>∗</mo><msub><mi>R</mi><mi>x</mi></msub><mo stretchy="false">(</mo><mn>0.5</mn><mi>π</mi><mo stretchy="false">)</mo><mo>∗</mo><msub><mi>R</mi><mi>z</mi></msub><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">U(\theta, \phi, \lambda) = R_z(\phi)*R_x(-0.5\pi)*R_z(\theta)*R_x(0.5\pi)*R_z(\lambda)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">ϕ</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">λ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">ϕ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">−</span><span class="mord">0.5</span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">x</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord">0.5</span><span class="mord mathnormal" style="margin-right:0.03588em;">π</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∗</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.04398em;">z</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mclose">)</span></span></span></span></p>
+</aside>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="obtaining-convergence-information-from-the-internal-qbos-optimisers">Obtaining convergence information from the internal qbOS optimisers</h3>
+<ul>
+<li>
+<p><code>out_energy</code>: Energy trace</p>
+<p><code>out_energy[0][0][0]</code> is the optimum energy</p>
+<p><code>out_energy[0][0][1]</code> is the energy at the first iteration</p>
+<p><code>out_energy[0][0][m]</code> is the energy at iteration <code>m</code></p>
+<p><code>out_energy[0][0][maxeval]</code> is the energy at the last iteration</p>
+</li>
+<li>
+<p><code>out_theta</code>: Ansatz parameter trace</p>
+<p>Using <code>stride = len(theta)</code>, then element <code>k</code> of <code>theta</code> can be traced using these expressions:</p>
+<p><code>out_theta[0][0][k]</code> is the optimum value of the parameter</p>
+<p><code>out_theta[0][0][k+1*stride]</code> is the value of the parameter at the first iteration</p>
+<p><code>out_theta[0][0][k+m*stride]</code> is the value of the parameter at iteration <code>m</code></p>
+<p><code>out_theta[0][0][k+maxeval*stride]</code> is the value of the parameter at the last iteration</p>
+</li>
+</ul>
+<h3 id="example-1-two-qubit-deuteron-hamiltonian">Example 1: two-qubit deuteron Hamiltonian</h3>
+<p>Let us now focus on a physical Hamiltonian matrix, where the ground state energy is known. The following represents <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">N=2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">2</span></span></span></span> (two-qubit) deuteron Hamiltonian: <code>5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1</code>. The energy is known to be <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1.74886</mn></mrow><annotation encoding="application/x-tex">-1.74886</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">1.74886</span></span></span></span> in sector <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q=1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> and in the same energy unit as the Hamiltonian elements.</p>
+<p>Now, imagine you intend to run VQE for the above with initial angle <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mn>1</mn></msub><mo>=</mo><mn>0.11</mn></mrow><annotation encoding="application/x-tex">\theta_1=0.11</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em;">θ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0.11</span></span></span></span>, choosing the particle sector <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn></mrow><annotation encoding="application/x-tex">1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span>, setting the classical optimiser to the non-linear <a href="https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method">Nelder-Mead</a> method with <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>100</mn></mrow><annotation encoding="application/x-tex">100</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">100</span></span></span></span> maximum function evaluations and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.0</mn><mi>e</mi><mo>−</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">1.0e-5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1.0</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">5</span></span></span></span> function tolerance.  The notebook attached below shows how this is done in qbOS:</p>
+<p><a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2/qbOS_Deuteron2aswap.ipynb">qbOS_Deuteron2aswap.ipynb</a></p>
+<h3 id="example-2-a-four-qubit-classical-hamiltonian">Example 2: a four-qubit classical Hamiltonian</h3>
+<p>Many graph optimization problems can be written in terms of a classical Hamiltonian, where it only depends on the spin in the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Z</mi></mrow><annotation encoding="application/x-tex">Z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.07153em;">Z</span></span></span></span>-direction. For this, we recommend using either a QAOA ansatz if there is an exploitable substructure (e.g. a fixed Hamming distance of solution), or HEA (the default ansatz in qbOS VQE) for generic problems. </p>
+<p>As an example, for the VQE Hamiltonian string given by <code>0.04207897647782276 + 0.17771287465139946 Z0 + 0.1777128746513994 Z1 + -0.24274280513140462 Z2 - 0.17059738328801052 Z0Z1 + 0.6622334 Z0Z1Z2Z3</code> with minimum eigenvalue <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>−</mo><mn>1.38892036...</mn></mrow><annotation encoding="application/x-tex">-1.38892036...</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">−</span><span class="mord">1.38892036...</span></span></span></span> </p>
+<p><a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2/qbOS_VQEClassical4default.ipynb">qbOS_VQEClassical4default.ipynb</a></p>
+<h3 id="example-3-same-setup-as-for-example-2-except-specifying-a-file-that-contains-a-user-defined-ansatz">Example 3: same setup as for Example 2, except specifying a file that contains a user-defined ansatz</h3>
+<p><a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2/qbOS_VQECustom%201.ipynb">qbOS_VQECustom.ipynb</a></p>
+<h3 id="example-4-finding-the-ground-state-energy-of-<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">H_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>-using-uccsd-ansatz">Example 4:  finding the ground state energy of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">H_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> using UCCSD ansatz</h3>
+<p><a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2/qbOS_H2_UCCSD.ipynb">qbOS_H2_UCCSD.ipynb</a></p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+
+        <div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Quantum Comparator in qbOS - qbOS Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
+        <link href="../css/extra.css" rel="stylesheet">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="../index.html">qbOS Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../index.html" class="nav-link">qbOS Documentation</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx01.html" class="nav-link">0. About qbOS</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx02.html" class="nav-link">1. Quickstart</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx03.html" class="nav-link">2. Learn Quantum Gates</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx04.html" class="nav-link">3. Circuit builders</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx05.html" class="nav-link">4. qbOS Modules and Applications</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx06.html" class="nav-link">5. Hardware Specifications and Limitations</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx07.html" class="nav-link">6. Types and Arrays in qbOS (more examples)</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx08.html" class="nav-link">7. Download and Installation</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx09.html" class="nav-link">8. Starting a qbOS Jupyter session</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx10.html" class="nav-link">9. Glossary of Tools and Quantum Gates</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../xx11.html" class="nav-link">10. Parallel Operations in qbOS</a>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">qbOS Documentation 220913 <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="AWS%20Braket%20offload%20in%20qbOS%204631d07005d74d5898dc4ee153199663.html" class="dropdown-item">AWS Braket offload in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="AWS%20Spot-Market%20instances%20695d2d72ff0b4916aec906b3ac43b74a.html" class="dropdown-item">AWS Spot-Market instances</a>
+</li>
+                                    
+<li>
+    <a href="Amplitude%20Amplification%20in%20qbOS%20625436cc7b4d465c93c94af9da6d9457.html" class="dropdown-item">Amplitude Amplification in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Amplitude%20Estimation%20in%20qbOS%20197b2063bef447718fdfa185d82d829f.html" class="dropdown-item">Amplitude Estimation in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Compare%20in%20qbOS%20%28coming%20220807%29%20961e0695a65f4cae8c12e8148a2b204b.html" class="dropdown-item">Compare > in qbOS (coming 220807)</a>
+</li>
+                                    
+<li>
+    <a href="Configuring%20qbOS%20for%20Quantum%20Brilliance%20%28QDK%29%20hard%20ff8b9b8aff664cba9c89e2637922ebba.html" class="dropdown-item">Configuring qbOS for Quantum Brilliance (QDK) hardware</a>
+</li>
+                                    
+<li>
+    <a href="Efficient%20Encoding%20in%20qbOS%202407bb4867fd495294d9274e85923f4a.html" class="dropdown-item">Efficient Encoding in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Exponential%20Search%20in%20qbOS%209daf531c584f4cadb31697f8cb94b544.html" class="dropdown-item">Exponential Search in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="First%20Release%20Notes%20%28Sept%202021%29%2057042bb79eef463d9ebab68eddcad6e5.html" class="dropdown-item">First Release Notes (Sept 2021)</a>
+</li>
+                                    
+<li>
+    <a href="GUI%20circuit%20composition%20and%20conversion%20to%20QPU%20kern%204f46ef713a5743e192aa79ec6f804d5d.html" class="dropdown-item">GUI circuit composition and conversion to QPU kernel for execution in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="GUI%20circuit%20composition%20with%20pyQuirk%20f7161f17d431491c9497e928d3486cdc.html" class="dropdown-item">GUI circuit composition with pyQuirk</a>
+</li>
+                                    
+<li>
+    <a href="Inverse%20Circuit%20in%20qbOS%205c88dd6ec8eb45d998fc2e184584d6c9.html" class="dropdown-item">Inverse Circuit in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Multiplication%20in%20qbOS%20331e71fa0f40468abdc6d33ef990796d.html" class="dropdown-item">Multiplication in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Optimisation%20with%20QAOA%20in%20qbOS%2069aae61a872045adac72410f02d977e5.html" class="dropdown-item">Optimisation with QAOA in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Pawsey%20Nimbus%20Cloud%2039cb71b3471045b388e4593d7ae2d240.html" class="dropdown-item">Pawsey Nimbus Cloud</a>
+</li>
+                                    
+<li>
+    <a href="Proper%20Fraction%20Division%20in%20qbOS%200a0a79f708ec4025a5893b0509c3e931.html" class="dropdown-item">Proper Fraction Division in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="QAOA%20extensions%20in%20qbOS%201ce0bfe95e304a978cad6dada58ef0fd.html" class="dropdown-item">QAOA extensions in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Comparator%20in%20qbOS%20036f305a7273456ab87315e6f4cb44db.html" class="dropdown-item active">Quantum Comparator in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Equality%20Checker%20in%20qbOS%2020fb41766e754abc814df7e5bae350f6.html" class="dropdown-item">Quantum Equality Checker in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Fourier%20Transform%20%28QFT%29%20086133df66464393834202921b561874.html" class="dropdown-item">Quantum Fourier Transform (QFT)</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Gates%207820f4f28e564f69bd74a585bc527471.html" class="dropdown-item">Quantum Gates</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20Phase%20Estimation%20in%20qbOS%20ede1f2c66aff426f870bf620002c31ee.html" class="dropdown-item">Quantum Phase Estimation in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Quantum%20arithmetic%20operations%20912925f8ab1644d8821fd5645df3e911.html" class="dropdown-item">Quantum arithmetic operations</a>
+</li>
+                                    
+<li>
+    <a href="Random%20quantum%20circuit%20sampling%20with%20qbOS%20ad6a723f9ebf49e7a0967b999a63f132.html" class="dropdown-item">Random quantum circuit sampling with qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Ripple%20Carry%20Adder%20in%20qbOS%20c90a303c2b7641e2903b0e299d29d0df.html" class="dropdown-item">Ripple Carry Adder in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Subtraction%20in%20qbOS%20d894d29f00284d878a498964be70f399.html" class="dropdown-item">Subtraction in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Usage%20examples%20of%20qbos%20MapNC%20type%20e04ad5447638476184ed7a21f05e966b.html" class="dropdown-item">Usage/examples of qbos.MapNC type</a>
+</li>
+                                    
+<li>
+    <a href="Usage%20examples%20of%20qbos%20MapND%20type%20807974c9c8c94f0c842b601924105d17.html" class="dropdown-item">Usage/examples of qbos.MapND type</a>
+</li>
+                                    
+<li>
+    <a href="Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2.html" class="dropdown-item">Variational Quantum Eigensolver (VQE) in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="Visualisation%20and%20Data%20Science%20in%20qbOS%20e375e48655ea4a04889a3b915daded2c.html" class="dropdown-item">Visualisation and Data Science in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="v0%20Python%20Plugin%2017de6406325c411db2bffa0b9c6e38d0.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+<li>
+    <a href="v0%20Python%20Plugin%20c7728f45b0344bca8115c48dbbfd078b.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+<li>
+    <a href="v0%20Python%20Plugin%20cb380f16dca64c419ff2b339dd34f0ed.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment   Python code for viewing fixed glo d4800077ec6f41edbee7a34819f21dcc</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/Shots%20068cdd3c91ac405dbb6dc6598b56b4a4.html" class="dropdown-item">Shots</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/Simulator%20f7521595c2924452b7201e93cac56955.html" class="dropdown-item">Simulator</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/XASM%20flag%204cc1565f647642849005b9f4d659499c.html" class="dropdown-item">XASM flag</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment   Python code for viewing shot resu ba1d8065630f480fbb0e2dcf8d999fb4</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Experiment%200%20%282-qubit%20QFT%29%20bb722e94bfd94e6188da4250a581cc91.html" class="dropdown-item">Experiment 0 (2-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Experiment%201%20%284-qubit%20QFT%29%20b3d275a493494fe7a8a0e64aa572e2f1.html" class="dropdown-item">Experiment 1 (4-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Untitled%20289ae712a41947dab8cd4a75ac3dadad.html" class="dropdown-item">Untitled</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment Design 97159967bced45808d9bbef5fc861dea</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Experiment%200%20%282-qubit%20QFT%29%20dbef22cef93445d98b308bcade1e01e9.html" class="dropdown-item">Experiment 0 (2-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Experiment%201%20%284-qubit%20QFT%29%20fcfefecc80774e1982015894888395fb.html" class="dropdown-item">Experiment 1 (4-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Untitled%20a2a2550ee27f46d287613510dc2dde81.html" class="dropdown-item">Untitled</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment Fixed Global Options de0784ece18847ebb02a5475c69aca97</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/Shots%2038c179952af342b4ad5494946a33ad31.html" class="dropdown-item">Shots</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/Simulator%20d43da6148a9f40f6b88fc733646a8d15.html" class="dropdown-item">Simulator</a>
+</li>
+            
+<li>
+    <a href="QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/XASM%20flag%2074588cd5eeb9487d9942d01418756044.html" class="dropdown-item">XASM flag</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a rel="prev" href="QAOA%20extensions%20in%20qbOS%201ce0bfe95e304a978cad6dada58ef0fd.html" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="Quantum%20Equality%20Checker%20in%20qbOS%2020fb41766e754abc814df7e5bae350f6.html" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#quantum-comparator-in-qbos" class="nav-link">Quantum Comparator in qbOS</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#introduction" class="nav-link">Introduction</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#original-circuit-implementation" class="nav-link">Original Circuit Implementation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#qb-implementation" class="nav-link">QB Implementation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#turning-the-comparator-into-an-oracle-for-amplitude-amplification" class="nav-link">Turning the Comparator into an Oracle for Amplitude Amplification</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#qbos" class="nav-link">qbOS</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#standard-comparator" class="nav-link">Standard Comparator</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#as-oracle" class="nav-link">As Oracle</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="1"><a href="#example" class="nav-link">Example</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#standard-comparator_1" class="nav-link">Standard Comparator</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#as-oracle_1" class="nav-link">As Oracle</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css"
+  integrity="sha384-R4558gYOUz8mP9YWpZJjofhk+zx0AS11p36HnD2ZKj/6JR5z27gSSULCNHIRReVs"
+  crossorigin="anonymous" />
+
+<style type="text/css">
+    .katex img {
+      object-fit: fill;
+      padding: unset;
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: inherit;
+    }
+</style>
+<h1 id="quantum-comparator-in-qbos">Quantum Comparator in qbOS</h1>
+<h1 id="introduction">Introduction</h1>
+<p>In some applications it is necessary to compare two values to determine which is larger. To achieve this, the two values are encoded as bit strings within quantum registers and the comparator circuit (see below) is implemented. Then by measuring two “flag” qubits, it is possible to determine which of the two bit strings was larger. </p>
+<p>We require the comparator for the exponential search sub-routine: we want to test whether the trial score is greater than the current best score. In particular, given a trial state <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>ψ</mi><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{\psi}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ψ</span></span><span class="mclose">⟩</span></span></span></span></span> and scoring function <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi></mrow><annotation encoding="application/x-tex">F</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span></span></span></span>, the comparator should work as:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>m</mi><mi>p</mi><mo>∘</mo><mi>F</mi><mi mathvariant="normal">∣</mi><mi>ψ</mi><mo stretchy="false">⟩</mo><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>1</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>trial score &gt; test score</mtext></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mn>0</mn></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">cmp \circ F\ket{\psi} = \begin{cases} 1 &amp; \text{trial score &gt; test score} \\ 0 &amp; \text{otherwise} \end{cases}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6389em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">c</span><span class="mord mathnormal">m</span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">∘</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ψ</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3em;vertical-align:-1.25em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">1</span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">trial score &gt; test score</span></span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<h2 id="original-circuit-implementation">Original Circuit Implementation</h2>
+<p>Given two bit strings <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mi>a</mi><mo stretchy="false">⟩</mo><mo separator="true">,</mo><mi mathvariant="normal">∣</mi><mi>b</mi><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{a},\ket{b}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">a</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">b</span></span><span class="mclose">⟩</span></span></span></span></span> of length <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span>, the comparator circuit uses <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">3n-1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">3</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">1</span></span></span></span> ancilla qubits to perform the operation:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mrow><mi>C</mi><mi>M</mi><mi>P</mi></mrow></msub><mi mathvariant="normal">∣</mi><mi>a</mi><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mi>b</mi><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><msup><mn>0</mn><mrow><mo>⊗</mo><mn>3</mn><mi>n</mi><mo>−</mo><mn>3</mn></mrow></msup><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo><mo>↦</mo><mi mathvariant="normal">∣</mi><mi>a</mi><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mi>b</mi><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>u</mi><mi>n</mi><mi>i</mi><mi>m</mi><mi>p</mi><mi>o</mi><mi>r</mi><mi>t</mi><mi>a</mi><mi>n</mi><mi>t</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>1</mn></msub></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>2</mn></msub></mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">U_{CMP}\ket{a}\ket{b}\ket{0^{\otimes 3n-3}}\ket{0}\ket{0} \mapsto \ket{a}\ket{b}\ket{unimportant}\ket{flag_1}\ket{flag_2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">CMP</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">a</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">b</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">⊗</span><span class="mord mtight">3</span><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">3</span></span></span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">↦</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">a</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">b</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">u</span><span class="mord mathnormal">nim</span><span class="mord mathnormal">p</span><span class="mord mathnormal" style="margin-right:0.02778em;">or</span><span class="mord mathnormal">t</span><span class="mord mathnormal">an</span><span class="mord mathnormal">t</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span></span></span></span></p>
+<p>Then we have the outcomes:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>1</mn></msub></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>2</mn></msub></mrow><mo stretchy="false">⟩</mo><mo>=</mo><mi mathvariant="normal">∣</mi><mn>1</mn><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{flag_1}\ket{flag_2} = \ket{1}\ket{0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">1</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span></span></span></span> if <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&gt;</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a&gt;b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>1</mn></msub></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>2</mn></msub></mrow><mo stretchy="false">⟩</mo><mo>=</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{flag_1}\ket{flag_2} = \ket{0}\ket{0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span></span></span></span> if <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a=b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>1</mn></msub></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>2</mn></msub></mrow><mo stretchy="false">⟩</mo><mo>=</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mn>1</mn><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{flag_1}\ket{flag_2} = \ket{0}\ket{1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">1</span></span><span class="mclose">⟩</span></span></span></span></span> if <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a&lt;b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathnormal">a</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal">b</span></span></span></span></p>
+<p>The following circuit from [<a href="https://www.researchgate.net/publication/228574906_Quantum_bit_string_comparator_Circuits_and_applications">Oliveira2007</a>] is used to implement <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mrow><mi>C</mi><mi>M</mi><mi>P</mi></mrow></msub></mrow><annotation encoding="application/x-tex">U_{CMP}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">U</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.109em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.13889em;">CMP</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: </p>
+<p><img alt="Untitled" src="Quantum%20Comparator%20in%20qbOS%20036f305a7273456ab87315e6f4cb44db/Untitled.png" /></p>
+<h2 id="qb-implementation">QB Implementation</h2>
+<p>For our purposes, we only care about whether the trial score is greater than the best score. That is, we don’t need to distinguish between the cases trial score &lt; best score and trial score = best score. Therefore, we can restrict ourselves to just considering the first flag qubit so that:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>1</mn></msub></mrow><mo stretchy="false">⟩</mo><mo>=</mo><mi mathvariant="normal">∣</mi><mn>1</mn><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{flag_1} = \ket{1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">1</span></span><span class="mclose">⟩</span></span></span></span></span>  if <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>r</mi><mi>i</mi><mi>a</mi><mi>l</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi><mo>&gt;</mo><mi>B</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">TrialScore &gt; BestScore</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">ia</span><span class="mord mathnormal" style="margin-right:0.05764em;">lS</span><span class="mord mathnormal">core</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right:0.05764em;">tS</span><span class="mord mathnormal">core</span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><msub><mi>g</mi><mn>1</mn></msub></mrow><mo stretchy="false">⟩</mo><mo>=</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{flag_1} = \ket{0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span></span></span></span> otherwise</p>
+<p>In anticipation of integrating this circuit with the exponential search algorithm, we will assume the following register structure:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>T</mi><mi>r</mi><mi>i</mi><mi>a</mi><mi>l</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><mi>g</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>B</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>a</mi><mi>n</mi><mi>c</mi><mi>i</mi><mi>l</mi><mi>l</mi><mi>a</mi></mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{TrialScore}\ket{flag}\ket{BestScore}\ket{ancilla}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">ia</span><span class="mord mathnormal" style="margin-right:0.05764em;">lS</span><span class="mord mathnormal">core</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right:0.05764em;">tS</span><span class="mord mathnormal">core</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">an</span><span class="mord mathnormal">c</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.01968em;">ll</span><span class="mord mathnormal">a</span></span><span class="mclose">⟩</span></span></span></span></span></p>
+<p>NB: By default we assume that the scores are provided with LSB first qubit ordering</p>
+<h2 id="turning-the-comparator-into-an-oracle-for-amplitude-amplification">Turning the Comparator into an Oracle for Amplitude Amplification</h2>
+<p>The comparator circuit may be used as an oracle in an Amplitude Amplification algorithm / Grover’s Search algorithm by using a phase kickback method on the flag qubit. Recall that an oracle performs the following operation:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>r</mi><mi>a</mi><mi>c</mi><mi>l</mi><mi>e</mi><mi mathvariant="normal">∣</mi><mi>ψ</mi><mo stretchy="false">⟩</mo><mo>=</mo><mrow><mo fence="true">{</mo><mtable rowspacing="0.36em" columnalign="left left" columnspacing="1em"><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mo>−</mo><mi mathvariant="normal">∣</mi><mi>ψ</mi><mo stretchy="false">⟩</mo></mrow></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mrow><mtext>if</mtext><mi mathvariant="normal">∣</mi><mi>ψ</mi><mo stretchy="false">⟩</mo><mtext>is in the good subspace</mtext></mrow></mstyle></mtd></mtr><mtr><mtd><mstyle scriptlevel="0" displaystyle="false"><mi mathvariant="normal">∣</mi><mi>ψ</mi><mo stretchy="false">⟩</mo></mstyle></mtd><mtd><mstyle scriptlevel="0" displaystyle="false"><mtext>otherwise</mtext></mstyle></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">Oracle\ket{\psi} = \begin{cases} -\ket{\psi} &amp; \text{if} \ket{\psi} \text{is in the good subspace} \\ \ket{\psi} &amp; \text{otherwise} \end{cases}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">a</span><span class="mord mathnormal">c</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">e</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ψ</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:3em;vertical-align:-1.25em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size4">{</span></span><span class="mord"><span class="mtable"><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord">−</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ψ</span></span><span class="mclose">⟩</span></span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ψ</span></span><span class="mclose">⟩</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span><span class="arraycolsep" style="width:1em;"></span><span class="col-align-l"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.69em;"><span style="top:-3.69em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">if</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">ψ</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord text"><span class="mord">is in the good subspace</span></span></span></span><span style="top:-2.25em;"><span class="pstrut" style="height:3.008em;"></span><span class="mord"><span class="mord text"><span class="mord">otherwise</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.19em;"><span></span></span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<p>The overall effect of the comparator is to perform a bit flip on the flag qubit if the trial score is greater than the best score. If we prepare the flag qubit in the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mo lspace="0em" rspace="0em">−</mo><mo stretchy="false">⟩</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mn>2</mn></msqrt></mfrac><mo stretchy="false">(</mo><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo><mo>−</mo><mi mathvariant="normal">∣</mi><mn>1</mn><mo stretchy="false">⟩</mo><mo stretchy="false">)</mo><mo>=</mo><mi>H</mi><mi>X</mi><mi mathvariant="normal">∣</mi><mn>0</mn><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{-} = \frac{1}{\sqrt{2}} (\ket{0}-\ket{1}) = HX\ket{0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">−</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.3831em;vertical-align:-0.538em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.551em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord sqrt mtight"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9128em;"><span class="svg-align" style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mtight" style="padding-left:0.833em;"><span class="mord mtight">2</span></span></span><span style="top:-2.8728em;"><span class="pstrut" style="height:3em;"></span><span class="hide-tail mtight" style="min-width:0.853em;height:1.08em;"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSc0MDBlbScgaGVpZ2h0PScxLjA4ZW0nIHZpZXdCb3g9JzAgMCA0MDAwMDAgMTA4MCcgcHJlc2VydmVBc3BlY3RSYXRpbz0neE1pbllNaW4gc2xpY2UnPjxwYXRoIGQ9J005NSw3MDIKYy0yLjcsMCwtNy4xNywtMi43LC0xMy41LC04Yy01LjgsLTUuMywtOS41LC0xMCwtOS41LC0xNApjMCwtMiwwLjMsLTMuMywxLC00YzEuMywtMi43LDIzLjgzLC0yMC43LDY3LjUsLTU0CmM0NC4yLC0zMy4zLDY1LjgsLTUwLjMsNjYuNSwtNTFjMS4zLC0xLjMsMywtMiw1LC0yYzQuNywwLDguNywzLjMsMTIsMTAKczE3MywzNzgsMTczLDM3OGMwLjcsMCwzNS4zLC03MSwxMDQsLTIxM2M2OC43LC0xNDIsMTM3LjUsLTI4NSwyMDYuNSwtNDI5CmM2OSwtMTQ0LDEwNC41LC0yMTcuNywxMDYuNSwtMjIxCmwwIC0wCmM1LjMsLTkuMywxMiwtMTQsMjAsLTE0Ckg0MDAwMDB2NDBIODQ1LjI3MjQKcy0yMjUuMjcyLDQ2NywtMjI1LjI3Miw0NjdzLTIzNSw0ODYsLTIzNSw0ODZjLTIuNyw0LjcsLTksNywtMTksNwpjLTYsMCwtMTAsLTEsLTEyLC0zcy0xOTQsLTQyMiwtMTk0LC00MjJzLTY1LDQ3LC02NSw0N3oKTTgzNCA4MGg0MDAwMDB2NDBoLTQwMDAwMHonLz48L3N2Zz4="/></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1272em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.538em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mopen">(</span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">1</span></span><span class="mclose">⟩</span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="mord mathnormal" style="margin-right:0.07847em;">X</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">0</span></span><span class="mclose">⟩</span></span></span></span></span> state then the bit flip will map <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mo lspace="0em" rspace="0em">−</mo><mo stretchy="false">⟩</mo><mo>↦</mo><mo>−</mo><mi mathvariant="normal">∣</mi><mo lspace="0em" rspace="0em">−</mo><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{-} \mapsto -\ket{-}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">−</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">↦</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">−</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord">−</span></span><span class="mclose">⟩</span></span></span></span></span> if the trial score is greater than the best score and will be unchanged otherwise. Hence, the comparator is acting like an oracle!</p>
+<p>However, the comparator as shown does not reset the ancilla qubits. When we use the comparator as an oracle, we need to reuse these ancilla, so they must be reset. To do this, we need to:</p>
+<ol>
+<li>perform the comparator</li>
+<li>copy the result to an external flag</li>
+<li>perform the comparator inverse</li>
+</ol>
+<p>This is shown in the below picture where the top qubit is the (now external) flag, noting that we’re still using the phase kickback method</p>
+<p><img alt="Untitled" src="Quantum%20Comparator%20in%20qbOS%20036f305a7273456ab87315e6f4cb44db/Untitled%201.png" /></p>
+<p>Both a stand-alone comparator, and an oracle version of the comparator are implemented in qbOS</p>
+<h1 id="qbos">qbOS</h1>
+<h2 id="standard-comparator">Standard Comparator</h2>
+<p>New qbOS Python <code>Circuit</code> class method: <code>comparator</code></p>
+<p>Inputs:</p>
+<ul>
+<li><code>best_score</code>: int value</li>
+<li><code>num_scoring_qubits</code>: int value</li>
+<li>Optional inputs:<ul>
+<li><code>trial_score_qubits</code>: list of ints</li>
+<li><code>flag_qubit</code>: int value</li>
+<li><code>best_score_qubits</code>: list of ints</li>
+<li><code>ancilla_qubits</code>: list of ints</li>
+<li><code>is_LSB</code>: bool</li>
+</ul>
+</li>
+</ul>
+<h2 id="as-oracle">As Oracle</h2>
+<p>New qbOS Python <code>Circuit</code> class method: <code>comparator_as_oracle</code></p>
+<p>Inputs:</p>
+<ul>
+<li><code>best_score</code>: int value</li>
+<li><code>num_scoring_qubits</code>: int value</li>
+<li>Optional inputs:<ul>
+<li><code>trial_score_qubits</code>: list of ints</li>
+<li><code>flag_qubit</code>: int value</li>
+<li><code>best_score_qubits</code>: list of ints</li>
+<li><code>ancilla_qubits</code>: list of ints</li>
+<li><code>is_LSB</code>: bool</li>
+</ul>
+</li>
+</ul>
+<h1 id="example">Example</h1>
+<h2 id="standard-comparator_1">Standard Comparator</h2>
+<p>Use qbOS’s <code>comparator</code> to compare two-bit bit strings.</p>
+<p>First, we set up the circuit instance:</p>
+<pre><code class="language-python">import qbos as qb
+import numpy as np
+tqb = qb.core()
+tqb.qb12()
+circ = qb.Circuit()
+</code></pre>
+<p>Now we set the number of qubits used to encode the scores:</p>
+<pre><code class="language-python"># number of qubits encoding scores
+num_scoring_qubits = 2
+</code></pre>
+<p>Now define the current BestScore and the TrialScore to be compared:</p>
+<pre><code class="language-python"># BestScore
+BestScore = 2
+
+# TrialScore
+TrialScore = 3
+</code></pre>
+<p>Now we have to encode the TrialScore as a bit string in LSB format:</p>
+<pre><code class="language-python"># TrialScore state preparation
+TestScore_bin = bin(TestScore)[2:].zfill(num_scoring_qubits)
+TestScore_bin_LSB = [TestScore_bin[-i] for i in range(1, num_scoring_qubits+1)]
+for k in range(0,num_scoring_qubits):
+    if TestScore_bin_LSB[k] == &quot;1&quot;:
+        circ.x(k)
+</code></pre>
+<p>Note that the BestScore is encoded within the comparator module itself.</p>
+<p>Finally, finish building the circuit by adding the comparator and measuring the flag qubit. Recall that the comparator assumes the register structure </p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">∣</mi><mrow><mi>T</mi><mi>r</mi><mi>i</mi><mi>a</mi><mi>l</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>f</mi><mi>l</mi><mi>a</mi><mi>g</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>B</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><mo stretchy="false">⟩</mo><mi mathvariant="normal">∣</mi><mrow><mi>a</mi><mi>n</mi><mi>c</mi><mi>i</mi><mi>l</mi><mi>l</mi><mi>a</mi></mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\ket{TrialScore}\ket{flag}\ket{BestScore}\ket{ancilla}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">ia</span><span class="mord mathnormal" style="margin-right:0.05764em;">lS</span><span class="mord mathnormal">core</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10764em;">f</span><span class="mord mathnormal" style="margin-right:0.01968em;">l</span><span class="mord mathnormal">a</span><span class="mord mathnormal" style="margin-right:0.03588em;">g</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right:0.05764em;">tS</span><span class="mord mathnormal">core</span></span><span class="mclose">⟩</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mord">∣</span><span class="mord"><span class="mord mathnormal">an</span><span class="mord mathnormal">c</span><span class="mord mathnormal">i</span><span class="mord mathnormal" style="margin-right:0.01968em;">ll</span><span class="mord mathnormal">a</span></span><span class="mclose">⟩</span></span></span></span></span> </p>
+<p>so that the flag qubit has index num_scoring_qubits:</p>
+<pre><code class="language-python"># Add comparator
+circ.comparator(BestScore, num_scoring_qubits)
+
+# Measure flag qubit
+circ.measure(num_scoring_qubits
+</code></pre>
+<p>Then run the circuit and return the measurement results.</p>
+<pre><code class="language-python"># Run:
+tqb.ir_target = circ
+tqb.acc = &quot;qpp&quot;
+tqb.run()
+result = tqb.out_raw[0][0]
+print(&quot;Result:\n&quot;, result)
+</code></pre>
+<p>In this example, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>r</mi><mi>i</mi><mi>a</mi><mi>l</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi><mo>&gt;</mo><mi>B</mi><mi>e</mi><mi>s</mi><mi>t</mi><mi>S</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">TrialScore &gt; BestScore</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335em;vertical-align:-0.0391em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">T</span><span class="mord mathnormal" style="margin-right:0.02778em;">r</span><span class="mord mathnormal">ia</span><span class="mord mathnormal" style="margin-right:0.05764em;">lS</span><span class="mord mathnormal">core</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.05017em;">B</span><span class="mord mathnormal">es</span><span class="mord mathnormal" style="margin-right:0.05764em;">tS</span><span class="mord mathnormal">core</span></span></span></span> so we expect the flag qubit to be in the “1” state:</p>
+<pre><code class="language-python">Result:
+ {
+    &quot;AcceleratorBuffer&quot;: {
+        &quot;name&quot;: &quot;qreg_0x1ec83f0&quot;,
+        &quot;size&quot;: 9,
+        &quot;Information&quot;: {},
+        &quot;Measurements&quot;: {
+            &quot;1&quot;: 1024
+        }
+    }
+}
+</code></pre>
+<h2 id="as-oracle_1">As Oracle</h2>
+<p>The <code>comparator_as_oracle</code> method is used within the exponential search example.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+
+        <div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

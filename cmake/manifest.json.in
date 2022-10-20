@@ -1,0 +1,8 @@
+{
+  "bundle.symbolic_name" : "@QB_XACC_PLUGIN_SYMBOLIC_NAME@",
+  "bundle.name" : "@QB_XACC_PLUGIN_NAME@",
+  "authors" : [ "Quantum Brilliance Pty Ltd" ],
+  "bundle.activator" : true,
+  "bundle.version" : "@FULL_VERSION@",
+  "bundle.description" : "@QB_XACC_PLUGIN_DESCRIPTION@"
+}

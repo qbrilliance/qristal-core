@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>0. About qbOS - qbOS Documentation</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
+        <link href="css/extra.css" rel="stylesheet">
+
+        <script src="js/jquery-1.10.2.min.js" defer></script>
+        <script src="js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">qbOS Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="index.html" class="nav-link">qbOS Documentation</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="xx01.html" class="nav-link">0. About qbOS</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx02.html" class="nav-link">1. Quickstart</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx03.html" class="nav-link">2. Learn Quantum Gates</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx04.html" class="nav-link">3. Circuit builders</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx05.html" class="nav-link">4. qbOS Modules and Applications</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx06.html" class="nav-link">5. Hardware Specifications and Limitations</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx07.html" class="nav-link">6. Types and Arrays in qbOS (more examples)</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx08.html" class="nav-link">7. Download and Installation</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx09.html" class="nav-link">8. Starting a qbOS Jupyter session</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx10.html" class="nav-link">9. Glossary of Tools and Quantum Gates</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="xx11.html" class="nav-link">10. Parallel Operations in qbOS</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">qbOS Documentation 220913 <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/AWS%20Braket%20offload%20in%20qbOS%204631d07005d74d5898dc4ee153199663.html" class="dropdown-item">AWS Braket offload in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/AWS%20Spot-Market%20instances%20695d2d72ff0b4916aec906b3ac43b74a.html" class="dropdown-item">AWS Spot-Market instances</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Amplitude%20Amplification%20in%20qbOS%20625436cc7b4d465c93c94af9da6d9457.html" class="dropdown-item">Amplitude Amplification in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Amplitude%20Estimation%20in%20qbOS%20197b2063bef447718fdfa185d82d829f.html" class="dropdown-item">Amplitude Estimation in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Compare%20in%20qbOS%20%28coming%20220807%29%20961e0695a65f4cae8c12e8148a2b204b.html" class="dropdown-item">Compare > in qbOS (coming 220807)</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Configuring%20qbOS%20for%20Quantum%20Brilliance%20%28QDK%29%20hard%20ff8b9b8aff664cba9c89e2637922ebba.html" class="dropdown-item">Configuring qbOS for Quantum Brilliance (QDK) hardware</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Efficient%20Encoding%20in%20qbOS%202407bb4867fd495294d9274e85923f4a.html" class="dropdown-item">Efficient Encoding in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Exponential%20Search%20in%20qbOS%209daf531c584f4cadb31697f8cb94b544.html" class="dropdown-item">Exponential Search in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/First%20Release%20Notes%20%28Sept%202021%29%2057042bb79eef463d9ebab68eddcad6e5.html" class="dropdown-item">First Release Notes (Sept 2021)</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/GUI%20circuit%20composition%20and%20conversion%20to%20QPU%20kern%204f46ef713a5743e192aa79ec6f804d5d.html" class="dropdown-item">GUI circuit composition and conversion to QPU kernel for execution in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/GUI%20circuit%20composition%20with%20pyQuirk%20f7161f17d431491c9497e928d3486cdc.html" class="dropdown-item">GUI circuit composition with pyQuirk</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Inverse%20Circuit%20in%20qbOS%205c88dd6ec8eb45d998fc2e184584d6c9.html" class="dropdown-item">Inverse Circuit in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Multiplication%20in%20qbOS%20331e71fa0f40468abdc6d33ef990796d.html" class="dropdown-item">Multiplication in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Optimisation%20with%20QAOA%20in%20qbOS%2069aae61a872045adac72410f02d977e5.html" class="dropdown-item">Optimisation with QAOA in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Pawsey%20Nimbus%20Cloud%2039cb71b3471045b388e4593d7ae2d240.html" class="dropdown-item">Pawsey Nimbus Cloud</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Proper%20Fraction%20Division%20in%20qbOS%200a0a79f708ec4025a5893b0509c3e931.html" class="dropdown-item">Proper Fraction Division in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/QAOA%20extensions%20in%20qbOS%201ce0bfe95e304a978cad6dada58ef0fd.html" class="dropdown-item">QAOA extensions in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Quantum%20Comparator%20in%20qbOS%20036f305a7273456ab87315e6f4cb44db.html" class="dropdown-item">Quantum Comparator in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Quantum%20Equality%20Checker%20in%20qbOS%2020fb41766e754abc814df7e5bae350f6.html" class="dropdown-item">Quantum Equality Checker in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Quantum%20Fourier%20Transform%20%28QFT%29%20086133df66464393834202921b561874.html" class="dropdown-item">Quantum Fourier Transform (QFT)</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Quantum%20Gates%207820f4f28e564f69bd74a585bc527471.html" class="dropdown-item">Quantum Gates</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Quantum%20Phase%20Estimation%20in%20qbOS%20ede1f2c66aff426f870bf620002c31ee.html" class="dropdown-item">Quantum Phase Estimation in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Quantum%20arithmetic%20operations%20912925f8ab1644d8821fd5645df3e911.html" class="dropdown-item">Quantum arithmetic operations</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Random%20quantum%20circuit%20sampling%20with%20qbOS%20ad6a723f9ebf49e7a0967b999a63f132.html" class="dropdown-item">Random quantum circuit sampling with qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Ripple%20Carry%20Adder%20in%20qbOS%20c90a303c2b7641e2903b0e299d29d0df.html" class="dropdown-item">Ripple Carry Adder in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Subtraction%20in%20qbOS%20d894d29f00284d878a498964be70f399.html" class="dropdown-item">Subtraction in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Usage%20examples%20of%20qbos%20MapNC%20type%20e04ad5447638476184ed7a21f05e966b.html" class="dropdown-item">Usage/examples of qbos.MapNC type</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Usage%20examples%20of%20qbos%20MapND%20type%20807974c9c8c94f0c842b601924105d17.html" class="dropdown-item">Usage/examples of qbos.MapND type</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Variational%20Quantum%20Eigensolver%20%28VQE%29%20in%20qbOS%206b6a211cc87749f6ac36faaf5581f8a2.html" class="dropdown-item">Variational Quantum Eigensolver (VQE) in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/Visualisation%20and%20Data%20Science%20in%20qbOS%20e375e48655ea4a04889a3b915daded2c.html" class="dropdown-item">Visualisation and Data Science in qbOS</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/v0%20Python%20Plugin%2017de6406325c411db2bffa0b9c6e38d0.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/v0%20Python%20Plugin%20c7728f45b0344bca8115c48dbbfd078b.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+<li>
+    <a href="qbOS%20Documentation%20220913/v0%20Python%20Plugin%20cb380f16dca64c419ff2b339dd34f0ed.html" class="dropdown-item">v0 Python Plugin</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment   Python code for viewing fixed glo d4800077ec6f41edbee7a34819f21dcc</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/Shots%20068cdd3c91ac405dbb6dc6598b56b4a4.html" class="dropdown-item">Shots</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/Simulator%20f7521595c2924452b7201e93cac56955.html" class="dropdown-item">Simulator</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20-%20Python%20code%20for%20viewing%20fixed%20glo%20d4800077ec6f41edbee7a34819f21dcc/XASM%20flag%204cc1565f647642849005b9f4d659499c.html" class="dropdown-item">XASM flag</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment   Python code for viewing shot resu ba1d8065630f480fbb0e2dcf8d999fb4</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Experiment%200%20%282-qubit%20QFT%29%20bb722e94bfd94e6188da4250a581cc91.html" class="dropdown-item">Experiment 0 (2-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Experiment%201%20%284-qubit%20QFT%29%20b3d275a493494fe7a8a0e64aa572e2f1.html" class="dropdown-item">Experiment 1 (4-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20-%20Python%20code%20for%20viewing%20shot%20resu%20ba1d8065630f480fbb0e2dcf8d999fb4/Untitled%20289ae712a41947dab8cd4a75ac3dadad.html" class="dropdown-item">Untitled</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment Design 97159967bced45808d9bbef5fc861dea</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Experiment%200%20%282-qubit%20QFT%29%20dbef22cef93445d98b308bcade1e01e9.html" class="dropdown-item">Experiment 0 (2-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Experiment%201%20%284-qubit%20QFT%29%20fcfefecc80774e1982015894888395fb.html" class="dropdown-item">Experiment 1 (4-qubit QFT)</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20Design%2097159967bced45808d9bbef5fc861dea/Untitled%20a2a2550ee27f46d287613510dc2dde81.html" class="dropdown-item">Untitled</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">QFT Experiment Fixed Global Options de0784ece18847ebb02a5475c69aca97</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/Shots%2038c179952af342b4ad5494946a33ad31.html" class="dropdown-item">Shots</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/Simulator%20d43da6148a9f40f6b88fc733646a8d15.html" class="dropdown-item">Simulator</a>
+</li>
+            
+<li>
+    <a href="qbOS%20Documentation%20220913/QFT%20Experiment%20Fixed%20Global%20Options%20de0784ece18847ebb02a5475c69aca97/XASM%20flag%2074588cd5eeb9487d9942d01418756044.html" class="dropdown-item">XASM flag</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a rel="prev" href="index.html" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="xx02.html" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#0-about-qbos" class="nav-link">0. About qbOS</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#00-user-testimonials" class="nav-link">0.0. User Testimonials</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#01-qbos-development-team" class="nav-link">0.1. qbOS Development Team</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#02-get-help-questions-bug-reporting-and-issue-tracking" class="nav-link">0.2. Get Help: Questions, Bug Reporting, and Issue Tracking</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="0-about-qbos">0. About qbOS</h1>
+<p><em>Q</em>uantum <em>B</em>rilliance <em>O</em>perating <em>S</em>ystem (qbOS) is our software backbone that provides users with a variety of UI functionalities (see our Jupyter UI, standalone Python API, and CLI for HPC usage), necessary middleware, optimised compilation routines, enables hybrid programming and quantum simulations, parallelisation and task distribution, and communication instructions supporting a number of classical and quantum backends including QB's accelerators. The operating system is specifically designed to provide a <em>q</em>uantum <em>c</em>omputing (QC) framework as an accelerator for classical computations, and for integration of a range of quantum hardware with HPC infrastructure. qbOS is mainly built upon the leading, open-source, modular quantum software framework of <a href="https://xacc.readthedocs.io/en/latest/">XACC</a> (an Eclipse project from ORNL developers) and a diverse range of other open-source software tools. The third-party developers are encouraged to provide additional modules for qbOS following our licence and commercial agreement terms, which allows quantum software and application teams to deliver their own products on top of QB’s platform.</p>
+<p><strong>XACC</strong></p>
+<p><a href="https://github.com/eclipse/xacc">eclipse/xacc</a></p>
+<p>qbOS presents a <em>fast</em> and <em>dynamic</em> (see below) quantum computing platform. It is targeted at a wide range of users from quantum scientists to enthusiasts to examine running quantum circuits, algorithms, and to collect data using their existing classical computing resources. Our simulation backends can emulate a gate-based ideal (noiseless) stochastic machine or QB's upcoming diamond-chip-based quantum hardware with a realistic noise model hard-coded.</p>
+<p>qbOS is <em>fast</em> in the sense that, at its core, it exploits highly scalable <em>tensor network</em> simulator backends (allowing simulations and benchmarking with 100s of qubits), compiled C++ executables, supports GPU, MKL, multi-threaded OpenMP and MPI calculations, and provides other state-vector simulation options useful for low qubit number circuits. qbOS is a <em>dynamic</em> software package in the sense that it is in part delivered as a set of pre-compiled executables and can accept quantum circuits inputs in several mainstream Quantum Instruction Set formats (extensive support for the assembly language of <a href="https://github.com/Qiskit/openqasm/tree/OpenQASM2.x">OpenQASM v2.0</a>, and partial support for XASM and QUIL) and provides a range of prebuilt Python functions for users to run very high-level QC calculations.</p>
+<p><strong>OpenQASM</strong></p>
+<p><a href="https://github.com/Qiskit/openqasm">Qiskit/openqasm</a></p>
+<h2 id="00-user-testimonials">0.0. User Testimonials</h2>
+<p><a href="https://quantum-south.com/about-as/">Quantum South</a> team, April 2021:</p>
+<blockquote>
+<p><em>"[qbOS] works faster compared with all other platforms"</em>
+</p>
+<p>"The GUI is great".
+</p>
+<p>"Integration of OpenQASM, Easy representation of the Hamiltonian (in equation form) for running VQE, [and] Ability to test algorithms with noise without having to model the noise [are my favourite features]".
+</p>
+<p>"Ease of construction of specific quantum circuits [is my favourite feature]".
+</p>
+<p>"The details of the outputs [and] being able to create the circuits in IBM and bring them here [are my favourite features]".
+</p>
+<p>"The IDE is very familiar and easy to use".
+</p>
+<p>"The course was great and didn't see any bugs".
+</p>
+</blockquote>
+<p>Samarth Sandeep, CEO, IFF Bio, 6th May 2021:</p>
+<blockquote>
+<p>"<em>Wish my first experiences in quantum were this straightforward"</em>
+</p>
+</blockquote>
+<p>Angus Mingare, Honours Student, Australian National University, 22nd March 2021:</p>
+<blockquote>
+<p>"<em>I'm impressed by how easy to use it is"</em>
+</p>
+</blockquote>
+<h2 id="01-qbos-development-team">0.1. qbOS Development Team</h2>
+<p>qbOS is our proprietary quantum software brought to you through the collective efforts of different Quantum Brilliance teams, feedback and contributions from external collaborators and end-users. Within Quantum Brilliance, our <em>Software &amp; Applications</em> team is responsible for the development and support of qbOS. You may contact the following senior members from our Software and Applications team for general inquiries and questions regarding qbOS:</p>
+<p><img alt="**Dr Thien Nguyen**
+  Software Engineer (E: thien.n@quantum-brilliance.com)" src="qbOS%20Documentation%20220913/ThienNguyen_%281%29.jpg" /></p>
+<p><strong>Dr Thien Nguyen</strong>
+  Software Engineer (E: thien.n@quantum-brilliance.com)</p>
+<p><img alt="**Simon Yin**
+  Senior Software Engineer (E: simon.y@quantum-brilliance.com)" src="qbOS%20Documentation%20220913/Simon_Yin.jpg" /></p>
+<p><strong>Simon Yin</strong>
+  Senior Software Engineer (E: simon.y@quantum-brilliance.com)</p>
+<p><img alt="**Dr Michael Walker**
+  Senior Quantum Tools Developer (E: mlwalker@quantum-brilliance.com)" src="qbOS%20Documentation%20220913/Michael_Walker.png" /></p>
+<p><strong>Dr Michael Walker</strong>
+  Senior Quantum Tools Developer (E: mlwalker@quantum-brilliance.com)</p>
+<h3 id="011-past-contributors">0.1.1 Past contributors</h3>
+<p><strong>Dr Nariman Saadatmand</strong>  qbOS Product Owner, Software &amp; Applications Team Lead</p>
+<h3 id="012-full-list-of-contributors">0.1.2 Full list of contributors</h3>
+<p><strong>Angus Mingare</strong> during internship (2022)</p>
+<p><strong>Marzieh Talebi</strong> during internship (2021-2022)</p>
+<h2 id="02-get-help-questions-bug-reporting-and-issue-tracking">0.2. Get Help: Questions, Bug Reporting, and Issue Tracking</h2>
+<h3 id="pawseys-quantum-pioneers">Pawsey's Quantum Pioneers</h3>
+<p>Please submit any feedback, requests or contributions for new features, and bug reports through <strong>Pawsey's Help Desk email</strong>: <a href="mailto:help@pawsey.org.au">help@pawsey.org.au</a>. Note you must please include “Quantum Pioneers” in the email subject. Pawsey and Quantum Brilliance have developed a support process that will be used for each of such tickets. Problems and questions related to access to Pawsey systems will be addressed by Pawsey staff directly. Problems and questions related to qbOS and QDK hardware will be triaged to Quantum Brilliance.</p>
+<h3 id="internal-developers-and-research-collaborators">Internal Developers and Research Collaborators</h3>
+<p>Please submit any feedback, requests or contributions for new features, and bug reports through <em>qbOS Issue Log</em> Kanban board linked below.</p>
+<p><strong>qbOS Issue Log</strong></p>
+<p><a href="https://qbau.atlassian.net/secure/RapidBoard.jspa?rapidView=13">Atlassian</a></p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js" defer></script>
+
+        <div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

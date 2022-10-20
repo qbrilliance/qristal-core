@@ -1,0 +1,68 @@
+In this directory are resources required to start a standalone AER simulator on the QB Lambda workstation.
+This procedure can also be adapted to GPU-based AWS instances.
+
+# File Descriptions
+
+- `Dockerfile`: based on the NVIDIA's docker image and install some additional dependencies for the standalone AER simulator.
+
+- `server.py`: simple HTTP server to handle job requests (create QObj and invoke the `qasm_simulator` executable). This file will be copied into the Docker image during the build procedure.
+
+# Instructions
+
+On the Lambda machine, navigating to this folder:
+
+- Step 1: Build and run the Docker image (attaching all GPUs to the Docker container):
+```
+docker build --tag lambda .
+docker run -d -t --gpus all lambda
+```
+
+- Step 2: Compile AER inside the container:
+
+```
+git clone https://github.com/Qiskit/qiskit-aer.git
+cd qiskit-aer/
+mkdir build
+cd build/
+cmake -DAER_THRUST_BACKEND=CUDA -DBUILD_TESTS=True -DAER_MPI=True -DCUSTATEVEC_ROOT=/opt/nvidia/cuquantum ..
+make
+```
+
+- Step 3: Start the server inside the container (at `localhost:5000`).
+
+```
+python3 server.py
+```
+
+- Step 4: ssh from inside the container to the permanent AWS reverse proxy instance (forward port 5000)
+
+```
+ssh -o ServerAliveInterval=30 -R 5000:localhost:5000 lambda@ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com 
+```
+
+
+# Notes
+
+- The Lambda simulator accelerator is now available at: ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com 
+
+- Step 3 and 4 above should be executed in detachable mode, i.e., the REST server and ssh tunnel should still be alive inside the container after we detach those terminals. 
+
+- The AWS proxy server (NGINX) is a `t2.micro` instance with the public URL: ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com. The `/etc/nginx/conf.d/server.conf` settings are:
+
+```
+upstream tunnel {
+  server 127.0.0.1:5000;
+}
+
+server {
+  server_name ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com;
+
+  location / {
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://tunnel;
+  }
+}
+```
