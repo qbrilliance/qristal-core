@@ -25,7 +25,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
       * -DCMAKE_BUILD_TYPE=RelWithDebInfo - For an optimized build with no assertions but with debug info.
       * -DCMAKE_BUILD_TYPE=MinSizeRel - For a build optimized for size instead of speed.")
   endif()
-  set(CMAKE_BUILD_TYPE "None" CACHE STRING "Type of build: None, Release, Debug, RelWithDebInfo or MinSizeRel.")
+  set(CMAKE_BUILD_TYPE "None" CACHE STRING "Type of build: None, Release, Debug, RelWithDebInfo or MinSizeRel." FORCE)
   set_property(
     CACHE
       CMAKE_BUILD_TYPE
@@ -33,6 +33,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
       STRINGS "None" "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
   )
 endif()
+
 
 # Do we want to generate test coverage report (with gcov)?
 set(WITH_COVERAGE OFF CACHE BOOL "Enable profiling for test coverage")
