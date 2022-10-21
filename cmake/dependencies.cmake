@@ -3,7 +3,7 @@
 
 set(name "xacc")
 set(ver "1.0.0")
-set(tag "b2f8a5da")
+set(tag "f64e9da8")
 set(dl "https://github.com/eclipse/xacc")
 set(dir "${PROJECT_SOURCE_DIR}/deps/${name}/${ver}-${tag}")
 
