@@ -27,8 +27,10 @@ endif()
 set(PROJECT_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
 if(VERSION_PATCH)
   set(PROJECT_VERSION "${PROJECT_VERSION}.${VERSION_PATCH}")
+  set(SHORT_VERSION "Version: ${VERSION_PATCH} Build time ${TODAY}")
+else()
+  set(SHORT_VERSION "Version: ${PROJECT_VERSION} Build time ${TODAY}")
 endif()
-set(SHORT_VERSION "Version: ${VERSION_PATCH} Build time ${TODAY}")
 configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)
 
 # Project
