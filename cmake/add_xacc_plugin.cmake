@@ -1,5 +1,8 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
+# Make a single target for collecting all XACC plugins
+add_custom_target(xacc-plugins ALL)
+
 # Make a shared library that is able to function as a XACC plugin
 macro(add_xacc_plugin LIBRARY_NAME)
 
@@ -51,7 +54,8 @@ macro(add_xacc_plugin LIBRARY_NAME)
   usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT arg_SOURCES)
   usfunctiongeneratebundleinit(TARGET ${LIBRARY_NAME} OUT arg_SOURCES)
 
-  add_library(${LIBRARY_NAME} SHARED ${arg_SOURCES} ${arg_HEADERS})
+  add_library(${LIBRARY_NAME} SHARED EXCLUDE_FROM_ALL ${arg_SOURCES} ${arg_HEADERS})
+  add_dependencies(xacc-plugins ${LIBRARY_NAME})
 
   target_include_directories(${LIBRARY_NAME}
     PUBLIC

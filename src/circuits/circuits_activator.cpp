@@ -20,7 +20,6 @@
 #include "qb/core/circuits/compare_beam_oracle.hpp"
 #include "qb/core/circuits/inverse_circuit.hpp"
 #include "qb/core/circuits/init_rep_flag.hpp"
-#include "qb/core/circuits/decoder_kernel.hpp"
 #include "qb/core/circuits/ae_to_metric.hpp"
 #include "qb/core/circuits/qd_beam_state_prep.hpp"
 #include "qb/core/circuits/superposition_adder.hpp"
@@ -82,8 +81,6 @@ public:
         std::make_shared<qbOS::InitRepeatFlag>());
     context.RegisterService<xacc::Instruction>(
         std::make_shared<qbOS::InitRepeatFlag>());
-    context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::DecoderKernel>());
     context.RegisterService<xacc::Instruction>(
         std::make_shared<qbOS::AEtoMetric>());
     context.RegisterService<xacc::Instruction>(

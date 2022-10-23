@@ -22,14 +22,6 @@ add_xacc_plugin(algorithm_es
     include/qb/core/algorithms/exponential_search/exponential_search.hpp
 )
 
-# Decoder
-add_xacc_plugin(decoder
-  SOURCES
-    src/algorithms/quantum_decoder/quantum_decoder.cpp
-  HEADERS
-    include/qb/core/algorithms/quantum_decoder/quantum_decoder.hpp
-)
-
 # Offload to AWS Braket
 add_xacc_plugin(aws_braket
   SOURCES
@@ -61,7 +53,6 @@ add_xacc_plugin(circuits
     src/circuits/controlled_proper_fraction_division.cpp
     src/circuits/controlled_subtraction.cpp
     src/circuits/controlled_swap.cpp
-    src/circuits/decoder_kernel.cpp
     src/circuits/efficient_encoding.cpp
     src/circuits/equality_checker.cpp
     src/circuits/generalised_mcx.cpp
@@ -94,7 +85,6 @@ add_xacc_plugin(circuits
     include/qb/core/circuits/controlled_proper_fraction_division.hpp
     include/qb/core/circuits/controlled_subtraction.hpp
     include/qb/core/circuits/controlled_swap.hpp
-    include/qb/core/circuits/decoder_kernel.hpp
     include/qb/core/circuits/efficient_encoding.hpp
     include/qb/core/circuits/equality_checker.hpp
     include/qb/core/circuits/generalised_mcx.hpp
