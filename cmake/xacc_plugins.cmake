@@ -2,6 +2,9 @@
 
 include(add_xacc_plugin)
 
+# Make a single target for collecting all XACC plugins
+add_custom_target(xacc-plugins ALL)
+
 # Amplitude estimation
 add_xacc_plugin(algorithm_ae
   SOURCES

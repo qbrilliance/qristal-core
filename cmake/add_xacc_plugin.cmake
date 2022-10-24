@@ -1,13 +1,10 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-# Make a single target for collecting all XACC plugins
-add_custom_target(xacc-plugins ALL)
-
 # Make a shared library that is able to function as a XACC plugin
 macro(add_xacc_plugin LIBRARY_NAME)
 
   set(flags)
-  set(args NAME DESCRIPTION)
+  set(args NAME DESCRIPTION SOURCE_PATH)
   set(listArgs SOURCES HEADERS DEPENDENCIES)
 
   cmake_parse_arguments(arg "${flags}" "${args}" "${listArgs}" ${ARGN})
@@ -23,6 +20,11 @@ macro(add_xacc_plugin LIBRARY_NAME)
   endif()
   if (HEADERS IN_LIST arg_KEYWORDS_MISSING_VALUES)
       message(FATAL_ERROR "[add_xacc_plugin]: HEADERS requires at least one value")
+  endif()
+
+  # Process the path to the core library in the calling project
+  if(NOT core_SOURCE_DIR)
+    set(core_SOURCE_DIR PROJECT_SOURCE_DIR)
   endif()
 
   # Use "_plugin_bundle" suffix for bundle symbolic name
@@ -48,7 +50,7 @@ macro(add_xacc_plugin LIBRARY_NAME)
   get_filename_component(REL_SRC_DIR  ${FIRST_SOURCE_FILE} DIRECTORY)
   set(MANIFEST_JSON_DIR ${CMAKE_CURRENT_BINARY_DIR}/${REL_SRC_DIR})
   # Generate manifest.json
-  configure_file(${PROJECT_SOURCE_DIR}/cmake/manifest.json.in
+  configure_file(${core_SOURCE_DIR}/cmake/manifest.json.in
                ${MANIFEST_JSON_DIR}/manifest.json)
 
   usfunctiongetresourcesource(TARGET ${LIBRARY_NAME} OUT arg_SOURCES)
@@ -60,6 +62,7 @@ macro(add_xacc_plugin LIBRARY_NAME)
   target_include_directories(${LIBRARY_NAME}
     PUBLIC
       "${PROJECT_SOURCE_DIR}/include"
+      "${core_SOURCE_DIR}/include"
   )
 
   target_link_libraries(${LIBRARY_NAME}
