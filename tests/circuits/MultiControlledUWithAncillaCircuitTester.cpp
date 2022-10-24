@@ -1,10 +1,10 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include <CompositeInstruction.hpp>
-#include <bitset>
+#include "Circuit.hpp"
+#include "CompositeInstruction.hpp"
 #include <gtest/gtest.h>
+#include <bitset>
 #include <memory>
 
 TEST(MultiControlledUWithAncillaCircuitTester, checksimple) {

@@ -1,9 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
+#include "qb/core/circuits/init_rep_flag.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
-#include "../init_rep_flag.hpp"
 #include <iostream>
 #include <bitset>
 
@@ -14,8 +14,8 @@ TEST(InitRepeatFlag_1, checkSimple) {
   const std::vector<int> qubits_string = {0,1,2,3};
   const std::vector<int> qubits_init_repeat = {4,5};
   const std::vector<int> qubits_next_letter = {6,7};
-  int max_key = 7; 
-     
+  int max_key = 7;
+
   auto init_repeat_flag = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("InitRepeatFlag"));
 

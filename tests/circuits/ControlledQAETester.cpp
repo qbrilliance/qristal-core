@@ -1,7 +1,7 @@
-#include "Circuit.hpp"
-#include "qbos_circuit_builder.hpp"
+#include "qb/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 ////////////////////////
 // Other include statements

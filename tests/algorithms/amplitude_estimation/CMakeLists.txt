@@ -1,4 +1,0 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
-
-add_gtest(CanonicalAmplitudeEstimationAlgorithm)
-add_gtest(MLAmplitudeEstimationAlgorithm)

@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 ////////////////////////
 // Other include statements
@@ -120,7 +120,7 @@ TEST(ControlledSwapCircuitTester, checkstring) {
       }
   }
   EXPECT_EQ(buffer->getMeasurementCounts()[expected_measurement], 1024);
-  
+
 }
 
 int main(int argc, char **argv) {

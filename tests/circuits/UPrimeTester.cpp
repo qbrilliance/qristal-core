@@ -1,9 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#include "qb/core/circuits/u_prime_unitary.hpp"
 #include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <gtest/gtest.h>
-#include "../u_prime_unitary.hpp"
 #include <iostream>
 
 
@@ -18,7 +18,7 @@ TEST(UPrimeTester_1, checkSimple) {
   const std::vector<int> qubits_next_letter = {6,7};
   int key[8];
   for (int qindex = 0; qindex < 2; qindex++){
-    key[qindex] = qubits_ancilla_prob[qindex]; 
+    key[qindex] = qubits_ancilla_prob[qindex];
     key[qindex+2] = qubits_ancilla_letter[qindex];
     key[qindex+4] = qubits_next_letter_metric[qindex];
     key[qindex+6] = qubits_next_letter[qindex];
@@ -28,11 +28,11 @@ TEST(UPrimeTester_1, checkSimple) {
   //const int max_key = key.max();
   //const int min_key = min(key);
   //const int offset_key = max_key + min_key;
-     
+
   auto u_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("UPrime"));
   std::cout << "expand\n";
-  //const bool expand_ok = 
+  //const bool expand_ok =
   xacc::HeterogeneousMap map = {{"iteration",0},{"qubits_metric", qubits_ancilla_prob}, {"qubits_string", qubits_ancilla_letter},
         {"qubits_next_metric", qubits_next_letter_metric},{"qubits_next_letter", qubits_next_letter}};
   u_prime->expand(map);
@@ -81,7 +81,7 @@ TEST(UPrimeTester_2, checkSimple) {
   const std::vector<int> qubits_next_letter = {6,7};
   int key[8];
   for (int qindex = 0; qindex < 2; qindex++){
-    key[qindex] = qubits_ancilla_prob[qindex]; 
+    key[qindex] = qubits_ancilla_prob[qindex];
     key[qindex+2] = qubits_ancilla_letter[qindex];
     key[qindex+4] = qubits_next_letter_probabilities[qindex];
     key[qindex+6] = qubits_next_letter[qindex];
@@ -91,7 +91,7 @@ TEST(UPrimeTester_2, checkSimple) {
   //const int max_key = key.max();
   //const int min_key = min(key);
   //const int offset_key = max_key + min_key;
-     
+
   auto u_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("UPrime"));const bool expand_ok = u_prime->expand(
       {{"iteration",0},{"qubits_metric", qubits_ancilla_prob}, {"qubits_string", qubits_ancilla_letter},

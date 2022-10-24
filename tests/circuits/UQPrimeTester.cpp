@@ -1,9 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#include "qb/core/circuits/uq_prime_unitary.hpp"
 #include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <gtest/gtest.h>
-#include "../uq_prime_unitary.hpp"
 #include <iostream>
 #include <bitset>
 
@@ -19,17 +19,17 @@ TEST(UQPrimeTester_1, checkSimple) {
   const std::vector<int> qubits_next_letter = {6,7};
   int key[8];
   for (int qindex = 0; qindex < 2; qindex++){
-    key[qindex] = qubits_ancilla_prob[qindex]; 
+    key[qindex] = qubits_ancilla_prob[qindex];
     key[qindex+2] = qubits_ancilla_letter[qindex];
     key[qindex+4] = qubits_next_letter_metric[qindex];
     key[qindex+6] = qubits_next_letter[qindex];
   }
   const int *max_key = std::max_element(std::begin(key), std::end(key));
-  
+
   auto uq_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("UQPrime"));
   std::cout << "expand\n";
-  //const bool expand_ok = 
+  //const bool expand_ok =
   xacc::HeterogeneousMap map = {{"qubits_ancilla_metric", qubits_ancilla_prob}, {"qubits_ancilla_letter", qubits_ancilla_letter},
         {"qubits_next_letter_metric", qubits_next_letter_metric},{"qubits_next_letter", qubits_next_letter}};
   std::cout << "map " <<"\n";
@@ -75,17 +75,17 @@ TEST(UQPrimeTester_2, checkSimple) {
   const std::vector<int> qubits_next_letter = {6,7};
   int key[8];
   for (int qindex = 0; qindex < 2; qindex++){
-    key[qindex] = qubits_ancilla_prob[qindex]; 
+    key[qindex] = qubits_ancilla_prob[qindex];
     key[qindex+2] = qubits_ancilla_letter[qindex];
     key[qindex+4] = qubits_next_letter_metric[qindex];
     key[qindex+6] = qubits_next_letter[qindex];
   }
   const int *max_key = std::max_element(std::begin(key), std::end(key));
-  
+
   auto uq_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("UQPrime"));
   std::cout << "expand\n";
-  //const bool expand_ok = 
+  //const bool expand_ok =
   xacc::HeterogeneousMap map = {{"qubits_ancilla_metric", qubits_ancilla_prob}, {"qubits_ancilla_letter", qubits_ancilla_letter},
         {"qubits_next_letter_metric", qubits_next_letter_metric},{"qubits_next_letter", qubits_next_letter}};
   std::cout << "map " <<"\n";

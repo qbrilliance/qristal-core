@@ -1,4 +1,4 @@
-#include "AWSOpenQasm3Visitor.hpp"
+#include "qb/core/aws_braket/AWSOpenQasm3Visitor.hpp"
 #include "Algorithm.hpp"
 #include "InstructionIterator.hpp"
 #include "Optimizer.hpp"

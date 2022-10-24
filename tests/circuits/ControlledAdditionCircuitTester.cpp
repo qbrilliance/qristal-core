@@ -1,14 +1,14 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 ////////////////////////
 // Other include statements
 ////////////////////////
 
 // In this test we add q1 = |10> to q2 = |000> conditional on a flag.
-// Recall that the register being added in to has to have more qubits than the 
+// Recall that the register being added in to has to have more qubits than the
 // register being added to allow for overflow.
 
 // So, the expected output of q2 is 000 if the flag is off and 100 if the flag is on
@@ -65,7 +65,7 @@ TEST(ControlledAdditionCircuitTester, FlagOn) {
   //////////////////////////////////////
   // Check results
   //////////////////////////////////////
-  
+
   buffer->print();
   EXPECT_EQ(buffer->getMeasurementCounts()["100"], 1024);
 
@@ -121,7 +121,7 @@ TEST(ControlledAdditionCircuitTester, FlagOff) {
   //////////////////////////////////////
   // Check results
   //////////////////////////////////////
-  
+
   buffer->print();
   EXPECT_EQ(buffer->getMeasurementCounts()["000"], 1024);
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 //#include "Circuit.hpp"
-#include "../exponent.hpp"
+#include "qb/core/circuit_builders/exponent.hpp"
 //#include "xacc.hpp"
 //#include "xacc_service.hpp"
 #include <cassert>
@@ -50,7 +50,7 @@ TEST(ExponentCircuitTester_1, checkSimple) {
           qubits_log.push_back(qindex);
           //std::cout << qindex << qubits_log.size() << "\n";
         }
-            
+
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"is_LSB", false}};
         qbOS::Exponent build;
         const bool expand_ok = build.expand(map);
@@ -60,18 +60,18 @@ TEST(ExponentCircuitTester_1, checkSimple) {
         int nb_qubits = nb_qubits_exp + nb_qubits_log;
         //Check calculation of exponent qubits
         //std::cout << "nb_qubits_log:" << nb_qubits_log << " nb_qubits_exp:" << nb_qubits_exp << std::endl;
-            
+
         test_builder.MeasureAll(nb_qubits);
 
         std::vector<int> qubits ;
         for (int qindex = 0; qindex < nb_qubits; qindex++){
           qubits.push_back(qindex);
         }
-  
+
         // Simulation test:
         // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
-          
+
         // Add comp:
         std::cout << "HOWDY: Comparator circuit:\n";
         std::cout << "Testing log_value:" << log_value << std::endl;
@@ -89,7 +89,7 @@ TEST(ExponentCircuitTester_1, checkSimple) {
           qindex = qubits[i];
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
           }
@@ -97,26 +97,26 @@ TEST(ExponentCircuitTester_1, checkSimple) {
         for (int i = 0; i < nb_qubits_log; i++){
           if (log_value&((int) pow(2,i))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
-          } 
+          }
         }
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
       }
     }
-  }  
+  }
 }
 
 TEST(ExponentCircuitTester_2, checkSimple) {
   // Test Exponent: input a bitstring to compare to BestScore.
-  // If input > BestScore, flag qubit should return |1>. 
+  // If input > BestScore, flag qubit should return |1>.
   // Otherwise flag qubit should return |0>.
   bool log_zero = true;
   std::random_device rand_dev ;
-  std::uniform_int_distribution<int> distr(2,4) ; 
+  std::uniform_int_distribution<int> distr(2,4) ;
   for (int j = 0; j < 2; j++) {
     for (int l = 0; l < 2; l++) {
       for (int m = 0; m < 2; m++) {
@@ -152,8 +152,8 @@ TEST(ExponentCircuitTester_2, checkSimple) {
         for (int qindex = 0; qindex < nb_qubits_log; qindex++){
           qubits_log.push_back(qindex);
         }
-        int min_significance_ = distr(rand_dev); 
-            
+        int min_significance_ = distr(rand_dev);
+
         std::cout << "log.size():" << qubits_log.size() << std::endl;
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"min_significance", min_significance_}, {"is_LSB", false}};
         qbOS::Exponent build;
@@ -169,18 +169,18 @@ TEST(ExponentCircuitTester_2, checkSimple) {
         int nb_qubits = build.nb_qubits_exp + nb_qubits_log;
         //Check calculation of exponent qubits
         //std::cout << "nb_qubits_log:" << nb_qubits_log << " nb_qubits_exp:" << nb_qubits_exp << std::endl;
-            
+
         test_builder.MeasureAll(nb_qubits);
 
         std::vector<int> qubits ;
         for (int qindex = 0; qindex < nb_qubits - min_significance_ + 1; qindex++){
           qubits.push_back(qindex);
         }
-            
+
         // Simulation test:
         // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
-          
+
         // Add comp:
         std::cout << "HOWDY: Comparator circuit:\n";
         std::cout << "Testing log_value:" << log_value << std::endl;
@@ -197,7 +197,7 @@ TEST(ExponentCircuitTester_2, checkSimple) {
           qindex = qubits[i];
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
           }
@@ -205,17 +205,17 @@ TEST(ExponentCircuitTester_2, checkSimple) {
         for (int i = 0; i < nb_qubits_log; i++){
           if (log_value&((int) pow(2,i))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
-          } 
+          }
         }
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
       }
     }
-  }  
+  }
 }
 
 TEST(ExponentCircuitTester_3, checkSimple) {
@@ -260,14 +260,14 @@ TEST(ExponentCircuitTester_3, checkSimple) {
           test_builder.X(nb_qubits_init - 1);
           //std::cout << "mX " << nb_qubits_init - nb_qubits_log << std::endl;
         }
-            
+
         std::cout << "\n*** Testing log_value:" << log_value << " ***" << std::endl;
         std::vector<int> qubits_log ;
         for (int qindex = nb_qubits_init; qindex > (nb_qubits_init - nb_qubits_log); qindex--){
           qubits_log.push_back(qindex-1);
           //std::cout << qindex-1 << " " << qubits_log.size() << "\n";
         }
-            
+
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"is_LSB", true}};
         qbOS::Exponent build;
         const bool expand_ok = build.expand(map);
@@ -277,18 +277,18 @@ TEST(ExponentCircuitTester_3, checkSimple) {
         int nb_qubits = nb_qubits_exp + nb_qubits_log;
         //Check calculation of exponent qubits
         std::cout << "nb_qubits_log:" << nb_qubits_log << " nb_qubits_exp:" << nb_qubits_exp << std::endl;
-            
+
         test_builder.MeasureAll(nb_qubits);
 
         std::vector<int> qubits ;
         for (int qindex = 0; qindex < nb_qubits; qindex++){
             qubits.push_back(qindex);
         }
-          
+
         // Simulation test:
         // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
-          
+
         // Add comp:
         std::cout << "HOWDY: Comparator circuit:\n";
         std::cout << "Testing log_value:" << log_value << std::endl;
@@ -306,7 +306,7 @@ TEST(ExponentCircuitTester_3, checkSimple) {
           qindex = qubits[i];
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
           }
@@ -314,24 +314,24 @@ TEST(ExponentCircuitTester_3, checkSimple) {
         for (int i = nb_qubits_log - 1; i >= 0; i--){
           if (log_value&((int) pow(2,i))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
-          } 
+          }
         }
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
       }
     }
-  }  
+  }
 }
 
 TEST(ExponentCircuitTester_4, checkSimple) {
   // Test Exponent: input a bitstring to compare to BestScore.
   bool log_zero = true;
   std::random_device rand_dev ;
-  std::uniform_int_distribution<int> distr(2,4) ; 
+  std::uniform_int_distribution<int> distr(2,4) ;
   for (int j = 0; j < 2; j++) {
     for (int l = 0; l < 2; l++) {
       for (int m = 0; m < 2; m++) {
@@ -371,14 +371,14 @@ TEST(ExponentCircuitTester_4, checkSimple) {
           test_builder.X(nb_qubits_init - 1);
           //std::cout << "mX " << nb_qubits_init - 1 << std::endl;
         }
-            
+
         std::cout << "\n*** Testing log_value:" << log_value << " ***" << std::endl;
         std::vector<int> qubits_log ;
         for (int qindex = nb_qubits_init; qindex > (nb_qubits_init - nb_qubits_log); qindex--){
           qubits_log.push_back(qindex-1);
           std::cout << qindex-1 << " " << qubits_log.size() << "\n";
         }
-            
+
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"is_LSB", true}, {"min_significance", min_significance_}};
         qbOS::Exponent build;
         const bool expand_ok = build.expand(map);
@@ -393,7 +393,7 @@ TEST(ExponentCircuitTester_4, checkSimple) {
         int nb_qubits = nb_qubits_exp + nb_qubits_log;
         //Check calculation of exponent qubits
         //std::cout << "nb_qubits_log:" << nb_qubits_log << " nb_qubits_exp:" << nb_qubits_exp << std::endl;
-            
+
         test_builder.MeasureAll(nb_qubits);
 
         std::vector<int> qubits ;
@@ -404,7 +404,7 @@ TEST(ExponentCircuitTester_4, checkSimple) {
             // Simulation test:
             // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
-          
+
             // Add comp:
         std::cout << "HOWDY: Comparator circuit:\n";
         std::cout << "Testing log_value:" << log_value << std::endl;
@@ -427,7 +427,7 @@ TEST(ExponentCircuitTester_4, checkSimple) {
           //std::cout << "i:" << i << " qindex:" << qindex << std::endl;
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
-            } 
+            }
           else {
             expected_measurement.push_back('0');
           }
@@ -435,24 +435,24 @@ TEST(ExponentCircuitTester_4, checkSimple) {
         for (int i = nb_qubits_log - 1; i >= 0; i--){
           if (log_value&((int) pow(2,i))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
-          } 
+          }
         }
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
       }
     }
-  }  
+  }
 }
 
 TEST(ExponentCircuitTester_5, checkSimple) {
   // Test Exponent: input a bitstring to compare to BestScore.
   bool log_zero = true;
   std::random_device rand_dev ;
-  std::uniform_int_distribution<int> distr(1,4) ; 
+  std::uniform_int_distribution<int> distr(1,4) ;
   for (int j = 0; j < 2; j++) {
     for (int l = 0; l < 2; l++) {
       for (int m = 0; m < 2; m++) {
@@ -502,9 +502,9 @@ TEST(ExponentCircuitTester_5, checkSimple) {
           qubits_ancilla_.push_back(qindex + max_exponent_ + 1);
           std::cout << qindex << qubits_log.size() << " qubits_ancilla:" << qubits_ancilla_[qindex] << std::endl;
         }
-            
+
         std::cout << "log.size():" << qubits_log.size() << "\n";
-        const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"qubits_exponent", qubits_exponent_}, {"qubits_ancilla", qubits_ancilla_}, 
+        const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"qubits_exponent", qubits_exponent_}, {"qubits_ancilla", qubits_ancilla_},
             {"min_significance", min_significance_}, {"is_LSB", false}};
         std::cout << "build\n" ;
         qbOS::Exponent build;
@@ -519,18 +519,18 @@ TEST(ExponentCircuitTester_5, checkSimple) {
         int nb_qubits = nb_qubits_exp + nb_qubits_log;
         //Check calculation of exponent qubits
         //std::cout << "nb_qubits_log:" << nb_qubits_log << " nb_qubits_exp:" << nb_qubits_exp << std::endl;
-            
+
         test_builder.MeasureAll(nb_qubits);
 
         std::vector<int> qubits ;
         for (int qindex = 0; qindex < nb_qubits - min_significance_ + 1; qindex++){
           qubits.push_back(qindex);
         }
-           
+
             // Simulation test:
             // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
-          
+
         // Add comp:
         std::cout << "HOWDY: Comparator circuit:\n";
         std::cout << "Testing log_value:" << log_value << std::endl;
@@ -549,7 +549,7 @@ TEST(ExponentCircuitTester_5, checkSimple) {
           qindex = qubits[i];
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
           }
@@ -557,24 +557,24 @@ TEST(ExponentCircuitTester_5, checkSimple) {
         for (int i = 0; i < nb_qubits_log; i++){
           if (log_value&((int) pow(2,i))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
-          } 
+          }
         }
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
       }
     }
-  }  
+  }
 }
 
 TEST(ExponentCircuitTester_6, checkSimple) {
   // Test Exponent: input a bitstring to compare to BestScore.
   bool log_zero = true;
   std::random_device rand_dev ;
-  std::uniform_int_distribution<int> distr(1,4) ; 
+  std::uniform_int_distribution<int> distr(1,4) ;
   for (int j = 0; j < 2; j++) {
     for (int l = 0; l < 2; l++) {
       for (int m = 0; m < 2; m++) {
@@ -614,7 +614,7 @@ TEST(ExponentCircuitTester_6, checkSimple) {
           test_builder.X(nb_qubits_exp - 1);
           //std::cout << "mX " << nb_qubits_exp - 1 << std::endl;
         }
-            
+
         std::cout << "\n*** Testing log_value:" << log_value << " ***" << std::endl;
         std::vector<int> qubits_log ;
         std::vector<int> qubits_exponent_ ;
@@ -628,8 +628,8 @@ TEST(ExponentCircuitTester_6, checkSimple) {
           qubits_ancilla_.push_back(nb_qubits_log + qindex - 1);
           //std::cout << qindex-1 << " " << qubits_log.size() << "qubits_ancilla:" << max_exponent_ + 1 + nb_qubits_log - qindex << std::endl;
         }
-            
-        const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"qubits_exponent", qubits_exponent_}, {"qubits_ancilla", qubits_ancilla_}, 
+
+        const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"qubits_exponent", qubits_exponent_}, {"qubits_ancilla", qubits_ancilla_},
             {"min_significance", min_significance_}, {"is_LSB", true}};
         qbOS::Exponent build;
         const bool expand_ok = build.expand(map);
@@ -643,18 +643,18 @@ TEST(ExponentCircuitTester_6, checkSimple) {
         int nb_qubits = nb_qubits_exp + nb_qubits_log;
         //Check calculation of exponent qubits
         std::cout << "nb_qubits_log:" << nb_qubits_log << " nb_qubits_exp:" << nb_qubits_exp << std::endl;
-            
+
         test_builder.MeasureAll(nb_qubits);
 
         std::vector<int> qubits ;
         for (int qindex = 0; qindex < nb_qubits; qindex++){
           qubits.push_back(qindex);
         }
-            
+
         // Simulation test:
         // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
-          
+
         // Add comp:
         std::cout << "HOWDY: Comparator circuit:\n";
         std::cout << "Testing log_value:" << log_value << std::endl;
@@ -677,7 +677,7 @@ TEST(ExponentCircuitTester_6, checkSimple) {
           std::cout << "i:" << i << " qindex:" << qindex << std::endl;
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
           }
@@ -685,17 +685,17 @@ TEST(ExponentCircuitTester_6, checkSimple) {
         for (int i = nb_qubits_log - 1; i >= 0; i--){
           if (log_value&((int) pow(2,i))) {
             expected_measurement.push_back('1');
-          } 
+          }
           else {
             expected_measurement.push_back('0');
-          } 
+          }
         }
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
       }
     }
-  }  
+  }
 }
 
 

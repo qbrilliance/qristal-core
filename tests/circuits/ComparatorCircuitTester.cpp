@@ -1,18 +1,18 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 #include <bitset>
 
 TEST(ComparatorCircuitTester, checkGrid) {
   // Test Comparator: input a bitstring to compare to BestScore.
-  // If input > BestScore, flag qubit should return |1>. 
+  // If input > BestScore, flag qubit should return |1>.
   // Otherwise flag qubit should return |0>.
   for (int k = 0; k < 4; k++) {
       for (int j = 0; j < 4; j++) {
           // k will be used as the trial score
-          // j will be used as the current best score          
+          // j will be used as the current best score
           auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
           auto BestScore = j;
           auto num_scoring_qubits = 3;
@@ -57,12 +57,12 @@ TEST(ComparatorCircuitTester, checkGrid) {
 
 // TEST(ComparatorCircuitTester, checkGrid_inputqubits) {
 //   // Test Comparator: input a bitstring to compare to BestScore.
-//   // If input > BestScore, flag qubit should return |1>. 
+//   // If input > BestScore, flag qubit should return |1>.
 //   // Otherwise flag qubit should return |0>.
 //   for (int k = 0; k < 4; k++) {
 //       for (int j = 0; j < 4; j++) {
 //           // k will be used as the trial score
-//           // j will be used as the current best score          
+//           // j will be used as the current best score
 //           auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
 //           auto BestScore = j;
 //           auto num_scoring_qubits = 2;

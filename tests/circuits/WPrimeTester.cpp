@@ -1,4 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#include "qb/core/circuits/w_prime_unitary.hpp"
 #include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -6,7 +7,6 @@
 #include <bitset>
 #include <math.h>
 #include "IRProvider.hpp"
-#include "../w_prime_unitary.hpp"
 //#include <array>
 #include <gtest/gtest.h>
 
@@ -32,23 +32,23 @@ TEST(WPrimeTester_1, checkSimple) {
     //std::vector<std::string> Grammar = {"aa"};
 
     std::vector<std::vector<float>> probability_table{{.5,0.25,0.25},{0.1,0.7,0.2},{0.0,0.5,0.5}};    //[0.0,0.0,0.0],
-        
+
     //std::cout << "w_prime\n";
     for (int iteration_ = 0; iteration_ < 3 ; iteration_++) {
-        auto w_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(xacc::getService<xacc::Instruction>("WPrime"));   // xacc::getService<xacc::IRProvider>("quantum");  
+        auto w_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(xacc::getService<xacc::Instruction>("WPrime"));   // xacc::getService<xacc::IRProvider>("quantum");
         xacc::HeterogeneousMap map = {{"iteration",iteration_},  {"probability_table",probability_table},
             {"qubits_next_metric", qubits_next_letter_metric},{"qubits_next_letter", qubits_next_letter},
             {"qubits_init_null", qubits_init_null}};
         const bool expand_ok = w_prime->expand(map);
         assert(expand_ok);
-        
+
         // Simulation test:
         // Construct the full circuit, include state prep (eigen state of |1>);
         //std::cout << "w_prime_test create\n";
         auto w_prime_test = gateRegistry->createComposite("sim_wprime");
         int qubit_ancilla_prob;
         int qubit_next_letter_probabilities;
-        
+
         //std::cout << "w_prime.getInstructions()\n";
         w_prime_test->addInstructions(w_prime->getInstructions());
         // Measure evaluation qubits:
@@ -103,8 +103,8 @@ TEST(WPrimeTester_1, checkSimple) {
         }
 
     }
-    
-    
+
+
 }
 
 

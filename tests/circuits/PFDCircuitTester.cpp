@@ -1,6 +1,6 @@
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 #include <bitset>
 ////////////////////////
@@ -117,7 +117,7 @@ TEST(PFDCircuitTester, CheckGrid) {
       // This will return a dictionary type object {"measurement" ; counts}
       auto measurements = buffer->getMeasurementCounts();
       EXPECT_EQ(measurements.size(), 1);
-      
+
       float classical_result;
       if (j != 0) {
           classical_result = (float)i / (float)j;

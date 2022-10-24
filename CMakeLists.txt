@@ -62,8 +62,6 @@ if (NOT QBCORE_HEADER_ONLY)
   #add_subdirectory(examples)
 
   # Tests
-  # Enable testing for the project
-  enable_testing()
-  add_subdirectory(tests)
+  include(tests)
 
 endif()

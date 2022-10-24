@@ -1,10 +1,10 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#include "qb/core/circuits/q_prime_unitary.hpp"
 #include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 //#include <array>
 #include <gtest/gtest.h>
-#include "../q_prime_unitary.hpp"
 
 
 TEST(QPrimeTester_1, checkSimple) {
@@ -19,7 +19,7 @@ TEST(QPrimeTester_1, checkSimple) {
   int key[8];
   std::cout << "QPrimeTester 1:a\n";
   for (int qindex = 0; qindex < 2; qindex++){
-    key[qindex] = qubits_ancilla_prob[qindex]; 
+    key[qindex] = qubits_ancilla_prob[qindex];
     key[qindex+2] = qubits_ancilla_letter[qindex];
     key[qindex+4] = qubits_next_letter_probabilities[qindex];
     key[qindex+6] = qubits_next_letter[qindex];
@@ -29,13 +29,13 @@ TEST(QPrimeTester_1, checkSimple) {
   //const int max_key = key.max();
   //const int min_key = min(key);
   //const int offset_key = max_key + min_key;
-     
+
   //auto q_prime = xacc::getService<xacc::CompositeInstruction>("QPrime");
   auto q_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("QPrime"));
   xacc::HeterogeneousMap map = {{"iteration", 0},{"qubits_metric", std::vector<int>(qubits_ancilla_prob) }, {"qubits_string", std::vector<int>(qubits_ancilla_letter)},
         {"qubits_next_metric", std::vector<int>(qubits_next_letter_probabilities)},{"qubits_next_letter", std::vector<int>(qubits_next_letter)}};
-  //const bool expand_ok = 
+  //const bool expand_ok =
   q_prime->expand(map);
   //EXPECT_TRUE(expand_ok);
   // Simulation test:
@@ -86,7 +86,7 @@ TEST(QPrimeTester_2, checkSimple) {
   const std::vector<int> qubits_next_letter = {6,7};
   int key[8];
   for (int qindex = 0; qindex < 2; qindex++){
-    key[qindex] = qubits_ancilla_prob[qindex]; 
+    key[qindex] = qubits_ancilla_prob[qindex];
     key[qindex+2] = qubits_ancilla_letter[qindex];
     key[qindex+4] = qubits_next_letter_metric[qindex];
     key[qindex+6] = qubits_next_letter[qindex];
@@ -96,7 +96,7 @@ TEST(QPrimeTester_2, checkSimple) {
   //const int max_key = key.max();
   //const int min_key = min(key);
   //const int offset_key = max_key + min_key;
-     
+
   auto q_prime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(xacc::getService<xacc::Instruction>("QPrime"));
   const bool expand_ok = q_prime->expand(
       {{"iteration", 0}, {"qubits_metric", std::vector<int>(qubits_ancilla_prob) }, {"qubits_string", std::vector<int>(qubits_ancilla_letter)},

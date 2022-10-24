@@ -1,2 +1,0 @@
-add_gtest(VqeGen)
-target_link_libraries(VqeGenTester Eigen3_interface)

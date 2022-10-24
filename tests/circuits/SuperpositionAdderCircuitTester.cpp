@@ -1,12 +1,12 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
-#include "boost/math/special_functions/next.hpp"
+#include "qb/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
+#include "GateModifier.hpp"
+#include "boost/math/special_functions/next.hpp"
 #include <gtest/gtest.h>
 #include <memory>
-#include "GateModifier.hpp"
-#include "qbos_circuit_builder.hpp"
 
 TEST(SuperpositionAdderCircuitTester, check1) {
   //////////////////////////////////////
@@ -30,7 +30,7 @@ TEST(SuperpositionAdderCircuitTester, check1) {
   // Strings
   ae_state_prep_circ->addInstruction(gateRegistry->createInstruction("H", qubits_string[0]));
   ae_state_prep_circ->addInstruction(gateRegistry->createInstruction("H", qubits_string[1]));
- 
+
   // Metrics
   auto mcx00a = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("GeneralisedMCX"));
@@ -85,7 +85,7 @@ TEST(SuperpositionAdderCircuitTester, check1) {
       xacc::getService<xacc::Instruction>("ControlledSwap"));
   std::vector<int> swap_flags_on = {qubits_metric[0], qubits_metric[1], qubits_superfluous_flags[1]};
   std::vector<int> swap_flags_off = {qubits_superfluous_flags[0]};
-  swap->expand({{"qubits_a", std::vector<int> {qubits_string[0]}}, 
+  swap->expand({{"qubits_a", std::vector<int> {qubits_string[0]}},
                 {"qubits_b", std::vector<int> {qubits_string[1]}},
                 {"flags_on", swap_flags_on},
                 {"flags_off", swap_flags_off}});
@@ -156,14 +156,14 @@ TEST(SuperpositionAdderCircuitTester, check2) {
       qubits_ancilla.push_back(q);
   }
 
-  // We will set up the state |string>|metric>|flags> = 
+  // We will set up the state |string>|metric>|flags> =
   // |00>|101>|11> + |10>|011>|01> + |10>|100>|01> + |11>|111>|01>
 
   // strings
   ae_state_prep_circ->addInstruction(gateRegistry->createInstruction("H", qubits_string[0]));
   ae_state_prep_circ->addInstruction(gateRegistry->createInstruction("H", qubits_string[1]));
 
-  // metrics 
+  // metrics
   auto mcx00a = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
       xacc::getService<xacc::Instruction>("GeneralisedMCX"));
   mcx00a->expand({{"target", qubits_metric[0]},
@@ -231,7 +231,7 @@ TEST(SuperpositionAdderCircuitTester, check2) {
   std::vector<int> flags_off_swap = {qubits_metric[1], qubits_metric[2], qubits_superfluous_flags[0]};
   swap->expand({{"qubits_a", std::vector<int> {qubits_string[0]}},
                 {"qubits_b", std::vector<int> {qubits_string[1]}},
-                {"flags_on", flags_on_swap}, 
+                {"flags_on", flags_on_swap},
                 {"flags_off", flags_off_swap}});
   ae_state_prep_circ->addInstruction(swap);
 

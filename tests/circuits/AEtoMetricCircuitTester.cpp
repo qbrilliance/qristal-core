@@ -1,10 +1,10 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
+#include "qb/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include <gtest/gtest.h>
+#include "Circuit.hpp"
 #include "GateModifier.hpp"
-#include "qbos_circuit_builder.hpp"
+#include <gtest/gtest.h>
 
 ////////////////////////
 // Other include statements
@@ -22,7 +22,7 @@ TEST(AEtoMetricCircuitTester, checkWithAE) {
   std::vector<int> beam_metric = {6,7,8,9,10};
   int ones_idx = 2;
   std::vector<int> ancilla = {11,12,13,14,15,16,17,18,19,20}; // 3 * max(precision_bits) + 1
-  
+
   // Prepare the evaluation bits = |1>|01>|101>
   // So that the final metric should be 1/4(1) + 1/4(2) + 25/64(4) = 2.3125 = |10010> (1/4s, 1/2s, 1s, 2s, 4s)
   test_circ->addInstruction(gateRegistry->createInstruction("X", eval_bits[0]));
@@ -37,7 +37,7 @@ TEST(AEtoMetricCircuitTester, checkWithAE) {
   const bool expand_ok =
       aetm->expand({{"evaluation_bits", eval_bits},
                     {"precision_bits", precision_bits},
-                    {"qubits_ancilla", ancilla}, 
+                    {"qubits_ancilla", ancilla},
                     {"qubits_beam_metric", beam_metric},
                     {"qubits_beam_metric_ones_idx", ones_idx}});
   EXPECT_TRUE(expand_ok);
@@ -56,7 +56,7 @@ TEST(AEtoMetricCircuitTester, checkWithAE) {
     test_circ->addInstruction(
         gateRegistry->createInstruction("Measure", ancilla[i]));
   }
-  
+
 
   //////////////////////////////////////
   // Run circuit
@@ -69,7 +69,7 @@ TEST(AEtoMetricCircuitTester, checkWithAE) {
   //////////////////////////////////////
   // Check results
   //////////////////////////////////////
-  
+
   buffer->print();
   EXPECT_EQ(buffer->getMeasurementCounts()["101101100100000000000"], 1000);
 }

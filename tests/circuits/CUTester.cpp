@@ -1,7 +1,7 @@
-#include "Circuit.hpp"
-#include "qbos_circuit_builder.hpp"
+#include "qb/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 #include <memory>
 ////////////////////////
@@ -30,10 +30,10 @@ TEST(TestCase, checksimple) {
 
   std::cout << "controlled swap:\n" << cswap->toString() << "\n";
   std::cout << "C-cswap:\n" << controlled_U->toString() << "\n";
-  
+
   // Create the state |10> that we will perform the conditional swap operation on |10>->|01>
   circuit->addInstruction(gateRegistry->createInstruction("X", 0));
-  
+
   // Turn on both control bits (q2 and q3) so the whole state is |1011>
   circuit->addInstruction(gateRegistry->createInstruction("X", 2));
   //circuit->addInstructions(cswap->getInstructions());

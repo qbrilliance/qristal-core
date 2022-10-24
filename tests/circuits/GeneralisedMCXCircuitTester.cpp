@@ -1,28 +1,28 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
 ////////////////////////
 // Other include statements
 ////////////////////////
 
-// In this test we use generalised mcx to 
-// perform mcx on all possible 3-qubit bit strings (|000>,...,|111>) 
+// In this test we use generalised mcx to
+// perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
 // with all combinations of control qubit conditions ((on,on),...,(off,off))
 
 // Expected outcomes:
 
-// - When the control qubits are required to be (on,on) then we expect 
+// - When the control qubits are required to be (on,on) then we expect
 // |110> -> |111>, |111> -> |110>, and all other bit strings remain unchanged
 
-// - When the control qubits are required to be (on,off) then we expect 
+// - When the control qubits are required to be (on,off) then we expect
 // |100> -> |101>, |101> -> |100>, and all other bit strings remain unchanged
 
-// - When the control qubits are required to be (off,on) then we expect 
+// - When the control qubits are required to be (off,on) then we expect
 // |010> -> |011>, |011> -> |010>, and all other bit strings remain unchanged
 
-// - When the control qubits are required to be (off,off) then we expect 
+// - When the control qubits are required to be (off,off) then we expect
 // |000> -> |001>, |001> -> |000>, and all other bit strings remain unchanged
 
 TEST(GeneralisedMCXCircuitTester, checkgrid) {
@@ -32,7 +32,7 @@ TEST(GeneralisedMCXCircuitTester, checkgrid) {
   //////////////////////////////////////
 
   auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
-  
+
   std::vector<int> controls = {0,1};
   int target = 2;
 

@@ -1,9 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include <bitset>
+#include "Circuit.hpp"
 #include <gtest/gtest.h>
+#include <bitset>
 #include <memory>
 
 TEST(ControlledMultiplicationCircuitTester, check_integer1) {
@@ -52,7 +52,7 @@ TEST(ControlledMultiplicationCircuitTester, check_integer1) {
           circuit->addInstruction(gateRegistry->createInstruction("X", qubits_b[k]));
         }
       }
-      
+
       circuit->addInstruction(gateRegistry->createInstruction("X", controls_on[0]));
 
       auto multiply = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
