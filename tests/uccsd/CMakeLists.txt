@@ -1,3 +1,2 @@
-add_qbos_test(UCCSD)
-target_link_libraries(UCCSDTester xacc::xacc xacc::quantum_gate cppitertools::cppitertools)
-target_include_directories(UCCSDTester PRIVATE ${PROJECT_SOURCE_DIR}/include)
+add_gtest(UCCSD)
+target_link_libraries(UCCSDTester cppitertools::cppitertools qb::core_headers)
