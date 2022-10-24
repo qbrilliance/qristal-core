@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-# Add a dependent package, first looking to see if it has been installed already.
+# Add a dependent package using CPM, first looking to see if it has been installed already.
 macro(add_dependency NAME VERSION)
 
   set(oneValueArgs
