@@ -34,7 +34,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   )
 endif()
 
-
 # Do we want to generate test coverage report (with gcov)?
 set(WITH_COVERAGE OFF CACHE BOOL "Enable profiling for test coverage")
 
@@ -43,15 +42,6 @@ if(WITH_COVERAGE)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
   set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 endif()
-
-# Set default installation dir to the build dir
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "..." FORCE)
-endif()
-message("-- Installation directory set to ${CMAKE_INSTALL_PREFIX}.")
-
-# Set default RPATH to the lib dir of the installation dir
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib)
 
 # Determine make command to use for external builds
 include(ProcessorCount)

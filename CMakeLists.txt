@@ -40,6 +40,15 @@ project(core
   LANGUAGES CXX
 )
 
+# Set default installation dir to the build dir
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "..." FORCE)
+endif()
+message("-- Installation directory set to ${CMAKE_INSTALL_PREFIX}.")
+
+# Set default RPATH to the lib dir of the installation dir
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "..." FORCE)
+
 # Basic project config
 include(base_config)
 
