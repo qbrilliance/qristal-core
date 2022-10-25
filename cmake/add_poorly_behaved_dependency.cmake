@@ -1,3 +1,22 @@
+# Cache the install path as an insurance against the poorly-behaved dependency messing with it.
+macro(cache_install_path)
+  # Check if a previous installation was interrupted and left CMAKE_INSTALL_PREFIX in a corrupted state.
+  if (DEFINED CACHE{DEP_CMAKE_INSTALL_PREFIX} AND CMAKE_INSTALL_PREFIX STREQUAL DEP_CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for ${CMAKE_PROJECT_NAME}." FORCE)
+    unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
+  else()
+    # Otherwise, make a backup of the current CMAKE_INSTALL_PREFIX, before a poorly-behaved dependency's detection/installation process messes with it.
+    set(CMAKE_INSTALL_PREFIX_BACKUP ${CMAKE_INSTALL_PREFIX} CACHE PATH "Backup copy of install path for ${CMAKE_PROJECT_NAME} (allows restoration after e.g. XACC overwrites CMAKE_INSTALL_PREFIX)." FORCE)
+  endif()
+endmacro()
+
+
+# Reset CMAKE_INSTALL_PREFIX to its value before the detection/installation of the poorly-behaved dependency fiddled with it.
+macro(reset_install_path)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for ${CMAKE_PROJECT_NAME}." FORCE)
+endmacro()
+
+
 # Add a dependent package using manual commands, first looking to see if it has been installed already.
 macro(add_poorly_behaved_dependency NAME VERSION)
 
@@ -40,14 +59,8 @@ macro(add_poorly_behaved_dependency NAME VERSION)
     set(arg_CMAKE_PACKAGE_NAME ${NAME})
   endif()
 
-  # Check if a previous installation was interrupted and left CMAKE_INSTALL_PREFIX in a corrupted state.
-  if (DEFINED CACHE{DEP_CMAKE_INSTALL_PREFIX} AND CMAKE_INSTALL_PREFIX STREQUAL DEP_CMAKE_INSTALL_PREFIX)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for QB SDK core." FORCE)
-    unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
-  else()
-    # Otherwise, make a backup of the current CMAKE_INSTALL_PREFIX, as the following detection/installation process will mess with it.
-    set(CMAKE_INSTALL_PREFIX_BACKUP ${CMAKE_INSTALL_PREFIX} CACHE PATH "Backup copy of install path for QB SDK core (allows restoration after XACC overwrites CMAKE_INSTALL_PREFIX)." FORCE)
-  endif()
+  # Take out insurance against changes to CMAKE_INSTALL_PREFIX
+  cache_install_path()
 
   # Locate a system-installed version of CMAKE_PACKAGE_NAME.  Will work if the path to an installed CMAKE_PACKAGE_NAME is given as one of:
   #  - environment variable ${CMAKE_PACKAGE_NAME}_ROOT
@@ -124,7 +137,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
 
   endif()
 
-  # Reset the CMAKE_INSTALL_PREFIX to its value before the detection/installation fiddled with it.
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for QB SDK core." FORCE)
+  # Call in insurance against changes to CMAKE_INSTALL_PREFIX
+  reset_install_path()
 
 endmacro()
