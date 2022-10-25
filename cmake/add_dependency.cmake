@@ -43,7 +43,7 @@ macro(add_dependency NAME VERSION)
 
   if(${arg_CMAKE_PACKAGE_NAME}_FOUND)
 
-    message("System installation of ${NAME} found: version ${${arg_CMAKE_PACKAGE_NAME}_VERSION}")
+    message(STATUS "System installation of ${NAME} found: version ${${arg_CMAKE_PACKAGE_NAME}_VERSION}")
 
   else()
 
