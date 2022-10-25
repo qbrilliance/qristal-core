@@ -102,6 +102,7 @@ if (NOT QBCORE_HEADER_ONLY)
   # Eigen
   add_dependency(Eigen3 3.4.0
     GITLAB_REPOSITORY libeigen/eigen
+    GIT_TAG 3.4.0
   )
   # Add missing interface library for Eigen3
   if (EIGEN3_FOUND)
