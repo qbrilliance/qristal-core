@@ -66,11 +66,10 @@ if (NOT QBCORE_HEADER_ONLY)
   )
 
   # CPR curl wrapper
-  message(Build type in core: "${CMAKE_BUILD_TYPE}")
   if(CMAKE_BUILD_TYPE STREQUAL "None")
     set(cpr_CMAKE_BUILD_TYPE "Release")
   else()
-    set(cpr_CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+    set(cpr_CMAKE_BUILD_TYPE CMAKE_BUILD_TYPE)
   endif()
   add_dependency(cpr 1.9.2
     GIT_TAG 1.9.2
