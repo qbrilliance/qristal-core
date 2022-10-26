@@ -1,14 +1,35 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-# Set default installation dir to the build dir.  Must always be done before the first run of add_dependency.
+# Set default installation dir to the build dir.  Must be done before calling add_dependency.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)
 endif()
 
-# Set default RPATH to the lib dir of the installation dir.
+# Set default RPATH to the lib dir of the installation dir.  Must be done after default installation dir is set.
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
 
-# Include CPM for managing dependencies, and set it up to cache them in the deps folder
+# Work out build type.  Must be done before calling add_dependency.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  # Print info on available build types if and only if this is top-level project.
+  if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    message(STATUS "No build type selected. Defaulting to 'None'.
+    Available options are:
+      * -DCMAKE_BUILD_TYPE=None - For an unoptimized build with no assertions or debug info.
+      * -DCMAKE_BUILD_TYPE=Release - For an optimized build with no assertions or debug info.
+      * -DCMAKE_BUILD_TYPE=Debug - For an unoptimized build with assertions and debug info.
+      * -DCMAKE_BUILD_TYPE=RelWithDebInfo - For an optimized build with no assertions but with debug info.
+      * -DCMAKE_BUILD_TYPE=MinSizeRel - For a build optimized for size instead of speed.")
+  endif()
+  set(CMAKE_BUILD_TYPE "None" CACHE STRING "Type of build: None, Release, Debug, RelWithDebInfo or MinSizeRel." FORCE)
+  set_property(
+    CACHE
+      CMAKE_BUILD_TYPE
+    PROPERTY
+      STRINGS "None" "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
+  )
+endif()
+
+# Include CPM for managing dependencies, and set it up to cache them in the deps folder. Must be done before calling add_dependency.
 set(CPM_DOWNLOAD_VERSION 0.36.0)
 set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/../deps")
 set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")

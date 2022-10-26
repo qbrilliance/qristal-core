@@ -41,27 +41,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wunreachable-code -Wunuse
 # for use by code auto-complete, IDE IntelliSense, etc.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Build type
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  # Print info on available build types if and only if this is top-level project.
-  if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    message(STATUS "No build type selected. Defaulting to 'None'.
-    Available options are:
-      * -DCMAKE_BUILD_TYPE=None - For an unoptimized build with no assertions or debug info.
-      * -DCMAKE_BUILD_TYPE=Release - For an optimized build with no assertions or debug info.
-      * -DCMAKE_BUILD_TYPE=Debug - For an unoptimized build with assertions and debug info.
-      * -DCMAKE_BUILD_TYPE=RelWithDebInfo - For an optimized build with no assertions but with debug info.
-      * -DCMAKE_BUILD_TYPE=MinSizeRel - For a build optimized for size instead of speed.")
-  endif()
-  set(CMAKE_BUILD_TYPE "None" CACHE STRING "Type of build: None, Release, Debug, RelWithDebInfo or MinSizeRel." FORCE)
-  set_property(
-    CACHE
-      CMAKE_BUILD_TYPE
-    PROPERTY
-      STRINGS "None" "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
-  )
-endif()
-
 # Do we want to generate test coverage report (with gcov)?
 set(WITH_COVERAGE OFF CACHE BOOL "Enable profiling for test coverage")
 
