@@ -83,4 +83,4 @@ add_gtest(UCCSD PATH uccsd)
 target_link_libraries(UCCSDTester cppitertools::cppitertools)
 
 add_gtest(VqeGen PATH vqe)
-target_link_libraries(VqeGenTester Eigen3_interface)
+target_link_libraries(VqeGenTester Eigen3::Eigen)

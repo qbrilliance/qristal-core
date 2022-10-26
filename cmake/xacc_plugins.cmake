@@ -137,7 +137,7 @@ add_xacc_plugin(uccsd
     include/qb/core/uccsd/fermionic_excitation_generator.hpp
   DEPENDENCIES
     cppitertools::cppitertools
-    Eigen3_interface
+    Eigen3::Eigen
 )
 
 # VQE
