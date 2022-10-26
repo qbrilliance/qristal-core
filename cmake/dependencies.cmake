@@ -8,6 +8,20 @@ add_poorly_behaved_dependency(xacc 1.0.0
   GIT_REPOSITORY https://github.com/eclipse/xacc
 )
 
+# Pybind11
+add_dependency(pybind11 2.10.0
+  GITHUB_REPOSITORY pybind/pybind11
+)
+
+# Gtest
+add_dependency(googletest 1.12.1
+  GITHUB_REPOSITORY google/googletest
+  GIT_TAG release-1.12.1
+  OPTIONS
+    "INSTALL_GTEST OFF"
+    "gtest_force_shared_crt"
+)
+
 # Add dependencies needed only for compiled libraries.
 if (NOT QBCORE_HEADER_ONLY)
 
@@ -95,20 +109,6 @@ if (NOT QBCORE_HEADER_ONLY)
       message(FATAL_ERROR "Your Eigen installation appears to be broken: could not find file ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen.")
     endif()
   endif()
-
-  # Pybind11
-  add_dependency(pybind11 2.10.0
-    GITHUB_REPOSITORY pybind/pybind11
-  )
-
-  # Gtest
-  add_dependency(googletest 1.12.1
-    GITHUB_REPOSITORY google/googletest
-    GIT_TAG release-1.12.1
-    OPTIONS
-      "INSTALL_GTEST OFF"
-      "gtest_force_shared_crt"
-  )
 
 endif()
 
