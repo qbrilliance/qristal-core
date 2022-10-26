@@ -122,3 +122,17 @@ macro(add_dependency NAME VERSION)
   endif()
 
 endmacro()
+
+# If any packages are missing, fail.
+macro(check_missing)
+  if(MISSING_DEPENDENCIES AND NOT INSTALL_MISSING)
+
+    message("\nThe following dependencies were not found by cmake:")
+    foreach(package ${MISSING_DEPENDENCIES})
+      message("  ${package}")
+    endforeach()
+    message("To have cmake automatically install the missing packages, rerun with -DINSTALL_MISSING=ON.\n")
+    message(FATAL_ERROR "Either rerun with -DINSTALL_MISSING=ON, or fix the search paths passed to cmake for finding installed dependencies.")
+
+  endif()
+endmacro()

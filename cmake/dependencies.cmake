@@ -117,13 +117,4 @@ endif()
 
 
 # If any packages are still missing, fail.
-if(MISSING_DEPENDENCIES AND NOT INSTALL_MISSING)
-
-  message("\nThe following dependencies were not found by cmake:")
-  foreach(package ${MISSING_DEPENDENCIES})
-    message("  ${package}")
-  endforeach()
-  message("To have cmake automatically install the missing packages, rerun with -DINSTALL_MISSING=ON.\n")
-  message(FATAL_ERROR "Either rerun with -DINSTALL_MISSING=ON, or fix the search paths passed to cmake for finding installed dependencies.")
-
-endif()
+check_missing()
