@@ -1,5 +1,26 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
+# Set default installation dir to the build dir.  Must always be done before the first run of add_dependency.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)
+endif()
+
+# Set default RPATH to the lib dir of the installation dir.
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
+
+# Include CPM for managing dependencies, and set it up to cache them in the deps folder
+set(CPM_DOWNLOAD_VERSION 0.36.0)
+set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/deps")
+set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+  message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+  file(DOWNLOAD
+       https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+       ${CPM_DOWNLOAD_LOCATION}
+  )
+endif()
+include(${CPM_DOWNLOAD_LOCATION})
+
 # Add a dependent package using CPM, first looking to see if it has been installed already.
 macro(add_dependency NAME VERSION)
 

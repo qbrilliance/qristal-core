@@ -26,14 +26,6 @@ else()
   set(SHORT_VERSION "Version: ${PROJECT_VERSION} Build time ${TODAY}")
 endif()
 
-# Set default installation dir to the build dir
-if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)
-endif()
-
-# Set default RPATH to the lib dir of the installation dir
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
-
 # Project output target namespace
 set(NAMESPACE qb)
 

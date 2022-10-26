@@ -17,14 +17,14 @@ project(core
 # Save the version numbers for use in the code.
 configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)
 
-# Print out the installation directory.
-message(STATUS "Installation directory for ${CMAKE_PROJECT_NAME} set to ${CMAKE_INSTALL_PREFIX}.")
-
 # Locate / set up retrieval of dependencies
 include(dependencies)
 
 # core headers and libqbcore.so shared library
 include(cpp_lib)
+
+# Print out the installation directory.
+message(STATUS "Installation directory for ${CMAKE_PROJECT_NAME} set to ${CMAKE_INSTALL_PREFIX}.")
 
 # Nothing more to do if the caller only needs the headers
 if (NOT QBCORE_HEADER_ONLY)

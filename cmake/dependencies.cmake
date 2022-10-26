@@ -1,4 +1,4 @@
-# Add dependencies needed for header-only usage
+include(add_dependency)
 include(add_poorly_behaved_dependency)
 
 # XACC
@@ -8,22 +8,8 @@ add_poorly_behaved_dependency(xacc 1.0.0
   GIT_REPOSITORY https://github.com/eclipse/xacc
 )
 
-# Add dependencies needed for compiled libraries.
+# Add dependencies needed only for compiled libraries.
 if (NOT QBCORE_HEADER_ONLY)
-
-  # Include CPM for managing dependencies, and set it up to cache them in the deps folder
-  set(CPM_DOWNLOAD_VERSION 0.36.0)
-  set(CPM_SOURCE_CACHE "${PROJECT_SOURCE_DIR}/deps")
-  set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
-  if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
-    message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
-    file(DOWNLOAD
-         https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
-         ${CPM_DOWNLOAD_LOCATION}
-    )
-  endif()
-  include(${CPM_DOWNLOAD_LOCATION})
-  include(add_dependency)
 
   #Python 3 interpreter and libraries
   find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
