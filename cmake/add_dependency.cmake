@@ -10,7 +10,7 @@ set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Search path for 
 
 # Include CPM for managing dependencies, and set it up to cache them in the deps folder
 set(CPM_DOWNLOAD_VERSION 0.36.0)
-set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/deps")
+set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/../deps")
 set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
 if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
   message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
