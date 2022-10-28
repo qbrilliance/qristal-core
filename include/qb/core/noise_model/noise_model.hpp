@@ -1,10 +1,12 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
 #pragma once
-#include <nlohmann/json.hpp>
-#include "noise_channel.hpp"
+
 #include <unordered_map>
+#include "json_complex_convert.hpp"
+#include "noise_channel.hpp"
 #include "noise_properties.hpp"
+
 namespace qb
 {
     /**
@@ -80,7 +82,7 @@ namespace qb
             Custom
         };
 
-    private:
+    protected:
         /**
          * @brief Calculate component of Pauli error caused by decoherence on a single qubit
          *
@@ -91,7 +93,7 @@ namespace qb
          */
         double decoherence_pauli_error(double t1, double tphi, double gate_time);
 
-    private:
+    protected:
         /// @brief Gate noise channel registry
         /// Map from gate name -> a map of qubit operands -> noise channel
         /// If the noise is uniform (qubit independent), use empty vector for qubit operands

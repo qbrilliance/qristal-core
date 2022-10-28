@@ -234,8 +234,9 @@ private:
 
   // Valid noise_model values
   std::unordered_set<std::string> VALID_NOISE_MODEL_NAMES = {
-    "nm1",
-    "nm2"
+    "default",
+    "qb-nm1",
+    "qb-nm2"
   };
 
   // More QB hardware options (similar to the above) go here
@@ -264,7 +265,7 @@ public:
         nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
         output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
         notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-        thetas_{{}}, max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{"nm1"}},
+        thetas_{{}}, max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{"default"}},
         acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}},
         output_amplitudes_{{}}, out_raws_{{{}}}, out_counts_{{{}}},
         out_divergences_{{{}}}, out_transpiled_circuits_{{{}}},

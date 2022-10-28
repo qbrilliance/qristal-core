@@ -304,13 +304,14 @@ const char* Qbqe::help_svd_cutoffs_ = R"(
 const char* Qbqe::help_noise_models_ = R"(
         noise_model:
 
-        Valid settings: "nm1" | "nm2"
+        Valid settings: "default" | "qb-nm1" | "qb-nm2"
 
         Requires setting: noise = True (to have effect)
-        Default: "nm1"
-
-        "nm1" : 4x4 NV centres in x-y grid, 3 qubits per NV centre
-        "nm2" : 8x8 NV centres in x-y grid, 1 qubit per NV centre, nearest x and nearest y connectivity
+        Default: "default"
+        "default": Simple depolarizing noise model on all qubits (builtin)
+        These two options require the QB emulator module (addons):
+        "qb-nm1" : 4x4 NV centres in x-y grid, 3 qubits per NV centre
+        "qb-nm2" : 8x8 NV centres in x-y grid, 1 qubit per NV centre, nearest x and nearest y connectivity
 
         noise_models:
 

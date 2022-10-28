@@ -8,7 +8,7 @@
 #include "CommonGates.hpp"
 #include "xacc.hpp"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <memory>
 #include <sstream>
 using json = nlohmann::json;

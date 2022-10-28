@@ -63,10 +63,10 @@ namespace qb
             assert(kron_mat.rows() == 4);
             assert(kron_mat.cols() == 4);
             KrausOperator::Matrix mat(kron_mat.rows());
-            for (size_t row = 0; row < kron_mat.rows(); ++row)
+            for (int row = 0; row < kron_mat.rows(); ++row)
             {
                 std::vector<std::complex<double>> row_vec(kron_mat.cols());
-                for (size_t col = 0; col < kron_mat.cols(); ++col)
+                for (int col = 0; col < kron_mat.cols(); ++col)
                 {
                     row_vec[col] = kron_mat(row, col);
                 }
