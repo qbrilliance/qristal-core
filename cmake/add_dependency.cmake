@@ -1,5 +1,33 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
+# Time of running cmake
+string(TIMESTAMP TODAY)
+
+# Get version number from git tag.  Must be done before the project command is called.
+# TODO will not work when code tarball is downloaded instead of cloning git repo!
+find_package(Git)
+
+if(GIT_FOUND)
+  execute_process(
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND git describe --tags --abbrev=0
+    OUTPUT_VARIABLE FULL_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1" VERSION_MAJOR "${FULL_VERSION}")
+  string(REGEX REPLACE "^v[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${FULL_VERSION}")
+  string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_REVISION "${FULL_VERSION}")
+  string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+-*(.*)" "\\1" VERSION_PATCH "${FULL_VERSION}")
+endif()
+
+set(PROJECT_VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION}")
+if(VERSION_PATCH)
+  set(PROJECT_VERSION "${PROJECT_VERSION}.${VERSION_PATCH}")
+  set(SHORT_VERSION "Version: ${VERSION_PATCH} Build time ${TODAY}")
+else()
+  set(SHORT_VERSION "Version: ${PROJECT_VERSION} Build time ${TODAY}")
+endif()
+
 # Set default installation dir to the build dir.  Must be done before calling add_dependency.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)

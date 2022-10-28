@@ -1,4 +1,3 @@
-include(add_dependency)
 include(add_poorly_behaved_dependency)
 
 # XACC

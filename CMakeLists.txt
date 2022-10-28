@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 # Set path to cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-# Basic project config
-include(base_config)
+# Pull in CPM and other things needed for adding dependencies
+include(add_dependency)
 
 # Project
 project(core
@@ -13,6 +13,9 @@ project(core
   DESCRIPTION "Quantum Brilliance SDK Core"
   LANGUAGES CXX
 )
+
+# Basic project config
+include(base_config)
 
 # Save the version numbers for use in the code.
 configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)
