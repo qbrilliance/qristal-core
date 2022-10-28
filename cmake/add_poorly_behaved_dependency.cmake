@@ -94,6 +94,10 @@ macro(add_poorly_behaved_dependency NAME VERSION)
 
       # Checkout, cmake, build and install the pacakge.
       message("   CMake will now download and install ${NAME} v${VERSION}.")
+      execute_process(RESULT_VARIABLE result COMMAND ${CMAKE_COMMAND} -E rm -rf _deps/${NAME})
+      if(NOT ${result} STREQUAL "0")
+        message(FATAL_ERROR "Attempt to remove existing git repository for ${NAME} v${VERSION} failed.")
+      endif()
       execute_process(RESULT_VARIABLE result COMMAND git clone ${arg_GIT_REPOSITORY} _deps/${NAME})
       if(NOT ${result} STREQUAL "0")
         message(FATAL_ERROR "Attempt to clone git repository for ${NAME} v${VERSION} failed.  This is expected if e.g. you are disconnected from the internet.")
