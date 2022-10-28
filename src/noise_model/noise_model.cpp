@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
 #include "qb/core/noise_model/noise_model.hpp"
-#include "json.hpp"
+
 namespace qb
 {
     NoiseModel::NoiseModel(const nlohmann::json &js) : m_qobj_noise_model(js)

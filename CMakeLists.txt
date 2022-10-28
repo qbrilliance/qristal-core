@@ -23,6 +23,9 @@ configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/
 # Locate / set up retrieval of dependencies
 include(dependencies)
 
+# Noise modeling library (used by qbcore)
+include(noise_model_lib)
+
 # core headers and libqbcore.so shared library
 include(cpp_lib)
 

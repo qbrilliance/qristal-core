@@ -9,7 +9,7 @@
 #include "QuantumBrillianceRemoteVisitor.hpp"
 #include <cstdint>
 #include <fstream>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <memory>
 #include <string>
 #include <vector>

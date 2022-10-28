@@ -312,7 +312,7 @@ def test_CI_220915_1_noise_model_1_readout_error():
     qubit_list = [0]
     n_shots = 700
     backend = 'aer'
-    noise_model = 'nm1'
+    noise_model = 'qb-nm1'
     meas_fitter = get_measurement_fitter(num_qubits, qubit_list, experiment_name, n_shots, backend, noise_model)
     print("Calibration Matrix:\n" + str(meas_fitter.cal_matrix))
     print("Average Measurement Fidelity: %f" % meas_fitter.readout_fidelity())
@@ -325,7 +325,7 @@ def test_CI_220915_2_noise_model_2_readout_error():
     qubit_list = [0]
     n_shots = 700
     backend = 'aer'
-    noise_model = 'nm2'
+    noise_model = 'qb-nm2'
     meas_fitter = get_measurement_fitter(num_qubits, qubit_list, experiment_name, n_shots, backend, noise_model)
     print("Calibration Matrix:\n" + str(meas_fitter.cal_matrix))
     print("Average Measurement Fidelity: %f" % meas_fitter.readout_fidelity())

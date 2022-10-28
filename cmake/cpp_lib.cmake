@@ -7,9 +7,6 @@ set(source_files
   #src/qbTketNoiseAwarePlacement.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
   src/thread_pool.cpp
-  src/noise_model/noise_channel.cpp
-  src/noise_model/noise_model.cpp
-  src/noise_model/noise_model_factory.cpp
   # We need these in order to complete the linking
   # TODO: refactor methods.hpp to no longer contain getters/setters declarations...
   python_module/core/methods_getter_setter.cpp
@@ -65,14 +62,12 @@ if (NOT QBCORE_HEADER_ONLY)
     PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:include>
-      # Util headers from Qiskit for Json serialization of complex types
-      # TODO install these headers as a dependency rather than shipping them
-      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/deps/qiskit>
   )
 
   # Link dependencies
   target_link_libraries(${LIBRARY_NAME}
     PUBLIC
+      qb::core::noise_model
       xacc::xacc
       xacc::quantum_gate
       args

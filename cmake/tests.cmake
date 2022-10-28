@@ -8,6 +8,16 @@ target_link_libraries(coreCLITester qb::core)
 add_gtest(NoiseModel PATH noise_model)
 target_link_libraries(NoiseModelTester qb::core)
 
+# Integration with Emulator noise model test
+add_gtest(EmulatorNoiseModel PATH noise_model)
+target_link_libraries(EmulatorNoiseModelTester qb::core)
+set_target_properties(EmulatorNoiseModelTester
+  PROPERTIES
+    INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib"
+    BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib"
+)
+
+
 # AWS backend
 add_gtest(AWSAccelerator PATH aws_braket)
 add_gtest(AwsOpenQasm3 PATH aws_braket)
