@@ -12,18 +12,18 @@ namespace qb
      */
     struct NoiseModelFactory
     {
-        virtual NoiseModel Create(size_t nb_qubits, NoiseModel::QubitConnectivity connectivity = NoiseModel::QubitConnectivity::AllToAll, const std::vector<std::pair<size_t, size_t>> &connected_pairs = {}) = 0;
+        /**
+         * @brief Create a concrete noise model
+         * Optionally allows for customization, e.g., number of qubits, if supported.
+         *
+         * @param nb_qubits [Optional] Number of qubits
+         * @param connectivity [Optional] Connectivity pattern
+         * @param connected_pairs [Optional] Custom connectivity topology (if not AllToAll)
+         * @return Noise model object
+         */
+        virtual NoiseModel Create(size_t nb_qubits = 0, NoiseModel::QubitConnectivity connectivity = NoiseModel::QubitConnectivity::AllToAll, const std::vector<std::pair<size_t, size_t>> &connected_pairs = {}) = 0;
     };
 
-    const std::vector<std::string> VALID_NOISE_MODEL_FACTORIES = {
-        "default",
-        "custom",
-#ifdef _HAS_QB_EMULATOR
-        // If Emulator is present
-        "qb-gen1",
-        "qb-gen2",
-#endif
-    };
     /**
      * @brief Get the noise model factory object
      *

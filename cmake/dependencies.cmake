@@ -22,6 +22,24 @@ add_dependency(googletest 1.12.1
     "gtest_force_shared_crt"
 )
 
+# json library
+add_dependency(nlohmann_json 3.9.1
+  GITHUB_REPOSITORY /nlohmann/json
+  OPTIONS
+    "JSON_BuildTests OFF"
+)
+
+# Eigen
+add_dependency(Eigen3 3.4.0
+  GITLAB_REPOSITORY libeigen/eigen
+  GIT_TAG 3.4.0
+)
+if (EIGEN3_FOUND)
+  if(NOT EXISTS ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen)
+    message(FATAL_ERROR "Your Eigen installation appears to be broken: could not find file ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen.")
+  endif()
+endif()
+
 # Add dependencies needed only for compiled libraries.
 if (NOT QBCORE_HEADER_ONLY)
 
@@ -72,13 +90,6 @@ if (NOT QBCORE_HEADER_ONLY)
       "ARGS_BUILD_UNITTESTS OFF"
   )
 
-  # json library
-  add_dependency(nlohmann_json 3.9.1
-    GITHUB_REPOSITORY /nlohmann/json
-    OPTIONS
-      "JSON_BuildTests OFF"
-  )
-
   # CPR curl wrapper
   if(CMAKE_BUILD_TYPE STREQUAL "None")
     set(cpr_CMAKE_BUILD_TYPE "Release")
@@ -98,17 +109,6 @@ if (NOT QBCORE_HEADER_ONLY)
     OPTIONS
       "cppitertools_INSTALL_CMAKE_DIR share"
   )
-
-  # Eigen
-  add_dependency(Eigen3 3.4.0
-    GITLAB_REPOSITORY libeigen/eigen
-    GIT_TAG 3.4.0
-  )
-  if (EIGEN3_FOUND)
-    if(NOT EXISTS ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen)
-      message(FATAL_ERROR "Your Eigen installation appears to be broken: could not find file ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen.")
-    endif()
-  endif()
 
 endif()
 

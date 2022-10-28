@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <complex>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 /// Define typedefs for qbOS Python bindings
 namespace qbOS {

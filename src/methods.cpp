@@ -1534,10 +1534,7 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
       }
     }
 
-    // TODO: currently, we support a generic 'default' noise model
-    // This will be enhanced to support user-provided and QB-specific (QB emulator) noise models.
-    // TODO: Convert this const variable to user option.
-    const std::string noise_model_generator_name = "default";
+    const std::string noise_model_generator_name = run_config.noise_model;
     auto noise_factory = qb::get_noise_model_factory(noise_model_generator_name);
     if (noise_factory == nullptr) {
        throw std::invalid_argument("The requested noise model of '" + noise_model_generator_name + "' is not implemented");
@@ -1830,10 +1827,21 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
       }
     } else if (accs == "qsim" && noises) {
       // Use qsim via Cirq wrapper to handle noise if requested
-      qpu = xacc::getAccelerator("cirq-qsim");
-      if (debug_qbqe_) {
-        std::cout << "# Noise model for qsim: enabled - 48 qubit" << std::endl;
-      }
+      // The "cirq-qsim" backend is part of the external emulator package
+      // to be used with the qb emulator noise models only.
+      if (run_config.noise_model != "qb-nm1" && run_config.noise_model != "qb-nm2") {
+        // We don't support arbitrary noise model in qsim yet.
+        // Hence, ignore the noise request. Log info to let users know.
+        std::cout << "# 'qsim' doesn't support the request noise configuration. Disable noise." << std::endl;
+        std::cout << "# Please use one of QB noise models (e.g., 'qb-nm1' or 'qb-nm2') from the emulator package (extra installation)." << std::endl;
+      } else {
+        // Switch to "cirq-qsim" from emulator package
+        qpu = xacc::getAccelerator("cirq-qsim");
+        mqbacc.insert("noise-model-name", run_config.noise_model);
+        if (debug_qbqe_) {
+          std::cout << "# Noise model for qsim (from emulator package): enabled" << std::endl;
+        }
+      }  
     }
 
     if (exec_on_hardware) {
@@ -2164,7 +2172,7 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
       out_counts_.at(ii).at(jj) = qpu_counts_nn;
 
       // Save results to JSON
-      json_t qpu_counts_js = qpu_counts;
+      nlohmann::json qpu_counts_js = qpu_counts;
       out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
 
       // Save Z-operator expectation value to VectorMapND
@@ -2532,10 +2540,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
     }
 
     n_qubits = run_config.num_qubits;
-    // TODO: currently, we support a generic 'default' noise model
-    // This will be enhanced to support user-provided and QB-specific (QB emulator) noise models.
-    // TODO: Convert this const variable to user option.
-    const std::string noise_model_generator_name = "default";
+    const std::string noise_model_generator_name = run_config.noise_model;
     auto noise_factory = qb::get_noise_model_factory(noise_model_generator_name);
     if (noise_factory == nullptr) {
        throw std::invalid_argument("The requested noise model of '" + noise_model_generator_name + "' is not implemented");
@@ -2886,7 +2891,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
   out_counts_.at(ii).at(jj) = qpu_counts_nn;
 
   // Save results to JSON
-  json_t qpu_counts_js = qpu_counts;
+  nlohmann::json qpu_counts_js = qpu_counts;
   out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
 
   // Save Z-operator expectation value to VectorMapND

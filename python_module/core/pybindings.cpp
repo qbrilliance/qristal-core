@@ -5,7 +5,7 @@
 #include "qb/core/thread_pool.hpp"
 #include "qb/core/circuit_builders/exponent.hpp"
 #include "CompositeInstruction.hpp"
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <pybind11/complex.h>
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
