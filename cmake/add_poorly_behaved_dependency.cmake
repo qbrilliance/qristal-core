@@ -95,11 +95,11 @@ macro(add_poorly_behaved_dependency NAME VERSION)
     set(arg_CMAKE_PACKAGE_NAME ${NAME})
   endif()
 
-  # Do a dry run of find_package
-  find_package_dry_run(${NAME} ${VERSION} ${arg_CMAKE_PACKAGE_NAME} ${arg_GIT_TAG} DRY_RUN_SUCCEEDED)
-
   # Take out insurance against changes to CMAKE_INSTALL_PREFIX
   cache_install_path()
+
+  # Do a dry run of find_package
+  find_package_dry_run(${NAME} ${VERSION} ${arg_CMAKE_PACKAGE_NAME} ${arg_GIT_TAG} DRY_RUN_SUCCEEDED)
 
   # If the dry run worked, we should be safe to find the dependency with find_package
   if(DRY_RUN_SUCCEEDED)
