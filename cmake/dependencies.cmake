@@ -58,7 +58,7 @@ if (NOT QBCORE_HEADER_ONLY)
     OPTIONS
       "BLAS_LIB OPENBLAS"
       "BLAS_PATH @BLAS_PATH@"
-      "EXATN_BUILD_TESTS False"
+      "EXATN_BUILD_TESTS OFF"
   )
 
   # TNQVM
@@ -69,6 +69,7 @@ if (NOT QBCORE_HEADER_ONLY)
     OPTIONS
      "XACC_DIR ${XACC_ROOT}"
      "EXATN_DIR ${EXATN_ROOT}"
+     "TNQVM_BUILD_TESTS OFF"
   )
 
   # args library
