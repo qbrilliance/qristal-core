@@ -22,7 +22,7 @@ endmacro()
 #  - environment variable ${CMAKE_PACKAGE_NAME}_ROOT
 #  - cmake variable ${CMAKE_PACKAGE_NAME}_ROOT (set with -D at cmake invocation)
 #  - cmake variable ${CMAKE_PACKAGE_NAME}_DIR (set with -D at cmake invocation)
-function(find_package_dry_run NAME VERSION arg_CMAKE_PACKAGE_NAME arg_GIT_TAG DRY_RUN_SUCCEEDED)
+function(find_package_dry_run NAME VERSION arg_CMAKE_PACKAGE_NAME arg_GIT_TAG SUCCESS)
 
   # Before running find_package, make sure that the _ROOT and _DIR paths are consistent.
   if(${arg_CMAKE_PACKAGE_NAME}_ROOT AND ${arg_CMAKE_PACKAGE_NAME}_DIR AND
@@ -33,15 +33,15 @@ function(find_package_dry_run NAME VERSION arg_CMAKE_PACKAGE_NAME arg_GIT_TAG DR
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/_dry_runs)
   configure_file(cmake/dry_run_CMakeLists.txt.in ${CMAKE_BINARY_DIR}/_dry_runs/CMakeLists.txt @ONLY)
-  execute_process(COMMAND ${CMAKE_COMMAND} -B_dry_runs _dry_runs -D${arg_CMAKE_PACKAGE_NAME}_ROOT=${${arg_CMAKE_PACKAGE_NAME}_ROOT} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
+  execute_process(COMMAND ${CMAKE_COMMAND} -B_dry_runs _dry_runs -D${arg_CMAKE_PACKAGE_NAME}_ROOT=${${arg_CMAKE_PACKAGE_NAME}_ROOT} -D${arg_CMAKE_PACKAGE_NAME}_DIR=${${arg_CMAKE_PACKAGE_NAME}_DIR} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
 
   string(REGEX REPLACE ".*poorly_behaved_dependency_dry_run: (.*)(\n|$)" "\\1" DRY_RUN_RESULTS "${DRY_RUN_RESULTS}")
   if(DRY_RUN_RESULTS STREQUAL "Found")
     message(STATUS "System installation of ${NAME} found: version ${VERSION}-${arg_GIT_TAG}")
-    set(DRY_RUN_SUCCEEDED True)
+    set(${SUCCESS} True PARENT_SCOPE)
   else()
-    set(DRY_RUN_SUCCEEDED False)
+    set(${SUCCESS} False PARENT_SCOPE)
     if(DRY_RUN_RESULTS STREQUAL "Not found")
       message(STATUS "System installation of ${NAME} v${VERSION}-${arg_GIT_TAG} not found.")
     else()
