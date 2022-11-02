@@ -1,5 +1,8 @@
 include(add_poorly_behaved_dependency)
 
+# curl (needed by XACC and CPR)
+find_package(CURL REQUIRED)
+
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   CMAKE_PACKAGE_NAME XACC
@@ -41,13 +44,23 @@ endif()
 add_dependency(Eigen3 3.4.0
   GITLAB_REPOSITORY libeigen/eigen
   GIT_TAG 3.4.0
+  DOWNLOAD_ONLY YES
 )
+if(Eigen3_ADDED)
+  add_library(Eigen INTERFACE IMPORTED)
+  target_include_directories(Eigen INTERFACE ${Eigen_SOURCE_DIR})
+  add_library(Eigen3::Eigen ALIAS Eigen)
+endif()
+
 
 # Add dependencies needed only for compiled libraries.
 if (NOT QBCORE_HEADER_ONLY)
 
-  #Python 3 interpreter and libraries
+  # Python 3 interpreter and libraries
   find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
+
+  # Boost headers
+  find_package(Boost 1.74 REQUIRED)
 
   # EXATN
   add_poorly_behaved_dependency(exatn 1.0.0
@@ -92,6 +105,7 @@ if (NOT QBCORE_HEADER_ONLY)
     GITHUB_REPOSITORY libcpr/cpr
     OPTIONS
       "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
+      "-DCPR_FORCE_USE_SYSTEM_CURL ON"
   )
 
   # C++ itertools

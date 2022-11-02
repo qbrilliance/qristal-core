@@ -5,9 +5,6 @@
 
 #include "args.hxx"
 
-#include <boost/dynamic_bitset.hpp>
-#include <boost/math/constants/constants.hpp>
-
 #include <stdexcept>
 #include <unordered_set>
 

@@ -1,6 +1,8 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
 #include "qb/core/method_utils.hpp"
+#include <boost/dynamic_bitset.hpp>
+#include <boost/math/constants/constants.hpp>
 
 namespace qbOS {
 int binomialCoefficient(int n, int k) {
