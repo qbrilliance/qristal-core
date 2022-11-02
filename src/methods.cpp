@@ -8,6 +8,9 @@
 #include <sstream>
 #include <stdexcept>
 
+// Boost
+#include <boost/dynamic_bitset.hpp>
+
 // QB
 #include "qb/core/methods.hpp"
 #include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
@@ -177,7 +180,7 @@ Qbqe::circuit_input_types Qbqe::validate_infiles_instrings_randoms_irtarget_ms_n
   if (is_infiles_empty && is_instrings_empty && is_randoms_empty && is_irtarget_m_empty) {
     throw std::invalid_argument("qbqe: at least one of these must have a "
                                 "value: infile | instring | random | irtarget_m");
-  } 
+  }
 
   // 1.1 Check if "__qpu" occurs at the start of instrings_
   if (!is_instrings_empty) {
@@ -1323,7 +1326,7 @@ std::string Qbqe::get_target_circuit_qasm_string(size_t ii, size_t jj, const run
   if (file_or_string_or_random_or_ir == Qbqe::circuit_input_types::INVALID) {
     throw std::invalid_argument("Please check your settings again.");
   }
-  
+
   if (file_or_string_or_random_or_ir == Qbqe::circuit_input_types::VALID_INFILE) {
       // File input: load from file
       std::ifstream tifs((infiles_[ii])[0]);
@@ -1363,7 +1366,7 @@ std::string Qbqe::get_target_circuit_qasm_string(size_t ii, size_t jj, const run
       {
         instrings_.at(ii).resize(1);
       }
-      
+
       instrings_.at(ii).at(0) += "\n# Random circuit created:\n\n";
       instrings_.at(ii).at(0) += target_circuit;
     }
@@ -1478,7 +1481,7 @@ std::string Qbqe::get_target_circuit_qasm_string(size_t ii, size_t jj, const run
               << incqb << std::endl;
       }
     }
-  }  
+  }
   return target_circuit;
 }
 
@@ -1841,7 +1844,7 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
         if (debug_qbqe_) {
           std::cout << "# Noise model for qsim (from emulator package): enabled" << std::endl;
         }
-      }  
+      }
     }
 
     if (exec_on_hardware) {
@@ -1930,7 +1933,7 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
 
     // Execute on simulator (qpu)
     auto buffer_b = xacc::qalloc(n_qubits);
-    
+
     // Get the composite IR to run:
     std::vector<std::shared_ptr<xacc::CompositeInstruction>> citargets;
     if (file_or_string_or_random_or_ir == Qbqe::circuit_input_types::VALID_IR)
@@ -2167,7 +2170,7 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
             break;
         }
       }
-     
+
       // Store measure counts
       out_counts_.at(ii).at(jj) = qpu_counts_nn;
 
@@ -2191,7 +2194,7 @@ void Qbqe::run(const size_t &ii, const size_t &jj) {
           throw std::invalid_argument(
               "Transpiling to QB native gates for your input circuit failed");
         }
-        
+
         // Save the transpiled circuit string
         out_transpiled_circuits_.at(ii).at(jj) = acc->getTranspiledResult();
 
@@ -2400,7 +2403,7 @@ void Qbqe::aws8tn1() {
 }
 
 /// Util method to compile input source string into IR
-/// This method is thread-safe, thus can be used to compile multiple source strings in parallel. 
+/// This method is thread-safe, thus can be used to compile multiple source strings in parallel.
 std::shared_ptr<xacc::CompositeInstruction> Qbqe::compile_input(const std::string& in_source_string, int in_num_qubits,
                                                                 source_string_type in_source_type)
 {
@@ -2583,7 +2586,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
     // User-provided random seed
     //
     // exec_on_hardware
-    // 
+    //
 
     // Check the list of hardware accelerators...
     // If a hardware accelerator was selected...
@@ -2596,14 +2599,14 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
     double svd_cutoff = run_config.svd_cutoff_tnqvm;
 
     // Not implemented here, but present in sequential run():
-    // 
+    //
     // QCStack client
-    // 
+    //
     // xacc::quantum::QuantumBrillianceRemoteAccelerator
     //
     // random_seed
 
-    
+
     if (qpu->name() == "tnqvm") {
       xacc::set_verbose(false);
       qpu->updateConfiguration({{"tnqvm-visitor", "exatn-mps"},
@@ -2613,7 +2616,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
     } else if (qpu->name() == "aer") {
       //
       // Not implemented here but present in sequential run()
-      // 
+      //
       // aer_options + random_seed
       //
       // aer_sim_types + sim-type
@@ -2720,7 +2723,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
     }
     //
     // Not implemented here but present in sequential run():
-    // 
+    //
     // accs == "qsim" && noises
     //
     // exec_on_hardware
@@ -2733,10 +2736,10 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
       std::cout << "# " << qpu->name() << " accelerator: initialised"
                 << std::endl;
     }
-  
+
     // Execute on simulator (qpu)
     // auto buffer_b = xacc::qalloc(n_qubits);
-    
+
     // Not implemented here but present in sequential run():
     //
     // file_or_string_or_random_or ir != Qbqe:VALID_IR
@@ -2773,7 +2776,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
 
     //
     // Removed from run_async due to thread-safety issues:
-    // 
+    //
     // if (!noplacement) - in the upcoming SDK this is replaced with LLVM passes over QIR
     //
     // if (!nooptimise) - in the upcoming SDK this is replaced with LLVM passes over QIR
@@ -2807,7 +2810,7 @@ std::shared_ptr<async_job_handle> Qbqe::run_async(const std::size_t ii, const st
       out_qobjs_.at(ii).at(jj)     = qpu->getNativeCode(citargets.at(0), mqbacc);
     }
   } // End scoped_lock
-    
+
   buffer_b->resetBuffer();
   xacc::ScopeTimer timer_for_qpu(
       "Walltime, in ms, for simulator to execute quantum circuit", false);
