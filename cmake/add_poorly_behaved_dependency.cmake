@@ -33,7 +33,7 @@ function(find_package_dry_run NAME VERSION arg_CMAKE_PACKAGE_NAME arg_GIT_TAG SU
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/_dry_runs)
   configure_file(cmake/dry_run_CMakeLists.txt.in ${CMAKE_BINARY_DIR}/_dry_runs/CMakeLists.txt @ONLY)
-  execute_process(COMMAND ${CMAKE_COMMAND} -B_dry_runs _dry_runs -D${arg_CMAKE_PACKAGE_NAME}_ROOT=${${arg_CMAKE_PACKAGE_NAME}_ROOT} -D${arg_CMAKE_PACKAGE_NAME}_DIR=${${arg_CMAKE_PACKAGE_NAME}_DIR} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
+  execute_process(COMMAND ${CMAKE_COMMAND} -B${CMAKE_BINARY_DIR}/_dry_runs ${CMAKE_BINARY_DIR}/_dry_runs -D${arg_CMAKE_PACKAGE_NAME}_ROOT=${${arg_CMAKE_PACKAGE_NAME}_ROOT} -D${arg_CMAKE_PACKAGE_NAME}_DIR=${${arg_CMAKE_PACKAGE_NAME}_DIR} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
 
   string(REGEX REPLACE ".*poorly_behaved_dependency_dry_run: (.*)(\n|$)" "\\1" DRY_RUN_RESULTS "${DRY_RUN_RESULTS}")
