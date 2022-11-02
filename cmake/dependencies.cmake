@@ -61,7 +61,7 @@ if (NOT QBCORE_HEADER_ONLY)
   find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
 
   # Boost headers
-  find_package(Boost 1.74 REQUIRED)
+  find_package(Boost 1.71 REQUIRED)
 
   # EXATN
   add_poorly_behaved_dependency(exatn 1.0.0
