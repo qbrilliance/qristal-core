@@ -1,6 +1,7 @@
 include(add_poorly_behaved_dependency)
 
 # curl (needed by XACC and CPR)
+set(CURL_NO_CURL_CMAKE ON)
 find_package(CURL REQUIRED)
 
 # XACC
@@ -98,14 +99,14 @@ if (NOT QBCORE_HEADER_ONLY)
   if(CMAKE_BUILD_TYPE STREQUAL "None")
     set(cpr_CMAKE_BUILD_TYPE "Release")
   else()
-    set(cpr_CMAKE_BUILD_TYPE CMAKE_BUILD_TYPE)
+    set(cpr_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
   endif()
   add_dependency(cpr 1.9.2
     GIT_TAG 1.9.2
     GITHUB_REPOSITORY libcpr/cpr
     OPTIONS
       "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
-      "-DCPR_FORCE_USE_SYSTEM_CURL ON"
+      "CPR_FORCE_USE_SYSTEM_CURL ON"
   )
 
   # C++ itertools
