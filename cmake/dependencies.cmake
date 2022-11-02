@@ -33,11 +33,6 @@ add_dependency(Eigen3 3.4.0
   GITLAB_REPOSITORY libeigen/eigen
   GIT_TAG 3.4.0
 )
-if (EIGEN3_FOUND)
-  if(NOT EXISTS ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen)
-    message(FATAL_ERROR "Your Eigen installation appears to be broken: could not find file ${EIGEN3_INCLUDE_DIR}/Eigen/Eigen.")
-  endif()
-endif()
 
 # Add dependencies needed only for compiled libraries.
 if (NOT QBCORE_HEADER_ONLY)
