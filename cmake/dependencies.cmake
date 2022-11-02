@@ -28,6 +28,15 @@ add_dependency(nlohmann_json 3.9.1
     "JSON_BuildTests OFF"
 )
 
+# BLAS; used as a dependency for EXATN and Eigen.
+set(BLA_VENDOR OpenBLAS)
+find_package(BLAS)
+if(BLAS_FOUND)
+  cmake_path(GET BLAS_LIBRARIES PARENT_PATH BLAS_PATH)
+else()
+  message(FATAL_ERROR "System installation of OpenBLAS not found. This is required for installing Eigen and EXATN.")
+endif()
+
 # Eigen
 add_dependency(Eigen3 3.4.0
   GITLAB_REPOSITORY libeigen/eigen
@@ -40,25 +49,12 @@ if (NOT QBCORE_HEADER_ONLY)
   #Python 3 interpreter and libraries
   find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
 
-  # BLAS; used as a dependency for EXATN.
-  macro(find_blas)
-    set(BLA_VENDOR OpenBLAS)
-    find_package(BLAS)
-    if(BLAS_FOUND)
-      cmake_path(GET BLAS_LIBRARIES PARENT_PATH BLAS_PATH)
-    else()
-      message(FATAL_ERROR "System installation of OpenBLAS not found. This is required for installing EXATN.")
-    endif()
-  endmacro()
-
   # EXATN
   add_poorly_behaved_dependency(exatn 1.0.0
     CMAKE_PACKAGE_NAME EXATN
     GIT_TAG 2549394
     GIT_REPOSITORY https://github.com/ornl-qci/exatn
     UPDATE_SUBMODULES True
-    PREAMBLE
-      find_blas
     OPTIONS
       "BLAS_LIB OPENBLAS"
       "BLAS_PATH @BLAS_PATH@"
