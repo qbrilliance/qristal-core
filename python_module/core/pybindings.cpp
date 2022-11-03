@@ -403,7 +403,7 @@ PYBIND11_MODULE(core, m) {
       .def("terminate", &qbOS::JobHandle::terminate,
            "Terminate the running job.");
 
-  py::class_<qbOS::Qbqe>(m, "core")
+  py::class_<qbOS::Qbqe>(m, "session")
       .def(py::init<const std::string &>())
       .def(py::init<const bool>())
       .def(py::init())
