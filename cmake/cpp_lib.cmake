@@ -73,7 +73,6 @@ if (NOT QBCORE_HEADER_ONLY)
       args
       nlohmann_json::nlohmann_json
       cpr::cpr
-      Eigen3::Eigen
     )
 
   # Install the library

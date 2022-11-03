@@ -49,7 +49,7 @@ add_dependency(Eigen3 3.4.0
 )
 if(Eigen3_ADDED)
   add_library(Eigen INTERFACE IMPORTED)
-  target_include_directories(Eigen INTERFACE ${Eigen_SOURCE_DIR})
+  target_include_directories(Eigen INTERFACE ${Eigen3_SOURCE_DIR})
   add_library(Eigen3::Eigen ALIAS Eigen)
 endif()
 

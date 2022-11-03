@@ -24,13 +24,14 @@ PROPERTIES
 
 # Include dependencies.
 target_include_directories(${LIBRARY_NAME}
-PUBLIC
+  PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
 
 # Link dependencies
 target_link_libraries(${LIBRARY_NAME}
-PUBLIC
+  PUBLIC
     nlohmann_json::nlohmann_json
     Eigen3::Eigen
 )
