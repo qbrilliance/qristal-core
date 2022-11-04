@@ -177,7 +177,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
         message("   ...done.")
 
         # Check that it installed correctly, and import any relevant cmake variables.
-        set(${arg_CMAKE_PACKAGE_NAME}_ROOT "${dir}")
+        set(${arg_CMAKE_PACKAGE_NAME}_ROOT "${dir}" CACHE PATH "Path to installed ${NAME}." FORCE)
         find_package(${arg_CMAKE_PACKAGE_NAME} REQUIRED)
         unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
 

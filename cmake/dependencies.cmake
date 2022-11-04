@@ -85,6 +85,16 @@ if (NOT QBCORE_HEADER_ONLY)
      "EXATN_DIR ${EXATN_ROOT}"
      "TNQVM_BUILD_TESTS OFF"
   )
+  # Add symlinks to {XACC_ROOT}/plugins where XACC finds its plugins by default.
+  # TODO: XACC has an API (xacc::addPluginSearchPath) to add a search path to find plugin's so files.
+  # To remove the below symlink step, we need to:
+  # (1) Modify XACC's initialization in the Python binding module to add proper path.
+  # (2) Modify plugin gtest files which currently assume vanilla xacc::Initialize()
+  file(GLOB TNQVM_LIBS ${TNQVM_ROOT}/plugins/*)
+  foreach(lib ${TNQVM_LIBS})
+    cmake_path(GET lib FILENAME filename)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${lib} ${XACC_ROOT}/plugins/${filename})")
+  endforeach()
 
   # args library
   add_dependency(args 6.4.1
