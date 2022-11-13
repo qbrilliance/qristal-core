@@ -75,7 +75,7 @@ if (NOT QBCORE_HEADER_ONLY)
   # EXATN
   add_poorly_behaved_dependency(exatn 1.0.0
     CMAKE_PACKAGE_NAME EXATN
-    GIT_TAG 2549394
+    GIT_TAG d8a15b1
     GIT_REPOSITORY https://github.com/ornl-qci/exatn
     UPDATE_SUBMODULES True
     OPTIONS
