@@ -20,3 +20,6 @@ install(
   TARGETS ${PROJECT_NAME}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qb
 )
+
+# This ensures that the resulting python module is picked up by Python without needing to modify the PYTHONPATH env variable.
+install(CODE "file(WRITE ${LOCAL_PYTHON_SITE_PACKAGES}/qb${PROJECT_NAME}.pth \"${CMAKE_INSTALL_PREFIX}/lib\\n${XACC_ROOT}\")")

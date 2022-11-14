@@ -59,6 +59,15 @@ if (NOT QBCORE_HEADER_ONLY)
 
   # Python 3 interpreter and libraries
   find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
+  if(NOT LOCAL_PYTHON_SITE_PACKAGES)
+    execute_process(RESULT_VARIABLE FAILURE
+                    OUTPUT_VARIABLE LOCAL_PYTHON_SITE_PACKAGES
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    COMMAND python3 -m site --user-site)
+    if(FAILURE)
+      message(FATAL_ERROR "Failed to determine your local Python site-packages dir. Please set it manually with -DLOCAL_PYTHON_SITE_PACKAGES=/path/to/dir.")
+    endif()
+  endif()
 
   # Boost headers
   find_package(Boost 1.71 REQUIRED)
@@ -66,7 +75,7 @@ if (NOT QBCORE_HEADER_ONLY)
   # EXATN
   add_poorly_behaved_dependency(exatn 1.0.0
     CMAKE_PACKAGE_NAME EXATN
-    GIT_TAG 2549394
+    GIT_TAG d8a15b1
     GIT_REPOSITORY https://github.com/ornl-qci/exatn
     UPDATE_SUBMODULES True
     OPTIONS

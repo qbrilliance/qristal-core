@@ -22,8 +22,7 @@ private:
   // Note: the oracle circuit requires input parameters: BestScore,
   // num_scoring_qubits optional parameters: trial_score_qubits, flag_qubit,
   // best_score_qubits, ancilla_qubits
-  std::function<std::shared_ptr<xacc::CompositeInstruction>(
-      int, int, std::vector<int>, int, std::vector<int>, std::vector<int>)>
+  std::function<std::shared_ptr<xacc::CompositeInstruction>(int)>
       oracle_circuit_gen_;
 
   // Note: the state_prep circuit requires input paramters: num_string_qubits
@@ -43,6 +42,7 @@ private:
   xacc::Accelerator *qpu_;          // Accelerator, optional
 
   int best_score_; // Tracking the best score, default is 0 if none provided
+  int total_num_qubits;
 
   // Qubit registers. These are optional but if any one of them are provided
   // then they should all be provided. Default register structure:
