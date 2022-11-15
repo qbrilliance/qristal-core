@@ -1,9 +1,8 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "exponential_search.hpp"
-#include "qbos_circuit_builder.hpp"
+#include "qb/core/algorithms/exponential_search/exponential_search.hpp"
 #include <chrono>
 #include <ctime>
-#include <memory>
+//#include <memory>
 
 namespace {
 int uniform_integer_random_sampling(int max) {

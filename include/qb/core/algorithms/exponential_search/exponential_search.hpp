@@ -6,6 +6,7 @@
 #include "xacc.hpp"
 #include "xacc_plugin.hpp"
 #include "xacc_service.hpp"
+#include "qb/core/circuit_builder.hpp"
 #include <assert.h>
 #include <cmath>
 #include <iomanip>
@@ -22,6 +23,7 @@ private:
   // Note: the oracle circuit requires input parameters: BestScore,
   // num_scoring_qubits optional parameters: trial_score_qubits, flag_qubit,
   // best_score_qubits, ancilla_qubits
+  //
   std::function<std::shared_ptr<xacc::CompositeInstruction>(int)>
       oracle_circuit_gen_;
 
