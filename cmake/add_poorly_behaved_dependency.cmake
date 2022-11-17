@@ -16,24 +16,24 @@ macro(reset_install_path)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for ${CMAKE_PROJECT_NAME}." FORCE)
 endmacro()
 
-# Attempt to locate a system-installed version of CMAKE_PACKAGE_NAME using a dry run of find_package.  Does this in an independent cmake session,
+# Attempt to locate a system-installed version of FIND_PACKAGE_NAME using a dry run of find_package.  Does this in an independent cmake session,
 # so that successful return of find_package does not pollute the current cmake session (if e.g. the found version turns out to be the wrong one).
-# Find_package will return successfully if the path to an installed CMAKE_PACKAGE_NAME is given as one of:
-#  - environment variable ${CMAKE_PACKAGE_NAME}_ROOT
-#  - cmake variable ${CMAKE_PACKAGE_NAME}_ROOT (set with -D at cmake invocation)
-#  - cmake variable ${CMAKE_PACKAGE_NAME}_DIR (set with -D at cmake invocation)
-function(find_package_dry_run NAME VERSION arg_CMAKE_PACKAGE_NAME arg_GIT_TAG SUCCESS)
+# Find_package will return successfully if the path to an installed FIND_PACKAGE_NAME is given as one of:
+#  - environment variable ${FIND_PACKAGE_NAME}_ROOT
+#  - cmake variable ${FIND_PACKAGE_NAME}_ROOT (set with -D at cmake invocation)
+#  - cmake variable ${FIND_PACKAGE_NAME}_DIR (set with -D at cmake invocation)
+function(find_package_dry_run NAME VERSION arg_FIND_PACKAGE_NAME arg_GIT_TAG SUCCESS)
 
   # Before running find_package, make sure that the _ROOT and _DIR paths are consistent.
-  if(${arg_CMAKE_PACKAGE_NAME}_ROOT AND ${arg_CMAKE_PACKAGE_NAME}_DIR AND
-   NOT ${arg_CMAKE_PACKAGE_NAME}_ROOT STREQUAL ${arg_CMAKE_PACKAGE_NAME}_DIR)
-    message(FATAL_ERROR "${arg_CMAKE_PACKAGE_NAME}_ROOT and ${arg_CMAKE_PACKAGE_NAME}_DIR are both non-empty, but different. To change the ${NAME} installation used, when invoking cmake please unset one or set them consistently.")
+  if(${arg_FIND_PACKAGE_NAME}_ROOT AND ${arg_FIND_PACKAGE_NAME}_DIR AND
+   NOT ${arg_FIND_PACKAGE_NAME}_ROOT STREQUAL ${arg_FIND_PACKAGE_NAME}_DIR)
+    message(FATAL_ERROR "${arg_FIND_PACKAGE_NAME}_ROOT and ${arg_FIND_PACKAGE_NAME}_DIR are both non-empty, but different. To change the ${NAME} installation used, when invoking cmake please unset one or set them consistently.")
   endif()
 
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
   execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/_dry_runs)
   configure_file(${CMAKE_CURRENT_LIST_DIR}/dry_run_CMakeLists.txt.in ${CMAKE_BINARY_DIR}/_dry_runs/CMakeLists.txt @ONLY)
-  execute_process(COMMAND ${CMAKE_COMMAND} -B${CMAKE_BINARY_DIR}/_dry_runs ${CMAKE_BINARY_DIR}/_dry_runs -D${arg_CMAKE_PACKAGE_NAME}_ROOT=${${arg_CMAKE_PACKAGE_NAME}_ROOT} -D${arg_CMAKE_PACKAGE_NAME}_DIR=${${arg_CMAKE_PACKAGE_NAME}_DIR} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
+  execute_process(COMMAND ${CMAKE_COMMAND} -B${CMAKE_BINARY_DIR}/_dry_runs ${CMAKE_BINARY_DIR}/_dry_runs -D${arg_FIND_PACKAGE_NAME}_ROOT=${${arg_FIND_PACKAGE_NAME}_ROOT} -D${arg_FIND_PACKAGE_NAME}_DIR=${${arg_FIND_PACKAGE_NAME}_DIR} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
 
   string(REGEX REPLACE ".*poorly_behaved_dependency_dry_run: (.*)(\n|$)" "\\1" DRY_RUN_RESULTS "${DRY_RUN_RESULTS}")
@@ -61,7 +61,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
   )
 
   set(oneValueArgs
-      CMAKE_PACKAGE_NAME
+      FIND_PACKAGE_NAME
       GIT_TAG
       GIT_REPOSITORY
   )
@@ -91,34 +91,34 @@ macro(add_poorly_behaved_dependency NAME VERSION)
     set(dir "${PROJECT_SOURCE_DIR}/deps/${NAME}/${VERSION}")
     set(arg_GIT_TAG v${VERSION})
   endif()
-  if (NOT arg_CMAKE_PACKAGE_NAME)
-    set(arg_CMAKE_PACKAGE_NAME ${NAME})
+  if (NOT arg_FIND_PACKAGE_NAME)
+    set(arg_FIND_PACKAGE_NAME ${NAME})
   endif()
 
   # Take out insurance against changes to CMAKE_INSTALL_PREFIX
   cache_install_path()
 
   # Do a dry run of find_package
-  find_package_dry_run(${NAME} ${VERSION} ${arg_CMAKE_PACKAGE_NAME} ${arg_GIT_TAG} DRY_RUN_SUCCEEDED)
+  find_package_dry_run(${NAME} ${VERSION} ${arg_FIND_PACKAGE_NAME} ${arg_GIT_TAG} DRY_RUN_SUCCEEDED)
 
   # If the dry run worked, we should be safe to find the dependency with find_package
   if(DRY_RUN_SUCCEEDED)
 
-    find_package(${arg_CMAKE_PACKAGE_NAME} QUIET)
-    if(NOT ${arg_CMAKE_PACKAGE_NAME}_FOUND OR NOT "${${arg_CMAKE_PACKAGE_NAME}_VERSION}" STREQUAL "${VERSION}-${arg_GIT_TAG}")
-      message(FATAL_ERROR "Inconsistent cmake results: dry run of find_package for ${arg_CMAKE_PACKAGE_NAME} succeeded, but actual run failed!")
+    find_package(${arg_FIND_PACKAGE_NAME} QUIET)
+    if(NOT ${arg_FIND_PACKAGE_NAME}_FOUND OR NOT "${${arg_FIND_PACKAGE_NAME}_VERSION}" STREQUAL "${VERSION}-${arg_GIT_TAG}")
+      message(FATAL_ERROR "Inconsistent cmake results: dry run of find_package for ${arg_FIND_PACKAGE_NAME} succeeded, but actual run failed!")
     endif()
 
   else()
 
     # Check if there was a successful local installation already by cmake.
     set(LOCAL_INSTALL_FOUND False)
-    if(${arg_CMAKE_PACKAGE_NAME}_ROOT_SUCCESSFULLY_INSTALLED_BY_CMAKE STREQUAL dir)
-      set(${arg_CMAKE_PACKAGE_NAME}_ROOT ${${arg_CMAKE_PACKAGE_NAME}_ROOT_SUCCESSFULLY_INSTALLED_BY_CMAKE})
-      set(${arg_CMAKE_PACKAGE_NAME}_DIR ${${arg_CMAKE_PACKAGE_NAME}_ROOT})
-      find_package(${arg_CMAKE_PACKAGE_NAME} QUIET)
-      if(${arg_CMAKE_PACKAGE_NAME}_FOUND AND "${${arg_CMAKE_PACKAGE_NAME}_VERSION}" STREQUAL "${VERSION}-${arg_GIT_TAG}")
-        message("   However, a previous installation by cmake was found at ${${arg_CMAKE_PACKAGE_NAME}_ROOT}.")
+    if(${arg_FIND_PACKAGE_NAME}_ROOT_SUCCESSFULLY_INSTALLED_BY_CMAKE STREQUAL dir)
+      set(${arg_FIND_PACKAGE_NAME}_ROOT ${${arg_FIND_PACKAGE_NAME}_ROOT_SUCCESSFULLY_INSTALLED_BY_CMAKE})
+      set(${arg_FIND_PACKAGE_NAME}_DIR ${${arg_FIND_PACKAGE_NAME}_ROOT})
+      find_package(${arg_FIND_PACKAGE_NAME} QUIET)
+      if(${arg_FIND_PACKAGE_NAME}_FOUND AND "${${arg_FIND_PACKAGE_NAME}_VERSION}" STREQUAL "${VERSION}-${arg_GIT_TAG}")
+        message("   However, a previous installation by cmake was found at ${${arg_FIND_PACKAGE_NAME}_ROOT}.")
         set(LOCAL_INSTALL_FOUND True)
       endif()
     endif()
@@ -177,12 +177,12 @@ macro(add_poorly_behaved_dependency NAME VERSION)
         message("   ...done.")
 
         # Check that it installed correctly, and import any relevant cmake variables.
-        set(${arg_CMAKE_PACKAGE_NAME}_ROOT "${dir}" CACHE PATH "Path to installed ${NAME}." FORCE)
-        find_package(${arg_CMAKE_PACKAGE_NAME} REQUIRED)
+        set(${arg_FIND_PACKAGE_NAME}_ROOT "${dir}" CACHE PATH "Path to installed ${NAME}." FORCE)
+        find_package(${arg_FIND_PACKAGE_NAME} REQUIRED)
         unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
 
         # Save the path to the version installed by cmake, to avoid re-installing it.
-        set(${arg_CMAKE_PACKAGE_NAME}_ROOT_SUCCESSFULLY_INSTALLED_BY_CMAKE "${dir}" CACHE PATH "Successful path into which ${NAME} was installed." FORCE)
+        set(${arg_FIND_PACKAGE_NAME}_ROOT_SUCCESSFULLY_INSTALLED_BY_CMAKE "${dir}" CACHE PATH "Successful path into which ${NAME} was installed." FORCE)
 
       else()
 
