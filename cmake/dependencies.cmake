@@ -6,7 +6,7 @@ find_package(CURL REQUIRED)
 
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
-  CMAKE_PACKAGE_NAME XACC
+  FIND_PACKAGE_NAME XACC
   GIT_TAG f64e9da8
   GIT_REPOSITORY https://github.com/eclipse/xacc
 )
@@ -75,7 +75,7 @@ if (NOT QBCORE_HEADER_ONLY)
 
   # EXATN
   add_poorly_behaved_dependency(exatn 1.0.0
-    CMAKE_PACKAGE_NAME EXATN
+    FIND_PACKAGE_NAME EXATN
     GIT_TAG d8a15b1
     GIT_REPOSITORY https://github.com/ornl-qci/exatn
     UPDATE_SUBMODULES True
@@ -87,7 +87,7 @@ if (NOT QBCORE_HEADER_ONLY)
 
   # TNQVM
   add_poorly_behaved_dependency(tnqvm 1.0.0
-    CMAKE_PACKAGE_NAME TNQVM
+    FIND_PACKAGE_NAME TNQVM
     GIT_TAG 68a03dd
     GIT_REPOSITORY https://github.com/ornl-qci/tnqvm
     OPTIONS
