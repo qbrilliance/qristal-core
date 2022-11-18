@@ -64,7 +64,7 @@ if (NOT QBCORE_HEADER_ONLY)
     execute_process(RESULT_VARIABLE FAILURE
                     OUTPUT_VARIABLE LOCAL_PYTHON_SITE_PACKAGES
                     OUTPUT_STRIP_TRAILING_WHITESPACE
-                    COMMAND python3 -m site --user-site)
+                    COMMAND python3 -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
     if(FAILURE)
       message(FATAL_ERROR "Failed to determine your local Python site-packages dir. Please set it manually with -DLOCAL_PYTHON_SITE_PACKAGES=/path/to/dir.")
     endif()
