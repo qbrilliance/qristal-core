@@ -114,7 +114,7 @@ add_xacc_plugin(qb_lambda
   SOURCES
     src/lambda/QBLambdaRemoteAccelerator.cpp
   DEPENDENCIES
-    cpr::cpr
+    cpr
 )
 
 # Sparse simulator

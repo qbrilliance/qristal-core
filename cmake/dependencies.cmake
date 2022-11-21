@@ -126,12 +126,13 @@ if (NOT QBCORE_HEADER_ONLY)
   else()
     set(cpr_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
   endif()
-  add_dependency(cpr 1.9.2
-    GIT_TAG 1.9.2
-    GITHUB_REPOSITORY libcpr/cpr
+  add_dependency(cpr 1.3.0
+    GIT_TAG 2305262
+    GITHUB_REPOSITORY ornl-qci/cpr
     OPTIONS
       "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
-      "CPR_FORCE_USE_SYSTEM_CURL ON"
+      "USE_SYSTEM_CURL ON"
+      "BUILD_CPR_TESTS OFF"
   )
 
   # C++ itertools
