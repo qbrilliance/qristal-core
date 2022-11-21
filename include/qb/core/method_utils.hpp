@@ -70,35 +70,6 @@ T choose_random(const std::vector<T>& v) {
   return v.at(r);
 }
 
-/**
-  Desc:
-  Generates random circuits of arbitrary size and form.
-
-  Notes:
-  - The user needs to study and eventually insert large enough circuit depth for proper random behaviour.
-    This would allow for the appearance of all basic gates and reaching Porter-Thomas distribution
-    ([Boixo2018] argues sub-linear scaling is enough to achieve this). Note some basic gates are not
-    available through XACC framework but all can be implemented in terms of others gates we list here. In
-    addition if the optimisations and placement features can make the actual depth larger than this fixed
-    amount, however, it always atays as O(n_q).
-  - We include only maximally two-operand gates.
-  - Currently does not include any middle measurements and conditional operations.
-  - Currently does not include any middle resets.
-  - Inputting a fixed random seed is not yet implemented.
-  - Currently we are not (weakly) conditioning any of the quantum wires to the classical bit values.
-
-  Args:
-  [n_q (int)] number of quantum registers -- must be equal or greater than 3
-  [seed (int)] sets the random seed
-
-  Returns:
-  [RandomQcircuit (string)] generated random quantum circuit in OpenCasm format
-
-  Raises:
-  NONE
-**/
-std::string random_circuit(const int& n_q, const int& depth);
-
 std::string aer_circuit_transpiler(std::string& circuit);
 
 /**
