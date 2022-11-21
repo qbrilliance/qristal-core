@@ -129,7 +129,6 @@ if (NOT QBCORE_HEADER_ONLY)
   add_dependency(cpr 1.3.0
     GIT_TAG 2305262
     GITHUB_REPOSITORY ornl-qci/cpr
-    FIND_PACKAGE_VERSION " " #for manual cmake build
     OPTIONS
       "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
       "USE_SYSTEM_CURL ON"

@@ -8,7 +8,7 @@ before_script:
 
 ubuntu20.04:
   stage: build
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-11
+  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-10
   script:
     - cmake -B build . -DTNQVM_DIR=${QB_DIR}/xacc-local
     - cmake --build build -- -j`nproc`
