@@ -68,7 +68,7 @@ xacc::QCStackClient::get(const std::string &remoteUrl, const std::string &path,
 
   cpr::Parameters cprParams;
   for (auto &kv : extraParams) {
-    cprParams.Add({kv.first, kv.second});
+    cprParams.AddParameter({kv.first, kv.second});
   }
 
   auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,

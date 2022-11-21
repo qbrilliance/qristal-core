@@ -72,7 +72,7 @@ if (NOT QBCORE_HEADER_ONLY)
       xacc::quantum_gate
       args
       nlohmann_json::nlohmann_json
-      cpr::cpr
+      cpr
     )
 
   # Install the library
