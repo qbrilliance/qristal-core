@@ -14,6 +14,6 @@ macro(add_gtest _TEST_NAME)
       qb::core_headers
       xacc::xacc
       xacc::quantum_gate
-      cpr::cpr
+      cpr
     )
 endmacro()

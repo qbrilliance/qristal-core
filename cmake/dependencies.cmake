@@ -64,7 +64,7 @@ if (NOT QBCORE_HEADER_ONLY)
     execute_process(RESULT_VARIABLE FAILURE
                     OUTPUT_VARIABLE LOCAL_PYTHON_SITE_PACKAGES
                     OUTPUT_STRIP_TRAILING_WHITESPACE
-                    COMMAND python3 -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+                    COMMAND python3 -m site --user-site)
     if(FAILURE)
       message(FATAL_ERROR "Failed to determine your local Python site-packages dir. Please set it manually with -DLOCAL_PYTHON_SITE_PACKAGES=/path/to/dir.")
     endif()
@@ -126,12 +126,15 @@ if (NOT QBCORE_HEADER_ONLY)
   else()
     set(cpr_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
   endif()
-  add_dependency(cpr 1.9.2
-    GIT_TAG 1.9.2
-    GITHUB_REPOSITORY libcpr/cpr
+  add_dependency(cpr 1.3.0
+    GIT_TAG 2305262
+    GITHUB_REPOSITORY ornl-qci/cpr
+    FIND_PACKAGE_VERSION " " #for manual cmake build
     OPTIONS
       "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
-      "CPR_FORCE_USE_SYSTEM_CURL ON"
+      "USE_SYSTEM_CURL ON"
+      "BUILD_CPR_TESTS OFF"
+      "CMAKE_POSITION_INDEPENDENT_CODE ON"
   )
 
   # C++ itertools
