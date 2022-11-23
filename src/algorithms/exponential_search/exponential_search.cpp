@@ -26,17 +26,20 @@ bool is_msb_func(xacc::Accelerator *qpu_) {
 
 namespace qbOS {
 bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
+  std::cout << "Intiialise ExponentialSearch" << std::endl;
   // Get the method
   if (parameters.keyExists<std::string>("method")) {
     method = parameters.get<std::string>("method");
   } else {
     method = "canonical";
   }
+  std::cout << "method:" << method << std::endl;
 
   // Get the generator
   if (!parameters.keyExists<
           std::function<std::shared_ptr<xacc::CompositeInstruction>(int)>>(
           "oracle_circuit")) {
+    std::cout << "oracle_circuit" << std::endl;
     return false;
   }
 
@@ -46,6 +49,7 @@ bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
               "oracle_circuit");
 
   if (!parameters.keyExists<std::function<int(int)>>("f_score")) {
+    std::cout << "f_score" << std::endl;
     return false;
   }
   f_score_ = parameters.get<std::function<int(int)>>("f_score");
@@ -65,6 +69,7 @@ bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
                 std::vector<int>, std::vector<int>, std::vector<int>,
                 std::vector<int>, std::vector<int>)>>(
             "state_preparation_circuit")) {
+      std::cout << "state_prep_circuit" << std::endl;
       return false;
     }
     state_prep_circuit_gen_ =
@@ -74,8 +79,9 @@ bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
                 std::vector<int>, std::vector<int>)>>(
                 "state_preparation_circuit");
   }
-
+  std::cout << "Parameters input" << std::endl;
   best_score_ = parameters.get_or_default("best_score", 0);
+  std::cout << "qpu" << std::endl;
 
   if (!parameters.pointerLikeExists<xacc::Accelerator>("qpu")) {
     static auto qpp = xacc::getAccelerator("qpp", {{"shots", 1}});
@@ -86,6 +92,7 @@ bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
     qpu_->updateConfiguration({{"shots", 1}});
   }
 
+  std::cout << "methods" << std::endl;
   if (method == "MLQAE") {
     if (!parameters.keyExists<std::function<int(std::string, int)>>(
             "MLQAE_is_in_good_subspace")) {
@@ -115,6 +122,7 @@ bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
 //   }
 
   if (!parameters.keyExists<int>("total_num_qubits")) {
+      std::cout << "total_num_qubits" << std::endl;
       return false;
   }
  total_num_qubits = parameters.get<int>("total_num_qubits");
@@ -126,9 +134,11 @@ bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
   qubits_string = parameters.get<std::vector<int>>("qubits_string");
 
   if (!parameters.keyExists<std::vector<int>>("total_metric")) {
+      std::cout << "total_metric" << std::endl;
       return false;
   }
   total_metric = parameters.get<std::vector<int>>("total_metric");
+  std::cout << "Initialised" << std::endl;
 
   return true;
 }

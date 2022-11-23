@@ -25,6 +25,7 @@ TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
   std::vector<int> ancilla_qubits = {9, 10, 11, 12, 13};
 
   // oracle
+    std::cout << "oracle ..." << std::endl;
   std::function<std::shared_ptr<xacc::CompositeInstruction>(
       int, int, std::vector<int>, int, std::vector<int>, std::vector<int>)>
       oracle_ = [&](int BestScore, int num_scoring_qubits,
@@ -126,6 +127,7 @@ TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
   int nSuccess = 0;
   auto acc = xacc::getAccelerator("qsim", {{"shots", 1}});
   for (int runCount = 0; runCount < N_TRIALS; ++runCount) {
+    std::cout << "exponential_search:" << runCount << std::endl;
     auto exp_search_algo = xacc::getAlgorithm(
         "exponential-search", {{"method", "canonical"},
                                {"state_preparation_circuit", state_prep_},
