@@ -71,7 +71,7 @@ if (NOT QBCORE_HEADER_ONLY)
       xacc::xacc
       xacc::quantum_gate
       args
-      nlohmann_json::nlohmann_json
+      nlohmann_json
       cpr
     )
 
