@@ -27,7 +27,7 @@ add_dependency(googletest 1.12.1
 )
 
 # json library
-add_dependency(nlohmann_json 3.7.3
+add_dependency(nlohmann_json 3.1.1
   GITHUB_REPOSITORY /nlohmann/json
   OPTIONS
     "JSON_BuildTests OFF"
