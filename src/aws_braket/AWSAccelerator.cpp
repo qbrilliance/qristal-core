@@ -98,6 +98,8 @@ namespace xacc
       py::module_ sys = py::module_::import("sys");
       if (debug_aws_) std::cout << "# Importing Python path" << "\n";
       auto path = sys.attr("path");
+      if (debug_aws_) std::cout << "# Inserting " << SDK_SOURCE_DIR << " into path" << "\n";
+      path.attr("insert")(0, SDK_SOURCE_DIR);
       if (debug_aws_) std::cout << "# Inserting " << SDK_DIR << " into path" << "\n";
       path.attr("insert")(0, SDK_DIR);
     }

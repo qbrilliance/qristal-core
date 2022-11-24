@@ -74,21 +74,22 @@ include(${CPM_DOWNLOAD_LOCATION})
 macro(add_dependency NAME VERSION)
 
   set(oneValueArgs
-      CMAKE_PACKAGE_NAME
-      FORCE
-      GIT_TAG
-      DOWNLOAD_ONLY
-      GITHUB_REPOSITORY
-      GITLAB_REPOSITORY
-      BITBUCKET_REPOSITORY
-      GIT_REPOSITORY
-      SOURCE_DIR
-      DOWNLOAD_COMMAND
-      FIND_PACKAGE_ARGUMENTS
-      NO_CACHE
-      GIT_SHALLOW
-      EXCLUDE_FROM_ALL
-      SOURCE_SUBDIR
+    FIND_PACKAGE_NAME
+    FIND_PACKAGE_VERSION
+    FIND_PACKAGE_ARGUMENTS
+    FORCE
+    GIT_TAG
+    DOWNLOAD_ONLY
+    GITHUB_REPOSITORY
+    GITLAB_REPOSITORY
+    BITBUCKET_REPOSITORY
+    GIT_REPOSITORY
+    SOURCE_DIR
+    DOWNLOAD_COMMAND
+    NO_CACHE
+    GIT_SHALLOW
+    EXCLUDE_FROM_ALL
+    SOURCE_SUBDIR
   )
 
   set(multiValueArgs URL OPTIONS)
@@ -105,15 +106,23 @@ macro(add_dependency NAME VERSION)
   if (NOT arg_GIT_TAG)
     set(arg_GIT_TAG v${VERSION})
   endif()
-  if (NOT arg_CMAKE_PACKAGE_NAME)
-    set(arg_CMAKE_PACKAGE_NAME ${NAME})
+  if (NOT arg_FIND_PACKAGE_NAME)
+    set(arg_FIND_PACKAGE_NAME ${NAME})
   endif()
 
-  find_package(${arg_CMAKE_PACKAGE_NAME} ${VERSION} QUIET)
+  if (arg_FIND_PACKAGE_VERSION)
+    if(${arg_FIND_PACKAGE_VERSION} STREQUAL " ")
+      find_package(${arg_FIND_PACKAGE_NAME} QUIET)
+    else()
+      find_package(${arg_FIND_PACKAGE_NAME} ${arg_FIND_PACKAGE_VERSION} QUIET)
+    endif()
+  else()
+    find_package(${arg_FIND_PACKAGE_NAME} ${VERSION} QUIET)
+  endif()
 
-  if(${arg_CMAKE_PACKAGE_NAME}_FOUND)
+  if(${arg_FIND_PACKAGE_NAME}_FOUND)
 
-    message(STATUS "System installation of ${NAME} found: version ${${arg_CMAKE_PACKAGE_NAME}_VERSION}")
+    message(STATUS "System installation of ${NAME} found: version ${${arg_FIND_PACKAGE_NAME}_VERSION}")
 
   else()
 
@@ -142,6 +151,7 @@ macro(add_dependency NAME VERSION)
 
     else()
 
+      message(STATUS "System installation of ${NAME} version ${VERSION} not found.")
       # User says not to install; just keep track of what was missing.
       set(MISSING_DEPENDENCIES "${MISSING_DEPENDENCIES}" "${NAME}")
 
