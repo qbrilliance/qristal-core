@@ -60,15 +60,6 @@ if (NOT QBCORE_HEADER_ONLY)
 
   # Python 3 interpreter and libraries
   find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
-  if(NOT LOCAL_PYTHON_SITE_PACKAGES)
-    execute_process(RESULT_VARIABLE FAILURE
-                    OUTPUT_VARIABLE LOCAL_PYTHON_SITE_PACKAGES
-                    OUTPUT_STRIP_TRAILING_WHITESPACE
-                    COMMAND python3 -m site --user-site)
-    if(FAILURE)
-      message(FATAL_ERROR "Failed to determine your local Python site-packages dir. Please set it manually with -DLOCAL_PYTHON_SITE_PACKAGES=/path/to/dir.")
-    endif()
-  endif()
 
   # Boost headers
   find_package(Boost 1.71 REQUIRED)
