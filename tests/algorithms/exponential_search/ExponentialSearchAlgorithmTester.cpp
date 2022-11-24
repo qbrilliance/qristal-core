@@ -126,8 +126,8 @@ TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
   constexpr int N_TRIALS = 1;
   int nSuccess = 0;
   auto acc = xacc::getAccelerator("qsim", {{"shots", 1}});
-  int total_num_qubits = qubit_flag.size() + qubits_metric.size() + qubits_string.size() + qubits_next_letter.size();
-  total_num_qubits += qubits_next_metric.size() + qubits_best_score.size() + qubits_ancilla_oracle.size();
+  int total_num_qubits = 1 + trial_score_qubits.size() + trial_qubits.size() + next_letter.size();  // flag_qubit.size
+  total_num_qubits += next_score.size() + best_score_qubits.size() + ancilla_qubits.size();
   for (int runCount = 0; runCount < N_TRIALS; ++runCount) {
     auto exp_search_algo = xacc::getAlgorithm(
         "exponential-search", {{"method", "canonical"},
@@ -136,7 +136,8 @@ TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
                                {"best_score", BestScore},
                                {"f_score", f_score},
                                {"qubit_flag", flag_qubit},
-                               {"qubits_metric", trial_score_qubits},  // total_metric
+                               {"total_metric", trial_score_qubits},  // total_metric?
+                               {"qubits_metric", trial_score_qubits},  // total_metric?
                                {"qubits_string", trial_qubits},
                                {"qubits_next_letter", next_letter},
                                {"qubits_next_metric", next_score},
