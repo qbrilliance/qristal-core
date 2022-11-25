@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
+TEST(CanonicalExponentialSearchAlgorithmAltTester, checkSimplefunc) {
   // Testing a simple maximum search using quantum exponential search
   const std::vector<int> dataset{1, 2, 0, 3, 0, 0, 1, 1,
                                  2, 1, 0, 1, 1, 2, 2, 1};
