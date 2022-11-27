@@ -255,9 +255,9 @@ private:
 public:
   Qbqe()
       : debug_qbqe_(false), name_m{{}}, number_m{{}}, infiles_{{}},
+        // FIXME some tests will probably fail if the SDK_SOURCE_DIR path to qblib.inc and qpu_config.json is not also added.
         include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
-        // FIXME a valid path in qpu_configs_ causes a segfault.  Also some tests will fail if the SDK_SOURCE_DIR path to qblib.inc and qpu_config.json is not also added.
-        //qpu_configs_{{SDK_DIR "/include/qb/core/qpu_config.json"}},
+        qpu_configs_{{SDK_DIR "/include/qb/core/qpu_config.json"}},
         instrings_{{}}, irtarget_ms_{{{}}},
         accs_{{"tnqvm"}},
         aws_device_names_{{"DM1"}}, aws_formats_{{"openqasm3"}}, aws_verbatims_{{{false}}},
