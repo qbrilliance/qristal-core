@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #include "Circuit.hpp"
 #include "qb/core/circuit_builders/ry_encoding.hpp"
-#include "qb/core/qbos_circuit_builder.hpp"
+#include "qb/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <cassert>

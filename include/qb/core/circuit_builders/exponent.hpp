@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "qb/core/circuit_builder.hpp"
+#include "../circuit_builder.hpp"
 #include "CompositeInstruction.hpp"
 #include "Circuit.hpp"
 #include "IRProvider.hpp"

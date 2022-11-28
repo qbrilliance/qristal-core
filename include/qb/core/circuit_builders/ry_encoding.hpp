@@ -28,7 +28,7 @@ Worklog: https://www.notion.so/quantumbrilliance/220815-Worklog-Decoder-Mark-II-
 */
 
 #pragma once
-//#include "qb/core/qbos_circuit_builder.hpp"
+#include "../circuit_builder.hpp"
 #include "CompositeInstruction.hpp"
 #include "Circuit.hpp"
 #include "IRProvider.hpp"
@@ -134,7 +134,7 @@ namespace qbOS {
                     if (first_qubit) {
                         CircuitBuilder ry ;
                         ry.RY(qubit,asin(sqrt(next_letter_prob/probability_remaining))*2);  
-                        this->CU(ry, qubits_control);  
+                        this->C-U(ry, qubits_control);  
                         first_qubit = false;
                     }
                     else {
