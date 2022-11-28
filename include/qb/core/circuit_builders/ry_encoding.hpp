@@ -85,6 +85,7 @@ namespace qbOS {
       const int alphabet_size = probability_table[0].size(); //Number of columns of probability_table. Columns represent alphabets size.
       int nb_qubits_letter = qubits_string.size()/string_length;
       int nq_symbols = std::ceil(std::log2(alphabet_size));
+      //std::cout << "string_length:" << string_length << " nq_symbols:" << nq_symbols << " qubits_string:" << qubits_string.size() << std::endl;
       assert((string_length * nq_symbols) == qubits_string.size());
       
       float probability_remaining; 

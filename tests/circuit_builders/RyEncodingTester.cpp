@@ -59,7 +59,7 @@ std::map<std::string, int> check_encoding(std::vector<std::vector<float>> prob_t
         std::vector<float> probability_column = prob_table[step];
         int shot_tally = 0;
         for (int symbol = 0; symbol < nb_symbols; symbol++) {
-            std::string bitstring = std::bitset<2>(symbol).to_string();
+            std::string bitstring = std::bitset<3>(symbol).to_string();
             std::reverse(bitstring.begin(),bitstring.end()); 
             bitstring = bitstring.substr(0,nq_symbols);
             for (iter=measurements.begin(); iter != measurements.end(); iter++) {
@@ -108,8 +108,8 @@ TEST(RyEncodingTester_3, checkSimple) {
 
 
 TEST(RyEncodingTester_4, checkSimple) {
-  std::vector<std::vector<float>> probability_table = {{0.5,0.25,0.25},{0.1,0.7,0.2},{0.5,0.5,0.0}};
-  std::vector<int> qubits_string = {0,1,2,3,4,5};
+  std::vector<std::vector<float>> probability_table = {{0.05,0.30,0.15,0.25,0.15,0.10},{0.0,0.1,0.4,0.1,0.2,0.2},{0.20,0.15,0.10,0.05,0.5,0.0}};
+  std::vector<int> qubits_string = {0,1,2,3,4,5,6,7,8};
 
   std::map<std::string, int> measurements = check_encoding(probability_table,qubits_string);
   //std::cout << output_string << std::endl;
