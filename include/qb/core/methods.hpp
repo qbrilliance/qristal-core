@@ -10,9 +10,11 @@
 #include "method_utils.hpp"
 
 namespace qbOS {
-/// Qbqe: qbOS quantum programming and execution framework
-/// targetting multi-circuit/multi-config execution based on the array syntax (2-D table)
-/// TODO: proper documentation.
+/**
+ * @brief Qbqe: Quantum programming and execution framework targeting 
+ * multi-circuit/multi-config execution based on the array syntax (2-D table)
+ * 
+ */
 class Qbqe {
 private:
   // Debugging

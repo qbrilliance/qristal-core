@@ -25,18 +25,21 @@ const char* Qbqe::help_instrings_ = R"(
         instring:
 
         A string that defines a circuit in OpenQASM format.  Simple example:
-        '''
-        __qpu__ void QBCIRCUIT(qreg q) {
-              OPENQASM 2.0;
-              include "qelib1.inc;"
-              creg c0[1];
-              creg c1[1];
-              h q[0];
-              cx q[0],q[1];
-              measure q[0] -> c0[0];
-              measure q[1] -> c1[0];
-        }
-        '''
+
+        .. code-block::
+
+                __qpu__ void QBCIRCUIT(qreg q) {
+                        OPENQASM 2.0;
+                        include "qelib1.inc;"
+                        creg c0[1];
+                        creg c1[1];
+                        h q[0];
+                        cx q[0],q[1];
+                        measure q[0] -> c0[0];
+                        measure q[1] -> c1[0];
+                }
+
+
 
         instrings:
 
@@ -408,13 +411,20 @@ const char* Qbqe::help_out_double_qubit_gate_qtys_ = R"(
 const char* Qbqe::help_out_total_init_maxgate_readout_times_ = R"(
         out_total_init_maxgate_readout_time:
 
-        After calling qbqe.profile(), the circuit in in qbqe.out_transpiled_circuit is processed and timing estimates taken to perform the required number of shots [sn] are stored as qbqe.out_total_init_maxgate_readout_time.  It uses a dictionary with the following keys:
-        [integer] 0: total, in ms;
-                  1: initialisation time component, in ms;
-                  2: max depth gate time component, in ms;
-                  3: readout time component, in ms;
-                  4: total (classically simulated time), in ms;
-                  5: PC transfer to controller time, in ms.
+        After calling qbqe.profile(), the circuit in in qbqe.out_transpiled_circuit is processed and timing estimates taken to perform the required number of shots [sn] are stored as qbqe.out_total_init_maxgate_readout_time.  
+        
+        It uses a dictionary with the following keys [integer]:
+                0: total, in ms;
+
+                1: initialisation time component, in ms;
+                
+                2: max depth gate time component, in ms;
+                
+                3: readout time component, in ms;
+                
+                4: total (classically simulated time), in ms;
+                
+                5: PC transfer to controller time, in ms.
 
         out_total_init_maxgate_readout_times:
 
