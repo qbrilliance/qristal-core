@@ -20,6 +20,7 @@ set(headers
   include/qb/core/cmake_variables.hpp
   include/qb/core/circuit_builder.hpp
   include/qb/core/circuit_builders/exponent.hpp
+  include/qb/core/circuit_builders/ry_encoding.hpp
   include/qb/core/methods.hpp
   include/qb/core/method_utils.hpp
   include/qb/core/pretranspiler.hpp

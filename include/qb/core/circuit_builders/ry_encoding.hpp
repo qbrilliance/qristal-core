@@ -28,7 +28,7 @@ Worklog: https://www.notion.so/quantumbrilliance/220815-Worklog-Decoder-Mark-II-
 */
 
 #pragma once
-#include "qbos_circuit_builder.hpp"
+//#include "qb/core/qbos_circuit_builder.hpp"
 #include "CompositeInstruction.hpp"
 #include "Circuit.hpp"
 #include "IRProvider.hpp"
