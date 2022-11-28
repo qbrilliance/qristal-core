@@ -134,7 +134,7 @@ namespace qbOS {
                     if (first_qubit) {
                         CircuitBuilder ry ;
                         ry.RY(qubit,asin(sqrt(next_letter_prob/probability_remaining))*2);  
-                        this->C-U(ry, qubits_control);  
+                        this->CU(ry, qubits_control);  
                         first_qubit = false;
                     }
                     else {
