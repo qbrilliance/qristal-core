@@ -1,7 +1,7 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
 #pragma once
-#include "typedefs.hpp"
+#include "qb/core/typedefs.hpp"
 
 // Forward declares
 namespace xacc {

@@ -7,6 +7,10 @@ set(source_files
   #src/qbTketNoiseAwarePlacement.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
   src/thread_pool.cpp
+  src/optimization/qaoa/qaoa_base.cpp
+  src/optimization/qaoa/qaoa_simple.cpp
+  src/optimization/qaoa/qaoa_validators.cpp
+  # vqee is header only atm
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/core/session_getter_setter.cpp
@@ -32,6 +36,8 @@ set(headers
   include/qb/core/remote_async_accelerator.hpp
   include/qb/core/thread_pool.hpp
   include/qb/core/typedefs.hpp
+  include/qb/core/optimization/vqee/vqee.hpp
+  include/qb/core/optimization/qaoa/qaoa.hpp
 )
 
 # Header-only interface target
