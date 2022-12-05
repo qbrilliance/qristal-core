@@ -87,10 +87,3 @@ TEST(AwsOpenQasm3Tester, checkMeasureSubset) {
   buffer->print();
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize();
-  ::testing::InitGoogleTest(&argc, argv);
-  const auto result = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return result;
-}

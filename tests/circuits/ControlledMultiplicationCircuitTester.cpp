@@ -102,7 +102,7 @@ TEST(ControlledMultiplicationCircuitTester, check_integer1) {
   }
 }
 
-TEST(MultiplicationCircuitTester, check_integer2) {
+TEST(ControlledMultiplicationCircuitTester, check_integer2) {
   /////////////////////////////// Define circuit ////////////////////////////////////
   std::vector<int> qubits_a = {0,1}; // n qubits
   std::vector<int> qubits_b = {2,3}; // n qubits
@@ -152,10 +152,3 @@ TEST(MultiplicationCircuitTester, check_integer2) {
 
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}

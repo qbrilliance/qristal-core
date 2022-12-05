@@ -150,11 +150,3 @@ TEST(CanonicalExponentialSearchAlgorithmAltTester, checkSimplefunc) {
   // Pm >= 1/4 (https://arxiv.org/pdf/quant-ph/9605034.pdf)
   EXPECT_GT(nSuccess/N_TRIALS, 0.25);
 }
-
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}

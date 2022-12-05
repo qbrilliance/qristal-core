@@ -182,10 +182,3 @@ TEST(CompareBeamOracleCircuitTester, checkSimple4) {
   EXPECT_EQ(buffer->getMeasurementCounts()["111"], 1024);
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}

@@ -1,15 +1,47 @@
 stages:
   - build
+  - test
 
 before_script:
   - echo $PWD
   - ls -l
   - whoami
 
-ubuntu20.04:
+ubuntu20-build:
   stage: build
   image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
   script:
     - cmake -B build . -DTNQVM_DIR=${QB_DIR}/xacc-local
     - cmake --build build -- -j`nproc`
+  artifacts:
+    when: always
+    paths: 
+      - build/CITests
+      - build/cmake_install.cmake
+      - build/core.cpython-38-x86_64-linux-gnu.so
+      - build/lib*
+      - build/plugins
+
+ubuntu20-cpp-tests:
+  stage: test
+  needs: ["ubuntu20-build"]
+  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-12
+  script:
     - cmake --install build
+    - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+  artifacts:
+    when: always
+    reports:
+      junit: core_gtests.xml
+
+ubuntu20-py-tests:
+  stage: test
+  needs: ["ubuntu20-build"]
+  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-12
+  script:
+    - cmake --install build
+    - python -c "import qb.core"
+  artifacts:
+    when: always
+    reports:
+      junit: src/qbos_core/test/report.xml

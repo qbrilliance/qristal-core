@@ -137,11 +137,3 @@ TEST(QPrimeTester_2, checkSimple) {
 }
 
 
-int main(int argc, char **argv) {
-  std::cout << "HOWDY: QPrime circuit:\n";
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}
