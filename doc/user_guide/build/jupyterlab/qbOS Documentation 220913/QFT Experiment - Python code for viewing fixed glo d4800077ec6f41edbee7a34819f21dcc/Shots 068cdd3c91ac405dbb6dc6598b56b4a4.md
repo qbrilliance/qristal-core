@@ -1,3 +1,0 @@
-# Shots
-
-Code: tqb.sn
