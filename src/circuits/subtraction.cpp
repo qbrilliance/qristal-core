@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qbOS {
+namespace qb {
 bool Subtraction::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   std::vector<int> larger;
@@ -153,4 +153,4 @@ bool Subtraction::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> Subtraction::requiredKeys() {
   return {"qubits_larger", "qubits_smaller"};
 }
-} // namespace qbOS
+} // namespace qb

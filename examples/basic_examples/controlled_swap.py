@@ -1,8 +1,8 @@
-import qbos as qb 
-import numpy as np 
+import qb.core
+import numpy as np
 import ast
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 ###
 # Testing controlled swap
@@ -20,7 +20,7 @@ input_string = "babba"
 assert(len(input_string) == len(qubits_string))
 
 # Prepare input state
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 for i in range(len(input_string)):
     if input_string[i] == "b":
         circ.x(qubits_string[i])
@@ -43,14 +43,14 @@ for i in range(len(input_string)):
 
 # Execute circuit
 
-tqb.ir_target = circ
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
-tqb.acc = "qpp"
-tqb.run()
-result1 = tqb.out_raw[0][0]
+s.ir_target = circ
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qpp"
+s.run()
+result1 = s.out_raw[0][0]
 res1 = ast.literal_eval(result1)
 assert(len(list(res1.keys())) == 1)
 output_measurement = list(res1.keys())[0]

@@ -3,7 +3,7 @@
  ***/
 #pragma once
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 class RippleCarryAdder : public xacc::quantum::Circuit {
 public:
   RippleCarryAdder() : xacc::quantum::Circuit("RippleCarryAdder") {}
@@ -11,4 +11,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(RippleCarryAdder);
 };
-} // namespace qbOS
+} // namespace qb

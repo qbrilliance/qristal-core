@@ -9,7 +9,7 @@
 #include <assert.h>
 #include "xacc.hpp"
 
-namespace qbOS {
+namespace qb {
 bool AmplitudeAmplification::expand(
     const xacc::HeterogeneousMap &runtimeOptions) {
   // power: The number of times the Grover operator is repeated.
@@ -36,7 +36,7 @@ bool AmplitudeAmplification::expand(
           runtimeOptions.getPointerLike<xacc::CompositeInstruction>(
               "state_preparation"));
     }
-    const auto Qubits = qbOS::uniqueBitsQD(oracle_circuit);
+    const auto Qubits = qb::uniqueBitsQD(oracle_circuit);
     auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
     auto state_prep = gateRegistry->createComposite("state_prep");
     for (auto i : Qubits) {
@@ -59,7 +59,7 @@ bool AmplitudeAmplification::expand(
     // S0 => zero reflection circuit
     // Sf => phase oracle (multiplies the good states by -1)
     // A => state-prep
-    const auto Qubits = qbOS::uniqueBitsQD(oracle_circuit);
+    const auto Qubits = qb::uniqueBitsQD(oracle_circuit);
     std::vector<int> Qubits_vec;
     for (auto q : Qubits) {
       Qubits_vec.push_back(q);
@@ -193,4 +193,4 @@ const std::vector<std::string> AmplitudeAmplification::requiredKeys() {
   // (others are optional)
   return {"oracle"};
 }
-} // namespace qbOS
+} // namespace qb

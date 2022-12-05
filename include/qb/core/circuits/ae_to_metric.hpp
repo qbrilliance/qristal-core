@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 class AEtoMetric : public xacc::quantum::Circuit {
 public:
   AEtoMetric() : xacc::quantum::Circuit("AEtoMetric") {}
@@ -11,4 +11,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(AEtoMetric);
 };
-} // namespace qbOS
+} // namespace qb

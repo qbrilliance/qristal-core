@@ -4,7 +4,7 @@
 #include "xacc_service.hpp"
 #include <assert.h>
 
-namespace qbOS {
+namespace qb {
 bool PseudoTraceAmplitudeEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////

@@ -5,7 +5,7 @@ from qiskit.compiler import assemble
 import threading, queue
 from pathlib import Path
 
-# Use the standalone qasm_simulator in qbOS for testing.
+# Use the standalone qasm_simulator in the SDK for testing.
 # Note: this one doesn't have GPU.
 AER_SIMULATOR_PATH = '@QB_STANDALONE_AER_EXE@'
 app = Flask(__name__)
@@ -20,7 +20,7 @@ def check_for_job():
         config_file = dir_path + '/' + str(job_id) + '_config.json'
         # Run the simulation:
         result = subprocess.run([AER_SIMULATOR_PATH, '-c', config_file, qobj_file], stdout=subprocess.PIPE)
-        result_str = str(result.stdout.decode('utf8')) 
+        result_str = str(result.stdout.decode('utf8'))
         result_str = "{" + result_str.split("{", 1) [1]
         #print("Result:\n", result_str)
         result_json = json.loads(result_str)
@@ -52,10 +52,10 @@ def new_job():
         "blocking_enable": True,
         "blocking_qubits": 27
     }
-    
+
     if ("device" in request_body):
         run_config["device"] = str(request_body["device"])
-    
+
     if ("method" in request_body):
         run_config["method"] = str(request_body["method"])
 

@@ -20,7 +20,7 @@ std::string integral_to_binary_string(T byte, IS_INTEGRAL(T)) {
   return bs.to_string();
 }
 } // namespace
-namespace qbOS {
+namespace qb {
 class LambdaRemoteAccelerator : public xacc::Accelerator, public xacc::Cloneable<xacc::Accelerator> {
 private:
   std::string m_ipAddress = "127.0.0.1:5000";
@@ -200,8 +200,8 @@ public:
   }
 
   virtual std::shared_ptr<xacc::Accelerator> clone() override {
-    return std::make_shared<qbOS::LambdaRemoteAccelerator>();
+    return std::make_shared<qb::LambdaRemoteAccelerator>();
   }
 };
-} // namespace qbOS
-REGISTER_ACCELERATOR(qbOS::LambdaRemoteAccelerator)
+} // namespace qb
+REGISTER_ACCELERATOR(qb::LambdaRemoteAccelerator)

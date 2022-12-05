@@ -15,7 +15,7 @@
 #include <optional>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 
 bool InverseCircuit::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
@@ -142,4 +142,4 @@ bool InverseCircuit::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
 const std::vector<std::string> InverseCircuit::requiredKeys() { return {}; }
 
-} // namespace qbOS
+} // namespace qb

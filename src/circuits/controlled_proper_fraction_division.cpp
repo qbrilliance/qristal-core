@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace qbOS {
+namespace qb {
 bool ControlledProperFractionDivision::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   std::vector<int> denominator;
@@ -257,4 +257,4 @@ bool ControlledProperFractionDivision::expand(const xacc::HeterogeneousMap &runt
 const std::vector<std::string> ControlledProperFractionDivision::requiredKeys() {
   return {"qubits_numerator", "qubits_denominator", "qubits_fraction", "qubits_ancilla"};
 }
-} // namespace qbOS
+} // namespace qb

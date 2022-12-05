@@ -9,16 +9,16 @@
 
 using namespace cppmicroservices;
 
-class US_ABI_LOCAL qbOSExpSearchAlgoActivator : public BundleActivator {
+class US_ABI_LOCAL ExpSearchAlgoActivator : public BundleActivator {
 public:
-  qbOSExpSearchAlgoActivator() {}
+  ExpSearchAlgoActivator() {}
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::Algorithm>(
-        std::make_shared<qbOS::ExponentialSearch>());
+        std::make_shared<qb::ExponentialSearch>());
   }
 
   void Stop(BundleContext context) {}
 };
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(qbOSExpSearchAlgoActivator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(ExpSearchAlgoActivator)

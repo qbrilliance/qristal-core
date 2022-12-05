@@ -9,22 +9,23 @@ from functools import reduce
 import openfermion as of
 import openfermionpyscf as ofpyscf
 from pyscf import scf, grad, gto, data
-import qbos_op as qbos
+import qb.core
+import qb.op
 
 BOHR =  data.nist.BOHR
 
-def run_vqe(qn=4, acc="qpp", ham="0", theta=[.08,1.5,2.1], ansatz="aswap", aswapn=6, 
+def run_vqe(qn=4, acc="qpp", ham="0", theta=[.08,1.5,2.1], ansatz="aswap", aswapn=6,
         maxeval=201, functol=1e-5, method="nelder-mead", toprint=False, sn=0, addqubits=0):
     ham = change_index(ham, addqubits)
     qn += addqubits
-    vqe = qbos.vqe()
-    vqe.theta = qbos.ND()
+    vqe = qb.op.vqe()
+    vqe.theta = qb.core.ND()
     attrs = ['qn', 'acc','ham', 'ansatz', 'aswapn', 'method', 'maxeval']
     vals = [qn, acc, ham, ansatz, aswapn, method, maxeval]
     vqe.sn = sn
     for attr, val in zip(attrs, vals):
         setattr(vqe, attr, val)
-    
+
     # TODO: fill in theta with required number of parameters
     for i in range(len(theta)):
         vqe.theta[0][0][i] = theta[i]
@@ -37,7 +38,7 @@ def run_vqe(qn=4, acc="qpp", ham="0", theta=[.08,1.5,2.1], ansatz="aswap", aswap
     return (vqe.out_energy[0][0][0], [vqe.out_theta[0][0][x] for x in range(len(theta))])
 
 def get_n_qubits(ham : str) -> int:
-    ''' Find the number of qubits required by Hamiltonian string 
+    ''' Find the number of qubits required by Hamiltonian string
     by finding the highest label number in a pauli operator
     '''
     indexes = re.findall(r'(?<=[XYZ])[0-9]+|/g', ham)
@@ -55,11 +56,11 @@ class VQE(Calculator):
     Calculator interface source code
     https://gitlab.com/ase/ase/-/blob/master/ase/calculators/calculator.py
     """
-    
+
     implemented_properties = ['energy', 'forces']
 
     default_parameters : Dict[str, Any] = {
-        'basis' : 'sto3g',  # can also be a dict 
+        'basis' : 'sto3g',  # can also be a dict
         'multiplicity': None,  # spin multiplicity 2S+1
         'n_active_electrons': None,  # electrons in active space
         'n_active_orbitals': None,  # spatial orbitals in active space
@@ -89,7 +90,7 @@ class VQE(Calculator):
             any combination of these six: 'positions', 'numbers', 'cell',
             'pbc', 'initial_charges' and 'initial_magmoms'.
 
-        Calculated properties are inserted into results dictionary like 
+        Calculated properties are inserted into results dictionary like
         shown in this dummy example::
 
             self.results = {'energy': 0.0,
@@ -111,21 +112,21 @@ class VQE(Calculator):
             charge = int(sum(atoms.get_initial_charges()))
             multiplicity = self.parameters['multiplicity']
             if multiplicity is None: # maximally pair electrons
-                multiplicity = int((sum(atoms.get_atomic_numbers()) - charge)) % 2 + 1  
+                multiplicity = int((sum(atoms.get_atomic_numbers()) - charge)) % 2 + 1
             n_active_electrons = self.parameters['n_active_electrons']
             n_active_orbitals = self.parameters['n_active_orbitals']
-            
+
             # Perform electronic structure calculations and
             # obtain Hamiltonian as an OpenFermion InteractionOperator
             self.molecule = of.MolecularData(geometry, basis, multiplicity, charge)
-            self.occupied_indices, self.active_indices = self.get_occupied_indices(self.molecule, 
-                    n_active_electrons, n_active_orbitals) 
+            self.occupied_indices, self.active_indices = self.get_occupied_indices(self.molecule,
+                    n_active_electrons, n_active_orbitals)
             one_body_integrals, two_body_integrals = self.get_integrals(self.molecule)
-            hamiltonian = self.get_molecular_hamiltonian(self.molecule, 
-                    float(self.molecule._pyscf_data['mol'].energy_nuc()), 
+            hamiltonian = self.get_molecular_hamiltonian(self.molecule,
+                    float(self.molecule._pyscf_data['mol'].energy_nuc()),
                     one_body_integrals, two_body_integrals)
 
-            # perform JW transform on second quantized hamiltonian 
+            # perform JW transform on second quantized hamiltonian
             hamiltonian_jw_str = self.squant_to_pauli(hamiltonian)
 
             # perform VQE to determine ground state
@@ -134,12 +135,12 @@ class VQE(Calculator):
             else:
                 self.parameters['vqe_params']['aswapn'] = self.molecule.n_electrons
             n_qubits = get_n_qubits(hamiltonian_jw_str)
-            energy, self.optimized_theta = run_vqe(qn=n_qubits, ham=hamiltonian_jw_str, 
+            energy, self.optimized_theta = run_vqe(qn=n_qubits, ham=hamiltonian_jw_str,
                 toprint=self.parameters['verbose'], **self.parameters['vqe_params'])
             self.results['energy'] = energy
             # print("Hartree-Fock energy:", self.molecule._pyscf_data['scf'].e_tot)
             # print("VQE energy:         ", energy)
-        
+
         if 'forces' in properties:
             # calculate derivative of hamiltonian wrt each nuclear coordinate
             # return array of dimension (M, 3)
@@ -148,7 +149,7 @@ class VQE(Calculator):
             if self.pc is not None:
                 # get coulomb forces on nuclei due to external point charges
                 grad_nn += self.pc.get_ngrad_nn(mol, self)
-            
+
             forces = np.zeros((len(atoms), 3))
             # grad.rhf.grad_elec(mf_grad) + grad.rhf.grad_nuc(mol) to get HF forces
             for atm_id in range(len(atoms)):
@@ -156,14 +157,14 @@ class VQE(Calculator):
                 one_body_integrals, two_body_integrals = self.fd_grad_integrals(self.molecule, atm_id)
                 for i in range(3):
                     # create operator for each component of nuclear coordinate
-                    grad_ham = self.get_molecular_hamiltonian(self.molecule, grad_nn[atm_id][i], 
+                    grad_ham = self.get_molecular_hamiltonian(self.molecule, grad_nn[atm_id][i],
                         one_body_integrals[i], two_body_integrals[i])
                     grad_ham_jw = self.squant_to_pauli(grad_ham)
                     # measure pauli terms in operator using VQE circuit to obtain force
                     forces[atm_id][i] = -self.evaluate_VQE(grad_ham_jw)
-            
+
             self.results['forces'] = forces
-        
+
 
     def fd_grad_integrals(self, molecule, atm_id : int):
         # gradient of AO integrals using central finite difference
@@ -181,14 +182,14 @@ class VQE(Calculator):
 
     def get_integrals(self, molecule, atm_id = 0, perturb = np.array([0,0,0])):
         """ compute one and two electron integrals for a given molecule
-        with a perturbation of chosen nuclei position 
+        with a perturbation of chosen nuclei position
         Args:
             molecule: An instance of the OpenFermion MolecularData class.
             atm_id: Index of atom in molecule which is to be perturbed
             perturb: A numpy array representing displacement of coordinates of atom
         Returns:
             One and two body integrals of the molecule in MO basis
-        """ 
+        """
         # build pyscf molecule and run scf
         mol = self.prepare_pyscf_molecule(molecule)
         mol.atom[atm_id] = (mol.atom[atm_id][0], mol.atom[atm_id][1]+perturb)
@@ -211,7 +212,7 @@ class VQE(Calculator):
             perturb_ints = self.ao_to_mo(perturb_ints, pyscf_scf)
             one_body_ints += perturb_ints
         return (one_body_ints, two_body_ints)
-    
+
     def prepare_pyscf_molecule(self, molecule):
         """ Args:
                 molecule: An instance of the OpenFermion MolecularData class.
@@ -244,13 +245,13 @@ class VQE(Calculator):
             active_indices = list(range(n_core_orbitals,
                                         n_core_orbitals + n_active_orbitals))
         return (occupied_indices, active_indices)
-    
+
     def squant_to_pauli(self, hamiltonian):
-        ''' 
+        '''
         Args:
-            ham: a second quantized operator of type 
+            ham: a second quantized operator of type
                 of.ops.representations.InteractionOperator
-        
+
         Returns:
             hamiltonian_jw_str: a string which represents the operator
                 after the Jordan-Wigner transform
@@ -259,28 +260,28 @@ class VQE(Calculator):
         hamiltonian_ferm_op = of.get_fermion_operator(hamiltonian)
         # Map to QubitOperator using the JWT
         hamiltonian_jw = of.jordan_wigner(hamiltonian_ferm_op)
-        # remove all line breaks and brackets for qbOS
+        # remove all line breaks and brackets for SDK
         hamiltonian_jw_str = re.sub(r"\+0j|\r|\n|\[|\]|\(|\)|/g", "", str(hamiltonian_jw))
         return hamiltonian_jw_str
-    
-    def get_molecular_hamiltonian(self, molecule, nuc_repulsion, 
-            one_body_integrals, two_body_integrals):  
-        ''' 
+
+    def get_molecular_hamiltonian(self, molecule, nuc_repulsion,
+            one_body_integrals, two_body_integrals):
+        '''
         Args:
             molecule: OpenFermion MolecularData object
             nuc_repulsion: float
             one_body_integrals: shape = (M,M)
             two_body_integrals: shape = (M,M,M,M)
         Returns:
-            Second quantized hamiltonian as an OpenFermion InteractionOperator object 
+            Second quantized hamiltonian as an OpenFermion InteractionOperator object
         '''
-        ofmolecule = of.MolecularData(molecule.geometry, molecule.basis, 
+        ofmolecule = of.MolecularData(molecule.geometry, molecule.basis,
                 molecule.multiplicity, molecule.charge)
         ofmolecule.nuclear_repulsion = nuc_repulsion
         ofmolecule.one_body_integrals = one_body_integrals
         ofmolecule.two_body_integrals = two_body_integrals
         return ofmolecule.get_molecular_hamiltonian(self.occupied_indices, self.active_indices)
-    
+
     def evaluate_VQE(self, ham : str, theta=None):
         '''
         Evaluate expectation of qubit hamiltonian on the ansatz with given
@@ -293,21 +294,21 @@ class VQE(Calculator):
         if 'theta' in kwargs: kwargs.pop('theta')
         if 'maxeval' in kwargs: kwargs.pop('maxeval')
         # evaluate hamiltonian at given set of angles using one evaluation
-        ev, _ = run_vqe(qn=n_qubits, ham=ham, toprint=False, theta=theta, 
+        ev, _ = run_vqe(qn=n_qubits, ham=ham, toprint=False, theta=theta,
             maxeval = 1, **kwargs)
         return ev
 
     def embed(self, q_p):
-        """ Embed QM region in point-charges. Positions can be set with 
-        set_positions function in PointChargePotential 
+        """ Embed QM region in point-charges. Positions can be set with
+        set_positions function in PointChargePotential
         Arguments:
-            q_p: List of floats indicating charges 
+            q_p: List of floats indicating charges
         """
         pc = PointChargePotential(q_p)
         self.pc = pc
         self.to_calculate = True
         return pc
-    
+
     def ao_to_mo(self, ao, pyscf_scf=None):
         """ Convert atomic orbital integrals to molecular orbitals
         using the MO coefficients from scf calculation. Works for one electron
@@ -323,5 +324,5 @@ class VQE(Calculator):
                                                     pyscf_scf.mo_coeff))
         one_electron_integrals = one_electron_compressed.reshape(
             n_orbitals, n_orbitals).astype(float)
-        
+
         return one_electron_integrals

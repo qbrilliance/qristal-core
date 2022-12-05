@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-namespace qbOS {
+namespace qb {
 
 void Executor::initialize(const std::string &in_qpuConfig) {
   auto qpu_configs = nlohmann::json::parse(in_qpuConfig);
@@ -86,4 +86,4 @@ std::string sync(Handle &handle, int time_out_secs) {
   return result_buffer->toString();
 }
 
-} // namespace qbOS
+} // namespace qb

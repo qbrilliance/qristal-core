@@ -1,9 +1,9 @@
 import numpy as np
-import qbos as qb
+import qb.core
 import ast
 import timeit
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 # In this example, we perform an mcx gate on all possible bitstrings
 num_qubits = 5
@@ -12,7 +12,7 @@ target_bit = num_qubits-1
 ancilla_bits = range(num_qubits, num_qubits + num_qubits - 2)
 
 for i in range(2**num_qubits):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     # Prepare the input state
     bitstring = bin(i)[2:].zfill(5)
@@ -21,7 +21,7 @@ for i in range(2**num_qubits):
             circ.x(j)
 
     # Add the amcu gate
-    U = qb.Circuit()
+    U = qb.core.Circuit()
     U.x(target_bit)
     circ.amcu(U, control_bits, ancilla_bits)
 
@@ -29,15 +29,15 @@ for i in range(2**num_qubits):
     for j in range(num_qubits):
         circ.measure(j)
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
 
-    result = tqb.out_raw[0][0]
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
 
     if bitstring == "11111":

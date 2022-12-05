@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 class CanonicalAmplitudeEstimation : public xacc::Algorithm {
 
   // Given a quantum state |psi> = a|good> + b|bad>, the canonical amplitude
@@ -48,4 +48,4 @@ public:
   }
   DEFINE_ALGORITHM_CLONE(CanonicalAmplitudeEstimation)
 };
-} // namespace qbOS
+} // namespace qb

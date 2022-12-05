@@ -24,7 +24,7 @@ namespace xacc
     AWSAccelerator::AWSAccelerator(bool debug) :
      debug_aws_(debug),
      m_device("DM1"),
-     m_s3("amazon-braket-qbos"),
+     m_s3("amazon-braket-QBSDK"),
      m_path("output"),
      m_format("openqasm3"),
      m_noise(false),
@@ -38,8 +38,8 @@ namespace xacc
     /// Return the descriptions of the accelerator
     const std::string AWSAccelerator::description() const
     {
-      return "The AWS Accelerator allows qbOS to offload to hosted AWS "
-             "Simulators and hardware QPUs.";
+      return "The AWS Accelerator allows circuits to be offloaded to "
+             "simulators and hardware QPUs hosted by AWS.";
     }
 
     /// Return the configuration keys of the accelerator
@@ -76,7 +76,7 @@ namespace xacc
       };
       if (m_format == "openqasm3")
       {
-        qbOS::AWSOpenQASM3Visitor visitor(CompositeInstruction->nPhysicalBits(), m_noise, m_verbatim);
+        qb::AWSOpenQASM3Visitor visitor(CompositeInstruction->nPhysicalBits(), m_noise, m_verbatim);
         make_measurements(visitor);
         aws_str = visitor.getOpenQasm();
       }
@@ -193,7 +193,7 @@ namespace xacc
 
     /// Asynchronous offload a circuit to AWS Braket.
     /// Returns a handle to check job status and retrieve the result.
-    std::shared_ptr<qbOS::async_job_handle> AWSAccelerator::async_execute(
+    std::shared_ptr<qb::async_job_handle> AWSAccelerator::async_execute(
         const std::shared_ptr<CompositeInstruction> CompositeInstruction) {
       // Process the IR to generate AWS string and list of measure qubits
       const auto [aws_str, measure_bits] = generate_aws_string(CompositeInstruction);
@@ -227,7 +227,7 @@ namespace xacc
           /// Post the job to AWS Braket and retrieve the task handle.
           auto py_aws_quantum_task = qb_aws_mod_run_aws_braket_async(
               m_device, m_shots, aws_str, m_verbatim, m_format, m_s3, m_path);
-          auto aws_task_handle = std::make_shared<qbOS::aws_async_job_handle>(
+          auto aws_task_handle = std::make_shared<qb::aws_async_job_handle>(
               py_aws_quantum_task, measure_bits);
           if (debug_aws_)
             std::cout << "# Done submitting an asynchronous task to AWS Braket!"

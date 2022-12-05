@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qbOS {
+namespace qb {
 bool CompareGT::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   std::vector<int> qubits_a;
@@ -149,4 +149,4 @@ bool CompareGT::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> CompareGT::requiredKeys() {
   return {"qubits_a", "qubits_b", "qubit_flag", "qubit_ancilla"};
 }
-} // namespace qbOS
+} // namespace qb

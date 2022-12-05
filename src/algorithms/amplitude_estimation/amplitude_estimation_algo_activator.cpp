@@ -10,18 +10,18 @@
 
 using namespace cppmicroservices;
 
-class US_ABI_LOCAL qbOSQAEAlgoActivator : public BundleActivator {
+class US_ABI_LOCAL QAEAlgoActivator : public BundleActivator {
 public:
-  qbOSQAEAlgoActivator() {}
+  QAEAlgoActivator() {}
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::Algorithm>(
-        std::make_shared<qbOS::CanonicalAmplitudeEstimation>());
+        std::make_shared<qb::CanonicalAmplitudeEstimation>());
     context.RegisterService<xacc::Algorithm>(
-        std::make_shared<qbOS::MLAmplitudeEstimation>());
+        std::make_shared<qb::MLAmplitudeEstimation>());
   }
 
   void Stop(BundleContext context) {}
 };
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(qbOSQAEAlgoActivator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(QAEAlgoActivator)

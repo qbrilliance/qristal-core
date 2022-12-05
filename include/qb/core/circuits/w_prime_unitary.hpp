@@ -5,7 +5,7 @@
 
 #include "Circuit.hpp"
 
-namespace qbOS {
+namespace qb {
 
 /// W_prime circuit:
 /// The W prime circuit encodes a provided probability_table into the 
@@ -17,5 +17,5 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(WPrime);
 };
-} // namespace qbOS
+} // namespace qb
 

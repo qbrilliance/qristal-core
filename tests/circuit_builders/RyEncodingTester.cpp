@@ -20,14 +20,14 @@
 std::map<std::string, int> check_encoding(std::vector<std::vector<float>> prob_table,
                            std::vector<int> qubits_string) {
 
-    qbOS::CircuitBuilder circ;
-    
+    qb::CircuitBuilder circ;
+
     const xacc::HeterogeneousMap &map = {
         {"probability_table", prob_table},
         {"qubits_string", qubits_string}};
 
-  
-    qbOS::RyEncoding build;
+
+    qb::RyEncoding build;
     const bool expand_ok = build.expand(map);
     circ.append(build);
 
@@ -51,7 +51,7 @@ std::map<std::string, int> check_encoding(std::vector<std::vector<float>> prob_t
     const int nb_timesteps = prob_table.size();
     const int nq_symbol = nq_string/nb_timesteps;
 
-    
+
     std::map<std::string, int>::iterator iter;
     const int nb_symbols = prob_table[0].size() ;
     const int nq_symbols = std::ceil(std::log2(nb_symbols));
@@ -60,7 +60,7 @@ std::map<std::string, int> check_encoding(std::vector<std::vector<float>> prob_t
         int shot_tally = 0;
         for (int symbol = 0; symbol < nb_symbols; symbol++) {
             std::string bitstring = std::bitset<3>(symbol).to_string();
-            std::reverse(bitstring.begin(),bitstring.end()); 
+            std::reverse(bitstring.begin(),bitstring.end());
             bitstring = bitstring.substr(0,nq_symbols);
             for (iter=measurements.begin(); iter != measurements.end(); iter++) {
                 std::string check_key = iter->first;
@@ -79,7 +79,7 @@ std::map<std::string, int> check_encoding(std::vector<std::vector<float>> prob_t
 }
 
 TEST(RyEncodingTester_1, checkSimple) {
-  std::vector<std::vector<float>> probability_table = {{0.0, 0.5, 0.5, 0.0}, {0.25, 0.25, 0.25, 0.25}};  
+  std::vector<std::vector<float>> probability_table = {{0.0, 0.5, 0.5, 0.0}, {0.25, 0.25, 0.25, 0.25}};
   std::vector<int> qubits_string = {0,1,2,3};
 
   std::map<std::string, int> measurements = check_encoding(probability_table,qubits_string);
@@ -88,7 +88,7 @@ TEST(RyEncodingTester_1, checkSimple) {
 }
 
 TEST(RyEncodingTester_2, checkSimple) {
-  std::vector<std::vector<float>> probability_table = {{0.75, 0.15, 0.05, 0.05}, {0.05, 0.10, 0.25, 0.6}}; 
+  std::vector<std::vector<float>> probability_table = {{0.75, 0.15, 0.05, 0.05}, {0.05, 0.10, 0.25, 0.6}};
   std::vector<int> qubits_string = {0,1,2,3};
 
   std::map<std::string, int> measurements = check_encoding(probability_table,qubits_string);

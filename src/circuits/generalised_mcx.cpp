@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool GeneralisedMCX::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -97,4 +97,4 @@ const std::vector<std::string> GeneralisedMCX::requiredKeys() {
   return {"target"};
 }
 
-} // namespace qbOS
+} // namespace qb

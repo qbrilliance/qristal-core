@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qbOS {
+namespace qb {
 bool MultiControlledUWithAncilla::expand(
     const xacc::HeterogeneousMap &runtimeOptions) {
   if (!runtimeOptions.keyExists<std::vector<int>>("qubits_control")) {
@@ -100,4 +100,4 @@ bool MultiControlledUWithAncilla::expand(
 const std::vector<std::string> MultiControlledUWithAncilla::requiredKeys() {
   return {};
 }
-} // namespace qbOS
+} // namespace qb

@@ -38,76 +38,76 @@
 #include "cppmicroservices/ServiceProperties.h"
 using namespace cppmicroservices;
 
-class US_ABI_LOCAL qbOSCircuitGenActivator : public BundleActivator {
+class US_ABI_LOCAL CircuitGenActivator : public BundleActivator {
 public:
-  qbOSCircuitGenActivator() {}
+  CircuitGenActivator() {}
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::CanonicalAmplitudeEstimation>());
+        std::make_shared<qb::CanonicalAmplitudeEstimation>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::PhaseEstimation>());
+        std::make_shared<qb::PhaseEstimation>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::AmplitudeAmplification>());
+        std::make_shared<qb::AmplitudeAmplification>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::UQPrime>());
+        std::make_shared<qb::UQPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::WPrime>());
+        std::make_shared<qb::WPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::UPrime>());
+        std::make_shared<qb::UPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::QPrime>());
+        std::make_shared<qb::QPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::RippleCarryAdder>());
+        std::make_shared<qb::RippleCarryAdder>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::Comparator>());
+        std::make_shared<qb::Comparator>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::EfficientEncoding>());
+        std::make_shared<qb::EfficientEncoding>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::MultiControlledUWithAncilla>());
+        std::make_shared<qb::MultiControlledUWithAncilla>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::EqualityChecker>());
+        std::make_shared<qb::EqualityChecker>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::ControlledSwap>());
+        std::make_shared<qb::ControlledSwap>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::ControlledAddition>());
+        std::make_shared<qb::ControlledAddition>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::GeneralisedMCX>());
+        std::make_shared<qb::GeneralisedMCX>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::CompareBeamOracle>());
+        std::make_shared<qb::CompareBeamOracle>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::InverseCircuit>());
+        std::make_shared<qb::InverseCircuit>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::InitRepeatFlag>());
+        std::make_shared<qb::InitRepeatFlag>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::InitRepeatFlag>());
+        std::make_shared<qb::InitRepeatFlag>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::AEtoMetric>());
+        std::make_shared<qb::AEtoMetric>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::BeamStatePrep>());
+        std::make_shared<qb::BeamStatePrep>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::SuperpositionAdder>());
+        std::make_shared<qb::SuperpositionAdder>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::PseudoTraceAmplitudeEstimation>());
+        std::make_shared<qb::PseudoTraceAmplitudeEstimation>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::Subtraction>());
+        std::make_shared<qb::Subtraction>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::ControlledSubtraction>());
+        std::make_shared<qb::ControlledSubtraction>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::ProperFractionDivision>());
+        std::make_shared<qb::ProperFractionDivision>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::ControlledProperFractionDivision>());
+        std::make_shared<qb::ControlledProperFractionDivision>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::CompareGT>());
+        std::make_shared<qb::CompareGT>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qbOS::Multiplication>());
+        std::make_shared<qb::Multiplication>());
     context.RegisterService<xacc::Instruction>(
-    std::make_shared<qbOS::ControlledMultiplication>());
+    std::make_shared<qb::ControlledMultiplication>());
     context.RegisterService<xacc::Instruction>(
-    std::make_shared<qbOS::MeanValueFinder>());
+    std::make_shared<qb::MeanValueFinder>());
   }
 
   void Stop(BundleContext context) {}
 };
 
-CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(qbOSCircuitGenActivator)
+CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(CircuitGenActivator)

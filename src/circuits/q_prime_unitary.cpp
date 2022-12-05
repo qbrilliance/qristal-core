@@ -17,7 +17,7 @@
 //#include <ostream>
 #include "IRProvider.hpp"
 
-namespace qbOS {
+namespace qb {
 bool QPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   std::cout << "QPrimeTester 1:Defining QPrime\n";
   std::cout << "Defining QPrime" << std::endl;
@@ -101,4 +101,4 @@ const std::vector<std::string> QPrime::requiredKeys() {
   return {"qubits_metric", "qubits_string",
              "qubits_next_metric", "qubits_next_letter"};
 }
-} // namespace qbOS
+} // namespace qb

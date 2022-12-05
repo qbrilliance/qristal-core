@@ -5,21 +5,21 @@
 # i.e., estimate the amplitude of the state:
 # sqrt(1-p)|0> + sqrt(p)|1>
 import numpy as np
-import qbos as qb
-from qbos import run_canonical_ae_with_oracle
+import qb.core
+from qb import run_canonical_ae_with_oracle
 
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))
 
 # State prep circuit: (preparing the state that we want to estimate the amplitude)
-state_prep = qb.Circuit()
+state_prep = qb.core.Circuit()
 state_prep.ry(8, theta_p)
 
 # In this case, we don't construct the Grover operator by ourselves,
 # instead, just provide the oracle to detect the marked state (|1>)
-oracle = qb.Circuit()
+oracle = qb.core.Circuit()
 oracle.z(8)
 bit_precision = 8
 state_prep_qubits = 1

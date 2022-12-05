@@ -24,7 +24,7 @@ TEST(ExponentCircuitTester_1, checkSimple) {
         else {
           if ((j*4 + l*2 + m) > 7) { continue; }
           }
-        qbOS::CircuitBuilder test_builder;
+        qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
         int log_value = 0;
         if (l==1){
@@ -52,7 +52,7 @@ TEST(ExponentCircuitTester_1, checkSimple) {
         }
 
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"is_LSB", false}};
-        qbOS::Exponent build;
+        qb::Exponent build;
         const bool expand_ok = build.expand(map);
 
         test_builder.append(build);
@@ -127,7 +127,7 @@ TEST(ExponentCircuitTester_2, checkSimple) {
         else {
           if ((j*4 + l*2 + m) > 7) { continue; }
         }
-        qbOS::CircuitBuilder test_builder;
+        qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
         int log_value = 0;
         if (l==1){
@@ -156,7 +156,7 @@ TEST(ExponentCircuitTester_2, checkSimple) {
 
         std::cout << "log.size():" << qubits_log.size() << std::endl;
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"min_significance", min_significance_}, {"is_LSB", false}};
-        qbOS::Exponent build;
+        qb::Exponent build;
         const bool expand_ok = build.expand(map);
         if (!expand_ok) {
           std::cout << "**** log value:" << log_value << " exp value:" << pow(2, log_value) << " ****" << std::endl;
@@ -232,7 +232,7 @@ TEST(ExponentCircuitTester_3, checkSimple) {
           if ((j*4 + l*2 + m) > 7) { continue; }
         }
         std::cout << "j:" << j << " l:" << l << " m:" << m << std::endl;
-        qbOS::CircuitBuilder test_builder;
+        qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
         int log_value = 0;
         if (j==1){
@@ -269,7 +269,7 @@ TEST(ExponentCircuitTester_3, checkSimple) {
         }
 
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"is_LSB", true}};
-        qbOS::Exponent build;
+        qb::Exponent build;
         const bool expand_ok = build.expand(map);
 
         test_builder.append(build);
@@ -343,7 +343,7 @@ TEST(ExponentCircuitTester_4, checkSimple) {
           if ((j*4 + l*2 + m) > 7) { continue; }
         }
         //std::cout << "j:" << j << " l:" << l << " m:" << m << std::endl;
-        qbOS::CircuitBuilder test_builder;
+        qb::CircuitBuilder test_builder;
         int min_significance_ = distr(rand_dev); //randint(4) ; //3 ;
         int nb_qubits_log = 1 ;
         int log_value = 0;
@@ -380,7 +380,7 @@ TEST(ExponentCircuitTester_4, checkSimple) {
         }
 
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"is_LSB", true}, {"min_significance", min_significance_}};
-        qbOS::Exponent build;
+        qb::Exponent build;
         const bool expand_ok = build.expand(map);
         if (!expand_ok) {
           std::cout << "**** log value:" << log_value << " exp value:" << pow(2, log_value) << " ****" << std::endl;
@@ -463,7 +463,7 @@ TEST(ExponentCircuitTester_5, checkSimple) {
         else {
           if ((j*4 + l*2 + m) > 7) { continue; }
         }
-        qbOS::CircuitBuilder test_builder;
+        qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
         int log_value = 0;
         if (l==1){
@@ -507,7 +507,7 @@ TEST(ExponentCircuitTester_5, checkSimple) {
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"qubits_exponent", qubits_exponent_}, {"qubits_ancilla", qubits_ancilla_},
             {"min_significance", min_significance_}, {"is_LSB", false}};
         std::cout << "build\n" ;
-        qbOS::Exponent build;
+        qb::Exponent build;
         const bool expand_ok = build.expand(map);
         if (!expand_ok) {
           //std::cout << "**** log value:" << log_value << " exp value:" << pow(2, log_value) << " ****" << std::endl;
@@ -586,7 +586,7 @@ TEST(ExponentCircuitTester_6, checkSimple) {
           if ((j*4 + l*2 + m) > 7) { continue; }
         }
         std::cout << "j:" << j << " l:" << l << " m:" << m << std::endl;
-        qbOS::CircuitBuilder test_builder;
+        qb::CircuitBuilder test_builder;
         int min_significance_ = 2; //distr(rand_dev); //randint(4) ; //3 ;
         int nb_qubits_log = 1 ;
         int log_value = 0;
@@ -631,7 +631,7 @@ TEST(ExponentCircuitTester_6, checkSimple) {
 
         const xacc::HeterogeneousMap &map = {{"qubits_log",qubits_log}, {"qubits_exponent", qubits_exponent_}, {"qubits_ancilla", qubits_ancilla_},
             {"min_significance", min_significance_}, {"is_LSB", true}};
-        qbOS::Exponent build;
+        qb::Exponent build;
         const bool expand_ok = build.expand(map);
         if (!expand_ok) {
           std::cout << "**** log value:" << log_value << " exp value:" << pow(2, log_value) << " ****" << std::endl;

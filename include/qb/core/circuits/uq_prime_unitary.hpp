@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// UQ_prime circuit:
 /// The U prime circuit is a unitary operator to copy the qubits of the next 
@@ -20,4 +20,4 @@ public:
   DEFINE_CLONE(UQPrime);
   //QPrime() : xacc::CompositeInstruction() {} 
 };
-} // namespace qbOS
+} // namespace qb

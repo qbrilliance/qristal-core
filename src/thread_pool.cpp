@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace qbOS
+namespace qb
 {
 
   /// Public interface for setting the number of threads to be maintained in the pool

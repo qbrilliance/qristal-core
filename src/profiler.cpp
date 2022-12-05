@@ -4,9 +4,9 @@
 #include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
 #include "CompositeInstruction.hpp"
 
-namespace qbOS {
+namespace qb {
 //
-// Methods for qbOS::Profiler
+// Methods for qb::Profiler
 //
 /*  Class: Profiler
     Profiles the time (in ms) for 1 shot of a given CompositeInstruction.  The caller is responsible for scaling to the number-of-shots by passing this to the constructor.  The number-of-repetitions should be handled by the caller appropriately.
@@ -22,13 +22,13 @@ Profiler::Profiler(std::string target_circuit, const int &n_qubits,
                    const double q_initialisation_time_ms,
                    const double q_readout_time_ms,
                    const double pc_send_to_control_time_ms,
-                   const bool debug_qbqe)
+                   const bool debug)
     : largestdepth_q_(-1), n_qubits_(n_qubits),
       gate_1q_time_ms_(gate_1q_time_ms), gate_2q_time_ms_(gate_2q_time_ms),
       q_initialisation_time_ms_(q_initialisation_time_ms),
       q_readout_time_ms_(q_readout_time_ms),
       pc_send_to_control_time_ms_(pc_send_to_control_time_ms),
-      debug_qbqe_(debug_qbqe) {
+      debug_(debug) {
   auto openQasmCompiler = xacc::getCompiler("staq");
   if (!xacc::hasBuffer("q") || xacc::getBuffer("q")->size() != n_qubits) {
     // The profiler taking a QB-transpiled circuit which always use a general
@@ -54,13 +54,13 @@ Profiler::Profiler(std::shared_ptr<xacc::CompositeInstruction> &f,
                    const double q_initialisation_time_ms,
                    const double q_readout_time_ms,
                    const double pc_send_to_control_time_ms,
-                   const bool debug_qbqe)
+                   const bool debug)
     : placed_circuit_(f), largestdepth_q_(-1), n_qubits_(n_qubits),
       gate_1q_time_ms_(gate_1q_time_ms), gate_2q_time_ms_(gate_2q_time_ms),
       q_initialisation_time_ms_(q_initialisation_time_ms),
       q_readout_time_ms_(q_readout_time_ms),
       pc_send_to_control_time_ms_(pc_send_to_control_time_ms),
-      debug_qbqe_(debug_qbqe) {
+      debug_(debug) {
   count_1q_gates_on_q_.resize(n_qubits);
   count_2q_gates_on_q_.resize(n_qubits);
   run();
@@ -81,7 +81,7 @@ ND Profiler::get_total_initialisation_maxgate_readout_time_ms(
   // Max-depth gate time
   double t_max_depth_gate_ms = 0;
   if (largestdepth_q_ < 0) {
-    throw std::invalid_argument("qbqe: no gates found in circuit");
+    throw std::invalid_argument("session: no gates found in circuit");
   } else {
     t_max_depth_gate_ms =
         (count_1q_gates_on_q_.at(largestdepth_q_) * gate_1q_time_ms_) +
@@ -145,7 +145,7 @@ void Profiler::run() {
         }
       }
     }
-    if (debug_qbqe_) {
+    if (debug_) {
       std::cout << "[debug]: q" << iq
                 << ": # 1-qubit gates: " << get_count_1q_gates_on_q(iq)
                 << std::endl;
@@ -164,9 +164,9 @@ void Profiler::run() {
       largestdepth_q_ = iq;
     }
   }
-  if (debug_qbqe_) {
+  if (debug_) {
     std::cout << "[debug]: largest depth set by q" << get_largestdepth_q()
               << std::endl;
   }
 }
-} // namespace qbOS
+} // namespace qb

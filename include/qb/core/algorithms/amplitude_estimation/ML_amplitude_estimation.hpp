@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 class MLAmplitudeEstimation : public xacc::Algorithm {
 
   // Given a quantum state |psi> = a|good> + b|bad>, Maximum Likelihood Quantum
@@ -53,4 +53,4 @@ public:
   }
   DEFINE_ALGORITHM_CLONE(MLAmplitudeEstimation)
 };
-} // namespace qbOS
+} // namespace qb

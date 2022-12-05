@@ -5,7 +5,7 @@
 
 /// Define generic/abstract interface for remotely-hosted accelerators
 /// whereby job submission and result retrieval occur asynchronously
-namespace qbOS
+namespace qb
 {
   /// Abstract interface for async job offload,
   /// whereby the result is available at a later point for loading into the AcceleratorBuffer.
@@ -33,7 +33,7 @@ namespace qbOS
   class remote_accelerator : public xacc::Accelerator
   {
   public:
-    virtual std::shared_ptr<qbOS::async_job_handle> async_execute(
+    virtual std::shared_ptr<qb::async_job_handle> async_execute(
         const std::shared_ptr<xacc::CompositeInstruction> CompositeInstruction) = 0;
   };
-} // namespace qbOS
+} // namespace qb

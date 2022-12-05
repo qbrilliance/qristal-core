@@ -5,10 +5,10 @@ import pytest
 
 def test_qpe():
     print(" Testing Quantum Phase Estimation ")
-    import core as qb
+    import qb.core
     import ast
-    tqb = qb.core()
-    tqb.qb12() 
+    s = qb.core.session()
+    s.qb12()
 
     # Oracle
     oracle = qb.Circuit()
@@ -28,14 +28,14 @@ def test_qpe():
     for i in range(nb_bits_precision):
         circ.measure(i + 1)
     # Run:
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     # Expect that the result is "1101" => estimate the phase value of -1.96349540849
     good_count = int(res["1101"])
@@ -45,10 +45,10 @@ def test_qpe():
 def test_amcu():
     print("Testing Multi-Controlled-U With Ancilla")
     import numpy as np
-    import core as qb
+    import qb.core
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     # In this example, we perform an mcx gate on all possible bitstrings
     num_qubits = 5
@@ -69,20 +69,20 @@ def test_amcu():
         U = qb.Circuit()
         U.x(target_bit)
         circ.amcu(U,control_bits,ancilla_bits)
-        
+
         # Measure and check results
         for j in range(num_qubits):
             circ.measure(j)
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
-        
+
         if bitstring == "11111":
             assert("11110" in list(res.keys()))
         elif bitstring == "11110":
@@ -92,11 +92,11 @@ def test_amcu():
 
 def test_equality_checker():
     print(" Testing Equality Checker Circuit")
-    import core as qb 
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     ###
     # Testing equality checker
@@ -125,14 +125,14 @@ def test_equality_checker():
             # Measure flag
             circ.measure(flag)
             # Run
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             # Check results
             if i == j:
@@ -142,12 +142,12 @@ def test_equality_checker():
 
 def test_canonical_ae():
     print(" Testing Canonical Quantum Amplitude Estimation ")
-    import core as qb
+    import qb.core
     import numpy as np
     from core import run_canonical_ae_with_oracle
     import json
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
@@ -170,11 +170,11 @@ def test_canonical_ae():
 
 def test_controlled_swap():
     print("Testing controlled swap")
-    import core as qb 
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     ###
     # Testing controlled swap
@@ -214,14 +214,14 @@ def test_controlled_swap():
         circ.measure(qubits_string[i])
 
     # Execute circuit
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     assert(len(list(res.keys())) == 1)
     output_measurement = list(res.keys())[0]
@@ -254,11 +254,11 @@ def test_controlled_swap():
 
 def test_controlled_addition():
     print("Testing controlled ripple carry adder")
-    import core as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     ###
     # Testing controlled addition.
@@ -273,7 +273,7 @@ def test_controlled_addition():
     c_in = 5
     flag = [6]
 
-    ### 
+    ###
     # Test 1: flag off
     ###
 
@@ -289,18 +289,18 @@ def test_controlled_addition():
     for i in range(len(qubits_sum)):
         circ1.measure(qubits_sum[i])
 
-    tqb.ir_target = circ1
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ1
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     assert(res1["000"] == 1024)
 
-    ### 
+    ###
     # Test 1: flag off
     ###
 
@@ -319,25 +319,25 @@ def test_controlled_addition():
     for i in range(len(qubits_sum)):
         circ2.measure(qubits_sum[i])
 
-    tqb.ir_target = circ2
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result2 = tqb.out_raw[0][0]
+    s.ir_target = circ2
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result2 = s.out_raw[0][0]
     res2 = ast.literal_eval(result2)
     assert(res2["100"] == 1024)
 
 def test_generalised_mcx():
     print("Testing generalised MCX")
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.sn = 1024
+    s = qb.core.session()
+    s.qb12()
+    s.sn = 1024
 
     # In this test we use generalised mcx to
     # perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
@@ -365,12 +365,12 @@ def test_generalised_mcx():
     for condition in conditions:
         for input_bitstring in input_bitstrings:
             circ = qb.Circuit()
-            
+
             # Prepare the input bitstring
             for i in range(len(input_bitstring)):
                 if input_bitstring[i] == "1":
                     circ.x(i)
-            
+
             # Add the generalised mcx
             controls_on = []
             controls_off = []
@@ -380,19 +380,19 @@ def test_generalised_mcx():
                 else:
                     controls_on.append(control_qubits[i])
             circ.generalised_mcx(target_qubit, controls_on, controls_off)
-            
+
             # Measurements
             circ.measure_all()
-            
+
             # Run the circuit and check results
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             expected_output = input_bitstring[0:2]
             if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:
@@ -412,11 +412,11 @@ def test_MLQAE():
     # i.e., estimate the amplitude of the state:
     # sqrt(1-p)|0> + sqrt(p)|1>
     import numpy as np
-    import core as qb
+    import qb.core
     from core import run_MLQAE
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
@@ -447,11 +447,11 @@ def test_MLQAE():
 
 def test_qaa():
     print(" Testing Quantum Amplitude Amplification (Grover's algorithm) ")
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     oracle = qb.Circuit()
     oracle.z(0)
 
@@ -474,23 +474,23 @@ def test_qaa():
         full_circuit.measure_all()
 
         # Run the full amplitude estimation procedure:
-        tqb.ir_target = full_circuit
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = full_circuit
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
         # Calculate the probability of the marked state
         good_count = 0
-        # Must check if "1" is present 
-        # (with a small number of amplification rounds, 
+        # Must check if "1" is present
+        # (with a small number of amplification rounds,
         # the amplitude of |1> may still be very small)
         if "1" in list(res.keys()):
             good_count = int(res["1"])
-        
+
         good_state_ampls.append(good_count/1024)
 
     # Check the result
@@ -501,13 +501,13 @@ def test_qaa():
 
 def test_ripple_adder():
     print(" Testing Ripple Carry Adder Circuit ")
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     # Testing a simple integer adding, checking the full truth table.
-    
+
     # Helper to set the input register to an integer value
     def set_integer(circuit, bits, value):
         num_bits = len(bits)
@@ -538,14 +538,14 @@ def test_ripple_adder():
             # Measure the result register
             for q in b:
                 circ.measure(q)
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             # Expected sum result
             expected = i + j
@@ -556,11 +556,11 @@ def test_ripple_adder():
 
 def test_ripple_adder_superposition():
     print(" Testing Ripple Carry Adder Circuit for superposition ")
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     # Let's do a 2-qubit adder
     nb_qubits = 2
     # partition the qubit indices:
@@ -583,25 +583,25 @@ def test_ripple_adder_superposition():
         circ.measure(q)
     # Check the circuit:
     # circ.print()
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     # Expected sum result to be a superposition of 4 values:
-    assert(len(list(res.keys())) == 4)     
-           
+    assert(len(list(res.keys())) == 4)
+
 def test_comparator():
     print("Testing quantum bit string comparator")
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     # Comparator: compare two bitstrings |BestScore> and |TrialScore>
     # within the quantum register |TrialScore>|flag>|BestScore>|ancilla>
@@ -621,7 +621,7 @@ def test_comparator():
             flag_qubit = 2
             best_score_qubits = [0,4]
             ancilla_qubits = [5,6,7,8]
-            
+
             # create circuit
             circ = qb.Circuit()
 
@@ -642,14 +642,14 @@ def test_comparator():
             #print("OpenQASM:\n", circ.openqasm())
 
             # Run:
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             #print("Result:\n", result)
 
@@ -657,20 +657,20 @@ def test_comparator():
             if j > i:
                 expected_bit_string = "1"
             if j <= i:
-                expected_bit_string = "0" 
+                expected_bit_string = "0"
             assert(expected_bit_string in list(res.keys()))
             count = int(res[expected_bit_string])
             assert(count == 1024)
 
 def test_efficient_encoding():
     print("Testing Efficient Encoding")
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
-    # Efficient Encoding: given the input |state>|00...0> 
+    # Efficient Encoding: given the input |state>|00...0>
     # produces the output |state>|score> where the score for
     # each bitstring is given by a scoring function
 
@@ -689,7 +689,7 @@ def test_efficient_encoding():
 
     # State prep: |000>|000> + |111>|0000>
     circ.h(0)
-    for k in range(num_state_qubits-1): 
+    for k in range(num_state_qubits-1):
         circ.cnot(k,k+1)
 
     # Add ee
@@ -702,14 +702,14 @@ def test_efficient_encoding():
     #print("OpenQASM:\n", circ.openqasm())
 
     # Run:
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     #print("Result:\n", result)
 
@@ -720,13 +720,13 @@ def test_efficient_encoding():
         assert(measurement in allowed_outputs)
 
 def test_compare_beam_oracle():
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.acc = "aer"
-    tqb.sn = 1024
-    tqb.qb12()
+    s = qb.core.session()
+    s.acc = "aer"
+    s.sn = 1024
+    s.qb12()
 
     ##########################################################################
     #Test 1: SA = |0111>, FA = |01>, FB = |01>
@@ -760,10 +760,10 @@ def test_compare_beam_oracle():
     #res = ast.literal_eval(result)
     #print(res)
     #assert("010" in res["AcceleratorBuffer"]["Measurements"])
-    tqb.instring = circ.openqasm()
-    tqb.run()
-    #print(tqb.out_raw[0])
-    result = tqb.out_raw[0][0]
+    s.instring = circ.openqasm()
+    s.run()
+    #print(s.out_raw[0])
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     assert(res["010"] == 1024)
 
@@ -794,22 +794,22 @@ def test_compare_beam_oracle():
     circ.measure(q2)
 
     #Run
-    tqb.instring = circ.openqasm()
-    tqb.run()
-    #print(tqb.out_raw[0])
-    result = tqb.out_raw[0][0]
+    s.instring = circ.openqasm()
+    s.run()
+    #print(s.out_raw[0])
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     assert(res["111"] == 1024)
 
 def test_multiplication():
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.acc = "qsim"
-    tqb.sn = 1024
-    tqb.qb12()
-    tqb.qn = 9
+    s = qb.core.session()
+    s.acc = "qsim"
+    s.sn = 1024
+    s.qb12()
+    s.qn = 9
 
     ##########################################################################
     # Test 1: qubit_a = 1 = |10>, qubit_b = 3 = |11>,
@@ -837,29 +837,29 @@ def test_multiplication():
     for i in range(len(qubits_result)):
         circ.measure(qubits_result[i])
 
-    #circ.print() 
+    #circ.print()
 
     # Run circuit
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     # print(res)
     assert(res["10111100"] == 1024)
 
 def test_controlled_multiplication():
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.acc = "qsim"
-    tqb.sn = 1024
-    tqb.qb12()
-    tqb.qn = 10
+    s = qb.core.session()
+    s.acc = "qsim"
+    s.sn = 1024
+    s.qb12()
+    s.qn = 10
 
     ##########################################################################
     # Test 1: qubit_a = 1 = |10>, qubit_b = 3 = |11>,
@@ -890,32 +890,32 @@ def test_controlled_multiplication():
     for i in range(len(qubits_result)):
         circ.measure(qubits_result[i])
 
-    #circ.print() 
+    #circ.print()
 
     # Run circuit
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     #print(res)
     assert(res["10111100"] == 1024)
 
 def test_inverse_circuit():
-    import core as qb 
+    import qb.core
     import ast
 
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.sn = 1024
+    s = qb.core.session()
+    s.qb12()
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.sn = 1024
 
     qubits = [0,1,2,3]
     circ = qb.Circuit()
@@ -926,21 +926,21 @@ def test_inverse_circuit():
     circ.qft(qubits)
     circ.inverse_circuit(qft)
     for i in qubits:
-        circ.measure(i) 
-    
-    tqb.ir_target = circ
-    tqb.run()
-    result = tqb.out_raw[0][0]
+        circ.measure(i)
+
+    s.ir_target = circ
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
-    assert(res["0000"] == 1024) 
+    assert(res["0000"] == 1024)
 
 def test_subtraction():
-    import core as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 7
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 7
 
     ###
     # Testing subtraction
@@ -949,7 +949,7 @@ def test_subtraction():
 
     # Set up input registers
     qubits_larger = [0,1,2]
-    qubits_smaller = [3,4,5] 
+    qubits_smaller = [3,4,5]
     qubit_ancilla = 6
 
     circ = qb.Circuit()
@@ -974,14 +974,14 @@ def test_subtraction():
     for k in range(6):
         circ.measure(k)
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     # print(res1)
 
@@ -993,12 +993,12 @@ def test_subtraction():
     assert(res1[expected_output] == 1024)
 
 def test_controlled_subtraction():
-    import core as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 8
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 8
 
     ###
     # Testing subtraction
@@ -1007,7 +1007,7 @@ def test_controlled_subtraction():
 
     # Set up input registers
     qubits_larger = [0,1,2]
-    qubits_smaller = [3,4,5] 
+    qubits_smaller = [3,4,5]
     control_on = [6]
     ancilla = 7
 
@@ -1035,14 +1035,14 @@ def test_controlled_subtraction():
     for k in range(6):
         circ.measure(k)
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     # print(res1)
 
@@ -1054,23 +1054,23 @@ def test_controlled_subtraction():
     assert(res1[expected_output] == 1024)
 
 def test_proper_fraction_division():
-    import core as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 11
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 11
 
     ###
     # Testing proper fraction division
     # In this example we perform every valid 3-qubit proper fraction division with 3 precision bits
     ###
 
-    i = 1 
+    i = 1
     j = 2
     # Set up input registers
     qubits_numerator = [0,1]
-    qubits_denominator = [2,3] 
+    qubits_denominator = [2,3]
     qubits_fraction = [4,5]
     qubits_ancilla = list(range(6,11))
 
@@ -1097,18 +1097,18 @@ def test_proper_fraction_division():
         circ.measure(k)
     for k in qubits_fraction:
         circ.measure(k)
-    for k in qubits_ancilla: 
+    for k in qubits_ancilla:
         circ.measure(k)
-    
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    # tqb.debug = True
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    # s.debug = True
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
 
     # res = circ.execute("sparse-sim", 1024, 34)
@@ -1138,12 +1138,12 @@ def test_proper_fraction_division():
     assert(res1[expected_output] == 1024)
 
 def test_controlled_proper_fraction_division():
-    import core as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 12
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 12
 
     ###
     # Testing proper fraction division
@@ -1154,7 +1154,7 @@ def test_controlled_proper_fraction_division():
     j = 2
     # Set up input registers
     qubits_numerator = [0,1]
-    qubits_denominator = [2,3] 
+    qubits_denominator = [2,3]
     qubits_fraction = [4,5]
     qubits_ancilla = list(range(6,11)) # = 2k + 1
     controls_on = [11]
@@ -1184,17 +1184,17 @@ def test_controlled_proper_fraction_division():
         circ.measure(k)
     for k in qubits_fraction:
         circ.measure(k)
-    for k in qubits_ancilla: 
+    for k in qubits_ancilla:
         circ.measure(k)
-    
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     assert(len(res1) == 1)
     # print(res1)
@@ -1220,11 +1220,11 @@ def test_controlled_proper_fraction_division():
     assert(res1[expected_output] == 1024)
 
 def test_compare_gt():
-    import core as qb 
-    import ast 
+    import qb.core
+    import ast
 
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     i = 3
     j = 2
@@ -1246,21 +1246,21 @@ def test_compare_gt():
             circ.x(qubits_a[k])
         if bk == '1':
             circ.x(qubits_b[k])
-    
+
     circ.compare_gt(qubits_a, qubits_b, qubit_flag, qubit_ancilla, is_LSB = False)
 
     circ.measure_all()
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.qn = 6
-    tqb.sn = 1024
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.qn = 6
+    s.sn = 1024
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
 
     expected_output = a_bin + b_bin

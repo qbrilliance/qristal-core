@@ -18,7 +18,7 @@ A. Encode symbols with correct amplitude - Loop through alphabet at each timeste
 
 B. Measure results
    - The final quantum operation is to measure the register and process the
-     obtained string. 
+     obtained string.
    - This string now requires some classical processing to obtain the correct
      output beam, meaning the process of contracting repetitions and then
      removing null symbols. This is not difficult classically and only needs to
@@ -47,10 +47,11 @@ Worklog: https://www.notion.so/quantumbrilliance/220815-Worklog-Decoder-Mark-II-
 #include <vector>
 #include <bitset>
 
-namespace qbOS {
-  class RyEncoding : public qbOS::CircuitBuilder {
+namespace qb
+{
+  class RyEncoding : public qb::CircuitBuilder {
   public:
-    RyEncoding() : qbOS::CircuitBuilder() {} ;
+    RyEncoding() : qb::CircuitBuilder() {} ;
 
     const std::vector<std::string> requiredKeys() {
       return {"probability_table", "qubits_string"};
@@ -71,7 +72,7 @@ namespace qbOS {
       std::vector<int> qubits_string = runtimeOptions.get<std::vector<int>>("qubits_string");
 
       //auto runtimeKeys = runtimeOptions.KeyList();
-      
+
       bool is_LSB = true;
       if (runtimeOptions.keyExists<bool>("is_LSB")) {
         is_LSB = runtimeOptions.get<bool>("is_LSB");
@@ -87,12 +88,12 @@ namespace qbOS {
       int nq_symbols = std::ceil(std::log2(alphabet_size));
       //std::cout << "string_length:" << string_length << " nq_symbols:" << nq_symbols << " qubits_string:" << qubits_string.size() << std::endl;
       assert((string_length * nq_symbols) == qubits_string.size());
-      
-      float probability_remaining; 
+
+      float probability_remaining;
 
       //////////////////////////////////////////////////////////////////////////////////////
 
-      
+
       // Parameters for EfficientEncoding()
       //bool is_LSB = true;
       std::vector<int> qubits_init_flag = {};
@@ -102,40 +103,40 @@ namespace qbOS {
       for (int it = 0; it < string_length; it++) {
         //std::cout << "Timestep:" << it << std::endl;
         probability_remaining = 1.0;
-        probability_column = probability_table[it];   
+        probability_column = probability_table[it];
 
         qubits_letter.assign(qubits_string.begin() + it*nb_qubits_letter,qubits_string.begin() + (it+1)*nb_qubits_letter);
-        
+
         // Deal with special case of only one symbol qubit
         if (nb_qubits_letter == 1) {
-            this->RY(qubits_letter[0],asin(sqrt(probability_column[1]))*2);  
+            this->RY(qubits_letter[0],asin(sqrt(probability_column[1]))*2);
             continue;
         }
-                        
+
         // Loop over symbols and magnify appropriately
-        std::vector<int> qubits_control = qubits_letter; 
-        float next_letter_prob; 
-        
+        std::vector<int> qubits_control = qubits_letter;
+        float next_letter_prob;
+
         for (int qubit : qubits_letter){
             this->X(qubit);
-        }        
+        }
         // Rotate qubits_letter without overlapping other states
         for (int symbol = alphabet_size - 1; symbol > 0; symbol--) {
             next_letter_prob = probability_column[symbol];
             bool first_qubit = true;  // Only ry on first qubit
-            
+
             // Rotate only qubits in symbol
             std::vector<int> qubits_reset;
             for (int qindex = 0; qindex < qubits_letter.size(); qindex++) {
-                int qubit = qubits_letter[qindex]; 
-                
+                int qubit = qubits_letter[qindex];
+
                 qubits_control.erase(qubits_control.begin());  // The zeroeth element is the qubit being written to
                 if ((symbol & ((int) std::pow(2,qindex))) != 0 ) {//} ((int) std::pow(2,qindex))) {
                     this->X(qubit);
                     if (first_qubit) {
                         CircuitBuilder ry ;
-                        ry.RY(qubit,asin(sqrt(next_letter_prob/probability_remaining))*2);  
-                        this->CU(ry, qubits_control);  
+                        ry.RY(qubit,asin(sqrt(next_letter_prob/probability_remaining))*2);
+                        this->CU(ry, qubits_control);
                         first_qubit = false;
                     }
                     else {
@@ -159,11 +160,11 @@ namespace qbOS {
         for (int qubit : qubits_letter){
             this->X(qubit);
         }
-        
-      }    
+
+      }
 
 
       return true;
     }; // bool expand
   }; // class RyEncoding
-} // namespace qbOS
+} // namespace qb

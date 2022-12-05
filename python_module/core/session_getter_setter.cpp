@@ -1,96 +1,96 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
-#include "qb/core/methods.hpp"
+#include "qb/core/session.hpp"
 
-namespace qbOS {
+namespace qb {
 //
-// Getter/Setter methods for qbOS::Qbqe
+// Getter/Setter methods for qb::session
 //
-void Qbqe::set_infile(const std::string &infile) {
-  Qbqe::infiles_.clear();
-  Qbqe::infiles_.push_back({infile});
+void session::set_infile(const std::string &infile) {
+  session::infiles_.clear();
+  session::infiles_.push_back({infile});
 }
-void Qbqe::set_infiles(const VectorString &infiles) { Qbqe::infiles_ = infiles; }
-const VectorString & Qbqe::get_infiles() const { return Qbqe::infiles_; }
+void session::set_infiles(const VectorString &infiles) { session::infiles_ = infiles; }
+const VectorString & session::get_infiles() const { return session::infiles_; }
 //
-void Qbqe::set_instring(const std::string &instring) {
-  Qbqe::instrings_.clear();
-  Qbqe::instrings_.push_back({instring});
+void session::set_instring(const std::string &instring) {
+  session::instrings_.clear();
+  session::instrings_.push_back({instring});
 }
-void Qbqe::set_instrings(const VectorString &instrings) { Qbqe::instrings_ = instrings; }
-const VectorString & Qbqe::get_instrings() const { return Qbqe::instrings_; }
+void session::set_instrings(const VectorString &instrings) { session::instrings_ = instrings; }
+const VectorString & session::get_instrings() const { return session::instrings_; }
 //
-void Qbqe::set_irtarget_m(const std::shared_ptr<xacc::CompositeInstruction> &irtarget_m) {
-    Qbqe::irtarget_ms_.clear();
-    Qbqe::irtarget_ms_.push_back({irtarget_m});
+void session::set_irtarget_m(const std::shared_ptr<xacc::CompositeInstruction> &irtarget_m) {
+    session::irtarget_ms_.clear();
+    session::irtarget_ms_.push_back({irtarget_m});
 }
-void Qbqe::set_irtarget_ms(const std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> &irtarget_ms) {
-    Qbqe::irtarget_ms_ = irtarget_ms;
+void session::set_irtarget_ms(const std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> &irtarget_ms) {
+    session::irtarget_ms_ = irtarget_ms;
 }
-const std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> & Qbqe::get_irtarget_ms() const {
-    return Qbqe::irtarget_ms_;
+const std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> & session::get_irtarget_ms() const {
+    return session::irtarget_ms_;
 }
 
 //
-void Qbqe::set_include_qb(const std::string &include_qb) {
-  Qbqe::include_qbs_.clear();
-  Qbqe::include_qbs_.push_back({include_qb});
+void session::set_include_qb(const std::string &include_qb) {
+  session::include_qbs_.clear();
+  session::include_qbs_.push_back({include_qb});
 }
-void Qbqe::set_include_qbs(const VectorString &include_qbs) { Qbqe::include_qbs_ = include_qbs; }
-const VectorString & Qbqe::get_include_qbs() const { return Qbqe::include_qbs_; }
+void session::set_include_qbs(const VectorString &include_qbs) { session::include_qbs_ = include_qbs; }
+const VectorString & session::get_include_qbs() const { return session::include_qbs_; }
 //
-void Qbqe::set_qpu_config(const std::string &qpu_config) {
-  Qbqe::qpu_configs_.clear();
-  Qbqe::qpu_configs_.push_back({qpu_config});
+void session::set_qpu_config(const std::string &qpu_config) {
+  session::qpu_configs_.clear();
+  session::qpu_configs_.push_back({qpu_config});
 }
-void Qbqe::set_qpu_configs(const VectorString &qpu_configs) { Qbqe::qpu_configs_ = qpu_configs; }
-const VectorString & Qbqe::get_qpu_configs() const { return Qbqe::qpu_configs_; }
+void session::set_qpu_configs(const VectorString &qpu_configs) { session::qpu_configs_ = qpu_configs; }
+const VectorString & session::get_qpu_configs() const { return session::qpu_configs_; }
 //
-void Qbqe::set_acc(const std::string &acc) {
-  Qbqe::validate_acc(acc);
-  Qbqe::accs_.clear();
-  Qbqe::accs_.push_back({acc});
+void session::set_acc(const std::string &acc) {
+  session::validate_acc(acc);
+  session::accs_.clear();
+  session::accs_.push_back({acc});
 }
-void Qbqe::set_accs(const VectorString &accs) {
+void session::set_accs(const VectorString &accs) {
   for (auto item : accs) {
     for (auto im : item) {
-      Qbqe::validate_acc(im);
+      session::validate_acc(im);
     }
   }
-  Qbqe::accs_ = accs;
+  session::accs_ = accs;
 }
 
-void Qbqe::validate_acc(const std::string &acc) {
+void session::validate_acc(const std::string &acc) {
   if (VALID_ACCS.find(acc) == VALID_ACCS.end()) {
       std::stringstream listaccs;
-      listaccs << "qbOS: valid settings for acc: " << std::endl;
+      listaccs << "QB SDK: valid settings for acc: " << std::endl;
       for (auto it : VALID_ACCS) {
           listaccs << "* \"" << it << "\"" << std::endl;
       }
       throw std::range_error(listaccs.str());
   }
 }
-const VectorString & Qbqe::get_accs() const { return Qbqe::accs_; }
+const VectorString & session::get_accs() const { return session::accs_; }
 //
-void Qbqe::set_aws_device_name(const std::string &device_name) {
-  Qbqe::validate_aws_device_name(device_name);
-  Qbqe::aws_device_names_.clear();
-  Qbqe::aws_device_names_.push_back({device_name});
+void session::set_aws_device_name(const std::string &device_name) {
+  session::validate_aws_device_name(device_name);
+  session::aws_device_names_.clear();
+  session::aws_device_names_.push_back({device_name});
 }
 //
-void Qbqe::set_aws_device_names(const VectorString &device_names) {
+void session::set_aws_device_names(const VectorString &device_names) {
   for (auto item : device_names) {
     for (auto im : item) {
-      Qbqe::validate_aws_device_name(im);
+      session::validate_aws_device_name(im);
     }
   }
-  Qbqe::aws_device_names_ = device_names;
+  session::aws_device_names_ = device_names;
 }
 //
-void Qbqe::validate_aws_device_name(const std::string &device_name) {
+void session::validate_aws_device_name(const std::string &device_name) {
   if (VALID_AWS_DEVICES.find(device_name) == VALID_AWS_DEVICES.end()) {
       std::stringstream listawsds;
-      listawsds << "qbOS: valid settings for aws_device: " << std::endl;
+      listawsds << "QB SDK: valid settings for aws_device: " << std::endl;
       for (auto it : VALID_AWS_DEVICES) {
           listawsds << "* \"" << it << "\"" << std::endl;
       }
@@ -98,27 +98,27 @@ void Qbqe::validate_aws_device_name(const std::string &device_name) {
   }
 }
 //
-const VectorString & Qbqe::get_aws_device_names() const { return Qbqe::aws_device_names_; }
+const VectorString & session::get_aws_device_names() const { return session::aws_device_names_; }
 
 //
-void Qbqe::set_aws_s3(const std::string &bucket_name) {
-  Qbqe::validate_aws_s3(bucket_name);
-  Qbqe::aws_s3s_.clear();
-  Qbqe::aws_s3s_.push_back({bucket_name});
+void session::set_aws_s3(const std::string &bucket_name) {
+  session::validate_aws_s3(bucket_name);
+  session::aws_s3s_.clear();
+  session::aws_s3s_.push_back({bucket_name});
 }
 
 //
-void Qbqe::set_aws_s3s(const VectorString &bucket_names) {
+void session::set_aws_s3s(const VectorString &bucket_names) {
   for (auto item : bucket_names) {
     for (auto im : item) {
-      Qbqe::validate_aws_s3(im);
+      session::validate_aws_s3(im);
     }
   }
-  Qbqe::aws_s3s_ = bucket_names;
+  session::aws_s3s_ = bucket_names;
 }
 
 //
-void Qbqe::validate_aws_s3(const std::string &bucket_name) {
+void session::validate_aws_s3(const std::string &bucket_name) {
   bool prefix_is_valid = false;
   for (auto epf : VALID_AWS_S3_PREFIXS) {
       auto res = std::mismatch(epf.begin(), epf.end(), bucket_name.begin());
@@ -128,7 +128,7 @@ void Qbqe::validate_aws_s3(const std::string &bucket_name) {
   }
   if (!prefix_is_valid) {
       std::stringstream listawspf;
-      listawspf << "qbOS: valid prefix strings for aws_s3: " << std::endl;
+      listawspf << "QB SDK: valid prefix strings for aws_s3: " << std::endl;
       for (auto it : VALID_AWS_S3_PREFIXS) {
           listawspf << "* \"" << it << "\"" << std::endl;
       }
@@ -136,42 +136,42 @@ void Qbqe::validate_aws_s3(const std::string &bucket_name) {
   }
 }
 
-const VectorString & Qbqe::get_aws_s3s() const { return Qbqe::aws_s3s_; }
+const VectorString & session::get_aws_s3s() const { return session::aws_s3s_; }
 
 //
-void Qbqe::set_aws_s3_path(const std::string &path) {
-  Qbqe::aws_s3_paths_.clear();
-  Qbqe::aws_s3_paths_.push_back({path});
+void session::set_aws_s3_path(const std::string &path) {
+  session::aws_s3_paths_.clear();
+  session::aws_s3_paths_.push_back({path});
 }
 
 //
-void Qbqe::set_aws_s3_paths(const VectorString &paths) {
-  Qbqe::aws_s3_paths_ = paths;
+void session::set_aws_s3_paths(const VectorString &paths) {
+  session::aws_s3_paths_ = paths;
 }
 
-const VectorString & Qbqe::get_aws_s3_paths() const { return Qbqe::aws_s3_paths_; }
+const VectorString & session::get_aws_s3_paths() const { return session::aws_s3_paths_; }
 
 //
-void Qbqe::set_aws_format(const std::string &format) {
-  Qbqe::validate_aws_format(format);
-  Qbqe::aws_formats_.clear();
-  Qbqe::aws_formats_.push_back({format});
+void session::set_aws_format(const std::string &format) {
+  session::validate_aws_format(format);
+  session::aws_formats_.clear();
+  session::aws_formats_.push_back({format});
 }
 
 //
-void Qbqe::set_aws_formats(const VectorString &formats) {
+void session::set_aws_formats(const VectorString &formats) {
   for (auto item : formats) {
     for (auto im : item) {
-      Qbqe::validate_aws_format(im);
+      session::validate_aws_format(im);
     }
   }
-  Qbqe::aws_formats_ = formats;
+  session::aws_formats_ = formats;
 }
 
-void Qbqe::validate_aws_format(const std::string &format) {
+void session::validate_aws_format(const std::string &format) {
   if (VALID_AWS_FORMATS.find(format) == VALID_AWS_FORMATS.end()) {
       std::stringstream listawsds;
-      listawsds << "qbOS: valid settings for aws_format: " << std::endl;
+      listawsds << "QB SDK: valid settings for aws_format: " << std::endl;
       for (auto it : VALID_AWS_FORMATS) {
           listawsds << "* \"" << it << "\"" << std::endl;
       }
@@ -179,26 +179,26 @@ void Qbqe::validate_aws_format(const std::string &format) {
   }
 }
 
-const VectorString & Qbqe::get_aws_formats() const { return Qbqe::aws_formats_; }
+const VectorString & session::get_aws_formats() const { return session::aws_formats_; }
 
 
-void Qbqe::set_aws_verbatim(const bool &verbatim) {
-  //Qbqe::validate_aws_verbatim(verbatim);
-  Qbqe::aws_verbatims_.clear();
-  Qbqe::aws_verbatims_.push_back({verbatim});
+void session::set_aws_verbatim(const bool &verbatim) {
+  //session::validate_aws_verbatim(verbatim);
+  session::aws_verbatims_.clear();
+  session::aws_verbatims_.push_back({verbatim});
 }
 
-void Qbqe::set_aws_verbatims(const VectorBool &verbatims) { Qbqe::aws_verbatims_ = verbatims; }
-const VectorBool & Qbqe::get_aws_verbatims() const { return Qbqe::aws_verbatims_; }
+void session::set_aws_verbatims(const VectorBool &verbatims) { session::aws_verbatims_ = verbatims; }
+const VectorBool & session::get_aws_verbatims() const { return session::aws_verbatims_; }
 
 //
 
-void Qbqe::set_aer_sim_type(const std::string &sim_type) {
+void session::set_aer_sim_type(const std::string &sim_type) {
   validate_aer_sim_type(sim_type);
   aer_sim_types_.clear();
   aer_sim_types_.emplace_back(std::vector<std::string>{sim_type});
 }
-void Qbqe::set_aer_sim_types(const VectorString &sim_types) {
+void session::set_aer_sim_types(const VectorString &sim_types) {
   for (const auto &item : sim_types) {
     for (const auto &im : item) {
       validate_aer_sim_type(im);
@@ -206,168 +206,168 @@ void Qbqe::set_aer_sim_types(const VectorString &sim_types) {
   }
   aer_sim_types_ = sim_types;
 }
-void Qbqe::validate_aer_sim_type(const std::string &sim_type) {
+void session::validate_aer_sim_type(const std::string &sim_type) {
   if (VALID_AER_SIM_TYPES.find(sim_type) == VALID_AER_SIM_TYPES.end()) {
     std::stringstream aer_sim_type_error_msg;
-    aer_sim_type_error_msg << "qbOS: valid settings for aer_sim_type: " << std::endl;
+    aer_sim_type_error_msg << "QB SDK: valid settings for aer_sim_type: " << std::endl;
     for (auto it : VALID_AER_SIM_TYPES) {
       aer_sim_type_error_msg << "* \"" << it << "\"" << std::endl;
     }
     throw std::range_error(aer_sim_type_error_msg.str());
   }
 }
-const VectorString &Qbqe::get_aer_sim_types() const { return aer_sim_types_; }
+const VectorString &session::get_aer_sim_types() const { return aer_sim_types_; }
 
 //
 
-void Qbqe::set_random(const size_t &in_random) {
-  Qbqe::randoms_.clear();
-  Qbqe::randoms_.push_back({in_random});
+void session::set_random(const size_t &in_random) {
+  session::randoms_.clear();
+  session::randoms_.push_back({in_random});
 }
-void Qbqe::set_randoms(const VectorN &in_random) { Qbqe::randoms_ = in_random; }
-const VectorN & Qbqe::get_randoms() const { return Qbqe::randoms_; }
+void session::set_randoms(const VectorN &in_random) { session::randoms_ = in_random; }
+const VectorN & session::get_randoms() const { return session::randoms_; }
 //
-void Qbqe::set_xasm(const bool &in_xasm) {
-  Qbqe::xasms_.clear();
-  Qbqe::xasms_.push_back({in_xasm});
+void session::set_xasm(const bool &in_xasm) {
+  session::xasms_.clear();
+  session::xasms_.push_back({in_xasm});
 }
-void Qbqe::set_xasms(const VectorBool &in_xasm) { Qbqe::xasms_ = in_xasm; }
-const VectorBool & Qbqe::get_xasms() const { return Qbqe::xasms_; }
+void session::set_xasms(const VectorBool &in_xasm) { session::xasms_ = in_xasm; }
+const VectorBool & session::get_xasms() const { return session::xasms_; }
 //
-void Qbqe::set_quil1(const bool &in_quil1) {
-  Qbqe::quil1s_.clear();
-  Qbqe::quil1s_.push_back({in_quil1});
+void session::set_quil1(const bool &in_quil1) {
+  session::quil1s_.clear();
+  session::quil1s_.push_back({in_quil1});
 }
-void Qbqe::set_quil1s(const VectorBool &in_quil1) { Qbqe::quil1s_ = in_quil1; }
-const VectorBool & Qbqe::get_quil1s() const { return Qbqe::quil1s_; }
+void session::set_quil1s(const VectorBool &in_quil1) { session::quil1s_ = in_quil1; }
+const VectorBool & session::get_quil1s() const { return session::quil1s_; }
 //
-void Qbqe::set_noplacement(const bool &in_noplacement) {
-  Qbqe::noplacements_.clear();
-  Qbqe::noplacements_.push_back({in_noplacement});
+void session::set_noplacement(const bool &in_noplacement) {
+  session::noplacements_.clear();
+  session::noplacements_.push_back({in_noplacement});
 }
-void Qbqe::set_noplacements(const VectorBool &in_noplacement) {
-  Qbqe::noplacements_ = in_noplacement;
+void session::set_noplacements(const VectorBool &in_noplacement) {
+  session::noplacements_ = in_noplacement;
 }
-const VectorBool & Qbqe::get_noplacements() const { return Qbqe::noplacements_; }
+const VectorBool & session::get_noplacements() const { return session::noplacements_; }
 //
-void Qbqe::set_placement(const std::string &in_placement) {
+void session::set_placement(const std::string &in_placement) {
   placements_.clear();
   placements_.push_back({in_placement});
 }
-void Qbqe::set_placements(const VectorString &in_placements) {
+void session::set_placements(const VectorString &in_placements) {
   placements_ = in_placements;
 }
-const VectorString &Qbqe::get_placements() const { return placements_; }
+const VectorString &session::get_placements() const { return placements_; }
 //
-void Qbqe::set_nooptimise(const bool &in_nooptimise) {
-  Qbqe::nooptimises_.clear();
-  Qbqe::nooptimises_.push_back({in_nooptimise});
+void session::set_nooptimise(const bool &in_nooptimise) {
+  session::nooptimises_.clear();
+  session::nooptimises_.push_back({in_nooptimise});
 }
-void Qbqe::set_nooptimises(const VectorBool &in_nooptimise) {
-  Qbqe::nooptimises_ = in_nooptimise;
+void session::set_nooptimises(const VectorBool &in_nooptimise) {
+  session::nooptimises_ = in_nooptimise;
 }
-const VectorBool & Qbqe::get_nooptimises() const { return Qbqe::nooptimises_; }
+const VectorBool & session::get_nooptimises() const { return session::nooptimises_; }
 //
-void Qbqe::set_nosim(const bool &in_nosim) {
-  Qbqe::nosims_.clear();
-  Qbqe::nosims_.push_back({in_nosim});
+void session::set_nosim(const bool &in_nosim) {
+  session::nosims_.clear();
+  session::nosims_.push_back({in_nosim});
 }
-void Qbqe::set_nosims(const VectorBool &in_nosim) { Qbqe::nosims_ = in_nosim; }
-const VectorBool & Qbqe::get_nosims() const { return Qbqe::nosims_; }
+void session::set_nosims(const VectorBool &in_nosim) { session::nosims_ = in_nosim; }
+const VectorBool & session::get_nosims() const { return session::nosims_; }
 //
-void Qbqe::set_noise(const bool &in_noise) {
-  Qbqe::noises_.clear();
-  Qbqe::noises_.push_back({in_noise});
+void session::set_noise(const bool &in_noise) {
+  session::noises_.clear();
+  session::noises_.push_back({in_noise});
 }
 
 
 
-void Qbqe::set_noises(const VectorBool &in_noise) { Qbqe::noises_ = in_noise; }
-const VectorBool & Qbqe::get_noises() const { return Qbqe::noises_; }
+void session::set_noises(const VectorBool &in_noise) { session::noises_ = in_noise; }
+const VectorBool & session::get_noises() const { return session::noises_; }
 //
 
-void Qbqe::set_output_oqm_enabled(const bool &in_output_oqm_enabled) {
-  Qbqe::output_oqm_enableds_.clear();
-  Qbqe::output_oqm_enableds_.push_back({in_output_oqm_enabled});
+void session::set_output_oqm_enabled(const bool &in_output_oqm_enabled) {
+  session::output_oqm_enableds_.clear();
+  session::output_oqm_enableds_.push_back({in_output_oqm_enabled});
 }
-void Qbqe::set_output_oqm_enableds(const VectorBool &in_output_oqm_enabled) {
-  Qbqe::output_oqm_enableds_ = in_output_oqm_enabled;
+void session::set_output_oqm_enableds(const VectorBool &in_output_oqm_enabled) {
+  session::output_oqm_enableds_ = in_output_oqm_enabled;
 }
-const VectorBool & Qbqe::get_output_oqm_enableds() const {
-  return Qbqe::output_oqm_enableds_;
+const VectorBool & session::get_output_oqm_enableds() const {
+  return session::output_oqm_enableds_;
 }
 //
-void Qbqe::set_log_enabled(const bool &in_log_enabled) {
-  Qbqe::log_enableds_.clear();
-  Qbqe::log_enableds_.push_back({in_log_enabled});
+void session::set_log_enabled(const bool &in_log_enabled) {
+  session::log_enableds_.clear();
+  session::log_enableds_.push_back({in_log_enabled});
 }
-void Qbqe::set_log_enableds(const VectorBool &in_log_enabled) {
-  Qbqe::log_enableds_ = in_log_enabled;
+void session::set_log_enableds(const VectorBool &in_log_enabled) {
+  session::log_enableds_ = in_log_enabled;
 }
-const VectorBool & Qbqe::get_log_enableds() const { return Qbqe::log_enableds_; }
+const VectorBool & session::get_log_enableds() const { return session::log_enableds_; }
 //
-void Qbqe::set_notiming(const bool &in_notiming) {
-  Qbqe::notimings_.clear();
-  Qbqe::notimings_.push_back({in_notiming});
+void session::set_notiming(const bool &in_notiming) {
+  session::notimings_.clear();
+  session::notimings_.push_back({in_notiming});
 }
-void Qbqe::set_notimings(const VectorBool &in_notiming) { Qbqe::notimings_ = in_notiming; }
-const VectorBool & Qbqe::get_notimings() const { return Qbqe::notimings_; }
+void session::set_notimings(const VectorBool &in_notiming) { session::notimings_ = in_notiming; }
+const VectorBool & session::get_notimings() const { return session::notimings_; }
 //
-void Qbqe::set_qn(const size_t &in_qn) {
-  Qbqe::qns_.clear();
-  Qbqe::qns_.push_back({in_qn});
+void session::set_qn(const size_t &in_qn) {
+  session::qns_.clear();
+  session::qns_.push_back({in_qn});
 }
-void Qbqe::set_qns(const VectorN &in_qn) { Qbqe::qns_ = in_qn; }
-const VectorN & Qbqe::get_qns() const { return Qbqe::qns_; }
+void session::set_qns(const VectorN &in_qn) { session::qns_ = in_qn; }
+const VectorN & session::get_qns() const { return session::qns_; }
 //
-void Qbqe::set_rn(const size_t &in_rn) {
-  Qbqe::rns_.clear();
-  Qbqe::rns_.push_back({in_rn});
+void session::set_rn(const size_t &in_rn) {
+  session::rns_.clear();
+  session::rns_.push_back({in_rn});
 }
-void Qbqe::set_rns(const VectorN &in_rn) { Qbqe::rns_ = in_rn; }
-const VectorN & Qbqe::get_rns() const { return Qbqe::rns_; }
+void session::set_rns(const VectorN &in_rn) { session::rns_ = in_rn; }
+const VectorN & session::get_rns() const { return session::rns_; }
 //
-void Qbqe::set_sn(const size_t &in_sn) {
-  Qbqe::sns_.clear();
-  Qbqe::sns_.push_back({in_sn});
+void session::set_sn(const size_t &in_sn) {
+  session::sns_.clear();
+  session::sns_.push_back({in_sn});
 }
-void Qbqe::set_sns(const VectorN &in_sn) { Qbqe::sns_ = in_sn; }
-const VectorN & Qbqe::get_sns() const { return Qbqe::sns_; }
+void session::set_sns(const VectorN &in_sn) { session::sns_ = in_sn; }
+const VectorN & session::get_sns() const { return session::sns_; }
 //
-void Qbqe::set_beta(const ND &in_beta) {
-  Qbqe::betas_.clear();
-  Qbqe::betas_.push_back({in_beta});
+void session::set_beta(const ND &in_beta) {
+  session::betas_.clear();
+  session::betas_.push_back({in_beta});
 }
-void Qbqe::set_betas(const VectorMapND &in_beta) { Qbqe::betas_ = in_beta; }
-const VectorMapND & Qbqe::get_betas() const { return Qbqe::betas_; }
+void session::set_betas(const VectorMapND &in_beta) { session::betas_ = in_beta; }
+const VectorMapND & session::get_betas() const { return session::betas_; }
 //
-void Qbqe::set_theta(const ND &in_theta) {
-  Qbqe::thetas_.clear();
-  Qbqe::thetas_.push_back({in_theta});
+void session::set_theta(const ND &in_theta) {
+  session::thetas_.clear();
+  session::thetas_.push_back({in_theta});
 }
-void Qbqe::set_thetas(const VectorMapND &in_theta) { Qbqe::thetas_ = in_theta; }
-const VectorMapND & Qbqe::get_thetas() const { return Qbqe::thetas_; }
+void session::set_thetas(const VectorMapND &in_theta) { session::thetas_ = in_theta; }
+const VectorMapND & session::get_thetas() const { return session::thetas_; }
 //
-void Qbqe::set_max_bond_dimension(const size_t &in_max_bond_dimension) {
-  Qbqe::max_bond_dimensions_.clear();
-  Qbqe::max_bond_dimensions_.push_back({in_max_bond_dimension});
+void session::set_max_bond_dimension(const size_t &in_max_bond_dimension) {
+  session::max_bond_dimensions_.clear();
+  session::max_bond_dimensions_.push_back({in_max_bond_dimension});
 }
-void Qbqe::set_max_bond_dimensions(const VectorN &in_max_bond_dimension) { Qbqe::max_bond_dimensions_ = in_max_bond_dimension; }
-const VectorN & Qbqe::get_max_bond_dimensions() const { return Qbqe::max_bond_dimensions_; }
+void session::set_max_bond_dimensions(const VectorN &in_max_bond_dimension) { session::max_bond_dimensions_ = in_max_bond_dimension; }
+const VectorN & session::get_max_bond_dimensions() const { return session::max_bond_dimensions_; }
 //
-void Qbqe::set_svd_cutoff(const ND &in_svd_cutoff) {
-  Qbqe::svd_cutoffs_.clear();
-  Qbqe::svd_cutoffs_.push_back({in_svd_cutoff});
+void session::set_svd_cutoff(const ND &in_svd_cutoff) {
+  session::svd_cutoffs_.clear();
+  session::svd_cutoffs_.push_back({in_svd_cutoff});
 }
-void Qbqe::set_svd_cutoffs(const VectorMapND &in_svd_cutoff) { Qbqe::svd_cutoffs_ = in_svd_cutoff; }
-const VectorMapND & Qbqe::get_svd_cutoffs() const { return Qbqe::svd_cutoffs_; }
+void session::set_svd_cutoffs(const VectorMapND &in_svd_cutoff) { session::svd_cutoffs_ = in_svd_cutoff; }
+const VectorMapND & session::get_svd_cutoffs() const { return session::svd_cutoffs_; }
 //
-void Qbqe::set_noise_model(const std::string &noise_model) {
+void session::set_noise_model(const std::string &noise_model) {
   validate_noise_model(noise_model);
   noise_models_.clear();
   noise_models_.emplace_back(std::vector<std::string>{noise_model});
 }
-void Qbqe::set_noise_models(const VectorString &noise_models) {
+void session::set_noise_models(const VectorString &noise_models) {
   for (const auto &item : noise_models) {
     for (const auto &im : item) {
       validate_noise_model(im);
@@ -375,155 +375,155 @@ void Qbqe::set_noise_models(const VectorString &noise_models) {
   }
   noise_models_ = noise_models;
 }
-void Qbqe::validate_noise_model(const std::string &noise_model) {
+void session::validate_noise_model(const std::string &noise_model) {
   if (VALID_NOISE_MODEL_NAMES.find(noise_model) == VALID_NOISE_MODEL_NAMES.end()) {
     std::stringstream noise_model_error_msg;
-    noise_model_error_msg << "qbOS: valid settings for noise_model: " << std::endl;
+    noise_model_error_msg << "QB SDK: valid settings for noise_model: " << std::endl;
     for (auto it : VALID_NOISE_MODEL_NAMES) {
       noise_model_error_msg << "* \"" << it << "\"" << std::endl;
     }
     throw std::range_error(noise_model_error_msg.str());
   }
 }
-const VectorString &Qbqe::get_noise_models() const { return noise_models_; }
+const VectorString &session::get_noise_models() const { return noise_models_; }
 //
-void Qbqe::set_output_amplitude(const NC &in_output_amplitude) {
-  Qbqe::output_amplitudes_.clear();
-  Qbqe::output_amplitudes_.push_back({in_output_amplitude});
+void session::set_output_amplitude(const NC &in_output_amplitude) {
+  session::output_amplitudes_.clear();
+  session::output_amplitudes_.push_back({in_output_amplitude});
 }
-void Qbqe::set_output_amplitudes(const VectorMapNC &in_output_amplitude) {
-  Qbqe::output_amplitudes_ = in_output_amplitude;
+void session::set_output_amplitudes(const VectorMapNC &in_output_amplitude) {
+  session::output_amplitudes_ = in_output_amplitude;
 }
-const VectorMapNC & Qbqe::get_output_amplitudes() const { return Qbqe::output_amplitudes_; }
+const VectorMapNC & session::get_output_amplitudes() const { return session::output_amplitudes_; }
 //
-void Qbqe::set_debug_qbqe(const bool & debug_qbqe) {
-  Qbqe::debug_qbqe_ = debug_qbqe;
+void session::set_debug(const bool & debug) {
+  session::debug_ = debug;
 }
-const bool & Qbqe::get_debug_qbqe() const { return Qbqe::debug_qbqe_; }
+const bool & session::get_debug() const { return session::debug_; }
 //
-void Qbqe::setName(const VectorString &name_) { Qbqe::name_m = name_; }
-void Qbqe::setName(const std::string &name_) { Qbqe::name_m.push_back({name_}); }
-const VectorString & Qbqe::getName() const { return Qbqe::name_m; }
+void session::setName(const VectorString &name_) { session::name_m = name_; }
+void session::setName(const std::string &name_) { session::name_m.push_back({name_}); }
+const VectorString & session::getName() const { return session::name_m; }
 
-void Qbqe::set_out_raw(const std::string & out_raw) {
-  Qbqe::out_raws_.clear();
-  Qbqe::out_raws_.push_back({out_raw});
+void session::set_out_raw(const std::string & out_raw) {
+  session::out_raws_.clear();
+  session::out_raws_.push_back({out_raw});
 }
-void Qbqe::set_out_raws(const VectorString & out_raws) { Qbqe::out_raws_ = out_raws; }
-const VectorString & Qbqe::get_out_raws() const { return Qbqe::out_raws_ ; }
-//
-
-void Qbqe::set_out_count(const NN & out_count) {
-  Qbqe::out_counts_.clear();
-  Qbqe::out_counts_.push_back({out_count});
-}
-void Qbqe::set_out_counts(const VectorMapNN & out_counts) { Qbqe::out_counts_ = out_counts; }
-const VectorMapNN & Qbqe::get_out_counts() const { return Qbqe::out_counts_ ; }
+void session::set_out_raws(const VectorString & out_raws) { session::out_raws_ = out_raws; }
+const VectorString & session::get_out_raws() const { return session::out_raws_ ; }
 //
 
-void Qbqe::set_out_divergence(const ND & out_divergence) {
-  Qbqe::out_divergences_.clear();
-  Qbqe::out_divergences_.push_back({out_divergence});
+void session::set_out_count(const NN & out_count) {
+  session::out_counts_.clear();
+  session::out_counts_.push_back({out_count});
 }
-void Qbqe::set_out_divergences(const VectorMapND & out_divergences) { Qbqe::out_divergences_ = out_divergences; }
-const VectorMapND & Qbqe::get_out_divergences() const { return Qbqe::out_divergences_ ; }
+void session::set_out_counts(const VectorMapNN & out_counts) { session::out_counts_ = out_counts; }
+const VectorMapNN & session::get_out_counts() const { return session::out_counts_ ; }
 //
 
-void Qbqe::set_out_transpiled_circuit(const std::string & out_transpiled_circuit) {
-  Qbqe::out_transpiled_circuits_.clear();
-  Qbqe::out_transpiled_circuits_.push_back({out_transpiled_circuit});
+void session::set_out_divergence(const ND & out_divergence) {
+  session::out_divergences_.clear();
+  session::out_divergences_.push_back({out_divergence});
 }
-void Qbqe::set_out_transpiled_circuits(const VectorString & out_transpiled_circuits) { Qbqe::out_transpiled_circuits_ = out_transpiled_circuits; }
-const VectorString & Qbqe::get_out_transpiled_circuits() const { return Qbqe::out_transpiled_circuits_ ; }
+void session::set_out_divergences(const VectorMapND & out_divergences) { session::out_divergences_ = out_divergences; }
+const VectorMapND & session::get_out_divergences() const { return session::out_divergences_ ; }
 //
 
-void Qbqe::set_out_qobj(const std::string & out_qobj) {
-  Qbqe::out_qobjs_.clear();
-  Qbqe::out_qobjs_.push_back({out_qobj});
+void session::set_out_transpiled_circuit(const std::string & out_transpiled_circuit) {
+  session::out_transpiled_circuits_.clear();
+  session::out_transpiled_circuits_.push_back({out_transpiled_circuit});
 }
-void Qbqe::set_out_qobjs(const VectorString & out_qobjs) { Qbqe::out_qobjs_ = out_qobjs; }
-const VectorString & Qbqe::get_out_qobjs() const { return Qbqe::out_qobjs_ ; }
+void session::set_out_transpiled_circuits(const VectorString & out_transpiled_circuits) { session::out_transpiled_circuits_ = out_transpiled_circuits; }
+const VectorString & session::get_out_transpiled_circuits() const { return session::out_transpiled_circuits_ ; }
 //
 
-void Qbqe::set_out_qbjson(const std::string & out_qbjson) {
-  Qbqe::out_qbjsons_.clear();
-  Qbqe::out_qbjsons_.push_back({out_qbjson});
+void session::set_out_qobj(const std::string & out_qobj) {
+  session::out_qobjs_.clear();
+  session::out_qobjs_.push_back({out_qobj});
 }
-void Qbqe::set_out_qbjsons(const VectorString & out_qbjsons) { Qbqe::out_qbjsons_ = out_qbjsons; }
-const VectorString & Qbqe::get_out_qbjsons() const { return Qbqe::out_qbjsons_ ; }
+void session::set_out_qobjs(const VectorString & out_qobjs) { session::out_qobjs_ = out_qobjs; }
+const VectorString & session::get_out_qobjs() const { return session::out_qobjs_ ; }
 //
 
-void Qbqe::set_out_single_qubit_gate_qty(const NN & out_single_qubit_gate_qty) {
-  Qbqe::out_single_qubit_gate_qtys_.clear();
-  Qbqe::out_single_qubit_gate_qtys_.push_back({out_single_qubit_gate_qty});
+void session::set_out_qbjson(const std::string & out_qbjson) {
+  session::out_qbjsons_.clear();
+  session::out_qbjsons_.push_back({out_qbjson});
 }
-void Qbqe::set_out_single_qubit_gate_qtys(const VectorMapNN & out_single_qubit_gate_qtys) { Qbqe::out_single_qubit_gate_qtys_ = out_single_qubit_gate_qtys; }
-const VectorMapNN & Qbqe::get_out_single_qubit_gate_qtys() const { return Qbqe::out_single_qubit_gate_qtys_ ; }
+void session::set_out_qbjsons(const VectorString & out_qbjsons) { session::out_qbjsons_ = out_qbjsons; }
+const VectorString & session::get_out_qbjsons() const { return session::out_qbjsons_ ; }
 //
 
-void Qbqe::set_out_double_qubit_gate_qty(const NN & out_double_qubit_gate_qty) {
-  Qbqe::out_double_qubit_gate_qtys_.clear();
-  Qbqe::out_double_qubit_gate_qtys_.push_back({out_double_qubit_gate_qty});
+void session::set_out_single_qubit_gate_qty(const NN & out_single_qubit_gate_qty) {
+  session::out_single_qubit_gate_qtys_.clear();
+  session::out_single_qubit_gate_qtys_.push_back({out_single_qubit_gate_qty});
 }
-void Qbqe::set_out_double_qubit_gate_qtys(const VectorMapNN & out_double_qubit_gate_qtys) { Qbqe::out_double_qubit_gate_qtys_ = out_double_qubit_gate_qtys; }
-const VectorMapNN & Qbqe::get_out_double_qubit_gate_qtys() const { return Qbqe::out_double_qubit_gate_qtys_ ; }
+void session::set_out_single_qubit_gate_qtys(const VectorMapNN & out_single_qubit_gate_qtys) { session::out_single_qubit_gate_qtys_ = out_single_qubit_gate_qtys; }
+const VectorMapNN & session::get_out_single_qubit_gate_qtys() const { return session::out_single_qubit_gate_qtys_ ; }
 //
 
-void Qbqe::set_out_total_init_maxgate_readout_time(const ND & out_total_init_maxgate_readout_time) {
-  Qbqe::out_total_init_maxgate_readout_times_.clear();
-  Qbqe::out_total_init_maxgate_readout_times_.push_back({out_total_init_maxgate_readout_time});
+void session::set_out_double_qubit_gate_qty(const NN & out_double_qubit_gate_qty) {
+  session::out_double_qubit_gate_qtys_.clear();
+  session::out_double_qubit_gate_qtys_.push_back({out_double_qubit_gate_qty});
 }
-void Qbqe::set_out_total_init_maxgate_readout_times(const VectorMapND & out_total_init_maxgate_readout_times) { Qbqe::out_total_init_maxgate_readout_times_ = out_total_init_maxgate_readout_times; }
-const VectorMapND & Qbqe::get_out_total_init_maxgate_readout_times() const { return Qbqe::out_total_init_maxgate_readout_times_ ; }
+void session::set_out_double_qubit_gate_qtys(const VectorMapNN & out_double_qubit_gate_qtys) { session::out_double_qubit_gate_qtys_ = out_double_qubit_gate_qtys; }
+const VectorMapNN & session::get_out_double_qubit_gate_qtys() const { return session::out_double_qubit_gate_qtys_ ; }
 //
 
-void Qbqe::set_out_z_op_expect(const ND & out_z_op_expect) {
-  Qbqe::out_z_op_expects_.clear();
-  Qbqe::out_z_op_expects_.push_back({out_z_op_expect});
+void session::set_out_total_init_maxgate_readout_time(const ND & out_total_init_maxgate_readout_time) {
+  session::out_total_init_maxgate_readout_times_.clear();
+  session::out_total_init_maxgate_readout_times_.push_back({out_total_init_maxgate_readout_time});
 }
-void Qbqe::set_out_z_op_expects(const VectorMapND & out_z_op_expects) { Qbqe::out_z_op_expects_ = out_z_op_expects; }
-const VectorMapND & Qbqe::get_out_z_op_expects() const { return Qbqe::out_z_op_expects_ ; }
+void session::set_out_total_init_maxgate_readout_times(const VectorMapND & out_total_init_maxgate_readout_times) { session::out_total_init_maxgate_readout_times_ = out_total_init_maxgate_readout_times; }
+const VectorMapND & session::get_out_total_init_maxgate_readout_times() const { return session::out_total_init_maxgate_readout_times_ ; }
 //
-void Qbqe::set_noise_mitigation(const std::string &noise_mitigation) {
-  Qbqe::validate_noise_mitigation(noise_mitigation);
-  Qbqe::error_mitigations_.clear();
-  Qbqe::error_mitigations_.push_back({noise_mitigation});
+
+void session::set_out_z_op_expect(const ND & out_z_op_expect) {
+  session::out_z_op_expects_.clear();
+  session::out_z_op_expects_.push_back({out_z_op_expect});
+}
+void session::set_out_z_op_expects(const VectorMapND & out_z_op_expects) { session::out_z_op_expects_ = out_z_op_expects; }
+const VectorMapND & session::get_out_z_op_expects() const { return session::out_z_op_expects_ ; }
+//
+void session::set_noise_mitigation(const std::string &noise_mitigation) {
+  session::validate_noise_mitigation(noise_mitigation);
+  session::error_mitigations_.clear();
+  session::error_mitigations_.push_back({noise_mitigation});
 }
 //
-void Qbqe::set_seed(const size_t &in_seed) {
-  Qbqe::seeds_.clear();
-  Qbqe::seeds_.push_back({in_seed});
+void session::set_seed(const size_t &in_seed) {
+  session::seeds_.clear();
+  session::seeds_.push_back({in_seed});
 }
-void Qbqe::set_seeds(const VectorN &in_seeds) { Qbqe::seeds_ = in_seeds; }
-const VectorN & Qbqe::get_seeds() const { return Qbqe::seeds_; }
+void session::set_seeds(const VectorN &in_seeds) { session::seeds_ = in_seeds; }
+const VectorN & session::get_seeds() const { return session::seeds_; }
 //
-void Qbqe::set_noise_mitigations(const VectorString &noise_mitigations) {
+void session::set_noise_mitigations(const VectorString &noise_mitigations) {
   for (const auto& item : noise_mitigations) {
     for (const auto& im : item) {
-      Qbqe::validate_noise_mitigation(im);
+      session::validate_noise_mitigation(im);
     }
   }
-  Qbqe::error_mitigations_ = noise_mitigations;
+  session::error_mitigations_ = noise_mitigations;
 }
 
-void Qbqe::validate_noise_mitigation(const std::string &noise_mitigation) {
+void session::validate_noise_mitigation(const std::string &noise_mitigation) {
   if (VALID_ERROR_MITIGATIONS.find(noise_mitigation) == VALID_ERROR_MITIGATIONS.end()) {
       std::stringstream ss;
-      ss << "qbOS: valid settings for error mitigation: " << std::endl;
+      ss << "QB SDK: valid settings for error mitigation: " << std::endl;
       for (auto it : VALID_ERROR_MITIGATIONS) {
           ss << "* \"" << it << "\"" << std::endl;
       }
       throw std::range_error(ss.str());
   }
 }
-const VectorString & Qbqe::get_noise_mitigations() const { return Qbqe::error_mitigations_; }
+const VectorString & session::get_noise_mitigations() const { return session::error_mitigations_; }
 //
-const std::string Qbqe::get_summary() const {
+const std::string session::get_summary() const {
   std::ostringstream out;
   out << "* sn:" << std::endl <<
   "    Number of shots" << std::endl <<
   "  = ";
-  for (auto item : Qbqe::get_sns()) {
+  for (auto item : session::get_sns()) {
       for (auto itel : item) {
               out << " " << itel;
       }
@@ -1076,9 +1076,9 @@ out << "* verbatim:" << std::endl <<
   out << "* debug:" << std::endl <<
   "    Switch to debug mode" << std::endl <<
   "  = ";
-  out << get_debug_qbqe();
+  out << get_debug();
   out << std::endl << std::endl;
   //
   return out.str();
 }
-} // namespace qbOS
+} // namespace qb

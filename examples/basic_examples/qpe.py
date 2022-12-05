@@ -1,7 +1,7 @@
-import qbos as qb
+import qb.core
 import numpy as np
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 # Quantum Phase Estimation: Oracle(|State>) = exp(i*Phase)*|State>
 # and we need to estimate that Phase value.
@@ -15,11 +15,11 @@ trial_qubits = [2]
 evaluation_qubits = [0,1,3,4]
 
 # Oracle
-oracle = qb.Circuit()
+oracle = qb.core.Circuit()
 #oracle.u1(0, -1.96349540849)
 oracle.u1(trial_qubits[0], -1.96349540849)
 
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 
 # State prep: eigen state of the oracle |1>
 circ.x(trial_qubits[0])
@@ -37,13 +37,13 @@ for i in range(nb_bits_precision):
 print("OpenQASM:\n", circ.openqasm())
 
 # Run:
-tqb.ir_target = circ
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
-tqb.acc = "qpp"
-tqb.run()
-result = tqb.out_raw[0][0]
+s.ir_target = circ
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qpp"
+s.run()
+result = s.out_raw[0][0]
 print("Result:\n", result)
 

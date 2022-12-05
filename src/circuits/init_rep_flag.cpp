@@ -16,7 +16,7 @@
 //#include <ostream>
 #include "IRProvider.hpp"
 
-namespace qbOS{
+namespace qb{
 bool InitRepeatFlag::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   // iteration: which letter are we up to
@@ -73,4 +73,4 @@ bool InitRepeatFlag::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> InitRepeatFlag::requiredKeys() {
     return {"iteration","qubits_string", "qubits_next_letter", "qubits_init_repeat"};
 }
-}// namespace qbOS
+}// namespace qb

@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool Comparator::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   // BestScore: the current best score that we want to compare to
@@ -399,4 +399,4 @@ const std::vector<std::string> Comparator::requiredKeys() {
   return {"BestScore", "num_scoring_qubits"};
 }
 
-} // namespace qbOS
+} // namespace qb

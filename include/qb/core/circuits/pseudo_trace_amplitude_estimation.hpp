@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 class PseudoTraceAmplitudeEstimation : public xacc::quantum::Circuit {
 public:
@@ -12,4 +12,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(PseudoTraceAmplitudeEstimation);
 };
-} // namespace qbOS
+} // namespace qb

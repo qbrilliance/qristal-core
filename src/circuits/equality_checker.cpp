@@ -14,7 +14,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace qbOS {
+namespace qb {
 bool EqualityChecker::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   // Inputs:
@@ -138,4 +138,4 @@ const std::vector<std::string> EqualityChecker::requiredKeys() {
   return {"qubits_a", "qubits_b", "flag"};
 }
 
-} // namespace qbOS
+} // namespace qb

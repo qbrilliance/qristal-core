@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 import os
 import pytest
-import qbos as qb
+import qb.core
 import numpy as np
 import qiskit
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
@@ -155,21 +155,21 @@ def qb_pauli_measurement_matrix(label: str, outcome: int) -> np.array:
             res = pauli_preparation_matrix('Zm')
     return res
 
-def get_qbos_core_from_qiskit_circuits(circuits, backend, no_shots):
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.sn = no_shots
-    tqb.acc = backend
-    tqb.instring.clear()
-    tqb.noise.clear()
-    tqb.qn.clear()
-    tqb.name_p.clear()
+def get_session_from_qiskit_circuits(circuits, backend, no_shots):
+    s = qb.core.session()
+    s.qb12()
+    s.sn = no_shots
+    s.acc = backend
+    s.instring.clear()
+    s.noise.clear()
+    s.qn.clear()
+    s.name_p.clear()
     for circuit in circuits:
-        tqb.qn.append(qb.N([circuit.num_qubits]))
-        tqb.noise.append(qb.Bool([True]))
-        tqb.instring.append(qb.String([get_qbqasm_string(circuit)])) # TODO: use Thien's QASM method
-        tqb.name_p.append(qb.String([circuit.name]))   
-    return tqb
+        s.qn.append(qb.N([circuit.num_qubits]))
+        s.noise.append(qb.Bool([True]))
+        s.instring.append(qb.String([get_qbqasm_string(circuit)])) # TODO: use Thien's QASM method
+        s.name_p.append(qb.String([circuit.name]))
+    return s
 
 def get_qbqasm_string(qiskit_circuit):
     '''
@@ -179,40 +179,40 @@ def get_qbqasm_string(qiskit_circuit):
     import re
     return '__qpu__ void QBCIRCUIT(qreg q) {\n' + re.sub(r"\nqreg [A-Za-z]+[_\dA-za-z]*\[\d+\];", "", qiskit_circuit.qasm()) + '}'
 
-def get_qiskit_experiment_result_data(qbos_result, num_qubits):
+def get_qiskit_experiment_result_data(result, num_qubits):
     '''
-    Input: dict of counts for a qbos experiment
+    Input: dict of counts for a QB SDK experiment
     Output: qiskit.result.models.ExperimentResultData containing counts keyed with hex code
-    
-    The qbos enumeration from out_raw to out_count is reversed compared to Qiskit
+
+    The QB SDK enumeration from out_raw to out_count is reversed compared to Qiskit
     '''
     hex_keyed_data = dict()
     shots = 0
-    for num in qbos_result.keys():
-        hex_keyed_data[hex(int(bin(num)[2:].zfill(num_qubits)[::-1],2))] = qbos_result[num]
-        shots = shots + qbos_result[num]
+    for num in result.keys():
+        hex_keyed_data[hex(int(bin(num)[2:].zfill(num_qubits)[::-1],2))] = result[num]
+        shots = shots + result[num]
     experiment_result_data = qiskit.result.models.ExperimentResultData(counts=hex_keyed_data)
     return experiment_result_data, shots
 
-def get_experiment_result(qbos_core):
+def get_experiment_result(session):
     '''
-    Input: qbos.core
+    Input: qb.core.session
     Output: qiskit.result.result.Result
     '''
     experiment_result_data = []
-    qbos_counts = qbos_core.out_count
-    #print(qbos_counts)
+    counts = session.out_count
+    #print(counts)
     i = 0
-    for row in qbos_counts:
+    for row in counts:
         j = 0
         for result in row:
-            num_qubits = qbos_core.qn[i][j]
-            name = qbos_core.name_p[i][j]
+            num_qubits = session.qn[i][j]
+            name = session.name_p[i][j]
             data, shots=get_qiskit_experiment_result_data(result, num_qubits)
             experiment_result_data.append(qiskit.result.models.ExperimentResult(data=data, shots=shots, success=True, header=qiskit.qobj.common.QobjHeader(name = name, memory_slots=num_qubits)))
             j+=1
-        i+=1    
-    experiment_result = qiskit.result.result.Result(backend_name=qbos_core.acc[0][0], backend_version=None, qobj_id=None, job_id=None, success=True,results=experiment_result_data)
+        i+=1
+    experiment_result = qiskit.result.result.Result(backend_name=session.acc[0][0], backend_version=None, qobj_id=None, job_id=None, success=True,results=experiment_result_data)
     return experiment_result
 
 def count_keys(num_qubits):
@@ -295,17 +295,17 @@ def qiskit_calibration_circuits(num_qubits, qubit_list, experiment_name = 'reado
 
 def get_measurement_fitter(num_qubits, qubit_list, experiment_name, no_shots, backend, noise_model, quantum_register='q', classical_register='q_c'):
     meas_calibs, state_labels =  qiskit_calibration_circuits(num_qubits, qubit_list, experiment_name, quantum_register, classical_register)
-    tqb = get_qbos_core_from_qiskit_circuits(meas_calibs, backend, no_shots)
-    tqb.noise_model = noise_model
-    tqb.seed = 888
-    print('Noise model: ' + tqb.noise_model[0][0])
-    tqb.run()
-    qiskit_result = get_experiment_result(tqb)
+    s = get_session_from_qiskit_circuits(meas_calibs, backend, no_shots)
+    s.noise_model = noise_model
+    s.seed = 888
+    print('Noise model: ' + s.noise_model[0][0])
+    s.run()
+    qiskit_result = get_experiment_result(s)
     # Calculate the calibration matrix with the noise model
     from qiskit.utils.mitigation import CompleteMeasFitter
     meas_fitter = CompleteMeasFitter(qiskit_result, state_labels, qubit_list=qubit_list, circlabel=experiment_name)
     return meas_fitter
-    
+
 def test_CI_220915_1_noise_model_1_readout_error():
     num_qubits = 1
     experiment_name = 'readout_nm1'

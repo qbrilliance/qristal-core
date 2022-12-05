@@ -13,7 +13,7 @@
 // Other include statements go here
 ///////////////////////////////////
 
-namespace qbOS {
+namespace qb {
 
 ///////////////////////////////////
 // Describe the circuit including
@@ -27,4 +27,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(BeamStatePrep);
 };
-} // namespace qbOS
+} // namespace qb

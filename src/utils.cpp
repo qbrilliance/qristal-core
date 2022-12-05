@@ -1,10 +1,10 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
-#include "qb/core/method_utils.hpp"
+#include "qb/core/utils.hpp"
 #include <boost/dynamic_bitset.hpp>
 #include <boost/math/constants/constants.hpp>
 
-namespace qbOS {
+namespace qb {
 int binomialCoefficient(int n, int k) {
   // Base Cases
   if (k == 0 || k == n) {
@@ -184,7 +184,7 @@ std::string aer_circuit_transpiler(std::string& circuit) {
   return NEWcircuit;
 }
 
-json get_qbqe_cfg(const std::string &config_buf) {
+json get_session_cfg(const std::string &config_buf) {
   json output_to_js;
   json config;
 
@@ -366,4 +366,4 @@ bool ValidatorTwoDim<VectorMapND, ND>::is_gt_eq_lowerbound<ND>(
     const ND &subj, const std::string &in_desc) {
   return true;
 }
-} // namespace qbOS
+} // namespace qb

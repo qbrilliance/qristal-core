@@ -3,7 +3,7 @@
  ***/
 #pragma once
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// Generic Grover-based amplitude amplification circuit
 class AmplitudeAmplification : public xacc::quantum::Circuit {
@@ -13,4 +13,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(AmplitudeAmplification);
 };
-} // namespace qbOS
+} // namespace qb

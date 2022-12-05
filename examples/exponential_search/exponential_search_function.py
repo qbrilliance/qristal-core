@@ -1,11 +1,10 @@
-import qbos as qb
 import numpy as np
 import math
 import timeit
-from qbos import exponential_search
-tqb = qb.core()
+import qb.core
+from qb.core import exponential_search
 
-# This is an example of using quantum exponential search to find the 
+# This is an example of using quantum exponential search to find the
 # max value of a data set.
 dataset = [0,1,1,3,0,1,1,1,2,1,1,1,1,0,1,2]
 
@@ -38,7 +37,7 @@ num_evaluation_qubits = 10
 
 #state prep
 def state_prep(trial_qubits, trial_score_qubits, a,b):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     for i in range(0,len(trial_qubits)):
         circ.h(trial_qubits[i])
     for i in range(0,len(dataset)):
@@ -57,7 +56,7 @@ def state_prep(trial_qubits, trial_score_qubits, a,b):
 
 # Oracle
 def oracle(bestScore, num_scoring_qubits, trial_score_qubits, flag_qubit, best_score_qubits, ancilla_qubits):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     circ.comparator_as_oracle(bestScore,num_scoring_qubits,trial_score_qubits,flag_qubit,best_score_qubits,ancilla_qubits,False)
     return circ
 

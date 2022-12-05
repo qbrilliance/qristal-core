@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // Generalised MCX gate
 
@@ -23,4 +23,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(GeneralisedMCX);
 };
-} // namespace qbOS
+} // namespace qb

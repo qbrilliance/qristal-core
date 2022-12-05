@@ -7,7 +7,7 @@
 #include <string>
 #include <thread>
 
-namespace qbOS {
+namespace qb {
 using Handle = std::future<std::shared_ptr<xacc::AcceleratorBuffer>>;
 class Executor {
 private:
@@ -23,4 +23,4 @@ public:
 Handle post(Executor &executor,
             std::shared_ptr<xacc::CompositeInstruction> program, int shots);
 std::string sync(Handle &handle, int time_out_secs = -1);
-} // namespace qbOS
+} // namespace qb

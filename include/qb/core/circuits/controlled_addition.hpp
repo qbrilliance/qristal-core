@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // Controlled addition circuit
 // This circuit is used to add two qubit registers
@@ -23,4 +23,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(ControlledAddition);
 };
-} // namespace qbOS
+} // namespace qb

@@ -3,13 +3,13 @@ import os
 import pytest
 def test_CI_220307_1_exponential_search() :
     print("Testing exponential search algorithm with comparator oracle")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import math
     import timeit
-    tqb = qb.core()
+    s = qb.core.session()
 
-    # This is an example of using quantum exponential search to find the 
+    # This is an example of using quantum exponential search to find the
     # max value of a data set.
     dataset = [0,1,1,3,0,1,1,1,2,1,1,1,1,0,1,2]
 

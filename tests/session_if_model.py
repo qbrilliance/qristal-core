@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
 
-class QbqeRequestHdlr(BaseHTTPRequestHandler):
+class SessionRequestHdlr(BaseHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
         self.qbits = 3
@@ -57,7 +57,7 @@ def mock_run(qbits, cycles, shots):
     return {'type':'results_std', 'data':data}
 
 def main():
-    svr = HTTPServer(('', 8000), QbqeRequestHdlr)
+    svr = HTTPServer(('', 8000), SessionRequestHdlr)
     svr.results = {'type':'results_inprogress'}
 
     try:

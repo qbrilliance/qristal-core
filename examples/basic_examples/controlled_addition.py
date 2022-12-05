@@ -1,10 +1,10 @@
-import qbos as qb
-import numpy as np 
+import qb.core
+import numpy as np
 import ast
 import timeit
-tqb = qb.core()
-tqb.qb12()
-tqb.qn = 7
+s = qb.core.session()
+s.qb12()
+s.qn = 7
 
 ###
 # Testing controlled addition.
@@ -19,11 +19,11 @@ qubits_sum = [2,3,4] # Remember that the sum register needs more qubits than the
 c_in = 5
 flag = [6]
 
-### 
+###
 # Test 1: flag off
 ###
 
-circ1 = qb.Circuit()
+circ1 = qb.core.Circuit()
 
 # Prepare initial state
 circ1.x(qubits_adder[0])
@@ -35,25 +35,25 @@ circ1.controlled_ripple_carry_adder(qubits_adder, qubits_sum, c_in, flags_on = f
 for i in range(len(qubits_sum)):
     circ1.measure(qubits_sum[i])
 
-tqb.ir_target = circ1
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
-tqb.acc = "qsim"
+s.ir_target = circ1
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qsim"
 start = timeit.default_timer()
-tqb.run()
+s.run()
 end = timeit.default_timer()
 print("runtime " + str(end-start))
-result1 = tqb.out_raw[0][0]
+result1 = s.out_raw[0][0]
 res1 = ast.literal_eval(result1)
 assert(res1["000"] == 1024)
 
-### 
+###
 # Test 2: flag off
 ###
 
-circ2 = qb.Circuit()
+circ2 = qb.core.Circuit()
 
 # Prepare initial state
 circ2.x(qubits_adder[0])
@@ -68,13 +68,13 @@ circ2.controlled_ripple_carry_adder(qubits_adder, qubits_sum, c_in, flags_on = f
 for i in range(len(qubits_sum)):
     circ2.measure(qubits_sum[i])
 
-tqb.ir_target = circ2
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
-tqb.acc = "qpp"
-tqb.run()
-result2 = tqb.out_raw[0][0]
+s.ir_target = circ2
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qpp"
+s.run()
+result2 = s.out_raw[0][0]
 res2 = ast.literal_eval(result2)
 assert(res2["100"] == 1024)

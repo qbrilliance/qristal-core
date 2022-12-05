@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// Phase Estimation circuit:
 /// The Phase Estimation circuit is used to estimate the phase phi of an
@@ -17,4 +17,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(PhaseEstimation);
 };
-} // namespace qbOS
+} // namespace qb

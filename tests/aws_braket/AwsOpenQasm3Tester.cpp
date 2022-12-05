@@ -19,7 +19,7 @@ TEST(AwsOpenQasm3Tester, checkSimple) {
                                nullptr)
                      ->getComposites()[0];
 
-  qbOS::AWSOpenQASM3Visitor visitor(program->nPhysicalBits());
+  qb::AWSOpenQASM3Visitor visitor(program->nPhysicalBits());
   xacc::InstructionIterator it(program);
   while (it.hasNext()) {
     auto nextInst = it.next();

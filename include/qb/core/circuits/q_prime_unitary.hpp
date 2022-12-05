@@ -4,7 +4,7 @@
 #pragma once 
 #include "Circuit.hpp"
 
-namespace qbOS{
+namespace qb{
 /// Q_prime circuit:
 /// The Q prime circuit is a unitary operator to reset the qubits of the next 
 /// symbol and its metric (probability). It is one of three unitary operators
@@ -19,4 +19,4 @@ public:
   DEFINE_CLONE(QPrime);
   //QPrime() : xacc::CompositeInstruction() {} 
 };
-} // namespace qbOS
+} // namespace qb

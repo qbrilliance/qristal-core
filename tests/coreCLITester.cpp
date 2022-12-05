@@ -4,7 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
-TEST(qbosExecutorTester, checkSimple) {
+TEST(coreCLITester, checkSimple) {
   const std::string qpu_config = R"(
 {
     "accs": [
@@ -17,7 +17,7 @@ TEST(qbosExecutorTester, checkSimple) {
     ]
 }
  )";
-  qbOS::Executor executor;
+  qb::Executor executor;
   executor.initialize(qpu_config);
   auto compiler = xacc::getCompiler("staq");
   auto program = compiler
@@ -26,7 +26,7 @@ OPENQASM 2.0;
 include "qelib1.inc";
 qreg q[4];
 creg c[4];
-x q[0]; 
+x q[0];
 x q[2];
 barrier q;
 h q[0];
@@ -45,10 +45,10 @@ measure q -> c;
                      ->getComposites()[0];
 
     const int nTests = 1000;
-    std::vector<qbOS::Handle> jobHandles;
+    std::vector<qb::Handle> jobHandles;
     for (int i = 0; i < nTests; ++i) {
       std::cout << "Posting quantum job " << i << " for execution\n";
-      auto handle = qbOS::post(executor, program, 1024);
+      auto handle = qb::post(executor, program, 1024);
       jobHandles.emplace_back(std::move(handle));
     }
     std::cout << "Complete posting all " << nTests << " jobs\n";
@@ -73,7 +73,7 @@ measure q -> c;
     }
     std::cout << "All jobs have been completed.\n";
     // for (auto &handle : jobHandles) {
-    //   std::cout << qbOS::sync(handle) << "\n";
+    //   std::cout << qb::sync(handle) << "\n";
     // }
 }
 

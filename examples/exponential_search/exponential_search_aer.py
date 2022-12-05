@@ -1,10 +1,9 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import math
 import timeit
-tqb = qb.core()
 
-# This is an example of using quantum exponential search to find the 
+# This is an example of using quantum exponential search to find the
 # max value of a data set.
 dataset = [0,1,1,3,0,1,1,1,2,1,1,1,1,0,1,2]
 
@@ -22,7 +21,7 @@ next_metric = []
 
 #state prep
 def state_prep(trial_qubits, trial_score_qubits, a,b):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     for i in range(0,len(trial_qubits)):
         circ.h(trial_qubits[i])
     for i in range(0,len(dataset)):
@@ -41,7 +40,7 @@ def state_prep(trial_qubits, trial_score_qubits, a,b):
 
 # Oracle
 def oracle(bestScore, num_scoring_qubits, trial_score_qubits, flag_qubit, best_score_qubits, ancilla_qubits):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     circ.comparator_as_oracle(bestScore,num_scoring_qubits,trial_score_qubits,flag_qubit,best_score_qubits,ancilla_qubits,False)
     return circ
 
@@ -58,7 +57,7 @@ print("Start canonical exponential search!\n")
 max_run = 4 *  math.ceil(math.log2(N))
 count = 0
 while count < max_run:
-    result = qb.Circuit().exponential_search(str("canonical"),oracle, state_prep, get_score,bestScore, trial_qubits, trial_score_qubits, [], [],flag_qubit, best_score_qubits, ancilla_qubits, qpu = "qsim")
+    result = qb.core.Circuit().exponential_search(str("canonical"),oracle, state_prep, get_score,bestScore, trial_qubits, trial_score_qubits, [], [],flag_qubit, best_score_qubits, ancilla_qubits, qpu = "qsim")
     if result > bestScore:
         bestScore = result
         print("New best score:", bestScore)

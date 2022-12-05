@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// Multiply circuit:
 /// Given two n-bit numbers |a> and |b>, this circuit
@@ -25,4 +25,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(ControlledMultiplication);
 };
-} // namespace qbOS
+} // namespace qb

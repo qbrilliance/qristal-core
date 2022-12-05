@@ -5,25 +5,25 @@
 # i.e., estimate the amplitude of the state:
 # sqrt(1-p)|0> + sqrt(p)|1>
 import numpy as np
-import qbos as qb
-from qbos import run_MLQAE
+import qb.core
+from qb.core import run_MLQAE
 import ast
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d 
+from mpl_toolkits import mplot3d
 from matplotlib import cm
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))
 
 # State prep circuit: (preparing the state that we want to estimate the amplitude)
-state_prep = qb.Circuit()
+state_prep = qb.core.Circuit()
 state_prep.ry(0, theta_p)
 
 # In this case, we don't construct the Grover operator by ourselves,
 # instead, just provide the oracle to detect the marked state (|1>)
-oracle = qb.Circuit()
+oracle = qb.core.Circuit()
 oracle.z(0)
 num_runs = [1,2,3,4,5,6,7,8,9,10]
 shots = [20,40,60,80,100,150,200,250,300,500,750,1000]

@@ -3,7 +3,7 @@
  ***/
 #pragma once
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// Amplitude Estimation circuit (based on phase estimation):
 /// Implements the original Quantum Amplitude Estimation (QAE) algorithm,
@@ -17,4 +17,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(CanonicalAmplitudeEstimation);
 };
-} // namespace qbOS
+} // namespace qb

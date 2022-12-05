@@ -1,13 +1,13 @@
-# qbos_core - Circuit simulation with the timing, noise and topology parameters of QB hardware
+# qbsdkcli - Circuit simulation with the timing, noise and topology parameters of QB hardware
 
-`qbos_core` is a command-line executable that carries over the previous functionality of `qbqe`, **with the exception of VQE and QAOA** functionality.  VQE functionality is now provided by a new `qbos_op_vqe` standalone executable.  Similarly, QAOA functionality is provided by a new `qbos_op_qaoa` standalone executable.
+`qbsdkcli` is a command-line executable that provides a command-line interface to the QB SDK.
 
 ```bash
-  qbos_core [input-circuit-file] {OPTIONS}
+  qbsdkcli [input-circuit-file] {OPTIONS}
 
-    qbos_core - Circuit simulation with the timing, noise and topology parameters of
-    QB hardware. This tool is a component of qbOS. The configuration of this
-    tool is set in a configuration file named "qbos_cfg.json". Note: command-line options
+    qbsdkcli - Circuit simulation with the timing, noise and topology parameters of
+    QB hardware. This tool is a component of the QB SDK. The configuration of this
+    tool is set in a configuration file named "sdk_cfg.json". Note: command-line options
     specified here will override that of the configuration file.
 
   OPTIONS:
@@ -18,7 +18,7 @@
                                         optimisation info
       * General options
         -q[#qubits]                       -q10 accepts up to 10 qubits, default:
-                                          12 (qbos can currently support up to
+                                          12 (the QB SDK can currently support up to
                                           maximum 48 qubits. All qubits on a QB
                                           chip are operationally connected.
                                           However, the clustered arrangement of
@@ -68,5 +68,5 @@
       arguments to be treated as positional options
 
     Version: --- Build time 2021-08-24T01:03:34
-    
+
 ```

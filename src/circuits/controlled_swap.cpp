@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool ControlledSwap::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -121,4 +121,4 @@ const std::vector<std::string> ControlledSwap::requiredKeys() {
   return {"qubits_a", "qubits_b"};
 }
 
-} // namespace qbOS
+} // namespace qb

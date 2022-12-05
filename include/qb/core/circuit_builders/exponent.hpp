@@ -16,16 +16,16 @@
 #include <vector>
 using namespace std;
 
-namespace qbOS {
+namespace qb {
 
     /// Exponential (base 2) circuit:
     /// Builds a circuit which finds the exponent base 2
     /// of a given value. Needed to convert log_2 of
     /// string metric to actual metric for addition
 
-    class Exponent : public qbOS::CircuitBuilder {
+    class Exponent : public qb::CircuitBuilder {
     public:
-      Exponent() : qbOS::CircuitBuilder() {} ;
+      Exponent() : qb::CircuitBuilder() {} ;
 
       int nb_qubits_log = 0;
       int nb_qubits_exp = 0;

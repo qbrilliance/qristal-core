@@ -1,9 +1,9 @@
-import qbos as qb
-import numpy as np 
+import qb.core
+import numpy as np
 import ast
-tqb = qb.core()
-tqb.qb12()
-tqb.qn = 11
+s = qb.core.session()
+s.qb12()
+s.qn = 11
 
 ###
 # Testing proper fraction division
@@ -14,11 +14,11 @@ for i in range(4):
     for j in range(i+1,4):
         # Set up input registers
         qubits_numerator = [0,1]
-        qubits_denominator = [2,3] 
+        qubits_denominator = [2,3]
         qubits_fraction = [4,5]
         qubits_ancilla = list(range(6,11))
 
-        circ = qb.Circuit()
+        circ = qb.core.Circuit()
 
         # Prepare initial state
         bin_i = bin(i)[2:].zfill(2)
@@ -41,18 +41,18 @@ for i in range(4):
             circ.measure(k)
         for k in qubits_fraction:
             circ.measure(k)
-        for k in qubits_ancilla: 
+        for k in qubits_ancilla:
             circ.measure(k)
-        
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        # tqb.debug = True
-        tqb.acc = "qsim"
-        tqb.run()
-        result1 = tqb.out_raw[0][0]
+
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        # s.debug = True
+        s.acc = "qsim"
+        s.run()
+        result1 = s.out_raw[0][0]
         res1 = ast.literal_eval(result1)
 
         # res = circ.execute("sparse-sim", 1024, 16)

@@ -5,7 +5,7 @@
 #include <functional>
 #include <numeric>
 
-namespace qbOS {
+namespace qb {
 // Define the likelihood function for post-processing
 long double likelihood(std::vector<int> iterations, std::vector<int> shots,
                        std::vector<int> good_counts, long double theta) {
@@ -153,4 +153,4 @@ void MLAmplitudeEstimation::execute(
   // Add the result to the buffer
   buffer->addExtraInfo("amplitude-estimation", amplitude_estimate);
 }
-} // namespace qbOS
+} // namespace qb

@@ -1,5 +1,5 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
-#include "qb/core/methods.hpp"
+#include "qb/core/session.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/thread_pool.hpp"
@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <memory>
 namespace py = pybind11;
-using namespace qbOS;
+using namespace qb;
 
 // JSON conversion routines
 namespace std {
@@ -73,9 +73,9 @@ py::array_t<int> std_vec_to_py_array(const std::vector<int> &input) {
 }
 } // namespace
 
-using OracleFuncPyType = std::function<qbOS::CircuitBuilder(
+using OracleFuncPyType = std::function<qb::CircuitBuilder(
     int, int, py::array_t<int>, int, py::array_t<int>, py::array_t<int>)>;
-using StatePrepFuncPyType = std::function<qbOS::CircuitBuilder(
+using StatePrepFuncPyType = std::function<qb::CircuitBuilder(
     py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>)>;
 
 /**
@@ -97,8 +97,8 @@ PYBIND11_MAKE_OPAQUE(
     std::vector<std::vector<std::map<int, std::complex<double>>>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::map<int, double>>>);
 
-namespace qbOS {
-/// Python interop job handle (exposing to qbOS Python) for async. execution.
+namespace qb {
+/// Python interop job handle for async. execution.
 /// Supports both true async. remote backends (e.g., AWS Braket) and threading-based local backends (e.g., multiple
 /// instances of local accelerators).
 /// (1) Remote backends (fully async.) will release the thread (from threadpool) as soon as it finishes job submission.
@@ -112,15 +112,15 @@ private:
   /// Flag to indicate whether the execution thread is still running.
   /// For local simulators, this translates to the completion status of the job.
   bool m_thread_running = false;
-  /// Row index to the qbOS QBQE jon table
+  /// Row index to the job table
   int m_i;
-  /// Column index to the qbOS QBQE jon table
+  /// Column index to the job table
   int m_j;
   /// Name of the QPU that this job is assigned to.
   std::string m_qpuName;
-  /// Non-owning reference to the QBQE instance (Python's qbOS.core())
-  // !Important!: Within this JobHandle, only thread-safe methods of QBQE should be called.
-  qbOS::Qbqe *m_qpqe;
+  /// Non-owning reference to the session
+  // !Important!: Within this JobHandle, only thread-safe methods of the session class should be called.
+  qb::session *m_qpqe;
   /// Instance of the QPU/Accelerator from the pool that this job is assigned to.
   std::shared_ptr<xacc::Accelerator> m_qpu;
   /// Async. job handle when the QPU is a remote Accelerator.
@@ -152,8 +152,8 @@ public:
   std::string qpu_name() const { return m_qpuName; }
 
   /// Post the (i, j) job asynchronously to be executed on the virtualized QPU pool.
-  void post_async(qbOS::Qbqe &qbqe, int i, int j) {
-    m_qpqe = &qbqe;
+  void post_async(qb::session &s, int i, int j) {
+    m_qpqe = &s;
     m_i = i;
     m_j = j;
     m_thread_running = true;
@@ -269,13 +269,13 @@ private:
     }
   };
 };
-} // namespace qbOS
+} // namespace qb
 
 /**
  * PYBIND11_MODULE(my-module-name, type_py::module_)
  **/
 PYBIND11_MODULE(core, m) {
-  m.doc() = "pybind11 for qbos";
+  m.doc() = "pybind11 for QB SDK";
   xacc::Initialize();
   xacc::setIsPyApi();
 
@@ -393,304 +393,304 @@ PYBIND11_MODULE(core, m) {
         return jret.dump();
       });
 
-  py::class_<qbOS::JobHandle, std::shared_ptr<qbOS::JobHandle>>(m, "Handle")
+  py::class_<qb::JobHandle, std::shared_ptr<qb::JobHandle>>(m, "Handle")
       .def(py::init<>())
-      .def("complete", &qbOS::JobHandle::complete,
+      .def("complete", &qb::JobHandle::complete,
            "Check if the job execution is complete.")
-      .def("qpu_name", &qbOS::JobHandle::qpu_name,
+      .def("qpu_name", &qb::JobHandle::qpu_name,
            "Get the name of the QPU accelerator that executed this job.")
-      .def("get", &qbOS::JobHandle::get_async_result, "Get the job result.")
-      .def("terminate", &qbOS::JobHandle::terminate,
+      .def("get", &qb::JobHandle::get_async_result, "Get the job result.")
+      .def("terminate", &qb::JobHandle::terminate,
            "Terminate the running job.");
 
-  py::class_<qbOS::Qbqe>(m, "session")
+  py::class_<qb::session>(m, "session")
       .def(py::init<const std::string &>())
       .def(py::init<const bool>())
       .def(py::init())
       .def_property(
-          "name_p", &qbOS::Qbqe::getName,
-          py::overload_cast<const std::string &>(&qbOS::Qbqe::setName))
+          "name_p", &qb::session::getName,
+          py::overload_cast<const std::string &>(&qb::session::setName))
       .def_property(
-          "names_p", &qbOS::Qbqe::getName,
-          py::overload_cast<const VectorString &>(&qbOS::Qbqe::setName))
-      .def_property("infile", &qbOS::Qbqe::get_infiles, &qbOS::Qbqe::set_infile,
-                    qbOS::Qbqe::help_infiles_)
-      .def_property("infiles", &qbOS::Qbqe::get_infiles,
-                    &qbOS::Qbqe::set_infiles, qbOS::Qbqe::help_infiles_)
-      .def_property("instring", &qbOS::Qbqe::get_instrings,
-                    &qbOS::Qbqe::set_instring, qbOS::Qbqe::help_instrings_)
-      .def_property("instrings", &qbOS::Qbqe::get_instrings,
-                    &qbOS::Qbqe::set_instrings, qbOS::Qbqe::help_instrings_)
+          "names_p", &qb::session::getName,
+          py::overload_cast<const VectorString &>(&qb::session::setName))
+      .def_property("infile", &qb::session::get_infiles, &qb::session::set_infile,
+                    qb::session::help_infiles_)
+      .def_property("infiles", &qb::session::get_infiles,
+                    &qb::session::set_infiles, qb::session::help_infiles_)
+      .def_property("instring", &qb::session::get_instrings,
+                    &qb::session::set_instring, qb::session::help_instrings_)
+      .def_property("instrings", &qb::session::get_instrings,
+                    &qb::session::set_instrings, qb::session::help_instrings_)
       .def_property(
-          "ir_target", [&](qbOS::Qbqe &qbqe) {
-              std::vector<std::vector<qbOS::CircuitBuilder>> circuits;
-              std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> instructions = qbqe.get_irtarget_ms();
+          "ir_target", [&](qb::session &s) {
+              std::vector<std::vector<qb::CircuitBuilder>> circuits;
+              std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> instructions = s.get_irtarget_ms();
               for (auto vec_instructions : instructions){
-                  std::vector<qbOS::CircuitBuilder> vec;
+                  std::vector<qb::CircuitBuilder> vec;
                   for (auto instruction : vec_instructions) {
-                      vec.push_back(qbOS::CircuitBuilder(instruction));
+                      vec.push_back(qb::CircuitBuilder(instruction));
                   }
                   circuits.push_back(vec);
               }
               return circuits;
           },
-          [&](qbOS::Qbqe &qbqe, qbOS::CircuitBuilder &circuit) {
-            qbqe.set_irtarget_m(circuit.get());
+          [&](qb::session &s, qb::CircuitBuilder &circuit) {
+            s.set_irtarget_m(circuit.get());
           },
-          qbOS::Qbqe::help_irtarget_ms_)
+          qb::session::help_irtarget_ms_)
       .def_property(
-          "ir_targets", [&](qbOS::Qbqe &qbqe) {
-              std::vector<std::vector<qbOS::CircuitBuilder>> circuits;
-              std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> instructions = qbqe.get_irtarget_ms();
+          "ir_targets", [&](qb::session &s) {
+              std::vector<std::vector<qb::CircuitBuilder>> circuits;
+              std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> instructions = s.get_irtarget_ms();
               for (auto vec_instructions : instructions){
-                  std::vector<qbOS::CircuitBuilder> vec;
+                  std::vector<qb::CircuitBuilder> vec;
                   for (auto instruction : vec_instructions){
-                      vec.push_back(qbOS::CircuitBuilder(instruction));
+                      vec.push_back(qb::CircuitBuilder(instruction));
                   }
                   circuits.push_back(vec);
               }
               return circuits;
           },
-          [&](qbOS::Qbqe &qbqe,
-              std::vector<std::vector<qbOS::CircuitBuilder>> &circuits) {
+          [&](qb::session &s,
+              std::vector<std::vector<qb::CircuitBuilder>> &circuits) {
             std::vector<
                 std::vector<std::shared_ptr<xacc::CompositeInstruction>>>
                 circuits_get;
-            for (std::vector<qbOS::CircuitBuilder> vec : circuits) {
+            for (std::vector<qb::CircuitBuilder> vec : circuits) {
               std::vector<std::shared_ptr<xacc::CompositeInstruction>> vec_get;
-              for (qbOS::CircuitBuilder circuit : vec) {
+              for (qb::CircuitBuilder circuit : vec) {
                 std::shared_ptr<xacc::CompositeInstruction> circuit_get =
                     circuit.get();
                 vec_get.push_back(circuit_get);
               }
               circuits_get.push_back(vec_get);
             }
-            qbqe.set_irtarget_ms(circuits_get);
+            s.set_irtarget_ms(circuits_get);
           },
-          qbOS::Qbqe::help_irtarget_ms_)
-      .def_property("include_qb", &qbOS::Qbqe::get_include_qbs,
-                    &qbOS::Qbqe::set_include_qb, qbOS::Qbqe::help_include_qbs_)
-      .def_property("include_qbs", &qbOS::Qbqe::get_include_qbs,
-                    &qbOS::Qbqe::set_include_qbs, qbOS::Qbqe::help_include_qbs_)
-      .def_property("qpu_config", &qbOS::Qbqe::get_qpu_configs,
-                    &qbOS::Qbqe::set_qpu_config, qbOS::Qbqe::help_qpu_configs_)
-      .def_property("qpu_configs", &qbOS::Qbqe::get_qpu_configs,
-                    &qbOS::Qbqe::set_qpu_configs, qbOS::Qbqe::help_qpu_configs_)
-      .def_property("acc", &qbOS::Qbqe::get_accs, &qbOS::Qbqe::set_acc,
-                    qbOS::Qbqe::help_accs_)
-      .def_property("accs", &qbOS::Qbqe::get_accs, &qbOS::Qbqe::set_accs,
-                    qbOS::Qbqe::help_accs_)
-      .def_property("aws_verbatim", &qbOS::Qbqe::get_aws_verbatims, &qbOS::Qbqe::set_aws_verbatim, qbOS::Qbqe::help_aws_verbatims_)
-      .def_property("aws_verbatims", &qbOS::Qbqe::get_aws_verbatims, &qbOS::Qbqe::set_aws_verbatims, qbOS::Qbqe::help_aws_verbatims_)
-      .def_property("aws_format", &qbOS::Qbqe::get_aws_formats, &qbOS::Qbqe::set_aws_format, qbOS::Qbqe::help_aws_formats_)
-      .def_property("aws_formats", &qbOS::Qbqe::get_aws_formats, &qbOS::Qbqe::set_aws_formats, qbOS::Qbqe::help_aws_formats_)
-      .def_property("aws_device", &qbOS::Qbqe::get_aws_device_names, &qbOS::Qbqe::set_aws_device_name, qbOS::Qbqe::help_aws_device_names_)
-      .def_property("aws_devices", &qbOS::Qbqe::get_aws_device_names, &qbOS::Qbqe::set_aws_device_names, qbOS::Qbqe::help_aws_device_names_)
-      .def_property("aws_s3", &qbOS::Qbqe::get_aws_s3s, &qbOS::Qbqe::set_aws_s3, qbOS::Qbqe::help_aws_s3s_)
-      .def_property("aws_s3s", &qbOS::Qbqe::get_aws_s3s, &qbOS::Qbqe::set_aws_s3s, qbOS::Qbqe::help_aws_s3s_)
-      .def_property("aws_s3_path", &qbOS::Qbqe::get_aws_s3_paths, &qbOS::Qbqe::set_aws_s3_path, qbOS::Qbqe::help_aws_s3_paths_)
-      .def_property("aws_s3_paths", &qbOS::Qbqe::get_aws_s3_paths, &qbOS::Qbqe::set_aws_s3_paths, qbOS::Qbqe::help_aws_s3_paths_)
-      .def_property("aer_sim_type", &qbOS::Qbqe::get_aer_sim_types, &qbOS::Qbqe::set_aer_sim_type, qbOS::Qbqe::help_aer_sim_types_)
-      .def_property("aer_sim_types", &qbOS::Qbqe::get_aer_sim_types, &qbOS::Qbqe::set_aer_sim_types, qbOS::Qbqe::help_aer_sim_types_)
-      .def_property("random", &qbOS::Qbqe::get_randoms, &qbOS::Qbqe::set_random,
-                    qbOS::Qbqe::help_randoms_)
-      .def_property("randoms", &qbOS::Qbqe::get_randoms,
-                    &qbOS::Qbqe::set_randoms, qbOS::Qbqe::help_randoms_)
-      .def_property("xasm", &qbOS::Qbqe::get_xasms, &qbOS::Qbqe::set_xasm,
-                    qbOS::Qbqe::help_xasms_)
-      .def_property("xasms", &qbOS::Qbqe::get_xasms, &qbOS::Qbqe::set_xasms,
-                    qbOS::Qbqe::help_xasms_)
-      .def_property("quil1", &qbOS::Qbqe::get_quil1s, &qbOS::Qbqe::set_quil1,
-                    qbOS::Qbqe::help_quil1s_)
-      .def_property("quil1s", &qbOS::Qbqe::get_quil1s, &qbOS::Qbqe::set_quil1s,
-                    qbOS::Qbqe::help_quil1s_)
-      .def_property("noplacement", &qbOS::Qbqe::get_noplacements,
-                    &qbOS::Qbqe::set_noplacement,
-                    qbOS::Qbqe::help_noplacements_)
-      .def_property("noplacements", &qbOS::Qbqe::get_noplacements,
-                    &qbOS::Qbqe::set_noplacements,
-                    qbOS::Qbqe::help_noplacements_)
-      .def_property("placement", &qbOS::Qbqe::get_placements, &qbOS::Qbqe::set_placement, qbOS::Qbqe::help_placements_)
-      .def_property("placements", &qbOS::Qbqe::get_placements, &qbOS::Qbqe::set_placements, qbOS::Qbqe::help_placements_)
-      .def_property("nooptimise", &qbOS::Qbqe::get_nooptimises,
-                    &qbOS::Qbqe::set_nooptimise, qbOS::Qbqe::help_nooptimises_)
-      .def_property("nooptimises", &qbOS::Qbqe::get_nooptimises,
-                    &qbOS::Qbqe::set_nooptimises, qbOS::Qbqe::help_nooptimises_)
-      .def_property("nosim", &qbOS::Qbqe::get_nosims, &qbOS::Qbqe::set_nosim,
-                    qbOS::Qbqe::help_nosims_)
-      .def_property("nosims", &qbOS::Qbqe::get_nosims, &qbOS::Qbqe::set_nosims,
-                    qbOS::Qbqe::help_nosims_)
-      .def_property("noise", &qbOS::Qbqe::get_noises, &qbOS::Qbqe::set_noise,
-                    qbOS::Qbqe::help_noises_)
-      .def_property("noises", &qbOS::Qbqe::get_noises, &qbOS::Qbqe::set_noises,
-                    qbOS::Qbqe::help_noises_)
-      .def_property("noise_model", &qbOS::Qbqe::get_noise_models, &qbOS::Qbqe::set_noise_model, qbOS::Qbqe::help_noise_models_)
-      .def_property("noise_models", &qbOS::Qbqe::get_noise_models, &qbOS::Qbqe::set_noise_models, qbOS::Qbqe::help_noise_models_)
-      .def_property("noise_mitigation", &qbOS::Qbqe::get_noise_mitigations, &qbOS::Qbqe::set_noise_mitigation,
-                    qbOS::Qbqe::help_noise_mitigations_)
-      .def_property("noise_mitigations", &qbOS::Qbqe::get_noise_mitigations, &qbOS::Qbqe::set_noise_mitigations,
-                    qbOS::Qbqe::help_noise_mitigations_)
-      .def_property("notiming", &qbOS::Qbqe::get_notimings,
-                    &qbOS::Qbqe::set_notiming, qbOS::Qbqe::help_notimings_)
-      .def_property("notimings", &qbOS::Qbqe::get_notimings,
-                    &qbOS::Qbqe::set_notimings, qbOS::Qbqe::help_notimings_)
-      .def_property("output_oqm_enabled", &qbOS::Qbqe::get_output_oqm_enableds,
-                    &qbOS::Qbqe::set_output_oqm_enabled,
-                    qbOS::Qbqe::help_output_oqm_enableds_)
-      .def_property("output_oqm_enableds", &qbOS::Qbqe::get_output_oqm_enableds,
-                    &qbOS::Qbqe::set_output_oqm_enableds,
-                    qbOS::Qbqe::help_output_oqm_enableds_)
-      .def_property("log_enabled", &qbOS::Qbqe::get_log_enableds,
-                    &qbOS::Qbqe::set_log_enabled,
-                    qbOS::Qbqe::help_log_enableds_)
-      .def_property("log_enableds", &qbOS::Qbqe::get_log_enableds,
-                    &qbOS::Qbqe::set_log_enableds,
-                    qbOS::Qbqe::help_log_enableds_)
-      .def_property("qn", &qbOS::Qbqe::get_qns, &qbOS::Qbqe::set_qn,
-                    qbOS::Qbqe::help_qns_)
-      .def_property("qns", &qbOS::Qbqe::get_qns, &qbOS::Qbqe::set_qns,
-                    qbOS::Qbqe::help_qns_)
-      .def_property("rn", &qbOS::Qbqe::get_rns, &qbOS::Qbqe::set_rn,
-                    qbOS::Qbqe::help_rns_)
-      .def_property("rns", &qbOS::Qbqe::get_rns, &qbOS::Qbqe::set_rns,
-                    qbOS::Qbqe::help_rns_)
-      .def_property("sn", &qbOS::Qbqe::get_sns, &qbOS::Qbqe::set_sn,
-                    qbOS::Qbqe::help_sns_)
-      .def_property("sns", &qbOS::Qbqe::get_sns, &qbOS::Qbqe::set_sns,
-                    qbOS::Qbqe::help_sns_)
-      .def_property("beta", &qbOS::Qbqe::get_betas, &qbOS::Qbqe::set_beta,
-                    qbOS::Qbqe::help_betas_)
-      .def_property("betas", &qbOS::Qbqe::get_betas, &qbOS::Qbqe::set_betas,
-                    qbOS::Qbqe::help_betas_)
-      .def_property("theta", &qbOS::Qbqe::get_thetas, &qbOS::Qbqe::set_theta,
-                    qbOS::Qbqe::help_thetas_)
-      .def_property("thetas", &qbOS::Qbqe::get_thetas, &qbOS::Qbqe::set_thetas,
-                    qbOS::Qbqe::help_thetas_)
-      .def_property("svd_cutoff", &qbOS::Qbqe::get_svd_cutoffs,
-                    &qbOS::Qbqe::set_svd_cutoff, qbOS::Qbqe::help_svd_cutoffs_)
-      .def_property("svd_cutoffs", &qbOS::Qbqe::get_svd_cutoffs,
-                    &qbOS::Qbqe::set_svd_cutoffs, qbOS::Qbqe::help_svd_cutoffs_)
-      .def_property("max_bond_dimension", &qbOS::Qbqe::get_max_bond_dimensions,
-                    &qbOS::Qbqe::set_max_bond_dimension,
-                    qbOS::Qbqe::help_max_bond_dimensions_)
-      .def_property("max_bond_dimensions", &qbOS::Qbqe::get_max_bond_dimensions,
-                    &qbOS::Qbqe::set_max_bond_dimensions,
-                    qbOS::Qbqe::help_max_bond_dimensions_)
-      .def_property("output_amplitude", &qbOS::Qbqe::get_output_amplitudes,
-                    &qbOS::Qbqe::set_output_amplitude,
-                    qbOS::Qbqe::help_output_amplitudes_)
-      .def_property("output_amplitudes", &qbOS::Qbqe::get_output_amplitudes,
-                    &qbOS::Qbqe::set_output_amplitudes,
-                    qbOS::Qbqe::help_output_amplitudes_)
-      .def_property("out_raw", &qbOS::Qbqe::get_out_raws,
-                    &qbOS::Qbqe::set_out_raw, qbOS::Qbqe::help_out_raws_)
-      .def_property("out_raws", &qbOS::Qbqe::get_out_raws,
-                    &qbOS::Qbqe::set_out_raws, qbOS::Qbqe::help_out_raws_)
-      .def_property("out_count", &qbOS::Qbqe::get_out_counts,
-                    &qbOS::Qbqe::set_out_count, qbOS::Qbqe::help_out_counts_)
-      .def_property("out_counts", &qbOS::Qbqe::get_out_counts,
-                    &qbOS::Qbqe::set_out_counts, qbOS::Qbqe::help_out_counts_)
-      .def_property("out_divergence", &qbOS::Qbqe::get_out_divergences,
-                    &qbOS::Qbqe::set_out_divergence,
-                    qbOS::Qbqe::help_out_divergences_)
-      .def_property("out_divergences", &qbOS::Qbqe::get_out_divergences,
-                    &qbOS::Qbqe::set_out_divergences,
-                    qbOS::Qbqe::help_out_divergences_)
+          qb::session::help_irtarget_ms_)
+      .def_property("include_qb", &qb::session::get_include_qbs,
+                    &qb::session::set_include_qb, qb::session::help_include_qbs_)
+      .def_property("include_qbs", &qb::session::get_include_qbs,
+                    &qb::session::set_include_qbs, qb::session::help_include_qbs_)
+      .def_property("qpu_config", &qb::session::get_qpu_configs,
+                    &qb::session::set_qpu_config, qb::session::help_qpu_configs_)
+      .def_property("qpu_configs", &qb::session::get_qpu_configs,
+                    &qb::session::set_qpu_configs, qb::session::help_qpu_configs_)
+      .def_property("acc", &qb::session::get_accs, &qb::session::set_acc,
+                    qb::session::help_accs_)
+      .def_property("accs", &qb::session::get_accs, &qb::session::set_accs,
+                    qb::session::help_accs_)
+      .def_property("aws_verbatim", &qb::session::get_aws_verbatims, &qb::session::set_aws_verbatim, qb::session::help_aws_verbatims_)
+      .def_property("aws_verbatims", &qb::session::get_aws_verbatims, &qb::session::set_aws_verbatims, qb::session::help_aws_verbatims_)
+      .def_property("aws_format", &qb::session::get_aws_formats, &qb::session::set_aws_format, qb::session::help_aws_formats_)
+      .def_property("aws_formats", &qb::session::get_aws_formats, &qb::session::set_aws_formats, qb::session::help_aws_formats_)
+      .def_property("aws_device", &qb::session::get_aws_device_names, &qb::session::set_aws_device_name, qb::session::help_aws_device_names_)
+      .def_property("aws_devices", &qb::session::get_aws_device_names, &qb::session::set_aws_device_names, qb::session::help_aws_device_names_)
+      .def_property("aws_s3", &qb::session::get_aws_s3s, &qb::session::set_aws_s3, qb::session::help_aws_s3s_)
+      .def_property("aws_s3s", &qb::session::get_aws_s3s, &qb::session::set_aws_s3s, qb::session::help_aws_s3s_)
+      .def_property("aws_s3_path", &qb::session::get_aws_s3_paths, &qb::session::set_aws_s3_path, qb::session::help_aws_s3_paths_)
+      .def_property("aws_s3_paths", &qb::session::get_aws_s3_paths, &qb::session::set_aws_s3_paths, qb::session::help_aws_s3_paths_)
+      .def_property("aer_sim_type", &qb::session::get_aer_sim_types, &qb::session::set_aer_sim_type, qb::session::help_aer_sim_types_)
+      .def_property("aer_sim_types", &qb::session::get_aer_sim_types, &qb::session::set_aer_sim_types, qb::session::help_aer_sim_types_)
+      .def_property("random", &qb::session::get_randoms, &qb::session::set_random,
+                    qb::session::help_randoms_)
+      .def_property("randoms", &qb::session::get_randoms,
+                    &qb::session::set_randoms, qb::session::help_randoms_)
+      .def_property("xasm", &qb::session::get_xasms, &qb::session::set_xasm,
+                    qb::session::help_xasms_)
+      .def_property("xasms", &qb::session::get_xasms, &qb::session::set_xasms,
+                    qb::session::help_xasms_)
+      .def_property("quil1", &qb::session::get_quil1s, &qb::session::set_quil1,
+                    qb::session::help_quil1s_)
+      .def_property("quil1s", &qb::session::get_quil1s, &qb::session::set_quil1s,
+                    qb::session::help_quil1s_)
+      .def_property("noplacement", &qb::session::get_noplacements,
+                    &qb::session::set_noplacement,
+                    qb::session::help_noplacements_)
+      .def_property("noplacements", &qb::session::get_noplacements,
+                    &qb::session::set_noplacements,
+                    qb::session::help_noplacements_)
+      .def_property("placement", &qb::session::get_placements, &qb::session::set_placement, qb::session::help_placements_)
+      .def_property("placements", &qb::session::get_placements, &qb::session::set_placements, qb::session::help_placements_)
+      .def_property("nooptimise", &qb::session::get_nooptimises,
+                    &qb::session::set_nooptimise, qb::session::help_nooptimises_)
+      .def_property("nooptimises", &qb::session::get_nooptimises,
+                    &qb::session::set_nooptimises, qb::session::help_nooptimises_)
+      .def_property("nosim", &qb::session::get_nosims, &qb::session::set_nosim,
+                    qb::session::help_nosims_)
+      .def_property("nosims", &qb::session::get_nosims, &qb::session::set_nosims,
+                    qb::session::help_nosims_)
+      .def_property("noise", &qb::session::get_noises, &qb::session::set_noise,
+                    qb::session::help_noises_)
+      .def_property("noises", &qb::session::get_noises, &qb::session::set_noises,
+                    qb::session::help_noises_)
+      .def_property("noise_model", &qb::session::get_noise_models, &qb::session::set_noise_model, qb::session::help_noise_models_)
+      .def_property("noise_models", &qb::session::get_noise_models, &qb::session::set_noise_models, qb::session::help_noise_models_)
+      .def_property("noise_mitigation", &qb::session::get_noise_mitigations, &qb::session::set_noise_mitigation,
+                    qb::session::help_noise_mitigations_)
+      .def_property("noise_mitigations", &qb::session::get_noise_mitigations, &qb::session::set_noise_mitigations,
+                    qb::session::help_noise_mitigations_)
+      .def_property("notiming", &qb::session::get_notimings,
+                    &qb::session::set_notiming, qb::session::help_notimings_)
+      .def_property("notimings", &qb::session::get_notimings,
+                    &qb::session::set_notimings, qb::session::help_notimings_)
+      .def_property("output_oqm_enabled", &qb::session::get_output_oqm_enableds,
+                    &qb::session::set_output_oqm_enabled,
+                    qb::session::help_output_oqm_enableds_)
+      .def_property("output_oqm_enableds", &qb::session::get_output_oqm_enableds,
+                    &qb::session::set_output_oqm_enableds,
+                    qb::session::help_output_oqm_enableds_)
+      .def_property("log_enabled", &qb::session::get_log_enableds,
+                    &qb::session::set_log_enabled,
+                    qb::session::help_log_enableds_)
+      .def_property("log_enableds", &qb::session::get_log_enableds,
+                    &qb::session::set_log_enableds,
+                    qb::session::help_log_enableds_)
+      .def_property("qn", &qb::session::get_qns, &qb::session::set_qn,
+                    qb::session::help_qns_)
+      .def_property("qns", &qb::session::get_qns, &qb::session::set_qns,
+                    qb::session::help_qns_)
+      .def_property("rn", &qb::session::get_rns, &qb::session::set_rn,
+                    qb::session::help_rns_)
+      .def_property("rns", &qb::session::get_rns, &qb::session::set_rns,
+                    qb::session::help_rns_)
+      .def_property("sn", &qb::session::get_sns, &qb::session::set_sn,
+                    qb::session::help_sns_)
+      .def_property("sns", &qb::session::get_sns, &qb::session::set_sns,
+                    qb::session::help_sns_)
+      .def_property("beta", &qb::session::get_betas, &qb::session::set_beta,
+                    qb::session::help_betas_)
+      .def_property("betas", &qb::session::get_betas, &qb::session::set_betas,
+                    qb::session::help_betas_)
+      .def_property("theta", &qb::session::get_thetas, &qb::session::set_theta,
+                    qb::session::help_thetas_)
+      .def_property("thetas", &qb::session::get_thetas, &qb::session::set_thetas,
+                    qb::session::help_thetas_)
+      .def_property("svd_cutoff", &qb::session::get_svd_cutoffs,
+                    &qb::session::set_svd_cutoff, qb::session::help_svd_cutoffs_)
+      .def_property("svd_cutoffs", &qb::session::get_svd_cutoffs,
+                    &qb::session::set_svd_cutoffs, qb::session::help_svd_cutoffs_)
+      .def_property("max_bond_dimension", &qb::session::get_max_bond_dimensions,
+                    &qb::session::set_max_bond_dimension,
+                    qb::session::help_max_bond_dimensions_)
+      .def_property("max_bond_dimensions", &qb::session::get_max_bond_dimensions,
+                    &qb::session::set_max_bond_dimensions,
+                    qb::session::help_max_bond_dimensions_)
+      .def_property("output_amplitude", &qb::session::get_output_amplitudes,
+                    &qb::session::set_output_amplitude,
+                    qb::session::help_output_amplitudes_)
+      .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
+                    &qb::session::set_output_amplitudes,
+                    qb::session::help_output_amplitudes_)
+      .def_property("out_raw", &qb::session::get_out_raws,
+                    &qb::session::set_out_raw, qb::session::help_out_raws_)
+      .def_property("out_raws", &qb::session::get_out_raws,
+                    &qb::session::set_out_raws, qb::session::help_out_raws_)
+      .def_property("out_count", &qb::session::get_out_counts,
+                    &qb::session::set_out_count, qb::session::help_out_counts_)
+      .def_property("out_counts", &qb::session::get_out_counts,
+                    &qb::session::set_out_counts, qb::session::help_out_counts_)
+      .def_property("out_divergence", &qb::session::get_out_divergences,
+                    &qb::session::set_out_divergence,
+                    qb::session::help_out_divergences_)
+      .def_property("out_divergences", &qb::session::get_out_divergences,
+                    &qb::session::set_out_divergences,
+                    qb::session::help_out_divergences_)
       .def_property("out_transpiled_circuit",
-                    &qbOS::Qbqe::get_out_transpiled_circuits,
-                    &qbOS::Qbqe::set_out_transpiled_circuit,
-                    qbOS::Qbqe::help_out_transpiled_circuits_)
+                    &qb::session::get_out_transpiled_circuits,
+                    &qb::session::set_out_transpiled_circuit,
+                    qb::session::help_out_transpiled_circuits_)
       .def_property("out_transpiled_circuits",
-                    &qbOS::Qbqe::get_out_transpiled_circuits,
-                    &qbOS::Qbqe::set_out_transpiled_circuits,
-                    qbOS::Qbqe::help_out_transpiled_circuits_)
-      .def_property("out_qobj", &qbOS::Qbqe::get_out_qobjs,
-                    &qbOS::Qbqe::set_out_qobj, qbOS::Qbqe::help_out_qobjs_)
-      .def_property("out_qobjs", &qbOS::Qbqe::get_out_qobjs,
-                    &qbOS::Qbqe::set_out_qobjs, qbOS::Qbqe::help_out_qobjs_)
-      .def_property("out_qbjson", &qbOS::Qbqe::get_out_qbjsons,
-                    &qbOS::Qbqe::set_out_qbjson, qbOS::Qbqe::help_out_qbjsons_)
-      .def_property("out_qbjsons", &qbOS::Qbqe::get_out_qbjsons,
-                    &qbOS::Qbqe::set_out_qbjsons, qbOS::Qbqe::help_out_qbjsons_)
+                    &qb::session::get_out_transpiled_circuits,
+                    &qb::session::set_out_transpiled_circuits,
+                    qb::session::help_out_transpiled_circuits_)
+      .def_property("out_qobj", &qb::session::get_out_qobjs,
+                    &qb::session::set_out_qobj, qb::session::help_out_qobjs_)
+      .def_property("out_qobjs", &qb::session::get_out_qobjs,
+                    &qb::session::set_out_qobjs, qb::session::help_out_qobjs_)
+      .def_property("out_qbjson", &qb::session::get_out_qbjsons,
+                    &qb::session::set_out_qbjson, qb::session::help_out_qbjsons_)
+      .def_property("out_qbjsons", &qb::session::get_out_qbjsons,
+                    &qb::session::set_out_qbjsons, qb::session::help_out_qbjsons_)
       .def_property("out_single_qubit_gate_qty",
-                    &qbOS::Qbqe::get_out_single_qubit_gate_qtys,
-                    &qbOS::Qbqe::set_out_single_qubit_gate_qty,
-                    qbOS::Qbqe::help_out_single_qubit_gate_qtys_)
+                    &qb::session::get_out_single_qubit_gate_qtys,
+                    &qb::session::set_out_single_qubit_gate_qty,
+                    qb::session::help_out_single_qubit_gate_qtys_)
       .def_property("out_single_qubit_gate_qtys",
-                    &qbOS::Qbqe::get_out_single_qubit_gate_qtys,
-                    &qbOS::Qbqe::set_out_single_qubit_gate_qtys,
-                    qbOS::Qbqe::help_out_single_qubit_gate_qtys_)
+                    &qb::session::get_out_single_qubit_gate_qtys,
+                    &qb::session::set_out_single_qubit_gate_qtys,
+                    qb::session::help_out_single_qubit_gate_qtys_)
       .def_property("out_double_qubit_gate_qty",
-                    &qbOS::Qbqe::get_out_double_qubit_gate_qtys,
-                    &qbOS::Qbqe::set_out_double_qubit_gate_qty,
-                    qbOS::Qbqe::help_out_double_qubit_gate_qtys_)
+                    &qb::session::get_out_double_qubit_gate_qtys,
+                    &qb::session::set_out_double_qubit_gate_qty,
+                    qb::session::help_out_double_qubit_gate_qtys_)
       .def_property("out_double_qubit_gate_qtys",
-                    &qbOS::Qbqe::get_out_double_qubit_gate_qtys,
-                    &qbOS::Qbqe::set_out_double_qubit_gate_qtys,
-                    qbOS::Qbqe::help_out_double_qubit_gate_qtys_)
+                    &qb::session::get_out_double_qubit_gate_qtys,
+                    &qb::session::set_out_double_qubit_gate_qtys,
+                    qb::session::help_out_double_qubit_gate_qtys_)
 
       .def_property("out_total_init_maxgate_readout_time",
-                    &qbOS::Qbqe::get_out_total_init_maxgate_readout_times,
-                    &qbOS::Qbqe::set_out_total_init_maxgate_readout_time,
-                    qbOS::Qbqe::help_out_total_init_maxgate_readout_times_)
+                    &qb::session::get_out_total_init_maxgate_readout_times,
+                    &qb::session::set_out_total_init_maxgate_readout_time,
+                    qb::session::help_out_total_init_maxgate_readout_times_)
       .def_property("out_total_init_maxgate_readout_times",
-                    &qbOS::Qbqe::get_out_total_init_maxgate_readout_times,
-                    &qbOS::Qbqe::set_out_total_init_maxgate_readout_times,
-                    qbOS::Qbqe::help_out_total_init_maxgate_readout_times_)
+                    &qb::session::get_out_total_init_maxgate_readout_times,
+                    &qb::session::set_out_total_init_maxgate_readout_times,
+                    qb::session::help_out_total_init_maxgate_readout_times_)
 
-      .def_property("out_z_op_expect", &qbOS::Qbqe::get_out_z_op_expects,
-                    &qbOS::Qbqe::set_out_z_op_expect,
-                    qbOS::Qbqe::help_out_z_op_expects_)
-      .def_property("out_z_op_expects", &qbOS::Qbqe::get_out_z_op_expects,
-                    &qbOS::Qbqe::set_out_z_op_expects,
-                    qbOS::Qbqe::help_out_z_op_expects_)
+      .def_property("out_z_op_expect", &qb::session::get_out_z_op_expects,
+                    &qb::session::set_out_z_op_expect,
+                    qb::session::help_out_z_op_expects_)
+      .def_property("out_z_op_expects", &qb::session::get_out_z_op_expects,
+                    &qb::session::set_out_z_op_expects,
+                    qb::session::help_out_z_op_expects_)
 
-      .def_property("debug", &qbOS::Qbqe::get_debug_qbqe,
-                    &qbOS::Qbqe::set_debug_qbqe, qbOS::Qbqe::help_debug_qbqe_)
+      .def_property("debug", &qb::session::get_debug,
+                    &qb::session::set_debug, qb::session::help_debug_)
 
-      .def_property("num_threads", [&](qbOS::Qbqe &qbqe) { return qbOS::thread_pool::get_num_threads(); },
-                    [&](qbOS::Qbqe &qbqe, int i) { qbOS::thread_pool::set_num_threads(i); },
-                    "num_threads: The number of threads in the qbOS thread pool")
+      .def_property("num_threads", [&](qb::session &s) { return qb::thread_pool::get_num_threads(); },
+                    [&](qb::session &s, int i) { qb::thread_pool::set_num_threads(i); },
+                    "num_threads: The number of threads in the QB SDK thread pool")
 
-      .def_property("seed", &qbOS::Qbqe::get_seeds, &qbOS::Qbqe::set_seed,
-                    qbOS::Qbqe::help_seeds_)
-      .def_property("seeds", &qbOS::Qbqe::get_seeds, &qbOS::Qbqe::set_seeds,
-                    qbOS::Qbqe::help_seeds_)
+      .def_property("seed", &qb::session::get_seeds, &qb::session::set_seed,
+                    qb::session::help_seeds_)
+      .def_property("seeds", &qb::session::get_seeds, &qb::session::set_seeds,
+                    qb::session::help_seeds_)
 
-      .def("__repr__", &qbOS::Qbqe::get_summary,
-           "Print summary of qbqe settings")
-      .def("run", py::overload_cast<>(&qbOS::Qbqe::run),
+      .def("__repr__", &qb::session::get_summary,
+           "Print summary of session settings")
+      .def("run", py::overload_cast<>(&qb::session::run),
            "Execute all declared quantum circuits under all conditions")
       .def("runit",
-           py::overload_cast<const size_t &, const size_t &>(&qbOS::Qbqe::run),
+           py::overload_cast<const size_t &, const size_t &>(&qb::session::run),
            "runit(i,j) : Execute circuit i, condition j")
-      .def("divergence", py::overload_cast<>(&qbOS::Qbqe::get_jensen_shannon),
+      .def("divergence", py::overload_cast<>(&qb::session::get_jensen_shannon),
            "Calculate Jensen-Shannon divergence")
-      .def("qb12", py::overload_cast<>(&qbOS::Qbqe::qb12),
+      .def("qb12", py::overload_cast<>(&qb::session::qb12),
            "Quantum Brilliance 12-qubit defaults")
-      .def("aws32dm1", py::overload_cast<>(&qbOS::Qbqe::aws32dm1),
+      .def("aws32dm1", py::overload_cast<>(&qb::session::aws32dm1),
            "AWS Braket DM1, 32 async workers")
-      .def("aws32sv1", py::overload_cast<>(&qbOS::Qbqe::aws32sv1),
+      .def("aws32sv1", py::overload_cast<>(&qb::session::aws32sv1),
            "AWS Braket SV1, 32 async workers")
-      .def("aws8tn1", py::overload_cast<>(&qbOS::Qbqe::aws8tn1),
+      .def("aws8tn1", py::overload_cast<>(&qb::session::aws8tn1),
            "AWS Braket TN1, 8 async workers")
-      .def("set_parallel_run_config", &qbOS::Qbqe::set_parallel_run_config,
+      .def("set_parallel_run_config", &qb::session::set_parallel_run_config,
            "Set the parallel execution configuration")
       .def(
           "run_async",
-          [&](qbOS::Qbqe &qbqe, int i, int j) {
-            auto handle = std::make_shared<qbOS::JobHandle>();
+          [&](qb::session &s, int i, int j) {
+            auto handle = std::make_shared<qb::JobHandle>();
             // Allow accelerators to acquire the GIL for themselves from a different thread
             pybind11::gil_scoped_release release;
-            handle->post_async(qbqe, i, j);
+            handle->post_async(s, i, j);
             return handle;
           },
           "run_async(i,j) : Launch the execution of circuit i, condition j "
           "asynchronously.")
       .def(
           "run_complete",
-          [&](qbOS::Qbqe &qbqe, int i, int j) {
-            auto handle = qbOS::JobHandle::getJobHandle(i, j);
+          [&](qb::session &s, int i, int j) {
+            auto handle = qb::JobHandle::getJobHandle(i, j);
             if (handle) {
               return handle->complete();
             } else {
@@ -702,16 +702,16 @@ PYBIND11_MODULE(core, m) {
 
   // Overloaded C++
 
-  // m.def("add_", & Qbqe::add, "A function which adds 2 numbers", py::arg("i")
-  // = 0, py::arg("j") = 0); m.def("cx_p", & Qbqe::tcx, "Test complex doubles");
-  // m.def("print_p", & Qbqe::print_kv<int,std::complex<double>>, "Overloaded
+  // m.def("add_", & session::add, "A function which adds 2 numbers", py::arg("i")
+  // = 0, py::arg("j") = 0); m.def("cx_p", & session::tcx, "Test complex doubles");
+  // m.def("print_p", & session::print_kv<int,std::complex<double>>, "Overloaded
   // print method"); m.def("print_p", &
-  // Qbqe::print_vector_kv<int,std::complex<double>>, "Overloaded print
+  // session::print_vector_kv<int,std::complex<double>>, "Overloaded print
   // method"); m.def("print_vector_p", py::overload_cast<const
-  // std::map<int,std::complex<double>>     &>(& Qbqe::print_kv), "Use C++ to
+  // std::map<int,std::complex<double>>     &>(& session::print_kv), "Use C++ to
   // output container contents", py::arg("elems")); m.def("print_vector_p",
   // py::overload_cast<const std::vector<std::map<int,std::complex<double>>>
-  // &>(& Qbqe::print_vector_kv), "Use C++ to output container contents",
+  // &>(& session::print_vector_kv), "Use C++ to output container contents",
   // py::arg("elems"));
 
   // std::vector<std::vector<double>> v_one;
@@ -721,25 +721,25 @@ PYBIND11_MODULE(core, m) {
   // py::object myname = py::cast(v_one);
   // m.attr("name_") = myname;
 
-  py::class_<qbOS::CircuitBuilder>(m, "Circuit")
+  py::class_<qb::CircuitBuilder>(m, "Circuit")
       .def(py::init())
-      .def("print", &qbOS::CircuitBuilder::print,
+      .def("print", &qb::CircuitBuilder::print,
            "Print the quantum circuit that has been built.")
       .def(
           "openqasm",
-          [&](qbOS::CircuitBuilder &this_) {
+          [&](qb::CircuitBuilder &this_) {
             auto staq = xacc::getCompiler("staq");
             const auto openQASMSrc = staq->translate(this_.get());
             return openQASMSrc;
           },
           "Get the OpenQASM representation of the circuit.")
-      .def("append", &qbOS::CircuitBuilder::append,
+      .def("append", &qb::CircuitBuilder::append,
            "Append another quantum circuit to this circuit.")
       // Temporary interface to execute the circuit.
-      // TODO: using qbqe `run` once the QE-382 is implemented
+      // TODO: using s `run` once the QE-382 is implemented
       .def(
           "execute",
-          [&](qbOS::CircuitBuilder &this_, const std::string &QPU,
+          [&](qb::CircuitBuilder &this_, const std::string &QPU,
               int NUM_SHOTS, int NUM_QUBITS) {
             auto acc = xacc::getAccelerator(QPU, {{"shots", NUM_SHOTS}});
             if (NUM_QUBITS < 0) {
@@ -751,61 +751,61 @@ PYBIND11_MODULE(core, m) {
           },
           py::arg("QPU") = "qpp", py::arg("NUM_SHOTS") = 1024,
           py::arg("NUM_QUBITS") = -1, "Run the circuit")
-      .def("h", &qbOS::CircuitBuilder::H, "Hadamard gate.")
-      .def("x", &qbOS::CircuitBuilder::X, "Pauli-X gate.")
-      .def("y", &qbOS::CircuitBuilder::Y, "Pauli-Y gate.")
-      .def("z", &qbOS::CircuitBuilder::Z, "Pauli-Z gate.")
-      .def("t", &qbOS::CircuitBuilder::T, "T gate.")
-      .def("tdg", &qbOS::CircuitBuilder::Tdg, "Adjoint T gate.")
-      .def("s", &qbOS::CircuitBuilder::S, "S gate.")
-      .def("sdg", &qbOS::CircuitBuilder::Sdg, "Adjoint S gate.")
-      .def("rx", &qbOS::CircuitBuilder::RX, "Rotation around X gate.")
-      .def("ry", &qbOS::CircuitBuilder::RY, "Rotation around Y gate.")
-      .def("rz", &qbOS::CircuitBuilder::RZ, "Rotation around Z gate.")
-      .def("cnot", &qbOS::CircuitBuilder::CNOT, "CNOT gate.")
+      .def("h", &qb::CircuitBuilder::H, "Hadamard gate.")
+      .def("x", &qb::CircuitBuilder::X, "Pauli-X gate.")
+      .def("y", &qb::CircuitBuilder::Y, "Pauli-Y gate.")
+      .def("z", &qb::CircuitBuilder::Z, "Pauli-Z gate.")
+      .def("t", &qb::CircuitBuilder::T, "T gate.")
+      .def("tdg", &qb::CircuitBuilder::Tdg, "Adjoint T gate.")
+      .def("s", &qb::CircuitBuilder::S, "S gate.")
+      .def("sdg", &qb::CircuitBuilder::Sdg, "Adjoint S gate.")
+      .def("rx", &qb::CircuitBuilder::RX, "Rotation around X gate.")
+      .def("ry", &qb::CircuitBuilder::RY, "Rotation around Y gate.")
+      .def("rz", &qb::CircuitBuilder::RZ, "Rotation around Z gate.")
+      .def("cnot", &qb::CircuitBuilder::CNOT, "CNOT gate.")
       .def(
           "mcx",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
               int target_idx) {
             builder.MCX(py_array_to_std_vec(ctrl_inds), target_idx);
           },
           "Multi-controlled NOT gate.")
       .def(
           "ccx",
-          [&](qbOS::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
+          [&](qb::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
               int target_idx) {
             builder.MCX({ctrl_idx1, ctrl_idx2}, target_idx);
           },
           "CCNOT (Toffoli) gate.")
-      .def("swap", &qbOS::CircuitBuilder::SWAP, "SWAP gate.")
-      .def("cphase", &qbOS::CircuitBuilder::CPhase,
+      .def("swap", &qb::CircuitBuilder::SWAP, "SWAP gate.")
+      .def("cphase", &qb::CircuitBuilder::CPhase,
            "Controlled phase gate (CU1).")
-      .def("cz", &qbOS::CircuitBuilder::CZ, "CZ gate.")
-      .def("ch", &qbOS::CircuitBuilder::CH, "Controlled-Hadamard (CH) gate.")
-      .def("u1", &qbOS::CircuitBuilder::U1, "U1 gate.")
-      .def("u3", &qbOS::CircuitBuilder::U3, "U3 gate.")
-      .def("measure", &qbOS::CircuitBuilder::Measure, "Measure a qubit.")
-      .def("measure_all", &qbOS::CircuitBuilder::MeasureAll,
+      .def("cz", &qb::CircuitBuilder::CZ, "CZ gate.")
+      .def("ch", &qb::CircuitBuilder::CH, "Controlled-Hadamard (CH) gate.")
+      .def("u1", &qb::CircuitBuilder::U1, "U1 gate.")
+      .def("u3", &qb::CircuitBuilder::U3, "U3 gate.")
+      .def("measure", &qb::CircuitBuilder::Measure, "Measure a qubit.")
+      .def("measure_all", &qb::CircuitBuilder::MeasureAll,
             py::arg("NUM_QUBITS") = -1,
            "Measure all qubits.")
       .def(
           "qft",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> inds) {
+          [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
             builder.QFT(py_array_to_std_vec(inds));
           },
           py::arg("qubits"), "Quantum Fourier Transform.")
       .def(
           "iqft",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> inds) {
+          [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
             builder.IQFT(py_array_to_std_vec(inds));
           },
           py::arg("qubits"), "Inverse Quantum Fourier Transform.")
       .def(
           "exponent",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_log,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_log,
               py::array_t<int> qubits_exponent, py::array_t<int> qubits_ancilla,
               int min_significance, bool is_LSB) {
-            qbOS::Exponent build_exp;
+            qb::Exponent build_exp;
             xacc::HeterogeneousMap map = {{"qubits_log",py_array_to_std_vec(qubits_log)}, {"min_significance", min_significance}, {"is_LSB", is_LSB}};
             if (qubits_exponent.size() > 0) {
                 map.insert("qubits_exponent", qubits_exponent);
@@ -824,11 +824,11 @@ PYBIND11_MODULE(core, m) {
           "Exponent base 2.")
       .def(
           "qpe",
-          [&](qbOS::CircuitBuilder &builder, py::object &oracle, int precision,
+          [&](qb::CircuitBuilder &builder, py::object &oracle, int precision,
               py::array_t<int> trial_qubits,
               py::array_t<int> evaluation_qubits) {
-            qbOS::CircuitBuilder *casted =
-                oracle.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted =
+                oracle.cast<qb::CircuitBuilder *>();
             assert(casted);
             builder.QPE(*casted, precision, py_array_to_std_vec(trial_qubits),
                         py_array_to_std_vec(evaluation_qubits));
@@ -839,16 +839,16 @@ PYBIND11_MODULE(core, m) {
           "Quantum Phase Estimation.")
       .def(
           "canonical_ae",
-          [&](qbOS::CircuitBuilder &builder, py::object &state_prep,
+          [&](qb::CircuitBuilder &builder, py::object &state_prep,
               py::object &grover_op, int precision, int num_state_prep_qubits,
               int num_trial_qubits, py::array_t<int> precision_qubits,
               py::array_t<int> trial_qubits, bool no_state_prep) {
-            qbOS::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qb::CircuitBuilder *>();
             assert(state_prep);
 
-            qbOS::CircuitBuilder *casted_grover_op =
-                grover_op.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_grover_op =
+                grover_op.cast<qb::CircuitBuilder *>();
             assert(casted_grover_op);
             builder.CanonicalAmplitudeEstimation(
                 *casted_state_prep, *casted_grover_op, precision,
@@ -863,16 +863,16 @@ PYBIND11_MODULE(core, m) {
           "Construct Canonical Quantum Amplitude Estimation Circuit.")
       .def(
           "run_canonical_ae",
-          [&](qbOS::CircuitBuilder &builder, py::object &state_prep,
+          [&](qb::CircuitBuilder &builder, py::object &state_prep,
               py::object &grover_op, int precision, int num_state_prep_qubits,
               int num_trial_qubits, py::array_t<int> precision_qubits,
               py::array_t<int> trial_qubits, py::str acc_name) {
-            qbOS::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qb::CircuitBuilder *>();
             assert(state_prep);
 
-            qbOS::CircuitBuilder *casted_grover_op =
-                grover_op.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_grover_op =
+                grover_op.cast<qb::CircuitBuilder *>();
             assert(casted_grover_op);
             return builder.RunCanonicalAmplitudeEstimation(
                 *casted_state_prep, *casted_grover_op, precision,
@@ -889,11 +889,11 @@ PYBIND11_MODULE(core, m) {
           "post-processing.")
       .def(
           "amcu",
-          [&](qbOS::CircuitBuilder &builder, py::object &U,
+          [&](qb::CircuitBuilder &builder, py::object &U,
               py::array_t<int> qubits_control,
               py::array_t<int> qubits_ancilla) {
-            qbOS::CircuitBuilder *casted_U =
-                U.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_U =
+                U.cast<qb::CircuitBuilder *>();
 
             return builder.MultiControlledUWithAncilla(
                 *casted_U,
@@ -904,16 +904,16 @@ PYBIND11_MODULE(core, m) {
           "Multi Controlled U With Ancilla")
       .def(
           "run_canonical_ae_with_oracle",
-          [&](qbOS::CircuitBuilder &builder, py::object &state_prep,
+          [&](qb::CircuitBuilder &builder, py::object &state_prep,
               py::object &oracle, int precision, int num_state_prep_qubits,
               int num_trial_qubits, py::array_t<int> precision_qubits,
               py::array_t<int> trial_qubits, py::str acc_name) {
-            qbOS::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qb::CircuitBuilder *>();
             assert(state_prep);
 
-            qbOS::CircuitBuilder *casted_oracle =
-                oracle.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_oracle =
+                oracle.cast<qb::CircuitBuilder *>();
             assert(casted_oracle);
             return builder.RunCanonicalAmplitudeEstimationWithOracle(
                 *casted_state_prep, *casted_oracle, precision,
@@ -931,17 +931,17 @@ PYBIND11_MODULE(core, m) {
           "post-processing.")
       .def(
           "run_MLQAE",
-          [&](qbOS::CircuitBuilder &builder, py::object &state_prep,
+          [&](qb::CircuitBuilder &builder, py::object &state_prep,
               py::object &oracle,
               std::function<int(std::string, int)> is_in_good_subspace,
               py::array_t<int> score_qubits, int total_num_qubits, int num_runs,
               int shots, py::str acc_name) {
-            qbOS::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qb::CircuitBuilder *>();
             assert(state_prep);
 
-            qbOS::CircuitBuilder *casted_oracle =
-                oracle.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *casted_oracle =
+                oracle.cast<qb::CircuitBuilder *>();
             assert(casted_oracle);
             return builder.RunMLAmplitudeEstimation(
                 *casted_state_prep, *casted_oracle, is_in_good_subspace,
@@ -954,13 +954,13 @@ PYBIND11_MODULE(core, m) {
           py::arg("shots") = 100, py::arg("qpu") = "qpp", "MLQAE")
       .def(
           "amplitude_amplification",
-          [&](qbOS::CircuitBuilder &builder, py::object &oracle,
+          [&](qb::CircuitBuilder &builder, py::object &oracle,
               py::object &state_prep, int power) {
-            qbOS::CircuitBuilder *oracle_casted =
-                oracle.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *oracle_casted =
+                oracle.cast<qb::CircuitBuilder *>();
             assert(oracle_casted);
-            qbOS::CircuitBuilder *state_prep_casted =
-                state_prep.cast<qbOS::CircuitBuilder *>();
+            qb::CircuitBuilder *state_prep_casted =
+                state_prep.cast<qb::CircuitBuilder *>();
             assert(state_prep_casted);
             builder.AmplitudeAmplification(*oracle_casted, *state_prep_casted,
                                            power);
@@ -969,7 +969,7 @@ PYBIND11_MODULE(core, m) {
           "Amplitude Amplification.")
       .def(
           "ripple_add",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> a,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> a,
               py::array_t<int> b, int c_in) {
             builder.RippleAdd(py_array_to_std_vec(a), py_array_to_std_vec(b),
                               c_in);
@@ -981,7 +981,7 @@ PYBIND11_MODULE(core, m) {
           "that of the first register to hold the carry over bit.")
       .def(
           "comparator",
-          [&](qbOS::CircuitBuilder &builder, int BestScore,
+          [&](qb::CircuitBuilder &builder, int BestScore,
               int num_scoring_qubits, py::array_t<int> trial_score_qubits,
               int flag_qubit, py::array_t<int> best_score_qubits,
               py::array_t<int> ancilla_qubits, bool is_LSB,
@@ -1003,7 +1003,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("controls_off") = py::array_t<int>(), "Comparator.")
       .def(
           "efficient_encoding",
-          [&](qbOS::CircuitBuilder &builder,
+          [&](qb::CircuitBuilder &builder,
               std::function<int(int)> scoring_function, int num_state_qubits,
               int num_scoring_qubits, py::array_t<int> state_qubits,
               py::array_t<int> scoring_qubits, bool is_LSB, bool use_ancilla,
@@ -1023,7 +1023,7 @@ PYBIND11_MODULE(core, m) {
           "Efficient Encoding.")
       .def(
           "equality_checker",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, int flag, bool use_ancilla,
               py::array_t<int> qubits_ancilla, py::array_t<int> controls_on,
               py::array_t<int> controls_off) {
@@ -1038,7 +1038,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("controls_off") = py::array_t<int>(), "Equality Checker.")
       .def(
           "controlled_swap",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, py::array_t<int> flags_on,
               py::array_t<int> flags_off) {
             builder.ControlledSwap(
@@ -1052,7 +1052,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("flags_off") = py::array_t<int>(), "Controlled swap.")
       .def(
           "controlled_ripple_carry_adder",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_adder,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_adder,
               py::array_t<int> qubits_sum, int c_in, py::array_t<int> flags_on,
               py::array_t<int> flags_off, bool no_overflow) {
             builder.ControlledAddition(
@@ -1067,7 +1067,7 @@ PYBIND11_MODULE(core, m) {
           "Controlled ripple carry adder.")
       .def(
           "generalised_mcx",
-          [&](qbOS::CircuitBuilder &builder, int target,
+          [&](qb::CircuitBuilder &builder, int target,
               py::array_t<int> controls_on, py::array_t<int> controls_off) {
             builder.GeneralisedMCX(target,
                 py_array_to_std_vec(controls_on),
@@ -1077,7 +1077,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("controls_off") = py::array_t<int>(), "Generalised MCX.")
       .def(
           "compare_beam_oracle",
-          [&](qbOS::CircuitBuilder &builder, int q0, int q1, int q2,
+          [&](qb::CircuitBuilder &builder, int q0, int q1, int q2,
               py::array_t<int> FA, py::array_t<int> FB, py::array_t<int> SA, py::array_t<int> SB,
               bool simplified) {
             builder.CompareBeamOracle(q0, q1, q2,
@@ -1094,15 +1094,15 @@ PYBIND11_MODULE(core, m) {
           py::arg("simplified") = true, "Compare beam oracle.")
       .def(
           "inverse_circuit",
-          [&](qbOS::CircuitBuilder &builder, py::object &circ) {
-            qbOS::CircuitBuilder *casted_circ =
-                circ.cast<qbOS::CircuitBuilder *>();
+          [&](qb::CircuitBuilder &builder, py::object &circ) {
+            qb::CircuitBuilder *casted_circ =
+                circ.cast<qb::CircuitBuilder *>();
             builder.InverseCircuit(*casted_circ);
           },
           py::arg("circ"), "Inverse circuit.")
       .def(
           "comparator_as_oracle",
-          [&](qbOS::CircuitBuilder &builder, int BestScore,
+          [&](qb::CircuitBuilder &builder, int BestScore,
               int num_scoring_qubits, py::array_t<int> trial_score_qubits,
               int flag_qubit, py::array_t<int> best_score_qubits,
               py::array_t<int> ancilla_qubits, bool is_LSB,
@@ -1124,7 +1124,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("controls_off") = py::array_t<int>(), "Comparator as oracle.")
       .def(
           "multiplication",
-          [&](qbOS::CircuitBuilder &builder,
+          [&](qb::CircuitBuilder &builder,
               py::array_t<int> qubits_a, py::array_t<int> qubits_b,
               py::array_t<int> qubits_result, int qubit_ancilla, bool is_LSB) {
             builder.Multiplication(
@@ -1138,7 +1138,7 @@ PYBIND11_MODULE(core, m) {
           "Multiplication.")
       .def(
           "controlled_multiplication",
-          [&](qbOS::CircuitBuilder &builder,
+          [&](qb::CircuitBuilder &builder,
               py::array_t<int> qubits_a, py::array_t<int> qubits_b,
               py::array_t<int> qubits_result,
               int qubit_ancilla, bool is_LSB, py::array_t<int> controls_on, py::array_t<int> controls_off) {
@@ -1158,7 +1158,7 @@ PYBIND11_MODULE(core, m) {
           "Controlled Multiplication.")
       .def(
           "exponential_search",
-          [&](qbOS::CircuitBuilder &builder, py::str method,
+          [&](qb::CircuitBuilder &builder, py::str method,
               OracleFuncPyType oracle_func, py::object state_prep,
               const std::function<int(int)> f_score, int best_score,
               py::array_t<int> qubits_string, py::array_t<int> qubits_metric,
@@ -1172,7 +1172,7 @@ PYBIND11_MODULE(core, m) {
               int MLQAE_num_runs, int MLQAE_num_shots, py::str acc_name) {
             std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
             StatePrepFuncPyType state_prep_casted;
-            qbOS::OracleFuncCType oracle_converted =
+            qb::OracleFuncCType oracle_converted =
                 [&](int best_score, int num_scoring_qubits,
                     std::vector<int> trial_score_qubits, int flag_qubit,
                     std::vector<int> best_score_qubits,
@@ -1186,10 +1186,10 @@ PYBIND11_MODULE(core, m) {
                   return conv.get();
                 };
 
-            qbOS::StatePrepFuncCType state_prep_func;
+            qb::StatePrepFuncCType state_prep_func;
             try {
-              qbOS::CircuitBuilder state_prep_casted =
-                  state_prep.cast<qbOS::CircuitBuilder>();
+              qb::CircuitBuilder state_prep_casted =
+                  state_prep.cast<qb::CircuitBuilder>();
               static_state_prep_circ = state_prep_casted.get();
               state_prep_func = [&](std::vector<int> a, std::vector<int> b,
                                     std::vector<int> c, std::vector<int> d, std::vector<int> e) {
@@ -1244,7 +1244,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("qpu") = "qpp", "Exp Search")
       .def(
           "q_prime_unitary",
-          [&](qbOS::CircuitBuilder &builder, int nb_qubits_ancilla_metric,
+          [&](qb::CircuitBuilder &builder, int nb_qubits_ancilla_metric,
               int nb_qubits_ancilla_letter,
               int nb_qubits_next_letter_probabilities,
               int nb_qubits_next_letter) {
@@ -1258,15 +1258,15 @@ PYBIND11_MODULE(core, m) {
           py::arg("nb_qubits_next_letter"), "QPrime.")
       .def(
           "inverse_circuit",
-          [&](qbOS::CircuitBuilder &builder, py::object &circ) {
-            qbOS::CircuitBuilder *casted_circ =
-                circ.cast<qbOS::CircuitBuilder *>();
+          [&](qb::CircuitBuilder &builder, py::object &circ) {
+            qb::CircuitBuilder *casted_circ =
+                circ.cast<qb::CircuitBuilder *>();
             builder.InverseCircuit(*casted_circ);
           },
           py::arg("circ"), "Inverse circuit.")
       .def(
           "subtraction",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_larger,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
               py::array_t<int> qubits_smaller, bool is_LSB, int qubit_ancilla) {
             builder.Subtraction(py_array_to_std_vec(qubits_larger),
                                 py_array_to_std_vec(qubits_smaller), is_LSB, qubit_ancilla);
@@ -1275,7 +1275,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("is_LSB") = true, py::arg("qubit_ancilla") = -1, "Subtraction circuit.")
       .def(
           "controlled_subtraction",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_larger,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
               py::array_t<int> qubits_smaller, py::array_t<int> controls_on,
               py::array_t<int> controls_off, bool is_LSB, int qubit_ancilla) {
             builder.ControlledSubtraction(py_array_to_std_vec(qubits_larger),
@@ -1290,7 +1290,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("is_LSB") = true, py::arg("qubit_ancilla") = -1, "Controlled subtraction circuit.")
       .def(
           "proper_fraction_division",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
               py::array_t<int> qubits_denominator,
               py::array_t<int> qubits_fraction, py::array_t<int> qubits_ancilla,
               bool is_LSB) {
@@ -1305,7 +1305,7 @@ PYBIND11_MODULE(core, m) {
           py::arg("is_LSB") = true, "Proper fraction division circuit.")
       .def(
           "controlled_proper_fraction_division",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
               py::array_t<int> qubits_denominator,
               py::array_t<int> qubits_fraction, py::array_t<int> qubits_ancilla,
               py::array_t<int> controls_on, py::array_t<int> controls_off,
@@ -1326,7 +1326,7 @@ PYBIND11_MODULE(core, m) {
           "Controlled proper fraction division circuit.")
       .def(
           "compare_gt",
-          [&](qbOS::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b,
               int qubit_flag, int qubit_ancilla,
               bool is_LSB) {
@@ -1345,14 +1345,14 @@ PYBIND11_MODULE(core, m) {
               int num_state_prep_qubits, int num_trial_qubits,
               py::array_t<int> precision_qubits, py::array_t<int> trial_qubits,
               py::str acc_name) {
-            qbOS::CircuitBuilder builder;
+            qb::CircuitBuilder builder;
 
-        qbOS::CircuitBuilder *casted_state_prep =
-            state_prep.cast<qbOS::CircuitBuilder *>();
+        qb::CircuitBuilder *casted_state_prep =
+            state_prep.cast<qb::CircuitBuilder *>();
         assert(state_prep);
 
-        qbOS::CircuitBuilder *casted_grover_op =
-            grover_op.cast<qbOS::CircuitBuilder *>();
+        qb::CircuitBuilder *casted_grover_op =
+            grover_op.cast<qb::CircuitBuilder *>();
         assert(casted_grover_op);
 
             return builder.RunCanonicalAmplitudeEstimation(
@@ -1374,13 +1374,13 @@ PYBIND11_MODULE(core, m) {
           int num_state_prep_qubits, int num_trial_qubits,
           py::array_t<int> precision_qubits, py::array_t<int> trial_qubits,
           py::str acc_name) {
-        qbOS::CircuitBuilder builder;
-        qbOS::CircuitBuilder *casted_state_prep =
-            state_prep.cast<qbOS::CircuitBuilder *>();
+        qb::CircuitBuilder builder;
+        qb::CircuitBuilder *casted_state_prep =
+            state_prep.cast<qb::CircuitBuilder *>();
         assert(state_prep);
 
-        qbOS::CircuitBuilder *casted_oracle =
-            oracle.cast<qbOS::CircuitBuilder *>();
+        qb::CircuitBuilder *casted_oracle =
+            oracle.cast<qb::CircuitBuilder *>();
         assert(casted_oracle);
         return builder.RunCanonicalAmplitudeEstimationWithOracle(
             *casted_state_prep, *casted_oracle, precision,
@@ -1402,13 +1402,13 @@ PYBIND11_MODULE(core, m) {
           std::function<int(std::string, int)> is_in_good_subspace,
           py::array_t<int> score_qubits, int total_num_qubits, int num_runs,
           int shots, py::str acc_name) {
-        qbOS::CircuitBuilder builder;
-        qbOS::CircuitBuilder *casted_state_prep =
-            state_prep.cast<qbOS::CircuitBuilder *>();
+        qb::CircuitBuilder builder;
+        qb::CircuitBuilder *casted_state_prep =
+            state_prep.cast<qb::CircuitBuilder *>();
         assert(state_prep);
 
-        qbOS::CircuitBuilder *casted_oracle =
-            oracle.cast<qbOS::CircuitBuilder *>();
+        qb::CircuitBuilder *casted_oracle =
+            oracle.cast<qb::CircuitBuilder *>();
         assert(casted_oracle);
         return builder.RunMLAmplitudeEstimation(
             *casted_state_prep, *casted_oracle, is_in_good_subspace,
@@ -1433,10 +1433,10 @@ PYBIND11_MODULE(core, m) {
           int CQAE_num_evaluation_qubits,
           std::function<int(std::string, int)> MLQAE_is_in_good_subspace,
           int MLQAE_num_runs, int MLQAE_num_shots, py::str acc_name) {
-        qbOS::CircuitBuilder builder;
+        qb::CircuitBuilder builder;
         std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
         StatePrepFuncPyType state_prep_casted;
-        qbOS::OracleFuncCType oracle_converted =
+        qb::OracleFuncCType oracle_converted =
             [&](int best_score, int num_scoring_qubits,
                 std::vector<int> trial_score_qubits, int flag_qubit,
                 std::vector<int> best_score_qubits,
@@ -1450,10 +1450,10 @@ PYBIND11_MODULE(core, m) {
               return conv.get();
             };
 
-        qbOS::StatePrepFuncCType state_prep_func;
+        qb::StatePrepFuncCType state_prep_func;
         try {
-          qbOS::CircuitBuilder state_prep_casted =
-              state_prep.cast<qbOS::CircuitBuilder>();
+          qb::CircuitBuilder state_prep_casted =
+              state_prep.cast<qb::CircuitBuilder>();
           static_state_prep_circ = state_prep_casted.get();
           state_prep_func = [&](std::vector<int> a, std::vector<int> b,
                                 std::vector<int> c, std::vector<int> d, std::vector<int> e) {
