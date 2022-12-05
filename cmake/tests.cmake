@@ -29,6 +29,7 @@ add_gtest(ExponentialSearchAlgorithm PATH algorithms/exponential_search)
 
 # Circuit builders
 add_gtest(ExponentBuilder PATH circuit_builders)
+add_gtest(RyEncoding PATH circuit_builders)
 
 # Circuits
 set(circuit_tests
