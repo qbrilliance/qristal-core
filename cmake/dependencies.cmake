@@ -4,11 +4,15 @@ include(add_poorly_behaved_dependency)
 set(CURL_NO_CURL_CMAKE ON)
 find_package(CURL REQUIRED)
 
+set(ENABLE_MPI OFF)
+
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
-  GIT_TAG f64e9da8
+  GIT_TAG da24f49e
   GIT_REPOSITORY https://github.com/eclipse/xacc
+  OPTIONS
+    "XACC_ENABLE_MPI @ENABLE_MPI@"
 )
 
 # Pybind11

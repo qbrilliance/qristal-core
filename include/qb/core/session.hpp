@@ -1,4 +1,5 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
+#pragma once
 
 #include "qb/core/QuantumBrillianceAccelerator.hpp"
 #include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
