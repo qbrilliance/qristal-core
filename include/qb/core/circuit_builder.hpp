@@ -144,6 +144,13 @@ public:
     circuit_->addInstruction(controlled_U);
   }
 
+  void CU(CircuitBuilder &circ, std::vector<int> ctrl_inds) {
+    auto controlled_U = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
+        xacc::getService<xacc::Instruction>("C-U"));
+    controlled_U->expand({{"U", circ.circuit_}, {"control-idx", ctrl_inds}});
+    circuit_->addInstruction(controlled_U);
+  }
+
   void CZ(size_t ctrl_idx, size_t target_idx) {
     circuit_->addInstruction(
         gate_provider_->createInstruction("CZ", {ctrl_idx, target_idx}));

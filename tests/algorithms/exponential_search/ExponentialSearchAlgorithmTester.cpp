@@ -25,12 +25,9 @@ TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
   std::vector<int> ancilla_qubits = {9, 10, 11, 12, 13};
 
   // oracle
-  std::function<std::shared_ptr<xacc::CompositeInstruction>(
-      int, int, std::vector<int>, int, std::vector<int>, std::vector<int>)>
-      oracle_ = [&](int BestScore, int num_scoring_qubits,
-                    std::vector<int> trial_score_qubits, int flag_qubit,
-                    std::vector<int> best_score_qubits,
-                    std::vector<int> ancilla_qubits) {
+  std::function<std::shared_ptr<xacc::CompositeInstruction>(int)>
+      //int, int, std::vector<int>, int, std::vector<int>, std::vector<int>)>
+      oracle_ = [&](int BestScore){
         auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
         auto oracle = gateRegistry->createComposite("oracle");
         oracle->addInstruction(
@@ -41,7 +38,7 @@ TEST(CanonicalExponentialSearchAlgorithmTester, checkSimplefunc) {
             xacc::getService<xacc::Instruction>("Comparator"));
         xacc::HeterogeneousMap options{
             {"BestScore", BestScore},
-            {"num_scoring_qubits", num_scoring_qubits},
+            //{"num_scoring_qubits", trial_score_qubits.size()},    // num_scoring_qubits},
             {"trial_score_qubits", trial_score_qubits},
             {"flag_qubit", flag_qubit},
             {"best_score_qubits", best_score_qubits},
