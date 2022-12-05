@@ -1,9 +1,9 @@
-import qbos as qb
+import qb.core
 import numpy as np
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 # QFT
 circ.qft(range(5))
 #IQFT

@@ -1,16 +1,16 @@
 set(source_files
   src/async_executor.cpp
-  src/method_utils.cpp
-  src/methods.cpp
+  src/utils.cpp
+  src/session.cpp
   src/pretranspiler.cpp
   src/profiler.cpp
   #src/qbTketNoiseAwarePlacement.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
   src/thread_pool.cpp
   # We need these in order to complete the linking
-  # TODO: refactor methods.hpp to no longer contain getters/setters declarations...
-  python_module/core/methods_getter_setter.cpp
-  python_module/core/methods_py_help_strings.cpp
+  # TODO: refactor session.hpp to no longer contain getters/setters declarations...
+  python_module/core/session_getter_setter.cpp
+  python_module/core/session_py_help_strings.cpp
 )
 
 set(headers
@@ -21,8 +21,8 @@ set(headers
   include/qb/core/circuit_builder.hpp
   include/qb/core/circuit_builders/exponent.hpp
   include/qb/core/circuit_builders/ry_encoding.hpp
-  include/qb/core/methods.hpp
-  include/qb/core/method_utils.hpp
+  include/qb/core/session.hpp
+  include/qb/core/utils.hpp
   include/qb/core/pretranspiler.hpp
   include/qb/core/profiler.hpp
   include/qb/core/QuantumBrillianceAccelerator.hpp

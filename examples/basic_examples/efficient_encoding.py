@@ -1,11 +1,11 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import ast
-tqb = qb.core()
-tqb.qb12()
-tqb.qn = 14
+s = qb.core.session()
+s.qb12()
+s.qn = 14
 
-# Efficient Encoding: given the input |state>|00...0> 
+# Efficient Encoding: given the input |state>|00...0>
 # produces the output |state>|score> where the score for
 # each bitstring is given by a scoring function
 
@@ -27,7 +27,7 @@ state_qubits = [5,6,7,8,9]
 scoring_qubits = [0,1,2,3,4]
 
 # create circuit
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 
 # State prep
 for k in range(num_state_qubits):
@@ -55,16 +55,16 @@ circ.measure_all()
 #print("OpenQASM:\n", circ.openqasm())
 
 # Run:
-tqb.ir_target = circ
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
-tqb.acc = "qpp"
-tqb.run()
-result = tqb.out_raw[0][0]
+s.ir_target = circ
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qpp"
+s.run()
+result = s.out_raw[0][0]
 res = ast.literal_eval(result)
-    
+
 
 ###
 # Example 2: use ancilla
@@ -80,7 +80,7 @@ state_qubits = [5,6,7,8,9]
 scoring_qubits = [0,1,2,3,4]
 
 # create circuit
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 
 # State prep
 for k in range(num_state_qubits):
@@ -111,14 +111,14 @@ for i in scoring_qubits:
 #print("OpenQASM:\n", circ.openqasm())
 
 # Run:
-tqb.ir_target = circ
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
-tqb.acc = "qpp"
-tqb.run()
-result = tqb.out_raw[0][0]
+s.ir_target = circ
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qpp"
+s.run()
+result = s.out_raw[0][0]
 res = ast.literal_eval(result)
 
 
@@ -136,11 +136,11 @@ res = ast.literal_eval(result)
 # num_scoring_qubits = 3
 
 # # create circuit
-# circ = qb.Circuit()
+# circ = qb.core.Circuit()
 
 # # State prep: |000>|000> + |111>|0000>
 # circ.h(0)
-# for k in range(num_state_qubits-1): 
+# for k in range(num_state_qubits-1):
 #     circ.cnot(k,k+1)
 
 # # Add ee

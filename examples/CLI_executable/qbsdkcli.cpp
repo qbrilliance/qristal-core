@@ -1,6 +1,6 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
-#include "qbos.hpp"
-#include "qbos_methods.hpp"
+#include "qb/core/session.hpp"
+// FIXME shouldn't be trying to include cpp files
 #include "../test/test_cases.cpp"
 #include <string>
 
@@ -11,19 +11,19 @@ void print_quickstart() {
   std::cout << "*" << std::endl;
   std::cout << "* To run with your own input circuit, see help instructions:"
             << std::endl;
-  std::cout << "*    qbos_core --help" << std::endl;
+  std::cout << "*    qbsdkcli --help" << std::endl;
   std::cout << "*" << std::endl
             << "* Examples:" << std::endl
             << "*" << std::endl
             << "* Bernstein-Vazirani:" << std::endl
-            << "*   qbos_core "
-               "/mnt/qb/share/qbqe/02_BernsteinVazirani/"
+            << "*   qbsdkcli "
+               "/path/to/02_BernsteinVazirani/"
                "BernsteinVazirani-secret110-openqasm.inc"
             << std::endl
             << "*" << std::endl
             << "* Deutsch-Jozsa:" << std::endl
-            << "*   qbos_core "
-               "/mnt/qb/share/qbqe/02_DeutschJozsa/"
+            << "*   qbsdkcli "
+               "/path/to/02_DeutschJozsa/"
                "DeutschJozsa-Balanced-string101-openqasm.inc"
             << std::endl
             << "*" << std::endl
@@ -59,8 +59,8 @@ void from_json(const json_t &js, std::vector<std::complex<double>> &vec) {
 } // namespace std
 
 // Print classical wall-time + distribution of shot counts
-void print_classical(const qbOS::Qbqe &tqb) {
-  VectorString out_raws = tqb.get_out_raws();
+void print_classical(const qb::session &s) {
+  VectorString out_raws = s.get_out_raws();
   std::cout << std::endl << "* Counts:" << std::endl << std::endl;
   std::cout << std::setw(20) << "State"
             << "  " << std::setw(9) << "Counts" << std::endl;
@@ -75,20 +75,20 @@ void print_classical(const qbOS::Qbqe &tqb) {
       for (auto &el : outj.items()) {
         std::string msb_string = el.key();
         int cnt_n = el.value();
-        VectorString u_accs = tqb.get_accs();
+        VectorString u_accs = s.get_accs();
         String u_accs_0 = u_accs.at(0);
         std::string u_accs_0_0 = u_accs_0.at(0);
         if (!u_accs_0_0.compare("aer")) {
           std::reverse(msb_string.begin(), msb_string.end());
         }
-        std::cout << std::setw(20) << msb_string << "  " 
+        std::cout << std::setw(20) << msb_string << "  "
                   << std::setw(9) << cnt_n << std::endl;
       }
     }
   }
-  VectorMapND ctimes = tqb.get_out_total_init_maxgate_readout_times();
+  VectorMapND ctimes = s.get_out_total_init_maxgate_readout_times();
   double classical_ms = 0.0;
-  qbOS::Profiler dummypr = qbOS::Profiler("__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude \"qelib1.inc\";\ncreg c0[1];\nmeasure q[0] -> c0[0];\n}\n", 1);
+  qb::Profiler dummypr = qb::Profiler("__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude \"qelib1.inc\";\ncreg c0[1];\nmeasure q[0] -> c0[0];\n}\n", 1);
   for (auto &it : ctimes) {
     for (auto &itel : it) {
       ND::iterator ndelem = itel.find(dummypr.KEY_SIMULATION_TOTAL_TIME);
@@ -100,20 +100,20 @@ void print_classical(const qbOS::Qbqe &tqb) {
   std::cout << std::endl;
   std::cout << "* Classical actual walltime: " << classical_ms << " ms (time elapsed for the simulator to perform the requested number of shots of the quantum circuit)" <<  std::endl;
   std::cout << std::endl;
-  
+
 }
 
 // Print quantum estimated wall-time
-void print_quantum(const qbOS::Qbqe &tqb, const double gate_1q_time_ms,
+void print_quantum(const qb::session &s, const double gate_1q_time_ms,
                    const double gate_2q_time_ms,
                    const double q_initialisation_time_ms,
                    const double q_readout_time_ms,
                    const double pc_send_to_control_time_ms,
-                   const bool debug_qbqe = false, const bool verbose = false) {
-  VectorMapND qtimes = tqb.get_out_total_init_maxgate_readout_times();
+                   const bool debug_session = false, const bool verbose = false) {
+  VectorMapND qtimes = s.get_out_total_init_maxgate_readout_times();
   double quantum_ms = 0.0;
 
-  VectorString out_transps = tqb.get_out_transpiled_circuits();
+  VectorString out_transps = s.get_out_transpiled_circuits();
   String out_transps_0 = out_transps.at(0);
   std::string out_transps_0_0 = out_transps_0.at(0);
   if (verbose) {
@@ -121,10 +121,10 @@ void print_quantum(const qbOS::Qbqe &tqb, const double gate_1q_time_ms,
               << out_transps_0_0 << std::endl;
   }
 
-  VectorN qns = tqb.get_qns();
+  VectorN qns = s.get_qns();
   N qns_0 = qns.at(0);
   int qn = qns_0.at(0);
-  qbOS::Profiler tpr = qbOS::Profiler(out_transps_0_0, qn);
+  qb::Profiler tpr = qb::Profiler(out_transps_0_0, qn);
 
   for (auto &it : qtimes) {
     for (auto &itel : it) {
@@ -146,10 +146,10 @@ void print_quantum(const qbOS::Qbqe &tqb, const double gate_1q_time_ms,
 }
 
 // Test Jensen-Shannon divergence and print results
-int test_jensen_shannon(qbOS::Qbqe &tqb, const double jenshan_threshold) {
-  tqb.get_jensen_shannon();
+int test_jensen_shannon(qb::session &s, const double jenshan_threshold) {
+  s.get_jensen_shannon();
   double jenshan_value = 0.0;
-  VectorMapND jsv = tqb.get_out_divergences();
+  VectorMapND jsv = s.get_out_divergences();
   for (auto &it : jsv) {
     for (auto &itel : it) {
       ND::iterator ndelem = itel.find(0);
@@ -161,26 +161,25 @@ int test_jensen_shannon(qbOS::Qbqe &tqb, const double jenshan_threshold) {
   std::cout << "* Jensen-Shannon divergence: " << jenshan_value << std::endl;
 
   if (std::abs(jenshan_value) > jenshan_threshold) {
-    std::cerr << "qbos warning: The Jensen-Shannon divergence exceeds the "
+    std::cerr << "QB SDK warning: The Jensen-Shannon divergence exceeds the "
                  "threshold of "
               << jenshan_threshold << std::endl;
-    return 1; // Return non-zero from qbos because we exceeded the set
-              // threshold
+    return 1; // Return non-zero because we exceeded the set threshold
   } else {
     return 0;
   }
 }
 
-int main(int argc, char **argv) {  
+int main(int argc, char **argv) {
   int ret_qb = 0;
   std::srand(time(0));
 
   // Added code here to handle arguments
-  args::ArgumentParser parser("qbos_core - Circuit simulation with the timing, "
+  args::ArgumentParser parser("qbsdkcli - Circuit simulation with the timing, "
                               "noise and topology parameters of QB hardware.  "
-                              "This tool is a component of qbOS.  The "
+                              "This tool is a component of the QB SDK.  The "
                               "configuration of this tool is set "
-                              "in a JSON file named \"qbos_cfg.json\". Note: "
+                              "in a JSON file named \"sdk_cfg.json\". Note: "
                               "command-line options specified here will "
                               "override that of the configuration file.",
                               "\n" + gGIT_VERSION_SHORT);
@@ -201,10 +200,10 @@ int main(int argc, char **argv) {
   args::ValueFlag<std::string> arg_gtest_output(
       backend_opts, "gtest_output",
       "--gtest_output='xml:report.xml' creates a JUnit report for GitLab",
-      {"gtest_output"});                           
+      {"gtest_output"});
   args::ValueFlag<int> arg_q(
       general, "#qubits",
-      "-q10 accepts up to 10 qubits, default: 12 (qbos can currently support "
+      "-q10 accepts up to 10 qubits, default: 12 (the QB SDK can currently support "
       "up to maximum 48 qubits. All qubits on a QB chip are operationally "
       "connected. However, the clustered arrangement of the qubits means that "
       "no more than six may be physically fully connected, while clusters have "
@@ -289,7 +288,7 @@ int main(int argc, char **argv) {
   // Constants for QB hardware characteristics as at Aug 2021
   //
   const double gate_2q_time_ms = 0.001;
-  const double gate_1q_time_ms = 0.001;  
+  const double gate_1q_time_ms = 0.001;
   const double q_initialisation_time_ms = 30;
   const double q_readout_time_ms = 10;
   const double pc_send_time_ms = 10000;
@@ -298,17 +297,17 @@ int main(int argc, char **argv) {
   json output_to_js;  // Used for storing the configuration key-value pairs coming from a JSON format file
 
   //
-  // Input configuration file (default: qbos_cfg.json)
+  // Input configuration file (default: sdk_cfg.json)
   // overrides to the default values
   //
-  std::string input_cfg = "qbos_cfg.json";
+  std::string input_cfg = "sdk_cfg.json";
 
   //
   // Output file name (JSON format, default: QBINFO.json)
-  // 
+  //
   bool redirect_screen = true;
   std::string redirect_screen_to_file_name = "QBINFO.json";
-  
+
   std::ifstream config_f(input_cfg);
   if (verbose) {
     std::cout << std::endl << "## 0.0 Configuration:" << std::endl << std::endl;
@@ -316,49 +315,49 @@ int main(int argc, char **argv) {
 
   if (config_f.is_open()) {
     std::string config_buf(std::istreambuf_iterator<char>(config_f), {});
-    output_to_js = qbOS::get_qbqe_cfg(config_buf);
+    output_to_js = qb::get_session_cfg(config_buf);
   }
   else {
     if (verbose) {
-        std::cout << "qbos notice: No configuration file (" << input_cfg
+        std::cout << "QB SDK notice: No configuration file (" << input_cfg
               << ") provided...using defaults unless overriden by command options." << std::endl << std::endl;
     }
   }
 
   //
-  // Instantiate an object instance of class Qbqe
+  // Start a session
   //
-  qbOS::Qbqe tqb = qbOS::Qbqe();
-  tqb.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
+  qb::session s();
+  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
 
   //
-  // targetCircuit: contains the quantum circuit that will be processed/executed 
+  // targetCircuit: contains the quantum circuit that will be processed/executed
   //
   std::string targetCircuit;
 
   //
   // User specified overrides to defaults/config file values:
-  //  
+  //
 
   // shots: number of shots in one cycle
   int shots = 1024;
-  shots = qbOS::get_arg_or_cfg(shots, arg_shots, output_to_js, "shots");
+  shots = qb::get_arg_or_cfg(shots, arg_shots, output_to_js, "shots");
   mqbacc.insert("shots", shots);
   if (shots==0) {
-      std::cout << std::endl << "qbos warning: Nothing to do here; no. of shots is set to zero." << std::endl << std::endl;
-      return 0; 
+      std::cout << std::endl << "QB SDK warning: Nothing to do here; no. of shots is set to zero." << std::endl << std::endl;
+      return 0;
   }
-  tqb.set_sn(shots);
+  s.set_sn(shots);
 
   // n_qubits: number of physical qubits
   int n_qubits = 12;
-  n_qubits = qbOS::get_arg_or_cfg(n_qubits, arg_q, output_to_js, "n_qubits");
+  n_qubits = qb::get_arg_or_cfg(n_qubits, arg_q, output_to_js, "n_qubits");
   mqbacc.insert("n_qubits", n_qubits);
-  tqb.set_qn(n_qubits);
+  s.set_qn(n_qubits);
 
   // depth_rndcct: depth of random circuit to be generated when using --random option
-  int depth_rndcct = 0; 
-  depth_rndcct = qbOS::get_arg_or_cfg(depth_rndcct, arg_random_circ, output_to_js, "depth_rndcct");
+  int depth_rndcct = 0;
+  depth_rndcct = qb::get_arg_or_cfg(depth_rndcct, arg_random_circ, output_to_js, "depth_rndcct");
   mqbacc.insert("depth_rndcct", depth_rndcct);
 
   // noise model for QB
@@ -378,31 +377,31 @@ int main(int argc, char **argv) {
   if (!output_to_js["output_amplitude"].empty()) {
       std::cout << "* output_amplitude has been specified:" << std::endl;
       output_amplitude = output_to_js["output_amplitude"].get<std::vector<std::complex<double>>>();
-      qbOS::vec_to_map(nc_output_amplitude, output_amplitude);
-      tqb.set_output_amplitude(nc_output_amplitude);
+      qb::vec_to_map(nc_output_amplitude, output_amplitude);
+      s.set_output_amplitude(nc_output_amplitude);
   }
 
   /* Accelerator selection:
    * Default: tnqvm-exatn-mps
    * If detected -n (noise) option, then force selection to: aer
-   * If detected --acc in qbos_cfg.json, then force the config file selection
-   * If detected --acc as command option, then override all other selections 
+   * If detected --acc in sdk_cfg.json, then force the config file selection
+   * If detected --acc as command option, then override all other selections
    *                   and use the accelerator specified at the command line
   */
   std::string acc_op = "tnqvm-exatn-mps";
   double svd_cutoff = 1.0e-8;
   svd_cutoff =
-      qbOS::get_arg_or_cfg(svd_cutoff, arg_svd_cutoff, output_to_js, "svd_cutoff");
+      qb::get_arg_or_cfg(svd_cutoff, arg_svd_cutoff, output_to_js, "svd_cutoff");
   ND u_svd_cutoff{{0, svd_cutoff}};
-  tqb.set_svd_cutoff(u_svd_cutoff);
+  s.set_svd_cutoff(u_svd_cutoff);
 
   int max_bond_dimension = 256;
   max_bond_dimension =
-      qbOS::get_arg_or_cfg(max_bond_dimension, arg_max_bond_dimension, output_to_js,
+      qb::get_arg_or_cfg(max_bond_dimension, arg_max_bond_dimension, output_to_js,
                      "max_bond_dimension");
-  tqb.set_max_bond_dimension(max_bond_dimension);
+  s.set_max_bond_dimension(max_bond_dimension);
 
-  acc_op = qbOS::get_arg_or_cfg(acc_op, arg_acc, output_to_js, "acc");
+  acc_op = qb::get_arg_or_cfg(acc_op, arg_acc, output_to_js, "acc");
   std::string u_acc = "tnqvm";
   if (arg_noisy) {
     u_acc = "aer";
@@ -422,18 +421,18 @@ int main(int argc, char **argv) {
               << "* Selected accelerator backend: " << u_acc << std::endl
               << std::endl;
   }
-  tqb.set_acc(u_acc);
+  s.set_acc(u_acc);
   if (arg_noisy) {
-      tqb.set_noise(true);
+      s.set_noise(true);
   } else {
-      tqb.set_noise(false);
+      s.set_noise(false);
   }
 
   //
   // Test limits for comparing the sampling distribution against theoretical distribution
   // Note: requires "output_amplitude" to be specified via JSON config file
   //
-  double jenshan_threshold = 0.05;    
+  double jenshan_threshold = 0.05;
   if (arg_jen_shan_threshold) {
       jenshan_threshold = args::get(arg_jen_shan_threshold);
   }
@@ -442,7 +441,7 @@ int main(int argc, char **argv) {
 
   if (verbose) {
           std::cout << std::endl << "* Set n_qubits: " << n_qubits << std::endl;
-          std::cout << "* Set shots: " << shots << std::endl;          
+          std::cout << "* Set shots: " << shots << std::endl;
           std::cout << "* Set SVD cutoff: " << svd_cutoff << std::endl;
           std::cout << "* Set maximum bond dimension: " << max_bond_dimension << std::endl;
           std::cout << "* Set accelerator: " << u_acc  << std::endl;
@@ -463,67 +462,67 @@ int main(int argc, char **argv) {
       }
     } else {
         if (!arg_random_circ) {
-            std::cerr << "qbos error: Input file not found: " << argv[1] << std::endl;
+            std::cerr << "QB SDK error: Input file not found: " << argv[1] << std::endl;
             exit(10);
         }
     }
 
     // Now execute the circuit...
     if (arg_random_circ) { // Use a random circuit
-      tqb.set_random(depth_rndcct);
+      s.set_random(depth_rndcct);
     } else { // or use a circuit contained in the file specified by the user
-      tqb.set_instring(targetCircuit);
+      s.set_instring(targetCircuit);
       //
       // Before we run the simulator, check for overrides...
       //
 
       // OpenQASM is the default, here we check if this is overriden by the user
       if (arg_xasm) {
-          tqb.set_xasm(true);
+          s.set_xasm(true);
       } else if (arg_quil) {
-          tqb.set_quil1(true);
+          s.set_quil1(true);
       }
 
-      // Circuit placement subject to QB topology constraints is 
+      // Circuit placement subject to QB topology constraints is
       // performed by default...here we check if the user has requested this
       // to be skipped.
       if (arg_disable_placement) {
-          tqb.set_noplacement(true);
+          s.set_noplacement(true);
       }
 
       // Circuit optimisation is not performed by default...
       // Here we check if the user wants circuit optimisation enabled.
       if (arg_enable_optimiser) {
-          tqb.set_nooptimise(false);
+          s.set_nooptimise(false);
       }
 
       // A back-end simulator is enabled by default...
-      // Here we check if the user wants to bypass simulation (eg. user only 
+      // Here we check if the user wants to bypass simulation (eg. user only
       // wants circuit transpiling and estimates of quantum timing)
       if (arg_disable_simulator) {
-          tqb.set_nosim(true);
+          s.set_nosim(true);
       }
     }
     //
-    tqb.run();
+    s.run();
     //
-    print_classical(tqb);
+    print_classical(s);
     //
     if (verbose) {
-      print_quantum(tqb, gate_1q_time_ms, gate_2q_time_ms, q_initialisation_time_ms, q_readout_time_ms, pc_send_time_ms, false, true);
+      print_quantum(s, gate_1q_time_ms, gate_2q_time_ms, q_initialisation_time_ms, q_readout_time_ms, pc_send_time_ms, false, true);
     } else {
-      print_quantum(tqb, gate_1q_time_ms, gate_2q_time_ms, q_initialisation_time_ms, q_readout_time_ms, pc_send_time_ms, false, false);
+      print_quantum(s, gate_1q_time_ms, gate_2q_time_ms, q_initialisation_time_ms, q_readout_time_ms, pc_send_time_ms, false, false);
     }
-    
+
     // Test output against provided theoretical amplitudes
     if ((output_amplitude.size() > 0) && !arg_random_circ) {
       if (output_amplitude.size() < (1 << n_qubits)) {
         std::cout << std::endl
-                  << "qbos warning: size of output_amplitudes provided in your "
+                  << "QB SDK warning: size of output_amplitudes provided in your "
                      "configuration file does not equal 2^n_qubits"
                   << std::endl;
       }
-      ret_qb = test_jensen_shannon(tqb, jenshan_threshold);
+      ret_qb = test_jensen_shannon(s, jenshan_threshold);
     }
   } else if (argc == 1) {
     print_quickstart();

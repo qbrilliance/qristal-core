@@ -8,7 +8,7 @@
 #include <future>
 #include <pybind11/pybind11.h>
 #include <AcceleratorBuffer.hpp>
-namespace qbOS
+namespace qb
 {
   /// An awaitable class for interop with Python AWSQuantumTask
   /// This will get upcast to the base async_job_handle as the return type of AWS Accelerator implementation of
@@ -62,8 +62,8 @@ namespace qbOS
     /// C++ future indicating the AWS task has fully completed,
     /// including all the execution of callbacks.
     /// Note: when the remote result is available, we still need to execute
-    /// post-processing tasks (on a thread from the thread-pool) to parse the
-    /// data into qbOS data-structures.
+    /// post-processing tasks (on a thread from the thread pool) to parse the
+    /// data into standard QB SDK data structures.
     std::future<int> m_fut;
   };
-} // namespace qbOS
+} // namespace qb

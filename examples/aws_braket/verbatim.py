@@ -1,4 +1,4 @@
-import qbos
+import qb.core
 #from braket.aws import AwsDevice
 
 import numpy as np
@@ -6,25 +6,25 @@ import numpy as np
 #from braket.circuits import Circuit
 #from braket.devices import LocalSimulator
 
-tqb = qbos.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
-tqb.xasm = True
-tqb.sn = 1024
-tqb.acc = "aws_acc"
-tqb.aws_device = "Rigetti"
-tqb.nooptimise = True
-tqb.noplacement = True
-tqb.verbatim = True
-tqb.format = "Braket"
-#tqb.format = "OPENQASM 3"
-tqb.noise = False
-print("Backend chosen: ", tqb.acc)
-print("Device from qft.py: ", tqb.aws_device)
+s.xasm = True
+s.sn = 1024
+s.acc = "aws_acc"
+s.aws_device = "Rigetti"
+s.nooptimise = True
+s.noplacement = True
+s.verbatim = True
+s.format = "Braket"
+#s.format = "OPENQASM 3"
+s.noise = False
+print("Backend chosen: ", s.acc)
+print("Device from qft.py: ", s.aws_device)
 
-tqb.qn.clear()
-#tqb.qn.append(qbos.N([2]))  # 2-qubits for the top row
-tqb.qn.append(qbos.N([4]))
+s.qn.clear()
+#s.qn.append(qb.core.N([2]))  # 2-qubits for the top row
+s.qn.append(qb.core.N([4]))
 
 #device = AwsDevice("arn:aws:braket:::device/quantum-simulator/amazon/sv1")
 
@@ -56,14 +56,14 @@ __qpu__ void QBCIRCUIT(qreg q)
 }
 '''
 
-tqb.instring.clear()
-#tqb.instring.append(qbos.String([qpu_kernel_qft_4]))
-tqb.instring.append(qbos.String([test]))
+s.instring.clear()
+#s.instring.append(qb.core.String([qpu_kernel_qft_4]))
+s.instring.append(qb.core.String([test]))
 
-tqb.nosim = False
+s.nosim = False
 
-tqb.out_qobj = 'Hello'
-print("out_qobj: ", tqb.out_qobj)
-tqb.run()
+s.out_qobj = 'Hello'
+print("out_qobj: ", s.out_qobj)
+s.run()
 
-print("Output count: \n", tqb.out_count[0])
+print("Output count: \n", s.out_count[0])

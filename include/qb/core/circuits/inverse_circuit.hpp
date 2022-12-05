@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // This module takes a composite object input and
 // returns the inverse circuit as a composite object
@@ -16,4 +16,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(InverseCircuit);
 };
-} // namespace qbOS
+} // namespace qb

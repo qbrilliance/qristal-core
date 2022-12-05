@@ -11,7 +11,7 @@
 #include <memory>
 #include <algorithm>
 
-namespace qbOS {
+namespace qb {
 bool Multiplication::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   ////////////////////////////////////////////////////////
   // Get expected inputs or define any required variables
@@ -93,4 +93,4 @@ bool Multiplication::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> Multiplication::requiredKeys() {
   return {"qubits_a", "qubits_b", "qubits_result", "qubit_ancilla"};
 }
-}//namespace qbOS
+}//namespace qb

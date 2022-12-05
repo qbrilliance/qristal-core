@@ -8,16 +8,16 @@ namespace xacc {
 class CompositeInstruction;
 }
 
-namespace qbOS {
+namespace qb {
 /*
 *  Class: Profiler
-*  Profiles the time (in ms) for 1 shot of a given CompositeInstruction.  
-*  The caller is responsible for scaling to the number-of-shots by passing this to the constructor.  
-*/    
-class Profiler {  
+*  Profiles the time (in ms) for 1 shot of a given CompositeInstruction.
+*  The caller is responsible for scaling to the number-of-shots by passing this to the constructor.
+*/
+class Profiler {
 protected:
   std::shared_ptr<xacc::CompositeInstruction> placed_circuit_;
-  
+
 private:
   std::vector<int> count_1q_gates_on_q_;
   std::vector<int> count_2q_gates_on_q_;
@@ -32,7 +32,7 @@ private:
   double pc_send_to_control_time_ms_;
 
   // Debugging
-  bool debug_qbqe_;
+  bool debug_;
 
 public:
   Profiler(std::string target_circuit, const int &n_qubits,
@@ -41,7 +41,7 @@ public:
            const double q_initialisation_time_ms = 30,
            const double q_readout_time_ms = 10,
            const double pc_send_to_control_time_ms = 10000,
-           const bool debug_qbqe = false);
+           const bool debug = false);
 
   Profiler(std::shared_ptr<xacc::CompositeInstruction> &f, const int &n_qubits,
            const double gate_1q_time_ms = 0.001,
@@ -49,7 +49,7 @@ public:
            const double q_initialisation_time_ms = 30,
            const double q_readout_time_ms = 10,
            const double pc_send_to_control_time_ms = 10000,
-           const bool debug_qbqe = false);
+           const bool debug = false);
 
   ND get_total_initialisation_maxgate_readout_time_ms(
       const double simulation_total_time = 0.0, const int shots = 1);
@@ -77,4 +77,4 @@ public:
   const int KEY_SIMULATION_TOTAL_TIME = 4;
   const int KEY_PC_SEND_TO_CONTROL_TIME = 5;
 };
-} // namespace qbOS
+} // namespace qb

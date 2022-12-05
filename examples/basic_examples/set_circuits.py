@@ -1,10 +1,10 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import ast
 import timeit
-tqb = qb.core()
-tqb.qb12()
-tqb.qn = 3
+s = qb.core.session()
+s.qb12()
+s.qn = 3
 
 # In this test we use generalised mcx to
 # perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
@@ -35,13 +35,13 @@ circuit_conditions = []
 circuits = []
 for condition in conditions:
     for input_bitstring in input_bitstrings:
-        circ = qb.Circuit()
-        
+        circ = qb.core.Circuit()
+
         # Prepare the input bitstring
         for i in range(len(input_bitstring)):
             if input_bitstring[i] == "1":
                 circ.x(i)
-        
+
         # Add the generalised mcx
         controls_on = []
         controls_off = []
@@ -51,7 +51,7 @@ for condition in conditions:
             else:
                 controls_on.append(control_qubits[i])
         circ.generalised_mcx(target_qubit, controls_on, controls_off)
-        
+
         # Measurements
         circ.measure_all()
         circ.execute()
@@ -61,16 +61,16 @@ for condition in conditions:
         circuit_conditions.append([condition, input_bitstring])
 
 # Run the circuits
-tqb.ir_targets = circuits
-tqb.sn[0].clear()
+s.ir_targets = circuits
+s.sn[0].clear()
 sweep = [1,100]
-[tqb.sn[0].append(nn) for nn in sweep]
-tqb.run()
+[s.sn[0].append(nn) for nn in sweep]
+s.run()
 
 # Check results
-result_col1 = [tqb.out_raw[i][0] for i in range(len(circuits))]
+result_col1 = [s.out_raw[i][0] for i in range(len(circuits))]
 res_col1 = [ast.literal_eval(result_col1[i]) for i in range(len(result_col1))]
-result_col2 = [tqb.out_raw[i][1] for i in range(len(circuits))]
+result_col2 = [s.out_raw[i][1] for i in range(len(circuits))]
 res_col2 = [ast.literal_eval(result_col2[i]) for i in range(len(result_col2))]
 
 for i in range(len(res_col1)):

@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool EfficientEncoding::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   // Inputs:
@@ -278,4 +278,4 @@ const std::vector<std::string> EfficientEncoding::requiredKeys() {
   return {"scoring_function", "num_state_qubits", "num_scoring_qubits"};
 }
 
-} // namespace qbOS
+} // namespace qb

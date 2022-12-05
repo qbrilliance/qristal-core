@@ -9,7 +9,7 @@
 #include <assert.h>
 #include "IRProvider.hpp"
 
-namespace qbOS {
+namespace qb {
 bool RippleCarryAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Add reg1 to reg2 and save to reg2
   // c_in and c_out are carry bits (in and out)
@@ -132,4 +132,4 @@ bool RippleCarryAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 }
 
 const std::vector<std::string> RippleCarryAdder::requiredKeys() { return {}; }
-} // namespace qbOS
+} // namespace qb

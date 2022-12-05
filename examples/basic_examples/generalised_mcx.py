@@ -1,8 +1,8 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import ast
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 # In this test we use generalised mcx to
 # perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
@@ -29,13 +29,13 @@ conditions = [[0, 0], [0, 1], [1, 0], [1, 1]]
 input_bitstrings = ["000", "001", "010", "011", "100", "101", "110", "111"]
 for condition in conditions:
     for input_bitstring in input_bitstrings:
-        circ = qb.Circuit()
-        
+        circ = qb.core.Circuit()
+
         # Prepare the input bitstring
         for i in range(len(input_bitstring)):
             if input_bitstring[i] == "1":
                 circ.x(i)
-        
+
         # Add the generalised mcx
         controls_on = []
         controls_off = []
@@ -45,19 +45,19 @@ for condition in conditions:
             else:
                 controls_on.append(control_qubits[i])
         circ.generalised_mcx(target_qubit, controls_on, controls_off)
-        
+
         # Measurements
         circ.measure_all()
-        
+
         # Run the circuit and check results
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
         expected_output = input_bitstring[0:2]
         if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:

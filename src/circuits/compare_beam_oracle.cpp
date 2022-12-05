@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool CompareBeamOracle::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   if (!runtimeOptions.keyExists<int>("q0")) {
@@ -193,4 +193,4 @@ bool CompareBeamOracle::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> CompareBeamOracle::requiredKeys() {
   return {"q0", "q1", "q2", "FA", "FB", "SA"};
 }
-} // namespace qbOS
+} // namespace qb

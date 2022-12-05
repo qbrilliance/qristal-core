@@ -655,7 +655,7 @@ protected:
         }
 
         void visit(CPhase &cp) override {
-          xacc::error("qbOS does not support: CPhase");
+          xacc::error("QB SDK does not support: CPhase");
         }
 
         void visit(Swap &s) override {

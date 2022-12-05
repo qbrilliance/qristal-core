@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool AEtoMetric::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
 
@@ -151,4 +151,4 @@ bool AEtoMetric::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 }
 
 const std::vector<std::string> AEtoMetric::requiredKeys() { return {}; }
-} // namespace qbOS
+} // namespace qb

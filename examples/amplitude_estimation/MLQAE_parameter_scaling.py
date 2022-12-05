@@ -5,30 +5,29 @@
 # for various numbers of qubits
 
 import numpy as np
-import qbos as qb
+import qb.core
 import ast
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d 
+from mpl_toolkits import mplot3d
 from matplotlib import cm
-from qbos import run_MLQAE
-from qbos import run_canonical_ae_with_oracle
-tqb = qb.core()
+from qb.core import run_MLQAE
+from qb.core import run_canonical_ae_with_oracle
 
 method = 'mlqae'
 ps = [0.49]
-for p in ps: 
+for p in ps:
     theta_p = 2 * np.arcsin(np.sqrt(p))
     n = 1 # num qubits
     print("amplitude = ", np.sqrt(p))
     while n<=10:
         # State prep circuit: (preparing the state that we want to estimate the amplitude)
-        state_prep = qb.Circuit()
+        state_prep = qb.core.Circuit()
         state_prep.ry(0, theta_p)
         for i in range(n-1):
             state_prep.cnot(i,i+1)
-        
+
         # Oracle
-        oracle = qb.Circuit()
+        oracle = qb.core.Circuit()
         # The oracle should be a multi-controlled z gate
         if n == 1:
             oracle.z(0)
@@ -57,7 +56,7 @@ for p in ps:
 
         num_evaluation_qubits = 5
         num_state_prep_qubits = n
-        num_trial_qubits = n 
+        num_trial_qubits = n
         precision_qubits = list(range(n,n+num_evaluation_qubits))
         trial_qubits = list(range(n))
 

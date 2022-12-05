@@ -18,25 +18,25 @@ TEST(QuantumBrillianceNoiseModelTester, test48QubitQuantumError) {
   // std::cout << j.dump(2) << std::endl;
 }
 
-TEST(qbosTester, test1_qft4) {
+TEST(SDKTester, test1_qft4) {
   std::cout << "* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, "
                "ExaTN-MPS"
             << std::endl;
 
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe(true);
+  // Start a QB SDK session.
+  auto s = qb::session(true);
 
-  tqb.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
+  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
               // back-end
 
   // Override defaults
   auto n_qubits = 4;
   auto n_shots = 1024;
-  tqb.set_qn(n_qubits);      // We only need 4 qubits here
-  tqb.set_sn(n_shots);       // Explicitly use 1024 shots
-  tqb.set_xasm(true);        // Use XASM circuit format to access XACC's qft() 
-  tqb.set_seed(23);
-  // targetCircuit: contains the quantum circuit that will be processed/executed 
+  s.set_qn(n_qubits);      // We only need 4 qubits here
+  s.set_sn(n_shots);       // Explicitly use 1024 shots
+  s.set_xasm(true);        // Use XASM circuit format to access XACC's qft()
+  s.set_seed(23);
+  // targetCircuit: contains the quantum circuit that will be processed/executed
   auto targetCircuit = R"(
     __qpu__ void QBCIRCUIT(qbit q) {
           qft(q, {{"nq",4}});
@@ -46,14 +46,14 @@ TEST(qbosTester, test1_qft4) {
           Measure(q[0]);
     }
   )";
-  tqb.set_instring(targetCircuit);
-  std::cout << "* [DEBUG] About to do tqb.run()..." << std::endl;
+  s.set_instring(targetCircuit);
+  std::cout << "* [DEBUG] About to do s.run()..." << std::endl;
 
   // Run the circuit on the back-end
-  tqb.run();
+  s.run();
 
   // Get the Z-operator expectation value
-  VectorMapND nd_expectation = tqb.get_out_z_op_expects();
+  VectorMapND nd_expectation = s.get_out_z_op_expects();
   auto expectation_v = 0.0;
   for (auto &it : nd_expectation) {
     for (auto &itel : it) {
@@ -71,22 +71,22 @@ TEST(qbosTester, test1_qft4) {
   ASSERT_NEAR(0.0, expectation_v, 0.2);
 }
 
-TEST(qbosTester, test_circuit_builder_1) {
-  std::cout << "* qbOS Circuit Builder simple test, noiseless, ExaTN-MPS"
+TEST(SDKTester, test_circuit_builder_1) {
+  std::cout << "* QB SDK Circuit Builder simple test, noiseless, ExaTN-MPS"
             << std::endl;
 
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe(true);
+  // Start a QB SDK session.
+  auto s = qb::session(true);
 
-  tqb.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
+  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
               // back-end
 
   // Override defaults
   auto n_qubits = 4;
   auto n_shots = 1024;
-  tqb.set_qn(n_qubits); // We only need 4 qubits here
-  tqb.set_sn(n_shots);  // Explicitly use 1024 shots
-  // tqb.set_xasm(true);   // Use XASM circuit format to access XACC's qft()
+  s.set_qn(n_qubits); // We only need 4 qubits here
+  s.set_sn(n_shots);  // Explicitly use 1024 shots
+  // s.set_xasm(true);   // Use XASM circuit format to access XACC's qft()
 
   constexpr double p = 0.2;
   const double theta_p = 2 * std::asin(std::sqrt(p));
@@ -120,29 +120,29 @@ TEST(qbosTester, test_circuit_builder_1) {
   // std::cout << "HOWDY: Amplitude estimation circuit:\n";
   std::cout << circuit->toString() << '\n';
 
-  tqb.set_irtarget_ms({{circuit}, {circuit}});
-  tqb.run();
+  s.set_irtarget_ms({{circuit}, {circuit}});
+  s.run();
 }
 
 /*
 // This test is disabled by default:
 // It requires the 'loopback' to be active
-// To activate the loopback, run: python3 /mnt/qb/bin/qbqe_if_model.py
+// To activate the loopback, run session_if_model.py
 
-TEST(qbosTester, test_simple_loopback) {
+TEST(SDKTester, test_simple_loopback) {
   std::cout << "* loopback: execute Ry(0.5*pi)" << std::endl;
 
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe();
-  tqb.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
+  // Start a QB SDK session.
+  auto s = qb::session();
+  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
 back-end
 
   // Override defaults
   auto n_qubits = 1;
   auto n_shots = 1024;
-  tqb.set_qn(n_qubits);      // We only need 4 qubits here
-  tqb.set_sn(n_shots);       // Explicitly use 1024 shots
-  tqb.set_xasm(true);        // Use XASM circuit format to access XACC's qft()
+  s.set_qn(n_qubits);      // We only need 4 qubits here
+  s.set_sn(n_shots);       // Explicitly use 1024 shots
+  s.set_xasm(true);        // Use XASM circuit format to access XACC's qft()
 
   // targetCircuit: contains the quantum circuit that will be processed/executed
   auto targetCircuit = R"(
@@ -153,47 +153,47 @@ back-end
         Measure(q[0]);
     }
   )";
-  tqb.set_instring(targetCircuit);
-  tqb.set_acc("loopback");
+  s.set_instring(targetCircuit);
+  s.set_acc("loopback");
 
   // Run the circuit on the back-end
-  tqb.run();
+  s.run();
 
 }
 */
 
-TEST(qbosTester, test_readout_error_mitigation) {
+TEST(SDKTester, test_readout_error_mitigation) {
   std::cout << "* Test simple readout error mitigation *" << std::endl;
 
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe(true);
-  tqb.qb12();
+  // Start a QB SDK session.
+  auto s = qb::session(true);
+  s.qb12();
 
   // Override defaults
   const int n_qubits = 1;
   const int n_shots = 1024;
-  tqb.set_qn(n_qubits);
-  tqb.set_sn(n_shots);
-  tqb.set_xasm(true);
-  tqb.set_noise(true);
-  tqb.set_nooptimise(true);
-  tqb.set_noplacement(true);
-  tqb.set_noise_mitigation("ro-error");
-  tqb.set_acc("aer");
+  s.set_qn(n_qubits);
+  s.set_sn(n_shots);
+  s.set_xasm(true);
+  s.set_noise(true);
+  s.set_nooptimise(true);
+  s.set_noplacement(true);
+  s.set_noise_mitigation("ro-error");
+  s.set_acc("aer");
   auto targetCircuit = R"(
     __qpu__ void QBCIRCUIT(qbit q) {
         X(q[0]);
         Measure(q[0]);
     }
   )";
-  tqb.set_instring(targetCircuit);
+  s.set_instring(targetCircuit);
   // Run the circuit on the back-end
-  tqb.run();
-  const auto iter = tqb.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != tqb.get_out_z_op_expects()[0][0].end());
+  s.run();
+  const auto iter = s.get_out_z_op_expects()[0][0].find(0);
+  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
   const double exp_val = iter->second;
   double raw_exp_val = 0.0;
-  for (const auto &[bitString, count] : tqb.get_out_counts()[0][0]) {
+  for (const auto &[bitString, count] : s.get_out_counts()[0][0]) {
     if (bitString == 0) {
       raw_exp_val += (static_cast<double>(count) / 1024);
     } else {
@@ -210,23 +210,23 @@ TEST(qbosTester, test_readout_error_mitigation) {
   EXPECT_TRUE(std::abs(delta_mitigated) <= std::abs(delta_raw));
 }
 
-TEST(qbosTester, test_richardson_error_mitigation) {
+TEST(SDKTester, test_richardson_error_mitigation) {
   std::cout << "* Test simple Richardson error mitigation *" << std::endl;
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe(true);
-  tqb.qb12();
+  // Start a QB SDK session.
+  auto s = qb::session(true);
+  s.qb12();
 
   // Override defaults
   const int n_qubits = 10;
   const int n_shots = 8192;
-  tqb.set_qn(n_qubits);
-  tqb.set_sn(n_shots);
-  tqb.set_xasm(true);
-  tqb.set_noise(true);
-  tqb.set_nooptimise(true);
-  tqb.set_noplacement(true);
-  tqb.set_noise_mitigation("rich-extrap");
-  tqb.set_acc("aer");
+  s.set_qn(n_qubits);
+  s.set_sn(n_shots);
+  s.set_xasm(true);
+  s.set_noise(true);
+  s.set_nooptimise(true);
+  s.set_noplacement(true);
+  s.set_noise_mitigation("rich-extrap");
+  s.set_acc("aer");
   auto targetCircuit = R"(
     __qpu__ void QBCIRCUIT(qbit q) {
         H(q[0]);
@@ -251,34 +251,34 @@ TEST(qbosTester, test_richardson_error_mitigation) {
         Measure(q[9]);
     }
   )";
-  tqb.set_instring(targetCircuit);
+  s.set_instring(targetCircuit);
   // Run the circuit on the back-end
-  tqb.run();
-  const auto iter = tqb.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != tqb.get_out_z_op_expects()[0][0].end());
+  s.run();
+  const auto iter = s.get_out_z_op_expects()[0][0].find(0);
+  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
   const double exp_val = iter->second;
   std::cout << "Richardson extrapolated exp-val-z = " << exp_val << "\n";
 }
 
-TEST(qbosTester, test_assignment_kernel_error_mitigation) {
+TEST(SDKTester, test_assignment_kernel_error_mitigation) {
   std::cout << "* Test simple readout assignment kernel error mitigation *"
             << std::endl;
 
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe(true);
-  tqb.qb12();
+  // Start a QB SDK session.
+  auto s = qb::session(true);
+  s.qb12();
 
   // Override defaults
   const int n_qubits = 2;
   const int n_shots = 8192;
-  tqb.set_qn(n_qubits);
-  tqb.set_sn(n_shots);
-  tqb.set_xasm(true);
-  tqb.set_noise(true);
-  tqb.set_nooptimise(true);
-  tqb.set_noplacement(true);
-  tqb.set_noise_mitigation("assignment-error-kernel");
-  tqb.set_acc("aer");
+  s.set_qn(n_qubits);
+  s.set_sn(n_shots);
+  s.set_xasm(true);
+  s.set_noise(true);
+  s.set_nooptimise(true);
+  s.set_noplacement(true);
+  s.set_noise_mitigation("assignment-error-kernel");
+  s.set_acc("aer");
   auto targetCircuit = R"(
     __qpu__ void QBCIRCUIT(qbit q) {
         H(q[0]);
@@ -287,9 +287,9 @@ TEST(qbosTester, test_assignment_kernel_error_mitigation) {
         Measure(q[1]);
     }
   )";
-  tqb.set_instring(targetCircuit);
+  s.set_instring(targetCircuit);
   // Run the circuit on the back-end
-  tqb.run();
+  s.run();
 }
 
 TEST(InitRepeatFlag_1, checkSimple) {
@@ -337,28 +337,28 @@ TEST(InitRepeatFlag_1, checkSimple) {
   // std::cout << "HOWDY: InitRepeatFlag circuit:\n";
   // std::cout << init_flag_test->toString() << '\n';
 
-  // Instantiate an object instance of class Qbqe
-  auto tqb = qbOS::Qbqe();
-  tqb.qb12();
+  // Start a QB SDK session.
+  auto s = qb::session();
+  s.qb12();
 
   // Override defaults
   const int n_qubits = 8;
   const int n_shots = 1024;
-  tqb.set_qn(n_qubits);
-  tqb.set_sn(n_shots);
-  tqb.set_nooptimise(true);
-  tqb.set_noplacement(true);
-  tqb.set_notiming(true);
-  tqb.set_output_oqm_enabled(false);
-  tqb.set_acc("qpp");
+  s.set_qn(n_qubits);
+  s.set_sn(n_shots);
+  s.set_nooptimise(true);
+  s.set_noplacement(true);
+  s.set_notiming(true);
+  s.set_output_oqm_enabled(false);
+  s.set_acc("qpp");
 
   // Sim:
-  tqb.set_irtarget_m(init_flag_test);
-  tqb.run();
+  s.set_irtarget_m(init_flag_test);
+  s.run();
 
   int nq_next_letter = qubits_next_letter.size();
   int string_integer;
-  auto out_count = tqb.get_out_counts()[0][0];
+  auto out_count = s.get_out_counts()[0][0];
 
   auto a1 = out_count[64];
   auto a2 = out_count[97];
@@ -464,23 +464,23 @@ TEST(QDBeamStatePrepCircuitTester, simple) {
   // Run circuit
   //////////////////////////////////////
 
-  auto tqb = qbOS::Qbqe(true);
-  tqb.qb12();
+  auto s = qb::session(true);
+  s.qb12();
 
   // Override defaults
   const int n_qubits = 23;
   const int n_shots = 1024;
-  tqb.set_qn(n_qubits);
-  tqb.set_sn(n_shots);
-  tqb.set_nooptimise(true);
-  tqb.set_noplacement(true);
-  tqb.set_notiming(true);
-  tqb.set_output_oqm_enabled(false);
-  tqb.set_acc("qsim");
+  s.set_qn(n_qubits);
+  s.set_sn(n_shots);
+  s.set_nooptimise(true);
+  s.set_noplacement(true);
+  s.set_notiming(true);
+  s.set_output_oqm_enabled(false);
+  s.set_acc("qsim");
 
   // Sim:
-  tqb.set_irtarget_m(circuit);
-  tqb.run();
+  s.set_irtarget_m(circuit);
+  s.run();
 
   //////////////////////////////////////
   // Check results
@@ -492,8 +492,8 @@ TEST(QDBeamStatePrepCircuitTester, simple) {
   // Beam a-, three components equally weighted from strings aa, a-, -a. All metrics 11. Iterations and nulls marked differently
   // --->>> |1010011100>, |1010011101>, |1001101101>
 
-  auto out_count = tqb.get_out_counts()[0][0];
-  
+  auto out_count = s.get_out_counts()[0][0];
+
   auto a = out_count[984];
   auto b = out_count[229];
   auto c = out_count[741];
@@ -504,7 +504,7 @@ TEST(QDBeamStatePrepCircuitTester, simple) {
   EXPECT_GT(c, 0);
   EXPECT_GT(d, 0);
   EXPECT_EQ(a+b+c+d, 1024);
-  
+
 }
 
 TEST(SuperpositionAdderCircuitTester, check1) {
@@ -564,23 +564,23 @@ TEST(SuperpositionAdderCircuitTester, check1) {
   //////////////////////////////////////
   // Run circuit
   //////////////////////////////////////
-  auto tqb = qbOS::Qbqe(true);
-  tqb.qb12();
+  auto s = qb::session(true);
+  s.qb12();
 
   // Override defaults
   const int n_qubits = 20;
   const int n_shots = 1024;
-  tqb.set_qn(n_qubits);
-  tqb.set_sn(n_shots);
-  tqb.set_nooptimise(true);
-  tqb.set_noplacement(true);
-  tqb.set_notiming(true);
-  tqb.set_output_oqm_enabled(false);
-  tqb.set_acc("qsim");
+  s.set_qn(n_qubits);
+  s.set_sn(n_shots);
+  s.set_nooptimise(true);
+  s.set_noplacement(true);
+  s.set_notiming(true);
+  s.set_output_oqm_enabled(false);
+  s.set_acc("qsim");
 
   // Sim:
-  tqb.set_irtarget_m(circ);
-  tqb.run();
+  s.set_irtarget_m(circ);
+  s.run();
 
   //////////////////////////////////////
   // Check results
@@ -588,6 +588,6 @@ TEST(SuperpositionAdderCircuitTester, check1) {
 
   // The expected outputs are:
 
-  auto out_count = tqb.get_out_counts()[0][0];
+  auto out_count = s.get_out_counts()[0][0];
   EXPECT_EQ((int)out_count.size(), 2);
 }

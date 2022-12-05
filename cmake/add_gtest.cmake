@@ -7,7 +7,7 @@ macro(add_gtest _TEST_NAME)
     cmake_parse_arguments(arg "" "PATH" "" "${ARGN}")
     set(arg_PATH tests/${arg_PATH})
     add_executable(${_TEST_NAME}Tester ${arg_PATH}/${_TEST_NAME}Tester.cpp)
-    add_test(NAME qbos_${_TEST_NAME}Tester COMMAND ${_TEST_NAME}Tester)
+    add_test(NAME qbsdk_${_TEST_NAME}Tester COMMAND ${_TEST_NAME}Tester)
     target_link_libraries(${_TEST_NAME}Tester
       GTest::gtest
       GTest::gtest_main

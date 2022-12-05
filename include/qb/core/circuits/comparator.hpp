@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// Comparator circuit:
 /// The Comparator circuit flags which of the two
@@ -17,4 +17,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(Comparator);
 };
-} // namespace qbOS
+} // namespace qb

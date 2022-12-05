@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool ControlledAddition::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -212,4 +212,4 @@ const std::vector<std::string> ControlledAddition::requiredKeys() {
   return {"qubits_adder", "qubits_sum", "c_in"};
 }
 
-} // namespace qbOS
+} // namespace qb

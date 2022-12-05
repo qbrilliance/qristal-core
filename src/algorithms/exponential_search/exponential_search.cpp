@@ -24,7 +24,7 @@ bool is_msb_func(xacc::Accelerator *qpu_) {
 }
 } // namespace
 
-namespace qbOS {
+namespace qb {
 bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
   std::cout << "Intiialise ExponentialSearch" << std::endl;
   // Get the method
@@ -203,7 +203,7 @@ void ExponentialSearch::execute(
     const bool expand_ok_inv_sp = inv_sp->expand({{"circ", state_prep}});
     assert(expand_ok_inv_sp);
 
-    auto qubits_state_prep_set = qbOS::uniqueBitsQD(state_prep);
+    auto qubits_state_prep_set = qb::uniqueBitsQD(state_prep);
     std::vector<int> qubits_state_prep;
     for (auto bit : qubits_state_prep_set) {
       qubits_state_prep.push_back(bit);
@@ -337,4 +337,4 @@ void ExponentialSearch::execute(
     }
   }
 }
-} // namespace qbOS
+} // namespace qb

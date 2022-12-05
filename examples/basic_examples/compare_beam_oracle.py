@@ -1,12 +1,12 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import ast
-tqb = qb.core()
-tqb.acc = "qpp"
-tqb.sn = 1024
-tqb.qb12()
-tqb.nooptimise = True
-tqb.noplacement = True
+s = qb.core.session()
+s.acc = "qpp"
+s.sn = 1024
+s.qb12()
+s.nooptimise = True
+s.noplacement = True
 
 
 ##########################################################################
@@ -20,7 +20,7 @@ FA = [3,4]
 FB = [5,6]
 SA = [7,8,9,10]
 
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 
 circ.x(FA[1])
 circ.x(FB[1])
@@ -41,10 +41,10 @@ circ.measure(q2)
 # res = ast.literal_eval(result)
 # print(res)
 # assert("010" in res["AcceleratorBuffer"]["Measurements"])
-tqb.ir_target = circ
-tqb.run()
-print(tqb.out_raw[0])
-result = tqb.out_raw[0][0]
+s.ir_target = circ
+s.run()
+print(s.out_raw[0])
+result = s.out_raw[0][0]
 res = ast.literal_eval(result)
 assert(res["010"] == 1024) #assert("010" in list(res.keys()))
 
@@ -59,7 +59,7 @@ FA = [3,4]
 FB = [5,6]
 SA = [7,8,9,10]
 
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 
 circ.x(FA[1])
 circ.x(FB[1])
@@ -79,9 +79,9 @@ circ.measure(q2)
 # res = ast.literal_eval(result)
 # print(res)
 # assert("111" in res["AcceleratorBuffer"]["Measurements"])
-tqb.ir_target = circ
-tqb.run()
-print(tqb.out_raw[0])
-result = tqb.out_raw[0][0]
+s.ir_target = circ
+s.run()
+print(s.out_raw[0])
+result = s.out_raw[0][0]
 res = ast.literal_eval(result)
 assert(res["111"] == 1024) #assert("010" in list(res.keys()))

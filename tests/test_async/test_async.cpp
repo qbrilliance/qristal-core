@@ -1,22 +1,23 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qbos_methods.hpp"
+#include "qb/core/session.hpp"
+#include "qb/core/thread_pool.hpp"
+
 #include <string>
 #include <future>
 #include <chrono>
 #include <thread>
-#include "thread_pool.hpp"
 
 // add job handler
-  std::string run_async_internal(qbOS::Qbqe &qpqe, const std::size_t i, const std::size_t j) {
-	//std::stringstream msg;
-	//msg << "I am thread " << std::this_thread::get_id() << " running on (i,j): (" << i << ","<< j<<")"<< std::endl; std::cout << msg.str(); msg.str("");
-    std::shared_ptr<xacc::Accelerator> qpu(qpqe.get_executor().getNextAvailableQpu());
-	//msg << "thread " << std::this_thread::get_id() << " recource allocated" << std::endl; std::cout << msg.str(); msg.str("");
-    qpqe.run_async(i, j, qpu);
-	//msg << "thread " << std::this_thread::get_id() <<" finished run_async" << std::endl; std::cout << msg.str(); msg.str("");
-    qpqe.get_executor().release(std::move(qpu));
-	//msg << "thread " << std::this_thread::get_id() <<" released"<< std::endl; std::cout << msg.str(); msg.str("");
-    return qpqe.get_out_raws()[i][j];
+  std::string run_async_internal(qb::session& s, const std::size_t i, const std::size_t j) {
+  //std::stringstream msg;
+  //msg << "I am thread " << std::this_thread::get_id() << " running on (i,j): (" << i << ","<< j<<")"<< std::endl; std::cout << msg.str(); msg.str("");
+    std::shared_ptr<xacc::Accelerator> qpu(s.get_executor().getNextAvailableQpu());
+  //msg << "thread " << std::this_thread::get_id() << " recource allocated" << std::endl; std::cout << msg.str(); msg.str("");
+    s.run_async(i, j, qpu);
+  //msg << "thread " << std::this_thread::get_id() <<" finished run_async" << std::endl; std::cout << msg.str(); msg.str("");
+    s.get_executor().release(std::move(qpu));
+  //msg << "thread " << std::this_thread::get_id() <<" released"<< std::endl; std::cout << msg.str(); msg.str("");
+    return s.get_out_raws()[i][j];
   };
 
 
@@ -24,23 +25,23 @@ int main()
 {
 
   std::cout << "execute async test" << std::endl;
-  
-  // Instantiate an object instance of class Qbqe
-  //auto tqb = qbOS::Qbqe(true);
-  auto tqb = qbOS::Qbqe(false);
+
+  // Start a QB SDK session.
+  //auto s = qb::session(true);
+  auto s = qb::session(false);
   // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
-  tqb.qb12(); 
-  
-  std::size_t nWorkers 	= 1; 
-  std::size_t nJobs 	= 200; //nWorkers*20; 
+  s.qb12();
+
+  std::size_t nWorkers  = 1;
+  std::size_t nJobs   = 200; //nWorkers*20;
   std::size_t nOuterLoops = 1;//50;
 
   std::size_t nThreads = 1;
-  qbOS::thread_pool::set_num_threads(nThreads);
-  std::cout << "number of threads: " << qbOS::thread_pool::get_num_threads() << std::endl;
+  qb::thread_pool::set_num_threads(nThreads);
+  std::cout << "number of threads: " << qb::thread_pool::get_num_threads() << std::endl;
 
-  // configure parallel workers 
-  tqb.set_acc("aer");
+  // configure parallel workers
+  s.set_acc("aer");
 
   std::stringstream async_workers;
   async_workers << "{\"accs\": [";
@@ -48,10 +49,10 @@ int main()
     async_workers << "{\"acc\": \"aer\"},";
   }
   async_workers << "{\"acc\": \"aer\"}]}";
-  tqb.set_parallel_run_config(async_workers.str());
+  s.set_parallel_run_config(async_workers.str());
 
 
-  // targetCircuit: contains the quantum circuit that will be processed/executed 
+  // targetCircuit: contains the quantum circuit that will be processed/executed
 /*  const std::string targetCircuit = R"(
     __qpu__ void QBCIRCUIT(qreg q) {
     OPENQASM 2.0;
@@ -64,13 +65,13 @@ int main()
   )";
 */
 
-  //tqb.set_qn(4); 
+  //s.set_qn(4);
 /*const std::string targetCircuit = R"(
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg q[4];
     creg c[4];
-    x q[0]; 
+    x q[0];
     x q[2];
     h q[0];
     cu1(pi/2) q[1],q[0];
@@ -87,7 +88,7 @@ int main()
 */
 
 // use heavier circuit:
-  tqb.set_qn(16); 
+  s.set_qn(16);
   const std::string targetCircuit = R"(
     OPENQASM 2.0;
     include "qelib1.inc";
@@ -110,7 +111,7 @@ int main()
     cx q[13],q[14];
     cx q[14],q[15];
     measure q -> c;
-	)";
+  )";
 
   // add jobs to the queue
   std::size_t j = 0;
@@ -122,14 +123,14 @@ int main()
 
   for (std::size_t outerLoop = 0; outerLoop<nOuterLoops; ++outerLoop){
     std::cout << "\nOuterLoop: (" << outerLoop + 1 << "/" << nOuterLoops << ")"<< std::endl;
-    tqb.set_instrings(instringsv);
+    s.set_instrings(instringsv);
 
     // compute jobs async
     std::cout << "\tsubmitting jobs..." << std::endl;
     std::vector<std::future<std::string>> futures{};
     for (std::size_t i = 0; i<nJobs; ++i){
-      //futures.push_back(std::async(std::launch::async, run_async_internal, std::ref(tqb), i, j));
-      futures.push_back(qbOS::thread_pool::submit(run_async_internal, std::ref(tqb), i, j));
+      //futures.push_back(std::async(std::launch::async, run_async_internal, std::ref(s), i, j));
+      futures.push_back(qb::thread_pool::submit(run_async_internal, std::ref(s), i, j));
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
@@ -140,7 +141,7 @@ int main()
     std::size_t loopCounter{0};
     do {
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	  counter = 0;
+    counter = 0;
       std::stringstream msg;
       //msg << "Workers ready: [";
       for (std::size_t i = 0; i<nJobs; ++i){
@@ -155,7 +156,7 @@ int main()
           counter++;
         }
         else {
-          //msg << "0,"; 
+          //msg << "0,";
         }
       }
       //msg << '\b' << "], (" << counter << "/" << nJobs << ")" << std::endl; std::cout << msg.str();

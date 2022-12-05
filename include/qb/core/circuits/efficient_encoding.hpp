@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // Efficient encoding circuit:
 // We want to entangle a "score" to each state in a superposition
@@ -38,4 +38,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(EfficientEncoding);
 };
-} // namespace qbOS
+} // namespace qb

@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // Controlled subtraction circuit
 // This circuit is used to subtract two qubit registers
@@ -22,4 +22,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(ControlledSubtraction);
 };
-} // namespace qbOS
+} // namespace qb

@@ -26,7 +26,7 @@ namespace xacc
      * The AWSAccelerator provides an execute()/async_execute() implementation that maps XACC IR
      * to AWS Braket OPENQASM3
      */
-    class AWSAccelerator : public qbOS::remote_accelerator, public xacc::Cloneable<xacc::Accelerator>
+    class AWSAccelerator : public qb::remote_accelerator, public xacc::Cloneable<xacc::Accelerator>
     {
 
       private:
@@ -74,7 +74,7 @@ namespace xacc
                                  CompositeInstruction) override;
 
         /// Asynchronous offload a quantum circuit to AWS Braket.
-        virtual std::shared_ptr<qbOS::async_job_handle> async_execute(
+        virtual std::shared_ptr<qb::async_job_handle> async_execute(
             const std::shared_ptr<CompositeInstruction> CompositeInstruction) override;
 
         /// Initialise the accelerator's parameters and load its module into the Python interpreter

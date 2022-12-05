@@ -4,26 +4,26 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 """
 
-import qbos as qbos
+import qb.core
 import json as json
 import time as time
 #%%
-tqb=qbos.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 NW = 32 #64  #number of async workers
 NJ = 200 #NW*20 #number of jobs
-ss = 0.5  # seconds to sleep between progress 
+ss = 0.5  # seconds to sleep between progress
 
 #%% set up workers
 
 # Set up the pool of QPU for parallel task distribution
-qpu_config = {"accs": NW*[{"acc": "aer"}]} 
+qpu_config = {"accs": NW*[{"acc": "aer"}]}
 #qpu_config = {"acc": NW*[{"acc": "aer"}]} # first key is wrong should be accs. Use this to test the silent infinite loop fix
-tqb.set_parallel_run_config(json.dumps(qpu_config))
-tqb.acc = "aer"
+s.set_parallel_run_config(json.dumps(qpu_config))
+s.acc = "aer"
 
-tqb.num_threads=2
+s.num_threads=2
 
 
 #%% set up jobs
@@ -38,14 +38,14 @@ measure q[1] -> c[1];
 measure q[0] -> c[0];
 }
 '''
-tqb.instring.clear()
+s.instring.clear()
 for i in range(NJ):
-    tqb.instring.append(qbos.String([circuit_str]))
+    s.instring.append(qb.core.String([circuit_str]))
 
 #%%
 handles = []
 for i in range(NJ):
-    handles.append(tqb.run_async(i, 0))
+    handles.append(s.run_async(i, 0))
     time.sleep(0.0001)
 print("Complete posting all", NJ,"jobs")
 
@@ -65,7 +65,7 @@ while (not all_done):
         print(completed_counter,  "/", NJ,"completed")
     else:
         print("All done in ", loopCounter, " iterations!")
-        
+
 #%%
-#print([tqb.run_complete(i,0) for i in range(NJ)])
+#print([s.run_complete(i,0) for i in range(NJ)])
 #print([handles[i].get() for i in range(NJ)])

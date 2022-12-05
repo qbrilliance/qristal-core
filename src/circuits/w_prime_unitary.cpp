@@ -12,7 +12,7 @@
 #include "IRProvider.hpp"
 #include <iostream>
 
-namespace qbOS{
+namespace qb{
 bool WPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     //std::cout << "WPrime.expand()\n";
 
@@ -122,4 +122,4 @@ const std::vector<std::string> WPrime::requiredKeys() {
     return {"iteration","qubits_next_metric", "qubits_next_letter", "qubits_init_null"};    // state_prep
 }
 
-} // namespace qbOS
+} // namespace qb

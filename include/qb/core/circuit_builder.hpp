@@ -12,7 +12,7 @@
 #include <assert.h>
 #include "Circuit.hpp"
 #include "GateModifier.hpp"
-namespace qbOS {
+namespace qb {
 using StatePrepFuncCType =
     std::function<std::shared_ptr<xacc::CompositeInstruction>(
         std::vector<int>, std::vector<int>,
@@ -59,11 +59,11 @@ private:
 public:
   CircuitBuilder()
       : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
-    circuit_ = gate_provider_->createComposite("qbOS_circuit");
+    circuit_ = gate_provider_->createComposite("QBSDK_circuit");
   }
 
   CircuitBuilder(std::shared_ptr<xacc::CompositeInstruction> &composite) : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
-      circuit_ = gate_provider_->createComposite("qbOS_circuit");
+      circuit_ = gate_provider_->createComposite("QBSDK_circuit");
       circuit_->addInstructions(composite->getInstructions());
   }
 
@@ -390,13 +390,13 @@ void MeasureAll(int NUM_QUBITS) {
 
   void WPrime(int iteration, std::vector<int> qubits_next_metric,
               std::vector<int> qubits_next_letter, std::vector<std::vector<float>> probability_table,
-              std::vector<int> qubits_init_null, int null_integer, bool use_ancilla, 
+              std::vector<int> qubits_init_null, int null_integer, bool use_ancilla,
               std::vector<int> qubits_ancilla) {
     auto wprime = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("WPrime"));
     // assert(wprime);
     // const bool expand_ok =
-    wprime->expand({{"probability_table", probability_table}, 
+    wprime->expand({{"probability_table", probability_table},
                     {"iteration", iteration},
                     {"qubits_next_metric", qubits_next_metric},
                     {"qubits_next_letter", qubits_next_letter},
@@ -405,7 +405,7 @@ void MeasureAll(int NUM_QUBITS) {
                     {"use_ancilla", use_ancilla},
                     {"ancilla_qubits", qubits_ancilla}});
     // assert(expand_ok);
-    // std::cout << wprime->toString() << "qbos_circuit_builder\n";
+    // std::cout << wprime->toString() << "circuit_builder\n";
     circuit_->addInstructions(wprime->getInstructions());
   }
 
@@ -452,7 +452,7 @@ void MeasureAll(int NUM_QUBITS) {
                       {"ancilla_qubits", ancilla_qubits},
                       {"as_oracle", true},
                       {"is_LSB", is_LSB},
-                      {"controls_on", controls_on}, 
+                      {"controls_on", controls_on},
                       {"controls_off", controls_off}});
     circuit_->addInstructions(comp->getInstructions());
   }
@@ -472,7 +472,7 @@ void MeasureAll(int NUM_QUBITS) {
                       {"best_score_qubits", best_score_qubits},
                       {"ancilla_qubits", ancilla_qubits},
                       {"is_LSB", is_LSB},
-                      {"controls_on", controls_on}, 
+                      {"controls_on", controls_on},
                       {"controls_off", controls_off}});
     circuit_->addInstructions(comp->getInstructions());
   }
@@ -563,12 +563,12 @@ void MeasureAll(int NUM_QUBITS) {
                                         {"q2", q2},
                                         {"FA", FA},
                                         {"FB", FB},
-                                        {"SA", SA}, 
+                                        {"SA", SA},
                                         {"SB", SB},
                                         {"simplified", simplified}});
     circuit_->addInstructions(cbo->getInstructions());
   }
-  
+
   void InverseCircuit(CircuitBuilder &circ) {
     auto is = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("InverseCircuit"));
@@ -652,7 +652,7 @@ void MeasureAll(int NUM_QUBITS) {
                      {"is_LSB", is_LSB}});
     circuit_->addInstructions(cgt->getInstructions());
                               }
-                              
+
   void Multiplication(std::vector<int> qubits_a, std::vector<int> qubits_b,
                        std::vector<int> qubits_result, int qubit_ancilla, bool is_LSB) {
     auto multiplication = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
@@ -720,7 +720,7 @@ void MeasureAll(int NUM_QUBITS) {
          {"qpu", acc}});
     const auto nb_qubits = qubits_metric.size() + qubits_best_score.size() +
                            qubits_string.size() + qubits_ancilla_oracle.size() +
-                           qubits_next_letter.size() + qubits_ancilla_adder.size() + 
+                           qubits_next_letter.size() + qubits_ancilla_adder.size() +
                            qubits_next_metric.size() + 1;
     auto buffer = xacc::qalloc(nb_qubits);
     exp_search_algo->execute(buffer);
@@ -731,4 +731,4 @@ void MeasureAll(int NUM_QUBITS) {
     return best_score;
   }
 };
-} // namespace qbOS
+} // namespace qb

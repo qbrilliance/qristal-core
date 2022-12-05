@@ -7,8 +7,8 @@
 #include <complex>
 #include <nlohmann/json.hpp>
 
-/// Define typedefs for qbOS Python bindings
-namespace qbOS {
+/// Define typedefs for QB SDK Python bindings
+namespace qb {
 using N            = std::vector<size_t>;
 using VectorN      = std::vector<N>;
 
@@ -31,4 +31,4 @@ using MapND        = std::vector<ND>;
 using VectorMapND  = std::vector<MapND>;
 
 using json = nlohmann::json;
-} // namespace qbOS
+} // namespace qb

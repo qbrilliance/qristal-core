@@ -2,14 +2,13 @@ print("Example demonstrating the exponential search algorithm.")
 input("")
 
 print("First ipmort libraries...")
-import qbos as qb
+import qb.core
 import numpy as np
 import math
 import timeit
 print("Libraries imported successfully!")
-tqb = qb.core()
 
-# This is an example of using quantum exponential search to find the 
+# This is an example of using quantum exponential search to find the
 # max value of a data set.
 print("In this example, exponential search will be used to find the maximum")
 print("value in a dataset.")
@@ -52,7 +51,7 @@ num_evaluation_qubits = 10
 print("A function that performs state preparation, encoding the dataset in a quantum register.")
 #state prep
 def state_prep(trial_qubits, trial_score_qubits, a,b,c):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     for i in range(0,len(trial_qubits)):
         circ.h(trial_qubits[i])
     for i in range(0,len(dataset)):
@@ -72,7 +71,7 @@ input("")
 print("An oracle function to mark all states with a higher value than the current best.")
 # Oracle
 def oracle(bestScore, num_scoring_qubits, trial_score_qubits, flag_qubit, best_score_qubits, ancilla_qubits):
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     num_scoring_qubits = len(best_score_qubits)
     circ.comparator_as_oracle(bestScore,num_scoring_qubits,trial_score_qubits,flag_qubit,best_score_qubits,ancilla_qubits,False)
     return circ
@@ -95,7 +94,7 @@ print("Start canonical exponential search!\n")
 max_run = 4 *  math.ceil(math.log2(N))
 count = 0
 while count < max_run:
-    result = qb.Circuit().exponential_search("canonical",oracle, state_prep, get_score,bestScore, trial_qubits, trial_score_qubits, [], [],flag_qubit, best_score_qubits, ancilla_qubits, qpu="qsim")
+    result = qb.core.Circuit().exponential_search("canonical",oracle, state_prep, get_score,bestScore, trial_qubits, trial_score_qubits, [], [],flag_qubit, best_score_qubits, ancilla_qubits, qpu="qsim")
     if result > bestScore:
         bestScore = result
         print("New best score found:", bestScore)
@@ -120,7 +119,7 @@ print("Canonical exponential search finished in " + str(end_canonical_exp_search
 # max_run = 4 *  math.ceil(math.log2(N))
 # count = 0
 # while count < max_run:
-#     result = qb.Circuit().exponential_search("MLQAE",oracle, state_prep, get_score, bestScore, trial_qubits, trial_score_qubits, [],[],flag_qubit, best_score_qubits, ancilla_qubits, MLQAE_is_in_good_subspace=is_in_good_subspace, MLQAE_num_runs=num_runs, MLQAE_num_shots=num_shots, qpu = "qsim")
+#     result = qb.core.Circuit().exponential_search("MLQAE",oracle, state_prep, get_score, bestScore, trial_qubits, trial_score_qubits, [],[],flag_qubit, best_score_qubits, ancilla_qubits, MLQAE_is_in_good_subspace=is_in_good_subspace, MLQAE_num_runs=num_runs, MLQAE_num_shots=num_shots, qpu = "qsim")
 #     if result > bestScore:
 #         bestScore = result
 #         print("New best score:", bestScore)
@@ -141,7 +140,7 @@ print("Canonical exponential search finished in " + str(end_canonical_exp_search
 # max_run = 4 *  math.ceil(math.log2(N))
 # count = 0
 # while count < max_run:
-#     result = qb.Circuit().exponential_search("CQAE",oracle, state_prep, get_score, bestScore,trial_qubits, trial_score_qubits,[],[], flag_qubit, best_score_qubits, ancilla_qubits,CQAE_num_evaluation_qubits= num_evaluation_qubits, qpu = "qsim")
+#     result = qb.core.Circuit().exponential_search("CQAE",oracle, state_prep, get_score, bestScore,trial_qubits, trial_score_qubits,[],[], flag_qubit, best_score_qubits, ancilla_qubits,CQAE_num_evaluation_qubits= num_evaluation_qubits, qpu = "qsim")
 #     if result > bestScore:
 #         bestScore = result
 #         print("New best score:", bestScore)

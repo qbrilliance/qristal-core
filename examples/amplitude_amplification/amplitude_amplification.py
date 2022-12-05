@@ -3,14 +3,14 @@ print("Example demonstrating Grover-based amplitude amplification.")
 input("")
 
 print("First, import libraries...")
-import qbos as qb
+import qb.core
 import numpy as np
 import timeit
 import ast
 print("Libraries imported successfully!")
 input("")
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 print("In this example we want to use amplitude amplification to search for")
 print("the state |psi> = |101> - |011> within the equal superposition state.")
@@ -30,7 +30,7 @@ print("CZ q1, q2\n")
 print("since this maps |psi> to -|psi>.")
 input("")
 # Oracle: CZ q0, q2; CZ q1, q2 (see above)
-oracle = qb.Circuit()
+oracle = qb.core.Circuit()
 oracle.cz(0, 2)
 oracle.cz(1, 2)
 print("Oracle defined! Printing oracle...\n")
@@ -42,7 +42,7 @@ print("an equal superposition.")
 input("")
 # State preparation:
 # Use a standard all Hadamards (equal superposition)
-state_prep = qb.Circuit()
+state_prep = qb.core.Circuit()
 for i in range(NB_QUBITS):
   state_prep.h(i)
 print("State prep defined! Printing state prep...\n")
@@ -52,7 +52,7 @@ input("")
 # Construct full amplitude amplification circuit:
 print("Now we construct the circuit that we will run to solve the problem.")
 input("")
-full_circuit = qb.Circuit()
+full_circuit = qb.core.Circuit()
 print("Circuit initialised!")
 input("")
 # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.
@@ -70,9 +70,9 @@ input("")
 print("Running circuit...")
 input("")
 start = timeit.default_timer()
-tqb.ir_target = full_circuit
-tqb.run()
-result = tqb.out_raw[0][0]
+s.ir_target = full_circuit
+s.run()
+result = s.out_raw[0][0]
 res = ast.literal_eval(result)
 end = timeit.default_timer()
 print("Circuit executed!")

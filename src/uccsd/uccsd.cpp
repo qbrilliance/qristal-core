@@ -15,7 +15,7 @@
 using namespace xacc::quantum;
 using namespace xacc;
 
-namespace qbOS {
+namespace qb {
 namespace circuits {
 class UCCSD : public xacc::quantum::Circuit {
 public:
@@ -195,5 +195,5 @@ public:
   }
 };
 } // namespace circuits
-} // namespace qbOS
-REGISTER_PLUGIN(qbOS::circuits::UCCSD, xacc::Instruction)
+} // namespace qb
+REGISTER_PLUGIN(qb::circuits::UCCSD, xacc::Instruction)

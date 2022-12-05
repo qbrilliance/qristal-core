@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // Equality checker circuit:
 // We want to check whether or not two quantum registers are equal
@@ -27,4 +27,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(EqualityChecker);
 };
-} // namespace qbOS
+} // namespace qb

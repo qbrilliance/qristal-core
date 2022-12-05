@@ -16,7 +16,7 @@
 //#include <ostream>
 #include "IRProvider.hpp"
 
-namespace qbOS{
+namespace qb{
 bool UQPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   std::cout << "Defining UQPrime" << std::endl;
   // Inputs:
@@ -88,4 +88,4 @@ const std::vector<std::string> UQPrime::requiredKeys() {
         "qubits_next_letter_metric", "qubits_next_letter"};
 }
 
-} // namespace qbOS
+} // namespace qb

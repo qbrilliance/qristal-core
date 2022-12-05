@@ -13,7 +13,7 @@
 #include <optional>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 bool ControlledSubtraction::expand(
     const xacc::HeterogeneousMap &runtimeOptions) {
 
@@ -122,4 +122,4 @@ const std::vector<std::string> ControlledSubtraction::requiredKeys() {
   return {"qubits_larger", "qubits_smaller"};
 }
 
-} // namespace qbOS
+} // namespace qb

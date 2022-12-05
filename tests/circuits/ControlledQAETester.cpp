@@ -92,7 +92,7 @@ ae_state_prep_circ->addInstruction(gateRegistry->createInstruction("CX", {static
 circuit->addInstructions(ae_state_prep_circ->getInstructions());
 
 std::vector<int> ae_state_qubits;
-auto ae_state_qubits_set = qbOS::uniqueBitsQD(ae_state_prep_circ);
+auto ae_state_qubits_set = qb::uniqueBitsQD(ae_state_prep_circ);
 for (auto bit : ae_state_qubits_set) {
   ae_state_qubits.push_back(bit);
 }
@@ -120,7 +120,7 @@ circuit->addInstructions(ae->getInstructions());
 
 ae_state_prep_circ->addInstructions(ae->getInstructions());
 std::vector<int> ae_state_qubits2;
-auto ae_state_qubits_set2 = qbOS::uniqueBitsQD(ae_state_prep_circ);
+auto ae_state_qubits_set2 = qb::uniqueBitsQD(ae_state_prep_circ);
 for (auto bit : ae_state_qubits_set2) {
   ae_state_qubits2.push_back(bit);
 }

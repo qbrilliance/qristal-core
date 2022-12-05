@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qbOS {
+namespace qb {
 bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     std::shared_ptr<xacc::CompositeInstruction> ae_state_prep_circ_clone0 =
         xacc::ir::asComposite(qubit_indicator_state_prep->clone());
 
-    auto trial_qubits_set0 = qbOS::uniqueBitsQD(ae_state_prep_circ_clone0);
+    auto trial_qubits_set0 = qb::uniqueBitsQD(ae_state_prep_circ_clone0);
     std::vector<int> trial_qubits0;
     for (int bit : trial_qubits_set0) {
       trial_qubits0.push_back(bit);
@@ -142,7 +142,7 @@ bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
           }
       }
 
-      auto trial_qubits_set = qbOS::uniqueBitsQD(ae_state_prep_circ_clone);
+      auto trial_qubits_set = qb::uniqueBitsQD(ae_state_prep_circ_clone);
       std::vector<int> trial_qubits;
       for (int bit : trial_qubits_set) {
         trial_qubits.push_back(bit);
@@ -373,4 +373,4 @@ bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 }
 
 const std::vector<std::string> MeanValueFinder::requiredKeys() { return {}; }
-} // namespace qbOS
+} // namespace qb

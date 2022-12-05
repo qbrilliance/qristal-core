@@ -1,21 +1,21 @@
 # Adapt from:
 # https://qiskit.org/documentation/tutorials/algorithms/06_grover.html#State-preparation
 
-import qbos as qb
+import qb.core
 import numpy as np
 
-qb.core()
+qb.core.session()
 
 NB_QUBITS = 3
 
-# Oracle: 
-oracle = qb.Circuit()
+# Oracle:
+oracle = qb.core.Circuit()
 oracle.h(2)
 oracle.ccx(0, 1, 2)
 oracle.h(2)
 
 theta = 2 * np.arccos(1 / np.sqrt(3))
-state_prep = qb.Circuit()
+state_prep = qb.core.Circuit()
 state_prep.ry(0, theta)
 state_prep.ch(0,1)
 state_prep.x(1)
@@ -24,7 +24,7 @@ state_prep.h(2)
 
 
 # Construct full amplitude amplification circuit:
-full_circuit = qb.Circuit()
+full_circuit = qb.core.Circuit()
 # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.
 full_circuit.amplitude_amplification(oracle, state_prep)
 # Add measurement:

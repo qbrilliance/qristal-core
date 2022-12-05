@@ -16,7 +16,7 @@
 //#include <ostream>
 #include "IRProvider.hpp"
 
-namespace qbOS{
+namespace qb{
 bool UPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   std::cout << "Defining UPrime" << std::endl;
   // Inputs:
@@ -109,4 +109,4 @@ const std::vector<std::string> UPrime::requiredKeys() {
     return {"qubits_string", "qubits_metric",
         "qubits_next_metric", "qubits_next_letter"};
 }
-}// namespace qbOS
+}// namespace qb

@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 /// InitRepeatFlag circuit:
 /// This circuit initialises the initial_repeat flags to mark which positions in the string
@@ -15,4 +15,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(InitRepeatFlag);
 };
-} // namespace qbOS
+} // namespace qb

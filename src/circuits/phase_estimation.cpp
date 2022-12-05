@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-namespace qbOS {
+namespace qb {
 
 bool PhaseEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
@@ -32,7 +32,7 @@ bool PhaseEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   assert(unitary->nInstructions() > 0);
   assert(num_evaluation_qubits > 0);
   // If a qubit ordering is not provided, assume the state qubits: 0 -> (n - 1), where n is the number of qubits of the unitary
-  const auto qubits_state_reg = qbOS::uniqueBitsQD(unitary);
+  const auto qubits_state_reg = qb::uniqueBitsQD(unitary);
   assert(qubits_state_reg.size() > 0);
 
   std::vector<int> trial_qubits = {};
@@ -110,4 +110,4 @@ bool PhaseEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> PhaseEstimation::requiredKeys() {
   return {"num_evaluation_qubits", "unitary"};
 }
-} // namespace qbOS
+} // namespace qb

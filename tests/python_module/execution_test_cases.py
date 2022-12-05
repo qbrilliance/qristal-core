@@ -6,12 +6,12 @@ def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate")
     import core as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    s = qb.core()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[6];
         x q[0];
@@ -28,19 +28,19 @@ def test_CI_210826_15_qb_c5_ry_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][31] == 1024 )
+    s.run()
+    assert (s.out_count[0][0][31] == 1024 )
 
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
     import core as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    s = qb.core()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[6];
         x q[0];
@@ -57,19 +57,19 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][61] == 1024)
+    s.run()
+    assert (s.out_count[0][0][61] == 1024)
 
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
     import core as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    s = qb.core()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[6];
         // x q[0];
@@ -86,19 +86,19 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][32] == 1024)
+    s.run()
+    assert (s.out_count[0][0][32] == 1024)
 
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
     import core as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    s = qb.core()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[8];
         x q[0];
@@ -119,20 +119,20 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][127] == 1024)
+    s.run()
+    assert (s.out_count[0][0][127] == 1024)
 
 
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
     print("* With default qb12 settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
     import core as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    s = qb.core()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[3];
         x q[0];
@@ -143,24 +143,24 @@ def test_CI_210826_19_qb_c2_x_x_dag() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][3] == 1024)
+    s.run()
+    assert (s.out_count[0][0][3] == 1024)
 
 def test_qft4() :
     print("* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, ExaTN-MPS")
-    
-    # Instantiate an object instance 
+
+    # Instantiate an object instance
     import core
-    tqb = core.core()
-    tqb.qb12()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
-  
+    s = core.core()
+    s.qb12()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
+
     # Override defaults
     n_qubits = 4
     n_shots = 1024
-    tqb.qn = n_qubits      # We only need 4 qubits here
-    tqb.sn = n_shots       # Explicitly use 1024 shots
-    tqb.xasm = True        # Use XASM circuit format to access XACC's qft() 
-    tqb.seed = 123  
+    s.qn = n_qubits      # We only need 4 qubits here
+    s.sn = n_shots       # Explicitly use 1024 shots
+    s.xasm = True        # Use XASM circuit format to access XACC's qft()
+    s.seed = 123
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
     __qpu__ void QBCIRCUIT(qbit q) {
@@ -171,13 +171,13 @@ def test_qft4() :
           Measure(q[0]);
     }
     '''
-    tqb.instring = targetCircuit
+    s.instring = targetCircuit
 
     # Run the circuit on the back-end
-    tqb.run()
+    s.run()
 
     # Get the Z-operator expectation value
-    expectation_v = tqb.out_z_op_expect[0][0][0]
+    expectation_v = s.out_z_op_expect[0][0][0]
 
     # Test the value against assertions
     out_str = '''* Using %d shots, Z-operator expectation value: %f''' % (n_shots, expectation_v)
@@ -186,21 +186,21 @@ def test_qft4() :
 
 def test_aer_matrix_product_state_method() :
     print("* Aer: MPS, QB noise model enabled")
-    
-    # Instantiate an object instance 
+
+    # Instantiate an object instance
     import core
     import ast
-    tqb=core.core()
-    tqb.qb12()
+    s=core.core()
+    s.qb12()
 
-    # Use the aer accelerator 
-    tqb.acc = "aer"
+    # Use the aer accelerator
+    s.acc = "aer"
     # Simulation method = MPS
-    tqb.aer_sim_type = "matrix_product_state"
-    tqb.sn = 1024       # Explicitly use 1024 shots
-    tqb.noise = True
+    s.aer_sim_type = "matrix_product_state"
+    s.sn = 1024       # Explicitly use 1024 shots
+    s.noise = True
 
-    tqb.instring='''
+    s.instring='''
     __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
@@ -212,8 +212,8 @@ def test_aer_matrix_product_state_method() :
     }
     '''
 
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     print(res)
     # Expect noisy results: majority is bell pairs (00 and 11), but non-zero error states
@@ -221,28 +221,28 @@ def test_aer_matrix_product_state_method() :
 
 def test_aer_matrix_product_state_method_large_circuit() :
     print("* Aer: MPS, QB noise model enabled, large number of qubits")
-    
-    # Instantiate an object instance 
+
+    # Instantiate an object instance
     import core
     import ast
-    tqb=core.core()
-    tqb.qb12()
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.output_oqm_enabled = False
-    # Use the aer accelerator 
-    tqb.acc = "aer"
+    s=core.core()
+    s.qb12()
+    s.nooptimise = True
+    s.noplacement = True
+    s.output_oqm_enabled = False
+    # Use the aer accelerator
+    s.acc = "aer"
     # Simulation method = MPS
-    tqb.aer_sim_type = "matrix_product_state"
-    tqb.sn = 1024       # Explicitly use 1024 shots
-    tqb.xasm = True   
-    tqb.noise = True
+    s.aer_sim_type = "matrix_product_state"
+    s.sn = 1024       # Explicitly use 1024 shots
+    s.xasm = True
+    s.noise = True
 
     # Generate DJ Circuit
     def qbdj(qn) :
         bitstr = [1,0]*(qn//2)
         xgates_str=''.join(['X(q['+str(mye[0])+']);' for mye in enumerate(bitstr) if mye[1]==1])
-    
+
         generator = '''
     __qpu__ void QBCIRCUIT(qreg q) {\n'
     for (int i=0; i<%d; i++) {
@@ -273,10 +273,10 @@ def test_aer_matrix_product_state_method_large_circuit() :
 
     nb_qubits = 40
     print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
-    tqb.qn = nb_qubits + 1
-    tqb.instring = qbdj(nb_qubits)
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.qn = nb_qubits + 1
+    s.instring = qbdj(nb_qubits)
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     print(res)
     expected_bitstring = nb_qubits * '1'
@@ -287,15 +287,15 @@ def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
     print("* With default qb12 settings, check the functionality of QB's custom controlled Ry gate")
     import core as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
+    s = qb.core()
+    s.qb12()
+    s.acc = "aer"
     import os
-    tqb.include_qb = os.path.dirname(os.path.abspath(__file__)) + "/qblib.inc"
-    
-    tqb.instring = '''
+    s.include_qb = os.path.dirname(os.path.abspath(__file__)) + "/qblib.inc"
+
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[2];
         x q[0];
@@ -304,25 +304,25 @@ def test_qblib_custom_gates() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][1] == 1024)
+    s.run()
+    assert (s.out_count[0][0][1] == 1024)
 
 def test_async_run_and_wait():
     print(" Testing asynchronous job runs ")
     import core as qb
     import json
     import numpy as np
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core()
+    s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
-    tqb.set_parallel_run_config(json.dumps(qpu_configs))
+    s.set_parallel_run_config(json.dumps(qpu_configs))
     nb_jobs = 2
-    tqb.qn[0].clear()
-    tqb.sns[0].clear()
+    s.qn[0].clear()
+    s.sns[0].clear()
     for i in range(nb_jobs):
         # All circuits use 4 qubits
-        tqb.qn[0].append(16)
-        tqb.sns[0].append(1024)
+        s.qn[0].append(16)
+        s.sns[0].append(1024)
 
     openQASM = '''
     OPENQASM 2.0;
@@ -347,18 +347,18 @@ def test_async_run_and_wait():
     cx q[14],q[15];
     measure q -> c;
     '''
-    tqb.instrings.clear()
-    tqb.xasms[0].clear()
-    tqb.quil1s[0].clear()
+    s.instrings.clear()
+    s.xasms[0].clear()
+    s.quil1s[0].clear()
     for i in range(nb_jobs):
-        tqb.instrings.append(qb.String())
-        tqb.instrings[i].append(openQASM)
-        tqb.xasms[0].append(False)
-        tqb.quil1s[0].append(False)
+        s.instrings.append(qb.String())
+        s.instrings[i].append(openQASM)
+        s.xasms[0].append(False)
+        s.quil1s[0].append(False)
 
     all_handles = []
     for i in range(nb_jobs):
-        handle = tqb.run_async(i, 0)
+        handle = s.run_async(i, 0)
         all_handles.append(handle)
     print("Complete posting all", nb_jobs, "jobs")
 
@@ -371,38 +371,38 @@ def test_async_run_and_wait():
             completed = handle.complete()
             if not completed:
                 all_done = False
-            else: 
+            else:
                 complete_count = complete_count + 1
         if not all_done:
             time.sleep(1)
-        
-    assert(len(tqb.out_count) == 2)
+
+    assert(len(s.out_count) == 2)
     # Bell States
-    assert(len(tqb.out_count[0][0]) == 2)
-    assert(len(tqb.out_count[1][0]) == 2)
+    assert(len(s.out_count[0][0]) == 2)
+    assert(len(s.out_count[1][0]) == 2)
 
 def test_potential_async_deadlock():
     print("Test dispatching a large number of async jobs")
     import core as qb
     import json
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core()
+    s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
-    tqb.set_parallel_run_config(json.dumps(qpu_configs))
+    s.set_parallel_run_config(json.dumps(qpu_configs))
     # Quite a large number of jobs
     nb_jobs = 50
-    tqb.qn[0].clear()
-    tqb.sns[0].clear()
+    s.qn[0].clear()
+    s.sns[0].clear()
     for i in range(nb_jobs):
         # All circuits use 4 qubits
-        tqb.qn[0].append(4)
-        tqb.sns[0].append(1024)
+        s.qn[0].append(4)
+        s.sns[0].append(1024)
     openQASM = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg q[4];
     creg c[4];
-    x q[0]; 
+    x q[0];
     x q[2];
     h q[0];
     cu1(pi/2) q[1],q[0];
@@ -416,18 +416,18 @@ def test_potential_async_deadlock():
     h q[3];
     measure q -> c;
     '''
-    tqb.instrings.clear()
-    tqb.xasms[0].clear()
-    tqb.quil1s[0].clear()
+    s.instrings.clear()
+    s.xasms[0].clear()
+    s.quil1s[0].clear()
     for i in range(nb_jobs):
-        tqb.instrings.append(qb.String())
-        tqb.instrings[i].append(openQASM)
-        tqb.xasms[0].append(False)
-        tqb.quil1s[0].append(False)
+        s.instrings.append(qb.String())
+        s.instrings[i].append(openQASM)
+        s.xasms[0].append(False)
+        s.quil1s[0].append(False)
 
     all_handles = []
     for i in range(nb_jobs):
-        handle = tqb.run_async(i, 0)
+        handle = s.run_async(i, 0)
         all_handles.append(handle)
     print("Complete posting all", nb_jobs, "jobs")
 
@@ -440,7 +440,7 @@ def test_potential_async_deadlock():
             completed = handle.complete()
             if not completed:
                 all_done = False
-            else: 
+            else:
                 complete_count = complete_count + 1
         if not all_done:
             print(complete_count, "/", nb_jobs, "complete.")
@@ -450,14 +450,14 @@ def test_potential_async_deadlock():
 
     #print("Result:")
     #for i in range(nb_jobs):
-        #print(tqb.out_raw[i][0])
+        #print(s.out_raw[i][0])
     count_qpp = 0
     count_aer = 0
     for handle in all_handles:
         if handle.qpu_name() == "qpp":
-           count_qpp += 1 
+           count_qpp += 1
         if handle.qpu_name() == "aer":
-           count_aer += 1 
+           count_aer += 1
     assert(count_qpp > 0)
     assert(count_aer > 0)
     assert(count_qpp + count_aer == nb_jobs)
@@ -465,31 +465,31 @@ def test_potential_async_deadlock():
 def test_noise_mitigation():
     import core as qb
     import json
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.noise = True
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.sn = 8192   
-    tqb.acc = "aer"    
+    s = qb.core()
+    s.qb12()
+    s.noise = True
+    s.nooptimise = True
+    s.noplacement = True
+    s.sn = 8192
+    s.acc = "aer"
     # Simple Bell circuit
     circ = qb.Circuit()
-    circ.h(0)    
-    circ.cnot(0, 1)    
+    circ.h(0)
+    circ.cnot(0, 1)
     circ.measure_all()
 
-    tqb.qn = 2
-    tqb.instring = circ.openqasm()
-    tqb.run()
+    s.qn = 2
+    s.instring = circ.openqasm()
+    s.run()
     print("Without mitigation:")
-    print(tqb.out_raw[0][0])
-    no_mitigation = json.loads(tqb.out_raw[0][0])
+    print(s.out_raw[0][0])
+    no_mitigation = json.loads(s.out_raw[0][0])
 
-    tqb.noise_mitigation = "assignment-error-kernel"
-    tqb.run()
+    s.noise_mitigation = "assignment-error-kernel"
+    s.run()
     print("With mitigation:")
-    print(tqb.out_raw[0][0])
-    mitigation = json.loads(tqb.out_raw[0][0])
+    print(s.out_raw[0][0])
+    mitigation = json.loads(s.out_raw[0][0])
     assert(int(mitigation["01"]) < int(no_mitigation["01"]))
     assert(int(mitigation["10"]) < int(no_mitigation["10"]))
 
@@ -497,12 +497,12 @@ def test_sparse_sim():
     import core as qb
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.xasm = True   
+    s = qb.core()
+    s.qb12()
+    s.xasm = True
     num_shots = 8192
-    tqb.sn = num_shots    
-    tqb.acc = "sparse-sim"    
+    s.sn = num_shots
+    s.acc = "sparse-sim"
 
     # Generate DJ Circuit
     def qbdj(qn) :
@@ -510,7 +510,7 @@ def test_sparse_sim():
         import re
         bitstr = [1,0]*(qn//2)
         xgates_str=''.join(['X(q['+str(mye[0])+']);' for mye in enumerate(bitstr) if mye[1]==1])
-        
+
         generator = '''
     __qpu__ void QBCIRCUIT(qreg q) {\n'
     for (int i=0; i<%d; i++) {
@@ -541,10 +541,10 @@ def test_sparse_sim():
 
     nb_qubits = 31
     print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
-    tqb.qn = nb_qubits + 1
-    tqb.instring = qbdj(nb_qubits)
-    tqb.run()
-    results = tqb.out_raw[0][0]
+    s.qn = nb_qubits + 1
+    s.instring = qbdj(nb_qubits)
+    s.run()
+    results = s.out_raw[0][0]
     res = ast.literal_eval(results)
     expected_bitstring = '1'*nb_qubits
     assert(res[expected_bitstring] == num_shots)
@@ -552,23 +552,23 @@ def test_sparse_sim():
 def test_random_seed():
     # List of accelerators as required by https://qbau.atlassian.net/browse/SEB-97
     accelerators = ["qpp", "aer", "qsim"]
-    num_runs = 5 
-    # Expected repeatable results 
+    num_runs = 5
+    # Expected repeatable results
     for acc in accelerators:
         previous_result = None
         for i in range(num_runs):
             import xacc
             import core
-            tqb = core.core()
-            tqb.qb12()  
+            s = core.core()
+            s.qb12()
             # Override defaults
             n_qubits = 4
             n_shots = 1024
-            tqb.qn = n_qubits      # We only need 4 qubits here
-            tqb.sn = n_shots       # Explicitly use 1024 shots
-            tqb.xasm = True        # Use XASM circuit format to access XACC's qft() 
-            tqb.seed = 1234  
-            tqb.acc = acc
+            s.qn = n_qubits      # We only need 4 qubits here
+            s.sn = n_shots       # Explicitly use 1024 shots
+            s.xasm = True        # Use XASM circuit format to access XACC's qft()
+            s.seed = 1234
+            s.acc = acc
             # targetCircuit: contains the quantum circuit that will be processed/executed
             targetCircuit = '''
             __qpu__ void QBCIRCUIT(qbit q) {
@@ -579,13 +579,13 @@ def test_random_seed():
                     Measure(q[0]);
             }
             '''
-            tqb.instring = targetCircuit
+            s.instring = targetCircuit
 
             # Run the circuit on the back-end
-            tqb.run()
+            s.run()
 
             # Get the Z-operator expectation value
-            expectation_v = tqb.out_z_op_expect[0][0][0]
+            expectation_v = s.out_z_op_expect[0][0][0]
 
             # Test the value against assertions
             out_str = '''* Using %s accelerator with %d shots, Z-operator expectation value: %f''' % (acc, n_shots, expectation_v)
@@ -604,20 +604,20 @@ def test_random_seed_tnqvm():
     # https://qbau.atlassian.net/browse/SEB-139
     seeds = [123, 456]
     results = {123: [], 456: []}
-    num_runs = 5 
+    num_runs = 5
     for i in range(num_runs):
         for seed in seeds:
             import core
-            tqb = core.core()
-            tqb.qb12()  
+            s = core.core()
+            s.qb12()
             # Override defaults
             n_qubits = 4
             n_shots = 1024
-            tqb.qn = n_qubits      # We only need 4 qubits here
-            tqb.sn = n_shots       # Explicitly use 1024 shots
-            tqb.xasm = True        # Use XASM circuit format to access XACC's qft() 
-            tqb.seed = seed  
-            tqb.acc = "tnqvm"
+            s.qn = n_qubits      # We only need 4 qubits here
+            s.sn = n_shots       # Explicitly use 1024 shots
+            s.xasm = True        # Use XASM circuit format to access XACC's qft()
+            s.seed = seed
+            s.acc = "tnqvm"
             # targetCircuit: contains the quantum circuit that will be processed/executed
             targetCircuit = '''
             __qpu__ void QBCIRCUIT(qbit q) {
@@ -628,13 +628,13 @@ def test_random_seed_tnqvm():
                     Measure(q[0]);
             }
             '''
-            tqb.instring = targetCircuit
+            s.instring = targetCircuit
 
             # Run the circuit on the back-end
-            tqb.run()
+            s.run()
 
             # Get the Z-operator expectation value
-            expectation_v = tqb.out_z_op_expect[0][0][0]
+            expectation_v = s.out_z_op_expect[0][0][0]
 
             # Test the value against assertions
             out_str = '''* Using %s accelerator with %d shots, Z-operator expectation value: %f''' % ("tnqvm", n_shots, expectation_v)
@@ -650,11 +650,11 @@ def test_random_seed_tnqvm():
 def test_randomized_stats():
     # https://qbau.atlassian.net/browse/SWA-154
     import core
-    tqb = core.core()
-    tqb.qb12()  
-    tqb.qn = 2      
-    tqb.sn = 1024     
-    tqb.instring = '''
+    s = core.core()
+    s.qb12()
+    s.qn = 2
+    s.sn = 1024
+    s.instring = '''
 __qpu__ void QBCIRCUIT(qreg q) {
 OPENQASM 2.0;
 include "qelib1.inc";
@@ -666,26 +666,26 @@ measure q[0] -> c[0];
 }'''
     nb_runs = 10
     for _ in range(nb_runs - 1):
-        tqb.acc[0].append("tnqvm")
-    tqb.run()
-    ref = tqb.out_raw[0][0]
+        s.acc[0].append("tnqvm")
+    s.run()
+    ref = s.out_raw[0][0]
     all_equal = True
-    print(tqb.out_raw[0])
-    for dist in tqb.out_raw[0]:
+    print(s.out_raw[0])
+    for dist in s.out_raw[0]:
         if dist != ref:
             all_equal = False
 
-    assert all_equal == False        
+    assert all_equal == False
 
 def test_clear_random_seed():
     # https://qbau.atlassian.net/browse/SWA-155
     import core, ast
-    tqb = core.core()
-    tqb.qb12()  
-    tqb.qn = 2      
-    tqb.sn = 1024  
-    tqb.seed = 123   
-    tqb.instring = '''
+    s = core.core()
+    s.qb12()
+    s.qn = 2
+    s.sn = 1024
+    s.seed = 123
+    s.instring = '''
 __qpu__ void QBCIRCUIT(qreg q) {
 OPENQASM 2.0;
 include "qelib1.inc";
@@ -695,15 +695,15 @@ h q[1];
 measure q[1] -> c[1];
 measure q[0] -> c[0];
 }'''
-    tqb.run()
-    ref = ast.literal_eval(tqb.out_raw[0][0])
+    s.run()
+    ref = ast.literal_eval(s.out_raw[0][0])
     nb_runs = 3
-    tqb.seed.clear()
+    s.seed.clear()
     see_new_random_results = False
     for _ in range(nb_runs):
-        tqb.run()
-        new_result = ast.literal_eval(tqb.out_raw[0][0])
+        s.run()
+        new_result = ast.literal_eval(s.out_raw[0][0])
         if new_result != ref:
             see_new_random_results = True
 
-    assert see_new_random_results       
+    assert see_new_random_results

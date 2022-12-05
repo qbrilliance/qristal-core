@@ -3,9 +3,9 @@
 #include "qb/core/pretranspiler.hpp"
 #include <regex>
 
-namespace qbOS {
+namespace qb {
 //
-// Methods for qbOS::Pretranspile
+// Methods for qb::Pretranspile
 //
 
 int Pretranspile::qb_cn_max_n(const std::string & sorig, const std::string & inregex) {
@@ -288,4 +288,4 @@ void Pretranspile::run(std::string &input_circuit, std::string anchor) {
     }
   }
 }
-} // namespace qbOS
+} // namespace qb

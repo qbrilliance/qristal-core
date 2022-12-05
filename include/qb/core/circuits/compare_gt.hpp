@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // This module performs the comparison
 // |a>|b>|flag> ---> |a>|b> X^{a>b}|flag>
@@ -15,4 +15,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(CompareGT);
 };
-} // namespace qbOS
+} // namespace qb

@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <unordered_set>
 
-namespace qbOS {
+namespace qb {
 /**
 * Utility (helper) functions
 */
@@ -73,16 +73,16 @@ T choose_random(const std::vector<T>& v) {
 std::string aer_circuit_transpiler(std::string& circuit);
 
 /**
-  get_qbqe_cfg : this function processes fields that have come from a qbos configuration file
+  get_session_cfg : this function processes fields that have come from an SDK configuration file
   Input - JSON string with configuration fields
-  Output - JSON of qbos options
+  Output - JSON of SDK options
 **/
-json get_qbqe_cfg(const std::string &config_buf);
+json get_session_cfg(const std::string &config_buf);
 
 /**
   get_arg_or_cfg : this function accepts a variable and a default value, and returns
   1. (highest priority): the value of the variable from the relevant command line option
-  2. (second priority): the value of the variable in the qbos configuration file
+  2. (second priority): the value of the variable in the SDK configuration file
   3. (lowest priority): the default value (unchanged).
 **/
 template <typename TT2>
@@ -468,4 +468,4 @@ template <>
 template <>
 bool ValidatorTwoDim<VectorMapND, ND>::is_gt_eq_lowerbound<ND>(
     const ND &subj, const std::string &in_desc);
-} // namespace qbOS
+} // namespace qb

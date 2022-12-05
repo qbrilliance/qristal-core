@@ -3,7 +3,7 @@
  ***/
 #pragma once
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 class MultiControlledUWithAncilla : public xacc::quantum::Circuit {
 public:
   MultiControlledUWithAncilla() : xacc::quantum::Circuit("MultiControlledUWithAncilla") {}
@@ -11,4 +11,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(MultiControlledUWithAncilla);
 };
-} // namespace qbOS
+} // namespace qb

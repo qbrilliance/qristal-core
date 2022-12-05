@@ -1,8 +1,8 @@
-import qbos as qb
-import numpy as np 
+import qb.core
+import numpy as np
 import ast
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 ###
 # Testing subtraction
@@ -13,11 +13,11 @@ for c in range(4):
         for j in range(i+1):
             # Set up input registers
             qubits_larger = [0,1,2,3]
-            qubits_smaller = [4,5,6,7] 
+            qubits_smaller = [4,5,6,7]
             control_on = [8]
             control_off = [9]
 
-            circ = qb.Circuit()
+            circ = qb.core.Circuit()
 
             # Prepare initial state
             bin_i = bin(i)[2:].zfill(4)
@@ -42,14 +42,14 @@ for c in range(4):
             for k in range(8):
                 circ.measure(k)
 
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qsim"
-            tqb.run()
-            result1 = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qsim"
+            s.run()
+            result1 = s.out_raw[0][0]
             res1 = ast.literal_eval(result1)
 
             if c == 2:

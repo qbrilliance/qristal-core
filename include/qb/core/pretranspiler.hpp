@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-namespace qbOS {
+namespace qb {
 /*
 *  Class: Pretranspile
 *  Adds custom QB gate definitions (e.g., multi-controlled NOT gates) into the OpenQASM includes
@@ -79,4 +79,4 @@ public:
   void run(std::string &input_circuit,
            std::string anchor = "include \"qelib1.inc\";");
 };
-} // namespace qbOS
+} // namespace qb

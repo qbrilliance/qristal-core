@@ -8,7 +8,7 @@
 #include <functional>
 #include <type_traits>
 
-namespace qbOS
+namespace qb
 {
 
   /// A threadsafe singleton thread pool class based on std::thread

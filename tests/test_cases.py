@@ -3,19 +3,19 @@ import os
 import pytest
 def test_CI_210826_1_qb12_check_qn_equals_12() :
     print("* CI_210826_1_qb12_check_qn_equals_12:")
-    print("* Imports qbos.core() and calls qb12(), which should give a default setup for 12 qubits.")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    assert (tqb.qn[0][0]) == 12, "[qbos] Failed test: CI_210826_1_qb12_check_qn_equals_12"
+    print("* Imports qb.core, creates a session and calls qb12(), which should give a default setup for 12 qubits.")
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    assert (s.qn[0][0]) == 12, "[QB SDK] Failed test: CI_210826_1_qb12_check_qn_equals_12"
 
 def test_CI_210826_2_qb12_check_sn_equals_1024() :
     print("* CI_210826_2_qb12_check_sn_equals_1024:")
     print("* Imports qbemulator Python module and calls qb12(), which should give a default setup for 1024 shots")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    assert (tqb.sn[0][0]) == 1024, "[qbos] Failed test: CI_210826_2_qb12_check_sn_equals_1024"
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    assert (s.sn[0][0]) == 1024, "[QB SDK] Failed test: CI_210826_2_qb12_check_sn_equals_1024"
 
 #
 # 210826 - Disabled until a backend implementation of rzz works
@@ -23,112 +23,112 @@ def test_CI_210826_2_qb12_check_sn_equals_1024() :
 # def test_CI_210826_3_qb12_random_5() :
 #     print("* CI_210826_3_qb12_random_5:")
 #     print("* With default qb12 settings, with the default (TNQVM-ExaTN-MPS) backend, run a depth 5 circuit, check the length of the out_count dictionary is >0")
-#     import qbos as qb
-#     tqb = qb.core()
-#     tqb.qb12()
-#     tqb.random = 5
-#     tqb.run()
-#     assert (len(tqb.out_count[0][0])) > 0, "[qbos] Failed test: CI_210826_3_qb12_random_5 - TNQVM-ExaTN-MPS"
+#     import qb.core
+#     s = qb.core.session()
+#     s.qb12()
+#     s.random = 5
+#     s.run()
+#     assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_3_qb12_random_5 - TNQVM-ExaTN-MPS"
 
 def test_CI_210826_4_qb12_random_5() :
     print("* CI_210826_4_qb12_random_5:")
     print("* With default qb12 settings, with the Aer backend, run a depth 5 circuit, check the length of the out_count dictionary is >0")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.random = 5
-    tqb.acc = 'aer'
-    tqb.run()
-    assert (len(tqb.out_count[0][0])) > 0, "[qbos] Failed test: CI_210826_4_qb12_random_5 - Aer"
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.random = 5
+    s.acc = 'aer'
+    s.run()
+    assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_4_qb12_random_5 - Aer"
 
 def test_CI_210826_5_qb12_random_5() :
     print("* CI_210826_5_qb12_random_5:")
     print("* With default qb12 settings, with the qpp backend, run a depth 3 circuit, check the length of the out_count dictionary is >0")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.random = 3
-    tqb.acc = 'qpp'
-    tqb.run()
-    assert (len(tqb.out_count[0][0])) > 0, "[qbos] Failed test: CI_210826_5_qb12_random_5 - qpp"
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.random = 3
+    s.acc = 'qpp'
+    s.run()
+    assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_5_qb12_random_5 - qpp"
 
 def test_CI_210826_6_qb12_random_0() :
     print("* CI_210826_4_qb12_random_0:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.random = 0
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.random = 0
     with pytest.raises(ValueError):
-        tqb.run()
+        s.run()
 
 def test_CI_210826_7_qb12_random_minus_one() :
     print("* CI_210826_5_qb12_random_minus_one:")
     print("* [Edge condition] check that a TypeError exception occurs")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
     with pytest.raises(TypeError):
-        tqb.random = -1
+        s.random = -1
 
 def test_CI_210826_8_qb12_random_256() :
     print("* CI_210826_8_qb12_random_256:")
     print("* With default qb12 settings, run a depth 256 circuit, check the length of the out_count dictionary is >0")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.random = 256
-    tqb.run()
-    assert (len(tqb.out_count[0][0])) > 0, "[qbos] failed test: CI_210826_8_qb12_random_256"
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.random = 256
+    s.run()
+    assert (len(s.out_count[0][0])) > 0, "[QB SDK] failed test: CI_210826_8_qb12_random_256"
 
 
-def test_CI_210826_9_qn_minus_one() : 
+def test_CI_210826_9_qn_minus_one() :
     print("* CI_210826_9_qn_minus_one:")
     print("* [Edge condition] check that a TypeError exception occurs")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
     with pytest.raises(TypeError):
-        tqb.qn = -1
+        s.qn = -1
 
 def test_CI_210826_10_qn_0() :
     print("* CI_210826_10_qn_0:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 0
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 0
     with pytest.raises(ValueError):
-        tqb.run()
+        s.run()
 
 def test_CI_210826_11_qb12_no_infile_no_instring_no_random() :
     print("* CI_210826_11_qb12_no_infile_no_instring_no_random:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
     with pytest.raises(ValueError):
-        tqb.run()
-  
+        s.run()
+
 def test_CI_210826_12_qb12_nonexistent_infile() :
     print("* CI_210826_12_qb12_nonexistent_infile:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.infile = "nonexist.inc"
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.infile = "nonexist.inc"
     with pytest.raises(ValueError):
-        tqb.run()
+        s.run()
 
 
 def test_CI_210826_13_openqasm_index_out_of_range() :
     print("* CI_210826_13_openqasm_index_out_of_range:")
     print("* [XACC exit condition] when an indexing error is detected in OpenQASM")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0; include "qelib1.inc";
         //
@@ -136,18 +136,18 @@ def test_CI_210826_13_openqasm_index_out_of_range() :
         measure q[4] -> c[4];
     }'''
     with pytest.raises(ValueError):
-        tqb.run()
+        s.run()
 
 def test_CI_210826_14_qbtheta_parameters() :
     print("* CI_210826_14_qbtheta_parameters:")
     print("* With default qb12 settings, check the functionality for qbtheta parameter substitution")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[4];
         x q[0];
@@ -161,20 +161,20 @@ def test_CI_210826_14_qbtheta_parameters() :
     mth = qb.ND()
     mth[0] = 0.05
     mth[1] = -0.7
-    tqb.theta[0] = qb.MapND([mth])
-    tqb.run()
-    assert (tqb.out_transpiled_circuit[0][0] == '\n__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude "qelib1.inc";\nu(3.14159, -1.5708, 1.5708) q[0];\nu(3.14159, -1.5708, 1.5708) q[2];\nu(0.05, 1.6, -0.7) q[3];\ncreg c0[1];\nmeasure q[0] -> c0[0];\ncreg c1[1];\nmeasure q[1] -> c1[0];\ncreg c2[1];\nmeasure q[2] -> c2[0];\ncreg c3[1];\nmeasure q[3] -> c3[0];\n\n}\n')
+    s.theta[0] = qb.MapND([mth])
+    s.run()
+    assert (s.out_transpiled_circuit[0][0] == '\n__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude "qelib1.inc";\nu(3.14159, -1.5708, 1.5708) q[0];\nu(3.14159, -1.5708, 1.5708) q[2];\nu(0.05, 1.6, -0.7) q[3];\ncreg c0[1];\nmeasure q[0] -> c0[0];\ncreg c1[1];\nmeasure q[1] -> c1[0];\ncreg c2[1];\nmeasure q[2] -> c2[0];\ncreg c3[1];\nmeasure q[3] -> c3[0];\n\n}\n')
 
 def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[6];
         x q[0];
@@ -191,19 +191,19 @@ def test_CI_210826_15_qb_c5_ry_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][31] == 1024 )
+    s.run()
+    assert (s.out_count[0][0][31] == 1024 )
 
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[6];
         x q[0];
@@ -220,19 +220,19 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][61] == 1024)
+    s.run()
+    assert (s.out_count[0][0][61] == 1024)
 
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[6];
         // x q[0];
@@ -249,19 +249,19 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][32] == 1024)
+    s.run()
+    assert (s.out_count[0][0][32] == 1024)
 
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[8];
         x q[0];
@@ -282,20 +282,20 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][127] == 1024)
+    s.run()
+    assert (s.out_count[0][0][127] == 1024)
 
 
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
     print("* With default qb12 settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[3];
         x q[0];
@@ -306,24 +306,24 @@ def test_CI_210826_19_qb_c2_x_x_dag() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][3] == 1024)
+    s.run()
+    assert (s.out_count[0][0][3] == 1024)
 
 def test_qft4() :
     print("* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, ExaTN-MPS")
-    
-    # Instantiate an object instance 
-    import qbos
-    tqb = qbos.core()
-    tqb.qb12()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
-  
+
+    # Instantiate an object instance
+    import qb.core
+    s = qb.core.session()
+    s.qb12()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
+
     # Override defaults
     n_qubits = 4
     n_shots = 1024
-    tqb.qn = n_qubits      # We only need 4 qubits here
-    tqb.sn = n_shots       # Explicitly use 1024 shots
-    tqb.xasm = True        # Use XASM circuit format to access XACC's qft() 
-    tqb.seed = 123  
+    s.qn = n_qubits      # We only need 4 qubits here
+    s.sn = n_shots       # Explicitly use 1024 shots
+    s.xasm = True        # Use XASM circuit format to access XACC's qft()
+    s.seed = 123
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
     __qpu__ void QBCIRCUIT(qbit q) {
@@ -334,13 +334,13 @@ def test_qft4() :
           Measure(q[0]);
     }
     '''
-    tqb.instring = targetCircuit
+    s.instring = targetCircuit
 
     # Run the circuit on the back-end
-    tqb.run()
+    s.run()
 
     # Get the Z-operator expectation value
-    expectation_v = tqb.out_z_op_expect[0][0][0]
+    expectation_v = s.out_z_op_expect[0][0][0]
 
     # Test the value against assertions
     out_str = '''* Using %d shots, Z-operator expectation value: %f''' % (n_shots, expectation_v)
@@ -349,21 +349,21 @@ def test_qft4() :
 
 def test_aer_matrix_product_state_method() :
     print("* Aer: MPS, QB noise model enabled")
-    
-    # Instantiate an object instance 
-    import qbos
+
+    # Instantiate an object instance
+    import qb.core
     import ast
-    tqb=qbos.core()
-    tqb.qb12()
+    s=qb.core.session()
+    s.qb12()
 
-    # Use the aer accelerator 
-    tqb.acc = "aer"
+    # Use the aer accelerator
+    s.acc = "aer"
     # Simulation method = MPS
-    tqb.aer_sim_type = "matrix_product_state"
-    tqb.sn = 1024       # Explicitly use 1024 shots
-    tqb.noise = True
+    s.aer_sim_type = "matrix_product_state"
+    s.sn = 1024       # Explicitly use 1024 shots
+    s.noise = True
 
-    tqb.instring='''
+    s.instring='''
     __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
@@ -375,8 +375,8 @@ def test_aer_matrix_product_state_method() :
     }
     '''
 
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     print(res)
     # Expect noisy results: majority is bell pairs (00 and 11), but non-zero error states
@@ -384,28 +384,28 @@ def test_aer_matrix_product_state_method() :
 
 def test_aer_matrix_product_state_method_large_circuit() :
     print("* Aer: MPS, QB noise model enabled, large number of qubits")
-    
-    # Instantiate an object instance 
-    import qbos
+
+    # Instantiate an object instance
+    import qb.core
     import ast
-    tqb=qbos.core()
-    tqb.qb12()
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.output_oqm_enabled = False
-    # Use the aer accelerator 
-    tqb.acc = "aer"
+    s=qb.core.session()
+    s.qb12()
+    s.nooptimise = True
+    s.noplacement = True
+    s.output_oqm_enabled = False
+    # Use the aer accelerator
+    s.acc = "aer"
     # Simulation method = MPS
-    tqb.aer_sim_type = "matrix_product_state"
-    tqb.sn = 1024       # Explicitly use 1024 shots
-    tqb.xasm = True   
-    tqb.noise = True
+    s.aer_sim_type = "matrix_product_state"
+    s.sn = 1024       # Explicitly use 1024 shots
+    s.xasm = True
+    s.noise = True
 
     # Generate DJ Circuit
     def qbdj(qn) :
         bitstr = [1,0]*(qn//2)
         xgates_str=''.join(['X(q['+str(mye[0])+']);' for mye in enumerate(bitstr) if mye[1]==1])
-    
+
         generator = '''
     __qpu__ void QBCIRCUIT(qreg q) {\n'
     for (int i=0; i<%d; i++) {
@@ -436,10 +436,10 @@ def test_aer_matrix_product_state_method_large_circuit() :
 
     nb_qubits = 40
     print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
-    tqb.qn = nb_qubits + 1
-    tqb.instring = qbdj(nb_qubits)
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.qn = nb_qubits + 1
+    s.instring = qbdj(nb_qubits)
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     print(res)
     expected_bitstring = nb_qubits * '1'
@@ -449,15 +449,15 @@ def test_aer_matrix_product_state_method_large_circuit() :
 def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
     print("* With default qb12 settings, check the functionality of QB's custom controlled Ry gate")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.acc = "aer"
-    tqb.include_qb = "../../qblib.inc"
-    
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.acc = "aer"
+    s.include_qb = "../../qblib.inc"
+
+    s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0; 
+        OPENQASM 2.0;
         include "qelib1.inc";
         creg c[2];
         x q[0];
@@ -466,19 +466,19 @@ def test_qblib_custom_gates() :
         measure q[1] -> c[1];
         measure q[0] -> c[0];
     }'''
-    tqb.run()
-    assert (tqb.out_count[0][0][1] == 1024)
+    s.run()
+    assert (s.out_count[0][0][1] == 1024)
 
 # Deprecated after implementing resampling - 220308
 # def test_loopback_qcstack_dummy() :
 #    print(" Loopback QCStack dummy count data")
-#    import qbos
-#    tqb = qbos.core()
-#    tqb.qb12()
-#    tqb.qn = 3
-#    tqb.sn = 8
-#    tqb.acc = "loopback"
-#    tqb.instring = '''
+#    import qb.core
+#    s = qb.core.session()
+#    s.qb12()
+#    s.qn = 3
+#    s.sn = 8
+#    s.acc = "loopback"
+#    s.instring = '''
 #    __qpu__ void QBCIRCUIT(qreg q) {
 #        OPENQASM 2.0;
 #        include "qelib1.inc";
@@ -489,21 +489,21 @@ def test_qblib_custom_gates() :
 #        measure q[1] -> c[1];
 #        measure q[0] -> c[0];
 #    }'''
-#    tqb.run()
-#    assert (tqb.out_count[0][0][4] == 4)
-#    assert (tqb.out_count[0][0][5] == 4)
+#    s.run()
+#    assert (s.out_count[0][0][4] == 4)
+#    assert (s.out_count[0][0][5] == 4)
 
 def test_loopback_rx_ry_rz() :
     print(" Loopback QCStack check transpiling into discrete angles")
-    import qbos
+    import qb.core
     import json
-    tqb = qbos.core()
-    tqb.qb12()
-    tqb.qn = 1
-    tqb.sn = 2
-    tqb.xasm = True
-    
-    # targetCircuit: contains the quantum circuit that will be processed/executed 
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 1
+    s.sn = 2
+    s.xasm = True
+
+    # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
     __qpu__ void QBCIRCUIT(qbit q) {
         Rx(q[0], 0.125*pi);
@@ -512,21 +512,21 @@ def test_loopback_rx_ry_rz() :
         Measure(q[0]);
     }
     '''
-    tqb.instring = targetCircuit
-    tqb.acc = "loopback"
+    s.instring = targetCircuit
+    s.acc = "loopback"
 
     # Run the circuit on the back-end
-    tqb.run()
-    trj = json.loads(tqb.out_qbjson[0][0])
+    s.run()
+    trj = json.loads(s.out_qbjson[0][0])
     assert (trj['circuit'][0] == "Rx(q[0],0.392699)")
     assert (trj['circuit'][-1] == "Rx(q[0],3.14159)")
 
 def test_qpe():
     print(" Testing Quantum Phase Estimation ")
-    import qbos as qb
+    import qb.core
     import ast
-    tqb = qb.core()
-    tqb.qb12() 
+    s = qb.core.session()
+    s.qb12()
 
     # Oracle
     oracle = qb.Circuit()
@@ -546,14 +546,14 @@ def test_qpe():
     for i in range(nb_bits_precision):
         circ.measure(i + 1)
     # Run:
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     # Expect that the result is "1101" => estimate the phase value of -1.96349540849
     good_count = int(res["1101"])
@@ -563,10 +563,10 @@ def test_qpe():
 def test_amcu():
     print("Testing Multi-Controlled-U With Ancilla")
     import numpy as np
-    import qbos as qb
+    import qb.core
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     # In this example, we perform an mcx gate on all possible bitstrings
     num_qubits = 5
@@ -587,20 +587,20 @@ def test_amcu():
         U = qb.Circuit()
         U.x(target_bit)
         circ.amcu(U,control_bits,ancilla_bits)
-        
+
         # Measure and check results
         for j in range(num_qubits):
             circ.measure(j)
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
-        
+
         if bitstring == "11111":
             assert("11110" in list(res.keys()))
         elif bitstring == "11110":
@@ -610,11 +610,11 @@ def test_amcu():
 
 def test_equality_checker():
     print(" Testing Equality Checker Circuit")
-    import qbos as qb 
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     ###
     # Testing equality checker
@@ -643,14 +643,14 @@ def test_equality_checker():
             # Measure flag
             circ.measure(flag)
             # Run
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             # Check results
             if i == j:
@@ -660,12 +660,12 @@ def test_equality_checker():
 
 def test_canonical_ae():
     print(" Testing Canonical Quantum Amplitude Estimation ")
-    import qbos as qb
+    import qb.core
     import numpy as np
-    from qbos import run_canonical_ae_with_oracle
+    from qb.core import run_canonical_ae_with_oracle
     import json
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
@@ -688,11 +688,11 @@ def test_canonical_ae():
 
 def test_controlled_swap():
     print("Testing controlled swap")
-    import qbos as qb 
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     ###
     # Testing controlled swap
@@ -732,14 +732,14 @@ def test_controlled_swap():
         circ.measure(qubits_string[i])
 
     # Execute circuit
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     assert(len(list(res.keys())) == 1)
     output_measurement = list(res.keys())[0]
@@ -772,11 +772,11 @@ def test_controlled_swap():
 
 def test_controlled_addition():
     print("Testing controlled ripple carry adder")
-    import qbos as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     ###
     # Testing controlled addition.
@@ -791,7 +791,7 @@ def test_controlled_addition():
     c_in = 5
     flag = [6]
 
-    ### 
+    ###
     # Test 1: flag off
     ###
 
@@ -807,18 +807,18 @@ def test_controlled_addition():
     for i in range(len(qubits_sum)):
         circ1.measure(qubits_sum[i])
 
-    tqb.ir_target = circ1
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ1
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     assert(res1["000"] == 1024)
 
-    ### 
+    ###
     # Test 1: flag off
     ###
 
@@ -837,25 +837,25 @@ def test_controlled_addition():
     for i in range(len(qubits_sum)):
         circ2.measure(qubits_sum[i])
 
-    tqb.ir_target = circ2
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result2 = tqb.out_raw[0][0]
+    s.ir_target = circ2
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result2 = s.out_raw[0][0]
     res2 = ast.literal_eval(result2)
     assert(res2["100"] == 1024)
 
 def test_generalised_mcx():
     print("Testing generalised MCX")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.sn = 1024
+    s = qb.core.session()
+    s.qb12()
+    s.sn = 1024
 
     # In this test we use generalised mcx to
     # perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
@@ -883,12 +883,12 @@ def test_generalised_mcx():
     for condition in conditions:
         for input_bitstring in input_bitstrings:
             circ = qb.Circuit()
-            
+
             # Prepare the input bitstring
             for i in range(len(input_bitstring)):
                 if input_bitstring[i] == "1":
                     circ.x(i)
-            
+
             # Add the generalised mcx
             controls_on = []
             controls_off = []
@@ -898,19 +898,19 @@ def test_generalised_mcx():
                 else:
                     controls_on.append(control_qubits[i])
             circ.generalised_mcx(target_qubit, controls_on, controls_off)
-            
+
             # Measurements
             circ.measure_all()
-            
+
             # Run the circuit and check results
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             expected_output = input_bitstring[0:2]
             if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:
@@ -930,11 +930,11 @@ def test_MLQAE():
     # i.e., estimate the amplitude of the state:
     # sqrt(1-p)|0> + sqrt(p)|1>
     import numpy as np
-    import qbos as qb
-    from qbos import run_MLQAE
+    import qb.core
+    from qb.core import run_MLQAE
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
@@ -965,11 +965,11 @@ def test_MLQAE():
 
 def test_qaa():
     print(" Testing Quantum Amplitude Amplification (Grover's algorithm) ")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     oracle = qb.Circuit()
     oracle.z(0)
 
@@ -992,23 +992,23 @@ def test_qaa():
         full_circuit.measure_all()
 
         # Run the full amplitude estimation procedure:
-        tqb.ir_target = full_circuit
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = full_circuit
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
         # Calculate the probability of the marked state
         good_count = 0
-        # Must check if "1" is present 
-        # (with a small number of amplification rounds, 
+        # Must check if "1" is present
+        # (with a small number of amplification rounds,
         # the amplitude of |1> may still be very small)
         if "1" in list(res.keys()):
             good_count = int(res["1"])
-        
+
         good_state_ampls.append(good_count/1024)
 
     # Check the result
@@ -1019,16 +1019,16 @@ def test_qaa():
 
 def test_CI_220207_1_loopback_6s():
     print(" Loopback QCStack check polling interval set from /mnt/qb/share/qb_config.json")
-    import qbos
+    import qb.core
     import json
     import timeit
-    tqb = qbos.core()
-    tqb.qb12()
-    tqb.qn = 1
-    tqb.sn = 2
-    tqb.xasm = True
-    
-    # targetCircuit: contains the quantum circuit that will be processed/executed 
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 1
+    s.sn = 2
+    s.xasm = True
+
+    # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
     __qpu__ void QBCIRCUIT(qbit q) {
         Rx(q[0], 0.125*pi);
@@ -1037,13 +1037,13 @@ def test_CI_220207_1_loopback_6s():
         Measure(q[0]);
     }
     '''
-    tqb.instring = targetCircuit
-    tqb.acc = "loopback"
-    
+    s.instring = targetCircuit
+    s.acc = "loopback"
+
     raw_qpu_config_6s = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}
     ]
     }
@@ -1051,8 +1051,8 @@ def test_CI_220207_1_loopback_6s():
 
     raw_qpu_config_2s = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 2, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}
     ]
     }
@@ -1061,43 +1061,43 @@ def test_CI_220207_1_loopback_6s():
     json_file = open("../../qpu_config_loop_6s.json",'w')
     json_file.write(raw_qpu_config_6s)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_loop_6s.json"
+    s.qpu_config = "../../qpu_config_loop_6s.json"
     # Run the circuit on the back-end
-    eltim = timeit.timeit(lambda: tqb.run(), number=1)
+    eltim = timeit.timeit(lambda: s.run(), number=1)
     assert (eltim > 6.0)
 
     json_file = open("../../qpu_config_loop_2s.json",'w')
     json_file.write(raw_qpu_config_2s)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_loop_2s.json"
+    s.qpu_config = "../../qpu_config_loop_2s.json"
     # Run the circuit on the back-end
-    eltim = timeit.timeit(lambda: tqb.run(), number=1)
+    eltim = timeit.timeit(lambda: s.run(), number=1)
     assert (eltim < 5.0)
 
 def test_CI_220225_1_init_measure_no_gates() :
     print("When a circuit contains no gates, QB hardware expects a JSON with circuit=[] instead of circuit='null'")
-    import qbos 
+    import qb.core
     import json
     import timeit
-    tqb = qbos.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
-    tqb.qn = 1
-    tqb.sn = 1
-    tqb.xasm = True
-    
-    # targetCircuit: contains the quantum circuit that will be processed/executed 
+    s.qn = 1
+    s.sn = 1
+    s.xasm = True
+
+    # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
     __qpu__ void QBCIRCUIT(qbit q) {
         Measure(q[0]);
     }
     '''
-    tqb.instring = targetCircuit
-    tqb.acc = "loopback"
-    
+    s.instring = targetCircuit
+    s.acc = "loopback"
+
     # Run the circuit on the back-end
-    eltim = timeit.timeit(lambda: tqb.run(), number=1)
-    res = json.loads(tqb.out_qbjson[0][0])
+    eltim = timeit.timeit(lambda: s.run(), number=1)
+    res = json.loads(s.out_qbjson[0][0])
     assert(len(res["circuit"]) == 0)
     targetCircuit = '''
     __qpu__ void QBCIRCUIT(qbit q) {
@@ -1105,21 +1105,21 @@ def test_CI_220225_1_init_measure_no_gates() :
         Measure(q[0]);
     }
     '''
-    tqb.instring = targetCircuit
+    s.instring = targetCircuit
     # Run the circuit on the back-end
-    eltim = timeit.timeit(lambda: tqb.run(), number=1)
-    res = json.loads(tqb.out_qbjson[0][0])
+    eltim = timeit.timeit(lambda: s.run(), number=1)
+    res = json.loads(s.out_qbjson[0][0])
     assert(len(res["circuit"]) == 2)
 
 def test_ripple_adder():
     print(" Testing Ripple Carry Adder Circuit ")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     # Testing a simple integer adding, checking the full truth table.
-    
+
     # Helper to set the input register to an integer value
     def set_integer(circuit, bits, value):
         num_bits = len(bits)
@@ -1150,14 +1150,14 @@ def test_ripple_adder():
             # Measure the result register
             for q in b:
                 circ.measure(q)
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             # Expected sum result
             expected = i + j
@@ -1168,11 +1168,11 @@ def test_ripple_adder():
 
 def test_ripple_adder_superposition():
     print(" Testing Ripple Carry Adder Circuit for superposition ")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     # Let's do a 2-qubit adder
     nb_qubits = 2
     # partition the qubit indices:
@@ -1195,25 +1195,25 @@ def test_ripple_adder_superposition():
         circ.measure(q)
     # Check the circuit:
     # circ.print()
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     # Expected sum result to be a superposition of 4 values:
-    assert(len(list(res.keys())) == 4)     
-           
+    assert(len(list(res.keys())) == 4)
+
 def test_comparator():
     print("Testing quantum bit string comparator")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     # Comparator: compare two bitstrings |BestScore> and |TrialScore>
     # within the quantum register |TrialScore>|flag>|BestScore>|ancilla>
@@ -1233,7 +1233,7 @@ def test_comparator():
             flag_qubit = 2
             best_score_qubits = [0,4]
             ancilla_qubits = [5,6,7,8]
-            
+
             # create circuit
             circ = qb.Circuit()
 
@@ -1254,14 +1254,14 @@ def test_comparator():
             #print("OpenQASM:\n", circ.openqasm())
 
             # Run:
-            tqb.ir_target = circ
-            tqb.nooptimise = True
-            tqb.noplacement = True
-            tqb.notiming = True
-            tqb.output_oqm_enabled = False
-            tqb.acc = "qpp"
-            tqb.run()
-            result = tqb.out_raw[0][0]
+            s.ir_target = circ
+            s.nooptimise = True
+            s.noplacement = True
+            s.notiming = True
+            s.output_oqm_enabled = False
+            s.acc = "qpp"
+            s.run()
+            result = s.out_raw[0][0]
             res = ast.literal_eval(result)
             #print("Result:\n", result)
 
@@ -1269,20 +1269,20 @@ def test_comparator():
             if j > i:
                 expected_bit_string = "1"
             if j <= i:
-                expected_bit_string = "0" 
+                expected_bit_string = "0"
             assert(expected_bit_string in list(res.keys()))
             count = int(res[expected_bit_string])
             assert(count == 1024)
 
 def test_efficient_encoding():
     print("Testing Efficient Encoding")
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
-    # Efficient Encoding: given the input |state>|00...0> 
+    # Efficient Encoding: given the input |state>|00...0>
     # produces the output |state>|score> where the score for
     # each bitstring is given by a scoring function
 
@@ -1301,7 +1301,7 @@ def test_efficient_encoding():
 
     # State prep: |000>|000> + |111>|0000>
     circ.h(0)
-    for k in range(num_state_qubits-1): 
+    for k in range(num_state_qubits-1):
         circ.cnot(k,k+1)
 
     # Add ee
@@ -1314,14 +1314,14 @@ def test_efficient_encoding():
     #print("OpenQASM:\n", circ.openqasm())
 
     # Run:
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     #print("Result:\n", result)
 
@@ -1332,13 +1332,13 @@ def test_efficient_encoding():
         assert(measurement in allowed_outputs)
 
 def test_compare_beam_oracle():
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.acc = "aer"
-    tqb.sn = 1024
-    tqb.qb12()
+    s = qb.core.session()
+    s.acc = "aer"
+    s.sn = 1024
+    s.qb12()
 
     ##########################################################################
     #Test 1: SA = |0111>, FA = |01>, FB = |01>
@@ -1372,10 +1372,10 @@ def test_compare_beam_oracle():
     #res = ast.literal_eval(result)
     #print(res)
     #assert("010" in res["AcceleratorBuffer"]["Measurements"])
-    tqb.instring = circ.openqasm()
-    tqb.run()
-    #print(tqb.out_raw[0])
-    result = tqb.out_raw[0][0]
+    s.instring = circ.openqasm()
+    s.run()
+    #print(s.out_raw[0])
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     assert(res["010"] == 1024)
 
@@ -1406,22 +1406,22 @@ def test_compare_beam_oracle():
     circ.measure(q2)
 
     #Run
-    tqb.instring = circ.openqasm()
-    tqb.run()
-    #print(tqb.out_raw[0])
-    result = tqb.out_raw[0][0]
+    s.instring = circ.openqasm()
+    s.run()
+    #print(s.out_raw[0])
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     assert(res["111"] == 1024)
 
 def test_multiplication():
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.acc = "qsim"
-    tqb.sn = 1024
-    tqb.qb12()
-    tqb.qn = 9
+    s = qb.core.session()
+    s.acc = "qsim"
+    s.sn = 1024
+    s.qb12()
+    s.qn = 9
 
     ##########################################################################
     # Test 1: qubit_a = 1 = |10>, qubit_b = 3 = |11>,
@@ -1449,29 +1449,29 @@ def test_multiplication():
     for i in range(len(qubits_result)):
         circ.measure(qubits_result[i])
 
-    #circ.print() 
+    #circ.print()
 
     # Run circuit
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     # print(res)
     assert(res["10111100"] == 1024)
 
 def test_controlled_multiplication():
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.acc = "qsim"
-    tqb.sn = 1024
-    tqb.qb12()
-    tqb.qn = 10
+    s = qb.core.session()
+    s.acc = "qsim"
+    s.sn = 1024
+    s.qb12()
+    s.qn = 10
 
     ##########################################################################
     # Test 1: qubit_a = 1 = |10>, qubit_b = 3 = |11>,
@@ -1502,25 +1502,25 @@ def test_controlled_multiplication():
     for i in range(len(qubits_result)):
         circ.measure(qubits_result[i])
 
-    #circ.print() 
+    #circ.print()
 
     # Run circuit
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.run()
-    result = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
     #print(res)
     assert(res["10111100"] == 1024)
 
 def test_raw_openqasm_str():
     print(" Testing raw OpenQASM string input ")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.debug = True
+    import qb.core
+    s = qb.core.session()
+    s.debug = True
     nb_qubits = 12
     circ = qb.Circuit()
     circ.h(0)
@@ -1529,31 +1529,31 @@ def test_raw_openqasm_str():
         circ.cnot(i, i + 1)
     circ.measure_all()
 
-    tqb.qb12()
-    tqb.instring = circ.openqasm()
-    tqb.run()
-    print(tqb.out_raw[0])
-    assert(len(tqb.out_count[0][0]) == 2)
+    s.qb12()
+    s.instring = circ.openqasm()
+    s.run()
+    print(s.out_raw[0])
+    assert(len(s.out_count[0][0]) == 2)
 
 def test_raw_openqasm_file():
     print(" Testing raw OpenQASM file input ")
-    import qbos as qb
-    import os 
-    tqb = qb.core()
-    tqb.debug = True
+    import qb.core
+    import os
+    s = qb.core.session()
+    s.debug = True
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    tqb.infile = dir_path + "/test_openqasm.qasm"
-    tqb.qb12()
-    tqb.run()
-    print(tqb.out_raw[0])
-    assert(len(tqb.out_count[0][0]) == 2)
+    s.infile = dir_path + "/test_openqasm.qasm"
+    s.qb12()
+    s.run()
+    print(s.out_raw[0])
+    assert(len(s.out_count[0][0]) == 2)
 
 def test_raw_openqasm_custom_qreg_names():
     print(" Testing raw OpenQASM input using different qreg variable names")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.instring = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg qa1_bb[2];
@@ -1563,11 +1563,11 @@ def test_raw_openqasm_custom_qreg_names():
     measure qa1_bb[0] -> c[0];
     measure qa1_bb[1] -> c[1];
     '''
-    tqb.run()
-    print(tqb.out_raw[0])
-    assert(len(tqb.out_count[0][0]) == 2)
+    s.run()
+    print(s.out_raw[0])
+    assert(len(s.out_count[0][0]) == 2)
 
-    tqb.instring = '''
+    s.instring = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg q1[2];
@@ -1577,11 +1577,11 @@ def test_raw_openqasm_custom_qreg_names():
     measure q1[0] -> c[0];
     measure q1[1] -> c[1];
     '''
-    tqb.run()
-    print(tqb.out_raw[0])
-    assert(len(tqb.out_count[0][0]) == 2)
+    s.run()
+    print(s.out_raw[0])
+    assert(len(s.out_count[0][0]) == 2)
 
-    tqb.instring = '''
+    s.instring = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg qb_reg123[2];
@@ -1591,26 +1591,26 @@ def test_raw_openqasm_custom_qreg_names():
     measure qb_reg123[0] -> c[0];
     measure qb_reg123[1] -> c[1];
     '''
-    tqb.run()
-    print(tqb.out_raw[0])
-    assert(len(tqb.out_count[0][0]) == 2)
+    s.run()
+    print(s.out_raw[0])
+    assert(len(s.out_count[0][0]) == 2)
 
 def test_async_run_and_wait():
     print(" Testing asynchronous job runs ")
-    import qbos as qb
+    import qb.core
     import json
     import numpy as np
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
-    tqb.set_parallel_run_config(json.dumps(qpu_configs))
+    s.set_parallel_run_config(json.dumps(qpu_configs))
     nb_jobs = 2
-    tqb.qn[0].clear()
-    tqb.sns[0].clear()
+    s.qn[0].clear()
+    s.sns[0].clear()
     for i in range(nb_jobs):
         # All circuits use 4 qubits
-        tqb.qn[0].append(16)
-        tqb.sns[0].append(1024)
+        s.qn[0].append(16)
+        s.sns[0].append(1024)
 
     openQASM = '''
     OPENQASM 2.0;
@@ -1635,18 +1635,18 @@ def test_async_run_and_wait():
     cx q[14],q[15];
     measure q -> c;
     '''
-    tqb.instrings.clear()
-    tqb.xasms[0].clear()
-    tqb.quil1s[0].clear()
+    s.instrings.clear()
+    s.xasms[0].clear()
+    s.quil1s[0].clear()
     for i in range(nb_jobs):
-        tqb.instrings.append(qb.String())
-        tqb.instrings[i].append(openQASM)
-        tqb.xasms[0].append(False)
-        tqb.quil1s[0].append(False)
+        s.instrings.append(qb.String())
+        s.instrings[i].append(openQASM)
+        s.xasms[0].append(False)
+        s.quil1s[0].append(False)
 
     all_handles = []
     for i in range(nb_jobs):
-        handle = tqb.run_async(i, 0)
+        handle = s.run_async(i, 0)
         all_handles.append(handle)
     print("Complete posting all", nb_jobs, "jobs")
 
@@ -1659,31 +1659,31 @@ def test_async_run_and_wait():
             completed = handle.complete()
             if not completed:
                 all_done = False
-            else: 
+            else:
                 complete_count = complete_count + 1
         if not all_done:
             time.sleep(1)
-        
-    assert(len(tqb.out_count) == 2)
-    # Bell States
-    assert(len(tqb.out_count[0][0]) == 2)
-    assert(len(tqb.out_count[1][0]) == 2)
 
-    
+    assert(len(s.out_count) == 2)
+    # Bell States
+    assert(len(s.out_count[0][0]) == 2)
+    assert(len(s.out_count[1][0]) == 2)
+
+
 def test_normal_request_with_downsampling():
     print("Using loopback to test downsampling")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn=2
-    tqb.acc='loopback'
-    tqb.xasm=True
-    tqb.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    tqb.sn=3
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm=True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=3
     raw_qpu_resample = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 1, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100}
     ]
     }
@@ -1691,25 +1691,25 @@ def test_normal_request_with_downsampling():
     json_file = open("../../qpu_config_resample.json",'w')
     json_file.write(raw_qpu_resample)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_resample.json"
+    s.qpu_config = "../../qpu_config_resample.json"
 
-    tqb.run()
-    assert(sum([jj for jj in (tqb.out_count[0][0]).values()]) == 3)
+    s.run()
+    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 3)
 
 def test_normal_request_with_upsampling():
     print("Using loopback to test upsampling")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn=2
-    tqb.acc='loopback'
-    tqb.xasm = True
-    tqb.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    tqb.sn=30
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=30
     raw_qpu_resample = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 1, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": true, "resample_above_percentage": 100}
     ]
     }
@@ -1717,24 +1717,24 @@ def test_normal_request_with_upsampling():
     json_file = open("../../qpu_config_resample.json",'w')
     json_file.write(raw_qpu_resample)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_resample.json"
-    tqb.run()
-    assert(sum([jj for jj in (tqb.out_count[0][0]).values()]) == 30)
-    
+    s.qpu_config = "../../qpu_config_resample.json"
+    s.run()
+    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 30)
+
 def test_normal_request_recursive_with_resampling_above_threshold():
     print("Using loopback to test recursive requests + forced resampling when 50% or above of requested measurements are successful")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn=2
-    tqb.acc='loopback'
-    tqb.xasm = True
-    tqb.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    tqb.sn=16
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=16
     raw_qpu_resample = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 50}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 50}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 50},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 50},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 1, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 50}
     ]
     }
@@ -1742,25 +1742,25 @@ def test_normal_request_recursive_with_resampling_above_threshold():
     json_file = open("../../qpu_config_resample.json",'w')
     json_file.write(raw_qpu_resample)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_resample.json"
-    tqb.run()
-    assert(sum([jj for jj in (tqb.out_count[0][0]).values()]) == 16)
+    s.qpu_config = "../../qpu_config_resample.json"
+    s.run()
+    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
 
-    
+
 def test_normal_request_recursive_no_resampling():
     print("Using loopback to test recursive requests + no resampling")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn=2
-    tqb.acc='loopback'
-    tqb.xasm = True
-    tqb.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    tqb.sn=16
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=16
     raw_qpu_resample = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 100}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 100}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 100},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 100},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 1, "poll_retrys": 100, "over_request": 1, "recursive_request": true, "resample": false, "resample_above_percentage": 100}
     ]
     }
@@ -1768,24 +1768,24 @@ def test_normal_request_recursive_no_resampling():
     json_file = open("../../qpu_config_resample.json",'w')
     json_file.write(raw_qpu_resample)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_resample.json"
-    tqb.run()
-    assert(sum([jj for jj in (tqb.out_count[0][0]).values()]) == 16)
+    s.qpu_config = "../../qpu_config_resample.json"
+    s.run()
+    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
 
 def test_over_request_recursive_no_resampling():
     print("Using loopback to test recursive 8x over-requests + no resampling")
-    import qbos as qb
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn=2
-    tqb.acc='loopback'
-    tqb.xasm = True
-    tqb.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    tqb.sn=16
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=16
     raw_qpu_resample = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": false, "resample_above_percentage": 100}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": false, "resample_above_percentage": 100}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": false, "resample_above_percentage": 100},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": false, "resample_above_percentage": 100},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 1, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": false, "resample_above_percentage": 100}
     ]
     }
@@ -1793,26 +1793,26 @@ def test_over_request_recursive_no_resampling():
     json_file = open("../../qpu_config_resample.json",'w')
     json_file.write(raw_qpu_resample)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_resample.json"
-    tqb.run()
-    assert(sum([jj for jj in (tqb.out_count[0][0]).values()]) == 16)
+    s.qpu_config = "../../qpu_config_resample.json"
+    s.run()
+    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
 
 def test_over_request_recursive_resampling_qb_safe_limit_shots():
     print("Using loopback to test QB_SAFE_LIMIT_SHOTS")
-    import qbos as qb
+    import qb.core
     import json
     QB_SAFE_LIMIT_SHOTS = 512
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn=2
-    tqb.acc='loopback'
-    tqb.xasm = True
-    tqb.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    tqb.sn=1024
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=1024
     raw_qpu_resample = '''
     {   "accs": [
-    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": true, "resample_above_percentage": 100}, 
-    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": true, "resample_above_percentage": 100}, 
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": true, "resample_above_percentage": 100},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": true, "resample_above_percentage": 100},
     {"acc": "loopback", "url": "http://127.0.0.1:8000", "poll_secs": 1, "poll_retrys": 100, "over_request": 8, "recursive_request": true, "resample": true, "resample_above_percentage": 100}
     ]
     }
@@ -1820,34 +1820,34 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     json_file = open("../../qpu_config_resample.json",'w')
     json_file.write(raw_qpu_resample)
     json_file.close()
-    tqb.qpu_config = "../../qpu_config_resample.json"
-    tqb.run()
-    tjs = json.loads(tqb.out_qbjson[0][0])
+    s.qpu_config = "../../qpu_config_resample.json"
+    s.run()
+    tjs = json.loads(s.out_qbjson[0][0])
     assert(tjs['settings']['shots'] == QB_SAFE_LIMIT_SHOTS)
 
 
 def test_potential_async_deadlock():
     print("Test dispatching a large number of async jobs")
-    import qbos as qb
+    import qb.core
     import json
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
-    tqb.set_parallel_run_config(json.dumps(qpu_configs))
+    s.set_parallel_run_config(json.dumps(qpu_configs))
     # Quite a large number of jobs
     nb_jobs = 50
-    tqb.qn[0].clear()
-    tqb.sns[0].clear()
+    s.qn[0].clear()
+    s.sns[0].clear()
     for i in range(nb_jobs):
         # All circuits use 4 qubits
-        tqb.qn[0].append(4)
-        tqb.sns[0].append(1024)
+        s.qn[0].append(4)
+        s.sns[0].append(1024)
     openQASM = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg q[4];
     creg c[4];
-    x q[0]; 
+    x q[0];
     x q[2];
     h q[0];
     cu1(pi/2) q[1],q[0];
@@ -1861,18 +1861,18 @@ def test_potential_async_deadlock():
     h q[3];
     measure q -> c;
     '''
-    tqb.instrings.clear()
-    tqb.xasms[0].clear()
-    tqb.quil1s[0].clear()
+    s.instrings.clear()
+    s.xasms[0].clear()
+    s.quil1s[0].clear()
     for i in range(nb_jobs):
-        tqb.instrings.append(qb.String())
-        tqb.instrings[i].append(openQASM)
-        tqb.xasms[0].append(False)
-        tqb.quil1s[0].append(False)
+        s.instrings.append(qb.String())
+        s.instrings[i].append(openQASM)
+        s.xasms[0].append(False)
+        s.quil1s[0].append(False)
 
     all_handles = []
     for i in range(nb_jobs):
-        handle = tqb.run_async(i, 0)
+        handle = s.run_async(i, 0)
         all_handles.append(handle)
     print("Complete posting all", nb_jobs, "jobs")
 
@@ -1885,7 +1885,7 @@ def test_potential_async_deadlock():
             completed = handle.complete()
             if not completed:
                 all_done = False
-            else: 
+            else:
                 complete_count = complete_count + 1
         if not all_done:
             print(complete_count, "/", nb_jobs, "complete.")
@@ -1895,59 +1895,59 @@ def test_potential_async_deadlock():
 
     #print("Result:")
     #for i in range(nb_jobs):
-        #print(tqb.out_raw[i][0])
+        #print(s.out_raw[i][0])
     count_qpp = 0
     count_aer = 0
     for handle in all_handles:
         if handle.qpu_name() == "qpp":
-           count_qpp += 1 
+           count_qpp += 1
         if handle.qpu_name() == "aer":
-           count_aer += 1 
+           count_aer += 1
     assert(count_qpp > 0)
     assert(count_aer > 0)
     assert(count_qpp + count_aer == nb_jobs)
 
 def test_noise_mitigation():
-    import qbos as qb
+    import qb.core
     import json
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.noise = True
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.sn = 8192   
-    tqb.acc = "aer"    
+    s = qb.core.session()
+    s.qb12()
+    s.noise = True
+    s.nooptimise = True
+    s.noplacement = True
+    s.sn = 8192
+    s.acc = "aer"
     # Simple Bell circuit
     circ = qb.Circuit()
-    circ.h(0)    
-    circ.cnot(0, 1)    
+    circ.h(0)
+    circ.cnot(0, 1)
     circ.measure_all()
 
-    tqb.qn = 2
-    tqb.instring = circ.openqasm()
-    tqb.run()
+    s.qn = 2
+    s.instring = circ.openqasm()
+    s.run()
     print("Without mitigation:")
-    print(tqb.out_raw[0][0])
-    no_mitigation = json.loads(tqb.out_raw[0][0])
+    print(s.out_raw[0][0])
+    no_mitigation = json.loads(s.out_raw[0][0])
 
-    tqb.noise_mitigation = "assignment-error-kernel"
-    tqb.run()
+    s.noise_mitigation = "assignment-error-kernel"
+    s.run()
     print("With mitigation:")
-    print(tqb.out_raw[0][0])
-    mitigation = json.loads(tqb.out_raw[0][0])
+    print(s.out_raw[0][0])
+    mitigation = json.loads(s.out_raw[0][0])
     assert(int(mitigation["01"]) < int(no_mitigation["01"]))
     assert(int(mitigation["10"]) < int(no_mitigation["10"]))
 
 def test_sparse_sim():
-    import qbos as qb
+    import qb.core
     import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.xasm = True   
+    s = qb.core.session()
+    s.qb12()
+    s.xasm = True
     num_shots = 8192
-    tqb.sn = num_shots    
-    tqb.acc = "sparse-sim"    
+    s.sn = num_shots
+    s.acc = "sparse-sim"
 
     # Generate DJ Circuit
     def qbdj(qn) :
@@ -1955,7 +1955,7 @@ def test_sparse_sim():
         import re
         bitstr = [1,0]*(qn//2)
         xgates_str=''.join(['X(q['+str(mye[0])+']);' for mye in enumerate(bitstr) if mye[1]==1])
-        
+
         generator = '''
     __qpu__ void QBCIRCUIT(qreg q) {\n'
     for (int i=0; i<%d; i++) {
@@ -1986,26 +1986,26 @@ def test_sparse_sim():
 
     nb_qubits = 31
     print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
-    tqb.qn = nb_qubits + 1
-    tqb.instring = qbdj(nb_qubits)
-    tqb.run()
-    results = tqb.out_raw[0][0]
+    s.qn = nb_qubits + 1
+    s.instring = qbdj(nb_qubits)
+    s.run()
+    results = s.out_raw[0][0]
     res = ast.literal_eval(results)
     expected_bitstring = '1'*nb_qubits
     assert(res[expected_bitstring] == num_shots)
 
 def test_inverse_circuit():
-    import qbos as qb 
+    import qb.core
     import ast
 
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qpp"
-    tqb.sn = 1024
+    s = qb.core.session()
+    s.qb12()
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qpp"
+    s.sn = 1024
 
     qubits = [0,1,2,3]
     circ = qb.Circuit()
@@ -2016,21 +2016,21 @@ def test_inverse_circuit():
     circ.qft(qubits)
     circ.inverse_circuit(qft)
     for i in qubits:
-        circ.measure(i) 
-    
-    tqb.ir_target = circ
-    tqb.run()
-    result = tqb.out_raw[0][0]
+        circ.measure(i)
+
+    s.ir_target = circ
+    s.run()
+    result = s.out_raw[0][0]
     res = ast.literal_eval(result)
-    assert(res["0000"] == 1024) 
+    assert(res["0000"] == 1024)
 
 def test_subtraction():
-    import qbos as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 7
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 7
 
     ###
     # Testing subtraction
@@ -2039,7 +2039,7 @@ def test_subtraction():
 
     # Set up input registers
     qubits_larger = [0,1,2]
-    qubits_smaller = [3,4,5] 
+    qubits_smaller = [3,4,5]
     qubit_ancilla = 6
 
     circ = qb.Circuit()
@@ -2064,14 +2064,14 @@ def test_subtraction():
     for k in range(6):
         circ.measure(k)
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     # print(res1)
 
@@ -2083,12 +2083,12 @@ def test_subtraction():
     assert(res1[expected_output] == 1024)
 
 def test_controlled_subtraction():
-    import qbos as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 8
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 8
 
     ###
     # Testing subtraction
@@ -2097,7 +2097,7 @@ def test_controlled_subtraction():
 
     # Set up input registers
     qubits_larger = [0,1,2]
-    qubits_smaller = [3,4,5] 
+    qubits_smaller = [3,4,5]
     control_on = [6]
     ancilla = 7
 
@@ -2125,14 +2125,14 @@ def test_controlled_subtraction():
     for k in range(6):
         circ.measure(k)
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     # print(res1)
 
@@ -2144,23 +2144,23 @@ def test_controlled_subtraction():
     assert(res1[expected_output] == 1024)
 
 def test_proper_fraction_division():
-    import qbos as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 11
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 11
 
     ###
     # Testing proper fraction division
     # In this example we perform every valid 3-qubit proper fraction division with 3 precision bits
     ###
 
-    i = 1 
+    i = 1
     j = 2
     # Set up input registers
     qubits_numerator = [0,1]
-    qubits_denominator = [2,3] 
+    qubits_denominator = [2,3]
     qubits_fraction = [4,5]
     qubits_ancilla = list(range(6,11))
 
@@ -2187,18 +2187,18 @@ def test_proper_fraction_division():
         circ.measure(k)
     for k in qubits_fraction:
         circ.measure(k)
-    for k in qubits_ancilla: 
+    for k in qubits_ancilla:
         circ.measure(k)
-    
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    # tqb.debug = True
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    # s.debug = True
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
 
     # res = circ.execute("sparse-sim", 1024, 34)
@@ -2228,12 +2228,12 @@ def test_proper_fraction_division():
     assert(res1[expected_output] == 1024)
 
 def test_controlled_proper_fraction_division():
-    import qbos as qb
-    import numpy as np 
+    import qb.core
+    import numpy as np
     import ast
-    tqb = qb.core()
-    tqb.qb12()
-    tqb.qn = 12
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 12
 
     ###
     # Testing proper fraction division
@@ -2244,7 +2244,7 @@ def test_controlled_proper_fraction_division():
     j = 2
     # Set up input registers
     qubits_numerator = [0,1]
-    qubits_denominator = [2,3] 
+    qubits_denominator = [2,3]
     qubits_fraction = [4,5]
     qubits_ancilla = list(range(6,11)) # = 2k + 1
     controls_on = [11]
@@ -2274,17 +2274,17 @@ def test_controlled_proper_fraction_division():
         circ.measure(k)
     for k in qubits_fraction:
         circ.measure(k)
-    for k in qubits_ancilla: 
+    for k in qubits_ancilla:
         circ.measure(k)
-    
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
     assert(len(res1) == 1)
     # print(res1)
@@ -2310,11 +2310,11 @@ def test_controlled_proper_fraction_division():
     assert(res1[expected_output] == 1024)
 
 def test_compare_gt():
-    import qbos as qb 
-    import ast 
+    import qb.core
+    import ast
 
-    tqb = qb.core()
-    tqb.qb12()
+    s = qb.core.session()
+    s.qb12()
 
     i = 3
     j = 2
@@ -2336,21 +2336,21 @@ def test_compare_gt():
             circ.x(qubits_a[k])
         if bk == '1':
             circ.x(qubits_b[k])
-    
+
     circ.compare_gt(qubits_a, qubits_b, qubit_flag, qubit_ancilla, is_LSB = False)
 
     circ.measure_all()
 
-    tqb.ir_target = circ
-    tqb.nooptimise = True
-    tqb.noplacement = True
-    tqb.notiming = True
-    tqb.output_oqm_enabled = False
-    tqb.qn = 6
-    tqb.sn = 1024
-    tqb.acc = "qsim"
-    tqb.run()
-    result1 = tqb.out_raw[0][0]
+    s.ir_target = circ
+    s.nooptimise = True
+    s.noplacement = True
+    s.notiming = True
+    s.output_oqm_enabled = False
+    s.qn = 6
+    s.sn = 1024
+    s.acc = "qsim"
+    s.run()
+    result1 = s.out_raw[0][0]
     res1 = ast.literal_eval(result1)
 
     expected_output = a_bin + b_bin
@@ -2365,23 +2365,23 @@ def test_compare_gt():
 def test_random_seed():
     # List of accelerators as required by https://qbau.atlassian.net/browse/SEB-97
     accelerators = ["qpp", "aer", "qsim"]
-    num_runs = 5 
-    # Expected repeatable results 
+    num_runs = 5
+    # Expected repeatable results
     for acc in accelerators:
         previous_result = None
         for i in range(num_runs):
             import xacc
-            import qbos
-            tqb = qbos.core()
-            tqb.qb12()  
+            import qb.core
+            s = qb.core.session()
+            s.qb12()
             # Override defaults
             n_qubits = 4
             n_shots = 1024
-            tqb.qn = n_qubits      # We only need 4 qubits here
-            tqb.sn = n_shots       # Explicitly use 1024 shots
-            tqb.xasm = True        # Use XASM circuit format to access XACC's qft() 
-            tqb.seed = 1234  
-            tqb.acc = acc
+            s.qn = n_qubits      # We only need 4 qubits here
+            s.sn = n_shots       # Explicitly use 1024 shots
+            s.xasm = True        # Use XASM circuit format to access XACC's qft()
+            s.seed = 1234
+            s.acc = acc
             # targetCircuit: contains the quantum circuit that will be processed/executed
             targetCircuit = '''
             __qpu__ void QBCIRCUIT(qbit q) {
@@ -2392,13 +2392,13 @@ def test_random_seed():
                     Measure(q[0]);
             }
             '''
-            tqb.instring = targetCircuit
+            s.instring = targetCircuit
 
             # Run the circuit on the back-end
-            tqb.run()
+            s.run()
 
             # Get the Z-operator expectation value
-            expectation_v = tqb.out_z_op_expect[0][0][0]
+            expectation_v = s.out_z_op_expect[0][0][0]
 
             # Test the value against assertions
             out_str = '''* Using %s accelerator with %d shots, Z-operator expectation value: %f''' % (acc, n_shots, expectation_v)
@@ -2416,20 +2416,20 @@ def test_random_seed_tnqvm():
     # https://qbau.atlassian.net/browse/SEB-139
     seeds = [123, 456]
     results = {123: [], 456: []}
-    num_runs = 5 
+    num_runs = 5
     for i in range(num_runs):
         for seed in seeds:
-            import qbos
-            tqb = qbos.core()
-            tqb.qb12()  
+            import qb.core
+            s = qb.core.session()
+            s.qb12()
             # Override defaults
             n_qubits = 4
             n_shots = 1024
-            tqb.qn = n_qubits      # We only need 4 qubits here
-            tqb.sn = n_shots       # Explicitly use 1024 shots
-            tqb.xasm = True        # Use XASM circuit format to access XACC's qft() 
-            tqb.seed = seed  
-            tqb.acc = "tnqvm"
+            s.qn = n_qubits      # We only need 4 qubits here
+            s.sn = n_shots       # Explicitly use 1024 shots
+            s.xasm = True        # Use XASM circuit format to access XACC's qft()
+            s.seed = seed
+            s.acc = "tnqvm"
             # targetCircuit: contains the quantum circuit that will be processed/executed
             targetCircuit = '''
             __qpu__ void QBCIRCUIT(qbit q) {
@@ -2440,13 +2440,13 @@ def test_random_seed_tnqvm():
                     Measure(q[0]);
             }
             '''
-            tqb.instring = targetCircuit
+            s.instring = targetCircuit
 
             # Run the circuit on the back-end
-            tqb.run()
+            s.run()
 
             # Get the Z-operator expectation value
-            expectation_v = tqb.out_z_op_expect[0][0][0]
+            expectation_v = s.out_z_op_expect[0][0][0]
 
             # Test the value against assertions
             out_str = '''* Using %s accelerator with %d shots, Z-operator expectation value: %f''' % ("tnqvm", n_shots, expectation_v)
@@ -2462,12 +2462,12 @@ def test_random_seed_tnqvm():
 
 def test_randomized_stats():
     # https://qbau.atlassian.net/browse/SWA-154
-    import qbos
-    tqb = qbos.core()
-    tqb.qb12()  
-    tqb.qn = 2      
-    tqb.sn = 1024     
-    tqb.instring = '''
+    import qb.core
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 2
+    s.sn = 1024
+    s.instring = '''
 __qpu__ void QBCIRCUIT(qreg q) {
 OPENQASM 2.0;
 include "qelib1.inc";
@@ -2479,26 +2479,26 @@ measure q[0] -> c[0];
 }'''
     nb_runs = 10
     for _ in range(nb_runs - 1):
-        tqb.acc[0].append("tnqvm")
-    tqb.run()
-    ref = tqb.out_raw[0][0]
+        s.acc[0].append("tnqvm")
+    s.run()
+    ref = s.out_raw[0][0]
     all_equal = True
-    print(tqb.out_raw[0])
-    for dist in tqb.out_raw[0]:
+    print(s.out_raw[0])
+    for dist in s.out_raw[0]:
         if dist != ref:
             all_equal = False
 
-    assert all_equal == False        
+    assert all_equal == False
 
 def test_clear_random_seed():
     # https://qbau.atlassian.net/browse/SWA-155
-    import qbos, ast
-    tqb = qbos.core()
-    tqb.qb12()  
-    tqb.qn = 2      
-    tqb.sn = 1024  
-    tqb.seed = 123   
-    tqb.instring = '''
+    import qb.core, ast
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 2
+    s.sn = 1024
+    s.seed = 123
+    s.instring = '''
 __qpu__ void QBCIRCUIT(qreg q) {
 OPENQASM 2.0;
 include "qelib1.inc";
@@ -2508,15 +2508,15 @@ h q[1];
 measure q[1] -> c[1];
 measure q[0] -> c[0];
 }'''
-    tqb.run()
-    ref = ast.literal_eval(tqb.out_raw[0][0])
+    s.run()
+    ref = ast.literal_eval(s.out_raw[0][0])
     nb_runs = 3
-    tqb.seed.clear()
+    s.seed.clear()
     see_new_random_results = False
     for _ in range(nb_runs):
-        tqb.run()
-        new_result = ast.literal_eval(tqb.out_raw[0][0])
+        s.run()
+        new_result = ast.literal_eval(s.out_raw[0][0])
         if new_result != ref:
             see_new_random_results = True
 
-    assert see_new_random_results       
+    assert see_new_random_results

@@ -1,15 +1,15 @@
-import qbos
-import ast 
-tqb=qbos.core(True)
-tqb.qb12()
+import qb.core
+import ast
+s = qb.core.session(True)
+s.qb12()
 
 # Use the aer accelerator, matrix product state method
-tqb.acc = "aer"
-tqb.aer_sim_type = "matrix_product_state"
-tqb.sn = 1000       
-tqb.noise = True
+s.acc = "aer"
+s.aer_sim_type = "matrix_product_state"
+s.sn = 1000
+s.noise = True
 
-tqb.instring='''
+s.instring='''
 __qpu__ void QBCIRCUIT(qreg q) {
     OPENQASM 2.0;
     include "qelib1.inc";
@@ -21,7 +21,7 @@ __qpu__ void QBCIRCUIT(qreg q) {
 }
 '''
 
-tqb.run()
-results = tqb.out_raw[0][0]
+s.run()
+results = s.out_raw[0][0]
 res = ast.literal_eval(results)
 print(res)

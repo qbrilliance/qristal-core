@@ -1,13 +1,14 @@
-import qbos as qb
+import qb.core
 import numpy as np
-tqb = qb.core()
-tqb.qb12()
-# tqb.debug = True
-tqb.qpu_config = "/mnt/qb/qbos/examples/lambda_accelerator/lambda_config.json"
-tqb.xasm = True   
+s = qb.core.session()
+s.qb12()
+# s.debug = True
+# FIXME qb.core.sdk_dir does not exist yet
+s.qpu_config = qb.core.sdk_dir + "/examples/lambda_accelerator/lambda_config.json"
+s.xasm = True
 
-tqb.sn = 1024     
-tqb.acc = "qb-lambda"    
+s.sn = 1024
+s.acc = "qb-lambda"
 
 # Generate DJ Circuit
 def qbdj(qn) :
@@ -15,7 +16,7 @@ def qbdj(qn) :
     import re
     bitstr = [1,0]*(qn//2)
     xgates_str=''.join(['X(q['+str(mye[0])+']);' for mye in enumerate(bitstr) if mye[1]==1])
-    
+
     generator = '''
 __qpu__ void QBCIRCUIT(qreg q) {\n'
 for (int i=0; i<%d; i++) {
@@ -47,8 +48,8 @@ for (int i=0; i<%d; i++) {
 qubits_range = [20, 22, 24, 26, 28]
 for nb_qubits in qubits_range:
     print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
-    tqb.qn = nb_qubits + 1
-    tqb.instring = qbdj(nb_qubits)
-    tqb.run()
-    print(tqb.out_raw[0][0])
+    s.qn = nb_qubits + 1
+    s.instring = qbdj(nb_qubits)
+    s.run()
+    print(s.out_raw[0][0])
     print("==================================")

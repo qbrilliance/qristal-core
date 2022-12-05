@@ -3,7 +3,7 @@
 #include "NoiseModel.hpp"
 #include <sstream>
 #include <unordered_map>
-namespace qbOS {
+namespace qb {
 template <typename T>
 bool contains(const std::vector<T> &container, const T &val) {
   return std::find(container.begin(), container.end(), val) != container.end();
@@ -443,4 +443,4 @@ private:
     }
   }
 };
-} // namespace qbOS
+} // namespace qb

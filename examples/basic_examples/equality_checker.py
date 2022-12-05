@@ -1,8 +1,8 @@
-import qbos as qb 
-import numpy as np 
+import qb.core
+import numpy as np
 import ast
-tqb = qb.core()
-tqb.qb12()
+s = qb.core.session()
+s.qb12()
 
 ###
 # Testing equality checker
@@ -21,7 +21,7 @@ qubits_ancilla = [7,8]
 # First do the no ancilla version
 for i in range(8):
     for j in range(8):
-        circ = qb.Circuit()
+        circ = qb.core.Circuit()
         # Prepare input strings
         bin_i = bin(i)[2:].zfill(3)
         bin_j = bin(j)[2:].zfill(3)
@@ -35,25 +35,25 @@ for i in range(8):
         # Measure flag
         circ.measure(flag)
         # Run
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
         # Check results
         if i == j:
             assert("1" in list(res.keys()))
         else:
             assert("0" in list(res.keys()))
-        
+
 # Now the ancilla version
 for i in range(8):
     for j in range(8):
-        circ = qb.Circuit()
+        circ = qb.core.Circuit()
         # Prepare input strings
         bin_i = bin(i)[2:].zfill(3)
         bin_j = bin(j)[2:].zfill(3)
@@ -67,14 +67,14 @@ for i in range(8):
         # Measure flag
         circ.measure(flag)
         # Run
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
-        result = tqb.out_raw[0][0]
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
         # Check results
         if i == j:

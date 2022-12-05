@@ -1,4 +1,4 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import ast
 
@@ -15,9 +15,9 @@ for i in range(0,4):
         # BestScore
         BestScore = i
         BestScore_bin = bin(BestScore)[2:].zfill(num_scoring_qubits)
-        
+
         # create circuit
-        circ = qb.Circuit()
+        circ = qb.core.Circuit()
 
         # State prep
         TestScore = j
@@ -39,16 +39,16 @@ for i in range(0,4):
         #print("OpenQASM:\n", circ.openqasm())
 
         # Run:
-        # tqb.ir_target = circ
-        # tqb.nooptimise = True
-        # tqb.noplacement = True
-        # tqb.notiming = True
-        # tqb.output_oqm_enabled = False
-        # tqb.acc = "qpp"
-        # tqb.run()
+        # s.ir_target = circ
+        # s.nooptimise = True
+        # s.noplacement = True
+        # s.notiming = True
+        # s.output_oqm_enabled = False
+        # s.acc = "qpp"
+        # s.run()
 
         # Get results
-        # result = tqb.out_raw[0][0]
+        # result = s.out_raw[0][0]
         result = circ.execute()
         res = ast.literal_eval(result)["AcceleratorBuffer"]["Measurements"]
         if j > i:
@@ -72,9 +72,9 @@ for i in range(0,4):
         flag_qubit = 2
         best_score_qubits = [0,4]
         ancilla_qubits = [5,6,7,8]
-        
+
         # create circuit
-        circ = qb.Circuit()
+        circ = qb.core.Circuit()
 
         # State prep
         TestScore = j
@@ -93,23 +93,23 @@ for i in range(0,4):
         #print("OpenQASM:\n", circ.openqasm())
 
         # Run:
-        tqb = qb.core()
-        tqb.qb12()
-        tqb.ir_target = circ
-        tqb.nooptimise = True
-        tqb.noplacement = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.acc = "qpp"
-        tqb.run()
+        s = qb.core.session()
+        s.qb12()
+        s.ir_target = circ
+        s.nooptimise = True
+        s.noplacement = True
+        s.notiming = True
+        s.output_oqm_enabled = False
+        s.acc = "qpp"
+        s.run()
 
         # Get results
-        result = tqb.out_raw[0][0]
+        result = s.out_raw[0][0]
         res = ast.literal_eval(result)
         if j > i:
             expected_bit_string = "1"
         if j <= i:
-            expected_bit_string = "0" 
+            expected_bit_string = "0"
         assert(expected_bit_string in list(res.keys()))
         count = int(res[expected_bit_string])
         assert(count == 1024)

@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 
 // Proper Fraction Division Circuit
 // This circuit is used to divide two quantum registers
@@ -23,4 +23,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(ProperFractionDivision);
 };
-} // namespace qbOS
+} // namespace qb

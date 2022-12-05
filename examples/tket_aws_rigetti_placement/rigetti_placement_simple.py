@@ -1,16 +1,16 @@
-import qbos
-tqb = qbos.core()
-tqb.qb12()
-tqb.acc = "aws_acc"
-tqb.aws_device = "Rigetti"
-tqb.sn = 1024
-tqb.placement = "tket"
-tqb.nooptimise = True
-tqb.nosim = True
-tqb.notiming = True
-tqb.output_oqm_enabled = False
+import qb.core
+s = qb.core.session()
+s.qb12()
+s.acc = "aws_acc"
+s.aws_device = "Rigetti"
+s.sn = 1024
+s.placement = "tket"
+s.nooptimise = True
+s.nosim = True
+s.notiming = True
+s.output_oqm_enabled = False
 
-circ = qbos.Circuit()
+circ = qb.core.Circuit()
 circ.h(0)
 circ.cnot(0, 1)
 
@@ -18,12 +18,12 @@ circ.cnot(0, 1)
 circ.measure_all()
 
 # run the circuit and check results
-tqb.ir_target = circ
+s.ir_target = circ
 
 print("Before placement:")
-tqb.ir_target[0][0].print()
+s.ir_target[0][0].print()
 # Note: Since nosim is set, we don't actually submit the circuit to Rigetti
-tqb.run()
+s.run()
 
 print("After placement:")
-tqb.ir_target[0][0].print()
+s.ir_target[0][0].print()

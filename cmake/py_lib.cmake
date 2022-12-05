@@ -1,7 +1,7 @@
 pybind11_add_module (${PROJECT_NAME}
   python_module/core/pybindings.cpp
-  python_module/core/methods_getter_setter.cpp
-  python_module/core/methods_py_help_strings.cpp
+  python_module/core/session_getter_setter.cpp
+  python_module/core/session_py_help_strings.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

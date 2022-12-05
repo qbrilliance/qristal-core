@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 #include "Circuit.hpp"
-namespace qbOS {
+namespace qb {
 class CompareBeamOracle : public xacc::quantum::Circuit {
 public:
   CompareBeamOracle() : xacc::quantum::Circuit("CompareBeamOracle") {}
@@ -11,4 +11,4 @@ public:
   const std::vector<std::string> requiredKeys() override;
   DEFINE_CLONE(CompareBeamOracle);
 };
-} // namespace qbOS
+} // namespace qb

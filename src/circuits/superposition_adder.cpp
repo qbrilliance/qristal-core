@@ -9,7 +9,7 @@
 #include <memory>
 #include "xacc.hpp"
 
-namespace qbOS {
+namespace qb {
 bool SuperpositionAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   ////////////////////////////////////////////////////////
   // Define helper functions
@@ -302,4 +302,4 @@ const std::vector<std::string> SuperpositionAdder::requiredKeys() {
   return {"q0", "q1", "q2", "qubits_falgs", "qubits_string", "qubits_metric",
   "ae_state_prep_circ", "qubits_ancilla", "qubits_beam_metric"};
 }
-} //namespace qbOS
+} //namespace qb

@@ -1,11 +1,11 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import torch
 from torch import Tensor
 from torch.optim import LBFGS, SGD, Adam, RMSprop
 import sys, os
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(sys.path[0])),'plugins','optimisation_modules','QML'))
-import qb_qml 
+import qb_qml
 from datetime import datetime
 import time
 from collections import deque
@@ -26,7 +26,7 @@ torch.manual_seed(seed)
 
 # default settings
 settings = {
-    "features": "simple",  
+    "features": "simple",
     "encoding": "rx",
     "reuploading" : True,
     "reps" : 5,
@@ -67,7 +67,7 @@ model = torch.nn.Sequential(quantum_nn, normLayer)
 loss_fn = torch.nn.MSELoss()
 
 
-""" 
+"""
 
 
 Uncomment code below to test if the model works + visualize the model
@@ -119,7 +119,7 @@ best_score = 0
 rewardList = deque(maxlen=40)
 
 # # initial observation
-state = env.reset()  
+state = env.reset()
 
 loss_arr = np.zeros(numEpisodes)
 reward_arr = np.zeros(numEpisodes)

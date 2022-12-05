@@ -6,14 +6,14 @@ input("")
 # i.e., estimate the amplitude of the state:
 # sqrt(1-p)|0> + sqrt(p)|1>
 print("First, import libraries...")
-import qbos as qb
-from qbos import run_canonical_ae
+import qb.core
+from qb.core import run_canonical_ae
 import numpy as np
 import timeit
 import ast
 print("Libraries imported successfully!")
 input("")
-tqb = qb.core()
+s = qb.core.session()
 
 print("In this example, we want to use CQAE to estimate the amplitude of the |1> state")
 print("in the superposition state |psi> = sqrt(1-p)|0> + sqrt(p)|1>.")
@@ -34,7 +34,7 @@ print("We use a y-rotation gate to prepare the state |psi>.")
 input("")
 theta_p = 2 * np.arcsin(np.sqrt(p))
 # State prep circuit: (preparing the state that we want to estimate the amplitude)
-state_prep = qb.Circuit()
+state_prep = qb.core.Circuit()
 state_prep.ry(bits_precision, theta_p)
 print("State prep defined! Printing state prep...\n")
 print("OpenQASM:\n", state_prep.openqasm())
@@ -44,7 +44,7 @@ print("In this example, we will provide the amplitude estimation module with the
 print("Grover's operator that it will use in the phase estimation.")
 input("")
 # Grover operator circuit:
-grover_op = qb.Circuit()
+grover_op = qb.core.Circuit()
 grover_op.ry(bits_precision, 2*theta_p)
 print("Gover's operator defined! Printing Grover's operator...")
 print("OpenQASM:\n", grover_op.openqasm())

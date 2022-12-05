@@ -1,13 +1,13 @@
-import qbos as qb
+import qb.core
 import numpy as np
 import ast
 import timeit
-tqb = qb.core()
-tqb.qb12()
-tqb.sn = 1024
-tqb.qn = 3
-tqb.acc = "qsim"
-tqb.noise = True
+s = qb.core.session()
+s.qb12()
+s.sn = 1024
+s.qn = 3
+s.acc = "qsim"
+s.noise = True
 # In this test we use generalised mcx to
 # perform a standard mcx on |111>
 
@@ -16,7 +16,7 @@ tqb.noise = True
 control_qubits = [0, 1]
 target_qubit = 2
 
-circ = qb.Circuit()
+circ = qb.core.Circuit()
 
 # prepare initial state
 circ.x(0)
@@ -30,9 +30,9 @@ circ.generalised_mcx(target_qubit, control_qubits)
 circ.measure_all()
 
 # run the circuit and check results
-tqb.ir_target = circ
-tqb.run()
+s.ir_target = circ
+s.run()
 
-results = tqb.out_raw[0][0]
+results = s.out_raw[0][0]
 res = ast.literal_eval(results)
 print(res)
