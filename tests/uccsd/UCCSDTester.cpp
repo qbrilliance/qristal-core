@@ -48,10 +48,3 @@ TEST(UCCSDTester, checkUCCSDH4) {
   EXPECT_EQ(uccsd->nVariables(), 26);
 }
 
-int main(int argc, char** argv) {
-    xacc::Initialize();
-   ::testing::InitGoogleTest(&argc, argv);
-   auto ret = RUN_ALL_TESTS();
-   xacc::Finalize();
-   return ret;
-}

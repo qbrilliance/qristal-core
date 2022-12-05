@@ -4,7 +4,7 @@
 #include "xacc_service.hpp"
 #include <gtest/gtest.h>
 
-TEST(CanonicalAmplitudeEstimationAlgorithmTester, checkInputOracle) {
+TEST(MLAmplitudeEstimationAlgorithmTester, checkInputOracle) {
   // Test the example here:
   // https://qiskit.org/documentation/finance/tutorials/00_amplitude_estimation.html
   // i.e., estimate the amplitude of the state:
@@ -45,10 +45,3 @@ TEST(CanonicalAmplitudeEstimationAlgorithmTester, checkInputOracle) {
   EXPECT_NEAR(buffer["amplitude-estimation"].as<double>(), 0.44721, 0.1);
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}

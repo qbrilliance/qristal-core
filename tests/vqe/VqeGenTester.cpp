@@ -419,12 +419,3 @@ TEST(VqeGenTester, checkH4Aer) {
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-3);
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  xacc::external::load_external_language_plugins();
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  //xacc::external::unload_external_language_plugins();
-  xacc::Finalize();
-  return ret;
-}

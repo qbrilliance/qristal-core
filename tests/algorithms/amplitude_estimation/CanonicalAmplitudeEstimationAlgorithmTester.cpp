@@ -101,10 +101,3 @@ TEST(CanonicalAmplitudeEstimationAlgorithmTester, checkHigherPrecision) {
   EXPECT_NEAR(buffer["amplitude-estimation"].as<double>(), std::sqrt(p), 0.01);
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}

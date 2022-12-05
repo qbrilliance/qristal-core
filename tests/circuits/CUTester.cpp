@@ -8,7 +8,7 @@
 // Other include statements
 ////////////////////////
 
-TEST(TestCase, checksimple) {
+TEST(CUTester, checksimple) {
 
   //////////////////////////////////////
   // Define circuit
@@ -54,10 +54,3 @@ TEST(TestCase, checksimple) {
   buffer->print();
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}

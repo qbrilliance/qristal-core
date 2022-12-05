@@ -74,10 +74,3 @@ TEST(AEtoMetricCircuitTester, checkWithAE) {
   EXPECT_EQ(buffer->getMeasurementCounts()["101101100100000000000"], 1000);
 }
 
-int main(int argc, char **argv) {
-  xacc::Initialize(argc, argv);
-  ::testing::InitGoogleTest(&argc, argv);
-  auto ret = RUN_ALL_TESTS();
-  xacc::Finalize();
-  return ret;
-}
