@@ -77,6 +77,13 @@ myst_enable_extensions = [
     "tasklist",
 ]
 
+# allow display math (i.e., $$) within an inline context. 
+# This allows, for example:
+# $$ \ket{\Phi^+} = \frac{\ket{00} + \ket{11}}{\sqrt{2}} , $$
+# $$ \ket{\Phi^-} = \frac{\ket{00} - \ket{11}}{\sqrt{2}} , $$
+# to be displayed as separate paragraphs (no need for empty lines b/w them).
+myst_dmath_double_inline = True
+
 # Prefix document path to section labels, to use:
 # `path/to/file:heading` instead of just `heading`
 autosectionlabel_prefix_document = True
