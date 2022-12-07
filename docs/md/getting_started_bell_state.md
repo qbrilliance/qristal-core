@@ -11,25 +11,25 @@ A Bell state can be constructed through the application of simple gates such as 
 <center>
 
 *Circuit to create $\ket{\Phi^+}$*:
-![](pictures/phi_plus.png)
+![](../static/img/phi_plus.png)
 
 </center>
 <center>
 
 *Circuit to create $\ket{\Phi^-}$*:
-![](pictures/phi_minus.png)
+![](../static/img/phi_minus.png)
 
 </center>
 <center>
 
 *Circuit to create $\ket{\Psi^+}$*:
-![](pictures/psi_plus.png)
+![](../static/img/psi_plus.png)
 
 </center>
 <center>
 
 *Circuit to create $\ket{\Psi^-}$*:
-![](pictures/psi_minus.png)
+![](../static/img/psi_minus.png)
 
 </center>
 

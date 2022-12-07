@@ -11,6 +11,14 @@ The QB documentation system is built on the following technologies:
 | Breathe    | Sphinx extension that can convert Doxygen’s XML output into individual reStructuredText directives (e.g. enables directives to show the documentation for a given function, class, macro, etc.). |
 | Exhale     | Sphinx extension uses Doxygen’s XML output to create an entire set of reStructuredText pages to document the whole C++ library API. Uses Breathe underneath the hood.                            |
 
+These dependencies can be installed by:
+
+```
+sudo apt install doxygen python3-sphinx graphviz
+python3 -m pip install sphinx_rtd_theme exhale myst-parser
+```
+
+To enable documentation build, pass `-DQB_BUILD_DOCS=ON` to `cmake` when configuring the build.
 
 ## Directory structures
 
@@ -41,8 +49,14 @@ docs/
 These reStructuredText files might use Sphinx directives to include Markdown documents or place the Doxygen (C++)/autodoc (Python) auto-generated API documentations (e.g., for a particular class or file, etc.)
 
 
-- `static`: where we put things like css stylesheets, logo icons, custom javascript files, etc.
+- `static`: where we put things like css stylesheets, logo icons, images/pictures, custom javascript files, etc.
 
+
+**IMPORTANT**
+
+If static images/figures to be embedded in markdown files, they need to be placed in the `static` directory rather than within the `md` directory. The reason is that `docutils`' `include` directive will basically embed the markdown content into the reStructuredText document, hence any links to external resources need to be consistent between markdown and reStructuredText documents.
+
+## Output
 
 Build artifacts are saved to the project build folder, i.e., `${CMAKE_BINARY_DIR}/docs`. 
 
