@@ -64,6 +64,8 @@ add_executable(CITests
   tests/noise_model/NoiseModelTester.cpp
   tests/sparse_simulator/QBSparseSimTester.cpp
   tests/uccsd/UCCSDTester.cpp
+  tests/optimization/vqeeTester.cpp
+  tests/optimization/qaoaTester.cpp
   ##tests/circuits/ControlledPFDCircuitTester.cpp #SLOW(?)
   ##tests/circuits/ControlledQAETester.cpp #SLOW (?)
   ##tests/circuits/ControlledSubtractionCircuitTester.cpp # SLOW(?)
@@ -78,14 +80,15 @@ add_test(NAME ci_tester COMMAND CITests)
 
 target_link_libraries(CITests
   PRIVATE
-	GTest::gtest
-	qb::core_headers
-	xacc::xacc
-	xacc::quantum_gate
-	cpr
-	qb::core
-	cppitertools::cppitertools
-	Eigen3::Eigen
+    GTest::gtest
+    qb::core_headers
+    xacc::xacc
+    xacc::quantum_gate
+    xacc::pauli
+    cpr
+    qb::core
+    cppitertools::cppitertools
+    Eigen3::Eigen
 )
 
 set_target_properties(CITests

@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 
 QB_DIR = /opt/qb/core
-XACC_DIR= ${QB_DIR}/deps/xacc/1.0.0-da24f49e
+XACC_DIR= $(wildcard $(QB_DIR)/deps/xacc/*)#1.0.0-da24f49e
 
 INCLUDES = \
 -I${QB_DIR}/include \

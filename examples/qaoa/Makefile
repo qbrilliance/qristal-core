@@ -3,10 +3,10 @@ SHELL := /bin/bash
 
 QB_DIR = /opt/qb/core
 SRC_DIR = ${QB_DIR}/src/optimization/qaoa
-XACC_DIR= ${QB_DIR}/deps/xacc/1.0.0-da24f49e
-JSON_DIR = ${QB_DIR}/deps/nlohmann_json/194813cc605ada7aab670c76cad74ec4e9eb4af2
-ARGS_DIR = ${QB_DIR}/deps/args/ab85b487acb949e2b658105646501d1da3925112
-EIGEN_DIR = ${QB_DIR}/deps/eigen3/9cb760a6fcc3143cbb7856ce4548b1cf4b385f2e
+XACC_DIR= $(wildcard $(QB_DIR)/deps/xacc/*)#1.0.0-da24f49e
+JSON_DIR = $(wildcard $(QB_DIR)/deps/nlohmann_json/*)#c0ddea98dd99624f51929177740dbc9c2c7898de
+ARGS_DIR = $(wildcard $(QB_DIR)/deps/args/*)#ab85b487acb949e2b658105646501d1da3925112
+EIGEN_DIR = $(wildcard $(QB_DIR)/deps/eigen3/*)#9a867200b380d028964c94a0f5e1bc69ea203172
 
 INCLUDES = \
 -I${QB_DIR}/include \
@@ -44,6 +44,10 @@ all : qaoa_example
 #%.bin : %.cpp
 #	@echo build $@
 #	@mpicxx -g $< -o $@ 
+
+#test:
+#	@echo $(JSON_DIR)/include
+#	@echo ${JSON_DIR}/include	
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 qaoa_validators.o : ${SRC_DIR}/qaoa_validators.cpp
