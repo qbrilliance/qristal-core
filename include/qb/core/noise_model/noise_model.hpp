@@ -96,7 +96,7 @@ namespace qb
     protected:
         /// @brief Gate noise channel registry
         /// Map from gate name -> a map of qubit operands -> noise channel
-        /// If the noise is uniform (qubit independent), use empty vector for qubit operands
+        /// If the noise is uniform (qubit independent), use empty vector for qubit operands.
         std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> m_noise_channels;
         /// @brief Readout errors
         std::unordered_map<size_t, NoiseProperties::ReadoutError> m_readout_errors;

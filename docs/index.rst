@@ -15,6 +15,7 @@ Welcome to Quantum Brilliance SDK
    
    rst/getting_started
    rst/quantum_computing
+   rst/noise_models
 
 .. toctree::
    :maxdepth: 2

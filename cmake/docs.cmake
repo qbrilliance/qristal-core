@@ -52,6 +52,7 @@ endif()
 set(PUBLIC_HEADERS
   include/qb/core/thread_pool.hpp
   include/qb/core/noise_model/noise_model.hpp
+  include/qb/core/noise_model/noise_properties.hpp
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)

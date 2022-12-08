@@ -30,17 +30,15 @@ qbOS is *fast* in the sense that, at its core, it exploits highly scalable *tens
 > "Integration of OpenQASM, Easy representation of the Hamiltonian (in equation form) for running VQE, [and] Ability to test algorithms with noise without having to model the noise [are my favourite features]".
 > 
 
-> "Ease of construction of specific quantum circuits [is my favourite feature]".
+> "Ease of construction of specific quantum circuits [is my favorite feature]".
 > 
 
-> "The details of the outputs [and] being able to create the circuits in IBM and bring them here [are my favourite features]".
+> "The details of the outputs [and] being able to create the circuits in IBM and bring them here [are my favorite features]".
 > 
 
 > "The IDE is very familiar and easy to use".
 > 
 
-> "The course was great and didn't see any bugs".
-> 
 
 Samarth Sandeep, CEO, IFF Bio, 6th May 2021:
 
