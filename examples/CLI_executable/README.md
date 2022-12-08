@@ -24,7 +24,7 @@
                                           However, the clustered arrangement of
                                           the qubits means that no more than six
                                           may be physically fully connected,
-                                          while clusters have nearest-neighbour
+                                          while clusters have nearest-neighbor
                                           connections.)
         -s[#shots]                        -s128 gives 128 shots, default: 1024
       * Switches
@@ -68,5 +68,6 @@
       arguments to be treated as positional options
 
     Version: --- Build time 2021-08-24T01:03:34
+    
 
 ```
