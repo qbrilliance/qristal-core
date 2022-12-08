@@ -2,10 +2,10 @@
 
 #include "qb/core/optimization/vqee/vqee.hpp"
 
-using qbOS::vqee::operator<<; // cout overload for vector<> 
+using qb::vqee::operator<<; // cout overload for vector<> 
 
 int main (int argc, char *argv[]) {
-    // export OMP_NUM_THREADS=1
+    // even if only 1 thread is started in qpp the backend(Eigen is openMP parallized): use " export $OMP_NUM_THREADS=1 " to suppress the Eigen threading
     // ececute with: mpiexec -n NPROCS test_VQE NTHREADS
 
     xacc::Initialize(); //xacc::Initialize(argc, argv);
@@ -13,18 +13,18 @@ int main (int argc, char *argv[]) {
     xacc::set_verbose(false);
     xacc::ScopeTimer timer_for_cpu("Walltime in ms", false);
 
-    const bool isRoot = GetRank() == 0;
+    const bool isRoot = GetRank() == 0;        
     if (isRoot) {
         if (isMPIEnabled()) {
-            printf("MPI_enabled\n\n");
+            printf("MPI_enabled\n");
         }
         else {
-            printf("not MPI_enabled\n\n");
+            printf("not MPI_enabled\n");
         }  
 
         printf("Program Name Is: %s\n",argv[0]);
         if(argc==1)
-            printf("\nNo Extra Command Line Argument Passed Other Than Program Name");
+            printf("No Extra Command Line Argument Passed Other Than Program Name!\n");        
         if(argc>=2)
         {
             printf("Number Of Arguments Passed: %d\n",argc);
@@ -33,16 +33,18 @@ int main (int argc, char *argv[]) {
                 printf("argv[%d]: %s\n",counter,argv[counter]);
         }
     } 
-  
-    // even if only 1 thread is started in qpp the backend(Eigen is openMP parallized): use " export $OMP_NUM_THREADS=1 " to suppress the Eigen threading
-    int nThreadsPerWorker{atoi( argv[1] )}; // get number of threads per process from main call
+    
     int nWorker{GetSize()}; // get number of MPI processes
+    int nThreadsPerWorker{1}; // set default number of threads to 1
+    if(argc>=2) {
+        nThreadsPerWorker = atoi( argv[1] ); // get number of threads per process from main call
+    }
 
     if (isRoot){
         printf("Executing VQE test with %i workers and %i threads each\n\n",nWorker,nThreadsPerWorker);
     }
 
-    qbOS::vqee::Params params{qbOS::vqee::makeJob(qbOS::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
+    qb::vqee::Params params{qb::vqee::makeJob(qb::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
 
     // options may be modified
     // default is deterministic and 1 shot
@@ -57,7 +59,7 @@ int main (int argc, char *argv[]) {
     params.nThreadsPerWorker = nThreadsPerWorker;
     //params.partitioned = true; // enable for cases with many Pauli-terms
     
-    qbOS::vqee::VQEE vqe{params};
+    qb::vqee::VQEE vqe{params};
     vqe.optimize();
 
     const auto 	    nIters = params.energies.size();
