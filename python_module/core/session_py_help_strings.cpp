@@ -18,7 +18,13 @@ const char* session::help_infiles_ = R"(
 
 
 const char* session::help_irtarget_ms_ = R"(
-        (C++ only) - directly specify a XACC IR
+        ir_target:
+
+        Input quantum circuit (core.Circuit).
+
+        ir_targets:
+
+        A 1d-array (list) version of ir_target.
 )";
 
 const char* session::help_instrings_ = R"(
@@ -189,8 +195,15 @@ const char* session::help_quil1s_ = R"(
 const char* session::help_noplacements_ = R"(
         noplacement:
 
+        Valid settings: True | False
+
+        Setting this to True to disable circuit placement. The single setting applies globally.
+
         noplacements:
 
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of noplacement.
 )";
 
 const char *session::help_placements_ = R"(
@@ -211,96 +224,169 @@ const char *session::help_placements_ = R"(
 const char* session::help_nooptimises_ = R"(
         nooptimise:
 
+        Valid settings: True | False
+
+        Setting this to True to disable circuit optimization. The single setting applies globally.
+
         nooptimises:
 
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of nooptimise.
 )";
 
 const char* session::help_nosims_ = R"(
         nosim:
 
+        Valid settings: True | False
+
+        Setting this to True to disable circuit simulation. The single setting applies globally.
+
         nosims:
 
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of nosim.
 )";
 
 const char* session::help_noises_ = R"(
         noise:
 
+        Valid settings: True | False
+
+        Setting this to True to enable noisy simulation (if supported by the `acc` backend). The single setting applies globally.
+
         noises:
 
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of noise.
 )";
 const char* session::help_notimings_ = R"(
+        .. warning::
+                This property is currently unused.
+        
         notiming:
+
+        Valid settings: True | False
+
+        Setting this to True to disable timing estimation. The single setting applies globally.
 
         notimings:
 
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of notiming.
 )";
 const char* session::help_output_oqm_enableds_ = R"(
         output_oqm_enabled:
 
+        Valid settings: True | False
+
+        Setting this to True to enable circuit timing and resource estimation. The single setting applies globally.
+
         output_oqm_enableds:
 
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of output_oqm_enabled.
 )";
 const char* session::help_log_enableds_ = R"(
-        log_enabled:
+        .. warning::
+                This property is currently unused.
+
+        log_enabled: 
+
+        Setting this to True to enable logging to file. The single setting applies globally.
+
+        Valid settings: True | False
 
         log_enableds:
+        
+        Valid settings: [[True|False, ...], [True|False, ...]]
 
+        A 1d-array (list) version of log_enabled.
 )";
 
 const char* session::help_qns_ = R"(
         qn:
 
+        Number of qubits. The single setting applies globally.
+
         qns:
 
+        A 1d-array (list) version of qn.
 )";
 
 const char* session::help_rns_ = R"(
         rn:
 
+        Number of repetitions. The single setting applies globally.
+
         rns:
 
+        A 1d-array (list) version of rn.
 )";
 
 const char* session::help_sns_ = R"(
         sn:
 
+        Number of measurement shots. The single setting applies globally.
+        
         sns:
 
+        A 1d-array (list) version of sn.
 )";
 
 const char* session::help_randoms_ = R"(
         random:
 
+        Circuit depth of the random circuit to use as input. The single setting applies globally.
+
         randoms:
 
+        A 1d-array (list) version of random.
 )";
 
 const char* session::help_betas_ = R"(
-        beta:
-
-        betas:
-
+        .. warning::
+                This property is currently unused.
 )";
 
 const char* session::help_thetas_ = R"(
         theta:
-
+        
+        Angle variables (theta) to invoke the input parameterized quantum circuit with. The single setting applies globally.
+        
         thetas:
 
+        A 1d-array (list) version of theta.
 )";
 
 const char* session::help_max_bond_dimensions_ = R"(
         max_bond_dimension:
 
+        Set the maximum bond dimension (MPS simulator). The single setting applies globally.
+
         max_bond_dimensions:
 
+        A 1d-array (list) version of max_bond_dimension.
+
+        .. note::
+                This is only needed if using the "tnqvm" backend accelerator.
 )";
 
 const char* session::help_svd_cutoffs_ = R"(
         svd_cutoff:
 
+        Set the SVD cutoff threshold value (MPS simulator). The single setting applies globally.
+
         svd_cutoffs:
 
+        A 1d-array (list) version of svd_cutoff.
+
+        .. note::
+                This is only needed if using the "tnqvm" backend accelerator.
 )";
 
 const char* session::help_noise_models_ = R"(
@@ -308,11 +394,17 @@ const char* session::help_noise_models_ = R"(
 
         Valid settings: "default" | "qb-nm1" | "qb-nm2"
 
-        Requires setting: noise = True (to have effect)
+        .. note::
+                Requires setting: noise = True (to have effect)
+        
         Default: "default"
+        
         "default": Simple depolarizing noise model on all qubits (builtin)
+        
         These two options require the QB emulator module (addons):
+        
         "qb-nm1" : 4x4 NV centres in x-y grid, 3 qubits per NV centre
+        
         "qb-nm2" : 8x8 NV centres in x-y grid, 1 qubit per NV centre, nearest x and nearest y connectivity
 
         noise_models:
@@ -322,9 +414,12 @@ const char* session::help_noise_models_ = R"(
 )";
 const char* session::help_output_amplitudes_ = R"(
         output_amplitude:
+        
+        Set the amplitudes for Jensen-Shannon divergence calculation. The single setting applies globally.
 
         output_amplitudes:
-
+        
+        A 1d-array (list) version of output_amplitude.
 )";
 
 const char* session::help_out_raws_ = R"(
