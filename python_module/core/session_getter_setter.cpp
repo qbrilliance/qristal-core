@@ -405,83 +405,33 @@ void session::setName(const VectorString &name_) { session::name_m = name_; }
 void session::setName(const std::string &name_) { session::name_m.push_back({name_}); }
 const VectorString & session::getName() const { return session::name_m; }
 
-void session::set_out_raw(const std::string & out_raw) {
-  session::out_raws_.clear();
-  session::out_raws_.push_back({out_raw});
-}
-void session::set_out_raws(const VectorString & out_raws) { session::out_raws_ = out_raws; }
 const VectorString & session::get_out_raws() const { return session::out_raws_ ; }
 //
 
-void session::set_out_count(const NN & out_count) {
-  session::out_counts_.clear();
-  session::out_counts_.push_back({out_count});
-}
-void session::set_out_counts(const VectorMapNN & out_counts) { session::out_counts_ = out_counts; }
 const VectorMapNN & session::get_out_counts() const { return session::out_counts_ ; }
 //
 
-void session::set_out_divergence(const ND & out_divergence) {
-  session::out_divergences_.clear();
-  session::out_divergences_.push_back({out_divergence});
-}
-void session::set_out_divergences(const VectorMapND & out_divergences) { session::out_divergences_ = out_divergences; }
 const VectorMapND & session::get_out_divergences() const { return session::out_divergences_ ; }
 //
 
-void session::set_out_transpiled_circuit(const std::string & out_transpiled_circuit) {
-  session::out_transpiled_circuits_.clear();
-  session::out_transpiled_circuits_.push_back({out_transpiled_circuit});
-}
-void session::set_out_transpiled_circuits(const VectorString & out_transpiled_circuits) { session::out_transpiled_circuits_ = out_transpiled_circuits; }
 const VectorString & session::get_out_transpiled_circuits() const { return session::out_transpiled_circuits_ ; }
 //
 
-void session::set_out_qobj(const std::string & out_qobj) {
-  session::out_qobjs_.clear();
-  session::out_qobjs_.push_back({out_qobj});
-}
-void session::set_out_qobjs(const VectorString & out_qobjs) { session::out_qobjs_ = out_qobjs; }
 const VectorString & session::get_out_qobjs() const { return session::out_qobjs_ ; }
 //
 
-void session::set_out_qbjson(const std::string & out_qbjson) {
-  session::out_qbjsons_.clear();
-  session::out_qbjsons_.push_back({out_qbjson});
-}
-void session::set_out_qbjsons(const VectorString & out_qbjsons) { session::out_qbjsons_ = out_qbjsons; }
 const VectorString & session::get_out_qbjsons() const { return session::out_qbjsons_ ; }
 //
 
-void session::set_out_single_qubit_gate_qty(const NN & out_single_qubit_gate_qty) {
-  session::out_single_qubit_gate_qtys_.clear();
-  session::out_single_qubit_gate_qtys_.push_back({out_single_qubit_gate_qty});
-}
-void session::set_out_single_qubit_gate_qtys(const VectorMapNN & out_single_qubit_gate_qtys) { session::out_single_qubit_gate_qtys_ = out_single_qubit_gate_qtys; }
 const VectorMapNN & session::get_out_single_qubit_gate_qtys() const { return session::out_single_qubit_gate_qtys_ ; }
 //
 
-void session::set_out_double_qubit_gate_qty(const NN & out_double_qubit_gate_qty) {
-  session::out_double_qubit_gate_qtys_.clear();
-  session::out_double_qubit_gate_qtys_.push_back({out_double_qubit_gate_qty});
-}
-void session::set_out_double_qubit_gate_qtys(const VectorMapNN & out_double_qubit_gate_qtys) { session::out_double_qubit_gate_qtys_ = out_double_qubit_gate_qtys; }
 const VectorMapNN & session::get_out_double_qubit_gate_qtys() const { return session::out_double_qubit_gate_qtys_ ; }
 //
 
-void session::set_out_total_init_maxgate_readout_time(const ND & out_total_init_maxgate_readout_time) {
-  session::out_total_init_maxgate_readout_times_.clear();
-  session::out_total_init_maxgate_readout_times_.push_back({out_total_init_maxgate_readout_time});
-}
-void session::set_out_total_init_maxgate_readout_times(const VectorMapND & out_total_init_maxgate_readout_times) { session::out_total_init_maxgate_readout_times_ = out_total_init_maxgate_readout_times; }
 const VectorMapND & session::get_out_total_init_maxgate_readout_times() const { return session::out_total_init_maxgate_readout_times_ ; }
 //
 
-void session::set_out_z_op_expect(const ND & out_z_op_expect) {
-  session::out_z_op_expects_.clear();
-  session::out_z_op_expects_.push_back({out_z_op_expect});
-}
-void session::set_out_z_op_expects(const VectorMapND & out_z_op_expects) { session::out_z_op_expects_ = out_z_op_expects; }
 const VectorMapND & session::get_out_z_op_expects() const { return session::out_z_op_expects_ ; }
 //
 void session::set_noise_mitigation(const std::string &noise_mitigation) {

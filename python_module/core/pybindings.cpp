@@ -585,67 +585,47 @@ PYBIND11_MODULE(core, m) {
       .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitudes,
                     qb::session::help_output_amplitudes_)
-      .def_property("out_raw", &qb::session::get_out_raws,
-                    &qb::session::set_out_raw, qb::session::help_out_raws_)
-      .def_property("out_raws", &qb::session::get_out_raws,
-                    &qb::session::set_out_raws, qb::session::help_out_raws_)
-      .def_property("out_count", &qb::session::get_out_counts,
-                    &qb::session::set_out_count, qb::session::help_out_counts_)
-      .def_property("out_counts", &qb::session::get_out_counts,
-                    &qb::session::set_out_counts, qb::session::help_out_counts_)
-      .def_property("out_divergence", &qb::session::get_out_divergences,
-                    &qb::session::set_out_divergence,
+      .def_property_readonly("out_raw", &qb::session::get_out_raws, qb::session::help_out_raws_)
+      .def_property_readonly("out_raws", &qb::session::get_out_raws, qb::session::help_out_raws_)
+      .def_property_readonly("out_count", &qb::session::get_out_counts, qb::session::help_out_counts_)
+      .def_property_readonly("out_counts", &qb::session::get_out_counts, qb::session::help_out_counts_)
+      .def_property_readonly("out_divergence", &qb::session::get_out_divergences,
                     qb::session::help_out_divergences_)
-      .def_property("out_divergences", &qb::session::get_out_divergences,
-                    &qb::session::set_out_divergences,
+      .def_property_readonly("out_divergences", &qb::session::get_out_divergences,
                     qb::session::help_out_divergences_)
-      .def_property("out_transpiled_circuit",
+      .def_property_readonly("out_transpiled_circuit",
                     &qb::session::get_out_transpiled_circuits,
-                    &qb::session::set_out_transpiled_circuit,
                     qb::session::help_out_transpiled_circuits_)
-      .def_property("out_transpiled_circuits",
+      .def_property_readonly("out_transpiled_circuits",
                     &qb::session::get_out_transpiled_circuits,
-                    &qb::session::set_out_transpiled_circuits,
                     qb::session::help_out_transpiled_circuits_)
-      .def_property("out_qobj", &qb::session::get_out_qobjs,
-                    &qb::session::set_out_qobj, qb::session::help_out_qobjs_)
-      .def_property("out_qobjs", &qb::session::get_out_qobjs,
-                    &qb::session::set_out_qobjs, qb::session::help_out_qobjs_)
-      .def_property("out_qbjson", &qb::session::get_out_qbjsons,
-                    &qb::session::set_out_qbjson, qb::session::help_out_qbjsons_)
-      .def_property("out_qbjsons", &qb::session::get_out_qbjsons,
-                    &qb::session::set_out_qbjsons, qb::session::help_out_qbjsons_)
-      .def_property("out_single_qubit_gate_qty",
+      .def_property_readonly("out_qobj", &qb::session::get_out_qobjs, qb::session::help_out_qobjs_)
+      .def_property_readonly("out_qobjs", &qb::session::get_out_qobjs, qb::session::help_out_qobjs_)
+      .def_property_readonly("out_qbjson", &qb::session::get_out_qbjsons, qb::session::help_out_qbjsons_)
+      .def_property_readonly("out_qbjsons", &qb::session::get_out_qbjsons, qb::session::help_out_qbjsons_)
+      .def_property_readonly("out_single_qubit_gate_qty",
                     &qb::session::get_out_single_qubit_gate_qtys,
-                    &qb::session::set_out_single_qubit_gate_qty,
                     qb::session::help_out_single_qubit_gate_qtys_)
-      .def_property("out_single_qubit_gate_qtys",
+      .def_property_readonly("out_single_qubit_gate_qtys",
                     &qb::session::get_out_single_qubit_gate_qtys,
-                    &qb::session::set_out_single_qubit_gate_qtys,
                     qb::session::help_out_single_qubit_gate_qtys_)
-      .def_property("out_double_qubit_gate_qty",
+      .def_property_readonly("out_double_qubit_gate_qty",
                     &qb::session::get_out_double_qubit_gate_qtys,
-                    &qb::session::set_out_double_qubit_gate_qty,
                     qb::session::help_out_double_qubit_gate_qtys_)
-      .def_property("out_double_qubit_gate_qtys",
+      .def_property_readonly("out_double_qubit_gate_qtys",
                     &qb::session::get_out_double_qubit_gate_qtys,
-                    &qb::session::set_out_double_qubit_gate_qtys,
                     qb::session::help_out_double_qubit_gate_qtys_)
 
-      .def_property("out_total_init_maxgate_readout_time",
+      .def_property_readonly("out_total_init_maxgate_readout_time",
                     &qb::session::get_out_total_init_maxgate_readout_times,
-                    &qb::session::set_out_total_init_maxgate_readout_time,
                     qb::session::help_out_total_init_maxgate_readout_times_)
-      .def_property("out_total_init_maxgate_readout_times",
+      .def_property_readonly("out_total_init_maxgate_readout_times",
                     &qb::session::get_out_total_init_maxgate_readout_times,
-                    &qb::session::set_out_total_init_maxgate_readout_times,
                     qb::session::help_out_total_init_maxgate_readout_times_)
 
-      .def_property("out_z_op_expect", &qb::session::get_out_z_op_expects,
-                    &qb::session::set_out_z_op_expect,
+      .def_property_readonly("out_z_op_expect", &qb::session::get_out_z_op_expects,
                     qb::session::help_out_z_op_expects_)
-      .def_property("out_z_op_expects", &qb::session::get_out_z_op_expects,
-                    &qb::session::set_out_z_op_expects,
+      .def_property_readonly("out_z_op_expects", &qb::session::get_out_z_op_expects,
                     qb::session::help_out_z_op_expects_)
 
       .def_property("debug", &qb::session::get_debug,
