@@ -13,7 +13,7 @@
 import sys
 # Insert binary output directory where the Pybind11 module is located.
 # Note: we use binary rather than install directory so that documentation build can be performed before installation.
-sys.path.insert(0, '@CMAKE_BINARY_DIR@')
+sys.path.insert(0, '@CMAKE_CURRENT_BINARY_DIR@')
 import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
