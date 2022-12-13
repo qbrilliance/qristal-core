@@ -5,8 +5,8 @@ import pytest
 def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate")
-    import core as qb
-    s = qb.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.instring = '''
@@ -34,8 +34,8 @@ def test_CI_210826_15_qb_c5_ry_theta() :
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
-    import core as qb
-    s = qb.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.instring = '''
@@ -63,8 +63,8 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
-    import core as qb
-    s = qb.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.instring = '''
@@ -92,8 +92,8 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
-    import core as qb
-    s = qb.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.instring = '''
@@ -126,8 +126,8 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
     print("* With default qb12 settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
-    import core as qb
-    s = qb.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.instring = '''
@@ -150,8 +150,8 @@ def test_qft4() :
     print("* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, ExaTN-MPS")
 
     # Instantiate an object instance
-    import core
-    s = core.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
 
     # Override defaults
@@ -188,9 +188,9 @@ def test_aer_matrix_product_state_method() :
     print("* Aer: MPS, QB noise model enabled")
 
     # Instantiate an object instance
-    import core
+    import qb.core
     import ast
-    s=core.core()
+    s=qb.core.session()
     s.qb12()
 
     # Use the aer accelerator
@@ -223,9 +223,9 @@ def test_aer_matrix_product_state_method_large_circuit() :
     print("* Aer: MPS, QB noise model enabled, large number of qubits")
 
     # Instantiate an object instance
-    import core
+    import qb.core
     import ast
-    s=core.core()
+    s=qb.core.session()
     s.qb12()
     s.nooptimise = True
     s.noplacement = True
@@ -286,8 +286,8 @@ def test_aer_matrix_product_state_method_large_circuit() :
 def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
     print("* With default qb12 settings, check the functionality of QB's custom controlled Ry gate")
-    import core as qb
-    s = qb.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     import os
@@ -309,10 +309,10 @@ def test_qblib_custom_gates() :
 
 def test_async_run_and_wait():
     print(" Testing asynchronous job runs ")
-    import core as qb
+    import qb.core
     import json
     import numpy as np
-    s = qb.core()
+    s = qb.core.session()
     s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
     s.set_parallel_run_config(json.dumps(qpu_configs))
@@ -351,7 +351,7 @@ def test_async_run_and_wait():
     s.xasms[0].clear()
     s.quil1s[0].clear()
     for i in range(nb_jobs):
-        s.instrings.append(qb.String())
+        s.instrings.append(qb.core.String())
         s.instrings[i].append(openQASM)
         s.xasms[0].append(False)
         s.quil1s[0].append(False)
@@ -383,9 +383,9 @@ def test_async_run_and_wait():
 
 def test_potential_async_deadlock():
     print("Test dispatching a large number of async jobs")
-    import core as qb
+    import qb.core
     import json
-    s = qb.core()
+    s = qb.core.session()
     s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
     s.set_parallel_run_config(json.dumps(qpu_configs))
@@ -420,7 +420,7 @@ def test_potential_async_deadlock():
     s.xasms[0].clear()
     s.quil1s[0].clear()
     for i in range(nb_jobs):
-        s.instrings.append(qb.String())
+        s.instrings.append(qb.core.String())
         s.instrings[i].append(openQASM)
         s.xasms[0].append(False)
         s.quil1s[0].append(False)
@@ -463,9 +463,9 @@ def test_potential_async_deadlock():
     assert(count_qpp + count_aer == nb_jobs)
 
 def test_noise_mitigation():
-    import core as qb
+    import qb.core
     import json
-    s = qb.core()
+    s = qb.core.session()
     s.qb12()
     s.noise = True
     s.nooptimise = True
@@ -473,7 +473,7 @@ def test_noise_mitigation():
     s.sn = 8192
     s.acc = "aer"
     # Simple Bell circuit
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     circ.h(0)
     circ.cnot(0, 1)
     circ.measure_all()
@@ -494,10 +494,10 @@ def test_noise_mitigation():
     assert(int(mitigation["10"]) < int(no_mitigation["10"]))
 
 def test_sparse_sim():
-    import core as qb
+    import qb.core
     import numpy as np
     import ast
-    s = qb.core()
+    s = qb.core.session()
     s.qb12()
     s.xasm = True
     num_shots = 8192
@@ -558,8 +558,8 @@ def test_random_seed():
         previous_result = None
         for i in range(num_runs):
             import xacc
-            import core
-            s = core.core()
+            import qb.core
+            s = qb.core.session()
             s.qb12()
             # Override defaults
             n_qubits = 4
@@ -607,8 +607,8 @@ def test_random_seed_tnqvm():
     num_runs = 5
     for i in range(num_runs):
         for seed in seeds:
-            import core
-            s = core.core()
+            import qb.core
+            s = qb.core.session()
             s.qb12()
             # Override defaults
             n_qubits = 4
@@ -649,8 +649,8 @@ def test_random_seed_tnqvm():
 
 def test_randomized_stats():
     # https://qbau.atlassian.net/browse/SWA-154
-    import core
-    s = core.core()
+    import qb.core
+    s = qb.core.session()
     s.qb12()
     s.qn = 2
     s.sn = 1024
@@ -679,8 +679,8 @@ measure q[0] -> c[0];
 
 def test_clear_random_seed():
     # https://qbau.atlassian.net/browse/SWA-155
-    import core, ast
-    s = core.core()
+    import qb.core, ast
+    s = qb.core.session()
     s.qb12()
     s.qn = 2
     s.sn = 1024

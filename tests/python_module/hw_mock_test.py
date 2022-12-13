@@ -5,9 +5,9 @@ import pytest
 
 def test_loopback_rx_ry_rz() :
     print(" Loopback QCStack check transpiling into discrete angles")
-    import core
+    import qb.core
     import json
-    s = core.core.session()
+    s = qb.core.session()
     s.qb12()
     s.qn = 1
     s.sn = 2
@@ -33,10 +33,10 @@ def test_loopback_rx_ry_rz() :
 
 def test_CI_220207_1_loopback_6s():
     print(" Loopback QCStack check polling interval set from /mnt/qb/share/qb_config.json")
-    import core
+    import qb.core
     import json
     import timeit
-    s = core.core.session()
+    s = qb.core.session()
     s.qb12()
     s.qn = 1
     s.sn = 2
@@ -90,10 +90,10 @@ def test_CI_220207_1_loopback_6s():
 
 def test_CI_220225_1_init_measure_no_gates() :
     print("When a circuit contains no gates, QB hardware expects a JSON with circuit=[] instead of circuit='null'")
-    import core
+    import qb.core
     import json
     import timeit
-    s = core.core.session()
+    s = qb.core.session()
     s.qb12()
 
     s.qn = 1
