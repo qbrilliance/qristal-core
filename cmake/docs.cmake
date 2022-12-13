@@ -54,6 +54,8 @@ set(PUBLIC_HEADERS
   include/qb/core/noise_model/noise_model.hpp
   include/qb/core/noise_model/noise_properties.hpp
   include/qb/core/session.hpp
+  include/qb/core/optimization/vqee/case_generator.hpp
+  include/qb/core/optimization/vqee/vqee.hpp
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)

@@ -7,7 +7,7 @@
 
 
 namespace qb::vqee {
-// make hardware efficient ansatz: only near neighbour connections, single rotations, not and cnot gates
+/// make hardware efficient ansatz: only near neighbour connections, single rotations, not and cnot gates
 std::string pennylaneCircuit(const int& nQubits, const int& vqeDepth) {
   std::stringstream circuit;
   circuit << ".compiler xasm\n" << ".circuit ansatz\n" << ".parameters P\n" << ".qbit q\n";
@@ -33,7 +33,7 @@ std::string pennylaneCircuit(const int& nQubits, const int& vqeDepth) {
 }
 
 
-// Data container for VQE optimizer problems. Everything is constant, except theta and value which should be updated during iterations
+/// Data container for VQE optimizer problems. Everything is constant, except theta and value which should be updated during iterations
 struct Params { 
   std::shared_ptr<xacc::CompositeInstruction> ansatz{};
   std::string 		    circuitString{};
@@ -51,8 +51,10 @@ struct Params {
   bool                partitioned{false};
 };
 
+/// Simple examples of moleculer Hamiltonian - ansatz pairings
 enum class JobID {H2_explicit, H1_HEA, H2_UCCSD, H2_ASWAP, H5_UCCSD};
 
+/// Parameters needed for simple examples
 Params makeJob(JobID jobID){
   switch (jobID) {
     case JobID::H2_explicit: { 
