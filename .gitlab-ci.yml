@@ -40,7 +40,7 @@ ubuntu20-py-tests:
   image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-12
   script:
     - cmake --install build
-    - python -c "import qb.core"
+    - cd tests/python_module && (python3 mock_server.py &) && python3 -m pytest
   artifacts:
     when: always
     reports:

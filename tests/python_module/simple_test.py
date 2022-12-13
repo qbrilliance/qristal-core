@@ -147,10 +147,10 @@ def test_CI_210826_14_qbtheta_parameters() :
         measure q[2] -> c[2];
         measure q[3] -> c[3];
     }'''
-    mth = qb.ND()
+    mth = qb.core.ND()
     mth[0] = 0.05
     mth[1] = -0.7
-    s.theta[0] = qb.MapND([mth])
+    s.theta[0] = qb.core.MapND([mth])
     s.run()
     assert (s.out_transpiled_circuit[0][0] == '\n__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude "qelib1.inc";\nu(3.14159, -1.5708, 1.5708) q[0];\nu(3.14159, -1.5708, 1.5708) q[2];\nu(0.05, 1.6, -0.7) q[3];\ncreg c0[1];\nmeasure q[0] -> c0[0];\ncreg c1[1];\nmeasure q[1] -> c1[0];\ncreg c2[1];\nmeasure q[2] -> c2[0];\ncreg c3[1];\nmeasure q[3] -> c3[0];\n\n}\n')
 
@@ -161,7 +161,7 @@ def test_raw_openqasm_str():
     s = qb.core.session()
     s.debug = True
     nb_qubits = 12
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     circ.h(0)
     # Entangle all qubits
     for i in range(nb_qubits - 1):

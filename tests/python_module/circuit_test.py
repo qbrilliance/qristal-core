@@ -11,13 +11,13 @@ def test_qpe():
     s.qb12()
 
     # Oracle
-    oracle = qb.Circuit()
+    oracle = qb.core.Circuit()
     oracle.u1(0, -1.96349540849)
 
     # 4-bit precision
     nb_bits_precision = 4
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     # State prep: eigen state of the oracle |1>
     circ.x(0)
 
@@ -57,7 +57,7 @@ def test_amcu():
     ancilla_bits = range(num_qubits, num_qubits + num_qubits - 2)
 
     for i in range(2**num_qubits):
-        circ = qb.Circuit()
+        circ = qb.core.Circuit()
 
         # Prepare the input state
         bitstring = bin(i)[2:].zfill(5)
@@ -66,7 +66,7 @@ def test_amcu():
                 circ.x(j)
 
         # Add the amcu gate
-        U = qb.Circuit()
+        U = qb.core.Circuit()
         U.x(target_bit)
         circ.amcu(U,control_bits,ancilla_bits)
 
@@ -111,7 +111,7 @@ def test_equality_checker():
     # First do the no ancilla version
     for i in range(8):
         for j in range(8):
-            circ = qb.Circuit()
+            circ = qb.core.Circuit()
             # Prepare input strings
             bin_i = bin(i)[2:].zfill(3)
             bin_j = bin(j)[2:].zfill(3)
@@ -144,7 +144,7 @@ def test_canonical_ae():
     print(" Testing Canonical Quantum Amplitude Estimation ")
     import qb.core
     import numpy as np
-    from core import run_canonical_ae_with_oracle
+    from qb.core import run_canonical_ae_with_oracle
     import json
     s = qb.core.session()
     s.qb12()
@@ -152,12 +152,12 @@ def test_canonical_ae():
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
     # State prep circuit: (preparing the state that we want to estimate the amplitude)
-    state_prep = qb.Circuit()
+    state_prep = qb.core.Circuit()
     state_prep.ry(8, theta_p)
 
     # In this case, we don't construct the Grover operator by ourselves,
     # instead, just provide the oracle to detect the marked state (|1>)
-    oracle = qb.Circuit()
+    oracle = qb.core.Circuit()
     oracle.z(8)
     bits_precision = 8
 
@@ -192,7 +192,7 @@ def test_controlled_swap():
     assert(len(input_string) == len(qubits_string))
 
     # Prepare input state
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     for i in range(len(input_string)):
         if input_string[i] == "b":
             circ.x(qubits_string[i])
@@ -277,7 +277,7 @@ def test_controlled_addition():
     # Test 1: flag off
     ###
 
-    circ1 = qb.Circuit()
+    circ1 = qb.core.Circuit()
 
     # Prepare initial state
     circ1.x(qubits_adder[0])
@@ -304,7 +304,7 @@ def test_controlled_addition():
     # Test 1: flag off
     ###
 
-    circ2 = qb.Circuit()
+    circ2 = qb.core.Circuit()
 
     # Prepare initial state
     circ2.x(qubits_adder[0])
@@ -364,7 +364,7 @@ def test_generalised_mcx():
     input_bitstrings = ["000", "001", "010", "011", "100", "101", "110", "111"]
     for condition in conditions:
         for input_bitstring in input_bitstrings:
-            circ = qb.Circuit()
+            circ = qb.core.Circuit()
 
             # Prepare the input bitstring
             for i in range(len(input_bitstring)):
@@ -413,7 +413,7 @@ def test_MLQAE():
     # sqrt(1-p)|0> + sqrt(p)|1>
     import numpy as np
     import qb.core
-    from core import run_MLQAE
+    from qb.core import run_MLQAE
     import ast
     s = qb.core.session()
     s.qb12()
@@ -421,12 +421,12 @@ def test_MLQAE():
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
     # State prep circuit: (preparing the state that we want to estimate the amplitude)
-    state_prep = qb.Circuit()
+    state_prep = qb.core.Circuit()
     state_prep.ry(0, theta_p)
 
     # In this case, we don't construct the Grover operator by ourselves,
     # instead, just provide the oracle to detect the marked state (|1>)
-    oracle = qb.Circuit()
+    oracle = qb.core.Circuit()
     oracle.z(0)
     num_runs = 6
     shots = 100
@@ -452,7 +452,7 @@ def test_qaa():
     import ast
     s = qb.core.session()
     s.qb12()
-    oracle = qb.Circuit()
+    oracle = qb.core.Circuit()
     oracle.z(0)
 
     # For demonstration purposes, we start with a very low population of |1> state:
@@ -460,14 +460,14 @@ def test_qaa():
     # Ry(epsilon) |0> ~ epsilon |1> + sqrt(1 - epsilon^2) |1>
     # i.e., the initial population of the marked state is small (~ epsilon)
     epsilon = 0.05
-    state_prep = qb.Circuit()
+    state_prep = qb.core.Circuit()
     state_prep.ry(0, epsilon)
 
     good_state_ampls = []
     # Testing a varying number of iteration
     for i in range(1, 40, 1):
         # Construct full amplitude amplification circuit:
-        full_circuit = qb.Circuit()
+        full_circuit = qb.core.Circuit()
         # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.
         full_circuit.amplitude_amplification(oracle, state_prep, i)
         # Add measurement:
@@ -531,7 +531,7 @@ def test_ripple_adder():
     # Testing all the case: 0, 1, 2, 3 (2-qubit)
     for i in range(4):
         for j in range (4):
-            circ = qb.Circuit()
+            circ = qb.core.Circuit()
             set_integer(circ, a, i)
             set_integer(circ, b, j)
             circ.ripple_add(a, b, c_in)
@@ -574,7 +574,7 @@ def test_ripple_adder_superposition():
     # Test adding superposition:
     # (|0> + |1>) + (|0> + |2>)
     # ==> |0> + |1> + |2> + |3>
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
     circ.h(a[0])
     circ.h(b[1])
     circ.ripple_add(a, b, c_in)
@@ -623,7 +623,7 @@ def test_comparator():
             ancilla_qubits = [5,6,7,8]
 
             # create circuit
-            circ = qb.Circuit()
+            circ = qb.core.Circuit()
 
             # State prep
             TestScore = j
@@ -685,7 +685,7 @@ def test_efficient_encoding():
     num_scoring_qubits = 3
 
     # create circuit
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     # State prep: |000>|000> + |111>|0000>
     circ.h(0)
@@ -739,7 +739,7 @@ def test_compare_beam_oracle():
     FB = [5,6]
     SA = [7,8,9,10]
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     circ.x(FA[1])
     circ.x(FB[1])
@@ -778,7 +778,7 @@ def test_compare_beam_oracle():
     FB = [5,6]
     SA = [7,8,9,10]
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     circ.x(FA[1])
     circ.x(FB[1])
@@ -820,7 +820,7 @@ def test_multiplication():
     qubits_result = [4,5,6,7]
     qubit_ancilla = 8
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     # Prepare inputs
     circ.x(qubits_a[0])
@@ -871,7 +871,7 @@ def test_controlled_multiplication():
     qubit_ancilla = 8
     controls_on = [9]
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     # Prepare inputs
     circ.x(qubits_a[0])
@@ -918,9 +918,9 @@ def test_inverse_circuit():
     s.sn = 1024
 
     qubits = [0,1,2,3]
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
-    qft = qb.Circuit()
+    qft = qb.core.Circuit()
     qft.qft(qubits)
 
     circ.qft(qubits)
@@ -952,7 +952,7 @@ def test_subtraction():
     qubits_smaller = [3,4,5]
     qubit_ancilla = 6
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     i = 6
     j = 4
@@ -1011,7 +1011,7 @@ def test_controlled_subtraction():
     control_on = [6]
     ancilla = 7
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     i = 6
     j = 4
@@ -1074,7 +1074,7 @@ def test_proper_fraction_division():
     qubits_fraction = [4,5]
     qubits_ancilla = list(range(6,11))
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     # Prepare initial state
     bin_i = bin(i)[2:].zfill(2)
@@ -1159,7 +1159,7 @@ def test_controlled_proper_fraction_division():
     qubits_ancilla = list(range(6,11)) # = 2k + 1
     controls_on = [11]
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     # Prepare initial state
     bin_i = bin(i)[2:].zfill(2)
@@ -1234,7 +1234,7 @@ def test_compare_gt():
     qubit_flag = 4
     qubit_ancilla = 5
 
-    circ = qb.Circuit()
+    circ = qb.core.Circuit()
 
     a_bin = bin(i)[2:].zfill(2)
     b_bin = bin(j)[2:].zfill(2)
