@@ -2,5 +2,173 @@
 Getting started
 ===============
 
+Using the SDK
+-------------
+
 .. include:: ../md/getting_started_bell_state.md
    :parser: myst_parser.sphinx_
+
+Development guide
+-----------------
+
+Dependencies
+^^^^^^^^^^^^
+
+.. _required_deps:
+
+The QB SDK **requires** the following libraries/packages to be installed:
+
+* `GNU C++ Compiler <https://gcc.gnu.org/>`_ >= 7.x
+* `CMake <https://cmake.org/>`_ >= 3.20
+* `Python <http://python.org/>`_ >= 3.7.2
+* `OpenBLAS (Basic Linear Algebra Subprograms) <https://www.openblas.net/>`_
+* `Boost <https://www.boost.org/>`_ >= 1.71
+* `libcurl <https://curl.se/>`_
+
+as well as the following Python packages:
+
+* `Amazon Braket <https://github.com/aws/amazon-braket-sdk-python/>`_
+* `Conan <https://conan.io/>`_
+* `PySCF <https://pyscf.org/>`_
+* `Cirq <https://quantumai.google/cirq>`_ >= 1.0.0
+* `qsimcirq <https://pypi.org/project/qsimcirq/>`_ >= 0.14.0
+
+.. _auto_install_deps:
+
+Additional dependencies that can be installed automatically at build time:
+
+* `XACC <https://github.com/eclipse/xacc>`_
+* `ExaTN <https://github.com/ORNL-QCI/exatn>`_
+* `TNQVM <https://github.com/ORNL-QCI/tnqvm>`_
+* `pybind11 <https://github.com/pybind/pybind11>`_ >= 2.10
+* `Eigen <https://eigen.tuxfamily.org/>`_ >= 3.3.7
+* `cpr <https://docs.libcpr.org/>`_ >= 1.3.0
+* `args <https://github.com/Taywee/args>`_ >= 6.4.1
+* `cppitertools <https://github.com/ryanhaining/cppitertools>`_ >= 2.1
+* `GoogleTest <https://github.com/google/googletest>`_ >= 1.12.1
+* `Nlohmann JSON <https://github.com/nlohmann/json>`_ >= 3.1.1
+
+.. note:: **Automatic dependency installation**
+
+      It is highly recommended that users let the SDK build system install the `additional dependencies mentioned above <_auto_install_deps>`, by setting the ``-DINSTALL_MISSING=ON`` CMake option.
+
+Installation
+^^^^^^^^^^^^
+
+1. For development purposes, it is **recommended** to install the SDK ``core`` library
+using *automatic dependency installation* mode:
+
+.. code-block:: bash
+
+    git clone https://gitlab.com/qbau/software-and-apps/public/core.git
+    cd core
+    mkdir build && cd build
+    cmake .. -DINSTALL_MISSING=ON
+    make install
+
+The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.
+
+.. note:: The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
+
+2. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced**)
+
+- Follow the installation instructions of `XACC <https://github.com/eclipse/xacc>`_, `ExaTN <https://github.com/ORNL-QCI/exatn>`_ and `TNQVM <https://github.com/ORNL-QCI/tnqvm>`_.
+
+- Perform system-level installation of the :ref:`remaining libraries<auto_install_deps>`.
+
+- Configure CMake build with
+
+.. code-block:: bash
+
+    cmake .. -DXACC_DIR=<YOUR XACC INSTALLATION DIR> -DEXATN_DIR=<YOUR EXATN INSTALLATION DIR> -DTNQVM_DIR=<YOUR TNQVM INSTALLATION DIR>
+
+.. note::
+
+      In this manual mode, the build system will check for a **specific** version of XACC, EXATN and TNQVM as provided.
+      If not satisfied, it will terminate the build and ask for a reinstallation of the dependency.
+      Please follow the error message to install the correct version (specified as a git commit hash key).
+
+
+Software Tests
+^^^^^^^^^^^^^^
+
+To ensure that the SDK ``core`` component is working correctly after building and installation, the test suite
+can be run by navigating to the ``build`` folder and running
+
+.. code-block:: bash
+
+    ctest
+
+
+
+Contributing
+^^^^^^^^^^^^
+
+There are many ways in which you can contribute to the QB SDK, whether by contributing some code or by engaging in discussions;
+we value contributions in all shapes and sizes!
+
+Here are some ideas for how you can get involved.
+
+1. **Asking Questions**
+
+Have a question? Some concepts are hard-to-understand?
+
+Please feel free to file an issue to ask your questions `here <https://gitlab.com/qbau/software-and-apps/public/core/-/issues/new>`_.
+
+Your question will serve as resource to others searching for help.
+
+2. **Reporting and/or Commenting on Issues**
+
+If you have feedback about the QB SDK, please let us know by filing a `new issue <https://gitlab.com/qbau/software-and-apps/public/core/-/issues/new>`_!
+
+When filing a bug report, please follow the below template:
+
+.. code-block::
+
+   # [Title]
+   A concise but specific description of the bug.
+
+   ### Steps to reproduce
+   Describe what needs to be done to reproduce the faulty behavior.
+
+   ### Resulting and expected behavior
+   A brief description of what you expected and what you actually got.
+
+   ### Self help
+   If you found a workaround or tried to fix the bug yourself, please provide your attempt here.
+
+   ### Technical output
+   If available, provide a traceback, logs or similar. Console output is helpful here.
+
+   ### Screenshot
+   If applicable and helpful, provide a screenshot.
+
+   ### System information and environment
+   - Software version:
+   - Operating system:
+
+
+We also encourage you to look at the list of currently `open issues <https://gitlab.com/qbau/software-and-apps/public/core/-/issues>`_ to share your ideas and expertise.
+
+3. **Contributing Code**
+
+Before submitting a `new merge request <https://gitlab.com/qbau/software-and-apps/public/core/-/merge_requests/new>`_, please make sure the following is done:
+
+* **New features should include a unit test.** If you've fixed a bug or added
+  code that should be tested, add a test to the ``tests`` directory.
+
+* **Ensure that the test suite passes**, e.g., by running ``ctest``. This will also be checked by our CI when the MR is submitted.
+
+When ready, submit your fork as a `merge request <https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html>`_
+to the QB GitLab repository, filling out the merge request form.
+
+* When describing the merge request, please include as much detail as possible
+  regarding the changes made/new features added/performance improvements. If including any
+  bug fixes, mention the issue numbers associated with the bugs.
+
+* Once you have submitted the merge request, the **CI pipeline** will automatically run to ensure that all tests continue to pass.
+
+We may ask for changes to a merge request if it requires more documentation or unit tests to better make use of it.
+
+Last but not least, **thank you** for taking the time to contribute.
+
