@@ -52,6 +52,7 @@ endif()
 set(PUBLIC_HEADERS
   include/qb/core/thread_pool.hpp
   include/qb/core/noise_model/noise_model.hpp
+  include/qb/core/circuit_builder.hpp
   include/qb/core/noise_model/noise_properties.hpp
   include/qb/core/session.hpp
   include/qb/core/optimization/vqee/case_generator.hpp

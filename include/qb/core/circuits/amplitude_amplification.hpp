@@ -5,7 +5,6 @@
 #include "Circuit.hpp"
 namespace qb {
 
-/// Generic Grover-based amplitude amplification circuit
 class AmplitudeAmplification : public xacc::quantum::Circuit {
 public:
   AmplitudeAmplification() : xacc::quantum::Circuit("AmplitudeAmplification") {}
