@@ -1,23 +1,23 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
-#include "qb/core/optimization/vqee/vqee.hpp"
-#include "qb/core/optimization/qaoa/qaoa.hpp"
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/remote_async_accelerator.hpp"
-#include "qb/core/thread_pool.hpp"
-#include "qb/core/circuit_builders/exponent.hpp"
 #include "CompositeInstruction.hpp"
+#include "qb/core/circuit_builder.hpp"
+#include "qb/core/circuit_builders/exponent.hpp"
+#include "qb/core/optimization/qaoa/qaoa.hpp"
+#include "qb/core/optimization/vqee/vqee.hpp"
+#include "qb/core/remote_async_accelerator.hpp"
+#include "qb/core/session.hpp"
+#include "qb/core/thread_pool.hpp"
+#include <algorithm>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <pybind11/complex.h>
 #include <pybind11/functional.h>
+#include <pybind11/iostream.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
-#include <pybind11/iostream.h>
-#include <algorithm>
-#include <memory>
 
 namespace py = pybind11;
 using namespace qb;
@@ -79,7 +79,8 @@ py::array_t<int> std_vec_to_py_array(const std::vector<int> &input) {
 using OracleFuncPyType = std::function<qb::CircuitBuilder(
     int, int, py::array_t<int>, int, py::array_t<int>, py::array_t<int>)>;
 using StatePrepFuncPyType = std::function<qb::CircuitBuilder(
-    py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>)>;
+    py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>,
+    py::array_t<int>)>;
 
 /**
  * Opaque STL in Python binding
@@ -102,12 +103,13 @@ PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::map<int, double>>>);
 
 namespace qb {
 /// Python interop job handle for async. execution.
-/// Supports both true async. remote backends (e.g., AWS Braket) and threading-based local backends (e.g., multiple
-/// instances of local accelerators).
-/// (1) Remote backends (fully async.) will release the thread (from threadpool) as soon as it finishes job submission.
-/// It returns a handle to check for completion.
-/// (2) Local simulator/emulator instances will run on different threads,
-/// i.e., the completion of thread execution indicates the job completion.
+/// Supports both true async. remote backends (e.g., AWS Braket) and
+/// threading-based local backends (e.g., multiple instances of local
+/// accelerators). (1) Remote backends (fully async.) will release the thread
+/// (from threadpool) as soon as it finishes job submission. It returns a handle
+/// to check for completion. (2) Local simulator/emulator instances will run on
+/// different threads, i.e., the completion of thread execution indicates the
+/// job completion.
 class JobHandle : public std::enable_shared_from_this<JobHandle> {
 private:
   /// Results from virtualized local simulator running on a dedicated thread.
@@ -122,12 +124,15 @@ private:
   /// Name of the QPU that this job is assigned to.
   std::string m_qpuName;
   /// Non-owning reference to the session
-  // !Important!: Within this JobHandle, only thread-safe methods of the session class should be called.
+  // !Important!: Within this JobHandle, only thread-safe methods of the session
+  // class should be called.
   qb::session *m_qpqe;
-  /// Instance of the QPU/Accelerator from the pool that this job is assigned to.
+  /// Instance of the QPU/Accelerator from the pool that this job is assigned
+  /// to.
   std::shared_ptr<xacc::Accelerator> m_qpu;
   /// Async. job handle when the QPU is a remote Accelerator.
-  /// Note: This will be null when the QPU is a local instance running on a dedicated thread.
+  /// Note: This will be null when the QPU is a local instance running on a
+  /// dedicated thread.
   std::shared_ptr<async_job_handle> m_handle;
   /// Static map of all job handles.
   static inline std::map<std::pair<int, int>, std::shared_ptr<JobHandle>>
@@ -137,24 +142,22 @@ private:
 
 public:
   /// Returns true if the job is completed.
-  bool complete() const
-  {
-    if (m_handle)
-    {
-      // For remote accelerator (e.g. AWS Braket), use the handle to query the job status.
+  bool complete() const {
+    if (m_handle) {
+      // For remote accelerator (e.g. AWS Braket), use the handle to query the
+      // job status.
       return m_handle->done();
-    }
-    else
-    {
-      // Otherwise, this job is running locally on a thread from the thread pool.
-      // Returns the thread status.
+    } else {
+      // Otherwise, this job is running locally on a thread from the thread
+      // pool. Returns the thread status.
       return !m_thread_running;
     }
   }
 
   std::string qpu_name() const { return m_qpuName; }
 
-  /// Post the (i, j) job asynchronously to be executed on the virtualized QPU pool.
+  /// Post the (i, j) job asynchronously to be executed on the virtualized QPU
+  /// pool.
   void post_async(qb::session &s, int i, int j) {
     m_qpqe = &s;
     m_i = i;
@@ -168,43 +171,34 @@ public:
 
   /// Retrieve the async execution result.
   /// Blocking if the job is not completed yet.
-  std::string get_async_result()
-  {
-    if (m_handle)
-    {
+  std::string get_async_result() {
+    if (m_handle) {
       // If this is a remote job, wait for its completion.
       m_handle->wait_for_completion();
       return m_qpqe->get_out_raws().at(m_i).at(m_j);
-    }
-    else
-    {
-      /// If this is a local simulation, wait for the simulation (on a thread) to complete.
+    } else {
+      /// If this is a local simulation, wait for the simulation (on a thread)
+      /// to complete.
       auto result = m_threadResult.get();
       return result;
     }
   }
 
   /// Terminate a job.
-  void terminate()
-  {
-    if (complete())
-    {
+  void terminate() {
+    if (complete()) {
       // Nothing to do if already completed.
       return;
     }
 
-    if (m_handle)
-    {
+    if (m_handle) {
       // Cancel the remote job.
-      // Note: a remote accelerator instance can have multiple jobs in-flight, so the job cancellation must be
-      // associated with a job handle.
+      // Note: a remote accelerator instance can have multiple jobs in-flight,
+      // so the job cancellation must be associated with a job handle.
       m_handle->cancel();
-    }
-    else
-    {
+    } else {
       // For local simulators, ask the accelerator to stop.
-      if (m_qpu)
-      {
+      if (m_qpu) {
         // Terminate the job if still running.
         m_qpu->cancel();
       }
@@ -214,15 +208,12 @@ public:
     removeJobHandle();
   }
 
-
   /// Retrieve the job handle for the (i,j) index.
   /// Return null if not found (e.g., not-yet posted or cancelled)
-  static std::shared_ptr<JobHandle> getJobHandle(int i, int j)
-  {
+  static std::shared_ptr<JobHandle> getJobHandle(int i, int j) {
     const std::scoped_lock guard(g_mutex);
     auto iter = JOB_HANDLE_REGISTRY.find(std::make_pair(i, j));
-    if (iter != JOB_HANDLE_REGISTRY.end())
-    {
+    if (iter != JOB_HANDLE_REGISTRY.end()) {
       return iter->second;
     }
     return nullptr;
@@ -230,44 +221,38 @@ public:
 
 private:
   /// Add this to the JOB_HANDLE_REGISTRY
-  void addJobHandle()
-  {
+  void addJobHandle() {
     const std::scoped_lock guard(g_mutex);
     JOB_HANDLE_REGISTRY[std::make_pair(m_i, m_j)] = shared_from_this();
   }
 
   /// Remove this from the JOB_HANDLE_REGISTRY
-  void removeJobHandle()
-  {
+  void removeJobHandle() {
     const std::scoped_lock guard(g_mutex);
     auto iter = JOB_HANDLE_REGISTRY.find(std::make_pair(m_i, m_j));
-    if (iter != JOB_HANDLE_REGISTRY.end())
-    {
+    if (iter != JOB_HANDLE_REGISTRY.end()) {
       JOB_HANDLE_REGISTRY.erase(iter);
     }
   }
 
-
   /// Asynchronously run this job.
-  // !IMPORTANT! This method will be called on a different thread (one from the thread pool).
-  std::string run_async_internal()
-  {
-    m_qpu             = m_qpqe->get_executor().getNextAvailableQpu();
+  // !IMPORTANT! This method will be called on a different thread (one from the
+  // thread pool).
+  std::string run_async_internal() {
+    m_qpu = m_qpqe->get_executor().getNextAvailableQpu();
     auto async_handle = m_qpqe->run_async(m_i, m_j, m_qpu);
-    m_qpuName         = m_qpu->name();
-    m_thread_running  = false;
+    m_qpuName = m_qpu->name();
+    m_thread_running = false;
     m_qpqe->get_executor().release(std::move(m_qpu));
     /// If this is a remote accelerator, i.e., run_async returns a valid handle,
     /// cache it to m_handle.
-    if (async_handle)
-    {
+    if (async_handle) {
       m_handle = async_handle;
       /// Returns a dummy result, not yet completed.
       return "";
-    }
-    else
-    {
-      /// If run_async executed synchronously on this thead, the result is available now.
+    } else {
+      /// If run_async executed synchronously on this thead, the result is
+      /// available now.
       return m_qpqe->get_out_raws()[m_i][m_j];
     }
   };
@@ -416,8 +401,8 @@ PYBIND11_MODULE(core, m) {
       .def_property(
           "names_p", &qb::session::getName,
           py::overload_cast<const VectorString &>(&qb::session::setName))
-      .def_property("infile", &qb::session::get_infiles, &qb::session::set_infile,
-                    qb::session::help_infiles_)
+      .def_property("infile", &qb::session::get_infiles,
+                    &qb::session::set_infile, qb::session::help_infiles_)
       .def_property("infiles", &qb::session::get_infiles,
                     &qb::session::set_infiles, qb::session::help_infiles_)
       .def_property("instring", &qb::session::get_instrings,
@@ -425,34 +410,40 @@ PYBIND11_MODULE(core, m) {
       .def_property("instrings", &qb::session::get_instrings,
                     &qb::session::set_instrings, qb::session::help_instrings_)
       .def_property(
-          "ir_target", [&](qb::session &s) {
-              std::vector<std::vector<qb::CircuitBuilder>> circuits;
-              std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> instructions = s.get_irtarget_ms();
-              for (auto vec_instructions : instructions){
-                  std::vector<qb::CircuitBuilder> vec;
-                  for (auto instruction : vec_instructions) {
-                      vec.push_back(qb::CircuitBuilder(instruction));
-                  }
-                  circuits.push_back(vec);
+          "ir_target",
+          [&](qb::session &s) {
+            std::vector<std::vector<qb::CircuitBuilder>> circuits;
+            std::vector<
+                std::vector<std::shared_ptr<xacc::CompositeInstruction>>>
+                instructions = s.get_irtarget_ms();
+            for (auto vec_instructions : instructions) {
+              std::vector<qb::CircuitBuilder> vec;
+              for (auto instruction : vec_instructions) {
+                vec.push_back(qb::CircuitBuilder(instruction));
               }
-              return circuits;
+              circuits.push_back(vec);
+            }
+            return circuits;
           },
           [&](qb::session &s, qb::CircuitBuilder &circuit) {
             s.set_irtarget_m(circuit.get());
           },
           qb::session::help_irtarget_ms_)
       .def_property(
-          "ir_targets", [&](qb::session &s) {
-              std::vector<std::vector<qb::CircuitBuilder>> circuits;
-              std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> instructions = s.get_irtarget_ms();
-              for (auto vec_instructions : instructions){
-                  std::vector<qb::CircuitBuilder> vec;
-                  for (auto instruction : vec_instructions){
-                      vec.push_back(qb::CircuitBuilder(instruction));
-                  }
-                  circuits.push_back(vec);
+          "ir_targets",
+          [&](qb::session &s) {
+            std::vector<std::vector<qb::CircuitBuilder>> circuits;
+            std::vector<
+                std::vector<std::shared_ptr<xacc::CompositeInstruction>>>
+                instructions = s.get_irtarget_ms();
+            for (auto vec_instructions : instructions) {
+              std::vector<qb::CircuitBuilder> vec;
+              for (auto instruction : vec_instructions) {
+                vec.push_back(qb::CircuitBuilder(instruction));
               }
-              return circuits;
+              circuits.push_back(vec);
+            }
+            return circuits;
           },
           [&](qb::session &s,
               std::vector<std::vector<qb::CircuitBuilder>> &circuits) {
@@ -472,31 +463,57 @@ PYBIND11_MODULE(core, m) {
           },
           qb::session::help_irtarget_ms_)
       .def_property("include_qb", &qb::session::get_include_qbs,
-                    &qb::session::set_include_qb, qb::session::help_include_qbs_)
+                    &qb::session::set_include_qb,
+                    qb::session::help_include_qbs_)
       .def_property("include_qbs", &qb::session::get_include_qbs,
-                    &qb::session::set_include_qbs, qb::session::help_include_qbs_)
+                    &qb::session::set_include_qbs,
+                    qb::session::help_include_qbs_)
       .def_property("qpu_config", &qb::session::get_qpu_configs,
-                    &qb::session::set_qpu_config, qb::session::help_qpu_configs_)
+                    &qb::session::set_qpu_config,
+                    qb::session::help_qpu_configs_)
       .def_property("qpu_configs", &qb::session::get_qpu_configs,
-                    &qb::session::set_qpu_configs, qb::session::help_qpu_configs_)
+                    &qb::session::set_qpu_configs,
+                    qb::session::help_qpu_configs_)
       .def_property("acc", &qb::session::get_accs, &qb::session::set_acc,
                     qb::session::help_accs_)
       .def_property("accs", &qb::session::get_accs, &qb::session::set_accs,
                     qb::session::help_accs_)
-      .def_property("aws_verbatim", &qb::session::get_aws_verbatims, &qb::session::set_aws_verbatim, qb::session::help_aws_verbatims_)
-      .def_property("aws_verbatims", &qb::session::get_aws_verbatims, &qb::session::set_aws_verbatims, qb::session::help_aws_verbatims_)
-      .def_property("aws_format", &qb::session::get_aws_formats, &qb::session::set_aws_format, qb::session::help_aws_formats_)
-      .def_property("aws_formats", &qb::session::get_aws_formats, &qb::session::set_aws_formats, qb::session::help_aws_formats_)
-      .def_property("aws_device", &qb::session::get_aws_device_names, &qb::session::set_aws_device_name, qb::session::help_aws_device_names_)
-      .def_property("aws_devices", &qb::session::get_aws_device_names, &qb::session::set_aws_device_names, qb::session::help_aws_device_names_)
-      .def_property("aws_s3", &qb::session::get_aws_s3s, &qb::session::set_aws_s3, qb::session::help_aws_s3s_)
-      .def_property("aws_s3s", &qb::session::get_aws_s3s, &qb::session::set_aws_s3s, qb::session::help_aws_s3s_)
-      .def_property("aws_s3_path", &qb::session::get_aws_s3_paths, &qb::session::set_aws_s3_path, qb::session::help_aws_s3_paths_)
-      .def_property("aws_s3_paths", &qb::session::get_aws_s3_paths, &qb::session::set_aws_s3_paths, qb::session::help_aws_s3_paths_)
-      .def_property("aer_sim_type", &qb::session::get_aer_sim_types, &qb::session::set_aer_sim_type, qb::session::help_aer_sim_types_)
-      .def_property("aer_sim_types", &qb::session::get_aer_sim_types, &qb::session::set_aer_sim_types, qb::session::help_aer_sim_types_)
-      .def_property("random", &qb::session::get_randoms, &qb::session::set_random,
-                    qb::session::help_randoms_)
+      .def_property("aws_verbatim", &qb::session::get_aws_verbatims,
+                    &qb::session::set_aws_verbatim,
+                    qb::session::help_aws_verbatims_)
+      .def_property("aws_verbatims", &qb::session::get_aws_verbatims,
+                    &qb::session::set_aws_verbatims,
+                    qb::session::help_aws_verbatims_)
+      .def_property("aws_format", &qb::session::get_aws_formats,
+                    &qb::session::set_aws_format,
+                    qb::session::help_aws_formats_)
+      .def_property("aws_formats", &qb::session::get_aws_formats,
+                    &qb::session::set_aws_formats,
+                    qb::session::help_aws_formats_)
+      .def_property("aws_device", &qb::session::get_aws_device_names,
+                    &qb::session::set_aws_device_name,
+                    qb::session::help_aws_device_names_)
+      .def_property("aws_devices", &qb::session::get_aws_device_names,
+                    &qb::session::set_aws_device_names,
+                    qb::session::help_aws_device_names_)
+      .def_property("aws_s3", &qb::session::get_aws_s3s,
+                    &qb::session::set_aws_s3, qb::session::help_aws_s3s_)
+      .def_property("aws_s3s", &qb::session::get_aws_s3s,
+                    &qb::session::set_aws_s3s, qb::session::help_aws_s3s_)
+      .def_property("aws_s3_path", &qb::session::get_aws_s3_paths,
+                    &qb::session::set_aws_s3_path,
+                    qb::session::help_aws_s3_paths_)
+      .def_property("aws_s3_paths", &qb::session::get_aws_s3_paths,
+                    &qb::session::set_aws_s3_paths,
+                    qb::session::help_aws_s3_paths_)
+      .def_property("aer_sim_type", &qb::session::get_aer_sim_types,
+                    &qb::session::set_aer_sim_type,
+                    qb::session::help_aer_sim_types_)
+      .def_property("aer_sim_types", &qb::session::get_aer_sim_types,
+                    &qb::session::set_aer_sim_types,
+                    qb::session::help_aer_sim_types_)
+      .def_property("random", &qb::session::get_randoms,
+                    &qb::session::set_random, qb::session::help_randoms_)
       .def_property("randoms", &qb::session::get_randoms,
                     &qb::session::set_randoms, qb::session::help_randoms_)
       .def_property("xasm", &qb::session::get_xasms, &qb::session::set_xasm,
@@ -505,33 +522,43 @@ PYBIND11_MODULE(core, m) {
                     qb::session::help_xasms_)
       .def_property("quil1", &qb::session::get_quil1s, &qb::session::set_quil1,
                     qb::session::help_quil1s_)
-      .def_property("quil1s", &qb::session::get_quil1s, &qb::session::set_quil1s,
-                    qb::session::help_quil1s_)
+      .def_property("quil1s", &qb::session::get_quil1s,
+                    &qb::session::set_quil1s, qb::session::help_quil1s_)
       .def_property("noplacement", &qb::session::get_noplacements,
                     &qb::session::set_noplacement,
                     qb::session::help_noplacements_)
       .def_property("noplacements", &qb::session::get_noplacements,
                     &qb::session::set_noplacements,
                     qb::session::help_noplacements_)
-      .def_property("placement", &qb::session::get_placements, &qb::session::set_placement, qb::session::help_placements_)
-      .def_property("placements", &qb::session::get_placements, &qb::session::set_placements, qb::session::help_placements_)
+      .def_property("placement", &qb::session::get_placements,
+                    &qb::session::set_placement, qb::session::help_placements_)
+      .def_property("placements", &qb::session::get_placements,
+                    &qb::session::set_placements, qb::session::help_placements_)
       .def_property("nooptimise", &qb::session::get_nooptimises,
-                    &qb::session::set_nooptimise, qb::session::help_nooptimises_)
+                    &qb::session::set_nooptimise,
+                    qb::session::help_nooptimises_)
       .def_property("nooptimises", &qb::session::get_nooptimises,
-                    &qb::session::set_nooptimises, qb::session::help_nooptimises_)
+                    &qb::session::set_nooptimises,
+                    qb::session::help_nooptimises_)
       .def_property("nosim", &qb::session::get_nosims, &qb::session::set_nosim,
                     qb::session::help_nosims_)
-      .def_property("nosims", &qb::session::get_nosims, &qb::session::set_nosims,
-                    qb::session::help_nosims_)
+      .def_property("nosims", &qb::session::get_nosims,
+                    &qb::session::set_nosims, qb::session::help_nosims_)
       .def_property("noise", &qb::session::get_noises, &qb::session::set_noise,
                     qb::session::help_noises_)
-      .def_property("noises", &qb::session::get_noises, &qb::session::set_noises,
-                    qb::session::help_noises_)
-      .def_property("noise_model", &qb::session::get_noise_models, &qb::session::set_noise_model, qb::session::help_noise_models_)
-      .def_property("noise_models", &qb::session::get_noise_models, &qb::session::set_noise_models, qb::session::help_noise_models_)
-      .def_property("noise_mitigation", &qb::session::get_noise_mitigations, &qb::session::set_noise_mitigation,
+      .def_property("noises", &qb::session::get_noises,
+                    &qb::session::set_noises, qb::session::help_noises_)
+      .def_property("noise_model", &qb::session::get_noise_models,
+                    &qb::session::set_noise_model,
+                    qb::session::help_noise_models_)
+      .def_property("noise_models", &qb::session::get_noise_models,
+                    &qb::session::set_noise_models,
+                    qb::session::help_noise_models_)
+      .def_property("noise_mitigation", &qb::session::get_noise_mitigations,
+                    &qb::session::set_noise_mitigation,
                     qb::session::help_noise_mitigations_)
-      .def_property("noise_mitigations", &qb::session::get_noise_mitigations, &qb::session::set_noise_mitigations,
+      .def_property("noise_mitigations", &qb::session::get_noise_mitigations,
+                    &qb::session::set_noise_mitigations,
                     qb::session::help_noise_mitigations_)
       .def_property("notiming", &qb::session::get_notimings,
                     &qb::session::set_notiming, qb::session::help_notimings_)
@@ -540,7 +567,8 @@ PYBIND11_MODULE(core, m) {
       .def_property("output_oqm_enabled", &qb::session::get_output_oqm_enableds,
                     &qb::session::set_output_oqm_enabled,
                     qb::session::help_output_oqm_enableds_)
-      .def_property("output_oqm_enableds", &qb::session::get_output_oqm_enableds,
+      .def_property("output_oqm_enableds",
+                    &qb::session::get_output_oqm_enableds,
                     &qb::session::set_output_oqm_enableds,
                     qb::session::help_output_oqm_enableds_)
       .def_property("log_enabled", &qb::session::get_log_enableds,
@@ -567,16 +595,19 @@ PYBIND11_MODULE(core, m) {
                     qb::session::help_betas_)
       .def_property("theta", &qb::session::get_thetas, &qb::session::set_theta,
                     qb::session::help_thetas_)
-      .def_property("thetas", &qb::session::get_thetas, &qb::session::set_thetas,
-                    qb::session::help_thetas_)
+      .def_property("thetas", &qb::session::get_thetas,
+                    &qb::session::set_thetas, qb::session::help_thetas_)
       .def_property("svd_cutoff", &qb::session::get_svd_cutoffs,
-                    &qb::session::set_svd_cutoff, qb::session::help_svd_cutoffs_)
+                    &qb::session::set_svd_cutoff,
+                    qb::session::help_svd_cutoffs_)
       .def_property("svd_cutoffs", &qb::session::get_svd_cutoffs,
-                    &qb::session::set_svd_cutoffs, qb::session::help_svd_cutoffs_)
+                    &qb::session::set_svd_cutoffs,
+                    qb::session::help_svd_cutoffs_)
       .def_property("max_bond_dimension", &qb::session::get_max_bond_dimensions,
                     &qb::session::set_max_bond_dimension,
                     qb::session::help_max_bond_dimensions_)
-      .def_property("max_bond_dimensions", &qb::session::get_max_bond_dimensions,
+      .def_property("max_bond_dimensions",
+                    &qb::session::get_max_bond_dimensions,
                     &qb::session::set_max_bond_dimensions,
                     qb::session::help_max_bond_dimensions_)
       .def_property("output_amplitude", &qb::session::get_output_amplitudes,
@@ -585,55 +616,71 @@ PYBIND11_MODULE(core, m) {
       .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitudes,
                     qb::session::help_output_amplitudes_)
-      .def_property_readonly("out_raw", &qb::session::get_out_raws, qb::session::help_out_raws_)
-      .def_property_readonly("out_raws", &qb::session::get_out_raws, qb::session::help_out_raws_)
-      .def_property_readonly("out_count", &qb::session::get_out_counts, qb::session::help_out_counts_)
-      .def_property_readonly("out_counts", &qb::session::get_out_counts, qb::session::help_out_counts_)
-      .def_property_readonly("out_divergence", &qb::session::get_out_divergences,
-                    qb::session::help_out_divergences_)
-      .def_property_readonly("out_divergences", &qb::session::get_out_divergences,
-                    qb::session::help_out_divergences_)
+      .def_property_readonly("out_raw", &qb::session::get_out_raws,
+                             qb::session::help_out_raws_)
+      .def_property_readonly("out_raws", &qb::session::get_out_raws,
+                             qb::session::help_out_raws_)
+      .def_property_readonly("out_count", &qb::session::get_out_counts,
+                             qb::session::help_out_counts_)
+      .def_property_readonly("out_counts", &qb::session::get_out_counts,
+                             qb::session::help_out_counts_)
+      .def_property_readonly("out_divergence",
+                             &qb::session::get_out_divergences,
+                             qb::session::help_out_divergences_)
+      .def_property_readonly("out_divergences",
+                             &qb::session::get_out_divergences,
+                             qb::session::help_out_divergences_)
       .def_property_readonly("out_transpiled_circuit",
-                    &qb::session::get_out_transpiled_circuits,
-                    qb::session::help_out_transpiled_circuits_)
+                             &qb::session::get_out_transpiled_circuits,
+                             qb::session::help_out_transpiled_circuits_)
       .def_property_readonly("out_transpiled_circuits",
-                    &qb::session::get_out_transpiled_circuits,
-                    qb::session::help_out_transpiled_circuits_)
-      .def_property_readonly("out_qobj", &qb::session::get_out_qobjs, qb::session::help_out_qobjs_)
-      .def_property_readonly("out_qobjs", &qb::session::get_out_qobjs, qb::session::help_out_qobjs_)
-      .def_property_readonly("out_qbjson", &qb::session::get_out_qbjsons, qb::session::help_out_qbjsons_)
-      .def_property_readonly("out_qbjsons", &qb::session::get_out_qbjsons, qb::session::help_out_qbjsons_)
+                             &qb::session::get_out_transpiled_circuits,
+                             qb::session::help_out_transpiled_circuits_)
+      .def_property_readonly("out_qobj", &qb::session::get_out_qobjs,
+                             qb::session::help_out_qobjs_)
+      .def_property_readonly("out_qobjs", &qb::session::get_out_qobjs,
+                             qb::session::help_out_qobjs_)
+      .def_property_readonly("out_qbjson", &qb::session::get_out_qbjsons,
+                             qb::session::help_out_qbjsons_)
+      .def_property_readonly("out_qbjsons", &qb::session::get_out_qbjsons,
+                             qb::session::help_out_qbjsons_)
       .def_property_readonly("out_single_qubit_gate_qty",
-                    &qb::session::get_out_single_qubit_gate_qtys,
-                    qb::session::help_out_single_qubit_gate_qtys_)
+                             &qb::session::get_out_single_qubit_gate_qtys,
+                             qb::session::help_out_single_qubit_gate_qtys_)
       .def_property_readonly("out_single_qubit_gate_qtys",
-                    &qb::session::get_out_single_qubit_gate_qtys,
-                    qb::session::help_out_single_qubit_gate_qtys_)
+                             &qb::session::get_out_single_qubit_gate_qtys,
+                             qb::session::help_out_single_qubit_gate_qtys_)
       .def_property_readonly("out_double_qubit_gate_qty",
-                    &qb::session::get_out_double_qubit_gate_qtys,
-                    qb::session::help_out_double_qubit_gate_qtys_)
+                             &qb::session::get_out_double_qubit_gate_qtys,
+                             qb::session::help_out_double_qubit_gate_qtys_)
       .def_property_readonly("out_double_qubit_gate_qtys",
-                    &qb::session::get_out_double_qubit_gate_qtys,
-                    qb::session::help_out_double_qubit_gate_qtys_)
+                             &qb::session::get_out_double_qubit_gate_qtys,
+                             qb::session::help_out_double_qubit_gate_qtys_)
 
-      .def_property_readonly("out_total_init_maxgate_readout_time",
-                    &qb::session::get_out_total_init_maxgate_readout_times,
-                    qb::session::help_out_total_init_maxgate_readout_times_)
-      .def_property_readonly("out_total_init_maxgate_readout_times",
-                    &qb::session::get_out_total_init_maxgate_readout_times,
-                    qb::session::help_out_total_init_maxgate_readout_times_)
+      .def_property_readonly(
+          "out_total_init_maxgate_readout_time",
+          &qb::session::get_out_total_init_maxgate_readout_times,
+          qb::session::help_out_total_init_maxgate_readout_times_)
+      .def_property_readonly(
+          "out_total_init_maxgate_readout_times",
+          &qb::session::get_out_total_init_maxgate_readout_times,
+          qb::session::help_out_total_init_maxgate_readout_times_)
 
-      .def_property_readonly("out_z_op_expect", &qb::session::get_out_z_op_expects,
-                    qb::session::help_out_z_op_expects_)
-      .def_property_readonly("out_z_op_expects", &qb::session::get_out_z_op_expects,
-                    qb::session::help_out_z_op_expects_)
+      .def_property_readonly("out_z_op_expect",
+                             &qb::session::get_out_z_op_expects,
+                             qb::session::help_out_z_op_expects_)
+      .def_property_readonly("out_z_op_expects",
+                             &qb::session::get_out_z_op_expects,
+                             qb::session::help_out_z_op_expects_)
 
-      .def_property("debug", &qb::session::get_debug,
-                    &qb::session::set_debug, qb::session::help_debug_)
+      .def_property("debug", &qb::session::get_debug, &qb::session::set_debug,
+                    qb::session::help_debug_)
 
-      .def_property("num_threads", [&](qb::session &s) { return qb::thread_pool::get_num_threads(); },
-                    [&](qb::session &s, int i) { qb::thread_pool::set_num_threads(i); },
-                    "num_threads: The number of threads in the QB SDK thread pool")
+      .def_property(
+          "num_threads",
+          [&](qb::session &s) { return qb::thread_pool::get_num_threads(); },
+          [&](qb::session &s, int i) { qb::thread_pool::set_num_threads(i); },
+          "num_threads: The number of threads in the QB SDK thread pool")
 
       .def_property("seed", &qb::session::get_seeds, &qb::session::set_seed,
                     qb::session::help_seeds_)
@@ -663,7 +710,8 @@ PYBIND11_MODULE(core, m) {
           "run_async",
           [&](qb::session &s, int i, int j) {
             auto handle = std::make_shared<qb::JobHandle>();
-            // Allow accelerators to acquire the GIL for themselves from a different thread
+            // Allow accelerators to acquire the GIL for themselves from a
+            // different thread
             pybind11::gil_scoped_release release;
             handle->post_async(s, i, j);
             return handle;
@@ -685,12 +733,12 @@ PYBIND11_MODULE(core, m) {
 
   // Overloaded C++
 
-  // m.def("add_", & session::add, "A function which adds 2 numbers", py::arg("i")
-  // = 0, py::arg("j") = 0); m.def("cx_p", & session::tcx, "Test complex doubles");
-  // m.def("print_p", & session::print_kv<int,std::complex<double>>, "Overloaded
-  // print method"); m.def("print_p", &
-  // session::print_vector_kv<int,std::complex<double>>, "Overloaded print
-  // method"); m.def("print_vector_p", py::overload_cast<const
+  // m.def("add_", & session::add, "A function which adds 2 numbers",
+  // py::arg("i") = 0, py::arg("j") = 0); m.def("cx_p", & session::tcx, "Test
+  // complex doubles"); m.def("print_p", &
+  // session::print_kv<int,std::complex<double>>, "Overloaded print method");
+  // m.def("print_p", & session::print_vector_kv<int,std::complex<double>>,
+  // "Overloaded print method"); m.def("print_vector_p", py::overload_cast<const
   // std::map<int,std::complex<double>>     &>(& session::print_kv), "Use C++ to
   // output container contents", py::arg("elems")); m.def("print_vector_p",
   // py::overload_cast<const std::vector<std::map<int,std::complex<double>>>
@@ -707,7 +755,7 @@ PYBIND11_MODULE(core, m) {
   py::class_<qb::CircuitBuilder>(m, "Circuit")
       .def(py::init())
       .def("print", &qb::CircuitBuilder::print,
-           "Print the quantum circuit that has been built.")
+           "Print the quantum circuit that has been built")
       .def(
           "openqasm",
           [&](qb::CircuitBuilder &this_) {
@@ -722,8 +770,8 @@ PYBIND11_MODULE(core, m) {
       // TODO: using s `run` once the QE-382 is implemented
       .def(
           "execute",
-          [&](qb::CircuitBuilder &this_, const std::string &QPU,
-              int NUM_SHOTS, int NUM_QUBITS) {
+          [&](qb::CircuitBuilder &this_, const std::string &QPU, int NUM_SHOTS,
+              int NUM_QUBITS) {
             auto acc = xacc::getAccelerator(QPU, {{"shots", NUM_SHOTS}});
             if (NUM_QUBITS < 0) {
               NUM_QUBITS = this_.get()->nPhysicalBits();
@@ -733,602 +781,1376 @@ PYBIND11_MODULE(core, m) {
             return buffer->toString();
           },
           py::arg("QPU") = "qpp", py::arg("NUM_SHOTS") = 1024,
-          py::arg("NUM_QUBITS") = -1, "Run the circuit")
-      .def("h", &qb::CircuitBuilder::H, "Hadamard gate.")
-      .def("x", &qb::CircuitBuilder::X, "Pauli-X gate.")
-      .def("y", &qb::CircuitBuilder::Y, "Pauli-Y gate.")
-      .def("z", &qb::CircuitBuilder::Z, "Pauli-Z gate.")
-      .def("t", &qb::CircuitBuilder::T, "T gate.")
-      .def("tdg", &qb::CircuitBuilder::Tdg, "Adjoint T gate.")
-      .def("s", &qb::CircuitBuilder::S, "S gate.")
-      .def("sdg", &qb::CircuitBuilder::Sdg, "Adjoint S gate.")
-      .def("rx", &qb::CircuitBuilder::RX, "Rotation around X gate.")
-      .def("ry", &qb::CircuitBuilder::RY, "Rotation around Y gate.")
-      .def("rz", &qb::CircuitBuilder::RZ, "Rotation around Z gate.")
-      .def("cnot", &qb::CircuitBuilder::CNOT, "CNOT gate.")
-      .def(
-          "mcx",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
-              int target_idx) {
-            builder.MCX(py_array_to_std_vec(ctrl_inds), target_idx);
-          },
-          "Multi-controlled NOT gate.")
-      .def(
-          "ccx",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
-              int target_idx) {
-            builder.MCX({ctrl_idx1, ctrl_idx2}, target_idx);
-          },
-          "CCNOT (Toffoli) gate.")
-      .def("swap", &qb::CircuitBuilder::SWAP, "SWAP gate.")
-      .def("cphase", &qb::CircuitBuilder::CPhase,
-           "Controlled phase gate (CU1).")
-      .def("cz", &qb::CircuitBuilder::CZ, "CZ gate.")
-      .def("ch", &qb::CircuitBuilder::CH, "Controlled-Hadamard (CH) gate.")
-      .def("u1", &qb::CircuitBuilder::U1, "U1 gate.")
-      .def("u3", &qb::CircuitBuilder::U3, "U3 gate.")
-      .def("measure", &qb::CircuitBuilder::Measure, "Measure a qubit.")
-      .def("measure_all", &qb::CircuitBuilder::MeasureAll,
-            py::arg("NUM_QUBITS") = -1,
-           "Measure all qubits.")
-      .def(
-          "qft",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
-            builder.QFT(py_array_to_std_vec(inds));
-          },
-          py::arg("qubits"), "Quantum Fourier Transform.")
-      .def(
-          "iqft",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
-            builder.IQFT(py_array_to_std_vec(inds));
-          },
-          py::arg("qubits"), "Inverse Quantum Fourier Transform.")
-      .def(
-          "exponent",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_log,
-              py::array_t<int> qubits_exponent, py::array_t<int> qubits_ancilla,
-              int min_significance, bool is_LSB) {
-            qb::Exponent build_exp;
-            xacc::HeterogeneousMap map = {{"qubits_log",py_array_to_std_vec(qubits_log)}, {"min_significance", min_significance}, {"is_LSB", is_LSB}};
-            if (qubits_exponent.size() > 0) {
-                map.insert("qubits_exponent", qubits_exponent);
-            }
-            if (qubits_ancilla.size() > 0) {
-                map.insert("qubits_ancilla", qubits_ancilla);
-            }
-            bool expand_ok = build_exp.expand(map);
-            builder.append(build_exp);
-            return expand_ok;
-          },
-          py::arg("qubits_log") = py::array_t<int>(),
-          py::arg("qubits_exponent") = py::array_t<int>(),
-          py::arg("qubits_ancilla") = py::array_t<int>(),
-          py::arg("min_significance") = 1, py::arg("is_LSB") = true,
-          "Exponent base 2.")
-      .def(
-          "qpe",
-          [&](qb::CircuitBuilder &builder, py::object &oracle, int precision,
-              py::array_t<int> trial_qubits,
-              py::array_t<int> evaluation_qubits) {
-            qb::CircuitBuilder *casted =
-                oracle.cast<qb::CircuitBuilder *>();
-            assert(casted);
-            builder.QPE(*casted, precision, py_array_to_std_vec(trial_qubits),
-                        py_array_to_std_vec(evaluation_qubits));
-          },
-          py::arg("oracle"), py::arg("precision"),
-          py::arg("trial_qubits") = py::array_t<int>(),
-          py::arg("precision_qubits") = py::array_t<int>(),
-          "Quantum Phase Estimation.")
-      .def(
-          "canonical_ae",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
-              py::object &grover_op, int precision, int num_state_prep_qubits,
-              int num_trial_qubits, py::array_t<int> precision_qubits,
-              py::array_t<int> trial_qubits, bool no_state_prep) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
-            assert(state_prep);
+          py::arg("NUM_QUBITS") = -1, R"(
+              Run the circuit.
 
-            qb::CircuitBuilder *casted_grover_op =
-                grover_op.cast<qb::CircuitBuilder *>();
-            assert(casted_grover_op);
-            builder.CanonicalAmplitudeEstimation(
-                *casted_state_prep, *casted_grover_op, precision,
-                num_state_prep_qubits, num_trial_qubits,
-                py_array_to_std_vec(precision_qubits),
-                py_array_to_std_vec(trial_qubits), no_state_prep);
-          },
-          py::arg("state_prep"), py::arg("grover_op"), py::arg("precision"),
-          py::arg("num_state_prep_qubits"), py::arg("num_trial_qubits"),
-          py::arg("precision_qubits") = py::array_t<int>(),
-          py::arg("trial_qubits") = py::array_t<int>(), py::arg("no_state_prep") = false,
-          "Construct Canonical Quantum Amplitude Estimation Circuit.")
-      .def(
-          "run_canonical_ae",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
-              py::object &grover_op, int precision, int num_state_prep_qubits,
-              int num_trial_qubits, py::array_t<int> precision_qubits,
-              py::array_t<int> trial_qubits, py::str acc_name) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
-            assert(state_prep);
+              This method is used to pass the circuit to an accelerator backend
+              for execution.
 
-            qb::CircuitBuilder *casted_grover_op =
-                grover_op.cast<qb::CircuitBuilder *>();
-            assert(casted_grover_op);
-            return builder.RunCanonicalAmplitudeEstimation(
-                *casted_state_prep, *casted_grover_op, precision,
-                num_state_prep_qubits, num_trial_qubits,
-                py_array_to_std_vec(precision_qubits),
-                py_array_to_std_vec(trial_qubits), acc_name);
-          },
-          py::arg("state_prep"), py::arg("grover_op"), py::arg("precision"),
-          py::arg("num_state_prep_qubits"), py::arg("num_trial_qubits"),
-          py::arg("precision_qubits") = py::array_t<int>(),
-          py::arg("trial_qubits") = py::array_t<int>(), py::arg("qpu") = "qpp",
-          "Execute Canonical Quantum Amplitude Estimation Procedure with "
-          "pre-constructed Grover operator circuit, including "
-          "post-processing.")
-      .def(
-          "amcu",
-          [&](qb::CircuitBuilder &builder, py::object &U,
-              py::array_t<int> qubits_control,
-              py::array_t<int> qubits_ancilla) {
-            qb::CircuitBuilder *casted_U =
-                U.cast<qb::CircuitBuilder *>();
+              The optional parameters are:
 
-            return builder.MultiControlledUWithAncilla(
-                *casted_U,
-                py_array_to_std_vec(qubits_control),
-                py_array_to_std_vec(qubits_ancilla));
-          },
-          py::arg("U"), py::arg("qubits_control"), py::arg("qubits_ancilla"),
-          "Multi Controlled U With Ancilla")
-      .def(
-          "run_canonical_ae_with_oracle",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
-              py::object &oracle, int precision, int num_state_prep_qubits,
-              int num_trial_qubits, py::array_t<int> precision_qubits,
-              py::array_t<int> trial_qubits, py::str acc_name) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
-            assert(state_prep);
+              - **QPU** The accelerator name [string]
+              - **NUM_SHOTS** The number of shots to use [int]
+              - **NUM_QUBITS** The number of qubits required for the circuit [int]
 
-            qb::CircuitBuilder *casted_oracle =
-                oracle.cast<qb::CircuitBuilder *>();
-            assert(casted_oracle);
-            return builder.RunCanonicalAmplitudeEstimationWithOracle(
-                *casted_state_prep, *casted_oracle, precision,
-                num_state_prep_qubits, num_trial_qubits,
-                py_array_to_std_vec(precision_qubits),
-                py_array_to_std_vec(trial_qubits), acc_name);
-          },
-          py::arg("state_prep"), py::arg("oracle"), py::arg("precision"),
-          py::arg("num_state_prep_qubits"), py::arg("num_trial_qubits"),
-          py::arg("precision_qubits") = py::array_t<int>(),
-          py::arg("trial_qubits") = py::array_t<int>(), py::arg("qpu") = "qpp",
-          "Execute Canonical Quantum Amplitude Estimation procedure for the "
-          "oracle "
-          "including "
-          "post-processing.")
-      .def(
-          "run_MLQAE",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
-              py::object &oracle,
-              std::function<int(std::string, int)> is_in_good_subspace,
-              py::array_t<int> score_qubits, int total_num_qubits, int num_runs,
-              int shots, py::str acc_name) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
-            assert(state_prep);
+          )")
+      .def("h", &qb::CircuitBuilder::H, R"(
+    Hadamard gate
+  
+   This method adds a Hadamard (H) gate to the circuit. 
+   
+   Parameters:
 
-            qb::CircuitBuilder *casted_oracle =
-                oracle.cast<qb::CircuitBuilder *>();
-            assert(casted_oracle);
-            return builder.RunMLAmplitudeEstimation(
-                *casted_state_prep, *casted_oracle, is_in_good_subspace,
-                py_array_to_std_vec(score_qubits), total_num_qubits, num_runs,
-                shots, acc_name);
-          },
-          py::arg("state_prep"), py::arg("oracle"),
-          py::arg("is_in_good_subspace"), py::arg("score_qubits"),
-          py::arg("total_num_qubits"), py::arg("num_runs") = 4,
-          py::arg("shots") = 100, py::arg("qpu") = "qpp", "MLQAE")
-      .def(
-          "amplitude_amplification",
-          [&](qb::CircuitBuilder &builder, py::object &oracle,
-              py::object &state_prep, int power) {
-            qb::CircuitBuilder *oracle_casted =
-                oracle.cast<qb::CircuitBuilder *>();
-            assert(oracle_casted);
-            qb::CircuitBuilder *state_prep_casted =
-                state_prep.cast<qb::CircuitBuilder *>();
-            assert(state_prep_casted);
-            builder.AmplitudeAmplification(*oracle_casted, *state_prep_casted,
-                                           power);
-          },
-          py::arg("oracle"), py::arg("state_prep"), py::arg("power") = 1,
-          "Amplitude Amplification.")
-      .def(
-          "ripple_add",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> a,
-              py::array_t<int> b, int c_in) {
-            builder.RippleAdd(py_array_to_std_vec(a), py_array_to_std_vec(b),
-                              c_in);
-          },
-          py::arg("a"), py::arg("b"), py::arg("carry_bit"),
-          "Ripple-carry adder circuit. The first register is added to the "
-          "second register. The number of qubits in the result register must "
-          "be greater than "
-          "that of the first register to hold the carry over bit.")
-      .def(
-          "comparator",
-          [&](qb::CircuitBuilder &builder, int BestScore,
-              int num_scoring_qubits, py::array_t<int> trial_score_qubits,
-              int flag_qubit, py::array_t<int> best_score_qubits,
-              py::array_t<int> ancilla_qubits, bool is_LSB,
-              py::array_t<int> controls_on, py::array_t<int> controls_off) {
-            builder.Comparator(BestScore, num_scoring_qubits,
-                               py_array_to_std_vec(trial_score_qubits),
-                               flag_qubit,
-                               py_array_to_std_vec(best_score_qubits),
-                               py_array_to_std_vec(ancilla_qubits), is_LSB,
-                               py_array_to_std_vec(controls_on),
-                               py_array_to_std_vec(controls_off));
-          },
-          py::arg("best_score"), py::arg("num_scoring_qubits"),
-          py::arg("trial_score_qubits") = py::array_t<int>(),
-          py::arg("flag_qubit") = -1,
-          py::arg("best_score_qubits") = py::array_t<int>(),
-          py::arg("ancilla_qubits") = py::array_t<int>(),
-          py::arg("is_LSB") = true, py::arg("controls_on") = py::array_t<int>(),
-          py::arg("controls_off") = py::array_t<int>(), "Comparator.")
-      .def(
-          "efficient_encoding",
-          [&](qb::CircuitBuilder &builder,
-              std::function<int(int)> scoring_function, int num_state_qubits,
-              int num_scoring_qubits, py::array_t<int> state_qubits,
-              py::array_t<int> scoring_qubits, bool is_LSB, bool use_ancilla,
-              py::array_t<int> qubits_init_flags, int flag_integer) {
-            builder.EfficientEncoding(
-                scoring_function, num_state_qubits, num_scoring_qubits,
-                py_array_to_std_vec(state_qubits),
-                py_array_to_std_vec(scoring_qubits), is_LSB, use_ancilla,
-                py_array_to_std_vec(qubits_init_flags), flag_integer);
-          },
-          py::arg("scoring_function"), py::arg("num_state_qubits"),
-          py::arg("num_scoring_qubits"),
-          py::arg("state_qubits") = py::array_t<int>(),
-          py::arg("scoring_qubits") = py::array_t<int>(),
-          py::arg("is_LSB") = true, py::arg("use_ancilla") = false,
-          py::arg("qubits_init_flags") = py::array_t<int>(), py::arg("flag_integer") = 0,
-          "Efficient Encoding.")
-      .def(
-          "equality_checker",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
-              py::array_t<int> qubits_b, int flag, bool use_ancilla,
-              py::array_t<int> qubits_ancilla, py::array_t<int> controls_on,
-              py::array_t<int> controls_off) {
-            builder.EqualityChecker(
-                py_array_to_std_vec(qubits_a),
-                py_array_to_std_vec(qubits_b), flag, use_ancilla, py_array_to_std_vec(qubits_ancilla),
-                py_array_to_std_vec(controls_on), py_array_to_std_vec(controls_off));
-          },
-          py::arg("qubits_a"), py::arg("qubits_b"), py::arg("flag"),
-          py::arg("use_ancilla") = false,
-          py::arg("qubits_ancilla") = py::array_t<int>(), py::arg("controls_on") = py::array_t<int>(),
-          py::arg("controls_off") = py::array_t<int>(), "Equality Checker.")
-      .def(
-          "controlled_swap",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
-              py::array_t<int> qubits_b, py::array_t<int> flags_on,
-              py::array_t<int> flags_off) {
-            builder.ControlledSwap(
-                py_array_to_std_vec(qubits_a),
-                py_array_to_std_vec(qubits_b),
-                py_array_to_std_vec(flags_on),
-                py_array_to_std_vec(flags_off));
-          },
-          py::arg("qubits_a"), py::arg("qubits_b"),
-          py::arg("flags_on") = py::array_t<int>(),
-          py::arg("flags_off") = py::array_t<int>(), "Controlled swap.")
-      .def(
-          "controlled_ripple_carry_adder",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_adder,
-              py::array_t<int> qubits_sum, int c_in, py::array_t<int> flags_on,
-              py::array_t<int> flags_off, bool no_overflow) {
-            builder.ControlledAddition(
-                py_array_to_std_vec(qubits_adder),
-                py_array_to_std_vec(qubits_sum), c_in,
-                py_array_to_std_vec(flags_on),
-                py_array_to_std_vec(flags_off), no_overflow);
-          },
-          py::arg("qubits_adder"), py::arg("qubits_sum"), py::arg("c_in"),
-          py::arg("flags_on") = py::array_t<int>(),
-          py::arg("flags_off") = py::array_t<int>(), py::arg("no_overflow") = false,
-          "Controlled ripple carry adder.")
-      .def(
-          "generalised_mcx",
-          [&](qb::CircuitBuilder &builder, int target,
-              py::array_t<int> controls_on, py::array_t<int> controls_off) {
-            builder.GeneralisedMCX(target,
-                py_array_to_std_vec(controls_on),
-                py_array_to_std_vec(controls_off));
-          },
-          py::arg("target"), py::arg("controls_on") = py::array_t<int>(),
-          py::arg("controls_off") = py::array_t<int>(), "Generalised MCX.")
-      .def(
-          "compare_beam_oracle",
-          [&](qb::CircuitBuilder &builder, int q0, int q1, int q2,
-              py::array_t<int> FA, py::array_t<int> FB, py::array_t<int> SA, py::array_t<int> SB,
-              bool simplified) {
-            builder.CompareBeamOracle(q0, q1, q2,
-                py_array_to_std_vec(FA),
-                py_array_to_std_vec(FB),
-                py_array_to_std_vec(SA),
-                py_array_to_std_vec(SB), simplified);
-          },
-          py::arg("q0"), py::arg("q1"), py::arg("q2"),
-          py::arg("FA"),
-          py::arg("FB"),
-          py::arg("SA"),
-          py::arg("SB") = py::array_t<int>(),
-          py::arg("simplified") = true, "Compare beam oracle.")
-      .def(
-          "inverse_circuit",
-          [&](qb::CircuitBuilder &builder, py::object &circ) {
-            qb::CircuitBuilder *casted_circ =
-                circ.cast<qb::CircuitBuilder *>();
-            builder.InverseCircuit(*casted_circ);
-          },
-          py::arg("circ"), "Inverse circuit.")
-      .def(
-          "comparator_as_oracle",
-          [&](qb::CircuitBuilder &builder, int BestScore,
-              int num_scoring_qubits, py::array_t<int> trial_score_qubits,
-              int flag_qubit, py::array_t<int> best_score_qubits,
-              py::array_t<int> ancilla_qubits, bool is_LSB,
-              py::array_t<int> controls_on, py::array_t<int> controls_off) {
-            builder.Comparator_as_Oracle(
-                BestScore, num_scoring_qubits,
-                py_array_to_std_vec(trial_score_qubits), flag_qubit,
-                py_array_to_std_vec(best_score_qubits),
-                py_array_to_std_vec(ancilla_qubits), is_LSB,
-                py_array_to_std_vec(controls_on),
-                py_array_to_std_vec(controls_off));
-          },
-          py::arg("best_score"), py::arg("num_scoring_qubits"),
-          py::arg("trial_score_qubits") = py::array_t<int>(),
-          py::arg("flag_qubit") = -1,
-          py::arg("best_score_qubits") = py::array_t<int>(),
-          py::arg("ancilla_qubits") = py::array_t<int>(),
-          py::arg("is_LSB") = true, py::arg("controls_on") = py::array_t<int>(),
-          py::arg("controls_off") = py::array_t<int>(), "Comparator as oracle.")
-      .def(
-          "multiplication",
-          [&](qb::CircuitBuilder &builder,
-              py::array_t<int> qubits_a, py::array_t<int> qubits_b,
-              py::array_t<int> qubits_result, int qubit_ancilla, bool is_LSB) {
-            builder.Multiplication(
-                py_array_to_std_vec(qubits_a),
-                py_array_to_std_vec(qubits_b),
-                py_array_to_std_vec(qubits_result), qubit_ancilla, is_LSB);
-          },
-          py::arg("qubit_ancilla"),
-          py::arg("qubits_a"), py::arg("qubits_b"),
-          py::arg("qubits_result"), py::arg("is_LSB") = true,
-          "Multiplication.")
-      .def(
-          "controlled_multiplication",
-          [&](qb::CircuitBuilder &builder,
-              py::array_t<int> qubits_a, py::array_t<int> qubits_b,
-              py::array_t<int> qubits_result,
-              int qubit_ancilla, bool is_LSB, py::array_t<int> controls_on, py::array_t<int> controls_off) {
-            builder.ControlledMultiplication(
-                py_array_to_std_vec(qubits_a),
-                py_array_to_std_vec(qubits_b),
-                py_array_to_std_vec(qubits_result),
-                qubit_ancilla,
-                is_LSB,
-                py_array_to_std_vec(controls_on),
-                py_array_to_std_vec(controls_off));
-          },
-          py::arg("qubit_ancilla"),
-          py::arg("qubits_a"), py::arg("qubits_b"),
-          py::arg("qubits_result"), py::arg("is_LSB") = true,
-          py::arg("controls_on") = py::array_t<int>(), py::arg("controls_off") = py::array_t<int>(),
-          "Controlled Multiplication.")
-      .def(
-          "exponential_search",
-          [&](qb::CircuitBuilder &builder, py::str method,
-              OracleFuncPyType oracle_func, py::object state_prep,
-              const std::function<int(int)> f_score, int best_score,
-              py::array_t<int> qubits_string, py::array_t<int> qubits_metric,
-              py::array_t<int> qubits_next_letter,
-              py::array_t<int> qubits_next_metric, int flag_qubit,
-              py::array_t<int> qubits_best_score,
-              py::array_t<int> qubits_ancilla_oracle,
-              py::array_t<int> qubits_ancilla_adder,
-              py::array_t<int> total_metric, int CQAE_num_evaluation_qubits,
-              std::function<int(std::string, int)> MLQAE_is_in_good_subspace,
-              int MLQAE_num_runs, int MLQAE_num_shots, py::str acc_name) {
-            std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
-            StatePrepFuncPyType state_prep_casted;
-            qb::OracleFuncCType oracle_converted =
-                [&](int best_score, int num_scoring_qubits,
-                    std::vector<int> trial_score_qubits, int flag_qubit,
-                    std::vector<int> best_score_qubits,
-                    std::vector<int> ancilla_qubits) {
+   - **idx** the index of the qubit being acted on [int]
+
+  )")
+        .def("x", &qb::CircuitBuilder::X, R"(
+      Pauli-X gate
+
+     This method adds a Pauli-X (X) gate to the circuit.
+
+     The X gate is defined by its action on the basis states
+
+    Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("y", &qb::CircuitBuilder::Y, R"(
+      Pauli-Y gate
+
+     This method adds a Pauli-Y (Y) gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("z", &qb::CircuitBuilder::Z, R"(
+      Pauli-Z gate
+
+     This method adds a Pauli-Z (Z) gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("t", &qb::CircuitBuilder::T, R"(
+      T gate
+
+     This method adds a T gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("tdg", &qb::CircuitBuilder::Tdg, R"(
+      Tdg gate
+
+     This method adds an inverse of the T gate (Tdg) to the circuit.
+
+     The Tdg gate is defined by its action on the basis states
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("s", &qb::CircuitBuilder::S, R"(
+      S gate
+
+     This method adds an S gate to the circuit.
+
+     The S gate is defined by its action on the basis states
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("sdg", &qb::CircuitBuilder::Sdg, R"(
+      Sdg gate
+
+     This method adds an inverse of the S gate (Sdg) to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+
+    )")
+        .def("rx", &qb::CircuitBuilder::RX, R"(
+      RX gate
+
+     This method adds an x-axis rotation (RX) gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **theta** the angle of rotation about the x-axis [float]
+
+    )")
+        .def("ry", &qb::CircuitBuilder::RY, R"(
+      RY gate
+
+     This method adds a y-axis rotation (RY) gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **theta** the angle of rotation about the y-axis [float]
+
+    )")
+        .def("rz", &qb::CircuitBuilder::RZ, R"(
+      RZ gate
+
+     This method adds a z-axis rotation (RZ) gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **theta** the angle of rotation about the z-axis [float]
+
+    )")
+        .def("cnot", &qb::CircuitBuilder::CNOT, R"(
+      CNOT gate
+
+     This method adds a controlled-X (CNOT) gate to the circuit.
+
+     The CNOT gate performs an X gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+
+    )")
+        .def(
+            "mcx",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
+                int target_idx) {
+              builder.MCX(py_array_to_std_vec(ctrl_inds), target_idx);
+            },
+            R"(
+      MCX gate
+
+     This method adds a multi-controlled X (MCX) gate to the circuit.
+
+     The MCX gate performs an X gate on the target qubit
+     conditional on all control qubits being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_inds** the indices of the control qubits [list of int]
+     - **target_idx** the index of the target qubit [int]
+
+    )")
+        .def(
+            "ccx",
+            [&](qb::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
+                int target_idx) {
+              builder.MCX({ctrl_idx1, ctrl_idx2}, target_idx);
+            },
+            R"(
+      Toffoli gate
+
+     This method adds a Toffoli gate (CCX) to the circuit.
+
+     The CCX gate performs an X gate on the target qubit
+     conditional on the two control qubits being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx1** the index of the first control qubit [int]
+     - **ctrl_idx2** the index of the second control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+
+    )")
+        .def("swap", &qb::CircuitBuilder::SWAP, R"(
+      SWAP gate
+
+     This method adds a SWAP gate to the circuit. The SWAP gate is used to swap the quantum state of two qubits.
+
+     Parameters:
+
+     - **q1** the index of the first qubit [int]
+     - **q2** the index of the second qubit [int]
+
+    )")
+        .def("cphase", &qb::CircuitBuilder::CPhase,
+             R"(
+      CPhase gate
+
+     This method adds a controlled-U1 (CPhase) gate to the circuit.
+
+     The CPHase gate performs a U1(theta) gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+     - **theta** the value of the phase [float]
+
+    )")
+        .def("cz", &qb::CircuitBuilder::CZ, R"(
+      CZ gate
+
+     This method adds a controlled-Z (CZ) gate to the circuit.
+
+     The CZ gate performs a Z gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+
+    )")
+        .def("ch", &qb::CircuitBuilder::CH, R"(
+      CH gate
+
+     This method adds a controlled-H (CH) gate to the circuit.
+
+     The CH gate performs an H gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+
+    )")
+        .def("u1", &qb::CircuitBuilder::U1, R"(
+      U1 gate
+
+     This method adds a phase (U1) gate to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **theta** the value of the phase [float]
+
+    )")
+        .def("u3", &qb::CircuitBuilder::U3, R"(
+      U3 gate
+
+     This method adds an arbitrary single qubit gate (U3) to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **theta** [float]
+     - **phi** [float]
+     - **lambda** [float]
+
+    )")
+        .def("measure", &qb::CircuitBuilder::Measure, R"(
+      Measurement
+
+     This method is used to indicate a qubit in the circuit should be
+     measured.
+
+     Parameters:
+
+     - **idx** the index of the qubit to be measured [int]
+
+    )")
+        .def("measure_all", &qb::CircuitBuilder::MeasureAll,
+              py::arg("NUM_QUBITS") = -1,
+             R"(
+      Measure all qubits
+
+     This method adds a measurement for all qubits involved in the circuit.
+
+     Parameters:
+
+     - **NUM_QUBITS** the number of qubits in the circuit [int] [optional]
+
+    )")
+        .def(
+            "qft",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
+              builder.QFT(py_array_to_std_vec(inds));
+            },
+            py::arg("qubits"), R"(
+      Quantum Fourier Transform
+
+     This method adds the Quantum Fourier Transform (QFT) to the circuit.
+     This is a quantum analogue of the discrete Fourier Transform.
+
+     Parameters:
+
+     - **qubits** the indices of the target qubits [list of int]
+
+    )")
+        .def(
+            "iqft",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
+              builder.IQFT(py_array_to_std_vec(inds));
+            },
+            py::arg("qubits"), R"(
+      Inverse Quantum Fourier Transform
+
+     This method adds the inverse of the Quantum Fourier Transform (IQFT) to
+     the circuit.
+
+     Parameters:
+
+     - **qubits** the indices of the target qubits [list of int]
+
+    )")
+        .def(
+            "exponent",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_log,
+                py::array_t<int> qubits_exponent, py::array_t<int>
+                qubits_ancilla, int min_significance, bool is_LSB) {
+              qb::Exponent build_exp;
+              xacc::HeterogeneousMap map =
+              {{"qubits_log",py_array_to_std_vec(qubits_log)},
+              {"min_significance", min_significance}, {"is_LSB", is_LSB}}; if
+              (qubits_exponent.size() > 0) {
+                  map.insert("qubits_exponent", qubits_exponent);
+              }
+              if (qubits_ancilla.size() > 0) {
+                  map.insert("qubits_ancilla", qubits_ancilla);
+              }
+              bool expand_ok = build_exp.expand(map);
+              builder.append(build_exp);
+              return expand_ok;
+            },
+            py::arg("qubits_log") = py::array_t<int>(),
+            py::arg("qubits_exponent") = py::array_t<int>(),
+            py::arg("qubits_ancilla") = py::array_t<int>(),
+            py::arg("min_significance") = 1, py::arg("is_LSB") = true,
+            R"(
+                Exponent Base 2
+
+                This method adds an exponent to the circuit. This is used to replace some value
+                by its exponent base 2. 
+
+                Parameters:
+
+                - **qubits_log** the indices of the qubits encoding the original value [list of int]
+                - **qubits_exponent** the indices of the qubits used to store the result [list of int]
+                - **qubits_ancilla** the indices of the required ancilla qubits [list of int]
+                - **min_significance** the accuracy cutoff [int]
+                - **is_LSB** indicates LSB ordering is used [bool]
+
+            )")
+        .def(
+            "qpe",
+            [&](qb::CircuitBuilder &builder, py::object &oracle, int
+            precision,
+                py::array_t<int> trial_qubits,
+                py::array_t<int> evaluation_qubits) {
+              qb::CircuitBuilder *casted =
+                  oracle.cast<qb::CircuitBuilder *>();
+              assert(casted);
+              builder.QPE(*casted, precision,
+              py_array_to_std_vec(trial_qubits),
+                          py_array_to_std_vec(evaluation_qubits));
+            },
+            py::arg("oracle"), py::arg("precision"),
+            py::arg("trial_qubits") = py::array_t<int>(),
+            py::arg("precision_qubits") = py::array_t<int>(),
+            R"(
+      Quantum Phase Estimation
+
+     This method adds the Quantum Phase Estimation (QPE) sub-routine to the
+     circuit.
+
+     Given some unitary operator U and and eigenvector v of U, QPE is used to provide a k-bit approximation to
+     the corresponding eigenvalue's phase, storing the result in an evaluation register whilst leaving the eigenvector
+     unchanged.
+
+     Parameters:
+
+     - **oracle** The unitary operator U involved in the QPE routine [CircuitBuilder]
+     - **precision** The number of bits k used to approximate the phase [int]
+     - **trial_qubits** The indices of the qubits encoding the eigenvector of the unitary [list of int]
+     - **precision_qubits** The indices of the qubits that will be used to store the approximate phase [list of int]
+
+    )")
+        .def(
+            "canonical_ae",
+            [&](qb::CircuitBuilder &builder, py::object &state_prep,
+                py::object &grover_op, int precision, int
+                num_state_prep_qubits, int num_trial_qubits, py::array_t<int>
+                precision_qubits, py::array_t<int> trial_qubits, bool
+                no_state_prep) {
+              qb::CircuitBuilder *casted_state_prep =
+                  state_prep.cast<qb::CircuitBuilder *>();
+              assert(state_prep);
+
+              qb::CircuitBuilder *casted_grover_op =
+                  grover_op.cast<qb::CircuitBuilder *>();
+              assert(casted_grover_op);
+              builder.CanonicalAmplitudeEstimation(
+                  *casted_state_prep, *casted_grover_op, precision,
+                  num_state_prep_qubits, num_trial_qubits,
+                  py_array_to_std_vec(precision_qubits),
+                  py_array_to_std_vec(trial_qubits), no_state_prep);
+            },
+            py::arg("state_prep"), py::arg("grover_op"),
+            py::arg("precision"), py::arg("num_state_prep_qubits"),
+            py::arg("num_trial_qubits"), py::arg("precision_qubits") =
+            py::array_t<int>(), py::arg("trial_qubits") = py::array_t<int>(),
+            py::arg("no_state_prep") = false, R"(
+      Canonical Amplitude Estimation
+
+     This method adds the canonical version of Quantum Amplitude Estimation
+     (QAE) to the circuit.
+
+     Given a quantum state split into a good subspace and a bad subspace, 
+     the QAE sub-routine provides a k-bit approximation to the amplitude of
+     the good subspace, a.
+
+     QAE works by using the Grovers operator Q, which amplifies the amplitude
+     of the good subspace, as the unitary input to a Quantum Phase Estimation
+     routine.
+
+     Parameters:
+
+     - **state_prep** The circuit A used to prepare the input state [CircuitBuilder]
+     - **grover_op** The circuit for the Grovers operator Q for the good subspace [CircuitBuilder]
+     - **precision** The number of bits k used to approximate the amplitude [int]
+     - **num_state_prep_qubits** The number of qubits acted on by the state_prep circuit A [int]
+     - **num_trial_qubits** The number of qubits acted on by the grover_op circuit Q [int]
+     - **trial_qubits** The indices of the qubits acted on by the grover_op circuit Q [list of int]
+     - **precision_qubits** The indices of the qubits used to store the approximate amplitude [list of int]
+     - **no_state_prep** If true, assumes the state is already prepared in the appropriate register [bool]
+
+    )")
+        .def(
+            "run_canonical_ae",
+            [&](qb::CircuitBuilder &builder, py::object &state_prep,
+                py::object &grover_op, int precision, int
+                num_state_prep_qubits, int num_trial_qubits, py::array_t<int>
+                precision_qubits, py::array_t<int> trial_qubits, py::str
+                acc_name) {
+              qb::CircuitBuilder *casted_state_prep =
+                  state_prep.cast<qb::CircuitBuilder *>();
+              assert(state_prep);
+
+              qb::CircuitBuilder *casted_grover_op =
+                  grover_op.cast<qb::CircuitBuilder *>();
+              assert(casted_grover_op);
+              return builder.RunCanonicalAmplitudeEstimation(
+                  *casted_state_prep, *casted_grover_op, precision,
+                  num_state_prep_qubits, num_trial_qubits,
+                  py_array_to_std_vec(precision_qubits),
+                  py_array_to_std_vec(trial_qubits), acc_name);
+            },
+            py::arg("state_prep"), py::arg("grover_op"),
+            py::arg("precision"), py::arg("num_state_prep_qubits"),
+            py::arg("num_trial_qubits"), py::arg("precision_qubits") =
+            py::array_t<int>(), py::arg("trial_qubits") = py::array_t<int>(),
+            py::arg("qpu") = "qpp", R"(
+      Run Canonical Amplitude Estimation
+
+     This method sets up and executes an instance of the canonical amplitude
+     estimation circuit.
+
+     Parameters:
+
+     - **state_prep** The circuit A used to prepare the input state [CircuitBuilder]
+     - **grover_op** The circuit for the Grovers operator Q for the good subspace [CircuitBuilder]
+     - **precision** The number of bits k used to approximate the amplitude [int]
+     - **num_state_prep_qubits** The number of qubits acted on by the state_prep circuit A [int]
+     - **num_trial_qubits** The number of qubits acted on by the grover_op circuit Q [int]
+     - **trial_qubits** The indices of the qubits acted on by the grover_op circuit Q [list of int]
+     - **precision_qubits** The indices of the qubits used to store the approximate amplitude [list of int]
+     - **qpu** The name of the accelerator used to execute the circuit [string]
+
+     Returns: The output buffer of the execution
+    )")
+        .def(
+            "amcu",
+            [&](qb::CircuitBuilder &builder, py::object &U,
+                py::array_t<int> qubits_control,
+                py::array_t<int> qubits_ancilla) {
+              qb::CircuitBuilder *casted_U =
+                  U.cast<qb::CircuitBuilder *>();
+
+              return builder.MultiControlledUWithAncilla(
+                  *casted_U,
+                  py_array_to_std_vec(qubits_control),
+                  py_array_to_std_vec(qubits_ancilla));
+            },
+            py::arg("U"), py::arg("qubits_control"),
+            py::arg("qubits_ancilla"),
+                R"(
+      Multi Controlled Unitary With Ancilla
+
+     This method decomposes a multi-controlled unitary into Toffoli gates
+     and the unitary itself, with the use of ancilla qubits. With N control
+     qubits there should be N-1 ancilla. The resulting instructions are added
+     to the circuit (AMCU gate).
+
+     Parameters:
+
+     - **U** The unitary operation [CircuitBuilder]
+     - **qubits_control** The indices of the control qubits [list of int]
+     - **qubits_ancilla** The indices of the ancilla qubits [list of int]
+
+    )")
+        .def(
+            "run_canonical_ae_with_oracle",
+            [&](qb::CircuitBuilder &builder, py::object &state_prep,
+                py::object &oracle, int precision, int num_state_prep_qubits,
+                int num_trial_qubits, py::array_t<int> precision_qubits,
+                py::array_t<int> trial_qubits, py::str acc_name) {
+              qb::CircuitBuilder *casted_state_prep =
+                  state_prep.cast<qb::CircuitBuilder *>();
+              assert(state_prep);
+
+              qb::CircuitBuilder *casted_oracle =
+                  oracle.cast<qb::CircuitBuilder *>();
+              assert(casted_oracle);
+              return builder.RunCanonicalAmplitudeEstimationWithOracle(
+                  *casted_state_prep, *casted_oracle, precision,
+                  num_state_prep_qubits, num_trial_qubits,
+                  py_array_to_std_vec(precision_qubits),
+                  py_array_to_std_vec(trial_qubits), acc_name);
+            },
+            py::arg("state_prep"), py::arg("oracle"), py::arg("precision"),
+            py::arg("num_state_prep_qubits"), py::arg("num_trial_qubits"),
+            py::arg("precision_qubits") = py::array_t<int>(),
+            py::arg("trial_qubits") = py::array_t<int>(), py::arg("qpu") =
+            "qpp", R"(
+      Run Canonical Amplitude Estimation with Oracle
+
+     This method sets up and executes an instance of the canonical amplitude
+     estimation circuit, but instead of providing the grovers_op Q, we
+     provide the oracle circuit O which marks the good elements.
+
+     The Grovvers operator Q is then constructed within the method from O and
+     the state_prep circuit A.
+
+     Parameters:
+
+     - **state_prep** The circuit A used to prepare the input state [CircuitBuilder]
+     - **oracle** The oracle circuit O that marks the good subspace [CircuitBuilder]
+     - **precision** The number of bits k used to approximate the amplitude [int]
+     - **num_state_prep_qubits** The number of qubits acted on by the state_prep circuit A [int]
+     - **num_trial_qubits** The number of qubits acted on by the grover_op circuit Q [int]
+     - **precision_qubits** The indices of the qubits used to store the approximate amplitude [list of int]
+     - **trial_qubits** The indices of the qubits acted on by the grover_op circuit Q [list of int]
+     - **qpu** The name of the accelerator used to execute the circuit [string]
+
+     Returns: The output buffer of the execution
+    )")
+        .def(
+            "run_MLQAE",
+            [&](qb::CircuitBuilder &builder, py::object &state_prep,
+                py::object &oracle,
+                std::function<int(std::string, int)> is_in_good_subspace,
+                py::array_t<int> score_qubits, int total_num_qubits, int
+                num_runs, int shots, py::str acc_name) {
+              qb::CircuitBuilder *casted_state_prep =
+                  state_prep.cast<qb::CircuitBuilder *>();
+              assert(state_prep);
+
+              qb::CircuitBuilder *casted_oracle =
+                  oracle.cast<qb::CircuitBuilder *>();
+              assert(casted_oracle);
+              return builder.RunMLAmplitudeEstimation(
+                  *casted_state_prep, *casted_oracle, is_in_good_subspace,
+                  py_array_to_std_vec(score_qubits), total_num_qubits,
+                  num_runs, shots, acc_name);
+            },
+            py::arg("state_prep"), py::arg("oracle"),
+            py::arg("is_in_good_subspace"), py::arg("score_qubits"),
+            py::arg("total_num_qubits"), py::arg("num_runs") = 4,
+            py::arg("shots") = 100, py::arg("qpu") = "qpp",
+            R"(
+      Run Maximum-Likelihood Amplitude Estimation
+
+     This method sets up and executes an instance of the maximum-likelihood
+     amplitude estimation circuit.
+
+     Given a state split into a good subspace and a bad subspace, MLQAE is an alternative to canonical QAE to find an estimate for the
+     amplitude of the good subspace, a. It works by performing several runs
+     of amplitude amplification with various iterations and recording the
+     number of good shots measured. Given this data, it finds the value of
+     a that maximises the likelihood function.
+
+     Parameters:
+
+     - **state_prep** The circuit A used to prepare the input state [CircuitBuilder]
+     - **oracle** The oracle circuit O that marks the good subspace [CircuitBuilder]
+     - **is_in_good_subspace** A function that, given a measured bitstring and potentially some other input value, returns a 1 if the measurement is in the good subspace and a 0 otherwise. [func(str, int) -> int]
+     - **score_qubits** The indices of the qubits that determine whether the state is in the good or bad subspace [list of int]
+     - **total_num_qubits** The total number of qubits in the circuit [int]
+     - **num_runs** The number of runs of amplitude amplification (~4-6 is usually sufficient)
+     - **shots** The number of shots in each run [int]
+     - **qpu** The name of the accelerator used to execute the circuit [string]
+
+     Returns: The output buffer of the execution
+    )")
+        .def(
+            "amplitude_amplification",
+            [&](qb::CircuitBuilder &builder, py::object &oracle,
+                py::object &state_prep, int power) {
+              qb::CircuitBuilder *oracle_casted =
+                  oracle.cast<qb::CircuitBuilder *>();
+              assert(oracle_casted);
+              qb::CircuitBuilder *state_prep_casted =
+                  state_prep.cast<qb::CircuitBuilder *>();
+              assert(state_prep_casted);
+              builder.AmplitudeAmplification(*oracle_casted,
+              *state_prep_casted,
+                                             power);
+            },
+            py::arg("oracle"), py::arg("state_prep"), py::arg("power") = 1,
+            R"(
+      Amplitude Amplification
+
+     This method adds a number of Grovers operators to the circuit.
+
+     Grovers operators are used to amplify the amplitude of some desired
+     subspace of your quantum state. 
+
+     Parameters:
+
+     - **oracle** The oracle circuit O that marks the good subspace [CircuitBuilder]
+     - **state_prep** The circuit A used to prepare the input state [CircuitBuilder]
+     - **power** The number of Grovers operators to append to the circuit [int]
+
+     )")
+        .def(
+            "ripple_add",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> a,
+                py::array_t<int> b, int c_in) {
+              builder.RippleAdd(py_array_to_std_vec(a),
+              py_array_to_std_vec(b),
+                                c_in);
+            },
+            py::arg("a"), py::arg("b"), py::arg("carry_bit"),R"(
+      Ripple Carry Adder
+
+     This method adds a ripple carry adder to the circuit.
+
+     The ripple carry adder is an efficient in-line addition operation
+     with a carry-in bit. 
+
+     Parameters:
+
+     - **a** The qubit indices of the first register in the addition [list of int]
+     - **b** The qubit indices of the second register in the addition. This is where the result of a+b will be stored [list of int]
+     - **carry_bit** The index of the carry-in bit [int]
+
+    )")
+        .def(
+            "comparator",
+            [&](qb::CircuitBuilder &builder, int BestScore,
+                int num_scoring_qubits, py::array_t<int> trial_score_qubits,
+                int flag_qubit, py::array_t<int> best_score_qubits,
+                py::array_t<int> ancilla_qubits, bool is_LSB,
+                py::array_t<int> controls_on, py::array_t<int> controls_off)
+                {
+              builder.Comparator(BestScore, num_scoring_qubits,
+                                 py_array_to_std_vec(trial_score_qubits),
+                                 flag_qubit,
+                                 py_array_to_std_vec(best_score_qubits),
+                                 py_array_to_std_vec(ancilla_qubits), is_LSB,
+                                 py_array_to_std_vec(controls_on),
+                                 py_array_to_std_vec(controls_off));
+            },
+            py::arg("best_score"), py::arg("num_scoring_qubits"),
+            py::arg("trial_score_qubits") = py::array_t<int>(),
+            py::arg("flag_qubit") = -1,
+            py::arg("best_score_qubits") = py::array_t<int>(),
+            py::arg("ancilla_qubits") = py::array_t<int>(),
+            py::arg("is_LSB") = true, py::arg("controls_on") =
+            py::array_t<int>(), py::arg("controls_off") = py::array_t<int>(),
+            R"(
+      Comparator
+
+     This method adds a quantum bit string comparator to the circuit.
+
+     The quantum bit string comparator is used to compare the values of two
+     bit string. If the trial score is greater than the best score, the flag
+     qubit is flipped.
+
+     Parameters:
+
+     - **best_score** The score we are comparing strings to [int]
+     - **num_scoring_qubits** The number of qubits used to encode the scores [int]
+     - **trial_score_qubits** The indices of the qubits encoding the trial states [list of int]
+     - **flag_qubit** The index of the flag qubit which is flipped whenever trial score > BestScore [int]
+     - **best_score_qubits** The indices of the qubits encoding the BestScore value [list of int]
+     - **ancilla_qubits** The indices of the ancilla qubits required for the comparator circuit, if num_scoring_qubits = N we need 3N-1 ancilla [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+     - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+
+    )")
+        .def(
+            "efficient_encoding",
+            [&](qb::CircuitBuilder &builder,
+                std::function<int(int)> scoring_function, int
+                num_state_qubits, int num_scoring_qubits, py::array_t<int>
+                state_qubits, py::array_t<int> scoring_qubits, bool is_LSB,
+                bool use_ancilla, py::array_t<int> qubits_init_flags, int
+                flag_integer) {
+              builder.EfficientEncoding(
+                  scoring_function, num_state_qubits, num_scoring_qubits,
+                  py_array_to_std_vec(state_qubits),
+                  py_array_to_std_vec(scoring_qubits), is_LSB, use_ancilla,
+                  py_array_to_std_vec(qubits_init_flags), flag_integer);
+            },
+            py::arg("scoring_function"), py::arg("num_state_qubits"),
+            py::arg("num_scoring_qubits"),
+            py::arg("state_qubits") = py::array_t<int>(),
+            py::arg("scoring_qubits") = py::array_t<int>(),
+            py::arg("is_LSB") = true, py::arg("use_ancilla") = false,
+            py::arg("qubits_init_flags") = py::array_t<int>(),
+            py::arg("flag_integer") = 0, R"(
+      Efficient Encoding
+
+     This method adds an efficient encoding routine to the circuit.
+
+     Given a lookup function f that assigns a score to each binary string,
+     we entangle each string to its score. Rather than
+     encoding states sequentially we cut down on the
+     amount of X gates required by instead following the Gray code ordering
+     of states.
+
+     This module can optionally also flag strings of a certain value.
+
+     Parameters:
+
+     - **scoring_function** A function that inputs the integer value of a binary string and outputs its score [func(int) -> int]
+     - **num_state_qubits** The number of qubits encoding the strings [int]
+     - **num_scoring_qubits** The number of qubits encoding the scores [int]
+     - **state_qubits** The indices of the qubits encoding the strings [list of int]
+     - **scoring_qubits** The indices of the qubits encoding the scores [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+     - **use_ancilla** Indicates that ancilla qubits can be used to decompose MCX gates [bool]
+     - **qubits_init_flag** The indices of any flag qubits [list of int]
+     - **flag_integer** The integer value of binary strings that should be flagged [int]
+
+    )")
+        .def(
+            "equality_checker",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+                py::array_t<int> qubits_b, int flag, bool use_ancilla,
+                py::array_t<int> qubits_ancilla, py::array_t<int>
+                controls_on, py::array_t<int> controls_off) {
+              builder.EqualityChecker(
+                  py_array_to_std_vec(qubits_a),
+                  py_array_to_std_vec(qubits_b), flag, use_ancilla,
+                  py_array_to_std_vec(qubits_ancilla),
+                  py_array_to_std_vec(controls_on),
+                  py_array_to_std_vec(controls_off));
+            },
+            py::arg("qubits_a"), py::arg("qubits_b"), py::arg("flag"),
+            py::arg("use_ancilla") = false,
+            py::arg("qubits_ancilla") = py::array_t<int>(),
+            py::arg("controls_on") = py::array_t<int>(),
+            py::arg("controls_off") = py::array_t<int>(),
+            R"(
+      Equality Checker
+
+     This method adds an equality checker to the circuit.
+
+     Given two input bitstrings a and b the equality checker is
+     used to flip a flag qubit whenever a=b.
+
+     Parameters:
+
+     - **qubits_a** the indices of the qubits encoding a [list of int]
+     - **qubits_b** the indices of the qubits encoding b [list of int]
+     - **flag** the index of the flag qubit that gets flipped whenever a=b [int]
+     - **use_ancilla** Indicates that ancilla qubits can be used to decompose MCX gates [bool]
+     - **qubits_ancilla** The indices of the qubits to be used as ancilla qubits if use_ancilla=true [list of int]
+     - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+
+    )")
+        .def(
+            "controlled_swap",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+                py::array_t<int> qubits_b, py::array_t<int> flags_on,
+                py::array_t<int> flags_off) {
+              builder.ControlledSwap(
+                  py_array_to_std_vec(qubits_a),
+                  py_array_to_std_vec(qubits_b),
+                  py_array_to_std_vec(flags_on),
+                  py_array_to_std_vec(flags_off));
+            },
+            py::arg("qubits_a"), py::arg("qubits_b"),
+            py::arg("flags_on") = py::array_t<int>(),
+            py::arg("flags_off") = py::array_t<int>(),
+            R"(
+      Controlled SWAP
+
+     This method adds a controlled SWAP to the circuit.
+
+     Performs a SWAP operation on a and b if an only if the controls are
+     satisfied.
+
+     Parameters:
+
+     - **qubits_a** the indices of the qubits encoding a [list of int]
+     - **qubits_b** the indices of the qubits encoding b [list of int]
+     - **flags_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **flags_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+
+    )")
+        .def(
+            "controlled_ripple_carry_adder",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_adder,
+                py::array_t<int> qubits_sum, int c_in, py::array_t<int>
+                flags_on, py::array_t<int> flags_off, bool no_overflow) {
+              builder.ControlledAddition(
+                  py_array_to_std_vec(qubits_adder),
+                  py_array_to_std_vec(qubits_sum), c_in,
+                  py_array_to_std_vec(flags_on),
+                  py_array_to_std_vec(flags_off), no_overflow);
+            },
+            py::arg("qubits_adder"), py::arg("qubits_sum"), py::arg("c_in"),
+            py::arg("flags_on") = py::array_t<int>(),
+            py::arg("flags_off") = py::array_t<int>(), py::arg("no_overflow")
+            = false, R"(
+      Controlled Addition
+
+     This method adds a controlled ripple carry adder to the circuit.
+
+     Performs a RippleAdd operation on adder_bits and sum_bits if and only
+     if the controls are satisfied.
+
+     Parameters:
+
+     - **qubits_adder** the indices of the qubits encoding adder_bits [list of int]
+     - **qubits_sum** the indices of the qubits encoding sum_bits [list of int]
+     - **c_in** the index of the carry-in bit [int]
+     - **flags_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **flags_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+     - **no_overflow** Indicates that the total of the addition can be encoded on the same number of qubits as sum_bits without overflowing [bool]
+
+    )")
+        .def(
+            "generalised_mcx",
+            [&](qb::CircuitBuilder &builder, int target,
+                py::array_t<int> controls_on, py::array_t<int> controls_off)
+                {
+              builder.GeneralisedMCX(target,
+                  py_array_to_std_vec(controls_on),
+                  py_array_to_std_vec(controls_off));
+            },
+            py::arg("target"), py::arg("controls_on") = py::array_t<int>(),
+            py::arg("controls_off") = py::array_t<int>(),
+            R"(
+    Generalised MCX
+
+   This method adds a generalised MCX gate to the circuit.
+
+   By generalised MCX we mean that we allow the control qubits to be
+   conditional on being off or conditional on being on.
+
+   Parameters:
+
+   - **target** The index of the target qubit [int]
+   - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+   - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+
+  )")
+        .def(
+            "compare_beam_oracle",
+            [&](qb::CircuitBuilder &builder, int q0, int q1, int q2,
+                py::array_t<int> FA, py::array_t<int> FB, py::array_t<int>
+                SA, py::array_t<int> SB, bool simplified) {
+              builder.CompareBeamOracle(q0, q1, q2,
+                  py_array_to_std_vec(FA),
+                  py_array_to_std_vec(FB),
+                  py_array_to_std_vec(SA),
+                  py_array_to_std_vec(SB), simplified);
+            },
+            py::arg("q0"), py::arg("q1"), py::arg("q2"),
+            py::arg("FA"),
+            py::arg("FB"),
+            py::arg("SA"),
+            py::arg("SB") = py::array_t<int>(),
+            py::arg("simplified") = true,
+            R"(
+      Compare Beam Oracle
+
+     This method adds a compare beam oracle to the circuit.
+
+     This method is required for the quantum decoder algorithm.
+    )")
+        .def(
+            "inverse_circuit",
+            [&](qb::CircuitBuilder &builder, py::object &circ) {
+              qb::CircuitBuilder *casted_circ =
+                  circ.cast<qb::CircuitBuilder *>();
+              builder.InverseCircuit(*casted_circ);
+            },
+            py::arg("circ"),
+            R"(
+    Inverse Circuit
+
+   This method adds the inverse of a circuit to the current circuit.
+
+   Given some collection of unitary operations,
+
+   U = U_NU_{N-1}...U_2U_1
+
+   this method appends the inverse to the circuit:
+
+   U^{-1} = U_1dg U_2dg...U_{N-1}dg U_Ndg
+
+   This may be useful for un-computing ancilla or for constructing Grovers
+   operators.
+
+   Parameters:
+
+   - **circ** The circuit whose inverse we want to add to the current circuit [CircuitBuilder]
+
+  )")
+        .def(
+            "comparator_as_oracle",
+            [&](qb::CircuitBuilder &builder, int BestScore,
+                int num_scoring_qubits, py::array_t<int> trial_score_qubits,
+                int flag_qubit, py::array_t<int> best_score_qubits,
+                py::array_t<int> ancilla_qubits, bool is_LSB,
+                py::array_t<int> controls_on, py::array_t<int> controls_off)
+                {
+              builder.Comparator_as_Oracle(
+                  BestScore, num_scoring_qubits,
+                  py_array_to_std_vec(trial_score_qubits), flag_qubit,
+                  py_array_to_std_vec(best_score_qubits),
+                  py_array_to_std_vec(ancilla_qubits), is_LSB,
+                  py_array_to_std_vec(controls_on),
+                  py_array_to_std_vec(controls_off));
+            },
+            py::arg("best_score"), py::arg("num_scoring_qubits"),
+            py::arg("trial_score_qubits") = py::array_t<int>(),
+            py::arg("flag_qubit") = -1,
+            py::arg("best_score_qubits") = py::array_t<int>(),
+            py::arg("ancilla_qubits") = py::array_t<int>(),
+            py::arg("is_LSB") = true, py::arg("controls_on") =
+            py::array_t<int>(), py::arg("controls_off") = py::array_t<int>(),
+            R"(
+      Comparator as Oracle
+
+     This method adds a quantum bit string comparator oracle to the circuit.
+
+     The quantum bit string comparator is used to add a negative phase to any
+     trial state whose bit string value is greater than the state being
+     compared to. In this way it can be used as an oracle in a Grovers
+     operator that amplifies higher scoring strings. This may be useful in
+     many search problems.
+
+     Parameters:
+
+     - **best_score** The score we are comparing strings to [int]
+     - **num_scoring_qubits** The number of qubits used to encode the scores [int]
+     - **trial_score_qubits** The indices of the qubits encoding the trial states [list of int]
+     - **flag_qubit** The index of the flag qubit which acquires a negative phase whenever trial score > BestScore [int]
+     - **best_score_qubits** The indices of the qubits encoding the BestScore value [list of int]
+     - **ancilla_qubits** The indices of the ancilla qubits required for the comparator circuit, if num_scoring_qubits = N we need 3N-1 ancilla [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+     - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+
+    )")
+        .def(
+            "multiplication",
+            [&](qb::CircuitBuilder &builder,
+                py::array_t<int> qubits_a, py::array_t<int> qubits_b,
+                py::array_t<int> qubits_result, int qubit_ancilla, bool
+                is_LSB) {
+              builder.Multiplication(
+                  py_array_to_std_vec(qubits_a),
+                  py_array_to_std_vec(qubits_b),
+                  py_array_to_std_vec(qubits_result), qubit_ancilla, is_LSB);
+            },
+            py::arg("qubit_ancilla"),
+            py::arg("qubits_a"), py::arg("qubits_b"),
+            py::arg("qubits_result"), py::arg("is_LSB") = true,
+            R"(
+      Multiplication
+
+     This method adds a Multiplication to the circuit.
+
+     Given two inputs a and b, computes the product a*b and stores the result on a new register.
+
+     Parameters:
+
+     - **qubits_a** the indices of the qubits encoding a [list of int]
+     - **qubits_b** the indices of the qubits encoding b [list of int]
+     - **qubits_result** the indices of the qubits that will ecode the multiplication result [list of int]
+     - **qubits_ancilla** the index of the single required ancilla [int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+
+    )")
+        .def(
+            "controlled_multiplication",
+            [&](qb::CircuitBuilder &builder,
+                py::array_t<int> qubits_a, py::array_t<int> qubits_b,
+                py::array_t<int> qubits_result,
+                int qubit_ancilla, bool is_LSB, py::array_t<int> controls_on,
+                py::array_t<int> controls_off) {
+              builder.ControlledMultiplication(
+                  py_array_to_std_vec(qubits_a),
+                  py_array_to_std_vec(qubits_b),
+                  py_array_to_std_vec(qubits_result),
+                  qubit_ancilla,
+                  is_LSB,
+                  py_array_to_std_vec(controls_on),
+                  py_array_to_std_vec(controls_off));
+            },
+            py::arg("qubit_ancilla"),
+            py::arg("qubits_a"), py::arg("qubits_b"),
+            py::arg("qubits_result"), py::arg("is_LSB") = true,
+            py::arg("controls_on") = py::array_t<int>(),
+            py::arg("controls_off") = py::array_t<int>(), R"(
+      Controlled Multiplication
+
+     This method adds a controlled Multiplication to the circuit.
+
+     Performs a Multiplication operation on a and b if an only if the
+     controls are satisfied.
+
+     Parameters:
+
+     - **qubits_a** the indices of the qubits encoding a [list of int]
+     - **qubits_b** the indices of the qubits encoding b [list of int]
+     - **qubits_result** the indices of the qubits that will ecode the multiplication result [list of int]
+     - **qubits_ancilla** the index of the single required ancilla [int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+     - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+
+    )")
+        .def(
+            "exponential_search",
+            [&](qb::CircuitBuilder &builder, py::str method,
+                OracleFuncPyType oracle_func, py::object state_prep,
+                const std::function<int(int)> f_score, int best_score,
+                py::array_t<int> qubits_string, py::array_t<int>
+                qubits_metric, py::array_t<int> qubits_next_letter,
+                py::array_t<int> qubits_next_metric, int flag_qubit,
+                py::array_t<int> qubits_best_score,
+                py::array_t<int> qubits_ancilla_oracle,
+                py::array_t<int> qubits_ancilla_adder,
+                py::array_t<int> total_metric, int
+                CQAE_num_evaluation_qubits, std::function<int(std::string,
+                int)> MLQAE_is_in_good_subspace, int MLQAE_num_runs, int
+                MLQAE_num_shots, py::str acc_name) {
+              std::shared_ptr<xacc::CompositeInstruction>
+              static_state_prep_circ; StatePrepFuncPyType state_prep_casted;
+              qb::OracleFuncCType oracle_converted =
+                  [&](int best_score, int num_scoring_qubits,
+                      std::vector<int> trial_score_qubits, int flag_qubit,
+                      std::vector<int> best_score_qubits,
+                      std::vector<int> ancilla_qubits) {
+                    // Do conversion
+                    auto conv = oracle_func(
+                        best_score, num_scoring_qubits,
+                        std_vec_to_py_array(trial_score_qubits), flag_qubit,
+                        std_vec_to_py_array(best_score_qubits),
+                        std_vec_to_py_array(ancilla_qubits));
+                    return conv.get();
+                  };
+
+              qb::StatePrepFuncCType state_prep_func;
+              try {
+                qb::CircuitBuilder state_prep_casted =
+                    state_prep.cast<qb::CircuitBuilder>();
+                static_state_prep_circ = state_prep_casted.get();
+                state_prep_func = [&](std::vector<int> a, std::vector<int> b,
+                                      std::vector<int> c, std::vector<int> d,
+                                      std::vector<int> e) {
+                  return static_state_prep_circ;
+                };
+              } catch (...) {
+                state_prep_casted = state_prep.cast<StatePrepFuncPyType>();
+                state_prep_func = [&](std::vector<int> qubits_string,
+                                      std::vector<int> qubits_metric,
+                                      std::vector<int> qubits_next_letter,
+                                      std::vector<int> qubits_next_metric,
+                                      std::vector<int> qubits_ancilla_adder)
+                                      {
                   // Do conversion
-                  auto conv = oracle_func(
-                      best_score, num_scoring_qubits,
-                      std_vec_to_py_array(trial_score_qubits), flag_qubit,
-                      std_vec_to_py_array(best_score_qubits),
-                      std_vec_to_py_array(ancilla_qubits));
+                  auto conv =
+                      state_prep_casted(std_vec_to_py_array(qubits_string),
+                                        std_vec_to_py_array(qubits_metric),
+                                        std_vec_to_py_array(qubits_next_letter),
+                                        std_vec_to_py_array(qubits_next_metric),
+                                        std_vec_to_py_array(qubits_ancilla_adder));
                   return conv.get();
                 };
+              }
+              return builder.ExponentialSearch(
+                  method, oracle_converted, state_prep_func, f_score,
+                  best_score, py_array_to_std_vec(qubits_string),
+                  py_array_to_std_vec(qubits_metric),
+                  py_array_to_std_vec(qubits_next_letter),
+                  py_array_to_std_vec(qubits_next_metric), flag_qubit,
+                  py_array_to_std_vec(qubits_best_score),
+                  py_array_to_std_vec(qubits_ancilla_oracle),
+                  py_array_to_std_vec(qubits_ancilla_adder),
+                  py_array_to_std_vec(total_metric),
+                  CQAE_num_evaluation_qubits, MLQAE_is_in_good_subspace,
+                  MLQAE_num_runs, MLQAE_num_shots, acc_name);
+            },
+            py::arg("method"), py::arg("oracle"), py::arg("state_prep"),
+            py::arg("f_score"), py::arg("best_score"),
+            py::arg("qubits_string"), py::arg("qubits_metric"),
+            py::arg("qubits_next_letter"), py::arg("qubits_next_metric"),
+            py::arg("qubit_flag"), py::arg("qubits_best_score"),
+            py::arg("qubits_ancilla_oracle"), py::arg("qubits_ancilla_adder")
+            = py::array_t<int>(), py::arg("total_metric") =
+            py::array_t<int>(), py::arg("CQAE_num_evaluation_qubits") = 10,
+            py::arg("MLQAE_is_in_good_subspace") = py::cpp_function(
+                [](std::string str, int i) {
+                  // Only required for MLQAE
+                  return 0;
+                },
+                py::arg("str"), py::arg("val")),
 
-            qb::StatePrepFuncCType state_prep_func;
-            try {
-              qb::CircuitBuilder state_prep_casted =
-                  state_prep.cast<qb::CircuitBuilder>();
-              static_state_prep_circ = state_prep_casted.get();
-              state_prep_func = [&](std::vector<int> a, std::vector<int> b,
-                                    std::vector<int> c, std::vector<int> d, std::vector<int> e) {
-                return static_state_prep_circ;
-              };
-            } catch (...) {
-              state_prep_casted = state_prep.cast<StatePrepFuncPyType>();
-              state_prep_func = [&](std::vector<int> qubits_string,
-                                    std::vector<int> qubits_metric,
-                                    std::vector<int> qubits_next_letter,
-                                    std::vector<int> qubits_next_metric,
-                                    std::vector<int> qubits_ancilla_adder) {
-                // Do conversion
-                auto conv =
-                    state_prep_casted(std_vec_to_py_array(qubits_string),
-                                      std_vec_to_py_array(qubits_metric),
-                                      std_vec_to_py_array(qubits_next_letter),
-                                      std_vec_to_py_array(qubits_next_metric),
-                                      std_vec_to_py_array(qubits_ancilla_adder));
-                return conv.get();
-              };
-            }
-            return builder.ExponentialSearch(
-                method, oracle_converted, state_prep_func, f_score, best_score,
-                py_array_to_std_vec(qubits_string),
-                py_array_to_std_vec(qubits_metric),
-                py_array_to_std_vec(qubits_next_letter),
-                py_array_to_std_vec(qubits_next_metric), flag_qubit,
-                py_array_to_std_vec(qubits_best_score),
-                py_array_to_std_vec(qubits_ancilla_oracle),
-                py_array_to_std_vec(qubits_ancilla_adder),
-                py_array_to_std_vec(total_metric),
-                CQAE_num_evaluation_qubits, MLQAE_is_in_good_subspace,
-                MLQAE_num_runs, MLQAE_num_shots, acc_name);
-          },
-          py::arg("method"), py::arg("oracle"), py::arg("state_prep"),
-          py::arg("f_score"), py::arg("best_score"), py::arg("qubits_string"),
-          py::arg("qubits_metric"), py::arg("qubits_next_letter"),
-          py::arg("qubits_next_metric"), py::arg("qubit_flag"),
-          py::arg("qubits_best_score"), py::arg("qubits_ancilla_oracle"),
-          py::arg("qubits_ancilla_adder") = py::array_t<int>(),
-          py::arg("total_metric") = py::array_t<int>(),
-          py::arg("CQAE_num_evaluation_qubits") = 10,
-          py::arg("MLQAE_is_in_good_subspace") = py::cpp_function(
-              [](std::string str, int i) {
-                // Only required for MLQAE
-                return 0;
-              },
-              py::arg("str"), py::arg("val")),
+            py::arg("MLQAE_num_runs") = 6, py::arg("MLQAE_num_shots") = 100,
+            py::arg("qpu") = "qpp",
+            R"(
+      Exponential Search
 
-          py::arg("MLQAE_num_runs") = 6, py::arg("MLQAE_num_shots") = 100,
-          py::arg("qpu") = "qpp", "Exp Search")
-      .def(
-          "q_prime_unitary",
-          [&](qb::CircuitBuilder &builder, int nb_qubits_ancilla_metric,
-              int nb_qubits_ancilla_letter,
-              int nb_qubits_next_letter_probabilities,
-              int nb_qubits_next_letter) {
-            builder.QPrime(nb_qubits_ancilla_metric, nb_qubits_ancilla_letter,
-                           nb_qubits_next_letter_probabilities,
-                           nb_qubits_next_letter);
-          },
-          py::arg("nb_qubits_ancilla_metric"),
-          py::arg("nb_qubits_ancilla_letter"),
-          py::arg("nb_qubits_next_letter_probabilities"),
-          py::arg("nb_qubits_next_letter"), "QPrime.")
-      .def(
-          "inverse_circuit",
-          [&](qb::CircuitBuilder &builder, py::object &circ) {
-            qb::CircuitBuilder *casted_circ =
-                circ.cast<qb::CircuitBuilder *>();
-            builder.InverseCircuit(*casted_circ);
-          },
-          py::arg("circ"), "Inverse circuit.")
-      .def(
-          "subtraction",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
-              py::array_t<int> qubits_smaller, bool is_LSB, int qubit_ancilla) {
-            builder.Subtraction(py_array_to_std_vec(qubits_larger),
-                                py_array_to_std_vec(qubits_smaller), is_LSB, qubit_ancilla);
-          },
-          py::arg("qubits_larger"), py::arg("qubits_smaller"),
-          py::arg("is_LSB") = true, py::arg("qubit_ancilla") = -1, "Subtraction circuit.")
-      .def(
-          "controlled_subtraction",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
-              py::array_t<int> qubits_smaller, py::array_t<int> controls_on,
-              py::array_t<int> controls_off, bool is_LSB, int qubit_ancilla) {
-            builder.ControlledSubtraction(py_array_to_std_vec(qubits_larger),
-                                          py_array_to_std_vec(qubits_smaller),
-                                          py_array_to_std_vec(controls_on),
-                                          py_array_to_std_vec(controls_off),
-                                          is_LSB, qubit_ancilla);
-          },
-          py::arg("qubits_larger"), py::arg("qubits_smaller"),
-          py::arg("controls_on") = py::array_t<int>(),
-          py::arg("controls_off") = py::array_t<int>(),
-          py::arg("is_LSB") = true, py::arg("qubit_ancilla") = -1, "Controlled subtraction circuit.")
-      .def(
-          "proper_fraction_division",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
-              py::array_t<int> qubits_denominator,
-              py::array_t<int> qubits_fraction, py::array_t<int> qubits_ancilla,
-              bool is_LSB) {
-            builder.ProperFractionDivision(
-                py_array_to_std_vec(qubits_numerator),
-                py_array_to_std_vec(qubits_denominator),
-                py_array_to_std_vec(qubits_fraction),
-                py_array_to_std_vec(qubits_ancilla), is_LSB);
-          },
-          py::arg("qubits_numerator"), py::arg("qubits_denominator"),
-          py::arg("qubits_fraction"), py::arg("qubits_ancilla"),
-          py::arg("is_LSB") = true, "Proper fraction division circuit.")
-      .def(
-          "controlled_proper_fraction_division",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
-              py::array_t<int> qubits_denominator,
-              py::array_t<int> qubits_fraction, py::array_t<int> qubits_ancilla,
-              py::array_t<int> controls_on, py::array_t<int> controls_off,
-              bool is_LSB) {
-            builder.ControlledProperFractionDivision(
-                py_array_to_std_vec(qubits_numerator),
-                py_array_to_std_vec(qubits_denominator),
-                py_array_to_std_vec(qubits_fraction),
-                py_array_to_std_vec(qubits_ancilla),
-                py_array_to_std_vec(controls_on),
-                py_array_to_std_vec(controls_off), is_LSB);
-          },
-          py::arg("qubits_numerator"), py::arg("qubits_denominator"),
-          py::arg("qubits_fraction"), py::arg("qubits_ancilla"),
-          py::arg("controls_on") = py::array_t<int>(),
-          py::arg("controls_off") = py::array_t<int>(),
-          py::arg("is_LSB") = true,
-          "Controlled proper fraction division circuit.")
-      .def(
-          "compare_gt",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
-              py::array_t<int> qubits_b,
-              int qubit_flag, int qubit_ancilla,
-              bool is_LSB) {
-            builder.CompareGT(
-                py_array_to_std_vec(qubits_a),
-                py_array_to_std_vec(qubits_b),
-                qubit_flag,
-                qubit_ancilla, is_LSB);
-          },
-          py::arg("qubits_numerator"), py::arg("qubits_denominator"),
-          py::arg("qubits_fraction"), py::arg("qubits_ancilla"),
-          py::arg("is_LSB") = true, "Proper fraction division circuit.");
+     This method sets up and executes the exponential search routine.
+
+     Exponential search is a way to perform amplitude estimation when the
+     size of the "good" subspace is unknown (so the number of Grovers
+     operators to use is unknown).
+
+     We implement three variants:
+     - canonical exponential search is a specific "guess and check" method
+     - MLQAE exponential search uses MLQAE to first estimate the size of the good subspace then perform regular amplitude estimation with the appropriate number of Grovers operators
+     - CQAE exponential search uses canonical QAE to first estimate the size of the good subspace then perform regular amplitude estimation with the appropriate number of Grovers operators
+
+     Exponential search here has been designed for use in the quantum decoder
+     algorithm, so many inputs may not be required for general use.
+
+     Parameters:
+
+     - **method** indicates which method to use. Options are "canonical", "MLQAE", "CQAE" [string]
+     - **oracle_gen** a function which produces the oracle circuit that marks the good subspace [OracleFuncCType]
+     - **state_prep_gen** a function which produces the state prep circuit [StatePrepFuncCType]
+     - **f_score** a function that returns a 1 if the input binary string has value greater than the current best score and 0 otherwise [func(int)->int]
+     - **best_score** the current best score [int]
+     - **qubits_string** the indices of the qubits encoding the strings [list of int]
+     - **qubits_metric** the indices of the qubits encoding the string scores [list of int]
+     - **qubits_next_letter** the indices of some ancilla qubits labelled for the quantum decoder [list of int]
+     - **qubits_next_metric** the indices of some ancilla qubits labelled for the quantum decoder [list of int]
+     - **qubit_flag** the index of the qubit that is flagged by the oracle whenever a trial score is greater than the current best score [int]
+     - **qubits_best_score** the indices of the qubits used to encode the current best score [list of int]
+     - **qubits_ancilla_oracle** the indices of any ancilla qubits required by the oracle [list of int]
+     - **qubits_ancilla_adder** the indices of ancilla qubits required by the ripple carry adder (required by decoder) [list of int]
+     - **total_metric** the indices of the qubits encoding the string scores after any required pre-processing of qubits_metric (required by decoder) [list of int]
+     - **CQAE_num_evaluation_qubits** if using CQAE method, specifies the number of evaluation qubits used in the QAE routine [int]
+     - **MLQAE_is_in_good_subspace** if using MLQAE method, the function that indicates whether a measurement is in the good subspace [func(str,int)->int]
+     - **MLQAE_num_runs** if using MLQAE method, the number of runs [int]
+     - **MLQAE_num_shots** if using MLQAE method, the number of shots [int]
+     - **qpu** the name of the accelerator used to execute the algorithm [string]
+
+     Returns: a better score if found, otherwise returns the current best
+     score
+    )")
+        .def(
+            "q_prime_unitary",
+            [&](qb::CircuitBuilder &builder, int nb_qubits_ancilla_metric,
+                int nb_qubits_ancilla_letter,
+                int nb_qubits_next_letter_probabilities,
+                int nb_qubits_next_letter) {
+              builder.QPrime(nb_qubits_ancilla_metric,
+              nb_qubits_ancilla_letter,
+                             nb_qubits_next_letter_probabilities,
+                             nb_qubits_next_letter);
+            },
+            py::arg("nb_qubits_ancilla_metric"),
+            py::arg("nb_qubits_ancilla_letter"),
+            py::arg("nb_qubits_next_letter_probabilities"),
+            py::arg("nb_qubits_next_letter"), R"(
+      Q' Unitary
+
+     This method adds a Q' unitary to the circuit.
+
+     Q' is a unitary required for the quantum decoder algorithm.
+    )")
+        .def(
+            "subtraction",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
+                py::array_t<int> qubits_smaller, bool is_LSB, int
+                qubit_ancilla) {
+              builder.Subtraction(py_array_to_std_vec(qubits_larger),
+                                  py_array_to_std_vec(qubits_smaller),
+                                  is_LSB, qubit_ancilla);
+            },
+            py::arg("qubits_larger"), py::arg("qubits_smaller"),
+            py::arg("is_LSB") = true, py::arg("qubit_ancilla") = -1,
+            R"(
+      Subtraction
+
+     This method adds a subtraction to the circuit.
+
+     Given two inputs a and b, leaves b unchanged but maps a to the difference a-b, assuming a>b.
+
+     Parameters:
+
+     - **qubits_larger** the indices of the qubits encoding the larger value [list of int]
+     - **qubits_smaller** the indices of the qubits encoding the smaller value [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+     - **qubit_ancilla** the index of the required ancilla [list of int]
+
+    )")
+        .def(
+            "controlled_subtraction",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
+                py::array_t<int> qubits_smaller, py::array_t<int>
+                controls_on, py::array_t<int> controls_off, bool is_LSB, int
+                qubit_ancilla) {
+              builder.ControlledSubtraction(py_array_to_std_vec(qubits_larger),
+                                            py_array_to_std_vec(qubits_smaller),
+                                            py_array_to_std_vec(controls_on),
+                                            py_array_to_std_vec(controls_off),
+                                            is_LSB, qubit_ancilla);
+            },
+            py::arg("qubits_larger"), py::arg("qubits_smaller"),
+            py::arg("controls_on") = py::array_t<int>(),
+            py::arg("controls_off") = py::array_t<int>(),
+            py::arg("is_LSB") = true, py::arg("qubit_ancilla") = -1,
+            R"(
+      Controlled Subtraction
+
+     This method adds a controlled subtraction to the circuit.
+
+     Performs a subtraction operation on a and b if an only if the
+     controls are satisfied.
+
+     Parameters:
+
+     - **qubits_larger** the indices of the qubits encoding the larger value [list of int]
+     - **qubits_smaller** the indices of the qubits encoding the smaller value [list of int]
+     - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+     - **qubit_ancilla** the index of the required ancilla [list of int]
+
+    )")
+        .def(
+            "proper_fraction_division",
+            [&](qb::CircuitBuilder &builder, py::array_t<int>
+            qubits_numerator,
+                py::array_t<int> qubits_denominator,
+                py::array_t<int> qubits_fraction, py::array_t<int>
+                qubits_ancilla, bool is_LSB) {
+              builder.ProperFractionDivision(
+                  py_array_to_std_vec(qubits_numerator),
+                  py_array_to_std_vec(qubits_denominator),
+                  py_array_to_std_vec(qubits_fraction),
+                  py_array_to_std_vec(qubits_ancilla), is_LSB);
+            },
+            py::arg("qubits_numerator"), py::arg("qubits_denominator"),
+            py::arg("qubits_fraction"), py::arg("qubits_ancilla"),
+            py::arg("is_LSB") = true,
+            R"(
+      Proper Fraction Division
+
+     This method adds a proper fraction division to the circuit.
+
+     Given two inputs num and denom, calculates num/denom and stores the result in a new register, assuming denom > num
+
+     Parameters:
+
+     - **qubits_numerator** the indices of the qubits encoding the numerator [list of int]
+     - **qubits_denominator** the indices of the qubits encoding the denominator [list of int]
+     - **qubits_fraction** the indices of the qubits that will ecode the division result [list of int]
+     - **qubit_ancilla** the index of the required ancilla [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+
+    )")
+        .def(
+            "controlled_proper_fraction_division",
+            [&](qb::CircuitBuilder &builder, py::array_t<int>
+            qubits_numerator,
+                py::array_t<int> qubits_denominator,
+                py::array_t<int> qubits_fraction, py::array_t<int>
+                qubits_ancilla, py::array_t<int> controls_on,
+                py::array_t<int> controls_off, bool is_LSB) {
+              builder.ControlledProperFractionDivision(
+                  py_array_to_std_vec(qubits_numerator),
+                  py_array_to_std_vec(qubits_denominator),
+                  py_array_to_std_vec(qubits_fraction),
+                  py_array_to_std_vec(qubits_ancilla),
+                  py_array_to_std_vec(controls_on),
+                  py_array_to_std_vec(controls_off), is_LSB);
+            },
+            py::arg("qubits_numerator"), py::arg("qubits_denominator"),
+            py::arg("qubits_fraction"), py::arg("qubits_ancilla"),
+            py::arg("controls_on") = py::array_t<int>(),
+            py::arg("controls_off") = py::array_t<int>(),
+            py::arg("is_LSB") = true,
+            R"(
+      Controlled Proper Fraction Division
+
+     This method adds a controlled proper fraction division to the circuit.
+
+     Performs a PFD operation on a and b if an only if the controls are
+     satisfied.
+
+     Parameters:
+
+     - **qubits_numerator** the indices of the qubits encoding the numerator [list of int]
+     - **qubits_denominator** the indices of the qubits encoding the denominator [list of int]
+     - **qubits_fraction** the indices of the qubits that will ecode the division result [list of int]
+     - **qubit_ancilla** the index of the required ancilla [list of int]
+     - **controls_on** The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = 1) [list of int]
+     - **controls_off** The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = 0) [list of int]
+     - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+
+    )"
+  )
+        .def(
+            "compare_gt",
+            [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+                py::array_t<int> qubits_b,
+                int qubit_flag, int qubit_ancilla,
+                bool is_LSB) {
+              builder.CompareGT(
+                  py_array_to_std_vec(qubits_a),
+                  py_array_to_std_vec(qubits_b),
+                  qubit_flag,
+                  qubit_ancilla, is_LSB);
+            },
+            py::arg("qubits_a"), py::arg("qubits_b"),
+            py::arg("qubit_flag"), py::arg("qubit_ancilla"),
+            py::arg("is_LSB") = true,
+            R"(
+    Compare Greater Than
+
+   This method adds a greater-than comparator to the circuit.
+
+   Given two binary strings a and b, this comparator flips a flag qubit
+   whenever a>b. This method uses far less ancilla than the more general
+   comparator method provided.
+
+   Parameters:
+
+   - **qubits_a** The indices of the qubits encoding a [list of int]
+   - **qubits_b** The indices of the qubits encoding b [list of int]
+   - **qubit_flag** The index of the flag qubit that is flipped whenever a>b [int]
+   - **qubit_ancilla** The index of the single ancilla qubit required [int]
+   - **is_LSB** Indicates that the trial scores are encoded with LSB ordering [bool]
+  )");
   m.def(
-          "run_canonical_ae",
-          [&](py::object &state_prep, py::object &grover_op, int precision,
-              int num_state_prep_qubits, int num_trial_qubits,
-              py::array_t<int> precision_qubits, py::array_t<int> trial_qubits,
-              py::str acc_name) {
-            qb::CircuitBuilder builder;
+      "run_canonical_ae",
+      [&](py::object &state_prep, py::object &grover_op, int precision,
+          int num_state_prep_qubits, int num_trial_qubits,
+          py::array_t<int> precision_qubits, py::array_t<int> trial_qubits,
+          py::str acc_name) {
+        qb::CircuitBuilder builder;
 
         qb::CircuitBuilder *casted_state_prep =
             state_prep.cast<qb::CircuitBuilder *>();
@@ -1338,19 +2160,19 @@ PYBIND11_MODULE(core, m) {
             grover_op.cast<qb::CircuitBuilder *>();
         assert(casted_grover_op);
 
-            return builder.RunCanonicalAmplitudeEstimation(
-                *casted_state_prep, *casted_grover_op, precision,
-                num_state_prep_qubits, num_trial_qubits,
-                py_array_to_std_vec(precision_qubits),
-                py_array_to_std_vec(trial_qubits), acc_name);
-          },
-          py::arg("state_prep"), py::arg("grover_op"), py::arg("precision"),
-          py::arg("num_state_prep_qubits"), py::arg("num_trial_qubits"),
-          py::arg("precision_qubits") = py::array_t<int>(),
-          py::arg("trial_qubits") = py::array_t<int>(), py::arg("qpu") = "qpp",
-          "Execute Canonical Quantum Amplitude Estimation Procedure with "
-          "pre-constructed Grover operator circuit, including "
-          "post-processing.");
+        return builder.RunCanonicalAmplitudeEstimation(
+            *casted_state_prep, *casted_grover_op, precision,
+            num_state_prep_qubits, num_trial_qubits,
+            py_array_to_std_vec(precision_qubits),
+            py_array_to_std_vec(trial_qubits), acc_name);
+      },
+      py::arg("state_prep"), py::arg("grover_op"), py::arg("precision"),
+      py::arg("num_state_prep_qubits"), py::arg("num_trial_qubits"),
+      py::arg("precision_qubits") = py::array_t<int>(),
+      py::arg("trial_qubits") = py::array_t<int>(), py::arg("qpu") = "qpp",
+      "Execute Canonical Quantum Amplitude Estimation Procedure with "
+      "pre-constructed Grover operator circuit, including "
+      "post-processing.");
   m.def(
       "run_canonical_ae_with_oracle",
       [&](py::object &state_prep, py::object &oracle, int precision,
@@ -1362,8 +2184,7 @@ PYBIND11_MODULE(core, m) {
             state_prep.cast<qb::CircuitBuilder *>();
         assert(state_prep);
 
-        qb::CircuitBuilder *casted_oracle =
-            oracle.cast<qb::CircuitBuilder *>();
+        qb::CircuitBuilder *casted_oracle = oracle.cast<qb::CircuitBuilder *>();
         assert(casted_oracle);
         return builder.RunCanonicalAmplitudeEstimationWithOracle(
             *casted_state_prep, *casted_oracle, precision,
@@ -1390,8 +2211,7 @@ PYBIND11_MODULE(core, m) {
             state_prep.cast<qb::CircuitBuilder *>();
         assert(state_prep);
 
-        qb::CircuitBuilder *casted_oracle =
-            oracle.cast<qb::CircuitBuilder *>();
+        qb::CircuitBuilder *casted_oracle = oracle.cast<qb::CircuitBuilder *>();
         assert(casted_oracle);
         return builder.RunMLAmplitudeEstimation(
             *casted_state_prep, *casted_oracle, is_in_good_subspace,
@@ -1411,8 +2231,7 @@ PYBIND11_MODULE(core, m) {
           py::array_t<int> qubits_next_metric, int flag_qubit,
           py::array_t<int> qubits_best_score,
           py::array_t<int> qubits_ancilla_oracle,
-          py::array_t<int> qubits_ancilla_adder,
-          py::array_t<int> total_metric,
+          py::array_t<int> qubits_ancilla_adder, py::array_t<int> total_metric,
           int CQAE_num_evaluation_qubits,
           std::function<int(std::string, int)> MLQAE_is_in_good_subspace,
           int MLQAE_num_runs, int MLQAE_num_shots, py::str acc_name) {
@@ -1439,7 +2258,8 @@ PYBIND11_MODULE(core, m) {
               state_prep.cast<qb::CircuitBuilder>();
           static_state_prep_circ = state_prep_casted.get();
           state_prep_func = [&](std::vector<int> a, std::vector<int> b,
-                                std::vector<int> c, std::vector<int> d, std::vector<int> e) {
+                                std::vector<int> c, std::vector<int> d,
+                                std::vector<int> e) {
             return static_state_prep_circ;
           };
         } catch (...) {
@@ -1468,9 +2288,9 @@ PYBIND11_MODULE(core, m) {
             py_array_to_std_vec(qubits_best_score),
             py_array_to_std_vec(qubits_ancilla_oracle),
             py_array_to_std_vec(qubits_ancilla_adder),
-            py_array_to_std_vec(total_metric),
-            CQAE_num_evaluation_qubits, MLQAE_is_in_good_subspace,
-            MLQAE_num_runs, MLQAE_num_shots, acc_name);
+            py_array_to_std_vec(total_metric), CQAE_num_evaluation_qubits,
+            MLQAE_is_in_good_subspace, MLQAE_num_runs, MLQAE_num_shots,
+            acc_name);
       },
       py::arg("method"), py::arg("oracle"), py::arg("state_prep"),
       py::arg("f_score"), py::arg("best_score"), py::arg("qubits_string"),
@@ -1487,16 +2307,15 @@ PYBIND11_MODULE(core, m) {
           },
           py::arg("str"), py::arg("val")),
       py::arg("MLQAE_num_runs") = 6, py::arg("MLQAE_num_shots") = 100,
-      py::arg("qpu") = "qpp","Exp Search");
+      py::arg("qpu") = "qpp", "Exp Search");
 
   py::add_ostream_redirect(m);
 
-
-
-// - - - - - - - - - - - - - - - - -  optimization modules - - - - - - - //
-// - - - - - - - - - - - - - - - - -  vqee - - - - - - - - - - - - - - - //
-  py::module_ m_opt = m.def_submodule("optimization", "Optimization modules within qb_core");
-    py::class_<qb::vqee::Params>(m_opt, "vqee_Params") 
+  // - - - - - - - - - - - - - - - - -  optimization modules - - - - - - - //
+  // - - - - - - - - - - - - - - - - -  vqee - - - - - - - - - - - - - - - //
+  py::module_ m_opt =
+      m.def_submodule("optimization", "Optimization modules within qb_core");
+  py::class_<qb::vqee::Params>(m_opt, "vqee_Params")
       .def(py::init<>())
       .def_readwrite("circuitString", &qb::vqee::Params::circuitString)
       .def_readwrite("pauliString", &qb::vqee::Params::pauliString)
@@ -1509,80 +2328,198 @@ PYBIND11_MODULE(core, m) {
       .def_readonly("optimalParameters", &qb::vqee::Params::theta)
       .def_readonly("optimalValue", &qb::vqee::Params::optimalValue);
 
-    py::enum_<qb::vqee::JobID>(m_opt, "vqee_JobID")
+  py::enum_<qb::vqee::JobID>(m_opt, "vqee_JobID")
       .value("H2_explicit", qb::vqee::JobID::H2_explicit)
       .value("H1_HEA", qb::vqee::JobID::H1_HEA)
       .value("H2_UCCSD", qb::vqee::JobID::H2_UCCSD)
       .value("H2_ASWAP", qb::vqee::JobID::H2_ASWAP)
       .value("H5_UCCSD", qb::vqee::JobID::H5_UCCSD);
 
-    m_opt.def("makeJob", &qb::vqee::makeJob, "makeJob(vqee_JobID) -> vqee::Params: returns a predefined example job setup", py::arg("jobID"));
-    
-    py::class_<qb::vqee::VQEE>(m_opt, "vqee_VQEE")
-      .def(py::init<qb::vqee::Params&>())
+  m_opt.def("makeJob", &qb::vqee::makeJob,
+            "makeJob(vqee_JobID) -> vqee::Params: returns a predefined example "
+            "job setup",
+            py::arg("jobID"));
+
+  py::class_<qb::vqee::VQEE>(m_opt, "vqee_VQEE")
+      .def(py::init<qb::vqee::Params &>())
       .def("run", &qb::vqee::VQEE::optimize, "solve VQE problem");
 
-// - - - - - - - - - - - - - - - - -  qaoa - - - - - - - - - - - - - - - //
-    py::class_<qb::op::QaoaSimple>(m_opt, "qaoa_QaoaSimple")
+  // - - - - - - - - - - - - - - - - -  qaoa - - - - - - - - - - - - - - - //
+  py::class_<qb::op::QaoaSimple>(m_opt, "qaoa_QaoaSimple")
       .def(py::init<const bool>())
       .def(py::init())
-      .def_property("colname",  & qb::op::QaoaSimple::get_colnames, & qb::op::QaoaSimple::set_colname,  qb::op::QaoaSimple::help_colnames_ )
-      .def_property("colnames", & qb::op::QaoaSimple::get_colnames, & qb::op::QaoaSimple::set_colnames, qb::op::QaoaSimple::help_colnames_ )
-      .def_property("rowname",  & qb::op::QaoaSimple::get_rownames, & qb::op::QaoaSimple::set_rowname,  qb::op::QaoaSimple::help_rownames_ )
-      .def_property("rownames", & qb::op::QaoaSimple::get_rownames, & qb::op::QaoaSimple::set_rownames, qb::op::QaoaSimple::help_rownames_ )
-      .def_property("theta",  & qb::op::QaoaSimple::get_thetas, & qb::op::QaoaSimple::set_theta,  qb::op::QaoaSimple::help_thetas_ )
-      .def_property("thetas", & qb::op::QaoaSimple::get_thetas, & qb::op::QaoaSimple::set_thetas, qb::op::QaoaSimple::help_thetas_ )
-      .def_property("acc",  & qb::op::QaoaSimple::get_accs, & qb::op::QaoaSimple::set_acc,  qb::op::QaoaSimple::help_accs_ )
-      .def_property("accs", & qb::op::QaoaSimple::get_accs, & qb::op::QaoaSimple::set_accs, qb::op::QaoaSimple::help_accs_ )
-      .def_property("ham",  & qb::op::QaoaSimple::get_hams, & qb::op::QaoaSimple::set_ham,  qb::op::QaoaSimple::help_hams_ )
-      .def_property("hams", & qb::op::QaoaSimple::get_hams, & qb::op::QaoaSimple::set_hams, qb::op::QaoaSimple::help_hams_ )
-      .def_property("qaoa_step",  & qb::op::QaoaSimple::get_qaoa_steps, & qb::op::QaoaSimple::set_qaoa_step,  qb::op::QaoaSimple::help_qaoa_steps_ )
-      .def_property("qaoa_steps", & qb::op::QaoaSimple::get_qaoa_steps, & qb::op::QaoaSimple::set_qaoa_steps, qb::op::QaoaSimple::help_qaoa_steps_ )
-      .def_property("qn",  & qb::op::QaoaSimple::get_qns, & qb::op::QaoaSimple::set_qn,  qb::op::QaoaSimple::help_qns_ )
-      .def_property("qns", & qb::op::QaoaSimple::get_qns, & qb::op::QaoaSimple::set_qns, qb::op::QaoaSimple::help_qns_ )
-      .def_property("rn",  & qb::op::QaoaSimple::get_rns, & qb::op::QaoaSimple::set_rn,  qb::op::QaoaSimple::help_rns_ )
-      .def_property("rns", & qb::op::QaoaSimple::get_rns, & qb::op::QaoaSimple::set_rns, qb::op::QaoaSimple::help_rns_ )
-      .def_property("sn",  & qb::op::QaoaSimple::get_sns, & qb::op::QaoaSimple::set_sn,  qb::op::QaoaSimple::help_sns_ )
-      .def_property("sns", & qb::op::QaoaSimple::get_sns, & qb::op::QaoaSimple::set_sns, qb::op::QaoaSimple::help_sns_ )
-      .def_property("noise",  & qb::op::QaoaSimple::get_noises, & qb::op::QaoaSimple::set_noise,  qb::op::QaoaSimple::help_noises_ )
-      .def_property("noises", & qb::op::QaoaSimple::get_noises, & qb::op::QaoaSimple::set_noises, qb::op::QaoaSimple::help_noises_ )
-      .def_property("extended_param",  & qb::op::QaoaSimple::get_extended_params, & qb::op::QaoaSimple::set_extended_param,  qb::op::QaoaSimple::help_extended_params_ )
-      .def_property("extended_params", & qb::op::QaoaSimple::get_extended_params, & qb::op::QaoaSimple::set_extended_params, qb::op::QaoaSimple::help_extended_params_ )
-      .def_property("method",  & qb::op::QaoaSimple::get_methods, & qb::op::QaoaSimple::set_method,  qb::op::QaoaSimple::help_methods_ )
-      .def_property("methods", & qb::op::QaoaSimple::get_methods, & qb::op::QaoaSimple::set_methods, qb::op::QaoaSimple::help_methods_ )
-      .def_property("grad",  & qb::op::QaoaSimple::get_grads, & qb::op::QaoaSimple::set_grad,  qb::op::QaoaSimple::help_grads_ )
-      .def_property("grads", & qb::op::QaoaSimple::get_grads, & qb::op::QaoaSimple::set_grads, qb::op::QaoaSimple::help_grads_ )
-      .def_property("gradient_strategy",  & qb::op::QaoaSimple::get_gradient_strategys, & qb::op::QaoaSimple::set_gradient_strategy,  qb::op::QaoaSimple::help_gradient_strategys_ )
-      .def_property("gradient_strategys", & qb::op::QaoaSimple::get_gradient_strategys, & qb::op::QaoaSimple::set_gradient_strategys, qb::op::QaoaSimple::help_gradient_strategys_ )
-      .def_property("maxeval",  & qb::op::QaoaSimple::get_maxevals, & qb::op::QaoaSimple::set_maxeval,  qb::op::QaoaSimple::help_maxevals_ )
-      .def_property("maxevals", & qb::op::QaoaSimple::get_maxevals, & qb::op::QaoaSimple::set_maxevals, qb::op::QaoaSimple::help_maxevals_ )
-      .def_property("functol",  & qb::op::QaoaSimple::get_functols, & qb::op::QaoaSimple::set_functol,  qb::op::QaoaSimple::help_functols_ )
-      .def_property("functols", & qb::op::QaoaSimple::get_functols, & qb::op::QaoaSimple::set_functols, qb::op::QaoaSimple::help_functols_ )
-      .def_property("optimum_energy_abstol",  & qb::op::QaoaSimple::get_optimum_energy_abstols, & qb::op::QaoaSimple::set_optimum_energy_abstol,  qb::op::QaoaSimple::help_optimum_energy_abstols_ )
-      .def_property("optimum_energy_abstols", & qb::op::QaoaSimple::get_optimum_energy_abstols, & qb::op::QaoaSimple::set_optimum_energy_abstols, qb::op::QaoaSimple::help_optimum_energy_abstols_ )
-      .def_property("optimum_energy_lowerbound",  & qb::op::QaoaSimple::get_optimum_energy_lowerbounds, & qb::op::QaoaSimple::set_optimum_energy_lowerbound,  qb::op::QaoaSimple::help_optimum_energy_lowerbounds_ )
-      .def_property("optimum_energy_lowerbounds", & qb::op::QaoaSimple::get_optimum_energy_lowerbounds, & qb::op::QaoaSimple::set_optimum_energy_lowerbounds, qb::op::QaoaSimple::help_optimum_energy_lowerbounds_ )
-      .def_property("out_eigenstate",  & qb::op::QaoaSimple::get_out_eigenstates, & qb::op::QaoaSimple::set_out_eigenstate,  qb::op::QaoaSimple::help_out_eigenstates_ )
-      .def_property("out_eigenstates", & qb::op::QaoaSimple::get_out_eigenstates, & qb::op::QaoaSimple::set_out_eigenstates, qb::op::QaoaSimple::help_out_eigenstates_ )
-      .def_property("out_energy",  & qb::op::QaoaSimple::get_out_energys, & qb::op::QaoaSimple::set_out_energy,  qb::op::QaoaSimple::help_out_energys_ )
-      .def_property("out_energys", & qb::op::QaoaSimple::get_out_energys, & qb::op::QaoaSimple::set_out_energys, qb::op::QaoaSimple::help_out_energys_ )
-      .def_property("out_jacobian",  & qb::op::QaoaSimple::get_out_jacobians, & qb::op::QaoaSimple::set_out_jacobian,  qb::op::QaoaSimple::help_out_jacobians_ )
-      .def_property("out_jacobians", & qb::op::QaoaSimple::get_out_jacobians, & qb::op::QaoaSimple::set_out_jacobians, qb::op::QaoaSimple::help_out_jacobians_ )
-      .def_property("out_theta",  & qb::op::QaoaSimple::get_out_thetas, & qb::op::QaoaSimple::set_out_theta,  qb::op::QaoaSimple::help_out_thetas_ )
-      .def_property("out_thetas", & qb::op::QaoaSimple::get_out_thetas, & qb::op::QaoaSimple::set_out_thetas, qb::op::QaoaSimple::help_out_thetas_ )
-      .def_property("out_quantum_energy_calc_time",  & qb::op::QaoaSimple::get_out_quantum_energy_calc_times, & qb::op::QaoaSimple::set_out_quantum_energy_calc_time,  qb::op::QaoaSimple::help_out_quantum_energy_calc_times_ )
-      .def_property("out_quantum_energy_calc_times", & qb::op::QaoaSimple::get_out_quantum_energy_calc_times, & qb::op::QaoaSimple::set_out_quantum_energy_calc_times, qb::op::QaoaSimple::help_out_quantum_energy_calc_times_ )
-      .def_property("out_quantum_jacobian_calc_time",  & qb::op::QaoaSimple::get_out_quantum_jacobian_calc_times, & qb::op::QaoaSimple::set_out_quantum_jacobian_calc_time,  qb::op::QaoaSimple::help_out_quantum_jacobian_calc_times_ )
-      .def_property("out_quantum_jacobian_calc_times", & qb::op::QaoaSimple::get_out_quantum_jacobian_calc_times, & qb::op::QaoaSimple::set_out_quantum_jacobian_calc_times, qb::op::QaoaSimple::help_out_quantum_jacobian_calc_times_ )
-      .def_property("out_classical_energy_jacobian_total_calc_time",  & qb::op::QaoaSimple::get_out_classical_energy_jacobian_total_calc_times, & qb::op::QaoaSimple::set_out_classical_energy_jacobian_total_calc_time,  qb::op::QaoaSimple::help_out_classical_energy_jacobian_total_calc_times_ )
-      .def_property("out_classical_energy_jacobian_total_calc_times", & qb::op::QaoaSimple::get_out_classical_energy_jacobian_total_calc_times, & qb::op::QaoaSimple::set_out_classical_energy_jacobian_total_calc_times, qb::op::QaoaSimple::help_out_classical_energy_jacobian_total_calc_times_ )
-      
-      //.def("run", py::overload_cast<>(& qb::op::QaoaSimple::run), "Execute all declared experiments under all conditions")
-      .def("run", py::overload_cast<>(& qb::op::QaoaBase::run), "Execute all declared experiments under all conditions")
-      .def("runit", py::overload_cast<const size_t &, const size_t &>(& qb::op::QaoaSimple::run), "runit(i,j) : Execute ansatz i, condition j")
+      .def_property("colname", &qb::op::QaoaSimple::get_colnames,
+                    &qb::op::QaoaSimple::set_colname,
+                    qb::op::QaoaSimple::help_colnames_)
+      .def_property("colnames", &qb::op::QaoaSimple::get_colnames,
+                    &qb::op::QaoaSimple::set_colnames,
+                    qb::op::QaoaSimple::help_colnames_)
+      .def_property("rowname", &qb::op::QaoaSimple::get_rownames,
+                    &qb::op::QaoaSimple::set_rowname,
+                    qb::op::QaoaSimple::help_rownames_)
+      .def_property("rownames", &qb::op::QaoaSimple::get_rownames,
+                    &qb::op::QaoaSimple::set_rownames,
+                    qb::op::QaoaSimple::help_rownames_)
+      .def_property("theta", &qb::op::QaoaSimple::get_thetas,
+                    &qb::op::QaoaSimple::set_theta,
+                    qb::op::QaoaSimple::help_thetas_)
+      .def_property("thetas", &qb::op::QaoaSimple::get_thetas,
+                    &qb::op::QaoaSimple::set_thetas,
+                    qb::op::QaoaSimple::help_thetas_)
+      .def_property("acc", &qb::op::QaoaSimple::get_accs,
+                    &qb::op::QaoaSimple::set_acc,
+                    qb::op::QaoaSimple::help_accs_)
+      .def_property("accs", &qb::op::QaoaSimple::get_accs,
+                    &qb::op::QaoaSimple::set_accs,
+                    qb::op::QaoaSimple::help_accs_)
+      .def_property("ham", &qb::op::QaoaSimple::get_hams,
+                    &qb::op::QaoaSimple::set_ham,
+                    qb::op::QaoaSimple::help_hams_)
+      .def_property("hams", &qb::op::QaoaSimple::get_hams,
+                    &qb::op::QaoaSimple::set_hams,
+                    qb::op::QaoaSimple::help_hams_)
+      .def_property("qaoa_step", &qb::op::QaoaSimple::get_qaoa_steps,
+                    &qb::op::QaoaSimple::set_qaoa_step,
+                    qb::op::QaoaSimple::help_qaoa_steps_)
+      .def_property("qaoa_steps", &qb::op::QaoaSimple::get_qaoa_steps,
+                    &qb::op::QaoaSimple::set_qaoa_steps,
+                    qb::op::QaoaSimple::help_qaoa_steps_)
+      .def_property("qn", &qb::op::QaoaSimple::get_qns,
+                    &qb::op::QaoaSimple::set_qn, qb::op::QaoaSimple::help_qns_)
+      .def_property("qns", &qb::op::QaoaSimple::get_qns,
+                    &qb::op::QaoaSimple::set_qns, qb::op::QaoaSimple::help_qns_)
+      .def_property("rn", &qb::op::QaoaSimple::get_rns,
+                    &qb::op::QaoaSimple::set_rn, qb::op::QaoaSimple::help_rns_)
+      .def_property("rns", &qb::op::QaoaSimple::get_rns,
+                    &qb::op::QaoaSimple::set_rns, qb::op::QaoaSimple::help_rns_)
+      .def_property("sn", &qb::op::QaoaSimple::get_sns,
+                    &qb::op::QaoaSimple::set_sn, qb::op::QaoaSimple::help_sns_)
+      .def_property("sns", &qb::op::QaoaSimple::get_sns,
+                    &qb::op::QaoaSimple::set_sns, qb::op::QaoaSimple::help_sns_)
+      .def_property("noise", &qb::op::QaoaSimple::get_noises,
+                    &qb::op::QaoaSimple::set_noise,
+                    qb::op::QaoaSimple::help_noises_)
+      .def_property("noises", &qb::op::QaoaSimple::get_noises,
+                    &qb::op::QaoaSimple::set_noises,
+                    qb::op::QaoaSimple::help_noises_)
+      .def_property("extended_param", &qb::op::QaoaSimple::get_extended_params,
+                    &qb::op::QaoaSimple::set_extended_param,
+                    qb::op::QaoaSimple::help_extended_params_)
+      .def_property("extended_params", &qb::op::QaoaSimple::get_extended_params,
+                    &qb::op::QaoaSimple::set_extended_params,
+                    qb::op::QaoaSimple::help_extended_params_)
+      .def_property("method", &qb::op::QaoaSimple::get_methods,
+                    &qb::op::QaoaSimple::set_method,
+                    qb::op::QaoaSimple::help_methods_)
+      .def_property("methods", &qb::op::QaoaSimple::get_methods,
+                    &qb::op::QaoaSimple::set_methods,
+                    qb::op::QaoaSimple::help_methods_)
+      .def_property("grad", &qb::op::QaoaSimple::get_grads,
+                    &qb::op::QaoaSimple::set_grad,
+                    qb::op::QaoaSimple::help_grads_)
+      .def_property("grads", &qb::op::QaoaSimple::get_grads,
+                    &qb::op::QaoaSimple::set_grads,
+                    qb::op::QaoaSimple::help_grads_)
+      .def_property("gradient_strategy",
+                    &qb::op::QaoaSimple::get_gradient_strategys,
+                    &qb::op::QaoaSimple::set_gradient_strategy,
+                    qb::op::QaoaSimple::help_gradient_strategys_)
+      .def_property("gradient_strategys",
+                    &qb::op::QaoaSimple::get_gradient_strategys,
+                    &qb::op::QaoaSimple::set_gradient_strategys,
+                    qb::op::QaoaSimple::help_gradient_strategys_)
+      .def_property("maxeval", &qb::op::QaoaSimple::get_maxevals,
+                    &qb::op::QaoaSimple::set_maxeval,
+                    qb::op::QaoaSimple::help_maxevals_)
+      .def_property("maxevals", &qb::op::QaoaSimple::get_maxevals,
+                    &qb::op::QaoaSimple::set_maxevals,
+                    qb::op::QaoaSimple::help_maxevals_)
+      .def_property("functol", &qb::op::QaoaSimple::get_functols,
+                    &qb::op::QaoaSimple::set_functol,
+                    qb::op::QaoaSimple::help_functols_)
+      .def_property("functols", &qb::op::QaoaSimple::get_functols,
+                    &qb::op::QaoaSimple::set_functols,
+                    qb::op::QaoaSimple::help_functols_)
+      .def_property("optimum_energy_abstol",
+                    &qb::op::QaoaSimple::get_optimum_energy_abstols,
+                    &qb::op::QaoaSimple::set_optimum_energy_abstol,
+                    qb::op::QaoaSimple::help_optimum_energy_abstols_)
+      .def_property("optimum_energy_abstols",
+                    &qb::op::QaoaSimple::get_optimum_energy_abstols,
+                    &qb::op::QaoaSimple::set_optimum_energy_abstols,
+                    qb::op::QaoaSimple::help_optimum_energy_abstols_)
+      .def_property("optimum_energy_lowerbound",
+                    &qb::op::QaoaSimple::get_optimum_energy_lowerbounds,
+                    &qb::op::QaoaSimple::set_optimum_energy_lowerbound,
+                    qb::op::QaoaSimple::help_optimum_energy_lowerbounds_)
+      .def_property("optimum_energy_lowerbounds",
+                    &qb::op::QaoaSimple::get_optimum_energy_lowerbounds,
+                    &qb::op::QaoaSimple::set_optimum_energy_lowerbounds,
+                    qb::op::QaoaSimple::help_optimum_energy_lowerbounds_)
+      .def_property("out_eigenstate", &qb::op::QaoaSimple::get_out_eigenstates,
+                    &qb::op::QaoaSimple::set_out_eigenstate,
+                    qb::op::QaoaSimple::help_out_eigenstates_)
+      .def_property("out_eigenstates", &qb::op::QaoaSimple::get_out_eigenstates,
+                    &qb::op::QaoaSimple::set_out_eigenstates,
+                    qb::op::QaoaSimple::help_out_eigenstates_)
+      .def_property("out_energy", &qb::op::QaoaSimple::get_out_energys,
+                    &qb::op::QaoaSimple::set_out_energy,
+                    qb::op::QaoaSimple::help_out_energys_)
+      .def_property("out_energys", &qb::op::QaoaSimple::get_out_energys,
+                    &qb::op::QaoaSimple::set_out_energys,
+                    qb::op::QaoaSimple::help_out_energys_)
+      .def_property("out_jacobian", &qb::op::QaoaSimple::get_out_jacobians,
+                    &qb::op::QaoaSimple::set_out_jacobian,
+                    qb::op::QaoaSimple::help_out_jacobians_)
+      .def_property("out_jacobians", &qb::op::QaoaSimple::get_out_jacobians,
+                    &qb::op::QaoaSimple::set_out_jacobians,
+                    qb::op::QaoaSimple::help_out_jacobians_)
+      .def_property("out_theta", &qb::op::QaoaSimple::get_out_thetas,
+                    &qb::op::QaoaSimple::set_out_theta,
+                    qb::op::QaoaSimple::help_out_thetas_)
+      .def_property("out_thetas", &qb::op::QaoaSimple::get_out_thetas,
+                    &qb::op::QaoaSimple::set_out_thetas,
+                    qb::op::QaoaSimple::help_out_thetas_)
+      .def_property("out_quantum_energy_calc_time",
+                    &qb::op::QaoaSimple::get_out_quantum_energy_calc_times,
+                    &qb::op::QaoaSimple::set_out_quantum_energy_calc_time,
+                    qb::op::QaoaSimple::help_out_quantum_energy_calc_times_)
+      .def_property("out_quantum_energy_calc_times",
+                    &qb::op::QaoaSimple::get_out_quantum_energy_calc_times,
+                    &qb::op::QaoaSimple::set_out_quantum_energy_calc_times,
+                    qb::op::QaoaSimple::help_out_quantum_energy_calc_times_)
+      .def_property("out_quantum_jacobian_calc_time",
+                    &qb::op::QaoaSimple::get_out_quantum_jacobian_calc_times,
+                    &qb::op::QaoaSimple::set_out_quantum_jacobian_calc_time,
+                    qb::op::QaoaSimple::help_out_quantum_jacobian_calc_times_)
+      .def_property("out_quantum_jacobian_calc_times",
+                    &qb::op::QaoaSimple::get_out_quantum_jacobian_calc_times,
+                    &qb::op::QaoaSimple::set_out_quantum_jacobian_calc_times,
+                    qb::op::QaoaSimple::help_out_quantum_jacobian_calc_times_)
+      .def_property("out_classical_energy_jacobian_total_calc_time",
+                    &qb::op::QaoaSimple::
+                        get_out_classical_energy_jacobian_total_calc_times,
+                    &qb::op::QaoaSimple::
+                        set_out_classical_energy_jacobian_total_calc_time,
+                    qb::op::QaoaSimple::
+                        help_out_classical_energy_jacobian_total_calc_times_)
+      .def_property("out_classical_energy_jacobian_total_calc_times",
+                    &qb::op::QaoaSimple::
+                        get_out_classical_energy_jacobian_total_calc_times,
+                    &qb::op::QaoaSimple::
+                        set_out_classical_energy_jacobian_total_calc_times,
+                    qb::op::QaoaSimple::
+                        help_out_classical_energy_jacobian_total_calc_times_)
 
-      .def("__repr__", & qb::op::QaoaSimple::get_summary,  "Print summary of qbos_op_qaoa settings")
-      ;
+      //.def("run", py::overload_cast<>(& qb::op::QaoaSimple::run), "Execute all
+      //declared experiments under all conditions")
+      .def("run", py::overload_cast<>(&qb::op::QaoaBase::run),
+           "Execute all declared experiments under all conditions")
+      .def("runit",
+           py::overload_cast<const size_t &, const size_t &>(
+               &qb::op::QaoaSimple::run),
+           "runit(i,j) : Execute ansatz i, condition j")
 
-
+      .def("__repr__", &qb::op::QaoaSimple::get_summary,
+           "Print summary of qbos_op_qaoa settings");
 }
