@@ -42,6 +42,7 @@ The Quantum Brilliance SDK is released under the Apache License, Version 2.0.
    rst/getting_started
    rst/quantum_computing
    rst/noise_models
+   rst/vqe
 
 .. toctree::
    :maxdepth: 2

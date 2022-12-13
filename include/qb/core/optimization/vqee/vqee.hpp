@@ -27,7 +27,8 @@
 #include "qb/core/optimization/vqee/case_generator.hpp"
 
 namespace qb::vqee {
-// (std::cout << vector) overload
+
+/// Overload to allow `std::cout << vector`
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec){
   os<<'[';
@@ -38,6 +39,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec){
   return os;
 }
 
+/// Variational Quantum Eigensolver (VQE) hybrid quantum-classical algorithm
 class VQEE {
 private:
   const bool  isRoot_ {GetRank() == 0}; // is MPI master process? 
@@ -45,11 +47,13 @@ private:
   Params&     params_;
 
 public:
+
+  /// Constructor that accepts qb::vqee::Params
   VQEE(Params& params) : params_{params} {}
 
 // - - - - - - member functions - - - - - - //
 private: 
-  // Split a Pauli into multiple sub-Paulis according to a max number of terms constraint.
+  /// Split a Pauli into multiple sub-Paulis according to a max number of terms constraint.
   std::vector<std::shared_ptr<xacc::quantum::PauliOperator>> splitPauli(std::shared_ptr<xacc::quantum::PauliOperator> &in_pauli, int nTermsPerSplit) {
     std::vector<std::shared_ptr<xacc::quantum::PauliOperator>> subPaulis;
     std::map<std::string, xacc::quantum::Term> terms;
@@ -67,6 +71,7 @@ private:
     return subPaulis;
   }
 
+  /// Select a backend simulator or QPU
   std::shared_ptr<xacc::Accelerator> getAccelerator(const std::string& accName) {
     // 3 of 4: accelerator - qpp: "vqe-mode"=true is non-stochastic
     xacc::HeterogeneousMap accParams{{"n-virtual-qpus", params_.nWorker}, {"vqe-mode", params_.isDeterministic}, {"shots", params_.nShots}, {"threads", params_.nThreadsPerWorker}};
@@ -78,6 +83,7 @@ private:
     return accelerator;
   }
 
+  /// Define an ansatz with associated parameters for VQE
   std::shared_ptr<xacc::CompositeInstruction> getAnsatz() {
     // 1 of 4: ansatz from XACC qasm string
     std::shared_ptr<xacc::CompositeInstruction> ansatz;
@@ -97,6 +103,7 @@ private:
     return ansatz;
   }
 
+  /// Define a Hamiltonian for VQE
   std::shared_ptr<xacc::Observable> getObservable() {
     // 2 of 4: observable from string
     std::shared_ptr<xacc::Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
@@ -105,6 +112,8 @@ private:
   }
 
 public:
+
+  /// Run the VQE algorithm
   void optimize(){ 
   // Here VQE is called with a decorated accelerator. The decorator adds pre- and post-processing aroung the actual accelerator execution. 
   // This is used to introduce MPI parallelism, i.e partitioning and distributing the vector of instructions (base curcuit + Pauli terms) 
