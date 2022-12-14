@@ -18,8 +18,7 @@ using StatePrepFuncCType =
         std::vector<int>, std::vector<int>,
         std::vector<int>, std::vector<int>, std::vector<int>)>;
 using OracleFuncCType =
-    std::function<std::shared_ptr<xacc::CompositeInstruction>(
-        int, int, std::vector<int>, int, std::vector<int>, std::vector<int>)>;
+    std::function<std::shared_ptr<xacc::CompositeInstruction>(int)>;
 
 inline std::set<std::size_t> uniqueBitsQD(std::shared_ptr<xacc::CompositeInstruction> &circ) {
     std::set<std::size_t> uniqueBits;
@@ -54,10 +53,10 @@ inline std::set<std::size_t> uniqueBitsQD(std::shared_ptr<xacc::CompositeInstruc
 /**
 * @brief This class is used to build quantum circuits for execution.
 *
-* This class is used to construct quantum circuits from elementary gates, 
+* This class is used to construct quantum circuits from elementary gates,
 * such as X, Y, Z, Hadamard and CNOT.
 *
-* We also provide high-level methods to construct quantum circuits 
+* We also provide high-level methods to construct quantum circuits
 * for commonly-used quantum algorithms, such as QFT and amplitude amplification
 */
 class CircuitBuilder {
@@ -69,49 +68,49 @@ public:
 
 /// @private
 static const char *help_execute_;
-//
 
-/**
-* @brief Constructor
-*
-* A constructor for the CircuitBuilder class. 
-* Creates an empty circuit.
-*/
+
+  /**
+  * @brief Constructor
+  *
+  * A constructor for the CircuitBuilder class.
+  * Creates an empty circuit.
+  */
   CircuitBuilder()
       : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
     circuit_ = gate_provider_->createComposite("QBSDK_circuit");
   }
 
-/**
-* @brief Constructor
-*
-* A constructor for the CircuitBuilder class.
-* Creates a circuit from a specified list of instructions.
-*
-* @param composite A pointer to a xacc::CompositeInstruction object [shared ptr]
-*/
+  /**
+  * @brief Constructor
+  *
+  * A constructor for the CircuitBuilder class.
+  * Creates a circuit from a specified list of instructions.
+  *
+  * @param composite A pointer to a xacc::CompositeInstruction object [shared ptr]
+  */
   CircuitBuilder(std::shared_ptr<xacc::CompositeInstruction> &composite) : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
       circuit_ = gate_provider_->createComposite("QBSDK_circuit");
       circuit_->addInstructions(composite->getInstructions());
   }
 
-/**
-* @brief return the list of instructions comprising the circuit
-*
-* @return A pointer to the xacc::CompositeInstruction (list of instructions) that defines the circuit.
-*/
+  /**
+  * @brief return the list of instructions comprising the circuit
+  *
+  * @return A pointer to the xacc::CompositeInstruction (list of instructions) that defines the circuit.
+  */
   std::shared_ptr<xacc::CompositeInstruction> get() { return circuit_; }
 
-/**
-* @brief print the list of instructions comprising the circuit
-*/
+  /**
+  * @brief print the list of instructions comprising the circuit
+  */
   void print() { std::cout << circuit_->toString() << std::endl; }
 
-/**
-* @brief append another CircuitBuilder object to this one
-*
-* @param other the circuit to be appended [CircuitBuilder]
-*/
+  /**
+  * @brief append another CircuitBuilder object to this one
+  *
+  * @param other the circuit to be appended [CircuitBuilder]
+  */
   void append(CircuitBuilder &other) {
     xacc::InstructionIterator it(other.circuit_);
     while (it.hasNext()) {
@@ -126,7 +125,7 @@ static const char *help_execute_;
   /**
   * @brief Hadamard gate
   *
-  * This method adds a Hadamard (H) gate to the circuit. 
+  * This method adds a Hadamard (H) gate to the circuit.
   *
   * The H gate is defined by its action on the basis states
   *
@@ -143,7 +142,7 @@ static const char *help_execute_;
     /**
   * @brief Pauli-X gate
   *
-  * This method adds a Pauli-X (X) gate to the circuit. 
+  * This method adds a Pauli-X (X) gate to the circuit.
   *
   * The X gate is defined by its action on the basis states
   *
@@ -160,7 +159,7 @@ static const char *help_execute_;
     /**
   * @brief Pauli-Y gate
   *
-  * This method adds a Pauli-Y (Y) gate to the circuit. 
+  * This method adds a Pauli-Y (Y) gate to the circuit.
   *
   * The Y gate is defined by its action on the basis states
   *
@@ -177,7 +176,7 @@ static const char *help_execute_;
     /**
   * @brief Pauli-Z gate
   *
-  * This method adds a Pauli-Z (Z) gate to the circuit. 
+  * This method adds a Pauli-Z (Z) gate to the circuit.
   *
   * The Z gate is defined by its action on the basis states
   *
@@ -194,7 +193,7 @@ static const char *help_execute_;
     /**
   * @brief T gate
   *
-  * This method adds a T gate to the circuit. 
+  * This method adds a T gate to the circuit.
   *
   * The T gate is defined by its action on the basis states
   *
@@ -211,7 +210,7 @@ static const char *help_execute_;
     /**
   * @brief S gate
   *
-  * This method adds an S gate to the circuit. 
+  * This method adds an S gate to the circuit.
   *
   * The S gate is defined by its action on the basis states
   *
@@ -228,7 +227,7 @@ static const char *help_execute_;
     /**
   * @brief Tdg gate
   *
-  * This method adds an inverse of the T gate (Tdg) to the circuit. 
+  * This method adds an inverse of the T gate (Tdg) to the circuit.
   *
   * The Tdg gate is defined by its action on the basis states
   *
@@ -245,7 +244,7 @@ static const char *help_execute_;
     /**
   * @brief Sdg gate
   *
-  * This method adds an inverse of the S gate (Sdg) to the circuit. 
+  * This method adds an inverse of the S gate (Sdg) to the circuit.
 
   * The Sdg gate is defined by its action on the basis states
   *
@@ -262,7 +261,7 @@ static const char *help_execute_;
     /**
   * @brief RX gate
   *
-  * This method adds an x-axis rotation (RX) gate to the circuit. 
+  * This method adds an x-axis rotation (RX) gate to the circuit.
   *
   * The RX gate is defined by its action on the basis states
   *
@@ -281,7 +280,7 @@ static const char *help_execute_;
       /**
   * @brief RY gate
   *
-  * This method adds a y-axis rotation (RY) gate to the circuit. 
+  * This method adds a y-axis rotation (RY) gate to the circuit.
   *
   * The RY gate is defined by its action on the basis states
   *
@@ -300,7 +299,7 @@ static const char *help_execute_;
       /**
   * @brief RZ gate
   *
-  * This method adds a z-axis rotation (RZ) gate to the circuit. 
+  * This method adds a z-axis rotation (RZ) gate to the circuit.
   *
   * The RZ gate is defined by its action on the basis states
   *
@@ -319,7 +318,7 @@ static const char *help_execute_;
         /**
   * @brief U1 gate
   *
-  * This method adds a phase (U1) gate to the circuit. 
+  * This method adds a phase (U1) gate to the circuit.
   *
   * The U1 gate is defined by its action on the basis states
   *
@@ -338,8 +337,8 @@ static const char *help_execute_;
         /**
   * @brief U3 gate
   *
-  * This method adds an arbitrary single qubit gate to the circuit. 
-  * 
+  * This method adds an arbitrary single qubit gate to the circuit.
+  *
   * The U3 gate is defined by its action on the basis states
   *
   * U3(theta,phi,lambda)|0> -> cos(theta/2)|0> + e^{iphi}sin(theta/2)|1>
@@ -357,7 +356,7 @@ static const char *help_execute_;
       /**
   * @brief CNOT gate
   *
-  * This method adds a controlled-X (CNOT) gate to the circuit. 
+  * This method adds a controlled-X (CNOT) gate to the circuit.
   *
   * The CNOT gate performs an X gate on the target qubit
   * conditional on the control qubit being in the |1> state.
@@ -373,7 +372,7 @@ static const char *help_execute_;
         /**
   * @brief MCX gate
   *
-  * This method adds a multi-controlled X (MCX) gate to the circuit. 
+  * This method adds a multi-controlled X (MCX) gate to the circuit.
   *
   * The MCX gate performs an X gate on the target qubit
   * conditional on all control qubits being in the |1> state.
@@ -397,7 +396,7 @@ static const char *help_execute_;
   *
   * This method adds a controlled version of an arbitrary unitary (CU) to the circuit.
   *
-  * The CU gate implements the U gate on the target qubits 
+  * The CU gate implements the U gate on the target qubits
   * conditional on all control qubits being in the |1> state.
   *
   * @param circ the circuit for the unitary operation U [CircuitBuilder]
@@ -413,7 +412,7 @@ static const char *help_execute_;
         /**
   * @brief CZ gate
   *
-  * This method adds a controlled-Z (CZ) gate to the circuit. 
+  * This method adds a controlled-Z (CZ) gate to the circuit.
   *
   * The CZ gate performs a Z gate on the target qubit
   * conditional on the control qubit being in the |1> state.
@@ -429,7 +428,7 @@ static const char *help_execute_;
         /**
   * @brief CH gate
   *
-  * This method adds a controlled-H (CH) gate to the circuit. 
+  * This method adds a controlled-H (CH) gate to the circuit.
   *
   * The CH gate performs an H gate on the target qubit
   * conditional on the control qubit being in the |1> state.
@@ -446,7 +445,7 @@ static const char *help_execute_;
         /**
   * @brief CPhase gate
   *
-  * This method adds a controlled-U1 (CPhase) gate to the circuit. 
+  * This method adds a controlled-U1 (CPhase) gate to the circuit.
   *
   * The CPHase gate performs a U1(theta) gate on the target qubit
   * conditional on the control qubit being in the |1> state.
@@ -463,7 +462,7 @@ static const char *help_execute_;
         /**
   * @brief SWAP gate
   *
-  * This method adds a SWAP gate to the circuit. 
+  * This method adds a SWAP gate to the circuit.
   *
   * The SWAP gate is used to swap the quantum state of two qubits.
   * That is, it acts as:
@@ -478,10 +477,10 @@ static const char *help_execute_;
         gate_provider_->createInstruction("Swap", {q1, q2}));
   }
 
-        /**
+  /**
   * @brief Measurement
   *
-  * This method is used to indicate a qubit in the circuit should be measured. 
+  * This method is used to indicate a qubit in the circuit should be measured.
   *
   * @param idx the index of the qubit to be measured [size_t]
   */
@@ -489,14 +488,14 @@ static const char *help_execute_;
     circuit_->addInstruction(gate_provider_->createInstruction("Measure", idx));
   }
 
-      /**
+  /**
   * @brief Measure all qubits
   *
-  * This method adds a measurement for all qubits involved in the circuit. 
+  * This method adds a measurement for all qubits involved in the circuit.
   *
   * @param NUM_QUBITS the number of qubits in the circuit [int] [optional]
   */
-void MeasureAll(int NUM_QUBITS) {
+  void MeasureAll(int NUM_QUBITS) {
     int nbQubits;
     if (NUM_QUBITS < 0) {
         auto qubits_set = uniqueBitsQD(circuit_);
@@ -516,11 +515,11 @@ void MeasureAll(int NUM_QUBITS) {
     }
   }
 
-        /**
+  /**
   * @brief Quantum Fourier Transform
   *
   * This method adds the Quantum Fourier Transform (QFT) to the circuit.
-  * This is a quantum analogue of the discrete Fourier Transform. 
+  * This is a quantum analogue of the discrete Fourier Transform.
   *
   * @param qubit_idxs the indices of the target qubits [vector of int]
   */
@@ -543,7 +542,7 @@ void MeasureAll(int NUM_QUBITS) {
     }
   }
 
-        /**
+  /**
   * @brief Inverse Quantum Fourier Transform
   *
   * This method adds the inverse of the Quantum Fourier Transform (IQFT) to the circuit.
@@ -569,18 +568,17 @@ void MeasureAll(int NUM_QUBITS) {
     }
   }
 
-  // Quantum Phase Estimation
-          /**
+  /**
   * @brief Quantum Phase Estimation
   *
   * This method adds the Quantum Phase Estimation (QPE) sub-routine to the circuit.
-  * 
+  *
   * Given some unitary operator $U$ and and eigenvector |psi> of U we can write
   *
   * U|psi> = e^{2\pi i theta}|psi>
   *
   * for some value of theta. QPE is used to provide a k-bit approximation to theta
-  * storing the result in an evaluation register whilst leaving |psi> unchanged. 
+  * storing the result in an evaluation register whilst leaving |psi> unchanged.
   *
   * @param oracle The unitary operator U involved in the QPE routine [CircuitBuilder]
   * @param num_evaluation_qubits The number of bits k used to approximate the phase [int]
@@ -603,7 +601,7 @@ void MeasureAll(int NUM_QUBITS) {
   /**
   * @brief Canonical Amplitude Estimation
   *
-  * This method adds the canonical version of Quantum Amplitude Estimation (QAE) to the circuit. 
+  * This method adds the canonical version of Quantum Amplitude Estimation (QAE) to the circuit.
   *
   * Given a quantum state split into a good subspace and a bad subspace
   *
@@ -704,7 +702,7 @@ void MeasureAll(int NUM_QUBITS) {
     return buffer->toString();
   }
 
- /**
+  /**
   * @brief Run Canonical Amplitude Estimation with Oracle
   *
   * This method sets up and executes an instance of the canonical amplitude estimation circuit,
@@ -759,11 +757,11 @@ void MeasureAll(int NUM_QUBITS) {
   *
   * |psi> = a|good> + b|bad>
   *
-  * MLQAE is an alternative to canonical QAE to find an estimate for the 
+  * MLQAE is an alternative to canonical QAE to find an estimate for the
   * amplitude of the good subspace, a. It works by performing several runs of amplitude
   * amplification with various iterations and recording the number of |good>
   * shots measured. Given this data, it finds the value of a that maximises the
-  * likelihood function. 
+  * likelihood function.
   *
   * @param state_prep The circuit A used to prepare the input state [CircuitBuilder]
   * @param oracle The oracle circuit O that marks the good subspace [CircuitBuilder]
@@ -814,7 +812,7 @@ void MeasureAll(int NUM_QUBITS) {
   *
   * Q = Adg*S0*A*O
   *
-  * where S0 is an easily implemented reflection about the all zero state. 
+  * where S0 is an easily implemented reflection about the all zero state.
   *
   * @param oracle The oracle circuit O that marks the good subspace [CircuitBuilder]
   * @param state_prep The circuit A used to prepare the input state [CircuitBuilder]
@@ -832,7 +830,7 @@ void MeasureAll(int NUM_QUBITS) {
     assert(expand_ok);
     circuit_->addInstructions(ae->getInstructions());
   }
-  
+
   /**
   * @brief Q' Unitary
   *
@@ -952,7 +950,6 @@ void MeasureAll(int NUM_QUBITS) {
     circuit_->addInstructions(adder->getInstructions());
   }
 
-  // Comparator
   /**
   * @brief Comparator as Oracle
   *
@@ -961,7 +958,7 @@ void MeasureAll(int NUM_QUBITS) {
   * The quantum bit string comparator is used to add a negative phase to any
   * trial state whose bit string value is greater than the state being compared to.
   * In this way it can be used as an oracle in a Grovers operator that amplifies
-  * higher scoring strings. This may be useful in many search problems. 
+  * higher scoring strings. This may be useful in many search problems.
   *
   * @param BestScore The score we are comparing strings to [int]
   * @param num_scoring_qubits The number of qubits used to encode the scores [int]
@@ -1001,7 +998,7 @@ void MeasureAll(int NUM_QUBITS) {
   *
   * This method adds a quantum bit string comparator to the circuit.
   *
-  * The quantum bit string comparator is used to compare the values of two bit string. 
+  * The quantum bit string comparator is used to compare the values of two bit string.
   * If the trial score is greater than the best score, the flag qubit is flipped |0>->|1>
   *
   * @param BestScore The score we are comparing strings to [int]
@@ -1080,14 +1077,14 @@ void MeasureAll(int NUM_QUBITS) {
                     {"flag_integer", flag_integer}});
     circuit_->addInstructions(ee->getInstructions());
   }
-  
+
   /**
   * @brief Equality Checker
   *
   * This method adds an equality checker to the circuit.
   *
   * Given two input bitstrings |a> and |b> the equality checker is
-  * used to flip a flag qubit |0> \to |1> whenever a=b. 
+  * used to flip a flag qubit |0> \to |1> whenever a=b.
   *
   * @param qubits_a the indices of the qubits encoding a [vector of int]
   * @param qubits_b the indices of the qubits encoding b [vector of int]
@@ -1127,7 +1124,7 @@ void MeasureAll(int NUM_QUBITS) {
   * @param flags_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
   * @param flags_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
   */
-    void ControlledSwap(std::vector<int> qubits_a, std::vector<int> qubits_b,
+  void ControlledSwap(std::vector<int> qubits_a, std::vector<int> qubits_b,
                        std::vector<int> flags_on, std::vector<int> flags_off) {
     auto cs = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("ControlledSwap"));
@@ -1153,7 +1150,7 @@ void MeasureAll(int NUM_QUBITS) {
   * @param flags_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
   * @param no_overflow Indicates that the sum |adder+sum> can be encoded on the same number of qubits as |sum> without overflowing [bool]
   */
-    void ControlledAddition(std::vector<int> qubits_adder, std::vector<int> qubits_sum, int c_in,
+  void ControlledAddition(std::vector<int> qubits_adder, std::vector<int> qubits_sum, int c_in,
                        std::vector<int> flags_on, std::vector<int> flags_off, bool no_overflow) {
     auto ca = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("ControlledAddition"));
@@ -1167,19 +1164,19 @@ void MeasureAll(int NUM_QUBITS) {
     circuit_->addInstructions(ca->getInstructions());
   }
 
-/**
-* @brief Generalised MCX
-*
-* This method adds a generalised MCX gate to the circuit.
-*
-* By generalised MCX we mean that we allow the control qubits to be
-* conditional on being off or conditional on being on.
-*
-* @param target The index of the target qubit [int]
-* @param controls_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
-* @param controls_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
-*/
-    void GeneralisedMCX(int target, std::vector<int> controls_on,
+  /**
+  * @brief Generalised MCX
+  *
+  * This method adds a generalised MCX gate to the circuit.
+  *
+  * By generalised MCX we mean that we allow the control qubits to be
+  * conditional on being off or conditional on being on.
+  *
+  * @param target The index of the target qubit [int]
+  * @param controls_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
+  * @param controls_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
+  */
+  void GeneralisedMCX(int target, std::vector<int> controls_on,
                        std::vector<int> controls_off) {
     auto gmcx = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("GeneralisedMCX"));
@@ -1213,23 +1210,43 @@ void MeasureAll(int NUM_QUBITS) {
     circuit_->addInstructions(cbo->getInstructions());
   }
 
-/**
-* @brief Inverse Circuit
-*
-* This method adds the inverse of a circuit to the current circuit.
-*
-* Given some collection of unitary operations,
-*
-* U = U_N*U_{N-1}...U_2*U_1
-*
-* this method appends the inverse to the circuit:
-*
-* U^{-1} = U_1dg U_2dg...U_{N-1}dg U_Ndg
-*
-* This may be useful for un-computing ancilla or for constructing Grovers operators. 
-*
-* @param circ The circuit whose inverse we want to add to the current circuit [CircuitBuilder]
-*/
+  void SuperpositionAdder(int q0, int q1, int q2,
+                          std::vector<int> qubits_flags, std::vector<int> qubits_string,
+                          std::vector<int> qubits_metric,
+                          CircuitBuilder &ae_state_prep_circ,
+                          std::vector<int> qubits_ancilla,
+                          std::vector<int> qubits_beam_metric) {
+    auto sa = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
+        xacc::getService<xacc::Instruction>("SuperpositionAdder"));
+    assert(sa);
+    const bool expand_ok = sa->expand({
+      {"q0", q0}, {"q1", q1}, {"q2", q2},
+      {"qubits_flags", qubits_flags},
+      {"qubits_string", qubits_string},
+      {"qubits_metric", qubits_metric},
+      {"ae_state_prep_circ", ae_state_prep_circ.circuit_},
+      {"qubits_ancilla", qubits_ancilla},
+      {"qubits_beam_metric", qubits_beam_metric}});
+    circuit_->addInstructions(sa->getInstructions());
+  }
+
+  /**
+  * @brief Inverse Circuit
+  *
+  * This method adds the inverse of a circuit to the current circuit.
+  *
+  * Given some collection of unitary operations,
+  *
+  * U = U_N*U_{N-1}...U_2*U_1
+  *
+  * this method appends the inverse to the circuit:
+  *
+  * U^{-1} = U_1dg U_2dg...U_{N-1}dg U_Ndg
+  *
+  * This may be useful for un-computing ancilla or for constructing Grovers operators.
+  *
+  * @param circ The circuit whose inverse we want to add to the current circuit [CircuitBuilder]
+  */
   void InverseCircuit(CircuitBuilder &circ) {
     auto is = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("InverseCircuit"));
@@ -1360,20 +1377,20 @@ void MeasureAll(int NUM_QUBITS) {
     circuit_->addInstructions(cPFD->getInstructions());
   }
 
-/**
-* @brief Compare Greater Than
-*
-* This method adds a > comparator to the circuit.
-*
-* Given two binary strings |a> and |b>, this comparator flips a flag qubit whenever a>b.
-* This method uses far less ancilla than the more general comparator method provided.
-*
-* @param qubits_a The indices of the qubits encoding a [vector of int]
-* @param qubits_b The indices of the qubits encoding b [vector of int]
-* @param qubit_flag The index of the flag qubit that is flipped whenever a>b [int]
-* @param qubit_ancilla The index of the single ancilla qubit required [int]
-* @param is_LSB Indicates that the trial scores are encoded with LSB ordering [bool]
-*/
+  /**
+  * @brief Compare Greater Than
+  *
+  * This method adds a > comparator to the circuit.
+  *
+  * Given two binary strings |a> and |b>, this comparator flips a flag qubit whenever a>b.
+  * This method uses far less ancilla than the more general comparator method provided.
+  *
+  * @param qubits_a The indices of the qubits encoding a [vector of int]
+  * @param qubits_b The indices of the qubits encoding b [vector of int]
+  * @param qubit_flag The index of the flag qubit that is flipped whenever a>b [int]
+  * @param qubit_ancilla The index of the single ancilla qubit required [int]
+  * @param is_LSB Indicates that the trial scores are encoded with LSB ordering [bool]
+  */
   void CompareGT(std::vector<int> qubits_a,
                               std::vector<int> qubits_b,
                               int qubit_flag,
@@ -1387,9 +1404,9 @@ void MeasureAll(int NUM_QUBITS) {
                      {"qubit_ancilla", qubit_ancilla},
                      {"is_LSB", is_LSB}});
     circuit_->addInstructions(cgt->getInstructions());
-                              }
+  }
 
-/**
+  /**
   * @brief Multiplication
   *
   * This method adds a Multiplication to the circuit.
@@ -1405,7 +1422,7 @@ void MeasureAll(int NUM_QUBITS) {
   * @param is_LSB Indicates that the trial scores are encoded with LSB ordering [bool]
   */
   void Multiplication(std::vector<int> qubits_a, std::vector<int> qubits_b,
-                       std::vector<int> qubits_result, int qubit_ancilla, bool is_LSB) {
+                      std::vector<int> qubits_result, int qubit_ancilla, bool is_LSB) {
     auto multiplication = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("Multiplication"));
     assert(multiplication);
@@ -1433,7 +1450,7 @@ void MeasureAll(int NUM_QUBITS) {
   * @param controls_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
   * @param controls_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
   */
-    void ControlledMultiplication(std::vector<int> qubits_a, std::vector<int> qubits_b,
+  void ControlledMultiplication(std::vector<int> qubits_a, std::vector<int> qubits_b,
                        std::vector<int> qubits_result, int qubit_ancilla, bool is_LSB, std::vector<int> controls_on, std::vector<int> controls_off) {
     auto multiplication = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("ControlledMultiplication"));
@@ -1452,7 +1469,7 @@ void MeasureAll(int NUM_QUBITS) {
   /**
   * @brief Exponential Search
   *
-  * This method sets up and executes the exponential search routine. 
+  * This method sets up and executes the exponential search routine.
   *
   * Exponential search is a way to perform amplitude estimation when the size
   * of the "good" subspace is unknown (so the number of Grovers operators to use is unknown).
@@ -1488,43 +1505,22 @@ void MeasureAll(int NUM_QUBITS) {
   * @return a better score if found, otherwise returns the current best score
   */
   int ExponentialSearch(
-      std::string method, OracleFuncCType oracle_gen,
-      StatePrepFuncCType state_prep_gen, std::function<int(int)> f_score,
-      int best_score, std::vector<int> qubits_string,
-      std::vector<int> qubits_metric, std::vector<int> qubits_next_letter,
-      std::vector<int> qubits_next_metric, int qubit_flag,
-      std::vector<int> qubits_best_score,
-      std::vector<int> qubits_ancilla_oracle, std::vector<int> qubits_ancilla_adder, std::vector<int> total_metric,
-      int CQAE_num_evaluation_qubits,
-      std::function<int(std::string, int)> MLQAE_is_in_good_subspace,
-      int MLQAE_num_runs, int MLQAE_num_shots, std::string acc_name) {
+      std::string method, StatePrepFuncCType state_prep_circ, OracleFuncCType oracle_func,
+      int best_score, std::function<int(int)> f_score, int total_num_qubits,
+      std::vector<int> qubits_string, std::vector<int> total_metric,
+      std::string acc_name) {
     auto acc = xacc::getAccelerator(acc_name);
     auto exp_search_algo = xacc::getAlgorithm(
-        "exponential-search",
-        {{"method", method},
-         {"oracle_circuit", oracle_gen},
-         {"state_preparation_circuit", state_prep_gen},
-         {"f_score", f_score},
-         {"best_score", best_score},
-         {"qubits_metric", qubits_metric},
-         {"qubit_flag", qubit_flag},
-         {"qubits_best_score", qubits_best_score},
-         {"qubits_next_letter", qubits_next_letter},
-         {"qubits_next_metric", qubits_next_metric},
-         {"qubits_ancilla_oracle", qubits_ancilla_oracle},
-         {"qubits_ancilla_adder", qubits_ancilla_adder},
-         {"total_metric", total_metric},
-         {"qubits_string", qubits_string},
-         {"CQAE_num_evaluation_qubits", CQAE_num_evaluation_qubits},
-         {"MLQAE_is_in_good_subspace", MLQAE_is_in_good_subspace},
-         {"MLQAE_num_runs", MLQAE_num_runs},
-         {"MLQAE_num_shots", MLQAE_num_shots},
-         {"qpu", acc}});
-    const auto nb_qubits = qubits_metric.size() + qubits_best_score.size() +
-                           qubits_string.size() + qubits_ancilla_oracle.size() +
-                           qubits_next_letter.size() + qubits_ancilla_adder.size() +
-                           qubits_next_metric.size() + 1;
-    auto buffer = xacc::qalloc(nb_qubits);
+      "exponential-search", {{"method", method},
+                             {"state_preparation_circuit", state_prep_circ},
+                             {"oracle_circuit", oracle_func},
+                             {"best_score", best_score},
+                             {"f_score", f_score},
+                             {"total_num_qubits", total_num_qubits},
+                             {"qubits_string", qubits_string},
+                             {"total_metric", total_metric},
+                             {"qpu", acc}});
+    auto buffer = xacc::qalloc(total_num_qubits);
     exp_search_algo->execute(buffer);
     auto info = buffer->getInformation();
     if (info.find("best-score") != info.end()) {

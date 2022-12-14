@@ -1,23 +1,23 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
-#include "CompositeInstruction.hpp"
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/circuit_builders/exponent.hpp"
-#include "qb/core/optimization/qaoa/qaoa.hpp"
-#include "qb/core/optimization/vqee/vqee.hpp"
-#include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/session.hpp"
+#include "qb/core/optimization/vqee/vqee.hpp"
+#include "qb/core/optimization/qaoa/qaoa.hpp"
+#include "qb/core/circuit_builder.hpp"
+#include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/thread_pool.hpp"
-#include <algorithm>
-#include <memory>
+#include "qb/core/circuit_builders/exponent.hpp"
+#include "CompositeInstruction.hpp"
 #include <nlohmann/json.hpp>
 #include <pybind11/complex.h>
 #include <pybind11/functional.h>
-#include <pybind11/iostream.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
+#include <pybind11/iostream.h>
+#include <algorithm>
+#include <memory>
 
 namespace py = pybind11;
 using namespace qb;
@@ -76,8 +76,7 @@ py::array_t<int> std_vec_to_py_array(const std::vector<int> &input) {
 }
 } // namespace
 
-using OracleFuncPyType = std::function<qb::CircuitBuilder(
-    int, int, py::array_t<int>, int, py::array_t<int>, py::array_t<int>)>;
+using OracleFuncPyType = std::function<qb::CircuitBuilder(int)>;
 using StatePrepFuncPyType = std::function<qb::CircuitBuilder(
     py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>,
     py::array_t<int>)>;
@@ -1828,94 +1827,60 @@ PYBIND11_MODULE(core, m) {
 
     )")
         .def(
-            "exponential_search",
-            [&](qb::CircuitBuilder &builder, py::str method,
-                OracleFuncPyType oracle_func, py::object state_prep,
-                const std::function<int(int)> f_score, int best_score,
-                py::array_t<int> qubits_string, py::array_t<int>
-                qubits_metric, py::array_t<int> qubits_next_letter,
-                py::array_t<int> qubits_next_metric, int flag_qubit,
-                py::array_t<int> qubits_best_score,
-                py::array_t<int> qubits_ancilla_oracle,
-                py::array_t<int> qubits_ancilla_adder,
-                py::array_t<int> total_metric, int
-                CQAE_num_evaluation_qubits, std::function<int(std::string,
-                int)> MLQAE_is_in_good_subspace, int MLQAE_num_runs, int
-                MLQAE_num_shots, py::str acc_name) {
-              std::shared_ptr<xacc::CompositeInstruction>
-              static_state_prep_circ; StatePrepFuncPyType state_prep_casted;
-              qb::OracleFuncCType oracle_converted =
-                  [&](int best_score, int num_scoring_qubits,
-                      std::vector<int> trial_score_qubits, int flag_qubit,
-                      std::vector<int> best_score_qubits,
-                      std::vector<int> ancilla_qubits) {
-                    // Do conversion
-                    auto conv = oracle_func(
-                        best_score, num_scoring_qubits,
-                        std_vec_to_py_array(trial_score_qubits), flag_qubit,
-                        std_vec_to_py_array(best_score_qubits),
-                        std_vec_to_py_array(ancilla_qubits));
-                    return conv.get();
-                  };
+          "exponential_search",
+          [&](qb::CircuitBuilder &builder, py::str method, py::object state_prep,
+              OracleFuncPyType oracle_func, int best_score,
+              const std::function<int(int)> f_score, int total_num_qubits,
+              py::array_t<int> qubits_string, py::array_t<int> total_metric,
+              py::str acc_name) {
 
-              qb::StatePrepFuncCType state_prep_func;
-              try {
-                qb::CircuitBuilder state_prep_casted =
-                    state_prep.cast<qb::CircuitBuilder>();
-                static_state_prep_circ = state_prep_casted.get();
-                state_prep_func = [&](std::vector<int> a, std::vector<int> b,
-                                      std::vector<int> c, std::vector<int> d,
-                                      std::vector<int> e) {
-                  return static_state_prep_circ;
-                };
-              } catch (...) {
-                state_prep_casted = state_prep.cast<StatePrepFuncPyType>();
-                state_prep_func = [&](std::vector<int> qubits_string,
-                                      std::vector<int> qubits_metric,
-                                      std::vector<int> qubits_next_letter,
-                                      std::vector<int> qubits_next_metric,
-                                      std::vector<int> qubits_ancilla_adder)
-                                      {
+            qb::OracleFuncCType oracle_converted =
+                [&](int best_score) {
                   // Do conversion
-                  auto conv =
-                      state_prep_casted(std_vec_to_py_array(qubits_string),
-                                        std_vec_to_py_array(qubits_metric),
-                                        std_vec_to_py_array(qubits_next_letter),
-                                        std_vec_to_py_array(qubits_next_metric),
-                                        std_vec_to_py_array(qubits_ancilla_adder));
+                  auto conv = oracle_func(best_score);
                   return conv.get();
                 };
-              }
-              return builder.ExponentialSearch(
-                  method, oracle_converted, state_prep_func, f_score,
-                  best_score, py_array_to_std_vec(qubits_string),
-                  py_array_to_std_vec(qubits_metric),
-                  py_array_to_std_vec(qubits_next_letter),
-                  py_array_to_std_vec(qubits_next_metric), flag_qubit,
-                  py_array_to_std_vec(qubits_best_score),
-                  py_array_to_std_vec(qubits_ancilla_oracle),
-                  py_array_to_std_vec(qubits_ancilla_adder),
-                  py_array_to_std_vec(total_metric),
-                  CQAE_num_evaluation_qubits, MLQAE_is_in_good_subspace,
-                  MLQAE_num_runs, MLQAE_num_shots, acc_name);
-            },
-            py::arg("method"), py::arg("oracle"), py::arg("state_prep"),
-            py::arg("f_score"), py::arg("best_score"),
-            py::arg("qubits_string"), py::arg("qubits_metric"),
-            py::arg("qubits_next_letter"), py::arg("qubits_next_metric"),
-            py::arg("qubit_flag"), py::arg("qubits_best_score"),
-            py::arg("qubits_ancilla_oracle"), py::arg("qubits_ancilla_adder")
-            = py::array_t<int>(), py::arg("total_metric") =
-            py::array_t<int>(), py::arg("CQAE_num_evaluation_qubits") = 10,
-            py::arg("MLQAE_is_in_good_subspace") = py::cpp_function(
-                [](std::string str, int i) {
-                  // Only required for MLQAE
-                  return 0;
-                },
-                py::arg("str"), py::arg("val")),
 
-            py::arg("MLQAE_num_runs") = 6, py::arg("MLQAE_num_shots") = 100,
-            py::arg("qpu") = "qpp",
+            std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
+            StatePrepFuncPyType state_prep_casted;
+            qb::StatePrepFuncCType state_prep_func;
+            try {
+              qb::CircuitBuilder state_prep_casted =
+                  state_prep.cast<qb::CircuitBuilder>();
+              static_state_prep_circ = state_prep_casted.get();
+              state_prep_func = [&](std::vector<int> a, std::vector<int> b,
+                                    std::vector<int> c, std::vector<int> d, std::vector<int> e) {
+                return static_state_prep_circ;
+              };
+            } catch (...) {
+              state_prep_casted = state_prep.cast<StatePrepFuncPyType>();
+              state_prep_func = [&](std::vector<int> qubits_string,
+                                    std::vector<int> qubits_metric,
+                                    std::vector<int> qubits_next_letter,
+                                    std::vector<int> qubits_next_metric,
+                                    std::vector<int> qubits_ancilla_adder) {
+                // Do conversion
+                auto conv =
+                    state_prep_casted(std_vec_to_py_array(qubits_string),
+                                      std_vec_to_py_array(qubits_metric),
+                                      std_vec_to_py_array(qubits_next_letter),
+                                      std_vec_to_py_array(qubits_next_metric),
+                                      std_vec_to_py_array(qubits_ancilla_adder));
+                return conv.get();
+              };
+            }
+
+            return builder.ExponentialSearch(
+                method, state_prep_func, oracle_converted, best_score, f_score,
+                total_num_qubits,
+                py_array_to_std_vec(qubits_string),
+                py_array_to_std_vec(total_metric),
+                acc_name);
+          },
+          py::arg("method"), py::arg("state_prep"), py::arg("oracle"),
+          py::arg("best_score"), py::arg("f_score"), py::arg("total_num_qubits"),
+          py::arg("qubits_string"), py::arg("total_metric"),
+          py::arg("qpu") = "qpp",
             R"(
       Exponential Search
 
@@ -1930,29 +1895,16 @@ PYBIND11_MODULE(core, m) {
      - MLQAE exponential search uses MLQAE to first estimate the size of the good subspace then perform regular amplitude estimation with the appropriate number of Grovers operators
      - CQAE exponential search uses canonical QAE to first estimate the size of the good subspace then perform regular amplitude estimation with the appropriate number of Grovers operators
 
-     Exponential search here has been designed for use in the quantum decoder
-     algorithm, so many inputs may not be required for general use.
-
      Parameters:
 
      - **method** indicates which method to use. Options are "canonical", "MLQAE", "CQAE" [string]
-     - **oracle_gen** a function which produces the oracle circuit that marks the good subspace [OracleFuncCType]
-     - **state_prep_gen** a function which produces the state prep circuit [StatePrepFuncCType]
-     - **f_score** a function that returns a 1 if the input binary string has value greater than the current best score and 0 otherwise [func(int)->int]
+     - **state_prep** a function which produces the state prep circuit [StatePrepFuncCType]
+     - **oracle** a function which produces the oracle circuit that marks the good subspace [OracleFuncCType]
      - **best_score** the current best score [int]
+     - **f_score** a function that returns a 1 if the input binary string has value greater than the current best score and 0 otherwise [func(int)->int]
+     - **total_num_qubits** total number of qubits [int]
      - **qubits_string** the indices of the qubits encoding the strings [list of int]
-     - **qubits_metric** the indices of the qubits encoding the string scores [list of int]
-     - **qubits_next_letter** the indices of some ancilla qubits labelled for the quantum decoder [list of int]
-     - **qubits_next_metric** the indices of some ancilla qubits labelled for the quantum decoder [list of int]
-     - **qubit_flag** the index of the qubit that is flagged by the oracle whenever a trial score is greater than the current best score [int]
-     - **qubits_best_score** the indices of the qubits used to encode the current best score [list of int]
-     - **qubits_ancilla_oracle** the indices of any ancilla qubits required by the oracle [list of int]
-     - **qubits_ancilla_adder** the indices of ancilla qubits required by the ripple carry adder (required by decoder) [list of int]
      - **total_metric** the indices of the qubits encoding the string scores after any required pre-processing of qubits_metric (required by decoder) [list of int]
-     - **CQAE_num_evaluation_qubits** if using CQAE method, specifies the number of evaluation qubits used in the QAE routine [int]
-     - **MLQAE_is_in_good_subspace** if using MLQAE method, the function that indicates whether a measurement is in the good subspace [func(str,int)->int]
-     - **MLQAE_num_runs** if using MLQAE method, the number of runs [int]
-     - **MLQAE_num_shots** if using MLQAE method, the number of shots [int]
      - **qpu** the name of the accelerator used to execute the algorithm [string]
 
      Returns: a better score if found, otherwise returns the current best
@@ -2224,34 +2176,21 @@ PYBIND11_MODULE(core, m) {
       "MLQAE");
   m.def(
       "exponential_search",
-      [&](py::str method, OracleFuncPyType oracle_func, py::object state_prep,
-          const std::function<int(int)> f_score, int best_score,
-          py::array_t<int> qubits_string, py::array_t<int> qubits_metric,
-          py::array_t<int> qubits_next_letter,
-          py::array_t<int> qubits_next_metric, int flag_qubit,
-          py::array_t<int> qubits_best_score,
-          py::array_t<int> qubits_ancilla_oracle,
-          py::array_t<int> qubits_ancilla_adder, py::array_t<int> total_metric,
-          int CQAE_num_evaluation_qubits,
-          std::function<int(std::string, int)> MLQAE_is_in_good_subspace,
-          int MLQAE_num_runs, int MLQAE_num_shots, py::str acc_name) {
+      [&](py::str method, py::object state_prep, OracleFuncPyType oracle_func,
+          int best_score, const std::function<int(int)> f_score, int total_num_qubits,
+          py::array_t<int> qubits_string, py::array_t<int> total_metric,
+          py::str acc_name) {
+
         qb::CircuitBuilder builder;
-        std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
-        StatePrepFuncPyType state_prep_casted;
         qb::OracleFuncCType oracle_converted =
-            [&](int best_score, int num_scoring_qubits,
-                std::vector<int> trial_score_qubits, int flag_qubit,
-                std::vector<int> best_score_qubits,
-                std::vector<int> ancilla_qubits) {
+            [&](int best_score) {
               // Do conversion
-              auto conv = oracle_func(best_score, num_scoring_qubits,
-                                      std_vec_to_py_array(trial_score_qubits),
-                                      flag_qubit,
-                                      std_vec_to_py_array(best_score_qubits),
-                                      std_vec_to_py_array(ancilla_qubits));
+              auto conv = oracle_func(best_score);
               return conv.get();
             };
 
+        std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
+        StatePrepFuncPyType state_prep_casted;
         qb::StatePrepFuncCType state_prep_func;
         try {
           qb::CircuitBuilder state_prep_casted =
@@ -2280,33 +2219,13 @@ PYBIND11_MODULE(core, m) {
           };
         }
         return builder.ExponentialSearch(
-            method, oracle_converted, state_prep_func, f_score, best_score,
-            py_array_to_std_vec(qubits_string),
-            py_array_to_std_vec(qubits_metric),
-            py_array_to_std_vec(qubits_next_letter),
-            py_array_to_std_vec(qubits_next_metric), flag_qubit,
-            py_array_to_std_vec(qubits_best_score),
-            py_array_to_std_vec(qubits_ancilla_oracle),
-            py_array_to_std_vec(qubits_ancilla_adder),
-            py_array_to_std_vec(total_metric), CQAE_num_evaluation_qubits,
-            MLQAE_is_in_good_subspace, MLQAE_num_runs, MLQAE_num_shots,
-            acc_name);
+            method, state_prep_func, oracle_converted, best_score, f_score,
+            total_num_qubits, py_array_to_std_vec(qubits_string),
+            py_array_to_std_vec(total_metric), acc_name);
       },
-      py::arg("method"), py::arg("oracle"), py::arg("state_prep"),
-      py::arg("f_score"), py::arg("best_score"), py::arg("qubits_string"),
-      py::arg("qubits_metric"), py::arg("qubits_next_letter"),
-      py::arg("qubits_next_metric"), py::arg("qubit_flag"),
-      py::arg("qubits_best_score"), py::arg("qubits_ancilla_oracle"),
-      py::arg("qubits_ancilla_adder") = py::array_t<int>(),
-      py::arg("total_metric") = py::array_t<int>(),
-      py::arg("CQAE_num_evaluation_qubits") = 10,
-      py::arg("MLQAE_is_in_good_subspace") = py::cpp_function(
-          [](std::string str, int i) {
-            // Only required for MLQAE
-            return 0;
-          },
-          py::arg("str"), py::arg("val")),
-      py::arg("MLQAE_num_runs") = 6, py::arg("MLQAE_num_shots") = 100,
+      py::arg("method"), py::arg("state_prep"), py::arg("oracle"),
+      py::arg("best_score"), py::arg("f_score"), py::arg("total_num_qubits"),
+      py::arg("qubits_string"), py::arg("total_metric"),
       py::arg("qpu") = "qpp", "Exp Search");
 
   py::add_ostream_redirect(m);

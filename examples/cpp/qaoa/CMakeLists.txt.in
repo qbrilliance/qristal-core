@@ -1,0 +1,37 @@
+
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to set up the build of a
+# C++ main program.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(demo1
+  DESCRIPTION "Quantum Brilliance qaoa example"
+  LANGUAGES CXX
+)
+
+link_directories(@CMAKE_INSTALL_PREFIX@/lib @XACC_ROOT@/lib)
+
+add_executable(qaoa qaoa_example.cpp)
+
+target_include_directories(qaoa
+  PRIVATE
+    @CMAKE_INSTALL_PREFIX@/include
+    @XACC_ROOT@/include/xacc
+    @XACC_ROOT@/include/cppmicroservices4
+    @XACC_ROOT@/include/quantum/gate
+    @XACC_ROOT@/include/eigen
+    @args_SOURCE_DIR@
+)
+
+target_link_libraries(qaoa
+  PRIVATE
+    xacc
+    CppMicroServices
+    xacc-quantum-gate
+    xacc-pauli
+    qbcore
+)

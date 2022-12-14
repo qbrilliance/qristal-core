@@ -43,14 +43,14 @@ if (NOT QBCORE_HEADER_ONLY)
   include(py_lib)
 
   # Examples
-  #add_subdirectory(examples)
+  include(examples)
 
   # Tests
   include(tests)
-  
-  # Adds documentation targets (i.e. Doxygen and Sphinx targets) as dependencies of the default build targets. 
-  # This results in documentation targets being part of a normal build. 
-  # Defaults to OFF. 
+
+  # Adds documentation targets (i.e. Doxygen and Sphinx targets) as dependencies of the default build targets.
+  # This results in documentation targets being part of a normal build.
+  # Defaults to OFF.
   # If enabled, it will **require** Doxygen and Sphinx (including the required extensions, e.g., Breathe and Exhale)
   option (QB_BUILD_DOCS "Build the documentation." OFF)
   if (QB_BUILD_DOCS)

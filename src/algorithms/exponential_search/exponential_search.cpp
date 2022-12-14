@@ -163,12 +163,10 @@ void ExponentialSearch::execute(
 
   auto gateRegistry = xacc::getService<xacc::IRProvider>("quantum");
   std::shared_ptr<xacc::CompositeInstruction> state_prep;
-  bool sp_composite_instruction;
   if (state_prep_circuit_) {
-    sp_composite_instruction = true;
     state_prep = xacc::as_shared_ptr(state_prep_circuit_);
   } else {
-    xacc::error("Provide state prep circuit as a composite instruction.");
+    state_prep = state_prep_circuit_gen_(qubits_string, total_metric, {}, {}, {});
   }
 
   auto oracle = gateRegistry->createComposite("oracle");
@@ -203,8 +201,8 @@ void ExponentialSearch::execute(
     const bool expand_ok_inv_sp = inv_sp->expand({{"circ", state_prep}});
     assert(expand_ok_inv_sp);
 
-    auto qubits_state_prep_set = qb::uniqueBitsQD(state_prep);
     std::vector<int> qubits_state_prep;
+    auto qubits_state_prep_set = qb::uniqueBitsQD(state_prep);
     for (auto bit : qubits_state_prep_set) {
       qubits_state_prep.push_back(bit);
     }
@@ -229,9 +227,8 @@ void ExponentialSearch::execute(
     zero_reflection->addInstruction(mcz);
 
     for (int q = 0; q < qubits_state_prep.size(); ++q) {
-      zero_reflection->addInstruction(gateRegistry->createInstruction(
-          "X", qubits_state_prep[q])); // gateRegistry->createInstruction("X",
-                                       // qubits_string[q]));
+      zero_reflection->addInstruction(
+          gateRegistry->createInstruction("X", qubits_state_prep[q]));
     }
 
     // amplitude amplification
@@ -255,9 +252,6 @@ void ExponentialSearch::execute(
     std::vector<int> measured_indices;
     for (int q = 0; q < qubits_string.size(); ++q) {
       measured_indices.push_back(qubits_string[q]);
-    }
-    for (int q = 0; q < qubits_best_score.size(); ++q) {
-      measured_indices.push_back(qubits_best_score[q]);
     }
     for (int q = 0; q < total_metric.size(); ++q) {
       measured_indices.push_back(total_metric[q]);

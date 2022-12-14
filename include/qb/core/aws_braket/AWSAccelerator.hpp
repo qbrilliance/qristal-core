@@ -97,9 +97,6 @@ namespace xacc
         std::pair<std::string, std::vector<int>> generate_aws_string(
             std::shared_ptr<CompositeInstruction> CompositeInstruction) const;
 
-        /// Set up Python path to import Python wrapper scripts for Braket offloading
-        void setup_python_path();
-
         /// Helper to post-process and save measurement results to the buffer.
         void save_distribution_to_buffer(std::shared_ptr<AcceleratorBuffer> buffer,
                                          const std::vector<int>& measure_bits,
