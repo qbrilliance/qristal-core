@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to The Quantum Brilliance SDK
-=================================
+=====================================
 
 .. image:: static/img/qb_logo_laptop.png
 

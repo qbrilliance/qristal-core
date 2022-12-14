@@ -18,6 +18,20 @@ sudo apt install doxygen python3-sphinx graphviz
 python3 -m pip install sphinx_rtd_theme exhale myst-parser
 ```
 
+**NOTE**
+
+If the `doxygen` version from the `apt` repository is outdated, please build and install it manually from the source:
+
+```
+sudo apt-get install flex bison
+git clone https://github.com/doxygen/doxygen.git
+cd doxygen/
+mkdir build
+cd build
+cmake -G "Unix Makefiles" ..
+sudo make install
+```
+
 To enable documentation build, pass `-DQB_BUILD_DOCS=ON` to `cmake` when configuring the build.
 
 ## Directory structures
@@ -54,7 +68,7 @@ These reStructuredText files might use Sphinx directives to include Markdown doc
 
 **IMPORTANT**
 
-If static images/figures to be embedded in markdown files, they need to be placed in the `static` directory rather than within the `md` directory. The reason is that `docutils`' `include` directive will basically embed the markdown content into the reStructuredText document, hence any links to external resources need to be consistent between markdown and reStructuredText documents.
+If static images/figures/files to be embedded in markdown files, they need to be placed in the `static` directory rather than within the `md` directory. The reason is that `docutils`' `include` directive will basically embed the markdown content into the reStructuredText document, hence any links to external resources need to be consistent between markdown and reStructuredText documents.
 
 ## Output
 
