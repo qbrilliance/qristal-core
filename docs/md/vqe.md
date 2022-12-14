@@ -607,7 +607,7 @@ Let us now focus on a physical Hamiltonian matrix, where the ground state energy
 
 Now, imagine you intend to run VQE for the above with initial angle $\theta_1$ = 0.11, choosing the particle sector 1, setting the classical optimizer to the non-linear [Nelder-Mead](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method) method with 100 maximum function evaluations and 1.0e-5 function tolerance.  The notebook attached below shows how this is done in QB SDK:
 
-[SDK_Deuteron2aswap.ipynb](SDK_Deuteron2aswap.ipynb)
+[SDK_Deuteron2aswap.ipynb](../static/notebooks/SDK_Deuteron2aswap.ipynb)
 
 ### Example 2: a four-qubit classical Hamiltonian
 
@@ -615,12 +615,12 @@ Many graph optimization problems can be written in terms of a classical Hamilton
 
 As an example, for the VQE Hamiltonian string given by `0.04207897647782276 + 0.17771287465139946 Z0 + 0.1777128746513994 Z1 + -0.24274280513140462 Z2 - 0.17059738328801052 Z0Z1 + 0.6622334 Z0Z1Z2Z3` with minimum eigenvalue -1.38892036:
 
-[SDK_VQEClassical4default.ipynb](SDK_VQEClassical4default.ipynb)
+[SDK_VQEClassical4default.ipynb](../static/notebooks/SDK_VQEClassical4default.ipynb)
 
 ### Example 3: same setup as for Example 2, except specifying a file that contains a user-defined ansatz
 
-[SDK_VQECustom3.ipynb](SDK_VQECustom3.ipynb)
+[SDK_VQECustom3.ipynb](../static/notebooks/SDK_VQECustom3.ipynb)
 
 ### Example 4:  finding the ground state energy of $H_2$ using UCCSD ansatz
 
-[SDK_H2_UCCSD.ipynb](SDK_H2_UCCSD.ipynb)
+[SDK_H2_UCCSD.ipynb](../static/notebooks/SDK_H2_UCCSD.ipynb)
