@@ -91,19 +91,6 @@ namespace xacc
       return std::make_pair(aws_str, measure_bits);
     }
 
-    /// Set up Python path to import Python wrapper scripts for Braket offloading
-    void AWSAccelerator::setup_python_path()
-    {
-      if (debug_aws_) std::cout << "# Importing Python sys" << "\n";
-      py::module_ sys = py::module_::import("sys");
-      if (debug_aws_) std::cout << "# Importing Python path" << "\n";
-      auto path = sys.attr("path");
-      if (debug_aws_) std::cout << "# Inserting " << SDK_SOURCE_DIR << " into path" << "\n";
-      path.attr("insert")(0, SDK_SOURCE_DIR);
-      if (debug_aws_) std::cout << "# Inserting " << SDK_DIR << " into path" << "\n";
-      path.attr("insert")(0, SDK_DIR);
-    }
-
 
     /// Helper to post-process and save measurement results to the buffer.
     void AWSAccelerator::save_distribution_to_buffer(std::shared_ptr<AcceleratorBuffer> buffer,
@@ -148,19 +135,18 @@ namespace xacc
           if (debug_aws_)
             std::cout << "# Acquired GIL"
                       << "\n";
-          // Set up PYTHONPATH to import aws_python_script
-          setup_python_path();
+
+          // Import aws_python_script as a Python module
           if (debug_aws_)
             std::cout << "# Importing aws_python_script"
                       << "\n";
-          // Import aws_python_script as a Python module
           py::module_ qb_aws_mod = py::module_::import("aws_python_script");
           if (debug_aws_)
             std::cout << "# Binding qb_aws_mod_run_aws_braket"
                       << "\n";
 
-          pybind11::function qb_aws_mod_run_aws_braket = qb_aws_mod.attr("run_aws_braket");
           // Run the circuit: blocking mode (polling till the result is available)
+          pybind11::function qb_aws_mod_run_aws_braket = qb_aws_mod.attr("run_aws_braket");
           if (debug_aws_)
             std::cout << "# About to run AWS Braket"
                       << "\n";
@@ -206,16 +192,16 @@ namespace xacc
           if (debug_aws_)
             std::cout << "# Acquired GIL"
                       << "\n";
-          // Set up PYTHONPATH to import aws_python_script
-          setup_python_path();
+
+          // Import aws_python_script as a Python module
           if (debug_aws_)
             std::cout << "# Importing aws_python_script"
                       << "\n";
-          // Import aws_python_script as a Python module
           py::module_ qb_aws_mod = py::module_::import("aws_python_script");
           if (debug_aws_)
             std::cout << "# Binding qb_aws_mod_run_aws_braket_async"
                       << "\n";
+
           // Retrieve the async offloading function
           pybind11::function qb_aws_mod_run_aws_braket_async =
               qb_aws_mod.attr("run_aws_braket_async");

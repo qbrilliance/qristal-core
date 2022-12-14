@@ -1817,10 +1817,9 @@ namespace qb
         mqbacc.insert("shots", shots);
         //
       } else if (accs.compare("qb-lambda") == 0) {
-        // Default AWS reverse proxy server for the QB Lambda workstation
         std::string lambda_url =
-            //"ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com";
-            "10.10.8.50:4000";
+            "ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com";  // Default AWS reverse proxy server for the QB Lambda workstation
+            //"10.10.8.50:4000"; // internal address
         if (VALID_QB_HARDWARE_URLS.find("qb-lambda") !=
             VALID_QB_HARDWARE_URLS.end()) {
           lambda_url = VALID_QB_HARDWARE_URLS["qb-lambda"];

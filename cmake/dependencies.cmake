@@ -36,6 +36,12 @@ add_dependency(nlohmann_json 3.1.1
   OPTIONS
     "JSON_BuildTests OFF"
 )
+if(nlohmann_json_ADDED)
+  install(
+    DIRECTORY ${nlohmann_json_SOURCE_DIR}/include
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+  )
+endif()
 
 # BLAS; used as a dependency for EXATN and Eigen.
 set(BLA_VENDOR OpenBLAS)

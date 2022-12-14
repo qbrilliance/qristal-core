@@ -1,0 +1,31 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Commandline interface to the QB SDK.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(qbsdkcli
+  DESCRIPTION "Quantum Brilliance SDK Command-line interface."
+  LANGUAGES CXX
+)
+
+link_directories(@CMAKE_INSTALL_PREFIX@/lib @XACC_ROOT@/lib)
+
+add_executable(qbsdkcli qbsdkcli.cpp)
+
+target_include_directories(qbsdkcli
+  PRIVATE
+    @CMAKE_INSTALL_PREFIX@/include
+    @XACC_ROOT@/include/xacc
+    @XACC_ROOT@/include/quantum/gate
+    @args_SOURCE_DIR@
+)
+
+target_link_libraries(qbsdkcli
+  PRIVATE
+    xacc
+    qbcore
+    qbcore-noise_model
+)

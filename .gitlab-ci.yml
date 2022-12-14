@@ -15,17 +15,18 @@ ubuntu20-build:
     - cmake --build build -- -j`nproc`
   artifacts:
     when: always
-    paths: 
+    paths:
       - build/CITests
       - build/cmake_install.cmake
       - build/core.cpython-38-x86_64-linux-gnu.so
       - build/lib*
       - build/plugins
+      - build/configured_example_files
 
 ubuntu20-cpp-tests:
   stage: test
   needs: ["ubuntu20-build"]
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-12
+  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
   script:
     - cmake --install build
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
@@ -37,7 +38,7 @@ ubuntu20-cpp-tests:
 ubuntu20-py-tests:
   stage: test
   needs: ["ubuntu20-build"]
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-12
+  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
   script:
     - cmake --install build
     - cd tests/python_module && (python3 mock_server.py &) && python3 -m pytest

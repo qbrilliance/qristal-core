@@ -19,7 +19,6 @@
 
 namespace qb {
 bool QPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
-  std::cout << "QPrimeTester 1:Defining QPrime\n";
   std::cout << "Defining QPrime" << std::endl;
   // Inputs:
   // Iteration: which letter are we up to

@@ -93,6 +93,5 @@ target_link_libraries(CITests
 
 set_target_properties(CITests
   PROPERTIES
-    INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib"
     BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib"
 )

@@ -88,6 +88,12 @@ if (NOT QBCORE_HEADER_ONLY)
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
   )
 
+  # Install any additional runtime assets
+  install(
+    FILES src/aws_braket/aws_python_script.py
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  )
+
   # Install the headers
   install(
     DIRECTORY include

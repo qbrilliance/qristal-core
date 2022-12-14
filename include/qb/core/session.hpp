@@ -1,5 +1,4 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
-#pragma once
 
 #include "qb/core/QuantumBrillianceAccelerator.hpp"
 #include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
@@ -9,6 +8,8 @@
 #include "qb/core/utils.hpp"
 #include "qb/core/profiler.hpp"
 #include "qb/core/pretranspiler.hpp"
+
+#pragma once
 
 namespace qb
 {
