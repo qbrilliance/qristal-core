@@ -31,7 +31,7 @@ include(noise_model_lib)
 include(cpp_lib)
 
 # Print out the installation directory.
-message(STATUS "Installation directory for ${CMAKE_PROJECT_NAME} set to ${CMAKE_INSTALL_PREFIX}.")
+message(STATUS "Installation directory for ${PROJECT_NAME} set to ${CMAKE_INSTALL_PREFIX}.")
 
 # Nothing more to do if the caller only needs the headers
 if (NOT QBCORE_HEADER_ONLY)
