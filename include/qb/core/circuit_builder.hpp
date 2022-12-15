@@ -1210,6 +1210,24 @@ static const char *help_execute_;
     circuit_->addInstructions(cbo->getInstructions());
   }
 
+  /**
+   * @brief Superposition Adder
+   * 
+   * This method adds a superposition adder to the current circuit.
+   * 
+   * Given a superposition state $\psi = \sum a_1\ket{\phi_1} + a_2\ket{\phi_2} + ... + a_n\ket{\phi_n}$,
+   * this function finds the mean of the of the amplitudes, i.e. (|a_1|^2 + |a_2|^2 + |a_n|^2) / N.
+   * 
+   * @param q0 the index of the single required ancilla [int]
+   * @param q1 the index of the single required ancilla [int]
+   * @param q2 the index of the single required ancilla [int]
+   * @param qubits_flags the indices of the flag qubits [vector of int]
+   * @param qubits_string the indices of the qubits encoding the string [vector of int]
+   * @param qubits_metric the indices of the qubits encoding the metric value corresponding to the string [vector of int]
+   * @param ae_state_prep_circ The circuit A used to prepare the input state [CircuitBuilder]
+   * @param qubits_ancilla the indices of the required ancilla qubits [vector of int]
+   * @param qubits_beam_metric the indices of the qubits encoding class' metric [vector of int]
+   */
   void SuperpositionAdder(int q0, int q1, int q2,
                           std::vector<int> qubits_flags, std::vector<int> qubits_string,
                           std::vector<int> qubits_metric,
@@ -1467,7 +1485,7 @@ static const char *help_execute_;
   }
 
   /**
-  * @brief Exponential Search
+   * @brief Exponential Search
   *
   * This method sets up and executes the exponential search routine.
   *
@@ -1481,29 +1499,19 @@ static const char *help_execute_;
   *
   * Exponential search here has been designed for use in the quantum decoder algorithm, so many inputs may not
   * be required for general use.
-  *
-  * @param method indicates which method to use. Options are "canonical", "MLQAE", "CQAE" [string]
-  * @param oracle_gen a function which produces the oracle circuit that marks the good subspace [OracleFuncCType]
-  * @param state_prep_gen a function which produces the state prep circuit [StatePrepFuncCType]
-  * @param f_score a function that returns a 1 if the input binary string has value greater than the current best score and 0 otherwise [func(int)->int]
-  * @param best_score the current best score [int]
-  * @param qubits_string the indices of the qubits encoding the strings [vector of int]
-  * @param qubits_metric the indices of the qubits encoding the string scores [vector of int]
-  * @param qubits_next_letter the indices of some ancilla qubits labelled for the quantum decoder [vector of int]
-  * @param qubits_next_metric the indices of some ancilla qubits labelled for the quantum decoder [vector of int]
-  * @param qubit_flag the index of the qubit that is flagged by the oracle whenever a trial score is greater than the current best score [int]
-  * @param qubits_best_score the indices of the qubits used to encode the current best score [vector of int]
-  * @param qubits_ancilla_oracle the indices of any ancilla qubits required by the oracle [vector of int]
-  * @param qubits_ancilla_adder the indices of ancilla qubits required by the ripple carry adder (required by decoder) [vector of int]
-  * @param total_metric the indices of the qubits encoding the string scores after any required pre-processing of qubits_metric (required by decoder) [vector of int]
-  * @param CQAE_num_evaluation_qubits if using CQAE method, specifies the number of evaluation qubits used in the QAE routine [int]
-  * @param MLQAE_is_in_good_subspace if using MLQAE method, the function that indicates whether a measurement is in the good subspace [func(str,int)->int]
-  * @param MLQAE_num_runs if using MLQAE method, the number of runs [int]
-  * @param MLQAE_num_shots if using MLQAE method, the number of shots [int]
-  * @param acc_name the name of the accelerator used to execute the algorithm [string]
-  *
-  * @return a better score if found, otherwise returns the current best score
-  */
+   * 
+   * @param method indicates which method to use. Options are "canonical", "MLQAE", "CQAE" [string]
+   * @param state_prep_circ a function which produces the state prep circuit [StatePrepFuncCType]
+   * @param oracle_func a function which produces the oracle circuit that marks the good subspace [OracleFuncCType]
+   * @param best_score the current best score [int]
+   * @param f_score a function that returns a 1 if the input binary string has value greater than the current best score and 0 otherwise [func(int)->int]
+   * @param total_num_qubits the total number of qubits, i.e. number of string qubits + number of metric qubits [int]
+   * @param qubits_string the indices of the qubits encoding the strings [vector of int]
+   * @param total_metric the indices of the qubits encoding the string scores [vector of int]
+   * @param acc_name the name of the accelerator used to execute the algorithm [string]
+   * 
+   * @return a better score if found, otherwise returns the current best score
+   */
   int ExponentialSearch(
       std::string method, StatePrepFuncCType state_prep_circ, OracleFuncCType oracle_func,
       int best_score, std::function<int(int)> f_score, int total_num_qubits,

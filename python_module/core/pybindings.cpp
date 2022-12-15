@@ -1827,6 +1827,48 @@ PYBIND11_MODULE(core, m) {
 
     )")
         .def(
+          "superposition_adder",
+          [&](qb::CircuitBuilder &builder, int q0, int q1, int q2,
+              py::array_t<int> qubits_flags, py::array_t<int> qubits_string,
+              py::array_t<int> qubits_metric, py::object &ae_state_prep_circ,
+              py::array_t<int> qubits_ancilla, py::array_t<int> qubits_beam_metric) {
+
+            qb::CircuitBuilder *casted_ae_state_prep_circ =
+                ae_state_prep_circ.cast<qb::CircuitBuilder *>();
+            assert(casted_ae_state_prep_circ);
+
+            builder.SuperpositionAdder(q0, q1, q2,
+                py_array_to_std_vec(qubits_flags), py_array_to_std_vec(qubits_string),
+                py_array_to_std_vec(qubits_metric), *casted_ae_state_prep_circ,
+                py_array_to_std_vec(qubits_ancilla), py_array_to_std_vec(qubits_beam_metric));
+          },
+          py::arg("q0"), py::arg("q1"), py::arg("q2"),
+          py::arg("qubits_flags") = py::array_t<int>(),
+          py::arg("qubits_string") = py::array_t<int>(),
+          py::arg("qubits_metric") = py::array_t<int>(),
+          py::arg("ae_state_prep_circ"),
+          py::arg("qubits_ancilla") = py::array_t<int>(),
+          py::arg("qubits_beam_metric") = py::array_t<int>(), R"(
+      Superposition adder
+
+     This method adds a Superposition Adder to the circuit.
+
+     Given a superposition state, this circuit computes the mean of the amplitudes of the superposition components.
+
+     Parameters:
+
+     - **q0** the index of the single required ancilla [int]
+     - **q1** the index of the single required ancilla [int]
+     - **q2** the index of the single required ancilla [int]
+     - **qubits_flags** the indices of the flag qubits [list of int]
+     - **qubits_string** the indices of the qubits encoding the string [list of int]
+     - **qubits_metric** the indices of the qubits encoding the metric value corresponding to the string [list of int]
+     - **ae_state_prep_circ** The circuit A used to prepare the input state [CircuitBuilder]
+     - **qubits_ancilla** the indices of the required ancilla qubits [list of int]
+     - **qubits_beam_metric** the indices of the qubits encoding class' metric [list of int]
+
+    )")
+        .def(
           "exponential_search",
           [&](qb::CircuitBuilder &builder, py::str method, py::object state_prep,
               OracleFuncPyType oracle_func, int best_score,
