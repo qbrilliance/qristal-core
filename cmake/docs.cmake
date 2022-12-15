@@ -30,8 +30,7 @@ execute_process(COMMAND ${Python_EXECUTABLE} -c "import sphinx_rtd_theme" RESULT
 # Note: exhale also includes breathe as one of its dependencies
 execute_process(COMMAND ${Python_EXECUTABLE} -c "import exhale" RESULT_VARIABLE SPHINX_EXHALE_EXISTS)
 execute_process(COMMAND ${Python_EXECUTABLE} -c "import myst_parser" RESULT_VARIABLE SPHINX_MY_ST_PARSER_EXISTS)
-execute_process(COMMAND ${Python_EXECUTABLE} -c "import m2r2" RESULT_VARIABLE SPHINX_M2R2_EXISTS)
-if(SPHINX_RTD_THEME_EXISTS EQUAL "1" OR SPHINX_EXHALE_EXISTS EQUAL "1" OR SPHINX_MY_ST_PARSER_EXISTS EQUAL "1" OR SPHINX_M2R2_EXISTS EQUAL "1")
+if(SPHINX_RTD_THEME_EXISTS EQUAL "1" OR SPHINX_EXHALE_EXISTS EQUAL "1" OR SPHINX_MY_ST_PARSER_EXISTS EQUAL "1")
   # Construct the error message with info about all the missing packages.
   set(ERROR_MSG " Missing some required Sphinx extension(s): ")
   if (SPHINX_RTD_THEME_EXISTS EQUAL "1")
@@ -42,9 +41,6 @@ if(SPHINX_RTD_THEME_EXISTS EQUAL "1" OR SPHINX_EXHALE_EXISTS EQUAL "1" OR SPHINX
   endif()
   if (SPHINX_MY_ST_PARSER_EXISTS EQUAL "1")
     string(CONCAT ERROR_MSG "${ERROR_MSG}" " \n  - 'myst-parser': please install by: python3 -m pip install myst-parser")
-  endif()
-  if (SPHINX_M2R2_EXISTS EQUAL "1")
-    string(CONCAT ERROR_MSG "${ERROR_MSG}" " \n  - 'm2r2': please install by: python3 -m pip install m2r2")
   endif()
   message(FATAL_ERROR "${ERROR_MSG}")
 endif()
