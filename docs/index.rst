@@ -40,6 +40,8 @@ The Quantum Brilliance SDK is released under the Apache License, Version 2.0.
    :caption: Basic Usage
 
    rst/getting_started
+   rst/examples
+   rst/cli
    rst/quantum_computing
    rst/noise_models
    rst/vqe
