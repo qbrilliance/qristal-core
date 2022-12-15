@@ -53,5 +53,10 @@ if(WITH_EXAMPLES)
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples/
   )
 
+  install(
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/README.md
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/examples/cpp/qbsdkcli/
+  )
+
 endif()
 
