@@ -18,7 +18,7 @@ import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
-project = 'Quantum SDK' 
+project = 'Quantum SDK'
 copyright = '2022, Quantum Brilliance Pty Ltd'
 author = 'Quantum Brilliance Pty Ltd'
 
@@ -77,7 +77,7 @@ myst_enable_extensions = [
     "tasklist",
 ]
 
-# allow display math (i.e., $$) within an inline context. 
+# allow display math (i.e., $$) within an inline context.
 # This allows, for example:
 # $$ \ket{\Phi^+} = \frac{\ket{00} + \ket{11}}{\sqrt{2}} , $$
 # $$ \ket{\Phi^-} = \frac{\ket{00} - \ket{11}}{\sqrt{2}} , $$

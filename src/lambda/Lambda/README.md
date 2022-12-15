@@ -1,5 +1,6 @@
 In this directory are resources required to start a standalone AER simulator on the QB Lambda workstation.
-This procedure can also be adapted to GPU-based AWS instances.
+This procedure can also be adapted to GPU-based AWS instances.  This system is currently experimental, and
+is likely to change between the beta release and version 1.0.
 
 # File Descriptions
 
@@ -37,15 +38,15 @@ python3 server.py
 - Step 4: ssh from inside the container to the permanent AWS reverse proxy instance (forward port 5000)
 
 ```
-ssh -o ServerAliveInterval=30 -R 5000:localhost:5000 lambda@ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com 
+ssh -o ServerAliveInterval=30 -R 5000:localhost:5000 lambda@ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com
 ```
 
 
 # Notes
 
-- The Lambda simulator accelerator is now available at: ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com 
+- The Lambda simulator accelerator is now available at: ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com.  Note that this server will be available throughout the beta testing period as a service to testers; if it seems to be down, please let us know and we will restart it.
 
-- Step 3 and 4 above should be executed in detachable mode, i.e., the REST server and ssh tunnel should still be alive inside the container after we detach those terminals. 
+- Step 3 and 4 above should be executed in detachable mode, i.e., the REST server and ssh tunnel should still be alive inside the container after we detach those terminals.
 
 - The AWS proxy server (NGINX) is a `t2.micro` instance with the public URL: ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com. The `/etc/nginx/conf.d/server.conf` settings are:
 

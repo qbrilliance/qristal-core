@@ -1,8 +1,8 @@
-# qbsdkcli - Circuit simulation with the timing, noise and topology parameters of QB hardware
+# Command-line interface #
 
 `qbsdkcli` is a command-line executable that provides a command-line interface to the QB SDK.
 
-```bash
+```text
   qbsdkcli [input-circuit-file] {OPTIONS}
 
     qbsdkcli - Circuit simulation with the timing, noise and topology parameters of
