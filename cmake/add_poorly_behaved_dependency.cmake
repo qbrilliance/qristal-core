@@ -182,6 +182,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
         set(${arg_FIND_PACKAGE_NAME}_ROOT "${dir}" CACHE PATH "Path to installed ${NAME}." FORCE)
         set(${arg_FIND_PACKAGE_NAME}_DIR "${dir}" CACHE PATH "Path to installed ${NAME}." FORCE)
         find_package(${arg_FIND_PACKAGE_NAME} REQUIRED)
+        set(${arg_FIND_PACKAGE_NAME}_ROOT "${${arg_FIND_PACKAGE_NAME}_DIR}")
         unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
 
         # Save the path to the version installed by cmake, to avoid re-installing it.
