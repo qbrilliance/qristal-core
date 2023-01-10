@@ -41,8 +41,22 @@ ubuntu20-py-tests:
   image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
   script:
     - cmake --install build
-    - cd tests/python_module && (python3 mock_server.py &) && python3 -m pytest
+    - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
   artifacts:
     when: always
     reports:
-      junit: src/qbos_core/test/report.xml
+      junit: tests/python_module/report.xml
+
+ubuntu20-py-stack-tests:
+  stage: test
+  needs: ["ubuntu20-build"]
+  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  script:
+    - cmake --install build
+    - echo "# QB_QCSTACK_URL = $QB_QCSTACK_URL"
+    - cd tests/qcstack && python3 -m pytest --junitxml="report-stack.xml"
+  artifacts:
+    when: always
+    reports:
+      junit: tests/qcstack/report-stack.xml
+

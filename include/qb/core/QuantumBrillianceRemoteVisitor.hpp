@@ -654,7 +654,7 @@ protected:
           sequence_.push_back(s2.str());
         }
 
-        void visit(CPhase &cp) override {
+        void visit(CPhase &) override {
           xacc::error("QB SDK does not support: CPhase");
         }
 

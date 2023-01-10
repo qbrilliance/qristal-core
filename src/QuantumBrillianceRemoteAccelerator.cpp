@@ -73,6 +73,9 @@ xacc::QCStackClient::get(const std::string &remoteUrl, const std::string &path,
 
   auto r = cpr::Get(cpr::Url{remoteUrl + path}, cprHeaders, cprParams,
                     cpr::VerifySsl(false));
+  if (debug_qb_hw_) {
+    std::cout << "* [DEBUG]: r.status_code: " << r.status_code << "\n";
+  }
   if (r.status_code == 500) {
     xacc::info("* Error: QB hardware process failure");
   }
@@ -80,9 +83,10 @@ xacc::QCStackClient::get(const std::string &remoteUrl, const std::string &path,
     xacc::info("* Error: QB hardware received an invalid command");
   }
   if (r.status_code != 200) {
-    if (r.status_code == 300) {
+    if (std::find(VALID_HTTP_RETURN_CODES_.begin(), VALID_HTTP_RETURN_CODES_.end(), r.status_code) != VALID_HTTP_RETURN_CODES_.end()) {
         json gr;
-        gr["status_code"] = 300;
+        gr["status_code"] = r.status_code;
+	std::cout << "* [Debug]: r.status_code: " << r.status_code << "\n";
         return gr.dump();
     } else {
       throw std::runtime_error("HTTP GET Error - status code " +
@@ -163,7 +167,7 @@ const std::string QuantumBrillianceRemoteAccelerator::processInput(
   // 3. Measurements
   // jsel["measure"] is built from iterating the IR
   json measjs;
-  for (int ii = 0; ii < order_of_m_.size(); ii++) {
+  for (uint ii = 0; ii < order_of_m_.size(); ii++) {
     measjs.push_back({order_of_m_.at(ii), ii});
   }
   jsel["measure"] = measjs;
@@ -259,7 +263,7 @@ std::string QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
 
   if (!succeeded) {
     cancel();
-    xacc::error("Remote Accelerator " + name() +
+    xacc::error("Remote Accelerator " + name() + 
                 " failed HTTP Get for Job Response - " +
                 std::string(ex.what()));
   }
@@ -288,7 +292,7 @@ void QuantumBrillianceRemoteAccelerator::execute(
 }
 
 void QuantumBrillianceRemoteAccelerator::processResponse(
-    std::shared_ptr<AcceleratorBuffer> buffer, const std::string &response) {
+    std::shared_ptr<AcceleratorBuffer> , const std::string &response) {
   if (debug_qb_hw_) {
     std::cout << "* Response from HTTP POST: " << response << std::endl;
   }
@@ -312,10 +316,15 @@ int QuantumBrillianceRemoteAccelerator::pollForResults(
               << std::endl;
   }
   json fromqdk;
-
-  fromqdk = json::parse(
+  if (remoteUrl.back() == '/') {
+    fromqdk = json::parse(
       QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
-          remoteUrl, "/" + postPath, headers));
+      remoteUrl, postPath, headers));
+  } else {
+    fromqdk = json::parse(
+      QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
+      remoteUrl, "/" + postPath, headers));
+  }
 
   std::default_random_engine qb_rnd_gen(
       static_cast<long unsigned int>(time(0)));
