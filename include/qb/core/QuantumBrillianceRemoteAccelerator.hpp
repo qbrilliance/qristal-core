@@ -18,6 +18,7 @@ namespace xacc {
 class QCStackClient : public xacc::Client {
 private:
   bool debug_qb_hw_;
+  const std::vector<int> VALID_HTTP_RETURN_CODES_{300, 425};
 
 public:
   QCStackClient() : xacc::Client(), debug_qb_hw_(false) {}
