@@ -97,6 +97,7 @@ if (NOT QBCORE_HEADER_ONLY)
      "TNQVM_BUILD_TESTS OFF"
   )
   # Add symlinks to {XACC_ROOT}/plugins where XACC finds its plugins by default.
+  # Delete symlinks to all other versions of the plugin to avoid issues when upgrading to a new version.
   # TODO: XACC has an API (xacc::addPluginSearchPath) to add a search path to find plugin's so files.
   # To remove the below symlink step, we need to:
   # (1) Modify XACC's initialization in the Python binding module to add proper path.
@@ -104,6 +105,11 @@ if (NOT QBCORE_HEADER_ONLY)
   file(GLOB TNQVM_LIBS ${TNQVM_ROOT}/plugins/*)
   foreach(lib ${TNQVM_LIBS})
     cmake_path(GET lib FILENAME filename)
+    cmake_path(GET lib STEM stem)
+    file(GLOB OLD_SYMLINKS ${XACC_ROOT}/plugins/${stem}.*)
+    foreach(link ${OLD_SYMLINKS})
+      install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${link})")
+    endforeach()
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${lib} ${XACC_ROOT}/plugins/${filename})")
   endforeach()
 
