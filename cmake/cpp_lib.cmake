@@ -10,6 +10,7 @@ set(source_files
   src/optimization/qaoa/qaoa_base.cpp
   src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_validators.cpp
+  src/optimization/qml/qml.cpp
   # vqee is header only atm
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
@@ -38,6 +39,7 @@ set(headers
   include/qb/core/typedefs.hpp
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/optimization/qaoa/qaoa.hpp
+  include/qb/core/optimization/qml/qml.hpp
 )
 
 # Header-only interface target
@@ -77,6 +79,7 @@ if (NOT QBCORE_HEADER_ONLY)
       qb::core::noise_model
       xacc::xacc
       xacc::quantum_gate
+      xacc::pauli
       args
       nlohmann_json
       cpr
