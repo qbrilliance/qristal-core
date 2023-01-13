@@ -101,15 +101,22 @@ macro(add_xacc_plugin LIBRARY_NAME)
   )
 
   # Add a symlink to {XACC_ROOT}/plugins where XACC finds its plugins by default.
+  # Delete symlinks to all other versions of the plugin to avoid issues when upgrading to a new version.
   # TODO: XACC has an API (xacc::addPluginSearchPath) to add a search path to find plugin's so files.
   # To remove the below symlink step, we need to:
   # (1) Modify the XACC's initialization in the Python binding module to add proper path.
   # (2) Modify plugin gtest files which currently assume vanilla xacc::Initialize()
-  install(CODE "execute_process( \
-    COMMAND ${CMAKE_COMMAND} -E create_symlink \
-    ${CMAKE_INSTALL_PREFIX}/lib/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
-    ${XACC_ROOT}/plugins/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
-    )"
+  file(GLOB OLD_SYMLINKS ${XACC_ROOT}/plugins/*${LIBRARY_NAME}.*)
+  foreach(link ${OLD_SYMLINKS})
+    # Now instead of just deleting ${link}, which may accidentally match other plugins, we just get each of 
+    # the extensions and append it to the actual library name that we know our plugin has.
+    # We can't use a wildcard for this, as there is no shell expansion performed inside execute_process. 
+    cmake_path(GET link EXTENSION extension)    
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${XACC_ROOT}/plugins/$<TARGET_FILE_PREFIX:${LIBRARY_NAME}>$<TARGET_FILE_BASE_NAME:${LIBRARY_NAME}>${extension})")
+  endforeach()
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \
+     ${CMAKE_INSTALL_PREFIX}/lib/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
+     ${XACC_ROOT}/plugins/$<TARGET_FILE_NAME:${LIBRARY_NAME}>)"
   )
 
 endmacro()
