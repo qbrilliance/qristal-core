@@ -1,4 +1,3 @@
-
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #
 # Demonstration of how to set up the build of a
@@ -8,30 +7,18 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-project(demo1
+project(qaoa
   DESCRIPTION "Quantum Brilliance qaoa example"
   LANGUAGES CXX
 )
 
-link_directories(@CMAKE_INSTALL_PREFIX@/lib @XACC_ROOT@/lib)
+set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qbcore)
 
 add_executable(qaoa qaoa_example.cpp)
 
-target_include_directories(qaoa
-  PRIVATE
-    @CMAKE_INSTALL_PREFIX@/include
-    @XACC_ROOT@/include/xacc
-    @XACC_ROOT@/include/cppmicroservices4
-    @XACC_ROOT@/include/quantum/gate
-    @XACC_ROOT@/include/eigen
-    @args_SOURCE_DIR@
-)
-
 target_link_libraries(qaoa
   PRIVATE
-    xacc
-    CppMicroServices
-    xacc-quantum-gate
-    xacc-pauli
-    qbcore
+    xacc::pauli
+    qb::core
 )

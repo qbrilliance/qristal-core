@@ -34,7 +34,7 @@ include(cpp_lib)
 message(STATUS "Installation directory for ${PROJECT_NAME} set to ${CMAKE_INSTALL_PREFIX}.")
 
 # Nothing more to do if the caller only needs the headers
-if (NOT QBCORE_HEADER_ONLY)
+if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
   # XACC plugin shared libraries
   include(xacc_plugins)
@@ -59,3 +59,17 @@ if (NOT QBCORE_HEADER_ONLY)
   endif()
 
 endif()
+
+# Generate and install the qbcore-config.cmake file
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    cmake/${NAMESPACE}${PROJECT_NAME}-config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+
+# Install the qbcore-config.cmake file
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config.cmake"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)

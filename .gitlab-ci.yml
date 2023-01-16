@@ -18,10 +18,13 @@ ubuntu20-build:
     paths:
       - build/CITests
       - build/cmake_install.cmake
+      - build/coreDependencies.cmake
+      - build/qbcore-config.cmake
       - build/core.cpython-38-x86_64-linux-gnu.so
       - build/lib*
       - build/plugins
       - build/configured_example_files
+      - build/CMakeFiles/Export/
 
 ubuntu20-cpp-tests:
   stage: test

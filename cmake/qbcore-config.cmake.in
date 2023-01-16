@@ -1,0 +1,13 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/@dependenciesFile@")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/@noiseTargetsFile@")
+if(@SUPPORT_EMULATOR_BUILD_ONLY@)
+else()
+  include("${CMAKE_CURRENT_LIST_DIR}/cmake/@cppTargetsFile@")
+  include("${CMAKE_CURRENT_LIST_DIR}/cmake/@pyTargetsFile@")
+endif()
+
+check_required_components(qbcore)
