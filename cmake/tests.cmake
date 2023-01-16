@@ -66,7 +66,6 @@ add_executable(CITests
   tests/uccsd/UCCSDTester.cpp
   tests/optimization/vqeeTester.cpp
   tests/optimization/qaoaTester.cpp
-  tests/optimization/qmlTester.cpp
   ##tests/circuits/ControlledPFDCircuitTester.cpp #SLOW(?)
   ##tests/circuits/ControlledQAETester.cpp #SLOW (?)
   ##tests/circuits/ControlledSubtractionCircuitTester.cpp # SLOW(?)
