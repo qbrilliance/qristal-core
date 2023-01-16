@@ -4,8 +4,8 @@ include(add_poorly_behaved_dependency)
 set(CURL_NO_CURL_CMAKE ON)
 find_package(CURL REQUIRED)
 
+# For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
-
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
@@ -14,6 +14,9 @@ add_poorly_behaved_dependency(xacc 1.0.0
   OPTIONS
     "XACC_ENABLE_MPI @ENABLE_MPI@"
 )
+
+# Python 3 interpreter and libraries
+find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
 
 # Pybind11
 add_dependency(pybind11 2.10.0
@@ -31,16 +34,22 @@ add_dependency(googletest 1.12.1
 )
 
 # json library
-add_dependency(nlohmann_json 3.1.1
+set(nlohmann_json_VERSION "3.1.1") 
+add_dependency(nlohmann_json ${nlohmann_json_VERSION}
   GITHUB_REPOSITORY /nlohmann/json
   OPTIONS
     "JSON_BuildTests OFF"
 )
+if(TARGET nlohmann_json)
+  add_library(nlohmann::json ALIAS nlohmann_json)
+endif()
 if(nlohmann_json_ADDED)
+  set(nlohmann_json_DIR ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann/nlohmann_json)
   install(
-    DIRECTORY ${nlohmann_json_SOURCE_DIR}/include
-    DESTINATION ${CMAKE_INSTALL_PREFIX}
+    DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/cmake/nlohmann_json
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann
   )
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake)") 
 endif()
 
 # BLAS; used as a dependency for EXATN and Eigen.
@@ -61,15 +70,14 @@ add_dependency(Eigen3 3.3.7
 if(Eigen3_ADDED)
   add_library(Eigen INTERFACE IMPORTED)
   target_include_directories(Eigen INTERFACE ${Eigen3_SOURCE_DIR})
+endif()
+if(TARGET Eigen)
   add_library(Eigen3::Eigen ALIAS Eigen)
 endif()
 
 
 # Add dependencies needed only for compiled libraries.
-if (NOT QBCORE_HEADER_ONLY)
-
-  # Python 3 interpreter and libraries
-  find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
+if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
   # Boost headers
   find_package(Boost 1.71 REQUIRED)
@@ -114,16 +122,26 @@ if (NOT QBCORE_HEADER_ONLY)
   endforeach()
 
   # args library
-  add_dependency(args 6.4.1
+  set(args_VERSION "6.4.1")
+  add_dependency(args ${args_VERSION}
     GITHUB_REPOSITORY Taywee/args
     FIND_PACKAGE_VERSION " " #for manual cmake build
-    GIT_TAG 6.4.1
+    GIT_TAG ${args_VERSION}
     OPTIONS
       "ARGS_BUILD_EXAMPLE OFF"
       "ARGS_BUILD_UNITTESTS OFF"
   )
-  if(TARGET taywee::args)
-    add_library(args ALIAS taywee::args)
+  # If args was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory. 
+  if(args_ADDED)
+    set(args_DIR ${CMAKE_INSTALL_PREFIX}/cmake/args)
+    add_library(taywee::args ALIAS args)
+    install(TARGETS args EXPORT args-targets)
+    install(EXPORT args-targets
+        FILE args-config.cmake
+        NAMESPACE taywee::
+        DESTINATION ${args_DIR})
+    install(FILES ${args_SOURCE_DIR}/args.hxx 
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
   endif()
 
   # CPR curl wrapper
@@ -143,6 +161,21 @@ if (NOT QBCORE_HEADER_ONLY)
       "BUILD_CPR_TESTS OFF"
       "CMAKE_POSITION_INDEPENDENT_CODE ON"
   )
+  # If cpr was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory. 
+  if(cpr_ADDED)
+    # Remove the INTERFACE_INCLUDE_DIRECTORIES property erroneously added by cpr/CMakeLists.txt's use of target_include_directories with PUBLIC keyword.
+    set_target_properties(cpr PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+    # Now do it properly.
+    target_include_directories(cpr INTERFACE
+      $<BUILD_INTERFACE:${CPR_INCLUDE_DIRS}>
+      $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
+    )
+    install(TARGETS cpr EXPORT cpr-targets)
+    install(EXPORT cpr-targets
+        FILE cpr-config.cmake
+        NAMESPACE cpr::
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
+  endif()
 
   # C++ itertools
   add_dependency(cppitertools 2.1

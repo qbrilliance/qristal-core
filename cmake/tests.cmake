@@ -81,14 +81,9 @@ add_test(NAME ci_tester COMMAND CITests)
 target_link_libraries(CITests
   PRIVATE
     GTest::gtest
-    qb::core_headers
-    xacc::xacc
-    xacc::quantum_gate
-    xacc::pauli
-    cpr
     qb::core
+    xacc::pauli
     cppitertools::cppitertools
-    Eigen3::Eigen
 )
 
 set_target_properties(CITests

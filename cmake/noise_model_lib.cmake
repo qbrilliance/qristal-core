@@ -11,10 +11,9 @@ set(headers
   include/qb/core/noise_model/noise_properties.hpp
 )
 
-set(COMPONENT_NAME noise_model)
-set(LIBRARY_NAME ${NAMESPACE}${PROJECT_NAME}-${COMPONENT_NAME})
+set(LIBRARY_NAME noise)
 add_library(${LIBRARY_NAME} SHARED ${source_files} ${headers})
-add_library(${NAMESPACE}::${PROJECT_NAME}::${COMPONENT_NAME} ALIAS ${LIBRARY_NAME})
+add_library(${NAMESPACE}::${PROJECT_NAME}::${LIBRARY_NAME} ALIAS ${LIBRARY_NAME})
 set_target_properties(${LIBRARY_NAME}
 PROPERTIES
     VERSION ${PROJECT_VERSION}
@@ -32,18 +31,28 @@ target_include_directories(${LIBRARY_NAME}
 # Link dependencies
 target_link_libraries(${LIBRARY_NAME}
   PUBLIC
-    nlohmann_json
+    nlohmann::json
     Eigen3::Eigen
 )
 
 # Install the library
 install(
-TARGETS ${LIBRARY_NAME}
-DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  TARGETS ${LIBRARY_NAME}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  EXPORT ${LIBRARY_NAME}Targets
+)
+
+# Install the Targets.cmake file for the library
+set(noiseTargetsFile "${LIBRARY_NAME}Targets.cmake")
+install(
+  EXPORT ${LIBRARY_NAME}Targets
+  FILE ${noiseTargetsFile}
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+  NAMESPACE ${NAMESPACE}::${PROJECT_NAME}::
 )
 
 # Install the headers
 install(
-DIRECTORY include
-DESTINATION ${CMAKE_INSTALL_PREFIX}
+  DIRECTORY include
+  DESTINATION ${CMAKE_INSTALL_PREFIX}
 )

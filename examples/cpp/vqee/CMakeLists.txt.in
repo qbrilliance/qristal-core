@@ -7,29 +7,18 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-project(demo1
+project(vqee
   DESCRIPTION "Quantum Brilliance vqee example"
   LANGUAGES CXX
 )
 
-link_directories(@CMAKE_INSTALL_PREFIX@/lib @XACC_ROOT@/lib)
+set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qbcore)
 
 add_executable(vqee vqee_example.cpp)
 
-target_include_directories(vqee
-  PRIVATE
-    @CMAKE_INSTALL_PREFIX@/include
-    @XACC_ROOT@/include/xacc
-    @XACC_ROOT@/include/cppmicroservices4
-    @XACC_ROOT@/include/quantum/gate
-    @args_SOURCE_DIR@
-)
-
 target_link_libraries(vqee
   PRIVATE
-    xacc
-    CppMicroServices
-    xacc-quantum-gate
-    xacc-pauli
-    qbcore
+    xacc::pauli
+    qb::core
 )
