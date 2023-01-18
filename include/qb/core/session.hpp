@@ -270,7 +270,7 @@ namespace qb
             include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
             qpu_configs_{{SDK_DIR "/include/qb/core/qpu_config.json"}},
             instrings_{{}}, irtarget_ms_{{{}}},
-            accs_{{"tnqvm"}},
+            accs_{{"qpp"}},
             aws_device_names_{{"DM1"}}, aws_formats_{{"openqasm3"}}, aws_verbatims_{{{false}}},
             aws_s3s_{{"amazon-braket-QBSDK"}}, aws_s3_paths_{{"output"}},
             aer_sim_types_{},
