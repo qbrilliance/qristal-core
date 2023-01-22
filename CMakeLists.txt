@@ -2,11 +2,17 @@
 set(MIN_CMAKE_VERSION 3.20)
 cmake_minimum_required(VERSION ${MIN_CMAKE_VERSION} FATAL_ERROR)
 
-# Set path to cmake modules
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
-
-# Pull in CPM and other things needed for adding dependencies
-include(add_dependency)
+# Get version number from git tag.  Must be done before the project command is called.
+find_package(Git)
+if(GIT_FOUND)
+  execute_process(
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND git describe --tags --abbrev=0
+    OUTPUT_VARIABLE PROJECT_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  string(REGEX REPLACE "^v(.*)" "\\1" PROJECT_VERSION "${PROJECT_VERSION}")
+endif()
 
 # Project
 project(core
@@ -15,11 +21,11 @@ project(core
   LANGUAGES CXX
 )
 
+# Set path to cmake modules
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
+
 # Basic project config
 include(base_config)
-
-# Save the version numbers for use in the code.
-configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)
 
 # Locate / set up retrieval of dependencies
 include(dependencies)
@@ -50,26 +56,34 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
   # Adds documentation targets (i.e. Doxygen and Sphinx targets) as dependencies of the default build targets.
   # This results in documentation targets being part of a normal build.
-  # Defaults to OFF.
   # If enabled, it will **require** Doxygen and Sphinx (including the required extensions, e.g., Breathe and Exhale)
   option (QB_BUILD_DOCS "Build the documentation." OFF)
   if (QB_BUILD_DOCS)
-    # Build documentation if enabled
     include(docs)
   endif()
 
 endif()
 
-# Generate and install the qbcore-config.cmake file
+# Install the xacc_utilities.cmake file and manifest.json template
+install(
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xacc_utilities.cmake
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/manifest.json.in
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
+
+# Generate and install the qbcore-config.cmake and qbcore-config-version.cmake files
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
     cmake/${NAMESPACE}${PROJECT_NAME}-config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config.cmake"
     INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
-
-# Install the qbcore-config.cmake file
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config-version.cmake"
+  COMPATIBILITY SameMinorVersion
+)
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config-version.cmake"
     DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )

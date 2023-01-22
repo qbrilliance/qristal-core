@@ -1,3 +1,4 @@
+include(add_dependency)
 include(add_poorly_behaved_dependency)
 
 # curl (needed by XACC and CPR)
@@ -18,23 +19,43 @@ add_poorly_behaved_dependency(xacc 1.0.0
 # Python 3 interpreter and libraries
 find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
 
-# Pybind11
-add_dependency(pybind11 2.10.0
+# Pybind11.
+set(pybind11_VERSION "2.10.0")
+add_dependency(pybind11 ${pybind11_VERSION} 
   GITHUB_REPOSITORY pybind/pybind11
+  OPTIONS
+    "PYBIND11_INSTALL ON"
 )
+if(pybind11_ADDED)
+  set(pybind11_DIR ${CMAKE_INSTALL_PREFIX}/cmake/pybind11/pybind11)
+  install(
+    DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/pybind11
+  )
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11)")
+endif()
 
 # Gtest
-add_dependency(googletest 1.12.1
+set(googletest_VERSION "1.12.1")
+add_dependency(googletest ${googletest_VERSION}
   GITHUB_REPOSITORY google/googletest
   FIND_PACKAGE_NAME GTest
   GIT_TAG release-1.12.1
   OPTIONS
-    "INSTALL_GTEST OFF"
+    "INSTALL_GTEST ON"
     "gtest_force_shared_crt"
 )
+if(googletest_ADDED)
+  set(GTest_DIR ${CMAKE_INSTALL_PREFIX}/cmake/googletest/GTest CACHE PATH "GTest Installation path." FORCE)
+  install(
+    DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/cmake/GTest
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/googletest
+  )
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake/GTest)")
+endif()
 
 # json library
-set(nlohmann_json_VERSION "3.1.1") 
+set(nlohmann_json_VERSION "3.1.1")
 add_dependency(nlohmann_json ${nlohmann_json_VERSION}
   GITHUB_REPOSITORY /nlohmann/json
   OPTIONS
@@ -49,7 +70,7 @@ if(nlohmann_json_ADDED)
     DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/cmake/nlohmann_json
     DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann
   )
-  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake)") 
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake/nlohmann_json)")
 endif()
 
 # BLAS; used as a dependency for EXATN and Eigen.
@@ -73,6 +94,29 @@ if(Eigen3_ADDED)
 endif()
 if(TARGET Eigen)
   add_library(Eigen3::Eigen ALIAS Eigen)
+endif()
+
+# args library
+set(args_VERSION "6.4.1")
+add_dependency(args ${args_VERSION}
+  GITHUB_REPOSITORY Taywee/args
+  FIND_PACKAGE_VERSION " " #for manual cmake build
+  GIT_TAG ${args_VERSION}
+  OPTIONS
+    "ARGS_BUILD_EXAMPLE OFF"
+    "ARGS_BUILD_UNITTESTS OFF"
+)
+# If args was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory. 
+if(args_ADDED)
+  set(args_DIR ${CMAKE_INSTALL_PREFIX}/cmake/args)
+  add_library(taywee::args ALIAS args)
+  install(TARGETS args EXPORT args-targets)
+  install(EXPORT args-targets
+      FILE args-config.cmake
+      NAMESPACE taywee::
+      DESTINATION ${args_DIR})
+  install(FILES ${args_SOURCE_DIR}/args.hxx 
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
 
@@ -121,29 +165,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${lib} ${XACC_ROOT}/plugins/${filename})")
   endforeach()
 
-  # args library
-  set(args_VERSION "6.4.1")
-  add_dependency(args ${args_VERSION}
-    GITHUB_REPOSITORY Taywee/args
-    FIND_PACKAGE_VERSION " " #for manual cmake build
-    GIT_TAG ${args_VERSION}
-    OPTIONS
-      "ARGS_BUILD_EXAMPLE OFF"
-      "ARGS_BUILD_UNITTESTS OFF"
-  )
-  # If args was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory. 
-  if(args_ADDED)
-    set(args_DIR ${CMAKE_INSTALL_PREFIX}/cmake/args)
-    add_library(taywee::args ALIAS args)
-    install(TARGETS args EXPORT args-targets)
-    install(EXPORT args-targets
-        FILE args-config.cmake
-        NAMESPACE taywee::
-        DESTINATION ${args_DIR})
-    install(FILES ${args_SOURCE_DIR}/args.hxx 
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
-  endif()
-
   # CPR curl wrapper
   list(APPEND CMAKE_PREFIX_PATH "/usr/local/")
   if(CMAKE_BUILD_TYPE STREQUAL "None")
@@ -187,6 +208,9 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 endif()
 
+# Get rid of other cmake paths
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake)")
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/share)")
 
 # If any packages are still missing, fail.
 check_missing()

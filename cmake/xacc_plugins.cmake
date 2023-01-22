@@ -1,10 +1,5 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-include(add_xacc_plugin)
-
-# Make a single target for collecting all XACC plugins
-add_custom_target(xacc-plugins ALL)
-
 # Amplitude estimation
 add_xacc_plugin(algorithm_ae
   SOURCES
@@ -40,6 +35,11 @@ add_xacc_plugin(aws_braket
     Python::Python
     pybind11::pybind11
     #TODO search for and add python module dependencies: boto3, botocore, threading, braket
+)
+# Install additional runtime assets
+install(
+  FILES src/aws_braket/aws_python_script.py
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 )
 
 # Circuit library

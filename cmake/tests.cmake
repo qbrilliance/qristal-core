@@ -80,7 +80,6 @@ add_test(NAME ci_tester COMMAND CITests)
 
 target_link_libraries(CITests
   PRIVATE
-    GTest::gtest
     qb::core
     xacc::pauli
     cppitertools::cppitertools
@@ -89,4 +88,10 @@ target_link_libraries(CITests
 set_target_properties(CITests
   PROPERTIES
     BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib"
+)
+
+# Install assets needed for defining tests downstream
+install(
+  FILES tests/XaccInitialisedTests.cpp
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/tests
 )

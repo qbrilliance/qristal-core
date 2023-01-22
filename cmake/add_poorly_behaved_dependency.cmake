@@ -1,20 +1,5 @@
-# Cache the install path as an insurance against the poorly-behaved dependency messing with it.
-macro(cache_install_path)
-  # Check if a previous installation was interrupted and left CMAKE_INSTALL_PREFIX in a corrupted state.
-  if (DEFINED CACHE{DEP_CMAKE_INSTALL_PREFIX} AND CMAKE_INSTALL_PREFIX STREQUAL DEP_CMAKE_INSTALL_PREFIX)
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for ${PROJECT_NAME}." FORCE)
-    unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
-  else()
-    # Otherwise, make a backup of the current CMAKE_INSTALL_PREFIX, before a poorly-behaved dependency's detection/installation process messes with it.
-    set(CMAKE_INSTALL_PREFIX_BACKUP ${CMAKE_INSTALL_PREFIX} CACHE PATH "Backup copy of install path for ${PROJECT_NAME} (allows restoration after e.g. XACC overwrites CMAKE_INSTALL_PREFIX)." FORCE)
-  endif()
-endmacro()
-
-
-# Reset CMAKE_INSTALL_PREFIX to its value before the detection/installation of the poorly-behaved dependency fiddled with it.
-macro(reset_install_path)
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path for ${PROJECT_NAME}." FORCE)
-endmacro()
+# Bring in the macros allowing caching of the install path.
+include(xacc_utilities)
 
 # Attempt to locate a system-installed version of FIND_PACKAGE_NAME using a dry run of find_package.  Does this in an independent cmake session,
 # so that successful return of find_package does not pollute the current cmake session (if e.g. the found version turns out to be the wrong one).

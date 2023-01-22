@@ -20,6 +20,7 @@ ubuntu20-build:
       - build/cmake_install.cmake
       - build/coreDependencies.cmake
       - build/qbcore-config.cmake
+      - build/qbcore-config-version.cmake
       - build/core.cpython-38-x86_64-linux-gnu.so
       - build/lib*
       - build/plugins

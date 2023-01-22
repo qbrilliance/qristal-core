@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
                               "in a JSON file named \"sdk_cfg.json\". Note: "
                               "command-line options specified here will "
                               "override that of the configuration file.",
-                              "\n" gGIT_VERSION_SHORT);
+                              "\n QB SDK version: " SDK_VERSION);
   args::Positional<std::string> inputcircuit(
       parser, "input-circuit-file", "Name of file containing a circuit");
   args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});

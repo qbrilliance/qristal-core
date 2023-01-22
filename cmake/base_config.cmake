@@ -1,3 +1,24 @@
+# Set default installation dir to the build dir.  Must be done before calling add_dependency.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)
+endif()
+
+# Set default RPATH to the lib dir of the installation dir.  Must be done after default installation dir is set.
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
+
+# Work out build type.  Must be done before calling add_dependency.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "No build type selected. Defaulting to 'None'.
+  Available options are:
+    * -DCMAKE_BUILD_TYPE=None - For an unoptimized build with no assertions or debug info.
+    * -DCMAKE_BUILD_TYPE=Release - For an optimized build with no assertions or debug info.
+    * -DCMAKE_BUILD_TYPE=Debug - For an unoptimized build with assertions and debug info.
+    * -DCMAKE_BUILD_TYPE=RelWithDebInfo - For an optimized build with no assertions but with debug info.
+    * -DCMAKE_BUILD_TYPE=MinSizeRel - For a build optimized for size instead of speed.")
+  set(CMAKE_BUILD_TYPE "None" CACHE STRING "Type of build: None, Release, Debug, RelWithDebInfo or MinSizeRel." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "None" "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Project output target namespace
 set(NAMESPACE qb)
 
@@ -34,3 +55,6 @@ if(CMAKE_MAKE_PROGRAM MATCHES "make$")
 else()
   set(MAKE_PARALLEL ${CMAKE_MAKE_PROGRAM})
 endif()
+
+# Save the version numbers for use in the code.
+configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)

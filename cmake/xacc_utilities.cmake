@@ -1,4 +1,26 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
+
+# Make a single target for collecting all XACC plugins
+add_custom_target(xacc-plugins ALL)
+
+# Cache the install path as an insurance against XACC messing with it.
+macro(cache_install_path)
+  # Check if a previous installation was interrupted and left CMAKE_INSTALL_PREFIX in a corrupted state.
+  if (DEFINED CACHE{DEP_CMAKE_INSTALL_PREFIX} AND CMAKE_INSTALL_PREFIX STREQUAL DEP_CMAKE_INSTALL_PREFIX)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path." FORCE)
+    unset(DEP_CMAKE_INSTALL_PREFIX CACHE)
+  else()
+    # Otherwise, make a backup of the current CMAKE_INSTALL_PREFIX, before XACC's detection/installation process messes with it.
+    set(CMAKE_INSTALL_PREFIX_BACKUP ${CMAKE_INSTALL_PREFIX} CACHE PATH "Backup copy of install path (allows restoration after e.g. XACC overwrites CMAKE_INSTALL_PREFIX)." FORCE)
+  endif()
+endmacro()
+
+
+# Reset CMAKE_INSTALL_PREFIX to its value before the detection/installation of XACC fiddled with it.
+macro(reset_install_path)
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX_BACKUP} CACHE PATH "Install path." FORCE)
+endmacro()
+
 
 # Make a shared library that is able to function as a XACC plugin
 macro(add_xacc_plugin LIBRARY_NAME)
@@ -24,7 +46,11 @@ macro(add_xacc_plugin LIBRARY_NAME)
 
   # Process the path to the core library in the calling project
   if(NOT core_SOURCE_DIR)
-    set(core_SOURCE_DIR PROJECT_SOURCE_DIR)
+    if(NOT qbcore_DIR)
+      set(core_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+    else()
+      set(core_SOURCE_DIR ${qbcore_DIR})
+    endif()
   endif()
 
   # Use "_plugin_bundle" suffix for bundle symbolic name
