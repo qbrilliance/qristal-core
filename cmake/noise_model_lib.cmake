@@ -50,9 +50,3 @@ install(
   DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
   NAMESPACE ${NAMESPACE}::${PROJECT_NAME}::
 )
-
-# Install the headers
-install(
-  DIRECTORY include
-  DESTINATION ${CMAKE_INSTALL_PREFIX}
-)

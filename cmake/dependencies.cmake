@@ -36,8 +36,8 @@ if(pybind11_ADDED)
 endif()
 
 # Gtest
-set(googletest_VERSION "1.12.1")
-add_dependency(googletest ${googletest_VERSION}
+set(GTest_VERSION "1.12.1")
+add_dependency(googletest ${GTest_VERSION}
   GITHUB_REPOSITORY google/googletest
   FIND_PACKAGE_NAME GTest
   GIT_TAG release-1.12.1

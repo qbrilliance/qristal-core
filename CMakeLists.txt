@@ -64,6 +64,13 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 endif()
 
+# Ensure that all installed python modules are picked up by Python without needing to modify the PYTHONPATH env variable.
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} \
+                                                       -DXACC_ROOT=${XACC_ROOT} \
+                                                       -DPYTHON_PACKAGES_PATH=${PYTHON_PACKAGES_PATH} \
+                                                       -DPROJECT_NAME=${PROJECT_NAME} \
+                                                       -P${CMAKE_CURRENT_SOURCE_DIR}/cmake/py_packages_path.cmake)")
+
 # Install the xacc_utilities.cmake file and manifest.json template
 install(
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xacc_utilities.cmake

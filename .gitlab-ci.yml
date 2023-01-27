@@ -1,39 +1,99 @@
+variables:
+  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+
 stages:
   - build
   - test
+  - deploy
 
-before_script:
-  - echo $PWD
-  - ls -l
-  - whoami
+.install-core:
+  before_script:
+    - echo $PWD
+    - ls *
+    - whoami
+    - rm -rf ${QB_DIR}/core-local
+    - mv core_artefacts/build .
+    - cmake --install build
 
+ubuntu20-build-for-emulator:
+  stage: build
+  image: $CI_IMAGE
+  tags: 
+    - lambda
+  script:
+    - export QB_DIR=$PWD/..
+    - rm -rf ${QB_DIR}/core-local
+    # TODO: get a Docker container for Lambda that contains the missing dependencies, and turn INSTALL_MISSING off. 
+    - cmake -B build . 
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
+      -DSUPPORT_EMULATOR_BUILD_ONLY=ON
+      -DINSTALL_MISSING=ON
+    - cmake --build build -- -j`nproc`
+    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
+    - mkdir core_artefacts
+    # TODO the deps below can be removed when INSTALL_MISSING is turned off.
+    - mv build cmake include deps core_artefacts
+  artifacts:
+    when: always
+    paths: 
+      # These are all the things required to install the core for supporting the build of the emulator.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/libnoise.so*
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      # TODO these artefacts can be removed when INSTALL_MISSING is turned off.
+      - core_artefacts/deps
+      - core_artefacts/build/_deps
+      - core_artefacts/build/lib/libg*.a
+      
 ubuntu20-build:
   stage: build
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  image: $CI_IMAGE
   script:
-    - cmake -B build . -DTNQVM_DIR=${QB_DIR}/xacc-local
+    - rm -rf ${QB_DIR}/core-local
+    - cmake -B build . 
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
+      -DTNQVM_DIR=${QB_DIR}/xacc-local
     - cmake --build build -- -j`nproc`
+    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
+    - mkdir core_artefacts
+    - mv build cmake examples include src tests core_artefacts
   artifacts:
     when: always
     paths:
-      - build/CITests
-      - build/cmake_install.cmake
-      - build/coreDependencies.cmake
-      - build/qbcore-config.cmake
-      - build/qbcore-config-version.cmake
-      - build/core.cpython-38-x86_64-linux-gnu.so
-      - build/lib*
-      - build/plugins
-      - build/configured_example_files
-      - build/CMakeFiles/Export/
+      # These are all the things required to install the full core.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/CITests
+      - core_artefacts/build/lib*
+      - core_artefacts/build/core.cpython-38-x86_64-linux-gnu.so
+      - core_artefacts/build/plugins
+      - core_artefacts/build/configured_example_files
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      - core_artefacts/examples
+      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/tests/XaccInitialisedTests.cpp
 
 ubuntu20-cpp-tests:
   stage: test
   needs: ["ubuntu20-build"]
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  extends: .install-core
+  image: $CI_IMAGE
   script:
-    - cmake --install build
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
@@ -42,10 +102,11 @@ ubuntu20-cpp-tests:
 ubuntu20-py-tests:
   stage: test
   needs: ["ubuntu20-build"]
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  extends: .install-core
+  image: $CI_IMAGE
   script:
-    - cmake --install build
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
+    - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
@@ -54,13 +115,31 @@ ubuntu20-py-tests:
 ubuntu20-py-stack-tests:
   stage: test
   needs: ["ubuntu20-build"]
-  image: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  extends: .install-core
+  image: $CI_IMAGE
   script:
-    - cmake --install build
     - echo "# QB_QCSTACK_URL = $QB_QCSTACK_URL"
     - cd tests/qcstack && python3 -m pytest --junitxml="report-stack.xml"
+    - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
       junit: tests/qcstack/report-stack.xml
 
+trigger-decoder:
+  needs: ["ubuntu20-build"]
+  stage: deploy
+  trigger:
+    project: qbau/software-and-apps/decoder  
+    branch: main
+  variables:
+    UPSTREAM_REF: $CI_COMMIT_REF_NAME
+
+trigger-emulator:
+  needs: ["ubuntu20-build-for-emulator"]
+  stage: deploy
+  trigger:
+    project: qbau/software-and-apps/emulator
+    branch: main
+  variables:
+    UPSTREAM_REF: $CI_COMMIT_REF_NAME
