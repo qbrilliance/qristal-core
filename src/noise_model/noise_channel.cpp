@@ -57,8 +57,9 @@ namespace qb
             assert(pauli_str.size() == 2);
             const auto first_mat = pauli_op_map.find(pauli_str[0])->second;
             const auto second_mat = pauli_op_map.find(pauli_str[1])->second;
-            Eigen::MatrixXcd kron_mat = Eigen::kroneckerProduct(first_mat, second_mat);
-            kron_mat = coeff * kron_mat;
+//            Eigen::MatrixXcd kron_mat = Eigen::kroneckerProduct(first_mat, second_mat);
+//            kron_mat = coeff * kron_mat;
+            Eigen::MatrixXcd kron_mat = coeff * Eigen::kroneckerProduct(first_mat, second_mat);
             // std::cout << pauli_str << ":\n" << kron_mat << "\n";
             assert(kron_mat.rows() == 4);
             assert(kron_mat.cols() == 4);

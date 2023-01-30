@@ -7,14 +7,16 @@ find_package(CURL REQUIRED)
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
+set(XACC_TAG "da24f49e")
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
-  GIT_TAG da24f49e
+  GIT_TAG ${XACC_TAG}
   GIT_REPOSITORY https://github.com/eclipse/xacc
   OPTIONS
     "XACC_ENABLE_MPI @ENABLE_MPI@"
 )
+message(STATUS "XACC_ROOT dir: ${XACC_ROOT}")
 
 # Python 3 interpreter and libraries
 find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
@@ -83,17 +85,26 @@ else()
 endif()
 
 # Eigen
-add_dependency(Eigen3 3.3.7
-  GITLAB_REPOSITORY libeigen/eigen
-  GIT_TAG 3.3.7
-  DOWNLOAD_ONLY YES
-)
-if(Eigen3_ADDED)
-  add_library(Eigen INTERFACE IMPORTED)
-  target_include_directories(Eigen INTERFACE ${Eigen3_SOURCE_DIR})
-endif()
-if(TARGET Eigen)
-  add_library(Eigen3::Eigen ALIAS Eigen)
+# Check if XACC is installed and provides Eigen3. XACC_ROOT is the XACC install path,
+# which is always in place if XACC is added using add_poorly_behaved_dependency.
+set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen") 
+if (EXISTS ${XACC_EIGEN_PATH})
+  add_eigen_from_xacc()
+else()
+  #Eigen from system or CPM
+  message(STATUS "Eigen3 not found from XACC.")
+  add_dependency(Eigen3 3.3.7
+    GITLAB_REPOSITORY libeigen/eigen
+    GIT_TAG 3.3.7
+    DOWNLOAD_ONLY YES
+  )
+  if(Eigen3_ADDED)
+    add_library(Eigen INTERFACE IMPORTED)
+    target_include_directories(Eigen INTERFACE ${Eigen3_SOURCE_DIR})
+  endif()
+  if(TARGET Eigen)
+    add_library(Eigen3::Eigen ALIAS Eigen)
+  endif()
 endif()
 
 # args library

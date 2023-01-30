@@ -3,6 +3,14 @@
 # Make a single target for collecting all XACC plugins
 add_custom_target(xacc-plugins ALL)
 
+#Make targets that point to Eigen from within the installed version of XACC
+macro(add_eigen_from_xacc)
+  message(STATUS "Eigen3 from XACC found at ${XACC_EIGEN_PATH}.")
+  add_library(Eigen INTERFACE IMPORTED)
+  target_include_directories(Eigen INTERFACE ${XACC_EIGEN_PATH})
+  add_library(Eigen3::Eigen ALIAS Eigen)
+endmacro()
+
 # Cache the install path as an insurance against XACC messing with it.
 macro(cache_install_path)
   # Check if a previous installation was interrupted and left CMAKE_INSTALL_PREFIX in a corrupted state.

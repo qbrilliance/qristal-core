@@ -10,6 +10,7 @@ set(source_files
   src/optimization/qaoa/qaoa_base.cpp
   src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_validators.cpp
+  src/optimization/qml/qml.cpp
   # vqee is header only atm
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
@@ -38,6 +39,7 @@ set(headers
   include/qb/core/typedefs.hpp
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/optimization/qaoa/qaoa.hpp
+  include/qb/core/optimization/qml/qml.hpp
 )
 
 # Lightweight header-only interface target
@@ -108,6 +110,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       qb::core::noise
       xacc::xacc
       xacc::quantum_gate
+      xacc::pauli
       taywee::args
       nlohmann::json
     PRIVATE
@@ -154,9 +157,13 @@ file(APPEND ${deps_cmake_file} "\nif (NOT TARGET xacc-plugins)\
                                 \nendif()\
                                 \nset(XACC_DIR ${XACC_DIR})\
                                 \nset(nlohmann_json_DIR ${nlohmann_json_DIR})\
-                                \nset(Eigen3_DIR ${Eigen3_DIR})\
                                 \nset(args_DIR ${args_DIR})\
                                 \nset(pybind11_DIR ${pybind11_DIR})")
+if(EXISTS ${XACC_EIGEN_PATH})
+  file(APPEND ${deps_cmake_file} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)") 
+else()
+  file(APPEND ${deps_cmake_file} "\nset(Eigen3_DIR ${Eigen3_DIR})")
+endif()
 if(NOT "${GTest_DIR}" STREQUAL "GTest_DIR-NOTFOUND")
   file(APPEND ${deps_cmake_file} "\nset(GTest_DIR ${GTest_DIR})")
 endif()
@@ -164,13 +171,17 @@ file(APPEND ${deps_cmake_file} "\ncache_install_path()\
                                 \n  find_dependency(XACC)\
                                 \nreset_install_path()\
                                 \nfind_dependency(nlohmann_json ${nlohmann_json_VERSION})\
-                                \nfind_dependency(Eigen3 ${Eigen3_VERSION})\
                                 \nfind_dependency(args)\
                                 \nfind_dependency(pybind11 ${pybind11_VERSION})\
                                 \nfind_dependency(Python 3 COMPONENTS Interpreter Development)\
                                 \nif(NOT TARGET GTest::gtest)\
                                 \n  find_dependency(GTest ${GTest_VERSION})\
                                 \nendif()")
+if(EXISTS ${XACC_EIGEN_PATH})
+  file(APPEND ${deps_cmake_file} "\nadd_eigen_from_xacc()")
+else()
+  file(APPEND ${deps_cmake_file} "\nfind_dependency(Eigen3 ${Eigen3_VERSION})")
+endif()
 
 # Install the Dependencies.cmake file for the library
 install(

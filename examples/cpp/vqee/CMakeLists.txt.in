@@ -23,6 +23,5 @@ add_executable(vqee vqee_example.cpp)
 
 target_link_libraries(vqee
   PRIVATE
-    xacc::pauli
     qb::core
 )

@@ -23,6 +23,5 @@ add_executable(qaoa qaoa_example.cpp)
 
 target_link_libraries(qaoa
   PRIVATE
-    xacc::pauli
     qb::core
 )

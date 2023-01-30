@@ -23,6 +23,13 @@ The C++ example programs are _also_ built and properly linked automatically when
 ##  Notes on specific examples ##
 
 ### Python ###
+`qml/RDBMS_query_optimization.py`
+
+_qubits_: 4
+_variational_params_: 40
+_noise_: false  
+
+Example showing QML wrapped in pytorch for join order optimization.
 
 `demo1.py`
 
