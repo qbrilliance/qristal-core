@@ -94,7 +94,7 @@ add_custom_command(OUTPUT ${RTD_INDEX_FILE}
                   # This depends on the Python binding module (target name ${PROJECT_NAME})
                   # since we parse docstrings by dynamically loading the Python module.
                   # TODO: statically generates Python module documentation.
-                  DEPENDS ${PUBLIC_HEADERS} ${PROJECT_NAME} ${EXTRA_MARKDOWN_FILES} ${EXTRA_RST_FILES}
+                  DEPENDS ${PUBLIC_HEADERS} py${PROJECT_NAME} ${EXTRA_MARKDOWN_FILES} ${EXTRA_RST_FILES}
                   COMMAND ${SPHINX_BUILD_EXECUTABLE} -M html  ${SPHINX_OUTPUT_DIR} ${SPHINX_BUILD_DIR} ${SPHINX_BUILD_OPTIONS}
                   WORKING_DIRECTORY ${SPHINX_OUTPUT_DIR}
                   COMMENT "Generating docs")

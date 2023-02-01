@@ -764,8 +764,10 @@ PYBIND11_MODULE(core, m) {
             return openQASMSrc;
           },
           "Get the OpenQASM representation of the circuit.")
-      .def("append", &qb::CircuitBuilder::append,
-           "Append another quantum circuit to this circuit.")
+      .def("append",[&](qb::CircuitBuilder &this_, qb::CircuitBuilder other) {
+          this_.append(other);
+      }, py::arg("other"),
+           "Append the 'other' quantum circuit to this circuit.")
       // Temporary interface to execute the circuit.
       // TODO: using s `run` once the QE-382 is implemented
       .def(
@@ -794,7 +796,9 @@ PYBIND11_MODULE(core, m) {
               - **NUM_QUBITS** The number of qubits required for the circuit [int]
 
           )")
-      .def("h", &qb::CircuitBuilder::H, R"(
+      .def("h", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.H(idx);
+      }, py::arg("idx"), R"(
     Hadamard gate
   
    This method adds a Hadamard (H) gate to the circuit. 
@@ -804,7 +808,9 @@ PYBIND11_MODULE(core, m) {
    - **idx** the index of the qubit being acted on [int]
 
   )")
-        .def("x", &qb::CircuitBuilder::X, R"(
+        .def("x", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.X(idx);
+      }, py::arg("idx"), R"(
       Pauli-X gate
 
      This method adds a Pauli-X (X) gate to the circuit.
@@ -816,7 +822,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("y", &qb::CircuitBuilder::Y, R"(
+        .def("y", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.Y(idx);
+      }, py::arg("idx"), R"(
       Pauli-Y gate
 
      This method adds a Pauli-Y (Y) gate to the circuit.
@@ -826,7 +834,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("z", &qb::CircuitBuilder::Z, R"(
+        .def("z", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.Z(idx);
+      }, py::arg("idx"), R"(
       Pauli-Z gate
 
      This method adds a Pauli-Z (Z) gate to the circuit.
@@ -836,7 +846,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("t", &qb::CircuitBuilder::T, R"(
+        .def("t", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.T(idx);
+      }, py::arg("idx"), R"(
       T gate
 
      This method adds a T gate to the circuit.
@@ -846,7 +858,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("tdg", &qb::CircuitBuilder::Tdg, R"(
+        .def("tdg", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.Tdg(idx);
+      }, py::arg("idx"), R"(
       Tdg gate
 
      This method adds an inverse of the T gate (Tdg) to the circuit.
@@ -858,7 +872,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("s", &qb::CircuitBuilder::S, R"(
+        .def("s", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.S(idx);
+      }, py::arg("idx"), R"(
       S gate
 
      This method adds an S gate to the circuit.
@@ -870,7 +886,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("sdg", &qb::CircuitBuilder::Sdg, R"(
+        .def("sdg", [&](qb::CircuitBuilder &builder, int idx) {
+          builder.Sdg(idx);
+      }, py::arg("idx"), R"(
       Sdg gate
 
      This method adds an inverse of the S gate (Sdg) to the circuit.
@@ -880,7 +898,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit being acted on [int]
 
     )")
-        .def("rx", &qb::CircuitBuilder::RX, R"(
+        .def("rx", [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          builder.RX(idx, theta);
+      }, py::arg("idx"), py::arg("theta"), R"(
       RX gate
 
      This method adds an x-axis rotation (RX) gate to the circuit.
@@ -888,10 +908,12 @@ PYBIND11_MODULE(core, m) {
      Parameters:
 
      - **idx** the index of the qubit being acted on [int]
-     - **theta** the angle of rotation about the x-axis [float]
+     - **theta** the angle of rotation about the x-axis [double]
 
     )")
-        .def("ry", &qb::CircuitBuilder::RY, R"(
+        .def("ry", [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          builder.RY(idx, theta);
+      }, py::arg("idx"), py::arg("theta"), R"(
       RY gate
 
      This method adds a y-axis rotation (RY) gate to the circuit.
@@ -899,10 +921,12 @@ PYBIND11_MODULE(core, m) {
      Parameters:
 
      - **idx** the index of the qubit being acted on [int]
-     - **theta** the angle of rotation about the y-axis [float]
+     - **theta** the angle of rotation about the y-axis [double]
 
     )")
-        .def("rz", &qb::CircuitBuilder::RZ, R"(
+        .def("rz", [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          builder.RX(idx, theta);
+      }, py::arg("idx"), py::arg("theta"), R"(
       RZ gate
 
      This method adds a z-axis rotation (RZ) gate to the circuit.
@@ -910,10 +934,12 @@ PYBIND11_MODULE(core, m) {
      Parameters:
 
      - **idx** the index of the qubit being acted on [int]
-     - **theta** the angle of rotation about the z-axis [float]
+     - **theta** the angle of rotation about the z-axis [double]
 
     )")
-        .def("cnot", &qb::CircuitBuilder::CNOT, R"(
+        .def("cnot", [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+          builder.CNOT(ctrl_idx, target_idx);
+      }, py::arg("ctrl_idx"), py::arg("target_idx"), R"(
       CNOT gate
 
      This method adds a controlled-X (CNOT) gate to the circuit.
@@ -932,7 +958,7 @@ PYBIND11_MODULE(core, m) {
             [&](qb::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
                 int target_idx) {
               builder.MCX(py_array_to_std_vec(ctrl_inds), target_idx);
-            },
+            }, py::arg("ctrl_inds"), py::arg("target_idx"),
             R"(
       MCX gate
 
@@ -952,7 +978,7 @@ PYBIND11_MODULE(core, m) {
             [&](qb::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
                 int target_idx) {
               builder.MCX({ctrl_idx1, ctrl_idx2}, target_idx);
-            },
+            }, py::arg("ctrl_idx1"), py::arg("ctrl_idx2"), py::arg("target_idx"),
             R"(
       Toffoli gate
 
@@ -968,7 +994,9 @@ PYBIND11_MODULE(core, m) {
      - **target_idx** the index of the target qubit [int]
 
     )")
-        .def("swap", &qb::CircuitBuilder::SWAP, R"(
+        .def("swap", [&](qb::CircuitBuilder &builder, int q1, int q2) {
+            builder.SWAP(q1, q2);
+        }, py::arg("q1"), py::arg("q2"), R"(
       SWAP gate
 
      This method adds a SWAP gate to the circuit. The SWAP gate is used to swap the quantum state of two qubits.
@@ -979,7 +1007,9 @@ PYBIND11_MODULE(core, m) {
      - **q2** the index of the second qubit [int]
 
     )")
-        .def("cphase", &qb::CircuitBuilder::CPhase,
+        .def("cphase", [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx, double theta) {
+            builder.CPhase(ctrl_idx, target_idx, theta);
+        }, py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("theta"),
              R"(
       CPhase gate
 
@@ -992,10 +1022,12 @@ PYBIND11_MODULE(core, m) {
 
      - **ctrl_idx** the index of the control qubit [int]
      - **target_idx** the index of the target qubit [int]
-     - **theta** the value of the phase [float]
+     - **theta** the value of the phase [double]
 
     )")
-        .def("cz", &qb::CircuitBuilder::CZ, R"(
+        .def("cz", [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+            builder.CZ(ctrl_idx, target_idx);
+        }, py::arg("ctrl_idx"), py::arg("target_idx"), R"(
       CZ gate
 
      This method adds a controlled-Z (CZ) gate to the circuit.
@@ -1009,7 +1041,9 @@ PYBIND11_MODULE(core, m) {
      - **target_idx** the index of the target qubit [int]
 
     )")
-        .def("ch", &qb::CircuitBuilder::CH, R"(
+        .def("ch", [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+            builder.CH(ctrl_idx, target_idx);
+        }, py::arg("ctrl_idx"), py::arg("target_idx"), R"(
       CH gate
 
      This method adds a controlled-H (CH) gate to the circuit.
@@ -1021,7 +1055,9 @@ PYBIND11_MODULE(core, m) {
      - **target_idx** the index of the target qubit [int]
 
     )")
-        .def("u1", &qb::CircuitBuilder::U1, R"(
+        .def("u1", [&](qb::CircuitBuilder &builder, int idx, double theta) {
+            builder.U1(idx, theta);
+        }, py::arg("idx"), py::arg("theta"), R"(
       U1 gate
 
      This method adds a phase (U1) gate to the circuit.
@@ -1029,10 +1065,12 @@ PYBIND11_MODULE(core, m) {
      Parameters:
 
      - **idx** the index of the qubit being acted on [int]
-     - **theta** the value of the phase [float]
+     - **theta** the value of the phase [double]
 
     )")
-        .def("u3", &qb::CircuitBuilder::U3, R"(
+        .def("u3", [&](qb::CircuitBuilder &builder, int idx, double theta, double phi, double lambda) {
+            builder.U3(idx, theta, phi, lambda);
+        }, py::arg("idx"), py::arg("theta"), py::arg("phi"), py::arg("lambda"), R"(
       U3 gate
 
      This method adds an arbitrary single qubit gate (U3) to the circuit.
@@ -1040,12 +1078,14 @@ PYBIND11_MODULE(core, m) {
      Parameters:
 
      - **idx** the index of the qubit being acted on [int]
-     - **theta** [float]
-     - **phi** [float]
-     - **lambda** [float]
+     - **theta** [double]
+     - **phi** [double]
+     - **lambda** [double]
 
     )")
-        .def("measure", &qb::CircuitBuilder::Measure, R"(
+        .def("measure", [&](qb::CircuitBuilder &builder, int idx) {
+            builder.Measure(idx);
+        }, py::arg("idx"), R"(
       Measurement
 
      This method is used to indicate a qubit in the circuit should be
@@ -1056,7 +1096,9 @@ PYBIND11_MODULE(core, m) {
      - **idx** the index of the qubit to be measured [int]
 
     )")
-        .def("measure_all", &qb::CircuitBuilder::MeasureAll,
+        .def("measure_all", [&](qb::CircuitBuilder &builder, int NUM_QUBITS) {
+            builder.MeasureAll(NUM_QUBITS);
+        },
               py::arg("NUM_QUBITS") = -1,
              R"(
       Measure all qubits
@@ -1065,7 +1107,7 @@ PYBIND11_MODULE(core, m) {
 
      Parameters:
 
-     - **NUM_QUBITS** the number of qubits in the circuit [int] [optional]
+     - **NUM_QUBITS** the number of qubits in the circuit [int] [optional, the default value of -1 becomes the output of the XACC nPhysicalBits method.]
 
     )")
         .def(
