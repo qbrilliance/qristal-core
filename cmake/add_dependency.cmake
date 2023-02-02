@@ -71,6 +71,13 @@ macro(add_dependency NAME VERSION)
 
     if(INSTALL_MISSING)
 
+      set(OPTION_LIST CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_Fortran_COMPILER CMAKE_BUILD_TYPE)
+      foreach(option ${OPTION_LIST})
+        if(${option})
+          list(APPEND arg_OPTIONS "${option}=${${option}}")
+        endif()
+      endforeach()
+
       CPMAddPackage(
         NAME ${NAME}
         VERSION ${VERSION}
@@ -88,7 +95,7 @@ macro(add_dependency NAME VERSION)
         GIT_SHALLOW ${arg_GIT_SHALLOW}
         EXCLUDE_FROM_ALL ${arg_EXCLUDE_FROM_ALL}
         SOURCE_SUBDIR ${arg_SOURCE_SUBDIR}
-        OPTIONS "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}" ${arg_OPTIONS}
+        OPTIONS ${arg_OPTIONS}
         URL ${arg_URL}
       )
 

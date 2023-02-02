@@ -15,8 +15,8 @@ add_poorly_behaved_dependency(xacc 1.0.0
   GIT_REPOSITORY https://github.com/eclipse/xacc
   OPTIONS
     "XACC_ENABLE_MPI @ENABLE_MPI@"
+    "CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}"
 )
-message(STATUS "XACC_ROOT dir: ${XACC_ROOT}")
 
 # Python 3 interpreter and libraries
 find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)

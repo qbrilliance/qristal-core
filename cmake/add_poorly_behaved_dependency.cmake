@@ -121,11 +121,18 @@ macro(add_poorly_behaved_dependency NAME VERSION)
 
         # Parse any options given into the actual invocation of cmake.
         set(cmake_invocation ${CMAKE_COMMAND})
-        list(APPEND cmake_invocation "-B_deps/${NAME}/build" "_deps/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}" "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+        list(APPEND cmake_invocation "-B_deps/${NAME}/build" "_deps/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}")
         foreach(option ${arg_OPTIONS})
           string(REGEX REPLACE " " "=" option "${option}")
           string(CONFIGURE ${option} option)
           list(APPEND cmake_invocation "-D${option}")
+        endforeach()
+        # Add options that are always passed if they are non-empty
+        set(OPTION_LIST CMAKE_BUILD_TYPE)
+        foreach(option ${OPTION_LIST})
+          if(${option})
+            list(APPEND cmake_invocation "-D${option}=${${option}}")
+          endif()
         endforeach()
 
         # Checkout, cmake, build and install the pacakge.

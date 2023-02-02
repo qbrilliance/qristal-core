@@ -12,9 +12,9 @@ At a minimum, the following packages are required:
 
 - Python3.8+
 
-- gcc, g++, and gfortran  (version 7+)
+- gcc, g++, and gfortran (version 7+).  Usage of clang is supported, but gcc/g++ is still required for building exatn and tnqvm.
 
-- cmake
+- cmake (version 3.20+)
 
 - Eigen 3.4+
 

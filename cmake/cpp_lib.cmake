@@ -7,6 +7,7 @@ set(source_files
   #src/qbTketNoiseAwarePlacement.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
   src/thread_pool.cpp
+  src/optimization/qaoa/Autodiff.cpp
   src/optimization/qaoa/qaoa_base.cpp
   src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_validators.cpp
