@@ -1,5 +1,6 @@
 variables:
   CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/emulator
 
 stages:
   - build
@@ -17,22 +18,21 @@ stages:
 
 ubuntu20-build-for-emulator:
   stage: build
-  image: $CI_IMAGE
+  image: $EMULATOR_CI_IMAGE
   tags: 
-    - lambda
+    - cutensornet2.0
   script:
-    - export QB_DIR=$PWD/..
     - rm -rf ${QB_DIR}/core-local
-    # TODO: get a Docker container for Lambda that contains the missing dependencies, and turn INSTALL_MISSING off. 
+    # Build core with SUPPORT_EMULATOR_BUILD_ONLY=ON
     - cmake -B build . 
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
       -DSUPPORT_EMULATOR_BUILD_ONLY=ON
-      -DINSTALL_MISSING=ON
+      -DXACC_DIR=${QB_DIR}/xacc-local
+      -DTNQVM_DIR=${QB_DIR}/xacc-local
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
-    # TODO the deps below can be removed when INSTALL_MISSING is turned off.
-    - mv build cmake include deps core_artefacts
+    - mv build cmake include core_artefacts
   artifacts:
     when: always
     paths: 
@@ -47,10 +47,6 @@ ubuntu20-build-for-emulator:
       - core_artefacts/cmake/xacc_utilities.cmake
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
-      # TODO these artefacts can be removed when INSTALL_MISSING is turned off.
-      - core_artefacts/deps
-      - core_artefacts/build/_deps
-      - core_artefacts/build/lib/libg*.a
       
 ubuntu20-build:
   stage: build
