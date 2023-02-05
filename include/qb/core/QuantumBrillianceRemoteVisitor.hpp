@@ -1,6 +1,6 @@
-/***
- *** Copyright (c) 2021 Quantum Brilliance Pty Ltd
- ***/
+/**
+ * Copyright Quantum Brilliance
+ */
 #ifndef QUANTUM_GATE_ACCELERATORS_QUANTUMBRILLIANCEREMOTEVISITOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_QUANTUMBRILLIANCEREMOTEVISITOR_HPP_
 
@@ -35,10 +35,13 @@ protected:
   json sequence_;
 
   public:
-    QuantumBrillianceRemoteVisitor(const int nQubits, const double rtol = 0.01) : _nQubits(nQubits), qb_rtol_(rtol) {}
-    QuantumBrillianceRemoteVisitor() : QuantumBrillianceRemoteVisitor(4) {}
-  virtual ~QuantumBrillianceRemoteVisitor() {}
-    virtual const std::string name() const { return "quantumbrilliance-remote-visitor"; }
+
+   QuantumBrillianceRemoteVisitor(const int nQubits, const double rtol = 0.01)
+       :  _nQubits(nQubits), qb_rtol_(rtol) {}
+   QuantumBrillianceRemoteVisitor() : QuantumBrillianceRemoteVisitor(4) {}
+   virtual ~QuantumBrillianceRemoteVisitor() {}
+   virtual const std::string name() const {
+     return "quantumbrilliance-remote-visitor"; }
   virtual const std::string description() const {
     return "Maps XACC IR to QB XASM, output in JSON format";
   }
@@ -113,61 +116,13 @@ protected:
         //
         void visit(Rx &rx) override {
           std::stringstream ss;
-          double w_upperbound = 1 + qb_rtol_;
-          double w_lowerbound = 1 - qb_rtol_;
           double angleStr = mpark::get<double>(rx.getParameter(0));
-
-          // pi
-          double w_1 = std::abs(angleStr / pi) / (1.0);
-
-          // pi/2
-          double w_2 = std::abs(angleStr / pi) / (0.5);
-
-          // pi/4
-          double w_4 = std::abs(angleStr / pi) / (0.25);
-
-          // pi/8
-          double w_8 = std::abs(angleStr / pi) / (0.125);
-
-          if ((w_lowerbound < w_1) && (w_1 < w_upperbound)) {
-            ss << "Rx"
-               << "(" // Rx in XASM format
+          ss << "Rx"
+               << "("  // Rx in XASM format
                << "q"
-               << "[" << rx.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 1.0 * pi : -1.0 * pi)
-               << ")"; // theta=pi
-            sequence_.push_back(ss.str());
-          } else if ((w_lowerbound < w_2) && (w_2 < w_upperbound)) {
-            ss << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rx.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.5 * pi : -0.5 * pi)
-               << ")"; // theta=pi/2
-            sequence_.push_back(ss.str());
-          } else if ((w_lowerbound < w_4) && (w_4 < w_upperbound)) {
-            ss << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rx.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.25 * pi : -0.25 * pi)
-               << ")"; // theta=pi/4
-            sequence_.push_back(ss.str());
-          } else if ((w_lowerbound < w_8) && (w_8 < w_upperbound)) {
-            ss << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rx.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.125 * pi : -0.125 * pi)
-               << ")"; // theta=pi/8
-            sequence_.push_back(ss.str());
-          } else {
-            std::stringstream sser;
-            sser << "ControlOS Rx only supports +/- pi, +/- pi/2, +/- "
-                 << "pi/4, +/- pi/8"
-                 << " (requested angle, in radians: " << angleStr << ")";
-            xacc::error(sser.str());
-          }
+               << "[" << rx.bits()[0] << "]"  // target qubit
+               << "," << angleStr << ")";
+          sequence_.push_back(ss.str());
         }
 
         /**
@@ -184,58 +139,13 @@ protected:
         //
         void visit(Ry &ry) override {
           std::stringstream ss;
-          double w_upperbound = 1 + qb_rtol_;
-          double w_lowerbound = 1 - qb_rtol_;
           double angleStr = mpark::get<double>(ry.getParameter(0));
-
-          // pi
-          double w_1 = std::abs(angleStr / pi) / (1.0);
-          // pi/2
-          double w_2 = std::abs(angleStr / pi) / (0.5);
-          // pi/4
-          double w_4 = std::abs(angleStr / pi) / (0.25);
-          // pi/8
-          double w_8 = std::abs(angleStr / pi) / (0.125);
-
-          if ((w_lowerbound < w_1) && (w_1 < w_upperbound)) {
             ss << "Ry"
-               << "(" // Ry in XASM format
+               << "("  // Ry in XASM format
                << "q"
-               << "[" << ry.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 1.0 * pi : -1.0 * pi)
-               << ")"; // theta=pi
+               << "[" << ry.bits()[0] << "]"  // target qubit
+               << "," << angleStr << ")";
             sequence_.push_back(ss.str());
-          } else if ((w_lowerbound < w_2) && (w_2 < w_upperbound)) {
-            ss << "Ry"
-               << "(" // Ry in XASM format
-               << "q"
-               << "[" << ry.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.5 * pi : -0.5 * pi)
-               << ")"; // theta=pi/2
-            sequence_.push_back(ss.str());
-          } else if ((w_lowerbound < w_4) && (w_4 < w_upperbound)) {
-            ss << "Ry"
-               << "(" // Ry in XASM format
-               << "q"
-               << "[" << ry.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.25 * pi : -0.25 * pi)
-               << ")"; // theta=pi/4
-            sequence_.push_back(ss.str());
-          } else if ((w_lowerbound < w_8) && (w_8 < w_upperbound)) {
-            ss << "Ry"
-               << "(" // Ry in XASM format
-               << "q"
-               << "[" << ry.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.125 * pi : -0.125 * pi)
-               << ")"; // theta=pi/8
-            sequence_.push_back(ss.str());
-          } else {
-            std::stringstream sser;
-            sser << "ControlOS Ry only supports +/- pi, +/- pi/2, +/- "
-                 << "pi/4, +/- pi/8"
-                 << " (requested angle, in radians: " << angleStr << ")";
-            xacc::error(sser.str());
-          }
         }
 
         /**
@@ -284,18 +194,7 @@ protected:
         //
         void visit(Rz &rz) override {
           std::stringstream s1, s2, s3;
-
-          double w_upperbound = 1 + qb_rtol_;
-          double w_lowerbound = 1 - qb_rtol_;
           double angleStr = mpark::get<double>(rz.getParameter(0));
-          // pi
-          double w_1 = std::abs(angleStr / pi) / (1.0);
-          // pi/2
-          double w_2 = std::abs(angleStr / pi) / (0.5);
-          // pi/4
-          double w_4 = std::abs(angleStr / pi) / (0.25);
-          // pi/8
-          double w_8 = std::abs(angleStr / pi) / (0.125);
 
           s2 << "Ry"
              << "(" // Ry in XASM format
@@ -311,45 +210,13 @@ protected:
              << "," << (pi) << ")";        // theta=pi
           sequence_.push_back(s1.str());
 
-          if ((w_lowerbound < w_1) && (w_1 < w_upperbound)) {
-            s3 << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rz.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 1.0 * pi : -1.0 * pi)
-               << ")"; // theta=pi
-            sequence_.push_back(s3.str());
-          } else if ((w_lowerbound < w_2) && (w_2 < w_upperbound)) {
-            s3 << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rz.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.5 * pi : -0.5 * pi)
-               << ")"; // theta=pi/2
-            sequence_.push_back(s3.str());
-          } else if ((w_lowerbound < w_4) && (w_4 < w_upperbound)) {
-            s3 << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rz.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.25 * pi : -0.25 * pi)
-               << ")"; // theta=pi/4
-            sequence_.push_back(s3.str());
-          } else if ((w_lowerbound < w_8) && (w_8 < w_upperbound)) {
-            s3 << "Rx"
-               << "(" // Rx in XASM format
-               << "q"
-               << "[" << rz.bits()[0] << "]" // target qubit
-               << "," << ((angleStr >= 0.0) ? 0.125 * pi : -0.125 * pi)
-               << ")"; // theta=pi/8
-            sequence_.push_back(s3.str());
-          } else {
-            std::stringstream sser;
-            sser << "ControlOS Rz only supports +/- pi, +/- pi/2, +/- "
-                 << "pi/4, +/- pi/8"
-                 << " (requested angle, in radians: " << angleStr << ")";
-            xacc::error(sser.str());
-          }
+          s3 << "Rx"
+             << "("  // Rx in XASM format
+             << "q"
+             << "[" << rz.bits()[0] << "]"  // target qubit
+             << "," << angleStr << ")";
+          sequence_.push_back(s3.str());
+
           sequence_.push_back(s2.str()); // Ry(0.5*pi)
           sequence_.push_back(s1.str()); // Rx(pi)
         }

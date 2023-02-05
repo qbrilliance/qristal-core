@@ -86,7 +86,7 @@ xacc::QCStackClient::get(const std::string &remoteUrl, const std::string &path,
     if (std::find(VALID_HTTP_RETURN_CODES_.begin(), VALID_HTTP_RETURN_CODES_.end(), r.status_code) != VALID_HTTP_RETURN_CODES_.end()) {
         json gr;
         gr["status_code"] = r.status_code;
-	std::cout << "* [Debug]: r.status_code: " << r.status_code << "\n";
+        std::cout << "* [Debug]: r.status_code: " << r.status_code << "\n";
         return gr.dump();
     } else {
       throw std::runtime_error("HTTP GET Error - status code " +
@@ -173,6 +173,37 @@ const std::string QuantumBrillianceRemoteAccelerator::processInput(
   jsel["measure"] = measjs;
   return jsel.dump();
 }
+
+/* 
+ * Validate the capabilities of the QB hardware against what the session requires
+ */
+int QuantumBrillianceRemoteAccelerator::validate_capability() {  
+  int retval = QRISTAL_QB_NATIVE_GATES_SUCCESS;
+  std::string native_gates_endpoint = get_native_gates_endpoint();
+  if (debug_qb_hw_) {
+    std::cout << "* Query for native gates supported at path: " << remoteUrl << native_gates_endpoint
+              << std::endl;
+  }
+  json fromqdk;
+  if (remoteUrl.back() == '/') {
+    fromqdk = json::parse(
+      QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
+      remoteUrl, native_gates_endpoint, headers));
+  } else {
+    fromqdk = json::parse(
+      QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
+      remoteUrl, "/" + native_gates_endpoint, headers));
+  }
+  if (debug_qb_hw_) {
+    std::cout << "* Native gates query returned: " << fromqdk.dump() << "\n";
+  }
+
+  /// Validation for session configuration against hardware capabilities
+
+  /// Add more validations as required below this line:
+  return retval;
+};
+
 
 std::string QuantumBrillianceRemoteAccelerator::getNativeCode(std::shared_ptr<CompositeInstruction> program,
                             const HeterogeneousMap &config) {
@@ -298,9 +329,11 @@ void QuantumBrillianceRemoteAccelerator::processResponse(
   }
   json respost = json::parse(response);
   auto idstr = respost["id"].get<int>();
-  postPath = std::to_string(idstr);
+  previous_post_path_ = postPath;
+  postPath.append(std::to_string(idstr));
+
   if (debug_qb_hw_)
-    std::cout << "* POST done - poll for results at path: " << remoteUrl << "/"
+    std::cout << "* POST done - poll for results at path: " << remoteUrl 
               << postPath << std::endl;
   return;
 }
@@ -312,7 +345,7 @@ int QuantumBrillianceRemoteAccelerator::pollForResults(
     int polling_attempts) {
   int retval = POLLING_NOT_READY;
   if (debug_qb_hw_) {
-    std::cout << "* Poll for results at path: " << remoteUrl << "/" << postPath
+    std::cout << "* Poll for results at path: " << remoteUrl << postPath
               << std::endl;
   }
   json fromqdk;
@@ -402,14 +435,19 @@ int QuantumBrillianceRemoteAccelerator::pollForResults(
                 std::cout << "# Recursive request: forced resampling procedure at " << (100*acc_valid/requested_shots) <<" % valid" << std::endl;
             }
             next_properties.insert("resample", true);
+            // Increase the over_request factor for the final request to minimise the 
+            // chance of an empty reply from the QDK
+            next_properties.insert("over_request", m.get<int>("over_request")*8);
         }
 
-        next_properties.insert("post_path", "");
+        next_properties.insert("post_path", previous_post_path_);
         if (debug_qb_hw_) {
           std::cout << "# Recursive request: remote URL is "
                     << next_properties.get<std::string>("remote_url")
                     << std::endl;
-
+          std::cout << "# Recursive request: post path is "
+                    << next_properties.get<std::string>("post_path")
+                    << std::endl;
           std::cout << "# Recursive request: shots is "
                     << next_properties.get<int>("shots") << std::endl;
         }

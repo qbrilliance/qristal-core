@@ -164,7 +164,7 @@ This section is a quick reference on quantum gates expressed in these formats:
 - CZ - controlled-Z
     - Unitary Description and Decomposition Rules
         
-        For a given control qubit $q_0$ and target qubit $q_1$ this operator performs a Z operation on the $q_1$ if $q_0$ equals one, but leaves $q_1$ unchanged, *i.e.* the identity operation, if $q_0$equals zero. It is given by the matrix
+        For a given control qubit $q_0$ and target qubit $q_1$ this operator performs a Z operation on the $q_1$ if $q_0$ equals one, but leaves $q_1$ unchanged, *i.e.* the identity operation, if $q_0$ equals zero. It is given by the matrix
         
         $CZ_{2q_0 + q_1 + 1,2q_0 + q_1 + 1} = \text{diag}(I,Z) = \left(\begin{array}{cccc}1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & -1\end{array} \right)$
         
@@ -409,29 +409,13 @@ This section is a quick reference on quantum gates expressed in these formats:
         
     - QB Native Transpilation
         
-        We use these decompositions:
+        We use the decomposition:
         
         $U(\theta, \phi, \lambda) := R_z(\phi)*R_x(-0.5\pi)*R_z(\theta)*R_x(0.5\pi)*R_z(\lambda)$
         
-        where:
-        
-        $R_x(0.5\pi)$ is a native instruction for QB hardware: `Rx(q[target],1.5708)`
-        
-        $R_x(-0.5\pi)$ is a native instruction for QB hardware: `Rx(q[target],-1.5708)`
-        
-        $R_z(\theta)$ is decomposed into:
+        with:
         
         $R_z(\theta) := R_x(\pi)*R_y(0.5\pi)*R_x(\theta)*R_x(\pi)*R_y(0.5\pi)$
-        
-        where
-        
-        $R_x(\pi)$ is a native instruction for QB hardware: `Rx(q[target],3.14159)`
-        
-        $R_y(0.5\pi)$ is a native instruction for QB hardware: `Ry(q[target],1.5708)`
-        
-        $R_x(\theta)$ is a native instruction for QB hardware and is one of:
-        
-         {`Rx(q[target],3.14159)`, `Rx(q[target],0.5*3.14159)`, `Rx(q[target],0.25*3.14159)`, `Rx(q[target],0.125*3.14159)`}
         
 - Measurement
     - Description

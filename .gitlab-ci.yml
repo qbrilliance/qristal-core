@@ -114,7 +114,7 @@ ubuntu20-py-stack-tests:
   extends: .install-core
   image: $CI_IMAGE
   script:
-    - echo "# QB_QCSTACK_URL = $QB_QCSTACK_URL"
+    - echo "# QB_QCSTACK_2023_2_1_URL = $QB_QCSTACK_2023_2_1_URL"
     - cd tests/qcstack && python3 -m pytest --junitxml="report-stack.xml"
     - rm -rf ${QB_DIR}/core-local
   artifacts:

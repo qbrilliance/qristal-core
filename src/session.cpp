@@ -2075,11 +2075,18 @@ namespace qb
               tqdk->getNativeCode(citargets.at(0), mqbacc);
 
           try {
+            tqdk->validate_capability();
+          } catch (...) {
+            throw std::runtime_error("Please recheck your hardware settings");
+          }
+
+          try {
             tqdk->execute(buffer_b, citargets);
           } catch (...) {
             throw std::invalid_argument(
                 "The execution on hardware of your input circuit failed");
           }
+
           // Set up polling
           std::string exhwacc = run_config.acc_name;
           int polling_interval = 1;

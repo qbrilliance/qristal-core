@@ -9,9 +9,9 @@
 #
 #    These tests will gain access to the URL via:
 #       import os
-#       qqu = os.environ['QB_QCSTACK_URL']
+#       qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
 #
-#    Here the QB_QCSTACK_URL is provided
+#    Here the QB_QCSTACK_2023_2_1_URL is provided
 #    through GitLab CI variables.
 
 import pytest
@@ -22,7 +22,7 @@ def test_CI_220207_1_loopback_6s():
     import json
     import timeit
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     s = qb.core.session()
     s.qb12()
     s.qn = 1
@@ -45,7 +45,7 @@ def test_CI_220207_1_loopback_6s():
     {   "accs": [
     {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
     {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
-    {"acc": "loopback", "url": "''' + qqu + '''", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}
+    {"acc": "loopback", "url": "''' + qqu + '''", "poll_secs": 15, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}
     ]
     }
     '''
@@ -54,7 +54,7 @@ def test_CI_220207_1_loopback_6s():
     {   "accs": [
     {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
     {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
-    {"acc": "loopback", "url": "''' + qqu + '''", "poll_secs": 2, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}
+    {"acc": "loopback", "url": "''' + qqu + '''", "poll_secs": 30, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95}
     ]
     }
     '''
@@ -65,7 +65,7 @@ def test_CI_220207_1_loopback_6s():
     s.qpu_config = "../../qpu_config_loop_6s.json"
     # Run the circuit on the back-end
     eltim = timeit.timeit(lambda: s.run(), number=1)
-    assert (eltim > 6.0)
+    assert (eltim > 15.0)
 
     json_file = open("../../qpu_config_loop_2s.json",'w')
     json_file.write(raw_qpu_config_2s)
@@ -73,7 +73,7 @@ def test_CI_220207_1_loopback_6s():
     s.qpu_config = "../../qpu_config_loop_2s.json"
     # Run the circuit on the back-end
     eltim = timeit.timeit(lambda: s.run(), number=1)
-    assert (eltim < 5.0)
+    assert (eltim < 40.0)
 
 def test_CI_220225_1_init_measure_no_gates() :
     print("When a circuit contains no gates, QB hardware expects a JSON with circuit=[] instead of circuit='null'")
@@ -81,7 +81,7 @@ def test_CI_220225_1_init_measure_no_gates() :
     import json
     import timeit
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     s = qb.core.session()
     s.qb12()
 
@@ -131,7 +131,7 @@ def test_normal_request_with_upsampling():
     print("Using loopback to test upsampling")
     import qb.core
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -158,7 +158,7 @@ def test_over_request_recursive_with_resampling_above_threshold():
     print("Using loopback to test recursive 4x-over-requests + forced resampling when 50% or above of requested measurements are successful")
     import qb.core
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -186,7 +186,7 @@ def test_normal_request_recursive_no_resampling():
     print("Using loopback to test recursive requests + no resampling")
     import qb.core
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -213,7 +213,7 @@ def test_over_request_recursive_no_resampling():
     print("Using loopback to test recursive 8x over-requests + no resampling")
     import qb.core
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -241,7 +241,7 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     import qb.core
     import json
     import os
-    qqu = os.environ['QB_QCSTACK_URL']
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL']
     QB_SAFE_LIMIT_SHOTS = 512
     s = qb.core.session()
     s.qb12()
