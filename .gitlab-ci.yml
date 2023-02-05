@@ -7,6 +7,14 @@ stages:
   - test
   - deploy
 
+# Switch between merge request and branch pipelines.
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
 .install-core:
   before_script:
     - echo $PWD
@@ -122,18 +130,24 @@ ubuntu20-py-stack-tests:
     reports:
       junit: tests/qcstack/report-stack.xml
 
+# If this branch is part of a merge request, trigger downstream decoder build and test.
 trigger-decoder:
   needs: ["ubuntu20-build"]
   stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/decoder  
     branch: main
   variables:
     UPSTREAM_REF: $CI_COMMIT_REF_NAME
 
+# If this branch is part of a merge request, trigger downstream emulator build and test.
 trigger-emulator:
   needs: ["ubuntu20-build-for-emulator"]
   stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/emulator
     branch: main
