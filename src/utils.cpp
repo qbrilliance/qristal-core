@@ -308,7 +308,21 @@ template <>
 template <>
 bool ValidatorTwoDim<VectorMapND, ND>::is_lt_eq_upperbound<ND>(
     const ND &subj, const std::string &in_desc) {
-  return true;
+  bool returnval = true;
+  for (auto &el_subj : subj) {
+    // Assume the map upperbound_ contains a single element only (at key 0)
+    // This can be generalised in future
+    if (el_subj.second > upperbound_.at(0)) {
+      returnval = false;
+      std::stringstream errmsg;
+      errmsg << "Bounds for " << in_desc << ": lt_eq exceeded "
+             << "at key: " << el_subj.first
+             << " [Value: " << el_subj.second
+             << " Limit: " << upperbound_.at(0) << "]" << std::endl;
+      throw std::range_error(errmsg.str());
+    }
+  }
+  return returnval;
 }
 
 template <>
@@ -364,6 +378,20 @@ template <>
 template <>
 bool ValidatorTwoDim<VectorMapND, ND>::is_gt_eq_lowerbound<ND>(
     const ND &subj, const std::string &in_desc) {
-  return true;
+  bool returnval = true;
+  for (auto &el_subj : subj) {
+    // Assume the map lowerbound_ contains a single element only (at key 0)
+    // This can be generalised in future
+    if (el_subj.second < lowerbound_.at(0)) {
+      returnval = false;
+      std::stringstream errmsg;
+      errmsg << "Bounds for " << in_desc << ": gt_eq exceeded "
+             << "at key: " << el_subj.first
+             << " [Value: " << el_subj.second
+             << " Limit: " << lowerbound_.at(0) << "]" << std::endl;
+      throw std::range_error(errmsg.str());
+    }
+  }
+  return returnval;
 }
 } // namespace qb

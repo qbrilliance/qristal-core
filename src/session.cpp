@@ -1290,6 +1290,48 @@ namespace qb
       config.noise_model = noise_models_valid.get(ii, jj);
     }
 
+    /// QB hardware: prevent contrast thresholds from being sent by Qristal
+    {
+      ValidatorTwoDim<VectorBool, bool> use_default_contrast_settings_valid(use_default_contrast_settings_, false, true, " prevent contrast thresholds from being sent [use_default_contrast_setting] ");
+      if (use_default_contrast_settings_valid.is_data_empty())
+      {
+        throw std::range_error("Indicator to prevent sending contrast thresholds [use_default_contrast_setting] cannot be empty");
+      }
+      config.use_default_contrast_setting = use_default_contrast_settings_valid.get(ii, jj);
+    }
+
+    /// QB hardware: contrast threshold during init
+    {
+      ND init_contrast_threshold_lowerbound{{0, CONTRAST_LOWERBOUND}};
+      ND init_contrast_threshold_upperbound{{0, CONTRAST_UPPERBOUND}}; 
+      ValidatorTwoDim<VectorMapND, ND> init_contrast_thresholds_valid(init_contrast_thresholds_,
+                                                                      init_contrast_threshold_lowerbound,
+                                                                      init_contrast_threshold_upperbound,
+                                                                      " init contrast threshold [init_contrast_threshold] ");
+
+      if (init_contrast_thresholds_valid.is_data_empty())
+      {
+        throw std::range_error("Contrast threshold for init [init_contrast_threshold] cannot be empty");
+      }
+      config.init_contrast_thresholds = init_contrast_thresholds_valid.get(ii, jj);
+    }
+
+    /// QB hardware: contrast threshold for each qubit during final readout 
+    {
+      ND qubit_contrast_threshold_lowerbound{{0, CONTRAST_LOWERBOUND}};
+      ND qubit_contrast_threshold_upperbound{{0, CONTRAST_UPPERBOUND}}; 
+      ValidatorTwoDim<VectorMapND, ND> qubit_contrast_thresholds_valid(qubit_contrast_thresholds_,
+                                                                      qubit_contrast_threshold_lowerbound,
+                                                                      qubit_contrast_threshold_upperbound,
+                                                                      " qubit final readout contrast threshold [qubit_contrast_threshold] ");
+
+      if (qubit_contrast_thresholds_valid.is_data_empty())
+      {
+        throw std::range_error("Contrast threshold for qubit final readout [qubit_contrast_threshold] cannot be empty");
+      }
+      config.qubit_contrast_thresholds = qubit_contrast_thresholds_valid.get(ii, jj);
+    }
+
     return config;
   }
 
@@ -1926,11 +1968,15 @@ namespace qb
         mqbacc.insert("request_id", VALID_QB_HARDWARE_REQUEST_ID);
         mqbacc.insert("poll_id", VALID_QB_HARDWARE_POLL_ID);
         mqbacc.insert("cycles", VALID_QB_HARDWARE_CYCLES);
-
+        mqbacc.insert("use_default_contrast_settings", run_config.use_default_contrast_setting);
+        mqbacc.insert("init_contrast_thresholds", run_config.init_contrast_thresholds);
+        mqbacc.insert("qubit_contrast_thresholds", run_config.qubit_contrast_thresholds);
         if (hwacc.compare("qdk_gen1") == 0) {
           // QDK specific fields
+          
         } else if (hwacc.compare("dqc_gen1") == 0) {
           // DQC specific fields
+        
         }
       }
       qpu->updateConfiguration(mqbacc);
@@ -2423,6 +2469,29 @@ namespace qb
     }
     async_workers << "{\"acc\": \"aws_acc\"}]}";
     set_parallel_run_config(async_workers.str());
+  }
+
+  /// Setter for QB hardware contrast thresholds globally in a Qristal session
+  void session::set_contrasts(const double &init_ct, const double &q0_ct, const double &q1_ct) {
+    if (debug_) {
+      std::cout
+          << "Setting QB hardware init contrast threshold: " << init_ct << "\n"
+          << "Setting QB hardware qubit[0] final readout contrast threshold: " << q0_ct << "\n"
+          << "Setting QB hardware qubit[1] final readout contrast threshold: " << q1_ct << "\n"
+          << std::endl;
+    }
+    bool use_default_ct = false;
+    ND qubit_ct_nd{{0, q0_ct}, {1, q1_ct}};
+    set_init_contrast_threshold(init_ct);
+    set_qubit_contrast_threshold(qubit_ct_nd);
+    use_default_contrast_settings_ = {{use_default_ct}};
+  }
+
+  /// Setter that clears all contrast thresholds
+  void session::reset_contrasts() {
+    use_default_contrast_settings_ = {{true}};
+    ((init_contrast_thresholds_.at(0)).at(0)).clear();
+    ((qubit_contrast_thresholds_.at(0)).at(0)).clear();
   }
 
   /// Util method to compile input source string into IR

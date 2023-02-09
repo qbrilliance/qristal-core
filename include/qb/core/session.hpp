@@ -65,6 +65,15 @@ namespace qb
       VectorMapND betas_;
       VectorMapND thetas_;
 
+      /// QB hardware configuration: contrast thresholds (non-negative real number)
+      /// The balanced SSR contrast below which a shot will be ignored.  
+      /// init_contrast_thresholds_ applies during initialisation.
+      /// qubit_contrast_thresholds_ applies on a per-qubit basis during final readout
+      /// use_default_contrast_settings_ excludes all contrast threshold settings from being sent to the QB hardware
+      VectorBool use_default_contrast_settings_;
+      VectorMapND init_contrast_thresholds_;
+      VectorMapND qubit_contrast_thresholds_;
+
       // ExaTN-MPS settings
       VectorN max_bond_dimensions_;
       VectorMapND svd_cutoffs_;
@@ -130,6 +139,7 @@ namespace qb
       const size_t RNS_UPPERBOUND = 1000000;
       const size_t MAX_BOND_DIMENSION_LOWERBOUND = 1;
       const size_t MAX_BOND_DIMENSION_UPPERBOUND = 50000;
+
 
       // Valid strings
       std::unordered_set<std::string> VALID_ACCS = {
@@ -246,7 +256,8 @@ namespace qb
       };
 
       // More QB hardware options (similar to the above) go here
-
+      const double CONTRAST_UPPERBOUND = 1.0;
+      const double CONTRAST_LOWERBOUND = 0.0;
 
       const int VALID_QB_HARDWARE_INIT = 0;
       const int VALID_QB_HARDWARE_REQUEST_ID = 0;
@@ -269,7 +280,7 @@ namespace qb
             // FIXME some tests will probably fail if the SDK_SOURCE_DIR path to qblib.inc and qpu_config.json is not also added.
             include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
             qpu_configs_{{SDK_DIR "/include/qb/core/qpu_config.json"}},
-            instrings_{{}}, irtarget_ms_{{{}}},
+            instrings_{{}}, irtarget_ms_{{}},
             accs_{{"qpp"}},
             aws_device_names_{{"DM1"}}, aws_formats_{{"openqasm3"}}, aws_verbatims_{{{false}}},
             aws_s3s_{{"amazon-braket-QBSDK"}}, aws_s3_paths_{{"output"}},
@@ -279,7 +290,13 @@ namespace qb
             nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
             output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
             notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-            thetas_{{}}, max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{"default"}},
+            thetas_{{}},
+            use_default_contrast_settings_{{{true}}},
+            init_contrast_thresholds_{{{}}},
+            // init_contrast_thresholds_{{{std::pair<int,double>(0,0.1)}}},
+            qubit_contrast_thresholds_{{{}}},
+            // qubit_contrast_thresholds_{{{std::pair<int,double>(0,0.1),std::pair<int,double>(1,0.1)}}},
+            max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{"default"}},
             acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}},
             output_amplitudes_{{}}, out_raws_{{{}}}, out_counts_{{{}}},
             out_divergences_{{{}}}, out_transpiled_circuits_{{{}}},
@@ -902,6 +919,57 @@ namespace qb
       static const char *help_thetas_;
       //
       /**
+       * @brief Get the use_default_contrast_setting configuration flags
+       * 
+       * @return Config. values
+       */
+      const VectorBool &get_use_default_contrast_settings() const;
+      /// @private
+      static const char *help_use_default_contrast_settings_;
+      //
+      /**
+       * @brief Set QB hardware contrast threshold above which initialisation is deemed successful
+       *
+       * @param in_init_contrast_threshold Non-negative threshold value
+       */
+       void set_init_contrast_threshold(const double &in_init_contrast_threshold);
+      /**
+       * @brief Set QB hardware contrast threshold above which initialisation is deemed successful
+       *
+       * @param in_init_contrast_thresholds Non-negative threshold values
+       */
+       void set_init_contrast_thresholds(const VectorMapND &in_init_contrast_thresholds);
+      /**
+      * @brief Get the contrast threshold for initialisation
+      *
+      * @return Initialisation contrast thresholds
+      */
+      const VectorMapND &get_init_contrast_thresholds() const;
+      /// @private
+      static const char *help_init_contrast_thresholds_;
+      //
+      /**
+      * @brief Set QB hardware contrast thresholds during final readout on a per-qubit basis
+      *
+      * @param in_qubit_contrast_threshold Non-negative qubit readout threshold
+      */
+      void set_qubit_contrast_threshold(const ND &in_qubit_contrast_threshold);
+      /**
+      * @brief Set QB hardware contrast thresholds during final readout on a per-qubit basis
+      *
+      * @param in_qubit_contrast_thresholds Non-negative qubit readout threshold
+      */
+      void set_qubit_contrast_thresholds(const VectorMapND &in_qubit_contrast_thresholds);
+      /**
+      * @brief Get the qubit contrast thresholds for final readout
+      *
+      * @return Contrast thresholds used for final readout 
+      */
+      const VectorMapND &get_qubit_contrast_thresholds() const;
+      /// @private
+      static const char *help_qubit_contrast_thresholds_;
+      //
+      /**
        * @brief Set the maximum bond dimension (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
        * 
@@ -1213,6 +1281,22 @@ namespace qb
       /// AWS Braket TN1, 8 async workers, 49 qubits, 256 shots, noiseless
       void aws8tn1();
 
+      /// For QB hardware: contrast threshold helper methods
+      
+      /**
+       * @brief Contrast thresholds for QB hardware.  Applies globally throughout a Qristal session.
+       * 
+       * @param init_ct Input contrast threshold used for initialisation
+       * @param q0_ct Input contrast threshold used for final readout of qubit[0]
+       * @param q1_ct Input contrast threshold used for final readout of qubit[1]
+       */
+      void set_contrasts(const double &init_ct, const double &q0_ct, const double &q1_ct);
+
+      /**
+      * @brief Removes all contrast thresholds stored in a Qristal session
+      */
+      void reset_contrasts();
+
       /// Supported types of the input source string
       enum class source_string_type
       {
@@ -1239,6 +1323,12 @@ namespace qb
         std::string openqasm_qb_include_filepath;
         /// Full path to the QPU configuration JSON file
         std::string qpu_config_json_filepath;
+        /// QB hardware: prevent contrast thresholds from being sent from Qristal
+        bool use_default_contrast_setting;
+        /// QB hardware: init contrast thresholds
+        ND init_contrast_thresholds;
+        /// QB hardware: qubit contrast thresholds
+        ND qubit_contrast_thresholds;
         /// Type (assembly dialect) of the input source string
         source_string_type source_type;
         /// Disable placement if true

@@ -363,6 +363,44 @@ const char* session::help_thetas_ = R"(
         A 1d-array (list) version of theta.
 )";
 
+const char* session::help_use_default_contrast_settings_ = R"(
+        use_default_contrast_setting:
+
+        Valid settings: True | False
+
+        Setting this to True prevents any contrast threshold settings from being sent to QB hardware.
+
+        use_default_contrast_settings:
+
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of use_default_contrast_setting.
+)";
+
+const char* session::help_init_contrast_thresholds_ = R"(
+        init_contrast_threshold:
+        
+        [Applies to QB hardware] The balanced SSR contrast threshold during init.  All shots with init contrast below this threshold will be dropped.
+        0.6 is the usable upper bound.  Default: 0.1.
+
+        init_contrast_thresholds:
+
+        A 1d-array (list) version of init_contrast_threshold.
+)";
+
+
+const char* session::help_qubit_contrast_thresholds_ = R"(
+        qubit_contrast_threshold:
+        
+        [Applies to QB hardware] Contrast threshold on per-qubit basis for final readout.
+        Best case is ~0.3, unusable when <0.05.  Indexing of this list matches to the index of qubits.
+        Defaults: qubit 0 = 0.1, qubit 1 = 0.1
+
+        qubit_contrast_thresholds:
+
+        A 1d-array (list) version of qubit_contrast_threshold.
+)";
+
 const char* session::help_max_bond_dimensions_ = R"(
         max_bond_dimension:
 

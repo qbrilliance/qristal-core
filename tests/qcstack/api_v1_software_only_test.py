@@ -18,6 +18,60 @@
 #    through GitLab CI variables.
 
 import pytest
+def test_CI_230208_simple_setters_for_contrast_thresholds():
+    print("This test checks set_contrasts() and reset_contrasts()")
+    import qb.core
+    import json
+    import os
+    qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
+    s = qb.core.session()
+    s.qb12()
+    s.qn = 2
+    s.sn = 32
+    s.xasm = True
+
+    # targetCircuit: contains the quantum circuit that will be processed/executed
+    targetCircuit = '''
+    __qpu__ void QBCIRCUIT(qbit q) {
+        CZ(q[0], q[1]);
+        Ry(q[1], -1.8*pi);
+        Measure(q[1]);
+        Measure(q[0]);
+    }
+    '''
+    s.instring = targetCircuit
+    s.acc = "loopback"
+
+    raw_qpu_config = '''
+    {   "accs": [
+    {"acc": "dqc_gen1", "url": "https://10.10.10.120:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
+    {"acc": "qdk_gen1", "url": "https://10.10.10.121:8443", "poll_secs": 6, "poll_retrys": 100, "over_request": 1, "recursive_request": false, "resample": false, "resample_above_percentage": 95},
+    {"acc": "loopback", "url": "''' + qqu + '''", "poll_secs": 1, "poll_retrys": 100, "over_request": 8, "recursive_request": false, "resample": false, "resample_above_percentage": 100}
+    ]
+    }
+    '''
+
+    json_file = open("../../qpu_config_230208_1.json",'w')
+    json_file.write(raw_qpu_config)
+    json_file.close()
+    s.qpu_config = "../../qpu_config_230208_1.json"
+
+    # Run the circuit on the back-end
+    t_init_thresh = 0.01
+    t_qubit_0_thresh = 0.03
+    t_qubit_1_thresh = 0.05
+    s.set_contrasts(t_init_thresh, t_qubit_0_thresh, t_qubit_1_thresh)
+    s.run()
+    res = json.loads(s.out_qbjson[0][0])
+    assert(res['settings'].keys().__contains__('readout_contrast_threshold') == True)
+    assert(res['settings']['readout_contrast_threshold']['init'] == t_init_thresh)
+    assert(res['settings']['readout_contrast_threshold']['qubits'][0] == t_qubit_0_thresh)
+    assert(res['settings']['readout_contrast_threshold']['qubits'][1] == t_qubit_1_thresh)
+
+    s.reset_contrasts()
+    s.run()
+    res = json.loads(s.out_qbjson[0][0])
+    assert(res['settings'].keys().__contains__('readout_contrast_threshold') == False)
 
 def test_CI_230131_cz_arbitrary_rotation():
     print("Checks CZ and Ry at arbitrary rotation angle.  Verifies that the requested number of shots is actually performed via recursive requests")
@@ -29,6 +83,7 @@ def test_CI_230131_cz_arbitrary_rotation():
     s.qb12()
     s.qn = 2
     s.sn = 128
+
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -71,6 +126,7 @@ def test_CI_230131_arbitrary_rotation():
     s.qb12()
     s.qn = 2
     s.sn = 64
+
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -115,6 +171,7 @@ def test_CI_230106_1_loopback_6s():
     s.qb12()
     s.qn = 1
     s.sn = 2
+
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -176,6 +233,7 @@ def test_CI_220225_1_init_measure_no_gates() :
 
     s.qn = 1
     s.sn = 1
+
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -307,6 +365,7 @@ def test_over_request_recursive_no_resampling():
     s.qb12()
     s.qn=2
     s.acc='loopback'
+
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16

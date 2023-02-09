@@ -137,6 +137,14 @@ const std::string QuantumBrillianceRemoteAccelerator::processInput(
 
   jsel["settings"]["cycles"] = cycles_;   // default: 1
   jsel["settings"]["results"] = results_; // default: "normal"
+  if (!use_default_contrast_settings_) {
+    jsel["settings"]["readout_contrast_threshold"]["init"] = init_contrast_thresholds_.at(0);  // assume this is a scalar (not a list) for now
+    json qctjs;
+    for (auto &qel : qubit_contrast_thresholds_) {
+      qctjs.push_back(qel.second);
+    }
+    jsel["settings"]["readout_contrast_threshold"]["qubits"] = qctjs;
+  }
   jsel["hwbackend"] = hwbackend_;         // default: "gen1_canberra"
   jsel["init"] = init_;
 

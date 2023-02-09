@@ -142,6 +142,9 @@ public:
     m.insert("shots", shots_);
     m.insert("request_id", request_id_);
     m.insert("poll_id", poll_id_);
+    m.insert("use_default_contrast_settings", use_default_contrast_settings_);
+    m.insert("init_contrast_thresholds", init_contrast_thresholds_);
+    m.insert("qubit_contrast_thresholds", qubit_contrast_thresholds_);
     m.insert("cycles", cycles_);
     m.insert("results", results_);
     m.insert("hwbackend", hwbackend_);
@@ -159,7 +162,9 @@ public:
   /// Get the available configuration settings
   const std::vector<std::string> configurationKeys() override {
     return {"command",           "init",       "n_qubits",    "shots",
-            "request_id",        "poll_id",    "cycles",      "results",
+            "request_id",        "poll_id",    "use_default_contrast_settings", "init_contrast_thresholds",
+            "qubit_contrast_thresholds",
+            "cycles",      "results",
             "hwbackend",         "remote_url", "post_path",   "over_request",
             "recursive_request", "resample",   "retries_get", "retries_post",
             "resample_above_percentage"};
@@ -200,6 +205,15 @@ public:
     }
     if (config.keyExists<int>("poll_id")) {
       poll_id_ = config.get<int>("poll_id");
+    }
+    if (config.keyExists<bool>("use_default_contrast_settings")) {
+      use_default_contrast_settings_ = config.get<bool>("use_default_contrast_settings");
+    }
+    if (config.keyExists<std::map<int,double>>("init_contrast_thresholds")) {
+      init_contrast_thresholds_ = config.get<std::map<int,double>>("init_contrast_thresholds");
+    }
+    if (config.keyExists<std::map<int,double>>("qubit_contrast_thresholds")) {
+      qubit_contrast_thresholds_ = config.get<std::map<int,double>>("qubit_contrast_thresholds");
     }
     if (config.keyExists<int>("cycles")) {
       cycles_ = config.get<int>("cycles");
@@ -345,6 +359,11 @@ protected:
 
   /// Init (vector of qubits, value is the initial state)
   std::vector<int> init_ = {0, 0};
+
+  /// Contrast thresholds
+  bool use_default_contrast_settings_ = true;
+  std::map<int,double> init_contrast_thresholds_ = {}; 
+  std::map<int,double> qubit_contrast_thresholds_ = {}; 
 
   /// Number of cycles
   int cycles_ = 1;

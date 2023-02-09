@@ -348,6 +348,31 @@ void session::set_theta(const ND &in_theta) {
 void session::set_thetas(const VectorMapND &in_theta) { session::thetas_ = in_theta; }
 const VectorMapND & session::get_thetas() const { return session::thetas_; }
 //
+
+void session::set_init_contrast_threshold(const double &in_init_contrast_threshold) { 
+  session::init_contrast_thresholds_.clear();
+  ND scalar_init;
+  scalar_init[0] = in_init_contrast_threshold;
+  session::init_contrast_thresholds_.push_back({scalar_init});
+  session::use_default_contrast_settings_ = {{false}};
+}
+void session::set_init_contrast_thresholds(const VectorMapND &in_init_contrast_thresholds) {
+  session::init_contrast_thresholds_ = in_init_contrast_thresholds;
+  session::use_default_contrast_settings_ = {{false}};
+}
+const VectorMapND & session::get_init_contrast_thresholds() const { return session::init_contrast_thresholds_; }
+//
+void session::set_qubit_contrast_threshold(const ND &in_qubit_contrast_threshold) {
+  session::qubit_contrast_thresholds_.clear();
+  session::qubit_contrast_thresholds_.push_back({in_qubit_contrast_threshold});
+  session::use_default_contrast_settings_ = {{false}};
+}
+void session::set_qubit_contrast_thresholds(const VectorMapND &in_qubit_contrast_thresholds) {
+  session::qubit_contrast_thresholds_ = in_qubit_contrast_thresholds;
+  session::use_default_contrast_settings_ = {{false}};
+}
+const VectorMapND & session::get_qubit_contrast_thresholds() const { return session::qubit_contrast_thresholds_; }
+//
 void session::set_max_bond_dimension(const size_t &in_max_bond_dimension) {
   session::max_bond_dimensions_.clear();
   session::max_bond_dimensions_.push_back({in_max_bond_dimension});
@@ -797,6 +822,44 @@ out << "* verbatim:" << std::endl <<
   "    Hyperparameters for algorithms" << std::endl <<
   "  = ";
   for (auto item : get_thetas()) {
+      out << std::endl << " ";
+      for (auto itel : item) {
+          for (auto it : itel) {
+              out << " | " << it.first << ": " << it.second;
+          }
+          if (itel.size() > 0) {
+              out << " | ";
+          } else {
+              out << " NA ";
+          }
+      }
+  }
+  out << std::endl << std::endl;
+  //
+
+  out << "* init_contrast_threshold:" << std::endl <<
+  "    For QB hardware: balanced SSR contrast threshold during init" << std::endl <<
+  "  = ";
+  for (auto item : get_init_contrast_thresholds()) {
+      out << std::endl << " ";
+      for (auto itel : item) {
+          for (auto it : itel) {
+              out << " | " << it.first << ": " << it.second;
+          }
+          if (itel.size() > 0) {
+              out << " | ";
+          } else {
+              out << " NA ";
+          }
+      }
+  }
+  out << std::endl << std::endl;
+  //
+
+  out << "* qubit_contrast_threshold:" << std::endl <<
+  "    For QB hardware: contrast threshold for each qubit during final readout" << std::endl <<
+  "  = ";
+  for (auto item : get_qubit_contrast_thresholds()) {
       out << std::endl << " ";
       for (auto itel : item) {
           for (auto it : itel) {

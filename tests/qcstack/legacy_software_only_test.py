@@ -27,6 +27,7 @@ def test_CI_220207_1_loopback_6s():
     s.qb12()
     s.qn = 1
     s.sn = 2
+
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -87,6 +88,7 @@ def test_CI_220225_1_init_measure_no_gates() :
 
     s.qn = 1
     s.sn = 1
+
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -136,6 +138,7 @@ def test_normal_request_with_upsampling():
     s.qb12()
     s.qn=2
     s.acc='loopback'
+
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=30
@@ -163,6 +166,7 @@ def test_over_request_recursive_with_resampling_above_threshold():
     s.qb12()
     s.qn=2
     s.acc='loopback'
+
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
@@ -191,6 +195,7 @@ def test_normal_request_recursive_no_resampling():
     s.qb12()
     s.qn=2
     s.acc='loopback'
+
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
@@ -218,6 +223,7 @@ def test_over_request_recursive_no_resampling():
     s.qb12()
     s.qn=2
     s.acc='loopback'
+
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
@@ -247,6 +253,7 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     s.qb12()
     s.qn=2
     s.acc='loopback'
+
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=1024

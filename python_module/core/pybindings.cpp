@@ -704,6 +704,10 @@ PYBIND11_MODULE(core, m) {
            "AWS Braket SV1, 32 async workers")
       .def("aws8tn1", py::overload_cast<>(&qb::session::aws8tn1),
            "AWS Braket TN1, 8 async workers")
+      .def("set_contrasts", py::overload_cast<const double &, const double &, const double &>(&qb::session::set_contrasts),
+           "QB hardware contrast thresholds: init, qubit[0] final readout, qubit[1] final readout")
+      .def("reset_contrasts", py::overload_cast<>(&qb::session::reset_contrasts),
+           "QB hardware contrast thresholds reset")
       .def("set_parallel_run_config", &qb::session::set_parallel_run_config,
            "Set the parallel execution configuration")
       .def(
