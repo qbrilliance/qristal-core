@@ -1,5 +1,6 @@
 include(add_dependency)
 include(add_poorly_behaved_dependency)
+include(add_python_module)
 
 # curl (needed by XACC and CPR)
 set(CURL_NO_CURL_CMAKE ON)
@@ -134,6 +135,32 @@ endif()
 # Add dependencies needed only for compiled libraries.
 if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
+  # Python modules.  Add to this alphabetically please!
+  add_python_module(ase
+                    ast
+                    boto3
+                    botocore
+                    braket
+                    conan
+                    flask
+                    json
+                    http
+                    numpy
+                    os
+                    pathlib
+                    pytest
+                    qiskit
+                    queue
+                    random
+                    re
+                    subprocess
+                    threading
+                    time
+                    timeit
+                    #torch
+                    uuid
+                   )
+
   # Boost headers
   find_package(Boost 1.71 REQUIRED)
 
@@ -216,6 +243,51 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     OPTIONS
       "cppitertools_INSTALL_CMAKE_DIR share"
   )
+
+  # QASM simulator.
+  if (false) # This needs to be re-enabled once the CI image has the qasm-simulator installed.
+
+    set(name "qasm_simulator")
+    set(repo "https://github.com/Qiskit/qiskit-aer.git")
+    set(tag "0.10.4")
+    list(APPEND PREHASH GIT_REPOSITORY ${repo})
+    list(APPEND PREHASH GIT_TAG ${tag})
+    list(SORT PREHASH)
+    string(SHA1 hash "${PREHASH}")
+    add_dependency(${name} ${tag}
+      GIT_REPOSITORY ${repo}
+      GIT_TAG ${tag}
+      OPTIONS
+        "CMAKE_MODULE_PATH ${CPM_SOURCE_CACHE}/${name}/${hash}/cmake"
+        "CMAKE_BUILD_TYPE Release"
+    )
+    if(qasm_simulator_ADDED)
+      set(QB_STANDALONE_AER_EXE ${CMAKE_INSTALL_PREFIX}/bin/qasm_simulator)
+    else()
+      find_program(QB_STANDALONE_AER_EXE qasm_simulator)
+      add_custom_target(qasm_simulator)
+    endif()
+
+  else()
+
+    find_program(QB_STANDALONE_AER_EXE qasm_simulator) 
+    if(${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")
+      include(ExternalProject)
+      ExternalProject_Add(qasm_simulator
+        GIT_REPOSITORY    https://github.com/Qiskit/qiskit-aer.git
+        GIT_TAG           0.10.4
+        SOURCE_DIR        "${CMAKE_BINARY_DIR}/qiskit-aer-src"
+        BINARY_DIR        "${CMAKE_BINARY_DIR}/qiskit-aer-build"
+        CMAKE_ARGS    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}
+      )
+      set(QB_STANDALONE_AER_EXE ${CMAKE_CURRENT_BINARY_DIR}/bin/qasm_simulator)
+    else()
+      add_custom_target(qasm_simulator)
+    endif()
+
+  endif()
+
+
 
 endif()
 

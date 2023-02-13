@@ -13,9 +13,6 @@ macro(add_example NAME)
   add_executable(${NAME} ${arg_SOURCES})
   target_link_libraries(${NAME}
     PRIVATE
-      xacc::xacc
-      xacc::quantum_gate
-      xacc::pauli
       qb::core)
   set_target_properties(${NAME}
     PROPERTIES
