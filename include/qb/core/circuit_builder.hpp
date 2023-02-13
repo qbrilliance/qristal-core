@@ -128,10 +128,12 @@ static const char *help_execute_;
   * This method adds a Hadamard (H) gate to the circuit.
   *
   * The H gate is defined by its action on the basis states
+  * 
+  * \f[
+  * H\ket{0} \rightarrow \ket{+}
   *
-  * H|0> -> |+>
-  *
-  * H|1> -> |->
+  * H\ket{1} \rightarrow \ket{-}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -146,9 +148,11 @@ static const char *help_execute_;
   *
   * The X gate is defined by its action on the basis states
   *
-  * X|0> -> |1>
+  * \f[
+  * X\ket{0} \rightarrow \ket{1}
   *
-  * X|1> -> |0>
+  * X\ket{1} \rightarrow \ket{0}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -163,9 +167,11 @@ static const char *help_execute_;
   *
   * The Y gate is defined by its action on the basis states
   *
-  * Y|0> -> -i|1>
+  * \f[
+  * Y\ket{0} \rightarrow -i\ket{1}
   *
-  * Y|1> -> i |0>
+  * Y\ket{1} \rightarrow i\ket{0}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -180,9 +186,11 @@ static const char *help_execute_;
   *
   * The Z gate is defined by its action on the basis states
   *
-  * Z|0> -> |0>
+  * \f[
+  * Z\ket{0} \rightarrow \ket{0}
   *
-  * Z|1> -> -|1>
+  * Z\ket{1} \rightarrow -\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -197,9 +205,11 @@ static const char *help_execute_;
   *
   * The T gate is defined by its action on the basis states
   *
-  * T|0> -> |0>
+  * \f[
+  * T\ket{0} \rightarrow \ket{0}
   *
-  * T|1> -> e^{i\pi/4}|1>
+  * T\ket{1} \rightarrow e^{i\pi/4}\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -214,9 +224,11 @@ static const char *help_execute_;
   *
   * The S gate is defined by its action on the basis states
   *
-  * S|0> -> |0>
+  * \f[
+  * S\ket{0} \rightarrow \ket{0}
   *
-  * S|1> -> i|1>
+  * S\ket{1} \rightarrow i\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -231,9 +243,11 @@ static const char *help_execute_;
   *
   * The Tdg gate is defined by its action on the basis states
   *
-  * Tdg|0> -> |0>
+  * \f[
+  * Tdg\ket{0} \rightarrow \ket{0}
   *
-  * Tdg|1> -> e^{-i\pi/4}|1>
+  * Tdg\ket{1} \rightarrow e^{-i\pi/4}\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -248,9 +262,11 @@ static const char *help_execute_;
 
   * The Sdg gate is defined by its action on the basis states
   *
-  * Sdg|0> -> |0>
+  * \f[
+  * Sdg\ket{0} \rightarrow \ket{1}
   *
-  * Sdg|1> -> i|1>
+  * Sdg\ket{1} \rightarrow i\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   */
@@ -265,9 +281,11 @@ static const char *help_execute_;
   *
   * The RX gate is defined by its action on the basis states
   *
-  * RX(theta)|0> -> cos(theta/2)|0> - i*sin(theta/2)|1>
+  * \f[
+  * RX(\theta)\ket{0} \rightarrow \cos(\theta/2)\ket{0} - i\sin(\theta/2)\ket{1}
   *
-  * RX(theta)|1> -> -i*sin(theta/2)|0> + cos(theta/2)|1>
+  * RX(\theta)\ket{1} \rightarrow -i\sin(\theta/2)\ket{0} + \cos(\theta/2)\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   * @param theta the angle of rotation about the x-axis [double]
@@ -284,9 +302,11 @@ static const char *help_execute_;
   *
   * The RY gate is defined by its action on the basis states
   *
-  * RY(theta)|0> -> cos(theta/2)|0> + sin(theta/2)|1>
+  * \f[
+  * RY(\theta)\ket{0} \rightarrow \cos(\theta/2)\ket{0} + \sin(\theta/2)\ket{1}
   *
-  * RY(theta)|1> -> -sin(theta/2)|0> + cos(theta/2)|>
+  * RY(\theta)\ket{1} \rightarrow -\sin(\theta/2)\ket{0} + \cos(\theta/2)\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   * @param theta the angle of rotation about the y-axis [double]
@@ -303,9 +323,11 @@ static const char *help_execute_;
   *
   * The RZ gate is defined by its action on the basis states
   *
-  * RZ(theta)|0> -> e^{-itheta/2}|0>
+  * \f[
+  * RZ(\theta)\ket{0} \rightarrow e^{-i\theta/2}\ket{0}
   *
-  * RZ(theta)|1> -> e^{itheta/2}|1>
+  * RZ(\theta)\ket{1} \rightarrow e^{i\theta/2}\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   * @param theta the angle of rotation about the z-axis [double]
@@ -322,9 +344,11 @@ static const char *help_execute_;
   *
   * The U1 gate is defined by its action on the basis states
   *
-  * U1(theta)|0> -> |0>
+  * \f[
+  * U1(\theta)\ket{0} \rightarrow \ket{0}
   *
-  * U1(theta)|1> -> e^{itheta}|1>
+  * U1(\theta)\ket{1} \rightarrow e^{i\theta}\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   * @param theta the value of the phase [double]
@@ -341,9 +365,11 @@ static const char *help_execute_;
   *
   * The U3 gate is defined by its action on the basis states
   *
-  * U3(theta,phi,lambda)|0> -> cos(theta/2)|0> + e^{iphi}sin(theta/2)|1>
+  * \f[
+  * U3(\theta,\phi,\lambda)\ket{0} \rightarrow \cos(\theta/2)\ket{0} + e^{i\phi}\sin(\theta/2)\ket{1}
   *
-  * U3(theta,phi,lambda)|1> -> -e^{ilambda}sin(theta/2)|0> + e^{i(phi+lambda)}cos(theta/2)|1>
+  * U3(\theta,\phi,\lambda)\ket{1} \rightarrow -e^{i\lambda}\sin(\theta/2)\ket{0} + e^{i(\phi+\lambda)}\cos(\theta/2)\ket{1}
+  * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
   * @param theta the angle of rotation about the z-axis [double]
@@ -359,7 +385,13 @@ static const char *help_execute_;
   * This method adds a controlled-X (CNOT) gate to the circuit.
   *
   * The CNOT gate performs an X gate on the target qubit
-  * conditional on the control qubit being in the |1> state.
+  * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+  *
+  * \f[
+  * 
+  * CNOT\ket{ab} \rightarrow \ket{a}X^a \ket{b}
+  *
+  * \f]
   *
   * @param ctrl_idx the index of the control qubit [size_t]
   * @param target_idx the index of the target qubit [size_t]
@@ -375,7 +407,13 @@ static const char *help_execute_;
   * This method adds a multi-controlled X (MCX) gate to the circuit.
   *
   * The MCX gate performs an X gate on the target qubit
-  * conditional on all control qubits being in the |1> state.
+  * conditional on all control qubits being in the \f$\ket{1}\f$ state. That is:
+  *
+  * \f[
+  * 
+  * MCX\ket{c_1...c_Nt} \rightarrow \ket{c_1...c_N} X^{c_1...c_N} \ket{t}
+  *
+  * \f]
   *
   * @param ctrl_inds the indices of the control qubits [vector of int]
   * @param target_idx the index of the target qubit [size_t]
@@ -397,7 +435,13 @@ static const char *help_execute_;
   * This method adds a controlled version of an arbitrary unitary (CU) to the circuit.
   *
   * The CU gate implements the U gate on the target qubits
-  * conditional on all control qubits being in the |1> state.
+  * conditional on all control qubits being in the \f$\ket{1}\f$ state.
+  *
+  * \f[
+  * 
+  * CU\ket{c_1...c_Nt_1...t_M} \rightarrow \ket{c_1...c_N} U^{c_1...c_N} \ket{t_1...t_M}
+  *
+  * \f]
   *
   * @param circ the circuit for the unitary operation U [CircuitBuilder]
   * @param ctrl_inds the indices of the control qubits [vector of int]
@@ -415,7 +459,13 @@ static const char *help_execute_;
   * This method adds a controlled-Z (CZ) gate to the circuit.
   *
   * The CZ gate performs a Z gate on the target qubit
-  * conditional on the control qubit being in the |1> state.
+  * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is
+  *
+  * \f[
+  * 
+  * CZ\ket{ab} \rightarrow \ket{a}Z^a \ket{b}
+  *
+  * \f]
   *
   * @param ctrl_idx the index of the control qubit [size_t]
   * @param target_idx the index of the target qubit [size_t]
@@ -431,7 +481,13 @@ static const char *help_execute_;
   * This method adds a controlled-H (CH) gate to the circuit.
   *
   * The CH gate performs an H gate on the target qubit
-  * conditional on the control qubit being in the |1> state.
+  * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+  *
+  * \f[
+  * 
+  * CH\ket{ab} \rightarrow \ket{a}H^a \ket{b}
+  *
+  * \f]
   *
   * @param ctrl_idx the index of the control qubit [size_t]
   * @param target_idx the index of the target qubit [size_t]
@@ -447,8 +503,14 @@ static const char *help_execute_;
   *
   * This method adds a controlled-U1 (CPhase) gate to the circuit.
   *
-  * The CPHase gate performs a U1(theta) gate on the target qubit
-  * conditional on the control qubit being in the |1> state.
+  * The CPHase gate performs a U1 gate on the target qubit
+  * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+  *
+  * \f[
+  * 
+  * CPhase(\theta)\ket{ab} \rightarrow \ket{a}U1(\theta)^a \ket{b}
+  *
+  * \f]
   *
   * @param ctrl_idx the index of the control qubit [size_t]
   * @param target_idx the index of the target qubit [size_t]
@@ -467,7 +529,11 @@ static const char *help_execute_;
   * The SWAP gate is used to swap the quantum state of two qubits.
   * That is, it acts as:
   *
-  * SWAP|psi> |phi> -> |phi> |psi>
+  * \f[
+  *
+  * SWAP\ket{\psi}\ket{\phi} \rightarrow \ket{\phi}\ket{\psi}
+  *
+  * \f]
   *
   * @param q1 the index of the first qubit [size_t]
   * @param q2 the index of the second qubit [size_t]
@@ -519,7 +585,14 @@ static const char *help_execute_;
   * @brief Quantum Fourier Transform
   *
   * This method adds the Quantum Fourier Transform (QFT) to the circuit.
-  * This is a quantum analogue of the discrete Fourier Transform.
+  * This is a quantum analogue of the discrete Fourier Transform. 
+  * It can be described by its action on basis states:
+  *
+  * \f[
+  *
+  * QFT\ket{x} \rightarrow \frac{1}{\sqrt{N}} \sum_{k=0}^{N-1} \omega_N^{xk} \ket{k}
+  *
+  * \f]
   *
   * @param qubit_idxs the indices of the target qubits [vector of int]
   */
@@ -573,12 +646,16 @@ static const char *help_execute_;
   *
   * This method adds the Quantum Phase Estimation (QPE) sub-routine to the circuit.
   *
-  * Given some unitary operator $U$ and and eigenvector |psi> of U we can write
+  * Given some unitary operator U and and eigenvector \f$\ket{\psi}\f$ of U we can write
   *
-  * U|psi> = e^{2\pi i theta}|psi>
+  * \f[
   *
-  * for some value of theta. QPE is used to provide a k-bit approximation to theta
-  * storing the result in an evaluation register whilst leaving |psi> unchanged.
+  * U\ket{\psi} = e^{2\pi i \theta}\ket{\psi}
+  *
+  * \f]
+  *
+  * for some value of \f$ \theta \f$. QPE is used to provide a k-bit approximation to \f$ \theta \f$
+  * storing the result in an evaluation register whilst leaving \f$ \ket{\psi} \f$ unchanged.
   *
   * @param oracle The unitary operator U involved in the QPE routine [CircuitBuilder]
   * @param num_evaluation_qubits The number of bits k used to approximate the phase [int]
@@ -605,7 +682,11 @@ static const char *help_execute_;
   *
   * Given a quantum state split into a good subspace and a bad subspace
   *
-  * |psi> = a|good> + b|bad> = A|0>
+  * \f[
+  *
+  * \ket{\psi} = a\ket{good} + b\ket{bad} = A\ket{0}
+  *
+  * \f]
   *
   * the QAE sub-routine provides a k-bit approximation to the amplitude of the good subspace, a.
   *
@@ -706,15 +787,23 @@ static const char *help_execute_;
   * @brief Run Canonical Amplitude Estimation with Oracle
   *
   * This method sets up and executes an instance of the canonical amplitude estimation circuit,
-  * but instead of providing the grovers_op Q, we provide the oracle circuit $O$ which acts as
+  * but instead of providing the grovers_op Q, we provide the oracle circuit O which acts as
   *
-  * O(|psi>) = O(a|good> + b|bad>) = -a|good> + b|bad>
+  * \f[
+  *
+  * O\ket{\psi} = O(a\ket{good} + b\ket{bad}) = -a\ket{good} + b\ket{bad}
+  *
+  * \f]
   *
   * The Grovvers operator Q is then constructed within the method from O and the state_prep circuit A as
   *
-  * Q = Adg*S0*A*O
+  * \f[
   *
-  * where S0 is an easily implementable rotation about the all 0 state |00...0>.
+  * Q = A^\dagger S_0 A O
+  *
+  * \f]
+  *
+  * where \f$ S_0 \f$ is an easily implementable rotation about the all 0 state \f$ \ket{000....0} \f$.
   *
   * @param state_prep The circuit A used to prepare the input state [CircuitBuilder]
   * @param oracle The oracle circuit O that marks the good subspace [CircuitBuilder]
@@ -755,11 +844,15 @@ static const char *help_execute_;
   *
   * Given the state
   *
-  * |psi> = a|good> + b|bad>
+  * \f[
+  *
+  * \ket{\psi} = a\ket{good} + b\ket{bad}
+  *
+  * \f]
   *
   * MLQAE is an alternative to canonical QAE to find an estimate for the
   * amplitude of the good subspace, a. It works by performing several runs of amplitude
-  * amplification with various iterations and recording the number of |good>
+  * amplification with various iterations and recording the number of \f$ \ket{good} \f$
   * shots measured. Given this data, it finds the value of a that maximises the
   * likelihood function.
   *
@@ -802,17 +895,29 @@ static const char *help_execute_;
   * Grovers operators are used to amplify the amplitude of some desired
   * subspace of your quantum state. Given a state
   *
-  * |psi> = a|good> + b|bad> = A|0>
+  * \f[
+  *
+  * \ket{\psi} = a\ket{good} + b\ket{bad} = A\ket{0}
+  *
+  * \f]
   *
   * and an oracle unitary O that acts as
   *
-  * O|psi> = -a|good> + b|bad>
+  * \f[
+  *
+  * O\ket{\psi} = -a\ket{good} + b\ket{bad}
+  *
+  * \f]
   *
   * the Grovers operator that can be used to amplify the amplitude of the good state is
   *
-  * Q = Adg*S0*A*O
+  * \f[
   *
-  * where S0 is an easily implemented reflection about the all zero state.
+  * Q = A^\dagger S_0 A O
+  *
+  * \f]
+  *
+  * where \f$ S_0 \f$ is an easily implemented reflection about the all zero state.
   *
   * @param oracle The oracle circuit O that marks the good subspace [CircuitBuilder]
   * @param state_prep The circuit A used to prepare the input state [CircuitBuilder]
@@ -936,7 +1041,11 @@ static const char *help_execute_;
   * The ripple carry adder is an efficient in-line addition operation
   * with a carry-in bit:
   *
-  * RippleAdd|c_in>|a>|b> -> |a> |a+b+c_in>
+  * \f[
+  *
+  * RippleAdd\ket{c_{in}}\ket{a}\ket{b} \rightarrow \ket{a} \ket{a+b+c_in}
+  *
+  * \f]
   *
   * @param a The qubit indices of the first register in the addition [vector of int]
   * @param b The qubit indices of the second register in the addition [vector of int]
@@ -999,7 +1108,7 @@ static const char *help_execute_;
   * This method adds a quantum bit string comparator to the circuit.
   *
   * The quantum bit string comparator is used to compare the values of two bit string.
-  * If the trial score is greater than the best score, the flag qubit is flipped |0>->|1>
+  * If the trial score is greater than the best score, the flag qubit is flipped from 0 to 1.
   *
   * @param BestScore The score we are comparing strings to [int]
   * @param num_scoring_qubits The number of qubits used to encode the scores [int]
@@ -1040,9 +1149,13 @@ static const char *help_execute_;
   * Given a lookup function f that assigns a score to each binary string,
   * we encode the state
   *
-  * |psi> = |x> |f(x)> + |y> |f(y)> + ...
+  * \f[
   *
-  * where the superposition is over all possible bitstrings. Rather than encoding states in order |000>, |001>, |010>...etc. we cut down
+  * \ket{\psi} = \ket{x} \ket{f(x)} + \ket{y} \ket{f(y)} + ...
+  *
+  * \f]
+  *
+  * where the superposition is over all possible bitstrings. Rather than encoding states in order \f$ \ket{000}, \ket{001}, \ket{010} \f$...etc. we cut down
   * on the amount of X gates required by instead following the Gray code ordering of states.
   *
   * This module can optionally also flag strings of a certain value.
@@ -1083,8 +1196,8 @@ static const char *help_execute_;
   *
   * This method adds an equality checker to the circuit.
   *
-  * Given two input bitstrings |a> and |b> the equality checker is
-  * used to flip a flag qubit |0> \to |1> whenever a=b.
+  * Given two input bitstrings \f$ \ket{a} \f$ and \f$ \ket{b} \f$ the equality checker is
+  * used to flip a flag qubit \f$ \ket{0} \f$ \to \f$ \ket{1} \f$ whenever a=b.
   *
   * @param qubits_a the indices of the qubits encoding a [vector of int]
   * @param qubits_b the indices of the qubits encoding b [vector of int]
@@ -1117,12 +1230,12 @@ static const char *help_execute_;
   *
   * This method adds a controlled SWAP to the circuit.
   *
-  * Performs a SWAP operation on |a> and |b> if an only if the controls are satisfied.
+  * Performs a SWAP operation on \f$ \ket{a} \f$ and \f$ \ket{b} \f$ if an only if the controls are satisfied.
   *
   * @param qubits_a the indices of the qubits encoding a [vector of int]
   * @param qubits_b the indices of the qubits encoding b [vector of int]
-  * @param flags_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
-  * @param flags_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
+  * @param flags_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = \f$ \ket{1} \f$) [vector of int]
+  * @param flags_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = \f$ \ket{0} \f$) [vector of int]
   */
   void ControlledSwap(std::vector<int> qubits_a, std::vector<int> qubits_b,
                        std::vector<int> flags_on, std::vector<int> flags_off) {
@@ -1141,14 +1254,14 @@ static const char *help_execute_;
   *
   * This method adds a controlled ripple carry adder to the circuit.
   *
-  * Performs a RippleAdd operation on |adder_bits> and |sum_bits> if an only if the controls are satisfied.
+  * Performs a RippleAdd operation on adder_bits and sum_bits if an only if the controls are satisfied.
   *
   * @param qubits_adder the indices of the qubits encoding adder_bits [vector of int]
   * @param qubits_sum the indices of the qubits encoding sum_bits [vector of int]
   * @param c_in the index of the carry-in bit [int]
-  * @param flags_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
-  * @param flags_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
-  * @param no_overflow Indicates that the sum |adder+sum> can be encoded on the same number of qubits as |sum> without overflowing [bool]
+  * @param flags_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = \f$ \ket{1} \f$) [vector of int]
+  * @param flags_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = \f$ \ket{0} \f$) [vector of int]
+  * @param no_overflow Indicates that the sum adder_bits + sum_bits can be encoded on the same number of qubits as |sum> without overflowing [bool]
   */
   void ControlledAddition(std::vector<int> qubits_adder, std::vector<int> qubits_sum, int c_in,
                        std::vector<int> flags_on, std::vector<int> flags_off, bool no_overflow) {
@@ -1173,8 +1286,8 @@ static const char *help_execute_;
   * conditional on being off or conditional on being on.
   *
   * @param target The index of the target qubit [int]
-  * @param controls_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = |1>) [vector of int]
-  * @param controls_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = |0>) [vector of int]
+  * @param controls_on The indices of any qubits that should be "on" controls (i.e. circuit executed if qubit = \f$ \ket{1} \f$) [vector of int]
+  * @param controls_off The indices of any qubits that should be "off" controls (i.e. circuit executed if qubit = \f$ \ket{0} \f$) [vector of int]
   */
   void GeneralisedMCX(int target, std::vector<int> controls_on,
                        std::vector<int> controls_off) {
@@ -1215,8 +1328,21 @@ static const char *help_execute_;
    * 
    * This method adds a superposition adder to the current circuit.
    * 
-   * Given a superposition state $\psi = \sum a_1\ket{\phi_1} + a_2\ket{\phi_2} + ... + a_n\ket{\phi_n}$,
-   * this function finds the mean of the of the amplitudes, i.e. (|a_1|^2 + |a_2|^2 + |a_n|^2) / N.
+   * Given a superposition state 
+   *
+   * \f[
+   *
+   * \ket{\psi} = \sum a_1\ket{\phi_1} + a_2\ket{\phi_2} + ... + a_n\ket{\phi_n},
+   * 
+   * \f]
+   *
+   * this function finds the mean of the of the amplitudes, i.e. 
+   *
+   * \f[
+   *
+   * (|a_1|^2 + |a_2|^2 + |a_n|^2) / N.
+   *
+   * \f]
    * 
    * @param q0 the index of the single required ancilla [int]
    * @param q1 the index of the single required ancilla [int]
@@ -1255,11 +1381,19 @@ static const char *help_execute_;
   *
   * Given some collection of unitary operations,
   *
+  * \f[
+  *
   * U = U_N*U_{N-1}...U_2*U_1
+  *
+  * \f]
   *
   * this method appends the inverse to the circuit:
   *
-  * U^{-1} = U_1dg U_2dg...U_{N-1}dg U_Ndg
+  * \f[
+  *
+  * U^{-1} = U_1^\dagger U_2^\dagger...U_{N-1}^\dagger U_N^\dagger
+  *
+  * \f]
   *
   * This may be useful for un-computing ancilla or for constructing Grovers operators.
   *
@@ -1279,7 +1413,11 @@ static const char *help_execute_;
   *
   * Performs the mapping:
   *
-  * |a>|b> -> |a-b>|b>
+  * \f[
+  *
+  * \ket{a}\ket{b} \rightarrow \ket{a-b}\ket{b}
+  *
+  * \f]
   *
   * assuming a>b.
   *
@@ -1303,7 +1441,7 @@ static const char *help_execute_;
   *
   * This method adds a controlled subtraction to the circuit.
   *
-  * Performs a subtraction operation on |a> and |b> if an only if the controls are satisfied.
+  * Performs a subtraction operation on a and b if an only if the controls are satisfied.
   *
   * @param qubits_larger the indices of the qubits encoding the larger value [vector of int]
   * @param qubits_smaller the indices of the qubits encoding the smaller value [vector of int]
@@ -1334,7 +1472,11 @@ static const char *help_execute_;
   *
   * Performs the mapping:
   *
-  * |num>|denom>|0> -> |num>|denom>|num/denom>
+  * \f[
+  *
+  * \ket{num}\ket{denom}\ket{0} \rightarrow \ket{num}\ket{denom}\ket{num/denom}
+  *
+  * \f]
   *
   * assuming denom > num
   *
@@ -1364,7 +1506,7 @@ static const char *help_execute_;
   *
   * This method adds a controlled proper fraction division to the circuit.
   *
-  * Performs a PFD operation on |a> and |b> if an only if the controls are satisfied.
+  * Performs a PFD operation on a and b if an only if the controls are satisfied.
   *
   * @param qubits_numerator the indices of the qubits encoding the numerator [vector of int]
   * @param qubits_denominator the indices of the qubits encoding the denominator [vector of int]
@@ -1400,7 +1542,7 @@ static const char *help_execute_;
   *
   * This method adds a > comparator to the circuit.
   *
-  * Given two binary strings |a> and |b>, this comparator flips a flag qubit whenever a>b.
+  * Given two binary strings \f$ \ket{a} \f$ and \f$ \ket{b} \f$, this comparator flips a flag qubit whenever a>b.
   * This method uses far less ancilla than the more general comparator method provided.
   *
   * @param qubits_a The indices of the qubits encoding a [vector of int]
@@ -1431,7 +1573,11 @@ static const char *help_execute_;
   *
   * Performs the mapping:
   *
-  * |a>|b>|0> -> |a>|b>|ab>
+  * \f[
+  *
+  * \ket{a}\ket{b}\ket{0} \rightarrow \ket{a}\ket{b}\ket{ab}
+  *
+  * \f]
   *
   * @param qubits_a the indices of the qubits encoding a [vector of int]
   * @param qubits_b the indices of the qubits encoding b [vector of int]
@@ -1458,7 +1604,7 @@ static const char *help_execute_;
   *
   * This method adds a controlled Multiplication to the circuit.
   *
-  * Performs a Multiplication operation on |a> and |b> if an only if the controls are satisfied.
+  * Performs a Multiplication operation on a and b if an only if the controls are satisfied.
   *
   * @param qubits_a the indices of the qubits encoding a [vector of int]
   * @param qubits_b the indices of the qubits encoding b [vector of int]
