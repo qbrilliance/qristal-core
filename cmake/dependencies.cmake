@@ -140,7 +140,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     ast
                     boto3
                     botocore
-                    braket
+                    braket:amazon-braket-sdk
                     conan
                     flask
                     json
@@ -148,6 +148,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     numpy
                     os
                     pathlib
+                    pip
                     pytest
                     qiskit
                     queue

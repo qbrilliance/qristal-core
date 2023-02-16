@@ -10,7 +10,17 @@ macro(add_python_module)
     if (NOT Python_EXECUTABLE) 
       set(Python_EXECUTABLE PYBIND11_PYTHON_EXECUTABLE_LAST)
     endif()
-    
+
+    # Split the module entry into module name and pip package name
+    string(REPLACE ":" ";" module ${module})
+    list(LENGTH module MOD_LEN)
+    if(${MOD_LEN} EQUAL 1)
+      set(pip_package ${module})
+    else()
+      list(GET module 1 pip_package)
+      list(GET module 0 module)
+    endif()
+
     # Attempt to import the module
     execute_process(COMMAND ${Python_EXECUTABLE} -c "import ${module}" 
                     RESULT_VARIABLE return_val 
@@ -21,7 +31,7 @@ macro(add_python_module)
       message(STATUS "Python module ${module} not found.")    
       if (INSTALL_MISSING)
         message(STATUS "Attempting to installl with pip...")    
-        execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${module} --upgrade
+        execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${pip_package} --upgrade
                         RESULT_VARIABLE return_val)
         if (return_val)
           message(FATAL_ERROR "Could not install python module ${module} using pip. Please install manually and rerun cmake.")
