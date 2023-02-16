@@ -25,14 +25,6 @@ The QB SDK **requires** the following libraries/packages to be installed:
 * `Boost <https://www.boost.org/>`_ >= 1.71
 * `libcurl <https://curl.se/>`_
 
-as well as the following Python packages:
-
-* `Amazon Braket <https://github.com/aws/amazon-braket-sdk-python/>`_
-* `Conan <https://conan.io/>`_
-* `PySCF <https://pyscf.org/>`_
-* `Cirq <https://quantumai.google/cirq>`_ >= 1.0.0
-* `qsimcirq <https://pypi.org/project/qsimcirq/>`_ >= 0.14.0
-
 .. _auto_install_deps:
 
 Additional dependencies that can be installed automatically at build time:
@@ -47,6 +39,7 @@ Additional dependencies that can be installed automatically at build time:
 * `cppitertools <https://github.com/ryanhaining/cppitertools>`_ >= 2.1
 * `GoogleTest <https://github.com/google/googletest>`_ >= 1.12.1
 * `Nlohmann JSON <https://github.com/nlohmann/json>`_ >= 3.1.1
+* Various Python modules.
 
 .. note:: **Automatic dependency installation**
 
@@ -66,7 +59,7 @@ using *automatic dependency installation* mode:
     cmake .. -DINSTALL_MISSING=ON
     make install
 
-The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.
+The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
 
 .. note:: The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
 

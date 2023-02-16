@@ -112,7 +112,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
 
     if(NOT LOCAL_INSTALL_FOUND)
 
-      if(INSTALL_MISSING)
+      if(INSTALL_MISSING_CXX)
 
         # Run any preamble functions supplied (for finding/installing dependencies)
         foreach(command ${arg_PREAMBLE})

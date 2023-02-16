@@ -69,7 +69,7 @@ macro(add_dependency NAME VERSION)
 
   else()
 
-    if(INSTALL_MISSING)
+    if(INSTALL_MISSING_CXX)
 
       set(OPTION_LIST CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_Fortran_COMPILER CMAKE_BUILD_TYPE)
       foreach(option ${OPTION_LIST})
@@ -113,7 +113,7 @@ endmacro()
 
 # If any packages are missing, fail.
 macro(check_missing)
-  if(MISSING_DEPENDENCIES AND NOT INSTALL_MISSING)
+  if(MISSING_DEPENDENCIES AND NOT (INSTALL_MISSING_CXX AND INSTALL_MISSING_PYTHON))
 
     message("\nThe following dependencies were not found by cmake:")
     foreach(package ${MISSING_DEPENDENCIES})

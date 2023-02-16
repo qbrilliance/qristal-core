@@ -26,10 +26,10 @@ macro(add_python_module)
                     RESULT_VARIABLE return_val 
                     ERROR_QUIET) 
 
-    # If importing failed, depending on INSTALL_MISSING, throw an error or install the missing module using pip.
+    # If importing failed, depending on INSTALL_MISSING_PYTHON, throw an error or install the missing module using pip.
     if (return_val)
       message(STATUS "Python module ${module} not found.")    
-      if (INSTALL_MISSING)
+      if (INSTALL_MISSING_PYTHON)
         message(STATUS "Attempting to installl with pip...")    
         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${pip_package} --upgrade
                         RESULT_VARIABLE return_val)

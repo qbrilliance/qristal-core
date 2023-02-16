@@ -44,6 +44,8 @@ cmake .. -DINSTALL_MISSING=ON
 make -j$(nproc) install
 ```
 
+If you wish to only install missing C++ or Python dependencies, instead of passing `-DINSTALL_MISSING=ON` you can pass `-DINSTALL_MISSING=CXX` or `-DINSTALL_MISSING=PYTHON`.
+
 If you also wish to build the html documentation, you can pass `-DQB_BUILD_DOCS=ON` to `cmake`.
 
 ## Documentation
