@@ -1,5 +1,5 @@
 variables:
-  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-13
+  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-14
   EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/emulator
 
 stages:
@@ -64,6 +64,8 @@ ubuntu20-build:
     - cmake -B build . 
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
       -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket-local
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts

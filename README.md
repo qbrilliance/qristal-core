@@ -48,6 +48,11 @@ If you wish to only install missing C++ or Python dependencies, instead of passi
 
 If you also wish to build the html documentation, you can pass `-DQB_BUILD_DOCS=ON` to `cmake`.
 
+If you also wish to build the C++ noise-aware circuit placement based on the [TKET](https://github.com/CQCL/tket) library, you can pass `-DWITH_TKET=ON` to `cmake`.
+
+Along with the `-DINSTALL_MISSING=ON` option as shown above, `cmake` will automatically pull in and build TKET for you.
+Alternatively, if you have an existing TKET installation, you can pass `-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>` to `cmake` to let it use your installation rather than building TKET from source.  
+
 ## Documentation
 If you have built and installed the documentation (see [compilation](#compilation)), you can find it at `<installation_directory>/docs/html/index.html`.
 

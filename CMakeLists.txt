@@ -54,6 +54,9 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # Tests
   include(tests)
 
+  # Tket middleware module (placement/circuit optimizer)
+  include(add_tket)
+  
   # Adds documentation targets (i.e. Doxygen and Sphinx targets) as dependencies of the default build targets.
   # This results in documentation targets being part of a normal build.
   # If enabled, it will **require** Doxygen and Sphinx (including the required extensions, e.g., Breathe and Exhale)
