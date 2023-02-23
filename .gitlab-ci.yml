@@ -1,6 +1,6 @@
 variables:
-  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-14
-  EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/emulator
+  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-17
+  EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/emulator:ci-1
 
 stages:
   - build
@@ -59,6 +59,8 @@ ubuntu20-build-for-emulator:
 ubuntu20-build:
   stage: build
   image: $CI_IMAGE
+  tags:
+    - docker-heavy
   script:
     - rm -rf ${QB_DIR}/core-local
     - cmake -B build . 
@@ -97,6 +99,8 @@ ubuntu20-cpp-tests:
   needs: ["ubuntu20-build"]
   extends: .install-core
   image: $CI_IMAGE
+  tags: 
+    - docker-heavy
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -110,6 +114,8 @@ ubuntu20-py-tests:
   needs: ["ubuntu20-build"]
   extends: .install-core
   image: $CI_IMAGE
+  tags: 
+    - docker-heavy
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -123,6 +129,8 @@ ubuntu20-py-stack-tests:
   needs: ["ubuntu20-build"]
   extends: .install-core
   image: $CI_IMAGE
+  tags: 
+    - docker-heavy
   script:
     - echo "# QB_QCSTACK_2023_2_1_URL = $QB_QCSTACK_2023_2_1_URL"
     - cd tests/qcstack && python3 -m pytest --junitxml="report-stack.xml"
@@ -152,6 +160,18 @@ trigger-emulator:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/emulator
+    branch: main
+  variables:
+    UPSTREAM_REF: $CI_COMMIT_REF_NAME
+
+# If this branch is part of a merge request, trigger downstream SDK build and test.
+trigger-sdk:
+  needs: ["ubuntu20-build"]
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  trigger:
+    project: qbau/software-and-apps/QBSDK
     branch: main
   variables:
     UPSTREAM_REF: $CI_COMMIT_REF_NAME

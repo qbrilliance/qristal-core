@@ -8,7 +8,7 @@ find_package(CURL REQUIRED)
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
-set(XACC_TAG "da24f49e")
+set(XACC_TAG "8e3b96fe")
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
