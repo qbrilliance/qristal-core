@@ -77,6 +77,7 @@ macro(add_dependency NAME VERSION)
           list(APPEND arg_OPTIONS "${option}=${${option}}")
         endif()
       endforeach()
+      list(APPEND arg_OPTIONS "CMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}")
 
       CPMAddPackage(
         NAME ${NAME}

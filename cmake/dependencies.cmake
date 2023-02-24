@@ -17,6 +17,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
   OPTIONS
     "XACC_ENABLE_MPI @ENABLE_MPI@"
     "CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}"
+    "CMAKE_CXX_FLAGS ${XACC_CMAKE_CXX_FLAGS}"
 )
 
 # Python 3 interpreter and libraries
@@ -193,6 +194,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       "BLAS_LIB OPENBLAS"
       "BLAS_PATH @BLAS_PATH@"
       "EXATN_BUILD_TESTS OFF"
+      "CMAKE_CXX_FLAGS ${dashw_IF_NOT_WARNINGS}"
   )
 
   # TNQVM
@@ -297,7 +299,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
         GIT_TAG           0.10.4
         SOURCE_DIR        "${CMAKE_BINARY_DIR}/qiskit-aer-src"
         BINARY_DIR        "${CMAKE_BINARY_DIR}/qiskit-aer-build"
-        CMAKE_ARGS    -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}
+        CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} -DCMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}
       )
       set(QB_STANDALONE_AER_EXE ${CMAKE_CURRENT_BINARY_DIR}/bin/qasm_simulator)
     else()

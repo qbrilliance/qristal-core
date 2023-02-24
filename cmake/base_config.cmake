@@ -39,8 +39,15 @@ set(CMAKE_CXX_STANDARD 17 CACHE STRING "Adopted C++ standard.")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable warnings
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wunreachable-code -Wunused") # -Werror
+# Enable/disable warnings
+if(WARNINGS)
+  message(STATUS "Warnings enabled")
+  add_compile_options(-Wall -Wextra -Wunreachable-code -Wunused) # -Werror
+else()
+  add_compile_options(-w)
+  set(XACC_CMAKE_CXX_FLAGS "\"-DBOOST_DISABLE_PRAGMA_MESSAGE -w\"")
+  set(dashw_IF_NOT_WARNINGS "-w")
+endif()
 
 # Add linker paths to installed binary rpaths
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

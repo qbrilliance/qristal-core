@@ -121,7 +121,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
 
         # Parse any options given into the actual invocation of cmake.
         set(cmake_invocation ${CMAKE_COMMAND})
-        list(APPEND cmake_invocation "-B_deps/${NAME}/build" "_deps/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}")
+        list(APPEND cmake_invocation "-B_deps/${NAME}/build" "_deps/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}" "-Wno-dev")
         foreach(option ${arg_OPTIONS})
           string(REGEX REPLACE " " "=" option "${option}")
           string(CONFIGURE ${option} option)
