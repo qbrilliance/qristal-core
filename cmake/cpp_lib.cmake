@@ -7,12 +7,14 @@ set(source_files
   #src/qbTketNoiseAwarePlacement.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
   src/thread_pool.cpp
-  src/optimization/qaoa/Autodiff.cpp
+  src/optimization/vqee/case_generator.cpp
+  src/optimization/vqee/vqee.cpp
   src/optimization/qaoa/qaoa_base.cpp
   src/optimization/qaoa/qaoa_simple.cpp
+  src/optimization/qaoa/qaoa_recursive.cpp
+  src/optimization/qaoa/qaoa_warmStart.cpp
   src/optimization/qaoa/qaoa_validators.cpp
   src/optimization/qml/qml.cpp
-  # vqee is header only atm
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/core/session_getter_setter.cpp
@@ -59,6 +61,7 @@ target_link_libraries(lightweight_${PROJECT_NAME}
     xacc::xacc
     xacc::quantum_gate
     nlohmann::json
+    autodiff::autodiff
     # The following are not strictly needed, but save dependent packages from having to locate them themselves.
     taywee::args
     Eigen3::Eigen
@@ -114,6 +117,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       xacc::pauli
       taywee::args
       nlohmann::json
+      autodiff::autodiff
     PRIVATE
       cpr
     INTERFACE
@@ -159,7 +163,8 @@ file(APPEND ${deps_cmake_file} "\nif (NOT TARGET xacc-plugins)\
                                 \nset(XACC_DIR ${XACC_DIR})\
                                 \nset(nlohmann_json_DIR ${nlohmann_json_DIR})\
                                 \nset(args_DIR ${args_DIR})\
-                                \nset(pybind11_DIR ${pybind11_DIR})")
+                                \nset(pybind11_DIR ${pybind11_DIR})\
+                                \nset(autodiff_DIR ${autodiff_DIR})")
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${deps_cmake_file} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)") 
 else()
@@ -173,6 +178,7 @@ file(APPEND ${deps_cmake_file} "\ncache_install_path()\
                                 \nreset_install_path()\
                                 \nfind_dependency(nlohmann_json ${nlohmann_json_VERSION})\
                                 \nfind_dependency(args)\
+                                \nfind_dependency(autodiff ${autodiff_VERSION})\
                                 \nfind_dependency(pybind11 ${pybind11_VERSION})\
                                 \nfind_dependency(Python 3 COMPONENTS Interpreter Development)\
                                 \nif(NOT TARGET GTest::gtest)\

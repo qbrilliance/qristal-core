@@ -1,0 +1,1 @@
+message(STATUS "Not finding Eigen, as Eigen targets already set by top-level cmake package.")

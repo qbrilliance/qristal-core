@@ -1,5 +1,16 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
+# optimization modules
+add_xacc_plugin(optimizationModules
+  SOURCES
+    src/optimization/qaoa/qaoa_warmStart_activator.cpp
+    src/optimization/qaoa/qaoa_warmStart_algorithm.cpp
+    src/optimization/qaoa/qaoa_warmStart_circuit.cpp
+  HEADERS
+    include/qb/core/optimization/qaoa/qaoa_warmStart_algorithm.hpp
+    include/qb/core/optimization/qaoa/qaoa_warmStart_circuit.hpp
+)
+
 # Amplitude estimation
 add_xacc_plugin(algorithm_ae
   SOURCES

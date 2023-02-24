@@ -1,7 +1,12 @@
+# Please note: The current implementation of XACC QAOA, used as a base for all Qristal QAOA variants, does not scale well with the number of qubits.
+# Small problems are correctly solved with a reasonable amount of iterations.
+# This example will not give the correct results as of now and is currently under investigation (fixing XACC upstream).
+# It should just demonstrate the current and future APIs.
+
+#%%
 import numpy as np
 import qb.core.optimization as qbOpt
 import qb as qb
-
 
 # We try qap problem. The primary input are flow and distance matrix and a list of constraints with a constant penalty value
 flow = np.array([[0,5,2], [5,0,3], [2,3,0]])
@@ -54,16 +59,19 @@ nPaulis = pauliString.count('+') + pauliString.count('-') - 1
 print("\nPauli string: ", pauliString)
 
 nOptVars = 9
-nQaoaSteps = 10
+nQaoaSteps = 1
+
+#%% qaoa simple 
+print("\n*************** running simple qaoa... ***************\n")
+
 qa = qbOpt.qaoa_QaoaSimple()
 qa.qn = nOptVars
 qa.ham = pauliString
 qa.acc='qpp'
 qa.functol[0][0][0]=1e-5
 qa.maxeval=100 #800
-qa.qaoa_step=nQaoaSteps
+qa.qaoa_step = nQaoaSteps
 qa.theta[0][0]=qb.core.ND()
-
 
 extendedParams = True
 if (extendedParams):
@@ -74,6 +82,56 @@ else:
 qa.extended_param = extendedParams
 for ii in range(nThetas): 
     qa.theta[0][0][ii] = 0.25
+
+qa.run()
+print("\ncost: " + str(qa.out_energy[0][0][0]))
+print("\neigenstate: " + str(qa.out_eigenstate[0][0]))
+print("\ncorrect solution: ", solRef)
+
+#%% qaoa recursive
+print("\n*************** running recursive qaoa... ***************\n")
+
+qa = qbOpt.qaoa_QaoaRecursive()
+qa.qaoa_step = 1
+qa.sn = 1024
+qa.extended_param = True
+
+qa.qn = nOptVars
+qa.ham = pauliString
+qa.n_c = 5 # threshold number of variables
+qa.maxeval=100 #800
+
+qa.run()
+print("\ncost: " + str(qa.out_energy[0][0][0]))
+print("\neigenstate: " + str(qa.out_eigenstate[0][0]))
+print("\ncorrect solution: ", solRef)
+
+
+#%% qaoa warm_start
+print("\n*************** running warm started qaoa... ***************\n")
+
+qa = qbOpt.qaoa_QaoaWarmStart()
+nQaoaSteps = 1
+qa.qaoa_step = nQaoaSteps
+qa.sn = 1024
+qa.good_cut = "100"
+
+
+extendedParams = False
+if (extendedParams):
+    nThetas = (nOptVars+nPaulis)*nQaoaSteps
+else:
+    nThetas =                  2*nQaoaSteps
+qa.extended_param = extendedParams
+
+
+qa.theta[0][0]=qb.core.ND()
+for ii in range(nThetas): 
+    qa.theta[0][0][ii] = 0.25
+
+qa.qn = nOptVars
+qa.ham = pauliString
+qa.maxeval=100 #800
 
 qa.run()
 print("\ncost: " + str(qa.out_energy[0][0][0]))

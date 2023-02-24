@@ -23,13 +23,6 @@ The C++ example programs are _also_ built and properly linked automatically when
 ##  Notes on specific examples ##
 
 ### Python ###
-`qml/RDBMS_query_optimization.py`
-
-_qubits_: 4
-_variational_params_: 40
-_noise_: false  
-
-Example showing QML wrapped in pytorch for join order optimization.
 
 `demo1.py`
 
@@ -263,13 +256,19 @@ _noise_: false
 
 Example of proper fraction division. This example performs every 3-qubit proper fraction division with 3 precision bits.
 
-`qaoa_example_1.py`
+`qaoa_example.py`
 
-_qubits_: 9  
-_gate depth_: 320  
+_qubits_: 5  
 _noise_: false  
 
 Demonstrates the use of the SDK's built-in implementation of the QAOA algorithm. This example may take some time to run.
+
+`qaoa_API_demo.py`
+
+_qubits_: 9  
+_noise_: false  
+
+Demonstrates the use of the QAOA and QUBO APIs at a QAP problem. This example may take some time to run.
 
 `qft.py`
 
@@ -277,6 +276,14 @@ _qubits_: 5
 _noise_: false  
 
 Example of a quantum Fourier transform.
+
+`qml/RDBMS_query_optimization.py`
+
+_qubits_: 4
+_variational_params_: 40
+_noise_: false
+
+Example showing QML wrapped in pytorch for join order optimization.
 
 `qpe.py`
 
@@ -336,6 +343,13 @@ _noise_: false
 
 Demonstrates the use of the SDK's built-in VQE routines. This example may take some time to run.
 
+`vqee_example_2.py`
+
+_qubits_: 4  
+_gate depth_: 83  
+_noise_: false  
+
+Demonstrates the use and performance of different backends for the SDK's built-in VQE routines. This example may take some time to run.
 
 
 ### C++ ###
@@ -362,15 +376,15 @@ _qubits_: 4
 _gate depth_: 83  
 _noise_: false  
 
-Demonstrates the use of the SDK's built-in VQE routines.
+Demonstrates the use of the SDK's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
 
 `qaoa`
 
-_qubits_: 9  
-_gate depth_: 320  
+_qubits_: 3  
+_qaoa_steps_: 2  
 _noise_: false  
 
-Demonstrates the use of the SDK's built-in implementation of the QAOA algorithm. This example may take some time to run.
+Demonstrates the use of the SDK's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
 
 
 

@@ -1,16 +1,39 @@
+// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#pragma once
+
 #include "Observable.hpp"
 #include "Eigen/Dense"
-#include "autodiff/forward.hpp"
-#include "autodiff/forward/eigen.hpp"
+#include "autodiff/forward/dual.hpp"
 #include "AlgorithmGradientStrategy.hpp"
 
+
+#if defined(__clang__)
+namespace std {
+template <>
+complex<autodiff::dual> operator*(const complex<autodiff::dual> &__z,
+                                  const complex<autodiff::dual> &__w) {
+  autodiff::dual __a = __z.real();
+  autodiff::dual __b = __z.imag();
+  autodiff::dual __c = __w.real();
+  autodiff::dual __d = __w.imag();
+  autodiff::dual __ac = __a * __c;
+  autodiff::dual __bd = __b * __d;
+  autodiff::dual __ad = __a * __d;
+  autodiff::dual __bc = __b * __c;
+  autodiff::dual __x = __ac - __bd;
+  autodiff::dual __y = __ad + __bc;
+  return complex<autodiff::dual>(__x, __y);
+}
+} // namespace std
+#endif
+
 // Extend autodiff to support complex type.
-namespace autodiff::forward::traits {
-template <typename T> struct isArithmetic<std::complex<T>> : std::true_type {};
-} // namespace autodiff::forward::traits
+namespace autodiff::detail {
+template <typename T> struct ArithmeticTraits<std::complex<T>> : ArithmeticTraits<T> {};
+} // namespace autodiff::detail
 
 // Custom Eigen Matrix and Vector type for autodiff Dual type.
-using cxdual = std::complex<autodiff::dual>;
+using cxdual = autodiff::Dual<std::complex<double>, std::complex<double>>;
 typedef Eigen::Matrix<cxdual, -1, 1, 0> VectorXcdual;
 typedef Eigen::Matrix<cxdual, -1, -1, 0> MatrixXcdual;
 

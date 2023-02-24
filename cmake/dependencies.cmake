@@ -86,7 +86,7 @@ else()
 endif()
 
 # Eigen
-# Check if XACC is installed and provides Eigen3. XACC_ROOT is the XACC install path,
+# Check if XACC is installed and provides Eigen3. XACC_DIR is the XACC install path,
 # which is always in place if XACC is added using add_poorly_behaved_dependency.
 set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen") 
 if (EXISTS ${XACC_EIGEN_PATH})
@@ -106,6 +106,22 @@ else()
   if(TARGET Eigen)
     add_library(Eigen3::Eigen ALIAS Eigen)
   endif()
+endif()
+
+# autodiff
+set(autodiff_VERSION "0.6.12")
+add_dependency(autodiff ${autodiff_VERSION}
+  GITHUB_REPOSITORY autodiff/autodiff
+  OPTIONS
+    "AUTODIFF_BUILD_TESTS OFF"
+    "AUTODIFF_BUILD_PYTHON OFF"
+    "AUTODIFF_BUILD_EXAMPLES OFF"
+    "AUTODIFF_BUILD_DOCS OFF"
+    "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
+)
+if(autodiff_ADDED)
+  set(autodiff_DIR ${CMAKE_INSTALL_PREFIX}/cmake/autodiff)
 endif()
 
 # args library
@@ -143,8 +159,9 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     braket:amazon-braket-sdk
                     conan
                     flask
-                    json
                     http
+                    json
+                    matplotlib
                     numpy
                     os
                     pathlib
@@ -158,7 +175,8 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     threading
                     time
                     timeit
-                    #torch
+                    torch 
+                    torchviz 
                     uuid
                    )
 
@@ -239,7 +257,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
   # C++ itertools
   add_dependency(cppitertools 2.1
-    FIND_PACKAGE_VERSION "2.0" #for manual cmake build
+    FIND_PACKAGE_VERSION "2.0" #for manual cmake build 2.0
     GITHUB_REPOSITORY ryanhaining/cppitertools
     OPTIONS
       "cppitertools_INSTALL_CMAKE_DIR share"

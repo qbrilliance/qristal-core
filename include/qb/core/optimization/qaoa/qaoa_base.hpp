@@ -1,11 +1,11 @@
-// Copyright (c) 2021 Quantum Brilliance Pty Ltd
+// Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #pragma once
 
 #include "qb/core/optimization/qaoa/qaoa_validators.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "PauliOperator.hpp"
-#include "Autodiff.hpp"
+#include "qb/core/optimization/qaoa/autodiff.hpp"
 #include "InstructionIterator.hpp"
 
 #include <sstream>

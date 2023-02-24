@@ -70,3 +70,6 @@ endif()
 
 # Save the version numbers for use in the code.
 configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)
+
+# Always prefer config mode of find_package to module mode
+set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)

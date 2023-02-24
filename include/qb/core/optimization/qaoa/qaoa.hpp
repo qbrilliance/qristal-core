@@ -22,5 +22,7 @@
 
 // from qb lib
 #include "qb/core/optimization/qaoa/qaoa_simple.hpp"
+#include "qb/core/optimization/qaoa/qaoa_recursive.hpp"
+#include "qb/core/optimization/qaoa/qaoa_warmStart.hpp"
 
 #endif //_QB_QAOA_
