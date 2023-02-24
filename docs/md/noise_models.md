@@ -30,7 +30,7 @@ Availability on simulators:
 
 This model takes the number of qubits specified by the user and generates a fully connected topology between all qubits.  Quantum gate noise is modelled using single-qubit depolarization and 2-qubit depolarization channels.  The channels are uniform across all qubits.  Readout errors are also accounted for in this model.
 
-### `nm1`
+### `qb-nm1`
 
 This model is applicable to:
 
@@ -44,7 +44,7 @@ Availability on simulators:
 - [ ] sparse-sim
 - [ ] qpp
 
-### `nm2`
+### `qb-nm2`
 
 This model is applicable to:
 
@@ -54,6 +54,20 @@ This model is applicable to:
 Availability on simulators:
 - [x] aer
 - [x] qsim
+- [ ] tnqvm
+- [ ] sparse-sim
+- [ ] qpp
+
+### `qb-qdk1`
+
+This model is applicable to:
+
+- [ ] Open source releases: 202x
+- [X] Commercial emulator releases: 202x
+
+Availability on simulators:
+- [x] aer
+- [ ] qsim
 - [ ] tnqvm
 - [ ] sparse-sim
 - [ ] qpp
@@ -68,7 +82,7 @@ int main(int argc, char * argv[]) {
     tqb.set_qn(2);       // 2 qubits
     tqb.set_acc("aer");  // Aer simulator selected
     tqb.set_noise(true); // Set this to true for noise models to be active
-    tqb.set_noise_model("default"); // Also available from Quantum Brilliance: "nm1" , "nm2"
+    tqb.set_noise_model("default"); // Also available from Quantum Brilliance: "qb-nm1" , "qb-nm2" , "qb-qdk1"
     tqb.set_instring(R"(
        OPENQASM 2.0;
        include "qelib1.inc";

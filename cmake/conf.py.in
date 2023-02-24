@@ -19,7 +19,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'Quantum SDK'
-copyright = '2022, Quantum Brilliance Pty Ltd'
+copyright = '2023, Quantum Brilliance Pty Ltd'
 author = 'Quantum Brilliance Pty Ltd'
 
 
@@ -118,7 +118,7 @@ exhale_args = {
     # These arguments are required
     "containmentFolder":     "./_cpp_api",
     "rootFileName":          "library_root.rst",
-    "doxygenStripFromPath":  "..",
+    "doxygenStripFromPath":  "@PROJECT_SOURCE_DIR@/..",
     # Heavily encouraged optional argument (see docs)
     "rootFileTitle":         "C++ API",
     # Suggested optional arguments
@@ -127,7 +127,7 @@ exhale_args = {
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
     # Files to generate Doxygen docs from
-    "exhaleDoxygenStdin":    "INPUT = @DOXYGEN_PUBLIC_HEADERS@"
+    "exhaleDoxygenStdin":    "INPUT = @DOXYGEN_PUBLIC_HEADERS@ \n XML_PROGRAMLISTING = NO"
 }
 
 # Tell sphinx what the primary language being documented is.

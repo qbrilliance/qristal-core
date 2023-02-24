@@ -60,7 +60,18 @@ set(PUBLIC_HEADERS
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)
-string (REPLACE ";" " " DOXYGEN_PUBLIC_HEADERS "${PUBLIC_HEADERS}")
+string(REPLACE ";" " " DOXYGEN_PUBLIC_HEADERS "${PUBLIC_HEADERS}")
+
+# If emulator directory is provided, include its API docs 
+if (EMULATOR_DIR)
+  set(EMULATOR_DOXYGEN_CONFIG_FILE ${EMULATOR_DIR}/docs/emulator_docs.cmake)
+  # Read the config file, which defines the list of public headers (EMULATOR_PUBLIC_HEADERS)
+  include(${EMULATOR_DOXYGEN_CONFIG_FILE})
+  string(REPLACE ";" " " EMULATOR_HEADERS_LIST "${EMULATOR_PUBLIC_HEADERS}")
+  # Add them to the list of headers to be processed.
+  string(APPEND  DOXYGEN_PUBLIC_HEADERS " ${EMULATOR_HEADERS_LIST}") 
+endif()
+
 set(SPHINX_SOURCE_DIR ${PROJECT_SOURCE_DIR}/docs)
 set(SPHINX_OUTPUT_DIR ${PROJECT_BINARY_DIR}/docs)
 set(SPHINX_CONFIG_IN  ${CMAKE_CURRENT_LIST_DIR}/conf.py.in)
@@ -94,7 +105,7 @@ add_custom_command(OUTPUT ${RTD_INDEX_FILE}
                   # This depends on the Python binding module (target name ${PROJECT_NAME})
                   # since we parse docstrings by dynamically loading the Python module.
                   # TODO: statically generates Python module documentation.
-                  DEPENDS ${PUBLIC_HEADERS} py${PROJECT_NAME} ${EXTRA_MARKDOWN_FILES} ${EXTRA_RST_FILES}
+                  DEPENDS ${PUBLIC_HEADERS} ${EMULATOR_PUBLIC_HEADERS} py${PROJECT_NAME} ${EXTRA_MARKDOWN_FILES} ${EXTRA_RST_FILES}
                   COMMAND ${SPHINX_BUILD_EXECUTABLE} -M html  ${SPHINX_OUTPUT_DIR} ${SPHINX_BUILD_DIR} ${SPHINX_BUILD_OPTIONS}
                   WORKING_DIRECTORY ${SPHINX_OUTPUT_DIR}
                   COMMENT "Generating docs")
