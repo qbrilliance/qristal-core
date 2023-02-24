@@ -929,7 +929,7 @@ PYBIND11_MODULE(core, m) {
 
     )")
         .def("rz", [&](qb::CircuitBuilder &builder, int idx, double theta) {
-          builder.RX(idx, theta);
+          builder.RZ(idx, theta);
       }, py::arg("idx"), py::arg("theta"), R"(
       RZ gate
 
