@@ -1,6 +1,6 @@
 # Noise models
 
-$QB-SDK-PRODUCT-NAME$ has built-in noise models that are useful for:
+QB Qristal has built-in noise models that are useful for:
 * Emulating the noise inherent in hardware quantum gates, and
 * Optimizing qubit assignment for a given quantum circuit.
 
@@ -122,7 +122,7 @@ tqb.out_raws[0]
 
 # User defined noise models
 
-$QB-SDK-PRODUCT-NAME$ allows an end-user to implement noise models. First use  <a href="../_cpp_api/structqb_1_1NoiseProperties.html">NoiseProperties</a> to set up noise model parameters.  Then pass the parameters to the constructor of qb::NoiseModel.
+QB Qristal allows an end-user to implement noise models. First use  <a href="../_cpp_api/structqb_1_1NoiseProperties.html">NoiseProperties</a> to set up noise model parameters.  Then pass the parameters to the constructor of qb::NoiseModel.
 
 ## Modifying the `default` noise model
 
