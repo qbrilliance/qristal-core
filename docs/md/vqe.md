@@ -1,11 +1,11 @@
-# Variational Quantum Eigensolver (VQE) in QB SDK
+# Variational Quantum Eigensolver (VQE) in Qristal
 ## General information
 
 VQE is classified as a **quantum-classical (hybrid) algorithm**. It uses a **classical optimizer** to minimize a **quantum kernel** based objective function. The objective function is usually determined by multiple measurements at each iteration.
 
 VQE finds the **ground state energy** of a physical system characterized by its **Hamiltonian** $H$ which is Hermitian. See [[Peruzzo et al. 2013](https://arxiv.org/abs/1304.3061), [O'Malley et al. 2015](https://arxiv.org/abs/1512.06860)] for details.
 
-### Quantum kernels in QB SDK
+### Quantum kernels in Qristal
 
 The quantum kernel has 3 inputs:
 
@@ -15,9 +15,9 @@ The quantum kernel has 3 inputs:
 
 The output from measurement is reduced to a scalar quantity: the **energy**. The output is called **stochastic** when this energy is calculated from the shot-count statistics (samples) produced by a quantum device. A quantum computer is inherently **stochastic** but a simulator can operate in **non-stochastic**, i.e. **deterministic** mode. 
 
-### Hamiltonians in QB SDK
+### Hamiltonians in Qristal
 
-While the user provides a Hamiltonian that has been transformed from their problem/system of interest, special attention is needed on the resulting format of the Hamiltonian so that it is valid as an input to QB SDK.  In particular:
+While the user provides a Hamiltonian that has been transformed from their problem/system of interest, special attention is needed on the resulting format of the Hamiltonian so that it is valid as an input to Qristal.  In particular:
 
 - the Hamiltonian must be formatted as a **string**. This string is an expression of a weighted sum of **Pauli terms**.
 - **Spaces** must be used to separate **all** of the following: the Pauli terms, their respective weights, and the arithmetic +/- symbols.
@@ -45,7 +45,7 @@ Example of a physically valid Hamiltonian (for deuteron):
 "5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1"
 ```
 
-### Ansätze in QB SDK
+### Ansätze in Qristal
 
 As in all parameterized models, choice of model architecture, or *ansatz*, is an important parameter in the success of the optimization.
 
@@ -128,7 +128,7 @@ The results from a completed VQE execution are available be reading the followin
 
 | Deprecation Notice | All sections below this Notice will be deprecated after December 2022|
 | ---- | ---- |
-|| The functionality described below is undergoing extensive rework.  You may still use it for background understanding, but it will **not** be compatible with future releases of QB SDK.
+|| The functionality described below is undergoing extensive rework.  You may still use it for background understanding, but it will **not** be compatible with future releases of Qristal.
 
 ----
 
@@ -136,11 +136,11 @@ The results from a completed VQE execution are available be reading the followin
 
 VQE is open to use with any type of optimizer. In particular, the optimizer can be gradient-based or gradient-free.  Stochastic optimization algorithms can also be used. See below for examples.
 
-### Molecular geometries in QB SDK
+### Molecular geometries in Qristal
 
-Instead of directly specifying a Hamiltonian, users can instead input a molecular geometry in terms of the elements and coordinates of all atoms in the system.  QB SDK will then generate the corresponding Hamiltonian automatically.
+Instead of directly specifying a Hamiltonian, users can instead input a molecular geometry in terms of the elements and coordinates of all atoms in the system. Qristal will then generate the corresponding Hamiltonian automatically.
 
-For this functionality, QB SDK requires PySCF-style XYZ syntax, i.e.,
+For this functionality, Qristal requires PySCF-style XYZ syntax, i.e.,
  `{element symbol} {x_coord} {y_coord} {z_coord};...`
 
 For example, an $H_2$ molecule with an atomic distance of 0.735 angstroms (Å) can be described by the following geometry string:
@@ -149,7 +149,7 @@ For example, an $H_2$ molecule with an atomic distance of 0.735 angstroms (Å) c
 
 ❗ **Important:** the default unit for coordinates is **angstroms**. 
 
-By default, QB SDK uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_sets) basis set and the Jordan-Wigner fermion-to-qubit mapping.
+By default, Qristal uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_sets) basis set and the Jordan-Wigner fermion-to-qubit mapping.
 
 
 **Built in ansätze:**
@@ -175,7 +175,7 @@ By default, QB SDK uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_
      (the number of spin orbitals is equal to the number of qubits required)
     
 - ❗ **Important:** Convention of mapping spin orbitals onto qubits
-    - The built-in ASWAP and UCCSD ansätze in QB SDK map all alpha (up) spins **then** all beta (down) spins. Thus, care must be taken to make sure that the input Pauli Hamiltonian follows the same mapping convention.
+    - The built-in ASWAP and UCCSD ansätze in Qristal map all alpha (up) spins **then** all beta (down) spins. Thus, care must be taken to make sure that the input Pauli Hamiltonian follows the same mapping convention.
     - If the Hamiltonian input is provided as a molecular geometry string (see the previous section above), then the mapping is guaranteed to be compatible with the above convention.
     - Tips: Among some other open-source platforms, Qiskit is using the same qubit mapping as stated above. Pennylane, on the other hand, alternates alpha and beta (up and down) spins.
 
@@ -189,7 +189,7 @@ By default, QB SDK uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_
     import qbos_op
     ```
     
-- `qbos_op.vqe()` creates an instance to access the functionality in QB SDK VQE
+- `qbos_op.vqe()` creates an instance to access the functionality in Qristal VQE
     
     ```python
     import qbos_op
@@ -203,7 +203,7 @@ By default, QB SDK uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_
     
     ⚙ The **length** of `theta` (the number of elements) must match the **required number of parameters** in the ansatz.  
     
-    For the default ansatz in QB SDK, it is required that:
+    For the default ansatz in Qristal, it is required that:
      `len(theta) == 3*qn*ansatz_depth`
     
     
@@ -241,7 +241,7 @@ By default, QB SDK uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_
     ❗ The number of qubits must be consistent with the Hamiltonian
     
     
-    ⚙ For the default ansatz in QB SDK, it is required to that:
+    ⚙ For the default ansatz in Qristal, it is required to that:
      `len(theta) == 3*qn*ansatz_depth`
     
     
@@ -425,7 +425,7 @@ With small modifications, the function shown above can be adapted to return othe
 
 ### Python `minimize()` from `scipy.optimize`
 
-These classical methods have been tested with QB SDK:
+These classical methods have been tested with Qristal:
 
 - `"SLSQP"`
     
@@ -504,7 +504,7 @@ These classical methods have been tested with QB SDK:
 
 ### Python `minimize()` from `skquant.opt`
 
-These methods have been tested with QB SDK:
+These methods have been tested with Qristal:
 
 - `"imfil"`
     
@@ -545,7 +545,7 @@ These methods have been tested with QB SDK:
     [SnobFit - sckit-quant 0.8.1 documentation](https://scikit-quant.readthedocs.io/en/latest/snobfit.html)
     
 
-### Built-in QB SDK classical optimizers
+### Built-in Qristal classical optimizers
 
 These internal options can be enabled by setting `maxeval` to a value > 1.
 
@@ -576,7 +576,7 @@ These internal options can be enabled by setting `maxeval` to a value > 1.
         
         
 
-### Obtaining convergence information from the internal QB SDK optimizers
+### Obtaining convergence information from the internal Qristal optimizers
 
 - `out_energy`: Energy trace
     
@@ -605,7 +605,7 @@ These internal options can be enabled by setting `maxeval` to a value > 1.
 
 Let us now focus on a physical Hamiltonian matrix, where the ground state energy is known. The following represents the $N$ = 2 (two-qubit) deuteron Hamiltonian: `5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1`. The energy is known to be -1.74886 in sector $q$ = 1 and in the same energy unit as the Hamiltonian elements.
 
-Now, imagine you intend to run VQE for the above with initial angle $\theta_1$ = 0.11, choosing the particle sector 1, setting the classical optimizer to the non-linear [Nelder-Mead](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method) method with 100 maximum function evaluations and 1.0e-5 function tolerance.  The notebook attached below shows how this is done in QB SDK:
+Now, imagine you intend to run VQE for the above with initial angle $\theta_1$ = 0.11, choosing the particle sector 1, setting the classical optimizer to the non-linear [Nelder-Mead](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method) method with 100 maximum function evaluations and 1.0e-5 function tolerance.  The notebook attached below shows how this is done in Qristal:
 
 [SDK_Deuteron2aswap.ipynb](../static/notebooks/SDK_Deuteron2aswap.ipynb)
 

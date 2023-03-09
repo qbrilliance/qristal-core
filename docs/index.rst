@@ -3,12 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to The Quantum Brilliance SDK
-=====================================
+Welcome to The Quantum Brilliance SDK -- Qristal
+================================================
 
 .. image:: static/img/qb_logo_laptop.png
 
-The Quantum Brilliance SDK is a full-stack library for designing, optimizing, simulating and running hybrid quantum programs.
+Qristal is a full-stack library for designing, optimizing, simulating and running hybrid quantum programs.
 
 Features
 ========
@@ -32,7 +32,7 @@ Features
 License
 =======
 
-The Quantum Brilliance SDK is released under the Apache License, Version 2.0.
+Qristal is released under the Apache License, Version 2.0.
 
 
 .. toctree::

@@ -420,7 +420,7 @@ This section is a quick reference on quantum gates expressed in these formats:
 - Measurement
     - Description
         
-        Measurement is inherently non-unitary. The physical operation selects one of the components of the given quantum registry at random, where the probability of any particular component being selected is given by the square of its amplitude. For this reason it is advisable to call multiple shots (the SDK default is 1024) so that the distribution of possible outcomes is apparent.
+        Measurement is inherently non-unitary. The physical operation selects one of the components of the given quantum registry at random, where the probability of any particular component being selected is given by the square of its amplitude. For this reason it is advisable to call multiple shots (Qristal's default is 1024) so that the distribution of possible outcomes is apparent.
         
     - OpenQASM
         

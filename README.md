@@ -1,4 +1,4 @@
-# Quantum Brilliance Qristal SDK -- Core #
+# Quantum Brilliance SDK Qristal -- Core #
 
 Qristal is the QB software development kit for quantum computing.  This is its core module.
 
