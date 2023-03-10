@@ -1,0 +1,32 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to set up the build of a
+# C++ main program using a QODA kernel.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+set(CMAKE_QODA_COMPILER @NVQPP_EXECUTABLE@)
+set(CMAKE_CXX_COMPILER /opt/llvm/bin/clang++)
+set(CMAKE_CXX_COMPILER_WORKS ON)
+
+project(vqe-qoda-gradients
+  DESCRIPTION "Quantum Brilliance VQE example implemented with QODA gradient-based (lbfgs) optimizer."
+  LANGUAGES CXX
+)
+
+set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(qbcore_DIR  @CMAKE_INSTALL_PREFIX@)
+find_package(qbcore)
+
+add_qoda_executable(vqe-qoda-gradients vqe-lbfgs-qoda.cpp)
+
+target_link_libraries(vqe-qoda-gradients
+  PRIVATE
+    qb::core
+)
+

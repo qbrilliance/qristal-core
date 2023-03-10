@@ -74,9 +74,10 @@ install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${
                                                        -DPROJECT_NAME=${PROJECT_NAME} \
                                                        -P${CMAKE_CURRENT_SOURCE_DIR}/cmake/py_packages_path.cmake)")
 
-# Install the xacc_utilities.cmake file and manifest.json template
+# Install the xacc_utilities.cmake and qoda_utilities.cmake files and manifest.json template
 install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xacc_utilities.cmake
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/qoda_utilities.cmake
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xacc_utilities.cmake
           ${CMAKE_CURRENT_SOURCE_DIR}/cmake/manifest.json.in
     DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
 )

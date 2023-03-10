@@ -8,7 +8,12 @@ find_package(CURL REQUIRED)
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
-set(XACC_TAG "8e3b96fe")
+set(XACC_TAG "96943c9d")
+  if(CMAKE_BUILD_TYPE STREQUAL "None")
+    set(XACC_CMAKE_BUILD_TYPE "Release")
+  else()
+    set(XACC_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+  endif()
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
@@ -16,6 +21,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
   GIT_REPOSITORY https://github.com/eclipse/xacc
   OPTIONS
     "XACC_ENABLE_MPI @ENABLE_MPI@"
+    "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
     "CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}"
     "CMAKE_CXX_FLAGS ${XACC_CMAKE_CXX_FLAGS}"
 )
@@ -185,6 +191,11 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   find_package(Boost 1.71 REQUIRED)
 
   # EXATN
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(EXATN_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+  else()
+    set(EXATN_CXX_COMPILER "g++")
+  endif()
   add_poorly_behaved_dependency(exatn 1.0.0
     FIND_PACKAGE_NAME EXATN
     GIT_TAG d8a15b1
@@ -194,6 +205,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       "BLAS_LIB OPENBLAS"
       "BLAS_PATH @BLAS_PATH@"
       "EXATN_BUILD_TESTS OFF"
+      "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
       "CMAKE_CXX_FLAGS ${dashw_IF_NOT_WARNINGS}"
   )
 
@@ -206,6 +218,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
      "XACC_DIR ${XACC_ROOT}"
      "EXATN_DIR ${EXATN_ROOT}"
      "TNQVM_BUILD_TESTS OFF"
+     "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
   )
   # Add symlinks to {XACC_ROOT}/plugins where XACC finds its plugins by default.
   # Delete symlinks to all other versions of the plugin to avoid issues when upgrading to a new version.
@@ -318,3 +331,18 @@ install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL
 
 # If any packages are still missing, fail.
 check_missing()
+
+# Detect if we can find QODA
+find_program(NVQPP_EXECUTABLE NAMES nvq++)
+if (NVQPP_EXECUTABLE)
+  message(STATUS "Found nvq++ compiler at ${NVQPP_EXECUTABLE}. Enable QODA support.")
+  # Flag that we have QODA
+  set(WITH_QODA TRUE)
+  get_filename_component(QODA_BIN_DIR ${NVQPP_EXECUTABLE} DIRECTORY)
+  get_filename_component(QODA_ROOT_DIR ${QODA_BIN_DIR} DIRECTORY)
+  set(QODA_INCLUDE_DIR ${QODA_ROOT_DIR}/include)
+  set(QODA_LIB_DIR ${QODA_ROOT_DIR}/lib)
+  message(STATUS "* QODA bin directory: ${QODA_BIN_DIR}.")
+  message(STATUS "* QODA include directory: ${QODA_INCLUDE_DIR}.")
+  message(STATUS "* QODA lib directory: ${QODA_LIB_DIR}.")
+endif ()

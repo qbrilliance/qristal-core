@@ -1,7 +1,8 @@
 # trigger pipeline again
 variables:
-  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-17
-  EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/emulator:ci-1
+  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-18
+  EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-2
+  QODA_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/core:qoda-2
 
 stages:
   - build
@@ -54,6 +55,7 @@ ubuntu20-build-for-emulator:
       - core_artefacts/build/libnoise.so*
       - core_artefacts/cmake/py_packages_path.cmake
       - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/qoda_utilities.cmake
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       
@@ -90,11 +92,29 @@ ubuntu20-build:
       - core_artefacts/build/configured_example_files
       - core_artefacts/cmake/py_packages_path.cmake
       - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/qoda_utilities.cmake
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       - core_artefacts/examples
       - core_artefacts/src/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
+
+qoda-build:
+  stage: build
+  image: $QODA_CI_IMAGE
+  script:
+    - rm -rf ${QB_DIR}/core-local
+    - cmake -B build . 
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+      -DINSTALL_MISSING=ON
+    # Above line is temporary; can be removed once autodiff, torch and torchviz are added to qoda image 
+    - cmake --build build -- -j`nproc`
+    - cmake --install build
+    # Compile and run QODA examples
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda/demo1 && cmake -B build . && cmake --build build && ./build/demo1-qoda
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda/vqe_cobyla && cmake -B build . && cmake --build build && ./build/vqe-qoda-cobyla 
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda/vqe_lbfgs && cmake -B build . && cmake --build build && ./build/vqe-qoda-gradients
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda/vqe_hydrogens && python3 gen_h_chain.py && cmake -B build . && cmake --build build && cd build && ./vqe-qoda-hydrogens  
 
 ubuntu20-cpp-tests:
   stage: test
@@ -141,7 +161,7 @@ ubuntu20-py-stack-tests:
     when: always
     reports:
       junit: tests/qcstack/report-stack.xml
-
+    
 # If this branch is part of a merge request, trigger downstream decoder build and test.
 trigger-decoder:
   needs: ["ubuntu20-build"]

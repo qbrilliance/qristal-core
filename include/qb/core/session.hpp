@@ -9,6 +9,11 @@
 #include "qb/core/profiler.hpp"
 #include "qb/core/pretranspiler.hpp"
 
+// QODA support
+#ifdef WITH_QODA
+#include "qoda/utils/qoda_utils.h"
+#endif
+
 #pragma once
 
 namespace qb
@@ -30,6 +35,7 @@ namespace qb
       VectorString include_qbs_;
       VectorString qpu_configs_;
       VectorString instrings_;
+      std::vector<std::pair<std::string, std::function<void()>>> qoda_kernels_;
 
       std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> irtarget_ms_;
 
@@ -115,7 +121,7 @@ namespace qb
       const int VALID = 0;
 
       /// Valid input types:
-      enum class circuit_input_types { INVALID = -1, VALID_INSTRING_QPU = 1, VALID_RANDOM, VALID_INFILE, VALID_IR };
+      enum class circuit_input_types { INVALID = -1, VALID_INSTRING_QPU = 1, VALID_RANDOM, VALID_INFILE, VALID_IR, VALID_QODA };
 
       // Bounds
       const int RANDOMS_UPPERBOUND = 1000;
@@ -397,6 +403,25 @@ namespace qb
       const std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> &get_irtarget_ms() const;
       /// @private
       static const char *help_irtarget_ms_;
+
+#ifdef WITH_QODA
+      /**
+       * @brief Set the input QODA kernel
+       *
+       * @param in_kernel Input QODA kernel (templated callable returning void)
+       */
+      template <typename QodaKernel, typename... Args>
+      void set_qoda_kernel(QodaKernel &&in_kernel, Args &&...args) {
+        const auto kernel_name = qoda::getKernelName(in_kernel);
+        std::function<void()> wrapped_kernel = [&in_kernel, ... args = std::forward<Args>(args)]() mutable {
+          in_kernel(std::forward<Args>(args)...);
+        };
+        qoda_kernels_.emplace_back(std::make_pair(kernel_name, std::move(wrapped_kernel)));
+      }
+#endif
+
+      //
+
       //
       /**
        * @brief Set the path to the OpenQASM include file
@@ -1412,6 +1437,44 @@ namespace qb
       /// Retrieve the target circuit string for (i, j) task:
       /// This will involve loading file (if file mode is selected), generate random circuit string (if random mode is selected), etc.
       std::string get_target_circuit_qasm_string(size_t ii, size_t jj, const run_i_j_config& run_config);
+
+#ifdef WITH_QODA
+      // Run QODA kernel assigned as (i, j) task of this session
+      void run_qoda(size_t ii, size_t jj, const run_i_j_config& run_config);
+#endif
+
+      /// Populate QPU execution results for task (i, j) to the session data
+      /// Templated measure_counts_map to support different type of map-like data.
+      template <typename CountMapT>
+      void populate_measure_counts_data(size_t ii, size_t jj,
+                                        const CountMapT &measure_counts_map) {
+        // Save the counts to VectorMapNN
+        NN qpu_counts_nn;
+        for (const auto &[bit_string, count] : measure_counts_map) {
+          std::string keystring = bit_string;
+          if (acc_uses_lsbs_.at(ii).at(jj)) {
+            // 0 => LSB
+            std::reverse(keystring.begin(), keystring.end());
+          }
+          if (keystring.size() < 32) {
+            qpu_counts_nn.insert(
+                std::make_pair(std::stoi(keystring, 0, 2), count));
+          } else {
+            if (debug_) {
+              std::cout << "Cannot represent bitstring as integer. Please use "
+                           ".out_raw method instead.\n";
+            }
+            break;
+          }
+        }
+
+        // Store measure counts
+        out_counts_.at(ii).at(jj) = qpu_counts_nn;
+
+        // Save results to JSON
+        nlohmann::json qpu_counts_js = measure_counts_map;
+        out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
+      }
   };
 
 } // namespace qb

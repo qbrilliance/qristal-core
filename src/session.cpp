@@ -122,80 +122,58 @@ namespace qb
           << "[circuit: " << ii << ", condition: " << jj << "]: " << std::endl;
     }
 
-    bool is_infiles_empty = true;
-    if ((!infiles_.empty()) && (infiles_.size() >= (ii + 1))) {
-      if (!infiles_.at(ii).empty()) {
-        if (!infiles_.at(ii).at(0).empty()) {
-          is_infiles_empty = false;
-        } else {
-          is_infiles_empty = true;
+    // Helper to check if a 2-D array (qb::VectorString, qb::VectorN) is empty
+    const auto check_empty_2d_array_at_ii = [ii](const auto &array_2d) -> bool {
+      if ((!array_2d.empty()) &&
+          (array_2d.size() >= static_cast<size_t>(ii + 1))) {
+        if (!array_2d.at(ii).empty()) {
+          // return array_2d.at(ii).at(0).empty();
+          return false;
         }
       }
-    }
+      return true;
+    };
 
+    const bool is_infiles_empty = check_empty_2d_array_at_ii(infiles_);
     if (debug_) {
       std::cout << "[debug]:"
                 << "[circuit: " << ii << ", condition: " << jj
                 << "]: is_infiles_empty = " << is_infiles_empty << std::endl;
     }
 
-    bool is_instrings_empty = true;
-    if ((!instrings_.empty()) && (instrings_.size() >= (ii + 1))) {
-      if (!instrings_.at(ii).empty()) {
-        if (!instrings_.at(ii).at(0).empty()) {
-          is_instrings_empty = false;
-        } else {
-          is_instrings_empty = true;
-        }
-      }
-    }
-
+    const bool is_instrings_empty = check_empty_2d_array_at_ii(instrings_);
     if (debug_) {
       std::cout << "[debug]:"
                 << "[circuit: " << ii << ", condition: " << jj
                 << "]: is_instrings_empty = " << is_instrings_empty << std::endl;
     }
 
-    bool is_randoms_empty = true;
-    if ((!randoms_.empty()) && (randoms_.size() >= (ii + 1))) {
-      if (!randoms_[ii].empty()) {
-        // if (!((randoms_[ii])[jj].empty())) {
-        is_randoms_empty = false;
-        // } else {
-        //   is_randoms_empty = true;
-        // }
-      } else {
-        is_randoms_empty = true;
-      }
-    }
-
-
+    const bool is_randoms_empty = check_empty_2d_array_at_ii(randoms_);
     if (debug_) {
       std::cout << "[debug]:"
                 << "[circuit: " << ii << ", condition: " << jj
                 << "]: is_inrandoms_empty = " << is_randoms_empty << std::endl;
     }
 
-    bool is_irtarget_m_empty = true;
-    if ((!irtarget_ms_.empty()) && (irtarget_ms_.size() >= (ii + 1))) {
-      if (!irtarget_ms_.at(ii).empty()) {
-        if (irtarget_ms_.at(ii).at(0) != nullptr) {
-            is_irtarget_m_empty = false;
-        } else {
-            is_irtarget_m_empty = true;
-        }
-      }
-    }
-
+    const bool is_irtarget_m_empty = check_empty_2d_array_at_ii(irtarget_ms_);
     if (debug_) {
       std::cout << "[debug]:"
                 << "[circuit: " << ii << ", condition: " << jj
                 << "]: is_irtarget_m_empty = " << is_irtarget_m_empty << std::endl;
     }
 
-    if (is_infiles_empty && is_instrings_empty && is_randoms_empty && is_irtarget_m_empty) {
-      throw std::invalid_argument("session: at least one of these must have a "
-                                  "value: infile | instring | random | irtarget_m");
+    const bool is_qoda_empty = qoda_kernels_.empty();
+    if (debug_) {
+      std::cout << "[debug]:"
+                << "[circuit: " << ii << ", condition: " << jj
+                << "]: is_qoda_empty = " << is_qoda_empty << std::endl;
+    }
+
+    if (is_infiles_empty && is_instrings_empty && is_randoms_empty &&
+        is_irtarget_m_empty && is_qoda_empty) {
+      throw std::invalid_argument(
+          "session: at least one of these must have a "
+          "value: infile | instring | random | irtarget_m | qoda ");
     }
 
     // 1.1 Check if "__qpu" occurs at the start of instrings_
@@ -292,7 +270,18 @@ namespace qb
                     << "]: " << std::endl
                     << " has a XACC IR target" << std::endl;
         }
-        return session::session::circuit_input_types::VALID_IR;
+        return session::circuit_input_types::VALID_IR;
+    }
+
+    // QODA input
+    if (!is_qoda_empty) {
+        if (debug_) {
+          std::cout << "[debug]:"
+                    << "[circuit: " << ii << ", condition: " << jj
+                    << "]: " << std::endl
+                    << " has a QODA target" << std::endl;
+        }
+        return session::circuit_input_types::VALID_QODA;
     }
 
     return returnval;
@@ -1571,7 +1560,16 @@ namespace qb
         validate_infiles_instrings_randoms_irtarget_ms_nonempty(ii, jj);
     if (file_or_string_or_random_or_ir == session::circuit_input_types::INVALID) {
       throw std::invalid_argument("Please check your settings again.");
-    } else {
+    } else if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_QODA) {
+#ifdef WITH_QODA
+      // Execute QODA kernel input
+      run_qoda(ii, jj, run_config);
+#else
+      throw std::runtime_error(
+          "QODA is not supported. Please build qb::core with QODA.");
+#endif
+    }
+    else {
       // xacc::setIsPyApi();
       // xacc::set_verbose(true);
       xacc::HeterogeneousMap mqbacc;
@@ -2218,38 +2216,14 @@ namespace qb
               std::cout << "* Z-operator expectation value: " << z_expectation_val << std::endl;
           }
         }
-        // Save the counts to VectorMapNN
-        NN qpu_counts_nn;
-        std::string keystring;
-        for (auto qpu_counts_elem = qpu_counts.begin();
-             qpu_counts_elem != qpu_counts.end(); qpu_counts_elem++) {
-          keystring = qpu_counts_elem->first;
-          if (acc_uses_lsbs_.at(ii).at(jj)) {
-            // 0 => LSB
-            std::reverse(keystring.begin(), keystring.end());
-          }
-          if (keystring.size() < 32) {
-            qpu_counts_nn.insert(std::make_pair(std::stoi(keystring, 0, 2),
-                                                qpu_counts_elem->second));
-          } else {
-            if (debug_) {
-              std::cout << "Cannot represent bitstring as integer. Please use "
-                           ".out_raw method instead.\n";
-            }
-              break;
-          }
-        }
-
-        // Store measure counts
-        out_counts_.at(ii).at(jj) = qpu_counts_nn;
-
-        // Save results to JSON
-        nlohmann::json qpu_counts_js = qpu_counts;
-        out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
-
+        
         // Save Z-operator expectation value to VectorMapND
         ND res_z{{0, z_expectation_val}};
         out_z_op_expects_.at(ii).at(jj) = res_z;
+
+        // Save the counts to VectorMapNN in out_counts_ and raw map data in
+        // out_raws
+        populate_measure_counts_data(ii, jj, qpu_counts);
 
         // Transpile to QB native gates (acc)
         if (run_config.oqm_enabled) {
