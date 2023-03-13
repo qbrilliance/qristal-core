@@ -111,10 +111,10 @@ qoda-build:
     - cmake --build build -- -j`nproc`
     - cmake --install build
     # Compile and run QODA examples
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda/demo1 && cmake -B build . && cmake --build build && ./build/demo1-qoda
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda/vqe_cobyla && cmake -B build . && cmake --build build && ./build/vqe-qoda-cobyla 
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda/vqe_lbfgs && cmake -B build . && cmake --build build && ./build/vqe-qoda-gradients
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda/vqe_hydrogens && python3 gen_h_chain.py && cmake -B build . && cmake --build build && cd build && ./vqe-qoda-hydrogens  
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda_demo1 && cmake -B build . && cmake --build build && ./build/demo1-qoda
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda_vqe_cobyla && cmake -B build . && cmake --build build && ./build/vqe-qoda-cobyla 
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda_vqe_lbfgs && cmake -B build . && cmake --build build && ./build/vqe-qoda-gradients
+    - cd ${QB_DIR}/core-local/examples/cpp/qoda_vqe_hydrogens && python3 gen_h_chain.py && cmake -B build . && cmake --build build && cd build && ./vqe-qoda-hydrogens  
 
 ubuntu20-cpp-tests:
   stage: test

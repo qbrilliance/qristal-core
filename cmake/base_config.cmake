@@ -45,7 +45,7 @@ if(WARNINGS)
   add_compile_options(-Wall -Wextra -Wunreachable-code -Wunused) # -Werror
 else()
   add_compile_options(-w)
-  set(XACC_CMAKE_CXX_FLAGS "\"-DBOOST_DISABLE_PRAGMA_MESSAGE -w\"")
+  set(XACC_CMAKE_CXX_FLAGS "\"-DBOOST_DISABLE_PRAGMA_MESSAGE=ON -w\"")
   set(dashw_IF_NOT_WARNINGS "-w")
 endif()
 

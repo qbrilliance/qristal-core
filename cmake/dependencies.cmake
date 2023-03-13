@@ -9,11 +9,11 @@ find_package(CURL REQUIRED)
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
 set(XACC_TAG "96943c9d")
-  if(CMAKE_BUILD_TYPE STREQUAL "None")
-    set(XACC_CMAKE_BUILD_TYPE "Release")
-  else()
-    set(XACC_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
-  endif()
+if(CMAKE_BUILD_TYPE STREQUAL "None")
+  set(XACC_CMAKE_BUILD_TYPE "Release")
+else()
+  set(XACC_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+endif()
 # XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
@@ -22,7 +22,6 @@ add_poorly_behaved_dependency(xacc 1.0.0
   OPTIONS
     "XACC_ENABLE_MPI @ENABLE_MPI@"
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
-    "CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER}"
     "CMAKE_CXX_FLAGS ${XACC_CMAKE_CXX_FLAGS}"
 )
 
@@ -206,7 +205,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       "BLAS_PATH @BLAS_PATH@"
       "EXATN_BUILD_TESTS OFF"
       "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
-      "CMAKE_CXX_FLAGS ${dashw_IF_NOT_WARNINGS}"
   )
 
   # TNQVM

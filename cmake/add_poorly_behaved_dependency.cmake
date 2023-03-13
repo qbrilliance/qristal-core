@@ -121,18 +121,27 @@ macro(add_poorly_behaved_dependency NAME VERSION)
 
         # Parse any options given into the actual invocation of cmake.
         set(cmake_invocation ${CMAKE_COMMAND})
-        list(APPEND cmake_invocation "-B_deps/${NAME}/build" "_deps/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}" "-Wno-dev")
-        foreach(option ${arg_OPTIONS})
-          string(REGEX REPLACE " " "=" option "${option}")
-          string(CONFIGURE ${option} option)
-          list(APPEND cmake_invocation "-D${option}")
-        endforeach()
-        # Add options that are always passed if they are non-empty
-        set(OPTION_LIST CMAKE_BUILD_TYPE)
+        list(APPEND cmake_invocation "-B_deps/${NAME}/build" "_deps/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}" "-Wno-dev" "-DCMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}")
+        # Add options that are always passed if they are non-empty.
+        # If these have been set in the call to add_poorly_behaved_dependency,
+        # the versions set in the macro call will take precedence.
+        set(OPTION_LIST CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_Fortran_COMPILER CMAKE_BUILD_TYPE)
         foreach(option ${OPTION_LIST})
           if(${option})
             list(APPEND cmake_invocation "-D${option}=${${option}}")
           endif()
+        endforeach()
+        # Add options passed in the macro invocation
+        foreach(option ${arg_OPTIONS})
+          string(FIND "${options}" "\"" HAS_QUOTE)
+          if (HAS_QUOTE STREQUAL "-1")
+            string(REGEX REPLACE " " "=" option "${option}")
+          else()
+            string(REGEX REPLACE "^(.*) \"" "\\1=\"" option "${option}")
+          endif()
+          string(REGEX REPLACE "^(.*) \"" "\\1=\"" option "${option}")
+          string(CONFIGURE ${option} option)
+          list(APPEND cmake_invocation "-D${option}")
         endforeach()
 
         # Checkout, cmake, build and install the pacakge.

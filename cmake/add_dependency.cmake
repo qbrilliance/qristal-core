@@ -74,10 +74,10 @@ macro(add_dependency NAME VERSION)
       set(OPTION_LIST CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_Fortran_COMPILER CMAKE_BUILD_TYPE)
       foreach(option ${OPTION_LIST})
         if(${option})
-          list(APPEND arg_OPTIONS "${option}=${${option}}")
+          list(PREPEND arg_OPTIONS "${option}=${${option}}")
         endif()
       endforeach()
-      list(APPEND arg_OPTIONS "CMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}")
+      list(PREPEND arg_OPTIONS "CMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}")
 
       CPMAddPackage(
         NAME ${NAME}
