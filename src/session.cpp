@@ -1891,8 +1891,9 @@ namespace qb
         if (run_config.noise_model != "qb-nm1" && run_config.noise_model != "qb-nm2") {
           // We don't support arbitrary noise model in qsim yet.
           // Hence, ignore the noise request. Log info to let users know.
-          std::cout << "# 'qsim' doesn't support the request noise configuration. Disable noise." << std::endl;
-          std::cout << "# Please use one of QB noise models (e.g., 'qb-nm1' or 'qb-nm2') from the emulator package (extra installation)." << std::endl;
+          std::cout << "# The 'qsim' accelerator doesn't support noise configuration '" << run_config.noise_model << "'." << std::endl;
+          std::cout << "# If you wish to use qsim with noise, please install the emulator package and select one of the QB noise models (e.g. 'qb-nm1' or 'qb-nm2')." << std::endl;
+          std::cout << "# Disabling noise." << std::endl;
         } else {
           // Switch to "cirq-qsim" from emulator package
           qpu = xacc::getAccelerator("cirq-qsim");

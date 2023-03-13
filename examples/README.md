@@ -216,6 +216,10 @@ _noise_: false
 
 Example checking for equality between the values of two registers. The flag qubit returns 1 (0) if the values are equal (unequal).
 
+`exponential_search.py`
+
+Example demonstrating the use of the exponential search algorithm to find the largest number, or "best score", in a dataset. If sufficient search iterations are done, the algorithm should return the best score of 3.
+
 `generalised_mcx.py`
 
 _qubits_: 3  
@@ -247,6 +251,14 @@ _gate depth_: 6
 _noise_: true  
 
 This example shows the effects of various noise mitigation strategies available in QB SDK, using a noisy 2-qubit Bell state.
+
+`noise_model.py`
+
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
+
+A version of `quickstart.py` with noise.
 
 `pfd.py`
 
@@ -299,7 +311,7 @@ _qubits_: 3
 _gate depth_: 46  
 _noise_: true  
 
-Example of a simulation in a noisy environment. A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.
+A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.  The basic version of the example does not include noise. If you have the Qristal Emulator installed, two lines in the example file can be uncommented to convert it into an example of a simulation in a noisy environment, using noise models provided by the emulator.
 
 `remote_workstation_example.py`
 
@@ -362,6 +374,14 @@ _noise_: false
 
 A C++ implementation of `demo1.py`.
 
+`qaoa`
+
+_qubits_: 3
+_qaoa_steps_: 2
+_noise_: false
+
+Demonstrates the use of the SDK's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
+
 `qbsdkcli`
 
 A command-line interface to the QB SDK.  A simple invocation after compiling the CLI is:
@@ -369,6 +389,14 @@ A command-line interface to the QB SDK.  A simple invocation after compiling the
 ./qbsdkcli -q2 --random=2
 ```
 which will run a random circuit on 2 qubits, with gate depth of 2. Further details can be found <a href="cli.html">here</a> if viewing the html docs (or in <a href="cpp/qbsdkcli/README.md">examples/cpp/qbsdkcli/README.md</a> if viewing this document as markdown).
+
+`noise_model`
+
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
+
+A C++ implementation of `noise_model.py`.
 
 `vqee`
 
@@ -378,21 +406,10 @@ _noise_: false
 
 Demonstrates the use of the SDK's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
 
-`qaoa`
-
-_qubits_: 3  
-_qaoa_steps_: 2  
-_noise_: false  
-
-Demonstrates the use of the SDK's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
-
-
 
 ### Further notes for beta testers ###
 
-The `qb-lambda` accelerator used in `remote_workstation_example.py` submits jobs to a reverse proxy that forwards them on to the Lambda machine.  We will try to leave this reverse proxy up for the duration of the beta testing, to give you the opportunity to test some things out using GPUs.  Please let us know if the server seems to be down.
-
-This folder is to some extent a work in progress.  The examples listed above are the ones that have been properly converted to run under the latest version of the code, and fully tested.  The others listed below do not presently run or still need additional testing. This is a known issue, and thus not worth reporting as a new bug.
+This folder is to some extent a work in progress.  The examples listed above are the ones that have been fully tested and made consistent with the public version of the code.  The others listed below do not presently run or still need additional testing. This is a known issue, and thus not worth reporting as a new bug.
 
 
 `aws_braket`
@@ -416,17 +433,13 @@ These need work on the aws_s3 argument.  You should be able to get the first two
   - `external_potential.py`
   An add-in class for `vqe_calculator.py` allowing for the specification of an external potential arising from a point charge.
 
-`exponential_search.py`
-
-Example demonstrating the use of the exponential search algorithm to find the largest number, or "best score", in a dataset. If sufficient search iterations are done, the algorithm should return the best score of 3.
-
 `lambda_accelerator`
 
 Further examples using a remote accelerator.
 
 `qap`
 
-Some QAOA examples that require upcoming recursive QAOA routines.
+Some additional QAOA examples using recursive QAOA routines.
 
 `vqe`
 

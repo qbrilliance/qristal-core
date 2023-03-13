@@ -18,12 +18,12 @@ QB Qristal has built-in noise models that are useful for:
 
 This model is applicable to:
 
-- [X] Open source releases: 202x
-- [X] Commercial emulator releases: 202x
+- [X] Open source releases: 2023 onwards
+- [X] Commercial emulator releases: 2023 onwards
 
 Availability on simulators:
 - [x] aer
-- [x] qsim
+- [ ] qsim
 - [ ] tnqvm
 - [ ] sparse-sim
 - [ ] qpp
@@ -34,8 +34,8 @@ This model takes the number of qubits specified by the user and generates a full
 
 This model is applicable to:
 
-- [ ] Open source releases: 202x
-- [X] Commercial emulator releases: 202x
+- [ ] Open source releases: 2023 onwards
+- [X] Commercial emulator releases: 2023 onwards
 
 Availability on simulators:
 - [x] aer
@@ -48,8 +48,8 @@ Availability on simulators:
 
 This model is applicable to:
 
-- [ ] Open source releases: 202x
-- [X] Commercial emulator releases: 202x
+- [ ] Open source releases: 2023 onwards
+- [X] Commercial emulator releases: 2023 onwards
 
 Availability on simulators:
 - [x] aer
@@ -62,8 +62,8 @@ Availability on simulators:
 
 This model is applicable to:
 
-- [ ] Open source releases: 202x
-- [X] Commercial emulator releases: 202x
+- [ ] Open source releases: 2023 onwards
+- [X] Commercial emulator releases: 2023 onwards
 
 Availability on simulators:
 - [x] aer
@@ -74,16 +74,18 @@ Availability on simulators:
 
 ## Examples showing the use of a built-in noise model
 ### C++
-```c++
-#include "session.hpp"
-int main(int argc, char * argv[]) {
-    auto tqb = qb::session();
-    tqb.qb12();          // Set up meaningful defaults
-    tqb.set_qn(2);       // 2 qubits
-    tqb.set_acc("aer");  // Aer simulator selected
-    tqb.set_noise(true); // Set this to true for noise models to be active
-    tqb.set_noise_model("default"); // Also available from Quantum Brilliance: "qb-nm1" , "qb-nm2" , "qb-qdk1"
-    tqb.set_instring(R"(
+This example can be found at `examples/cpp/noise_model`, along with a `CMakeLists.txt` file for building it.
+```C++
+#include "qb/core/session.hpp"
+int main(int argc, char * argv[])
+{
+    auto my_sim = qb::session();
+    my_sim.qb12();          // Set up meaningful defaults
+    my_sim.set_qn(2);       // 2 qubits
+    my_sim.set_acc("aer");  // Aer simulator selected
+    my_sim.set_noise(true); // Set this to true for noise models to be active
+    my_sim.set_noise_model("default"); // Also available from the Qristal Emulator: "qb-nm1" , "qb-nm2" , "qb-qdk1"
+    my_sim.set_instring(R"(
        OPENQASM 2.0;
        include "qelib1.inc";
        creg c[2];
@@ -92,22 +94,23 @@ int main(int argc, char * argv[]) {
        measure q[1] -> c[1];
        measure q[0] -> c[0];
        )");
-    tqb.run();
-    std::string result = ((tqb.get_out_raws()).at(0)).at(0);
+    my_sim.run();
+    std::string result = ((my_sim.get_out_raws()).at(0)).at(0);
     std::cout << result << std::endl;
     return 0;
 }
 ```
 ### Python
+This example can be found at `examples/python/noise_model.py`.
 ```python
-import core
-tqb = core.session()
-tqb.qb12()
-tqb.qn = 2
-tqb.acc = "aer"
-tqb.noise = True
-tqb.noise_model = "default"
-tqb.instring = '''
+import qb.core
+my_sim = qb.core.session()
+my_sim.qb12()
+my_sim.qn = 2
+my_sim.acc = "aer"
+my_sim.noise = True
+my_sim.noise_model = "default"
+my_sim.instring = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     creg c[2];
@@ -116,13 +119,13 @@ tqb.instring = '''
     measure q[1] -> c[1];
     measure q[0] -> c[0];
 '''
-tqb.run()
-tqb.out_raws[0]
+my_sim.run()
+print(my_sim.out_raws[0])
 ```
 
 # User defined noise models
 
-QB Qristal allows an end-user to implement noise models. First use  <a href="../_cpp_api/structqb_1_1NoiseProperties.html">NoiseProperties</a> to set up noise model parameters.  Then pass the parameters to the constructor of qb::NoiseModel.
+QB Qristal allows an end-user to implement noise models. First use  <a href="../_cpp_api/structqb_1_1NoiseProperties.html">NoiseProperties</a> to set up noise model parameters.  Then pass the parameters to the constructor of `qb::NoiseModel`.
 
 ## Modifying the `default` noise model
 

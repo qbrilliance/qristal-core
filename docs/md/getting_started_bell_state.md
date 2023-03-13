@@ -1,4 +1,6 @@
 # Quickstart
+The fastest way to get a working Qristal installation is to [run it directly from the provided Docker image](https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker).
+
 To learn how to use Qristal, let's run a simple Python example to create a Bell state.
 
 The Bell state is the simplest example of a maximally entangled state, and comprises just 2 qubits. These 2 qubits contribute a Hilbert space of dimension 4. In the qubit basis $\ket{0}$ and $\ket{1}$, these four components are written as
@@ -35,7 +37,7 @@ A Bell state can be constructed through the application of simple gates such as 
 
 Now let's code up the circuit to generate $\ket{\Phi^+}$.
 
-Call the Qristal core:
+Import the Qristal core:
 ```python
 import qb.core
 ```

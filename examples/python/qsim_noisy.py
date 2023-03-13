@@ -7,7 +7,12 @@ s.qb12()
 s.sn = 1024
 s.qn = 3
 s.acc = "qsim"
-s.noise = True
+
+# Uncomment the following lines to introduce noise to the simulation.
+# You will need to have the Qristal emulator installed for this to work.
+#s.noise = True
+#s.noise_model = "qb-nm1"
+
 # In this test we use generalised mcx to
 # perform a standard mcx on |111>
 

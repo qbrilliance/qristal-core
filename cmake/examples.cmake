@@ -40,9 +40,10 @@ set(WITH_EXAMPLES ON CACHE BOOL "Enable examples")
 if(WITH_EXAMPLES)
 
   add_example(demo1 SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/demo1/demo1.cpp)
-  add_example(vqee SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqee/vqee_example.cpp)
   add_example(qaoa SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qaoa/qaoa_example.cpp)
   add_example(qbsdkcli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/qbsdkcli.cpp)
+  add_example(noise_model SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model/noise_model.cpp)
+  add_example(vqee SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqee/vqee_example.cpp)
   if (WITH_QODA)
     set(CMAKE_CXX_STANDARD 20 CACHE STRING "Required C++ standard for QODA.")
     add_example(qoda_demo1 QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_demo1/demo1-qoda.cpp)
@@ -50,7 +51,7 @@ if(WITH_EXAMPLES)
     add_example(qoda_vqe_lbfgs QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_lbfgs/vqe-lbfgs-qoda.cpp)
     add_example(qoda_vqe_hydrogens QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_hydrogens/vqe-hydrogens-qoda.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_hydrogens/gen_h_chain.py)
   endif()
-  
+
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples

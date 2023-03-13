@@ -11,12 +11,14 @@ Using Qristal
 Development guide
 -----------------
 
+Qristal can either be run `directly from the provided Docker image <https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker>`_, or `installed from source <https://gitlab.com/qbau/software-and-apps/public/QBSDK>`_.  This section provides instructions for working with the source.
+
 Dependencies
 ^^^^^^^^^^^^
 
 .. _required_deps:
 
-QB Qristal **requires** the following libraries/packages to be installed:
+Installing Qristal from source **requires** the following libraries/packages to be installed:
 
 * `GNU C++ Compiler <https://gcc.gnu.org/>`_ >= 7.x
 * `CMake <https://cmake.org/>`_ >= 3.20
@@ -43,18 +45,17 @@ Additional dependencies that can be installed automatically at build time:
 
 .. note:: **Automatic dependency installation**
 
-      It is highly recommended that users let the Qristal build system install the `additional dependencies mentioned above <_auto_install_deps>`, by setting the ``-DINSTALL_MISSING=ON`` CMake option.
+      It is highly recommended that users let the Qristal build system install the :ref:`additional dependencies mentioned above <auto_install_deps>`, by setting the ``-DINSTALL_MISSING=ON`` CMake option.
 
 Installation
 ^^^^^^^^^^^^
 
-1. For development purposes, it is **recommended** to install the Qristal ``core`` library
-using *automatic dependency installation* mode:
+1. For development purposes, it is **recommended** to install Qristal using *automatic dependency installation* mode.
 
 .. code-block:: bash
 
-    git clone https://gitlab.com/qbau/software-and-apps/public/core.git
-    cd core
+    git clone https://gitlab.com/qbau/software-and-apps/public/qbsdk.git qristal
+    cd qristal
     mkdir build && cd build
     cmake .. -DINSTALL_MISSING=ON
     make install
@@ -82,18 +83,6 @@ The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any)
       Please follow the error message to install the correct version (specified as a git commit hash key).
 
 
-Software Tests
-^^^^^^^^^^^^^^
-
-To ensure that the Qristal ``core`` component is working correctly after building and installation, the test suite
-can be run by navigating to the ``build`` folder and running
-
-.. code-block:: bash
-
-    ctest
-
-
-
 Contributing
 ^^^^^^^^^^^^
 
@@ -106,13 +95,13 @@ Here are some ideas for how you can get involved.
 
 Have a question? Some concepts are hard-to-understand?
 
-Please feel free to file an issue to ask your questions `here <https://gitlab.com/qbau/software-and-apps/public/core/-/issues/new>`_.
+Please feel free to file an issue to ask your questions `here <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues/new>`_.
 
 Your question will serve as resource to others searching for help.
 
 2. **Reporting and/or Commenting on Issues**
 
-If you have feedback about QB Qristal, please let us know by filing a `new issue <https://gitlab.com/qbau/software-and-apps/public/core/-/issues/new>`_!
+If you have feedback about QB Qristal, please let us know by filing a `new issue <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues/new>`_!
 
 When filing a bug report, please follow the below template:
 
@@ -141,11 +130,11 @@ When filing a bug report, please follow the below template:
    - Operating system:
 
 
-We also encourage you to look at the list of currently `open issues <https://gitlab.com/qbau/software-and-apps/public/core/-/issues>`_ to share your ideas and expertise.
+We also encourage you to look at the list of currently `open issues <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues>`_ to share your ideas and expertise.
 
 3. **Contributing Code**
 
-Before submitting a `new merge request <https://gitlab.com/qbau/software-and-apps/public/core/-/merge_requests/new>`_, please make sure the following is done:
+Before submitting a `new merge request <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/merge_requests/new>`_, please make sure the following is done:
 
 * **New features should include a unit test.** If you've fixed a bug or added
   code that should be tested, add a test to the ``tests`` directory.

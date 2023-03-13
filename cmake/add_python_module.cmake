@@ -30,7 +30,7 @@ macro(add_python_module)
     if (return_val)
       message(STATUS "Python module ${module} not found.")    
       if (INSTALL_MISSING_PYTHON)
-        message(STATUS "Attempting to installl with pip...")    
+        message(STATUS "Attempting to install with pip...")    
         execute_process(COMMAND ${Python_EXECUTABLE} -m pip install ${pip_package} --upgrade
                         RESULT_VARIABLE return_val)
         if (return_val)

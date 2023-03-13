@@ -29,10 +29,14 @@ Features
 * Accurate noise models and emulation of Quantum Brilliance's hardware.
 
 
-License
-=======
+Components and Licensing
+========================
 
-Qristal is released under the Apache License, Version 2.0.
+This documentation covers both the `Qristal Software Development Kit <https://quantumbrilliance.com/quantum-brilliance-qristal>`_ and its `Emulator plugin <https://quantumbrilliance.com/quantum-brilliance-emulator>`_.
+
+Qristal is released under the open source Apache License, Version 2.0.
+
+The Emulator plugin for Qristal `can be obtained in binary form from Quantum Brilliance <https://quantumbrilliance.com/sales-contact>`_. 
 
 
 .. toctree::
