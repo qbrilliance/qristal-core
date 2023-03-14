@@ -62,7 +62,7 @@ ubuntu20-build-for-emulator:
 ubuntu20-build:
   stage: build
   image: $CI_IMAGE
-  tags:
+  tags: 
     - docker-heavy
   script:
     - rm -rf ${QB_DIR}/core-local

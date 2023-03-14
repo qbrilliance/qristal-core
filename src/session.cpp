@@ -70,7 +70,7 @@ namespace
     return s;
   }
 
-  const double getExpectationValueZ(std::shared_ptr<xacc::AcceleratorBuffer> buffer)
+  double getExpectationValueZ(std::shared_ptr<xacc::AcceleratorBuffer> buffer)
   {
     double aver = 0.0;
     auto has_even_parity = [](const std::string &x) -> bool
@@ -92,7 +92,6 @@ namespace
       {
         xacc::error("called getExpectationValueZ() on an AcceleratorBuffer with "
                     "no measurements!");
-        return 0;
       }
 
       for (auto &kv : buffer->getMeasurementCounts())
@@ -113,8 +112,8 @@ namespace qb
 {
 
   /// Core session methods: run/run_async executions and helpers for compilation/post-processing...
-  session::circuit_input_types session::validate_infiles_instrings_randoms_irtarget_ms_nonempty(const int &ii,
-                                                        const int &jj) {
+  session::circuit_input_types session::validate_infiles_instrings_randoms_irtarget_ms_nonempty(const size_t ii,
+                                                        const size_t jj) {
     session::circuit_input_types returnval = session::circuit_input_types::INVALID;
     if (debug_) {
       std::cout
@@ -420,7 +419,7 @@ namespace qb
   }
 
   template <class TT>
-  int session::singleton_or_eqlength(const TT &in_d, const int N_ii) {
+  int session::singleton_or_eqlength(const TT &in_d, const size_t N_ii) {
     const int INVALID = -1;
     const int SINGLETON = 1;
     if (in_d.size() > 0) {
@@ -450,7 +449,7 @@ namespace qb
   int session::is_ii_consistent() {
     const int INVALID = -1;
     // const int SINGLETON = 1;
-    int N_ii = 0;
+    size_t N_ii = 0;
 
     // Find largest size amongst:
     //  infiles_,
@@ -638,7 +637,7 @@ namespace qb
     Raises:
     NONE
   **/
-  std::string session::random_circuit(const int &n_q, const int &depth) {
+  std::string session::random_circuit(const int n_q, const int depth) {
     std::vector<std::string> one_q_ops = {"id", "u1",  "u2", "u3", "x",
                                           "y",  "z",   "h",  "s",  "sdg",
                                           "t",  "tdg", "rx", "ry", "rz"};
@@ -786,33 +785,14 @@ namespace qb
     return std::norm(in_pair.second);
   }
 
-  template <typename TQ, class TV>
-  TQ session::get_key(const std::map<TQ, TV> &in_q, const int &key_in_q) {
-    return (TQ)key_in_q;
-  }
-
-  template <class TT, class TV>
-  int session::get_key(const std::map<int, TT> &in_q,
-                    const std::pair<const int, TV> &el, const int &key_in_q) {
+  template <class TV>
+  int session::get_key(const std::pair<const int, TV> &el) {
     return el.first;
-  }
-
-  // Specialise for std::string keys
-  template <>
-  std::string session::get_key(const std::map<std::string, int> &in_q,
-                            const int &key_in_q) {
-    std::string n_str = in_q.begin()->first;
-    size_t sz_label = n_str.size();
-    boost::dynamic_bitset<> statelabel_v(sz_label, key_in_q);
-    std::string tkey;
-    to_string(statelabel_v, tkey);
-    return tkey;
   }
 
   template <class TQ, typename TP>
   double session::get_jensen_shannon_divergence(const std::map<TQ, int> &in_q,
-                                             const TP &in_p,
-                                             const bool &in_use_lsb) {
+                                             const TP &in_p) {
     double divergence = 0.0;
     int sum_in_q = 0;
     for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
@@ -822,7 +802,7 @@ namespace qb
     typename std::map<TQ, int>::const_iterator in_q_elem;
     int i_iter = 0;
     for (auto in_p_elem = in_p.begin(); in_p_elem != in_p.end(); in_p_elem++) {
-      auto statelabel = get_key(in_q, *in_p_elem, i_iter);
+      auto statelabel = get_key(*in_p_elem);
       double nipe = get_probability(in_p_elem->second);
       if (debug_) {
         std::cout << "[debug]: i_iter: " << i_iter
@@ -860,7 +840,8 @@ namespace qb
     // Check for entries of in_q that are sparse (zero) for in_p
     i_iter = 0;
     for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
-      auto statelabel = get_key(in_p, *in_q_elem, i_iter);
+      // auto statelabel = get_key(in_p, *in_q_elem, i_iter);
+      auto statelabel = get_key(*in_q_elem);
       double rfq = (1.0 / sum_in_q) * (in_q_elem->second);
       auto in_p_el = in_p.find(statelabel);
       if (in_p_el == in_p.end()) {
@@ -924,8 +905,7 @@ namespace qb
     }
 
     double jsdivergence = get_jensen_shannon_divergence(
-        out_counts_.at(ii).at(jj), output_amplitudes_.at(ii).at(jj),
-        acc_uses_lsbs_.at(ii).at(jj) );
+        out_counts_.at(ii).at(jj), output_amplitudes_.at(ii).at(jj));
     ND jsdivergence_nd;
     jsdivergence_nd.insert(std::make_pair(0, jsdivergence));
     out_divergences_.at(ii).at(jj) = jsdivergence_nd;
@@ -1031,8 +1011,6 @@ namespace qb
 
     return NEWcircuit;
   }
-
-  void session::profile(const size_t &ii, const size_t &jj) {}
 
   /// Retrieve and validate run configurations for index pair (ii, jj) using the table index convention.
   session::run_i_j_config session::get_run_config(size_t ii, size_t jj)
@@ -1488,7 +1466,7 @@ namespace qb
         if (!theta.empty()) {
           map_to_vec<ND, std::vector<double>>(theta, qbtheta);
         }
-        for (int j = 0; j < qbtheta.size(); j++) {
+        for (size_t j = 0; j < qbtheta.size(); j++) {
           std::stringstream starget;
           std::stringstream sval;
 
@@ -1533,7 +1511,7 @@ namespace qb
   }
 
   /// Run (execute) task specified by the (ii, jj) index pair
-  void session::run(const size_t &ii, const size_t &jj) {
+  void session::run(const size_t ii, const size_t jj) {
     // Construct validations
     if (debug_) {
       std::cout << "Invoked run on circuit: " << ii << ", setting:" << jj
@@ -1576,8 +1554,8 @@ namespace qb
       bool noplacement      = run_config.no_placement;
       bool nooptimise       = run_config.no_optimise;
       bool nosim            = run_config.no_sim;
-      bool xasm             = (run_config.source_type == source_string_type::XASM);
-      bool quil1            = (run_config.source_type == source_string_type::Quil);
+      // bool xasm             = (run_config.source_type == source_string_type::XASM);
+      // bool quil1            = (run_config.source_type == source_string_type::Quil);
       if (debug_)
       {
         switch (run_config.source_type)
@@ -2209,18 +2187,22 @@ namespace qb
         // Get counts
         std::map<std::string, int> qpu_counts = buffer_b->getMeasurementCounts();
         // Get Z operator expectation:
-        double z_expectation_val = -99.99;
         if (!nosim) {
-          if (!exec_on_hardware) {   // temporary until correct state strings are returned by QDK Server - 211029
-            z_expectation_val = getExpectationValueZ(buffer_b);
-            if (debug_)
-              std::cout << "* Z-operator expectation value: " << z_expectation_val << std::endl;
+          if (buffer_b->hasExtraInfoKey("ro-fixed-exp-val-z") ||
+              buffer_b->hasExtraInfoKey("exp-val-z") ||
+              (!buffer_b->getMeasurementCounts().empty())) {
+            double z_expectation_val = getExpectationValueZ(buffer_b);
+            if (debug_) {
+              std::cout << "* Z-operator expectation value: "
+                        << z_expectation_val << std::endl;
+            }
+            // Save Z-operator expectation value to VectorMapND
+            ND res_z{{0, z_expectation_val}};
+            out_z_op_expects_.at(ii).at(jj) = res_z;
+          } else {
+            xacc::warning("No Z operator expectation available");
           }
         }
-        
-        // Save Z-operator expectation value to VectorMapND
-        ND res_z{{0, z_expectation_val}};
-        out_z_op_expects_.at(ii).at(jj) = res_z;
 
         // Save the counts to VectorMapNN in out_counts_ and raw map data in
         // out_raws
@@ -2261,8 +2243,6 @@ namespace qb
         }
       }
   }
-
-  void session::run(const size_t &ii) {}
 
   void session::run() {
     if (debug_) std::cout << "Invoked run()" << std::endl;
@@ -2341,8 +2321,8 @@ namespace qb
       el.resize(N_jj);
     }
 
-    for (int ii = 0; ii < N_ii; ii++) {
-      for (int jj = 0; jj < N_jj; jj++) {
+    for (size_t ii = 0; ii < N_ii; ii++) {
+      for (size_t jj = 0; jj < N_jj; jj++) {
         run(ii, jj);
       }
     }
@@ -2936,13 +2916,24 @@ namespace qb
     // Get counts
     std::map<std::string, int> qpu_counts = buffer_b->getMeasurementCounts();
     // Get Z operator expectation:
-    double z_expectation_val = -99.99;
-    if (!run_config.no_sim)
-    {
-      z_expectation_val = buffer_b->getExpectationValueZ();
-      if (debug_)
-        std::cout << "* Z-operator expectation value: " << z_expectation_val << std::endl;
+    if (!run_config.no_sim) {
+      if (buffer_b->hasExtraInfoKey("ro-fixed-exp-val-z") ||
+          buffer_b->hasExtraInfoKey("exp-val-z") ||
+          (!buffer_b->getMeasurementCounts().empty())) {
+        double z_expectation_val = getExpectationValueZ(buffer_b);
+        if (debug_) {
+          std::cout << "* Z-operator expectation value: " << z_expectation_val
+                    << std::endl;
+        }
+        // Save Z-operator expectation value to VectorMapND
+        ND res_z{{0, z_expectation_val}};
+        out_z_op_expects_.at(ii).at(jj) = res_z;
+      }
+      else {
+        xacc::warning("No Z operator expectation available");
+      }
     }
+
     // Save the counts to VectorMapNN
     NN qpu_counts_nn;
     std::string keystring;
@@ -2963,11 +2954,6 @@ namespace qb
     // Save results to JSON
     nlohmann::json qpu_counts_js = qpu_counts;
     out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
-
-    // Save Z-operator expectation value to VectorMapND
-
-    ND res_z{{0, z_expectation_val}};
-    out_z_op_expects_.at(ii).at(jj) = res_z;
 
     // Transpile to QB native gates (acc)
     if (run_config.oqm_enabled)

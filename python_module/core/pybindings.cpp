@@ -692,7 +692,7 @@ PYBIND11_MODULE(core, m) {
       .def("run", py::overload_cast<>(&qb::session::run),
            "Execute all declared quantum circuits under all conditions")
       .def("runit",
-           py::overload_cast<const size_t &, const size_t &>(&qb::session::run),
+           py::overload_cast<const size_t, const size_t >(&qb::session::run),
            "runit(i,j) : Execute circuit i, condition j")
       .def("divergence", py::overload_cast<>(&qb::session::get_jensen_shannon),
            "Calculate Jensen-Shannon divergence")

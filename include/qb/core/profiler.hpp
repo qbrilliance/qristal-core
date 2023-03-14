@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Quantum Brilliance Pty Ltd
+// Copyright Quantum Brilliance Pty Ltd
 
 #pragma once
 #include "qb/core/typedefs.hpp"
@@ -22,7 +22,7 @@ private:
   std::vector<int> count_1q_gates_on_q_;
   std::vector<int> count_2q_gates_on_q_;
   int largestdepth_q_;
-  int n_qubits_;
+  size_t n_qubits_;
 
   // Timing data
   double gate_1q_time_ms_;
@@ -35,7 +35,7 @@ private:
   bool debug_;
 
 public:
-  Profiler(std::string target_circuit, const int &n_qubits,
+  Profiler(std::string target_circuit, const int n_qubits,
            const double gate_1q_time_ms = 0.001,
            const double gate_2q_time_ms = 0.001,
            const double q_initialisation_time_ms = 30,
@@ -43,7 +43,7 @@ public:
            const double pc_send_to_control_time_ms = 10000,
            const bool debug = false);
 
-  Profiler(std::shared_ptr<xacc::CompositeInstruction> &f, const int &n_qubits,
+  Profiler(std::shared_ptr<xacc::CompositeInstruction> &f, const int n_qubits,
            const double gate_1q_time_ms = 0.001,
            const double gate_2q_time_ms = 0.001,
            const double q_initialisation_time_ms = 30,
@@ -58,15 +58,17 @@ public:
 
   NN get_count_2q_gates_on_q();
 
-  const int get_count_1q_gates_on_q(const int &iq) {
+  int get_count_1q_gates_on_q(const int iq) {
     return count_1q_gates_on_q_.at(iq);
   }
 
-  const int get_count_2q_gates_on_q(const int &iq) {
+  int get_count_2q_gates_on_q(const int iq) {
     return count_2q_gates_on_q_.at(iq);
   }
 
-  const int get_largestdepth_q() { return largestdepth_q_; }
+  int get_largestdepth_q() { 
+    return largestdepth_q_;  
+  }
 
   void run();
 

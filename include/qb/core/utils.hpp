@@ -111,7 +111,10 @@ template <typename M, typename V> void vec_to_map(M &m, const V &v) {
 /// Helper template function that converts a map [m] to a vector [v]
 template <typename M, typename V> void map_to_vec(const M &m, V &v) {
   for (typename M::const_iterator it = m.begin(); it != m.end(); ++it) {
-    if (v.size() < ((it->first) + 1)) {
+    if (it->first < 0) {
+      throw std::range_error("Map cannot be converted to vector as it does not have keys that are compatible with STL vector");
+    }
+    if (v.size() < (size_t)((it->first) + 1)) {
       v.resize((it->first) + 1);
     }
     v.at(it->first) = it->second;
@@ -152,7 +155,7 @@ public:
     if ((data_.size() > 1) && (data_[0].size() > 1)) {
       // test for II_JJ_FULL
       // const int ii_max = data_.size();
-      const int jj_max = data_[0].size();
+      const size_t jj_max = data_[0].size();
       bool all_jj_max =
           std::all_of(data_.cbegin(), data_.cend(), [&jj_max](auto delem) {
             bool returnval = false;
@@ -389,79 +392,10 @@ public:
 };
 
 // Specialisations for ValidatorTwoDim
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNN, int>::is_lt_upperbound<NN>(
-    const NN &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNN, int>::is_lt_eq_upperbound<NN>(
-    const NN &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapND, double>::is_lt_upperbound<ND>(
-    const ND &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapND, double>::is_lt_eq_upperbound<ND>(
-    const ND &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNC, std::complex<double>>::is_lt_upperbound<NC>(
-    const NC &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNC, std::complex<double>>::is_lt_eq_upperbound<
-    NC>(const NC &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapND, ND>::is_lt_upperbound<ND>(
-    const ND &subj, const std::string &in_desc);
 
 template <>
 template <>
 bool ValidatorTwoDim<VectorMapND, ND>::is_lt_eq_upperbound<ND>(
-    const ND &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNN, int>::is_gt_lowerbound<NN>(
-    const NN &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNN, int>::is_gt_eq_lowerbound<NN>(
-    const NN &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapND, double>::is_gt_lowerbound<ND>(
-    const ND &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapND, double>::is_gt_eq_lowerbound<ND>(
-    const ND &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNC, std::complex<double>>::is_gt_lowerbound<NC>(
-    const NC &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapNC, std::complex<double>>::is_gt_eq_lowerbound<
-    NC>(const NC &subj, const std::string &in_desc);
-
-template <>
-template <>
-bool ValidatorTwoDim<VectorMapND, ND>::is_gt_lowerbound<ND>(
     const ND &subj, const std::string &in_desc);
 
 template <>

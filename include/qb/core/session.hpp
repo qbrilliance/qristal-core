@@ -124,7 +124,7 @@ namespace qb
       enum class circuit_input_types { INVALID = -1, VALID_INSTRING_QPU = 1, VALID_RANDOM, VALID_INFILE, VALID_IR, VALID_QODA };
 
       // Bounds
-      const int RANDOMS_UPPERBOUND = 1000;
+      const size_t RANDOMS_UPPERBOUND = 1000;
       const size_t SNS_LOWERBOUND = 1;
       const size_t SNS_UPPERBOUND = 1000000;
       const size_t SNS_DM1_LOWERBOUND = 1;
@@ -1257,12 +1257,6 @@ namespace qb
        */
       const VectorString &getName() const;
 
-      /// @private
-      // Not implemented
-      void profile(const size_t &ii, const size_t &jj);
-      /// @private
-      // Not implemented
-      void profile();
       /**
        * @brief Compute the Jensen-Shannon divergence result for the (ii, jj) result
        * 
@@ -1275,11 +1269,10 @@ namespace qb
        * 
        */
       void get_jensen_shannon();
+      
       /// Run a quantum task at the (ii, jj) index in the experiment table.
-      void run(const size_t &ii, const size_t &jj);
-      /// @private
-      // Not implemented
-      void run(const size_t &ii);
+      void run(const size_t ii, const size_t jj);
+      
       /**
        * @brief Execute all quantum tasks
        *
@@ -1401,25 +1394,22 @@ namespace qb
       void validate_aer_sim_type(const std::string &sim_type);
 
       template <class TT> int eqlength(const TT &in_d, const int N_ii);
-      template <class TT> int singleton_or_eqlength(const TT &in_d, const int N_ii);
+      template <class TT> int singleton_or_eqlength(const TT &in_d, const size_t N_ii);
       int is_ii_consistent();
       int is_jj_consistent();
-       circuit_input_types validate_infiles_instrings_randoms_irtarget_ms_nonempty(const int &ii, const int &jj);
+       circuit_input_types validate_infiles_instrings_randoms_irtarget_ms_nonempty(const size_t ii, const size_t jj);
 
       // Methods
-      std::string random_circuit(const int &n_q, const int &depth);
+      std::string random_circuit(const int n_q, const int depth);
 
       template <typename TT> double get_probability(const TT &in_elem);
 
-      template <typename TQ, class TV>
-      TQ get_key(const std::map<TQ, TV> &in_q, const int &key_in_q);
-      template <class TT, class TV>
-      int get_key(const std::map<int, TT> &in_q, const std::pair<const int, TV> &el,
-                  const int &key_in_q);
+      template <class TV>
+      int get_key(const std::pair<const int, TV> &el);
 
       template <typename TQ, typename TP>
       double get_jensen_shannon_divergence(const std::map<TQ, int> &in_q,
-                                           const TP &in_p, const bool &in_use_lsb);
+                                           const TP &in_p);
 
       std::string aer_circuit_transpiler(std::string &circuit);
       /// Ensure that all result tables are resized/expanded to accommodate (ii, jj) experiment index.

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Quantum Brilliance Pty Ltd
+// Copyright Quantum Brilliance Pty Ltd
 
 #include "qb/core/profiler.hpp"
 #include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
@@ -16,7 +16,7 @@ namespace qb {
     4.0 With an InstructionIterator, iterate through the circuit and tally the number of gates (single-qubit + two-qubit)
         that apply to each qubit.  From there, find the qubit that sets the max-depth of the circuit.
 */
-Profiler::Profiler(std::string target_circuit, const int &n_qubits,
+Profiler::Profiler(std::string target_circuit, const int n_qubits,
                    const double gate_1q_time_ms,
                    const double gate_2q_time_ms,
                    const double q_initialisation_time_ms,
@@ -49,7 +49,7 @@ Profiler::Profiler(std::string target_circuit, const int &n_qubits,
 }
 
 Profiler::Profiler(std::shared_ptr<xacc::CompositeInstruction> &f,
-                   const int &n_qubits, const double gate_1q_time_ms,
+                   const int n_qubits, const double gate_1q_time_ms,
                    const double gate_2q_time_ms,
                    const double q_initialisation_time_ms,
                    const double q_readout_time_ms,
@@ -128,7 +128,7 @@ NN Profiler::get_count_2q_gates_on_q() {
 }
 
 void Profiler::run() {
-  for (int iq = 0; iq < n_qubits_; iq++) {
+  for (size_t iq = 0; iq < n_qubits_; iq++) {
     count_1q_gates_on_q_.at(iq) = 0;
     count_2q_gates_on_q_.at(iq) = 0;
     xacc::InstructionIterator countq(placed_circuit_);

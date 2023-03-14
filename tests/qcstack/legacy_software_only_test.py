@@ -26,8 +26,7 @@ def test_CI_220207_1_loopback_6s():
     s = qb.core.session()
     s.qb12()
     s.qn = 1
-    s.sn = 2
-
+    s.sn = 32
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -87,8 +86,7 @@ def test_CI_220225_1_init_measure_no_gates() :
     s.qb12()
 
     s.qn = 1
-    s.sn = 1
-
+    s.sn = 32
     s.xasm = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed

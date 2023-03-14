@@ -625,7 +625,8 @@ public:
 	}
 
 	void visit(CPhase& cp) {
-	}
+        xacc::error("QB SDK does not support: CPhase");
+    }
 
 	void visit(Swap& s) {
         CNOT c1(s.bits()),
