@@ -1,12 +1,12 @@
 # Command-line interface #
 
-`qbsdkcli` is a command-line executable that provides a command-line interface to the QB SDK.
+`qbsdkcli` is a command-line executable that provides a command-line interface to Qristal.
 
 ```text
   qbsdkcli [input-circuit-file] {OPTIONS}
 
     qbsdkcli - Circuit simulation with the timing, noise and topology parameters of
-    QB hardware. This tool is a component of the QB SDK. The configuration of this
+    QB hardware. This tool is a component of Qristal. The configuration of this
     tool is set in a configuration file named "sdk_cfg.json". Note: command-line options
     specified here will override that of the configuration file.
 
@@ -18,7 +18,7 @@
                                         optimisation info
       * General options
         -q[#qubits]                       -q10 accepts up to 10 qubits, default:
-                                          12 (the QB SDK can currently support up to
+                                          12 (Qristal can currently support up to
                                           maximum 48 qubits. All qubits on a QB
                                           chip are operationally connected.
                                           However, the clustered arrangement of
@@ -38,7 +38,8 @@
                                           noise-model are already hard-coded
                                           with realistic parameters. Currently,
                                           the noise-model can only work
-                                          alongside "--acc=aer" option
+                                          alongside "--acc=aer" option. Further details 
+                                          [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
         --noplacement                     Disable placement mapping
         --optimise                        Enable circuit optimiser
         --nosim                           Skip simulation

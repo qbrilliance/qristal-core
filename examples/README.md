@@ -9,7 +9,7 @@ python3 <name_of_example>.py
 
 The C++ examples are installed as source files with working CMakeLists.txt build scripts, to demonstrate how to use the core library to build your own C++ main program. To build and run an example in the installation directory, do
 ```
-cd <SDK_installation_directory>
+cd <Qristal_installation_directory>
 mkdir build
 cd build
 cmake ../examples/cpp/<name_of_example>
@@ -19,6 +19,7 @@ make
 
 The C++ example programs are _also_ built and properly linked automatically when running `make install` in the build folder of the core and SDK projects, but the resulting binaries are _not_ installed.  They simply appear in the main project build folder, and can be executed directly from there.
 
+A description of the available gates and the syntax used to implement them in Python is given in the [Quantum Computing](https://qristal.readthedocs.io/en/latest/rst/quantum_computing.html) section.
 
 ##  Notes on specific examples ##
 
@@ -250,7 +251,7 @@ _qubits_: 2
 _gate depth_: 6  
 _noise_: true  
 
-This example shows the effects of various noise mitigation strategies available in QB SDK, using a noisy 2-qubit Bell state.
+This example shows the effects of various noise mitigation strategies available in Qristal, using a noisy 2-qubit Bell state.
 
 `noise_model.py`
 
@@ -273,7 +274,7 @@ Example of proper fraction division. This example performs every 3-qubit proper 
 _qubits_: 5  
 _noise_: false  
 
-Demonstrates the use of the SDK's built-in implementation of the QAOA algorithm. This example may take some time to run.
+Demonstrates the use of Qristal's built-in implementation of the QAOA algorithm. This example may take some time to run.
 
 `qaoa_API_demo.py`
 
@@ -311,7 +312,7 @@ _qubits_: 3
 _gate depth_: 46  
 _noise_: true  
 
-A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.  The basic version of the example does not include noise. If you have the Qristal Emulator installed, two lines in the example file can be uncommented to convert it into an example of a simulation in a noisy environment, using noise models provided by the emulator.
+A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.  The basic version of the example does not include noise. If you have the Qristal Emulator installed, two lines in the example file can be uncommented to convert it into an example of a simulation in a noisy environment, using noise models provided by the emulator. Details about the noise model are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
 
 `remote_workstation_example.py`
 
@@ -353,7 +354,7 @@ _qubits_: 4
 _gate depth_: 83  
 _noise_: false  
 
-Demonstrates the use of the SDK's built-in VQE routines. This example may take some time to run.
+Demonstrates the use of Qristal's built-in VQE routines. This example may take some time to run.
 
 `vqee_example_2.py`
 
@@ -361,7 +362,7 @@ _qubits_: 4
 _gate depth_: 83  
 _noise_: false  
 
-Demonstrates the use and performance of different backends for the SDK's built-in VQE routines. This example may take some time to run.
+Demonstrates the use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
 
 
 ### C++ ###
@@ -380,11 +381,11 @@ _qubits_: 3
 _qaoa_steps_: 2
 _noise_: false
 
-Demonstrates the use of the SDK's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
+Demonstrates the use of Qristal's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
 
 `qbsdkcli`
 
-A command-line interface to the QB SDK.  A simple invocation after compiling the CLI is:
+A command-line interface to Qristal.  A simple invocation after compiling the CLI is:
 ```
 ./qbsdkcli -q2 --random=2
 ```
@@ -404,7 +405,7 @@ _qubits_: 4
 _gate depth_: 83  
 _noise_: false  
 
-Demonstrates the use of the SDK's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
+Demonstrates the use of Qristal's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
 
 
 ### Further notes for beta testers ###

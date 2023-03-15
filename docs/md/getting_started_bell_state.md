@@ -9,7 +9,7 @@ $$ \ket{\Phi^-} = \frac{\ket{00} - \ket{11}}{\sqrt{2}} , $$
 $$ \ket{\Psi^+} = \frac{\ket{01} + \ket{10}}{\sqrt{2}} , $$
 $$ \ket{\Psi^-} = \frac{\ket{01} - \ket{10}}{\sqrt{2}} . $$
 
-A Bell state can be constructed through the application of simple gates such as the Hadamard, X, Z and CNOT gates. Each of the above components are created through their respective circuit:
+A Bell state can be constructed through the application of [simple gates](https://qristal.readthedocs.io/en/latest/rst/quantum_computing.html) such as the Hadamard, X, Z and CNOT gates. Each of the above components are created through their respective circuit:
 <center>
 
 *Circuit to create $\ket{\Phi^+}$*:

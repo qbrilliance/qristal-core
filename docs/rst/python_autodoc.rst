@@ -22,7 +22,7 @@ You can use the experiment table to run a list of quantum circuits under differe
 The Circuit class
 -----------------
 
-The `Circuit` class represents a quantum circuit, i.e., an ordered sequence of quantum gates and measurements.
+The `Circuit` class represents a quantum circuit, i.e., an ordered sequence of [quantum gates and measurements](https://qristal.readthedocs.io/en/latest/rst/quantum_computing.html).
 
 In addition to elementary gates, it also supports pre-built circuit templates for commonly-used algorithms, such as Quantum Fourier Transform (QFT), algebraic circuits, etc.
 

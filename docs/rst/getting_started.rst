@@ -86,7 +86,7 @@ The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any)
 Contributing
 ^^^^^^^^^^^^
 
-There are many ways in which you can contribute to QB Qristal, whether by contributing some code or by engaging in discussions;
+There are many ways in which you can contribute to Qristal, whether by contributing some code or by engaging in discussions;
 we value contributions in all shapes and sizes!
 
 Here are some ideas for how you can get involved.
@@ -101,7 +101,7 @@ Your question will serve as resource to others searching for help.
 
 2. **Reporting and/or Commenting on Issues**
 
-If you have feedback about QB Qristal, please let us know by filing a `new issue <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues/new>`_!
+If you have feedback about Qristal, please let us know by filing a `new issue <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues/new>`_!
 
 When filing a bug report, please follow the below template:
 
