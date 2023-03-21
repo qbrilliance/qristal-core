@@ -1,10 +1,12 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/qoda/ir_converter.hpp"
+#include "qb/core/cudaq/ir_converter.hpp"
 #include "qoda/algorithm.h"
 #include "qoda/optimizers.h"
 #include "qoda/spin_op.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+
+namespace cudaq = qoda;
 
 int main() {
   // And we're off!
@@ -25,22 +27,22 @@ int main() {
   auto ansatz = xacc::getCompiled("deuteron_ansatz");
   std::cout << "QB IR:\n" << ansatz->toString() << "\n";
 
-  qb::qoda_ir_converter converter(ansatz);
-  std::cout << "Converted ansatz to QODA (Quake IR) ..." << std::endl;
-  auto &qoda_builder = converter.get_qoda_builder();
-  std::cout << "QODA QUAKE: \n" << qoda_builder.to_quake();
+  qb::cudaq_ir_converter converter(ansatz);
+  std::cout << "Converted ansatz to CUDAQ (Quake IR) ..." << std::endl;
+  auto &cudaq_builder = converter.get_cudaq_builder();
+  std::cout << "CUDAQ QUAKE: \n" << cudaq_builder.to_quake();
 
-  qoda::spin_op h = 5.907 - 2.1433 * qoda::spin::x(0) * qoda::spin::x(1) -
-                    2.1433 * qoda::spin::y(0) * qoda::spin::y(1) +
-                    .21829 * qoda::spin::z(0) - 6.125 * qoda::spin::z(1);
-  std::cout << "Constructed Deuteron Hamiltonian as QODA spin_op: \n";
+  cudaq::spin_op h = 5.907 - 2.1433 * cudaq::spin::x(0) * cudaq::spin::x(1) -
+                    2.1433 * cudaq::spin::y(0) * cudaq::spin::y(1) +
+                    .21829 * cudaq::spin::z(0) - 6.125 * cudaq::spin::z(1);
+  std::cout << "Constructed Deuteron Hamiltonian as CUDAQ spin_op: \n";
   h.dump();
 
   // Run VQE with the builder
-  qoda::optimizers::cobyla c_opt;
+  cudaq::optimizers::cobyla c_opt;
   std::cout << "Running VQE with Cobyla optimizer! \n";
   auto [opt_val, opt_params] =
-      qoda::vqe(qoda_builder, h, c_opt, /*n_params*/ 1);
+      cudaq::vqe(cudaq_builder, h, c_opt, /*n_params*/ 1);
 
   std::cout << "Ground state energy (expected -1.74886): " << opt_val << "\n";
 }

@@ -3,17 +3,17 @@
 # Add a C++ example that gets compiled when building and installed unbuilt when installing
 macro(add_example NAME)
 
-  set(flags QODA)
+  set(flags CUDAQ)
   set(multiValueArgs SOURCES EXTRAS)
   cmake_parse_arguments(arg "${flags}" "" "${multiValueArgs}" "${ARGN}")
   if (SOURCES IN_LIST arg_KEYWORDS_MISSING_VALUES)
     message(FATAL_ERROR "[add_example]: SOURCES requires at least one value")
   endif()
 
-  if (NOT arg_QODA)
+  if (NOT arg_CUDAQ)
     add_executable(${NAME} ${arg_SOURCES})
   #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") # Can only do this when building Qristal using clang; needs more testing even in that case.
-  #  add_qoda_executable(${NAME} ${arg_SOURCES})
+  #  add_cudaq_executable(${NAME} ${arg_SOURCES})
   endif()
 
   if(TARGET ${NAME})
@@ -44,12 +44,13 @@ if(WITH_EXAMPLES)
   add_example(qbsdkcli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/qbsdkcli.cpp)
   add_example(noise_model SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model/noise_model.cpp)
   add_example(vqee SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqee/vqee_example.cpp)
-  if (WITH_QODA)
-    set(CMAKE_CXX_STANDARD 20 CACHE STRING "Required C++ standard for QODA.")
-    add_example(qoda_demo1 QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_demo1/demo1-qoda.cpp)
-    add_example(qoda_vqe_cobyla QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_cobyla/vqe-cobyla-qoda.cpp)
-    add_example(qoda_vqe_lbfgs QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_lbfgs/vqe-lbfgs-qoda.cpp)
-    add_example(qoda_vqe_hydrogens QODA SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_hydrogens/vqe-hydrogens-qoda.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qoda_vqe_hydrogens/gen_h_chain.py)
+  if (WITH_CUDAQ)
+    set(CMAKE_CXX_STANDARD 20 CACHE STRING "Required C++ standard for CUDAQ.")
+    add_example(benchmark1_qasm SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/benchmark1_qasm/benchmark1_qasm.cpp)
+    add_example(benchmark1_cudaq CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/benchmark1_cudaq/benchmark1_cudaq.cpp)
+    add_example(cudaq_vqe_cobyla CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_cobyla/vqe-cobyla-cudaq.cpp)
+    add_example(cudaq_vqe_lbfgs CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_lbfgs/vqe-lbfgs-cudaq.cpp)
+    add_example(cudaq_vqe_hydrogens CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/vqe-hydrogens-cudaq.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/gen_h_chain.py)
   endif()
 
   install(

@@ -2,7 +2,7 @@
 variables:
   CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-18
   EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-2
-  QODA_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/core:qoda-2
+  CUDAQ_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/core:qoda-2
 
 stages:
   - build
@@ -55,7 +55,7 @@ ubuntu20-build-for-emulator:
       - core_artefacts/build/libnoise.so*
       - core_artefacts/cmake/py_packages_path.cmake
       - core_artefacts/cmake/xacc_utilities.cmake
-      - core_artefacts/cmake/qoda_utilities.cmake
+      - core_artefacts/cmake/cudaq_utilities.cmake
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       
@@ -92,29 +92,33 @@ ubuntu20-build:
       - core_artefacts/build/configured_example_files
       - core_artefacts/cmake/py_packages_path.cmake
       - core_artefacts/cmake/xacc_utilities.cmake
-      - core_artefacts/cmake/qoda_utilities.cmake
+      - core_artefacts/cmake/cudaq_utilities.cmake
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       - core_artefacts/examples
       - core_artefacts/src/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
-qoda-build:
+cudaq-build:
   stage: build
-  image: $QODA_CI_IMAGE
+  image: $CUDAQ_CI_IMAGE
+  tags: 
+    - docker-heavy
   script:
     - rm -rf ${QB_DIR}/core-local
+    - python3 -m pip install --upgrade cmake
     - cmake -B build . 
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
       -DINSTALL_MISSING=ON
-    # Above line is temporary; can be removed once autodiff, torch and torchviz are added to qoda image 
+    # Above line is temporary; can be removed once autodiff, torch and torchviz are added to cudaq image 
     - cmake --build build -- -j`nproc`
     - cmake --install build
-    # Compile and run QODA examples
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda_demo1 && cmake -B build . && cmake --build build && ./build/demo1-qoda
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda_vqe_cobyla && cmake -B build . && cmake --build build && ./build/vqe-qoda-cobyla 
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda_vqe_lbfgs && cmake -B build . && cmake --build build && ./build/vqe-qoda-gradients
-    - cd ${QB_DIR}/core-local/examples/cpp/qoda_vqe_hydrogens && python3 gen_h_chain.py && cmake -B build . && cmake --build build && cd build && ./vqe-qoda-hydrogens  
+    # Compile and run CUDAQ examples
+    - cd ${QB_DIR}/core-local/examples/cpp/benchmark1_qasm && cmake -B build . && cmake --build build && ./build/benchmark1_qasm
+    - cd ${QB_DIR}/core-local/examples/cpp/benchmark1_cudaq && cmake -B build . && cmake --build build && ./build/benchmark1_cudaq
+    - cd ${QB_DIR}/core-local/examples/cpp/cudaq_vqe_cobyla && cmake -B build . && cmake --build build && ./build/vqe-cudaq-cobyla 
+    - cd ${QB_DIR}/core-local/examples/cpp/cudaq_vqe_lbfgs && cmake -B build . && cmake --build build && ./build/vqe-cudaq-gradients
+    - cd ${QB_DIR}/core-local/examples/cpp/cudaq_vqe_hydrogens && python3 gen_h_chain.py && cmake -B build . && cmake --build build && cd build && ./vqe-cudaq-hydrogens  
 
 ubuntu20-cpp-tests:
   stage: test

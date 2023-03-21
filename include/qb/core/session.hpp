@@ -9,9 +9,10 @@
 #include "qb/core/profiler.hpp"
 #include "qb/core/pretranspiler.hpp"
 
-// QODA support
-#ifdef WITH_QODA
-#include "qoda/utils/qoda_utils.h"
+// CUDAQ support
+#ifdef WITH_CUDAQ
+  #include "qoda/utils/qoda_utils.h"
+  namespace cudaq = qoda;
 #endif
 
 #pragma once
@@ -35,7 +36,7 @@ namespace qb
       VectorString include_qbs_;
       VectorString qpu_configs_;
       VectorString instrings_;
-      std::vector<std::pair<std::string, std::function<void()>>> qoda_kernels_;
+      std::vector<std::pair<std::string, std::function<void()>>> cudaq_kernels_;
 
       std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> irtarget_ms_;
 
@@ -121,7 +122,7 @@ namespace qb
       const int VALID = 0;
 
       /// Valid input types:
-      enum class circuit_input_types { INVALID = -1, VALID_INSTRING_QPU = 1, VALID_RANDOM, VALID_INFILE, VALID_IR, VALID_QODA };
+      enum class circuit_input_types { INVALID = -1, VALID_INSTRING_QPU = 1, VALID_RANDOM, VALID_INFILE, VALID_IR, VALID_CUDAQ };
 
       // Bounds
       const size_t RANDOMS_UPPERBOUND = 1000;
@@ -404,19 +405,19 @@ namespace qb
       /// @private
       static const char *help_irtarget_ms_;
 
-#ifdef WITH_QODA
+#ifdef WITH_CUDAQ
       /**
-       * @brief Set the input QODA kernel
+       * @brief Set the input CUDAQ kernel
        *
-       * @param in_kernel Input QODA kernel (templated callable returning void)
+       * @param in_kernel Input CUDAQ kernel (templated callable returning void)
        */
-      template <typename QodaKernel, typename... Args>
-      void set_qoda_kernel(QodaKernel &&in_kernel, Args &&...args) {
-        const auto kernel_name = qoda::getKernelName(in_kernel);
+      template <typename CudaQKernel, typename... Args>
+      void set_cudaq_kernel(CudaQKernel &&in_kernel, Args &&...args) {
+        const auto kernel_name = cudaq::getKernelName(in_kernel);
         std::function<void()> wrapped_kernel = [&in_kernel, ... args = std::forward<Args>(args)]() mutable {
           in_kernel(std::forward<Args>(args)...);
         };
-        qoda_kernels_.emplace_back(std::make_pair(kernel_name, std::move(wrapped_kernel)));
+        cudaq_kernels_.emplace_back(std::make_pair(kernel_name, std::move(wrapped_kernel)));
       }
 #endif
 
@@ -1428,9 +1429,9 @@ namespace qb
       /// This will involve loading file (if file mode is selected), generate random circuit string (if random mode is selected), etc.
       std::string get_target_circuit_qasm_string(size_t ii, size_t jj, const run_i_j_config& run_config);
 
-#ifdef WITH_QODA
-      // Run QODA kernel assigned as (i, j) task of this session
-      void run_qoda(size_t ii, size_t jj, const run_i_j_config& run_config);
+#ifdef WITH_CUDAQ
+      // Run CUDAQ kernel assigned as (i, j) task of this session
+      void run_cudaq(size_t ii, size_t jj, const run_i_j_config& run_config);
 #endif
 
       /// Populate QPU execution results for task (i, j) to the session data

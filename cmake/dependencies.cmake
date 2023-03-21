@@ -163,7 +163,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     boto3
                     botocore
                     braket:amazon-braket-sdk
-                    conan
+                    conan:conan~=1.58.0
                     flask
                     http
                     json
@@ -330,17 +330,17 @@ install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL
 # If any packages are still missing, fail.
 check_missing()
 
-# Detect if we can find QODA
+# Detect if we can find CUDAQ
 find_program(NVQPP_EXECUTABLE NAMES nvq++)
 if (NVQPP_EXECUTABLE)
-  message(STATUS "Found nvq++ compiler at ${NVQPP_EXECUTABLE}. Enable QODA support.")
-  # Flag that we have QODA
-  set(WITH_QODA TRUE)
-  get_filename_component(QODA_BIN_DIR ${NVQPP_EXECUTABLE} DIRECTORY)
-  get_filename_component(QODA_ROOT_DIR ${QODA_BIN_DIR} DIRECTORY)
-  set(QODA_INCLUDE_DIR ${QODA_ROOT_DIR}/include)
-  set(QODA_LIB_DIR ${QODA_ROOT_DIR}/lib)
-  message(STATUS "* QODA bin directory: ${QODA_BIN_DIR}.")
-  message(STATUS "* QODA include directory: ${QODA_INCLUDE_DIR}.")
-  message(STATUS "* QODA lib directory: ${QODA_LIB_DIR}.")
+  message(STATUS "Found nvq++ compiler at ${NVQPP_EXECUTABLE}. Enable CUDAQ support.")
+  # Flag that we have CUDAQ
+  set(WITH_CUDAQ TRUE)
+  get_filename_component(CUDAQ_BIN_DIR ${NVQPP_EXECUTABLE} DIRECTORY)
+  get_filename_component(CUDAQ_ROOT_DIR ${CUDAQ_BIN_DIR} DIRECTORY)
+  set(CUDAQ_INCLUDE_DIR ${CUDAQ_ROOT_DIR}/include)
+  set(CUDAQ_LIB_DIR ${CUDAQ_ROOT_DIR}/lib)
+  message(STATUS "* CUDAQ bin directory: ${CUDAQ_BIN_DIR}.")
+  message(STATUS "* CUDAQ include directory: ${CUDAQ_INCLUDE_DIR}.")
+  message(STATUS "* CUDAQ lib directory: ${CUDAQ_LIB_DIR}.")
 endif ()

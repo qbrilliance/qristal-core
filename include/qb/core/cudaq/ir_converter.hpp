@@ -5,18 +5,20 @@
 #include "qoda/builder/kernel_builder.h"
 #include <memory>
 
+namespace cudaq = qoda;
+
 namespace qb {
-class qoda_ir_converter : public xacc::quantum::AllGateVisitor {
+class cudaq_ir_converter : public xacc::quantum::AllGateVisitor {
 private:
-  qoda::kernel_builder<std::vector<double>> m_qoda_builder;
-  qoda::QuakeValue m_qoda_qreg;
+  cudaq::kernel_builder<std::vector<double>> m_cudaq_builder;
+  cudaq::QuakeValue m_cudaq_qreg;
   std::vector<std::string> m_var_names;
   std::shared_ptr<xacc::ExpressionParsingUtil> m_parsing_util;
 
 public:
-  qoda_ir_converter(std::shared_ptr<xacc::CompositeInstruction> xacc_ir);
+  cudaq_ir_converter(std::shared_ptr<xacc::CompositeInstruction> xacc_ir);
 
-  qoda::kernel_builder<std::vector<double>> &get_qoda_builder();
+  cudaq::kernel_builder<std::vector<double>> &get_cudaq_builder();
 
   // Visitor implementations
   void visit(xacc::quantum::Hadamard &h) override;

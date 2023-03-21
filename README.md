@@ -31,6 +31,8 @@ For example, on Debian-based distributions (e.g., Ubuntu), we can use `apt` to i
 sudo apt install build-essential cmake gfortran libboost-all-dev libcurl4-openssl-dev  libeigen3-dev libopenblas-dev libpython3-dev python3 python3-pip
 ```
 
+Qristal will be built with support for CUDA Quantum if and only if cmake detects that your system has a compatible CUDA Quantum installation.
+
 **Compilation**
 
 <a name="compilation"></a>

@@ -4,14 +4,16 @@
 #include <iostream>
 #include <qoda.h>
 
-// Define a quantum kernel with QODA
+namespace cudaq = qoda;
+
+// Define a quantum kernel with CUDAQ at compile time.
+template<std::size_t N>
 struct ghz {
-  auto operator()(const int N) __qpu__ {
-    // Dynamic, vector-like qreg
-    qoda::qreg q(N);
+  auto operator()() __qpu__ {
+    cudaq::qreg<N> q;
     h(q[0]);
     for (int i = 0; i < N - 1; i++) {
-      x<qoda::ctrl>(q[i], q[i + 1]);
+      x<cudaq::ctrl>(q[i], q[i + 1]);
     }
     mz(q);
   }
@@ -23,19 +25,19 @@ int main()
   std::cout << "Executing C++ demo..." << std::endl;
 
   // Make a QB SDK session
-  auto my_sim = qb::session(true);
+  auto my_sim = qb::session(false);
   
   // Number of qubits we want to run
-  constexpr int NB_QUBITS = 4;
+  constexpr int NB_QUBITS = 20;
   
-  // Add QODA ghz kernel to the current session
-  my_sim.set_qoda_kernel(ghz{}, NB_QUBITS);
+  // Add CUDAQ ghz kernel to the current session
+  my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
   
   // Set up sensible default parameters
   my_sim.qb12();
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(200);
+  my_sim.set_sn(20000);
   
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();

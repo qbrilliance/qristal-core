@@ -161,18 +161,18 @@ namespace qb
                 << "]: is_irtarget_m_empty = " << is_irtarget_m_empty << std::endl;
     }
 
-    const bool is_qoda_empty = qoda_kernels_.empty();
+    const bool is_cudaq_empty = cudaq_kernels_.empty();
     if (debug_) {
       std::cout << "[debug]:"
                 << "[circuit: " << ii << ", condition: " << jj
-                << "]: is_qoda_empty = " << is_qoda_empty << std::endl;
+                << "]: is_cudaq_empty = " << is_cudaq_empty << std::endl;
     }
 
     if (is_infiles_empty && is_instrings_empty && is_randoms_empty &&
-        is_irtarget_m_empty && is_qoda_empty) {
+        is_irtarget_m_empty && is_cudaq_empty) {
       throw std::invalid_argument(
           "session: at least one of these must have a "
-          "value: infile | instring | random | irtarget_m | qoda ");
+          "value: infile | instring | random | irtarget_m | cudaq ");
     }
 
     // 1.1 Check if "__qpu" occurs at the start of instrings_
@@ -272,15 +272,15 @@ namespace qb
         return session::circuit_input_types::VALID_IR;
     }
 
-    // QODA input
-    if (!is_qoda_empty) {
+    // CUDAQ input
+    if (!is_cudaq_empty) {
         if (debug_) {
           std::cout << "[debug]:"
                     << "[circuit: " << ii << ", condition: " << jj
                     << "]: " << std::endl
-                    << " has a QODA target" << std::endl;
+                    << " has a CUDAQ target" << std::endl;
         }
-        return session::circuit_input_types::VALID_QODA;
+        return session::circuit_input_types::VALID_CUDAQ;
     }
 
     return returnval;
@@ -1538,13 +1538,13 @@ namespace qb
         validate_infiles_instrings_randoms_irtarget_ms_nonempty(ii, jj);
     if (file_or_string_or_random_or_ir == session::circuit_input_types::INVALID) {
       throw std::invalid_argument("Please check your settings again.");
-    } else if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_QODA) {
-#ifdef WITH_QODA
-      // Execute QODA kernel input
-      run_qoda(ii, jj, run_config);
+    } else if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_CUDAQ) {
+#ifdef WITH_CUDAQ
+      // Execute CUDAQ kernel input
+      run_cudaq(ii, jj, run_config);
 #else
       throw std::runtime_error(
-          "QODA is not supported. Please build qb::core with QODA.");
+          "CUDAQ is not supported. Please build qb::core with CUDAQ.");
 #endif
     }
     else {

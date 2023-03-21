@@ -1,7 +1,6 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #
-# Demonstration of how to set up the build of a
-# C++ main program using a QODA kernel.
+# CUDAQ-QASM comparison benchmark 1 (QASM version).
 #
 ###############################################
 
@@ -11,8 +10,8 @@ set(CMAKE_QODA_COMPILER @NVQPP_EXECUTABLE@)
 set(CMAKE_CXX_COMPILER /opt/llvm/bin/clang++)
 set(CMAKE_CXX_COMPILER_WORKS ON)
 
-project(vqe-qoda-hydrogens
-  DESCRIPTION "Quantum Brilliance VQE example implemented with QODA to solve H-chain (H4) ground-state energy."
+project(benchmark1_qasm
+  DESCRIPTION "Quantum Brilliance Benchmark 1: QASM version."
   LANGUAGES CXX
 )
 
@@ -20,12 +19,12 @@ set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(qbcore_DIR  @CMAKE_INSTALL_PREFIX@)
+set(qbcore_DIR @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 
-add_qoda_executable(vqe-qoda-hydrogens vqe-hydrogens-qoda.cpp)
+add_executable(benchmark1_qasm benchmark1_qasm.cpp)
 
-target_link_libraries(vqe-qoda-hydrogens
+target_link_libraries(benchmark1_qasm
   PRIVATE
     qb::core
 )

@@ -27,6 +27,8 @@ Installing Qristal from source **requires** the following libraries/packages to 
 * `Boost <https://www.boost.org/>`_ >= 1.71
 * `libcurl <https://curl.se/>`_
 
+Also, note that Qristal will be built with support for CUDA Quantum if and only if cmake detects that your system has a compatible CUDA Quantum installation. A shortcut is to run Qristal directly from `the Docker image that we provide with a compatible version of CUDA Quantum already installed <https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker>`_.
+
 .. _auto_install_deps:
 
 Additional dependencies that can be installed automatically at build time:

@@ -408,6 +408,31 @@ _noise_: false
 Demonstrates the use of Qristal's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
 
 
+### C++ with CUDA Quantum ###
+
+A number of additional examples are only installed when Qristal is built with CUDA Quantum support.  None of these examples has noise enabled.
+
+`benchmark1_cudaq`
+
+A 20 qubit GHZ state designed for benchmarking performance of CUDA Quantum and QASM. This is the CUDAQ version.
+
+`benchmark1_qasm`
+
+A 20 qubit GHZ state designed for benchmarking performance of CUDA Quantum and QASM. This is the QASM version.
+
+`cudaq_vqe_cobyla`
+
+Determination of the deuteron's ground state energy using VQE with the Cobyla optimiser.
+
+`cudaq_vqe_hydrogens`
+
+Determination of the ground state of a chain of four hydrogen atoms, using VQE with the L-BFGS optimiser.
+
+`cudaq_vqe_cobyla`
+
+Determination of the deuteron's ground state energy using VQE with the L-BFGS optimiser.
+
+
 ### Further notes for beta testers ###
 
 This folder is to some extent a work in progress.  The examples listed above are the ones that have been fully tested and made consistent with the public version of the code.  The others listed below do not presently run or still need additional testing. This is a known issue, and thus not worth reporting as a new bug.

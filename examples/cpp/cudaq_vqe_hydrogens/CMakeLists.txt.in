@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #
 # Demonstration of how to set up the build of a
-# C++ main program using a QODA kernel.
+# C++ main program using a CUDAQ kernel.
 #
 ###############################################
 
@@ -11,8 +11,8 @@ set(CMAKE_QODA_COMPILER @NVQPP_EXECUTABLE@)
 set(CMAKE_CXX_COMPILER /opt/llvm/bin/clang++)
 set(CMAKE_CXX_COMPILER_WORKS ON)
 
-project(demo1-qoda
-  DESCRIPTION "Quantum Brilliance demo1 example implemented with QODA."
+project(vqe-cudaq-hydrogens
+  DESCRIPTION "Quantum Brilliance VQE example implemented with CUDAQ to solve H-chain (H4) ground-state energy."
   LANGUAGES CXX
 )
 
@@ -20,12 +20,12 @@ set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(qbcore_DIR @CMAKE_INSTALL_PREFIX@)
+set(qbcore_DIR  @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 
-add_qoda_executable(demo1-qoda demo1-qoda.cpp)
+add_cudaq_executable(vqe-cudaq-hydrogens qpp vqe-hydrogens-cudaq.cpp)
 
-target_link_libraries(demo1-qoda
+target_link_libraries(vqe-cudaq-hydrogens
   PRIVATE
     qb::core
 )
