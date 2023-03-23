@@ -38,8 +38,8 @@ endmacro()
 # Build and install examples by default
 set(WITH_EXAMPLES ON CACHE BOOL "Enable examples")
 if(WITH_EXAMPLES)
-
   add_example(demo1 SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/demo1/demo1.cpp)
+  add_example(h1qb SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/h1qb/h1qb.cpp)
   add_example(qaoa SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qaoa/qaoa_example.cpp)
   add_example(qbsdkcli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/qbsdkcli.cpp)
   add_example(noise_model SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model/noise_model.cpp)

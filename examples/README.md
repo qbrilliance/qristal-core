@@ -375,6 +375,14 @@ _noise_: false
 
 A C++ implementation of `demo1.py`.
 
+`h1qb`
+
+_qubits_: 2  
+_gate depth_: 2  
+_noise_: false 
+
+This example allows you to quickly switch circuit execution between a hardware QPU and a simulator.  See cpp/h1qb/README.md for more information.
+
 `qaoa`
 
 _qubits_: 3
