@@ -1830,6 +1830,7 @@ def test_potential_async_deadlock():
     print("Test dispatching a large number of async jobs")
     import qb.core
     import json
+    import psutil
     s = qb.core.session()
     s.qb12()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
@@ -1903,8 +1904,11 @@ def test_potential_async_deadlock():
            count_qpp += 1
         if handle.qpu_name() == "aer":
            count_aer += 1
-    assert(count_qpp > 0)
-    assert(count_aer > 0)
+
+    if (len(psutil.Process().cpu_affinity()) > 1):
+        assert(count_qpp > 0)
+        assert(count_aer > 0)
+
     assert(count_qpp + count_aer == nb_jobs)
 
 def test_noise_mitigation():
