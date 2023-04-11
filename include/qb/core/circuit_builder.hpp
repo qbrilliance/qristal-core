@@ -60,7 +60,7 @@ inline std::set<std::size_t> uniqueBitsQD(std::shared_ptr<xacc::CompositeInstruc
 * for commonly-used quantum algorithms, such as QFT and amplitude amplification
 */
 class CircuitBuilder {
-private:
+protected:
   std::shared_ptr<xacc::IRProvider> gate_provider_;
   std::shared_ptr<xacc::CompositeInstruction> circuit_;
 

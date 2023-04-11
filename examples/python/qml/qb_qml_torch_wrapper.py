@@ -2,7 +2,7 @@
 
 import torch
 import numpy as np
-from qb.core.optimization import QMLParamCirc, QMLExecutor
+from qb.core.optimization import QMLExecutor
 
 
 class QGrad(torch.autograd.Function):

@@ -16,7 +16,7 @@ from torch import Tensor
 from torch.optim import SGD, Adam
 from subjectJoins import SubjectJoins
 from qb.core import String, VectorString 
-from qb.core.optimization import defaultAnsatzes, QMLParamCirc, QMLExecutor
+from qb.core.optimization import defaultAnsatzes, ParamCirc, QMLExecutor
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(sys.path[0]))), 'src', 'optimization', 'qml'))
 from qb_qml_torch_wrapper import QuantumLayer, NormLayer
 
@@ -52,7 +52,7 @@ param_gates = VectorString()
 param_gates.append(String(["Ry"]))
 param_gates.append(String(["Rz"]))
 num_params = num_qubits*reps*len(param_gates)
-circuit = QMLParamCirc(num_qubits, defaultAnsatzes.qrlRDBMS, reps, param_gates)
+circuit = ParamCirc(num_qubits, defaultAnsatzes.qrlRDBMS, reps, param_gates)
 # Connect to PyTorch
 initial_weights = np.pi*(2*np.random.rand(num_params) - 1)
 quantum_nn = QuantumLayer(circuit, init_weights=initial_weights)

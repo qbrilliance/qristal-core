@@ -14,8 +14,8 @@ The QB documentation system is built on the following technologies:
 These dependencies can be installed by:
 
 ```
-sudo apt install doxygen python3-sphinx graphviz
-python3 -m pip install sphinx_rtd_theme exhale myst-parser
+sudo apt install doxygen graphviz
+python3 -m pip install sphinx==4.5.0 sphinx_rtd_theme==1.2.0 exhale==0.3.6 myst-parser==0.18.1
 ```
 
 **NOTE**

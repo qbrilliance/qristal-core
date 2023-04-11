@@ -113,7 +113,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:include>
   )
-
+  
   # Link dependencies
   target_link_libraries(${PROJECT_NAME}
     PUBLIC

@@ -52,7 +52,7 @@ if(WITH_EXAMPLES)
     add_example(cudaq_vqe_lbfgs CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_lbfgs/vqe-lbfgs-cudaq.cpp)
     add_example(cudaq_vqe_hydrogens CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/vqe-hydrogens-cudaq.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/gen_h_chain.py)
   endif()
-
+  
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples

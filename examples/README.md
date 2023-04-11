@@ -296,7 +296,7 @@ _qubits_: 4
 _variational_params_: 40
 _noise_: false
 
-Example showing QML wrapped in pytorch for join order optimization.
+Example showing QML wrapped in PyTorch for optimizing the join order of tables for reduced query latency in relational database management systems (such as PostgreSQL).
 
 `qpe.py`
 

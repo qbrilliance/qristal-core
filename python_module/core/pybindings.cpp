@@ -3,6 +3,7 @@
 #include "qb/core/optimization/vqee/vqee.hpp"
 #include "qb/core/optimization/qml/qml.hpp"
 #include "qb/core/optimization/qaoa/qaoa.hpp"
+#include "qb/core/optimization/qml/qml.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/thread_pool.hpp"
@@ -2359,13 +2360,18 @@ PYBIND11_MODULE(core, m) {
     .value("qrlRDBMS", qb::qml::DefaultAnsatzes::qrlRDBMS)
     ;
 
-  py::class_<qb::qml::ParamCirc>(m_opt, "QMLParamCirc") 
+  py::class_<qb::qml::ParamCirc>(m_opt, "ParamCirc") 
     .def(py::init<size_t, qb::qml::DefaultAnsatzes, size_t, qb::VectorString>())
     .def("numInputs", &qb::qml::ParamCirc::getNumInputs)
     .def("numParams", &qb::qml::ParamCirc::getNumParams)
-    .def("instructionSet", &qb::qml::ParamCirc::getInstructionSet)
     .def("numQubits", &qb::qml::ParamCirc::getNumQubits)
     .def("numAnsatzRepetitions_", &qb::qml::ParamCirc::getNumAnsatzRepetitions)
+    .def("RX", &qb::qml::ParamCirc::RX)
+    .def("RY", &qb::qml::ParamCirc::RY)
+    .def("RZ", &qb::qml::ParamCirc::RZ)
+    .def("U1", &qb::qml::ParamCirc::U1)
+    .def("CPhase", &qb::qml::ParamCirc::CPhase)
+    .def("reupload", &qb::qml::ParamCirc::reupload)
     ;
   
   py::class_<qb::qml::QMLExecutor>(m_opt, "QMLExecutor") 
@@ -2373,6 +2379,7 @@ PYBIND11_MODULE(core, m) {
     .def_property("circuit", &qb::qml::QMLExecutor::getCircuit, &qb::qml::QMLExecutor::setCircuit)
     .def_property("inputParams", &qb::qml::QMLExecutor::getInputParams, &qb::qml::QMLExecutor::setInputParams)
     .def_property("weights", &qb::qml::QMLExecutor::getWeights, &qb::qml::QMLExecutor::setWeights)
+    .def_readwrite("acc", &qb::qml::QMLExecutor::acc)
     .def("run", &qb::qml::QMLExecutor::run)
     .def("getStats", &qb::qml::QMLExecutor::getStats)
     .def("runGradients", &qb::qml::QMLExecutor::runGradients)
