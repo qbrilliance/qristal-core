@@ -1,12 +1,10 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #include "qb/core/cudaq/ir_converter.hpp"
-#include "qoda/algorithm.h"
-#include "qoda/optimizers.h"
-#include "qoda/spin_op.h"
+#include "cudaq/algorithm.h"
+#include "cudaq/optimizers.h"
+#include "cudaq/spin_op.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-
-namespace cudaq = qoda;
 
 int main() {
   // And we're off!

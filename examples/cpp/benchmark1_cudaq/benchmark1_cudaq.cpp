@@ -2,9 +2,7 @@
 #include "qb/core/session.hpp"
 #include <string>
 #include <iostream>
-#include <qoda.h>
-
-namespace cudaq = qoda;
+#include <cudaq.h>
 
 // Define a quantum kernel with CUDAQ at compile time.
 template<std::size_t N>

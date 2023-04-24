@@ -1,8 +1,8 @@
 # trigger pipeline again
 variables:
   CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-18
-  EMULATOR_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-2
-  CUDAQ_CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/core:qoda-2
+  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-gcc-1
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-clang-1
 
 stages:
   - build
@@ -28,7 +28,7 @@ workflow:
 
 ubuntu20-build-for-emulator:
   stage: build
-  image: $EMULATOR_CI_IMAGE
+  image: $EMULATOR_CI_IMAGE_GCC
   tags: 
     - cutensornet2.0
   script:
@@ -99,26 +99,44 @@ ubuntu20-build:
       - core_artefacts/src/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
+# Build with CUDA (GPU) and CUDA Quantum support (using emulator image and runner)
 cudaq-build:
   stage: build
-  image: $CUDAQ_CI_IMAGE
+  image: ${CUDAQ_CI_IMAGE}
+  parallel:
+    matrix:
+      - CUDAQ_CI_IMAGE: ["$EMULATOR_CI_IMAGE_GCC", "$EMULATOR_CI_IMAGE_CLANG"]
   tags: 
-    - docker-heavy
+    - cutensornet2.0
   script:
     - rm -rf ${QB_DIR}/core-local
-    - python3 -m pip install --upgrade cmake
-    - cmake -B build . 
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
-      -DINSTALL_MISSING=ON
-    # Above line is temporary; can be removed once autodiff, torch and torchviz are added to cudaq image 
+    - cmake -B build . -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
     - cmake --build build -- -j`nproc`
     - cmake --install build
-    # Compile and run CUDAQ examples
-    - cd ${QB_DIR}/core-local/examples/cpp/benchmark1_qasm && cmake -B build . && cmake --build build && ./build/benchmark1_qasm
-    - cd ${QB_DIR}/core-local/examples/cpp/benchmark1_cudaq && cmake -B build . && cmake --build build && ./build/benchmark1_cudaq
-    - cd ${QB_DIR}/core-local/examples/cpp/cudaq_vqe_cobyla && cmake -B build . && cmake --build build && ./build/vqe-cudaq-cobyla 
-    - cd ${QB_DIR}/core-local/examples/cpp/cudaq_vqe_lbfgs && cmake -B build . && cmake --build build && ./build/vqe-cudaq-gradients
-    - cd ${QB_DIR}/core-local/examples/cpp/cudaq_vqe_hydrogens && python3 gen_h_chain.py && cmake -B build . && cmake --build build && cd build && ./vqe-cudaq-hydrogens  
+    - mkdir core_artefacts
+    - mv build cmake examples include src tests core_artefacts
+  artifacts:
+    when: always
+    paths:
+      # These are all the things required to install the full core.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/CudaqCITests
+      - core_artefacts/build/lib*
+      - core_artefacts/build/core.cpython-38-x86_64-linux-gnu.so
+      - core_artefacts/build/plugins
+      - core_artefacts/build/configured_example_files
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/cudaq_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      - core_artefacts/examples
+      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/tests/XaccInitialisedTests.cpp
 
 ubuntu20-cpp-tests:
   stage: test
@@ -165,11 +183,41 @@ ubuntu20-py-stack-tests:
     when: always
     reports:
       junit: tests/qcstack/report-stack.xml
-    
+
+cudaq-cpp-tests-gcc:
+  stage: test
+  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_GCC]"]
+  image: $EMULATOR_CI_IMAGE_GCC
+  extends: .install-core
+  tags: 
+    - cutensornet2.0
+  script:
+    - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: core_cudaq_gtests.xml
+
+cudaq-cpp-tests-clang:
+  stage: test
+  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
+  image: $EMULATOR_CI_IMAGE_CLANG
+  extends: .install-core
+  tags: 
+    - cutensornet2.0
+  script:
+    - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: core_cudaq_gtests.xml
+
 # If this branch is part of a merge request, trigger downstream decoder build and test.
 trigger-decoder:
-  needs: ["ubuntu20-build"]
   stage: downstream
+  needs: ["ubuntu20-build"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -180,8 +228,8 @@ trigger-decoder:
 
 # If this branch is part of a merge request, trigger downstream emulator build and test.
 trigger-emulator:
-  needs: ["ubuntu20-build-for-emulator"]
   stage: downstream
+  needs: ["ubuntu20-build-for-emulator"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -192,8 +240,8 @@ trigger-emulator:
 
 # If this branch is part of a merge request, trigger downstream SDK build and test.
 trigger-sdk:
-  needs: ["ubuntu20-build"]
   stage: downstream
+  needs: ["ubuntu20-build"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:

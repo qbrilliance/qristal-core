@@ -11,8 +11,8 @@
 
 // CUDAQ support
 #ifdef WITH_CUDAQ
-  #include "qoda/utils/qoda_utils.h"
-  namespace cudaq = qoda;
+  #include "cudaq/utils/cudaq_utils.h"
+  #include "qb/core/cudaq/sim_pool.hpp"
 #endif
 
 #pragma once
@@ -314,8 +314,15 @@ namespace qb
         xacc::Initialize();
         xacc::setIsPyApi();
         xacc::set_verbose(debug_);
+#ifdef WITH_CUDAQ
+        // Populate VALID_ACCS with additional CUDAQ backend
+        for (const auto &qoda_sim :
+             cudaq_sim_pool::get_instance().available_simulators()) {
+          VALID_ACCS.emplace(qoda_sim);
+        }
+#endif
       }
-      
+
       /**
        * @brief Construct a new session object with a specific name
        * 

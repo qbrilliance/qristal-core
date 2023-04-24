@@ -2,10 +2,8 @@
 #pragma once
 #include "AllGateVisitor.hpp"
 #include "CommonGates.hpp"
-#include "qoda/builder/kernel_builder.h"
+#include "cudaq/builder/kernel_builder.h"
 #include <memory>
-
-namespace cudaq = qoda;
 
 namespace qb {
 class cudaq_ir_converter : public xacc::quantum::AllGateVisitor {

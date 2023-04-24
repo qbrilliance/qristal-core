@@ -25,6 +25,7 @@ if (WITH_CUDAQ)
   # Add cudaq-related code when building with CUDAQ
   list(APPEND source_files src/cudaq/cudaq_session.cpp)
   list(APPEND source_files src/cudaq/ir_converter.cpp)
+  list(APPEND source_files src/cudaq/sim_pool.cpp)
 endif()
 
 set(headers
@@ -141,6 +142,9 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     target_include_directories(${PROJECT_NAME}
       PUBLIC
         ${CUDAQ_INCLUDE_DIR}
+        # Remove this include path once https://github.com/NVIDIA/cuda-quantum/pull/94 is merged in.
+        # (it was an oversight in CUDA Quantum lib)
+        ${CUDAQ_INCLUDE_DIR}/common
     )
     # CUDAQ needs C++20 (std::span, std::stringview, etc.)
     set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
@@ -149,11 +153,16 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     # List of CUDAQ libraries for linking
     list(APPEND 
       CUDAQ_LIBS
-        qoda 
-        qoda-builder
-        qoda-common
-        qoda-qpud-client
-        qoda-spin
+        cudaq 
+        cudaq-builder
+        cudaq-common
+        cudaq-em-qir
+        cudaq-ensmallen
+        cudaq-nlopt
+        cudaq-platform-default
+        cudaq-qpud-client
+        cudaq-spin
+        nvqir
     )
     
     # Find the paths to the corresponding *.so files for linking.

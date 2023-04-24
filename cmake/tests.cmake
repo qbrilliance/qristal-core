@@ -78,3 +78,20 @@ install(
   FILES tests/XaccInitialisedTests.cpp
   DESTINATION ${CMAKE_INSTALL_PREFIX}/tests
 )
+
+# Adding CUDAQ tests
+# Note: the test requires extra deps and C++20; hence making it a standalone test suite rather than combining with the overall CITests.
+if (WITH_CUDAQ)
+  add_executable(CudaqCITests tests/cudaq/CudaqTester.cpp)
+  set_property(TARGET CudaqCITests PROPERTY CXX_STANDARD 20)
+  target_link_options(CudaqCITests PRIVATE -Wl,--no-as-needed)
+  target_link_libraries(CudaqCITests PUBLIC qb::core)
+  include(CheckLanguage)
+  check_language(CUDA)
+  if(CMAKE_CUDA_COMPILER)
+    message(STATUS "CUDA language found. Enable CUDAQ GPU tests.")
+    target_compile_definitions(CudaqCITests PUBLIC ENABLE_CUDA_TESTS)
+  endif()
+  # Add the test
+  add_test(NAME cudaq_ci_test COMMAND CudaqCITests)
+endif()

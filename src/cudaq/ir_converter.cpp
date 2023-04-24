@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #include "qb/core/cudaq/ir_converter.hpp"
-#include "qoda/utils/qoda_utils.h"
+#include "cudaq/utils/cudaq_utils.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <cassert>
@@ -45,8 +45,10 @@ void cudaq_ir_converter::visit(xacc::quantum::S &s) {
 }
 
 void cudaq_ir_converter::visit(xacc::quantum::Sdg &sdg) {
-  // This will be fixed soon... (reported to QODA dev team)
-  // m_cudaq_builder.s<cudaq::adj>(m_cudaq_qreg[sdg.bits()[0]]);
+  // Workaround missing Rval overload in cudaq::kernel_builder adjoint.
+  // Hence, need to have a temp. variable.
+  auto qubit = m_cudaq_qreg[sdg.bits()[0]];
+  m_cudaq_builder.s<cudaq::adj>(qubit);
 }
 
 void cudaq_ir_converter::visit(xacc::quantum::T &t) {
@@ -54,8 +56,10 @@ void cudaq_ir_converter::visit(xacc::quantum::T &t) {
 }
 
 void cudaq_ir_converter::visit(xacc::quantum::Tdg &tdg) {
-  // This will be fixed soon... (reported to QODA dev team)
-  // m_cudaq_builder.t<cudaq::adj>(m_cudaq_qreg[tdg.bits()[0]]);
+  // Workaround missing Rval overload in cudaq::kernel_builder adjoint.
+  // Hence, need to have a temp. variable.
+  auto qubit = m_cudaq_qreg[tdg.bits()[0]];
+  m_cudaq_builder.t<cudaq::adj>(qubit);
 }
 
 void cudaq_ir_converter::visit(xacc::quantum::CNOT &cnot) {

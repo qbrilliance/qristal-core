@@ -10,7 +10,7 @@
 #if defined(__clang__)
 namespace std {
 template <>
-complex<autodiff::dual> operator*(const complex<autodiff::dual> &__z,
+inline complex<autodiff::dual> operator*(const complex<autodiff::dual> &__z,
                                   const complex<autodiff::dual> &__w) {
   autodiff::dual __a = __z.real();
   autodiff::dual __b = __z.imag();

@@ -9,10 +9,10 @@ macro(add_cudaq_executable TARGET_NAME BACKEND)
   # Add the actual executable
   add_executable(${TARGET_NAME} ${ARGN})
   if (NOT CUDAQ_DIR) 
-    set(CUDAQ_DIR "/opt/qoda/lib/cmake")
+    set(CUDAQ_DIR "/opt/cudaq/lib/cmake")
   endif()
 
-  find_package(QODA REQUIRED)
+  find_package(CUDAQ REQUIRED)
   
   # Modify CUDAQ to support specification of backend.
   if (${BACKEND} STREQUAL "qpp")
@@ -20,15 +20,15 @@ macro(add_cudaq_executable TARGET_NAME BACKEND)
   else()
     set(CMAKE_CUDAQ_BACKEND_COMMAND "--qpu ${BACKEND}")
   endif()
-  set(CMAKE_QODA_COMPILE_OBJECT "${CMAKE_QODA_COMPILE_OBJECT} ${CMAKE_CUDAQ_BACKEND_COMMAND}")
-  set(CMAKE_QODA_LINK_EXECUTABLE "${CMAKE_QODA_LINK_EXECUTABLE} ${CMAKE_CUDAQ_BACKEND_COMMAND}")
+  set(CMAKE_CUDAQ_COMPILE_OBJECT "${CMAKE_CUDAQ_COMPILE_OBJECT} ${CMAKE_CUDAQ_BACKEND_COMMAND}")
+  set(CMAKE_CUDAQ_LINK_EXECUTABLE "${CMAKE_CUDAQ_LINK_EXECUTABLE} ${CMAKE_CUDAQ_BACKEND_COMMAND}")
 
   # Modify CUDAQ to support extra include paths.
   # This will be available in the public release.
-  set(CMAKE_INCLUDE_FLAG_QODA "-I")
-  set(CMAKE_QODA_COMPILE_OBJECT "${CMAKE_QODA_COMPILE_OBJECT} <DEFINES> <INCLUDES>")
+  set(CMAKE_INCLUDE_FLAG_CUDAQ "-I")
+  set(CMAKE_CUDAQ_COMPILE_OBJECT "${CMAKE_CUDAQ_COMPILE_OBJECT} <DEFINES> <INCLUDES>")
   
-  set_target_properties(${TARGET_NAME} PROPERTIES LANGUAGE QODA)
+  set_target_properties(${TARGET_NAME} PROPERTIES LANGUAGE CUDAQ)
    
   # Add the core's include dir with -I instead of -isystem
   target_include_directories(${TARGET_NAME} PRIVATE ${qbcore_DIR}/lib/../include)

@@ -1,17 +1,37 @@
 #include "qb/core/session.hpp"
-
+#include "qb/core/cudaq/sim_pool.hpp"
 // CUDAQ
-#include "qoda/algorithms/sample.h"
-#include "qoda/qpud_client.h"
+#include "cudaq/algorithms/sample.h"
+#include "cudaq/qpud_client.h"
 
 namespace qb {
 void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) {
   auto [cudaq_kernel_name, cudaq_kernel_functor] = cudaq_kernels_.at(ii);
+  std::string requested_sim = run_config.acc_name;
+  auto &cudaq_sim_pool = cudaq_sim_pool::get_instance();
+  const auto cudaq_sims = cudaq_sim_pool.available_simulators();
+  if (std::find(cudaq_sims.begin(), cudaq_sims.end(), requested_sim) ==
+      cudaq_sims.end()) {
+    // The requested simulator is not valid for using with CUDAQ kernel,
+    // e.g., could be TNQVM, aer, etc.
+    std::stringstream msg;
+    msg << "The requested accelerator (" << requested_sim
+        << ") is not compatible with CUDA Quantum kernels." << std::endl
+        << "Available CUDAQ simulators are:" << std::endl;
+    for (const auto &sim_name : cudaq_sims) {
+      msg << "  - " << sim_name << std::endl;
+    }
+    throw std::invalid_argument(msg.str());
+  }
   if (debug_) {
     std::cout << "[debug]: Executing CUDAQ kernel at "
               << "[location: " << ii << ", condition: " << jj
-              << "]: Kernel name: " << cudaq_kernel_name << std::endl;
+              << "]: Kernel name: " << cudaq_kernel_name
+              << "; CUDAQ backend name: " << requested_sim << std::endl;
   }
+
+  // Set the simulator
+  cudaq_sim_pool.set_simulator(requested_sim);
   auto &platform = cudaq::get_platform();
   const auto shots = run_config.num_shots;
   auto cudaq_context = std::make_unique<cudaq::ExecutionContext>("sample", shots);
