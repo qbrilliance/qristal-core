@@ -190,35 +190,30 @@ protected:
          **/
         //
         // q0:
-        // --|Ry(0.5*pi)--|Rx(pi)||--|Rx(angleStr)|--|Ry(0.5*pi)|--|Rx(pi)|--
+        // --|Ry(0.5*pi)--|Rx(angleStr)|--|Ry(-0.5*pi)|--
         //
         void visit(Rz &rz) override {
           std::stringstream s1, s2, s3;
           double angleStr = mpark::get<double>(rz.getParameter(0));
 
-          s2 << "Ry"
+          s1 << "Ry"
              << "(" // Ry in XASM format
              << "q"
              << "[" << rz.bits()[0] << "]" // target qubit
-             << "," << (0.5 * pi) << ")";  // theta=pi/2
-          sequence_.push_back(s2.str());
-
-          s1 << "Rx"
-             << "(" // Rx in XASM format
-             << "q"
-             << "[" << rz.bits()[0] << "]" // target qubit
-             << "," << (pi) << ")";        // theta=pi
-          sequence_.push_back(s1.str());
-
-          s3 << "Rx"
+             << "," << (0.5 * pi) << ")"; // theta=pi/2
+          s2 << "Rx"
              << "("  // Rx in XASM format
              << "q"
              << "[" << rz.bits()[0] << "]"  // target qubit
              << "," << angleStr << ")";
+          s3 << "Ry"
+             << "(" // Ry in XASM format
+             << "q"
+             << "[" << rz.bits()[0] << "]" // target qubit
+             << "," << (-0.5 * pi) << ")";  // theta=-pi/2
+          sequence_.push_back(s1.str());
+          sequence_.push_back(s2.str());
           sequence_.push_back(s3.str());
-
-          sequence_.push_back(s2.str()); // Ry(0.5*pi)
-          sequence_.push_back(s1.str()); // Rx(pi)
         }
 
         /**
@@ -536,7 +531,7 @@ protected:
          * U - rotate in an arbitrary combination of (theta, phi, lambda)
          *
          * U3(theta, phi, lambda) =
-         *Rz(phi)*Rx(-0.5*pi)*Rz(theta)*Rx(0.5*pi)*Rz(lambda)
+         * Ry(-pi/2)*Rx(phi)*Ry(theta)*Rx(lambda)*Ry(pi/2)
          *
          * Input: reference to IR object of class Z
          *
@@ -545,7 +540,7 @@ protected:
          * Effect: push U to the back of JSON object: sequence_
          **/
         // q0:
-        // --|Rz(lambda)|--|Rx(0.5*pi)|--|Rz(theta)|--|Rx(-0.5*pi)|--|Rz(phi)|--
+        // --Ry(pi/2)--Rx(lambda)--Ry(theta)--Rx(phi)--Ry(-pi/2)--
         //
 
         void visit(U &u) override {
@@ -553,16 +548,23 @@ protected:
           double theta = mpark::get<double>(u.getParameter(0));
           double phi = mpark::get<double>(u.getParameter(1));
           double lambda = mpark::get<double>(u.getParameter(2));
-          Rz rz_1(u.bits()[0], lambda);
-          Rx rx_1(u.bits()[0], 0.5 * pi);
-          Rz rz_2(u.bits()[0], theta);
-          Rx rx_2(u.bits()[0], -0.5 * pi);
-          Rz rz_3(u.bits()[0], phi);
-          visit(rz_1);
-          visit(rx_1);
-          visit(rz_2);
-          visit(rx_2);
-          visit(rz_3);
+
+          // Special case Rx(theta) = U(theta, -0.5pi, 0.5pi)
+          double tol = 1e-5;
+          if (std::abs(lambda + phi) < tol and std::abs(lambda - 0.5*pi) < tol)
+          {
+            Rx r(u.bits()[0], theta);
+            visit(r);
+            return;
+          }
+
+          // General case + special cases Ry(theta) = U(theta, 0, 0) and Rz(theta) = U(0, theta, 0) = U (0, 0, theta)
+          if (phi != 0. or lambda != 0.) {Ry r(u.bits()[0], 0.5 * pi);  visit(r);}
+          if (lambda != 0.)              {Rx r(u.bits()[0], lambda);    visit(r);}
+          if (theta != 0.)               {Ry r(u.bits()[0], theta);     visit(r);}
+          if (phi != 0.)                 {Rx r(u.bits()[0], phi);       visit(r);}
+          if (phi != 0. or lambda != 0.) {Ry r(u.bits()[0], -0.5 * pi); visit(r);}
+          
         }
 
         void visit(Measure &m) override {

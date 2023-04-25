@@ -367,20 +367,20 @@ This section is a quick reference on quantum gates expressed in these formats:
         
         where q0 is the qubit.
         
-- $U(\theta,\phi,\lambda)$ - arbitrary rotation, in x-axis by $\theta$, y-axis by $\phi$, z-axis by $\lambda$
+- $U(\theta,\phi,\lambda)$ - arbitrary rotation
     - Unitary Description and Decomposition Rules
         
-        If used for an **ansatz** that will require **automatic differentiation** (AD), replace $U$ with the decomposition shown below:
+        If used for an **ansatz** that will require **automatic differentiation** (AD), replace $U$ with the decomposition:
         
-        $U(\theta, \phi, \lambda) = R_z(\phi)*R_x(-0.5\pi)*R_z(\theta)*R_x(0.5\pi)*R_z(\lambda)$
+        $U(\theta, \phi, \lambda) = R_y(-\frac{\pi}{2})*R_x(\phi)*R_y(\theta)*R_x(\lambda)*R_y(\frac{\pi}{2})$
         
         **Other useful expressions:**
         
-        $R_y(\theta) = U(\theta, 0, 0) = R_x(-0.5\pi)*R_z(\theta)*R_x(0.5\pi)$
-        
-        $R_x(\theta) = U(\theta, -0.5\pi, 0.5\pi)$
-        
-        $R_z(\lambda) = U(0, 0, \lambda)$
+        $R_x(\alpha) = U(\alpha, -\frac{\pi}{2}, \frac{\pi}{2})$
+
+        $R_y(\alpha) = U(\alpha, 0, 0)$
+                
+        $R_z(\alpha) = U(0, \alpha, 0) = U(0, 0, \alpha)$
         
     - OpenQASM
         
@@ -411,12 +411,8 @@ This section is a quick reference on quantum gates expressed in these formats:
         
         We use the decomposition:
         
-        $U(\theta, \phi, \lambda) := R_z(\phi)*R_x(-0.5\pi)*R_z(\theta)*R_x(0.5\pi)*R_z(\lambda)$
-        
-        with:
-        
-        $R_z(\theta) := R_x(\pi)*R_y(0.5\pi)*R_x(\theta)*R_x(\pi)*R_y(0.5\pi)$
-        
+        $U(\theta, \phi, \lambda) := R_y(-\frac{\pi}{2})*R_x(\phi)*R_y(\theta)*R_x(\lambda)*R_y(\frac{\pi}{2})$
+                
 - Measurement
     - Description
         

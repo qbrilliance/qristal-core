@@ -45,12 +45,12 @@ public:
         }
     }
     QuantumBrillianceVisitor() : QuantumBrillianceVisitor(4) {}
-	virtual ~QuantumBrillianceVisitor() {}
+  virtual ~QuantumBrillianceVisitor() {}
     virtual const std::string name() const { return "quantumbrilliance-openqasm-visitor"; }
-	virtual const std::string description() const {
-		return "Maps XACC IR to the native gates available in the Quantum Brilliance technology, output in the OpenQASM format";
-	}
-	int classicalBitCounter = 0;
+  virtual const std::string description() const {
+    return "Maps XACC IR to the native gates available in the Quantum Brilliance technology, output in the OpenQASM format";
+  }
+  int classicalBitCounter = 0;
 
     /**
     * Useful reference for U3-gate (the most general of all single-qubit quantum gates)
@@ -96,9 +96,9 @@ public:
     //
     // q0: --|I|--
     //
-	void visit(Identity& id) {
-		std::stringstream ss;
-		ss << "u"          << "("   // Identity in U3 format
+  void visit(Identity& id) {
+    std::stringstream ss;
+    ss << "u"          << "("   // Identity in U3 format
            << 0.0          << ", "  // theta
            << 0.0          << ", "  // phi
            << 0.0          << ") "  // lambda
@@ -106,7 +106,7 @@ public:
            << id.bits()[0] << "];"  // target qubit
                            << "\n";
         native += ss.str();
-	}
+  }
 
     /**
     * Rx(angleStr) - rotate around the x-axis by angleStr radians
@@ -120,10 +120,10 @@ public:
     //
     // q0: --|Rx(angleStr)|--
     //
-	void visit(Rx& rx) {
-		std::stringstream ss;
-		auto angleStr = rx.getParameter(0).toString();
-		ss << "u"          << "("   // Rx in U3 format
+  void visit(Rx& rx) {
+    std::stringstream ss;
+    auto angleStr = rx.getParameter(0).toString();
+    ss << "u"          << "("   // Rx in U3 format
            << angleStr     << ", "  // theta
            << (-0.5*pi)    << ", "  // phi
            << (0.5*pi)     << ") "  // lambda
@@ -131,7 +131,7 @@ public:
            << rx.bits()[0] << "];"  // target qubit
                            << "\n";
         native += ss.str();
-	}
+  }
 
     /**
     * Ry(angleStr) - rotate around the y-axis by angleStr radians
@@ -145,18 +145,18 @@ public:
     //
     // q0: --|Ry(angleStr)|--
     //
-	void visit(Ry& ry) {
-		std::stringstream ss;
-		auto angleStr = ry.getParameter(0).toString();
-		ss << "u"          << "("   // Ry in U3 format
+  void visit(Ry& ry) {
+    std::stringstream ss;
+    auto angleStr = ry.getParameter(0).toString();
+    ss << "u"          << "("   // Ry in U3 format
            << angleStr     << ", "  // theta
            << 0            << ", "  // phi
            << 0            << ") "  // lambda
            << "q"          << "["
            << ry.bits()[0] << "];"  // target qubit
                            << "\n";
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * CZ - controlled Z
@@ -175,15 +175,15 @@ public:
     // q1: ------------|CZ|-------------
     //
     void visit(CZ &cz) {
-		std::stringstream ss;
-		ss
+    std::stringstream ss;
+    ss
            << "cz"         << " "   // CZ in OpenQASM macro format
            << "q"          << "["
            << cz.bits()[0] << "],"  // control qubit
            << "q"          << "["
            << cz.bits()[1] << "];"  // target qubit
                            << "\n";
-		native += ss.str();
+    native += ss.str();
     }
 
     /**
@@ -207,8 +207,8 @@ public:
     // q1: --|Ry(0.5*pi)|--|Rx(pi)|--|CNOT|--|Ry(0.5*pi)|--|Rx(pi)|--
     //
     void visit(CNOT& cn) {
-		std::stringstream ss;
-		ss << "u"          << "("   // Ry in U3 format
+    std::stringstream ss;
+    ss << "u"          << "("   // Ry in U3 format
            << (0.5*pi)    << ", "  // theta
            << 0            << ", "  // phi
            << 0            << ") "  // lambda
@@ -243,11 +243,11 @@ public:
            << cn.bits()[1] << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
+    native += ss.str();
 }
 
-	/**
-	* Hadamard  - Hadamard gate
+  /**
+  * Hadamard  - Hadamard gate
     *
     * Input: reference to IR object of class Hadamard
     *
@@ -258,8 +258,8 @@ public:
     //
     // q0: --|Ry(0.5*pi)--|Rx(pi)||--
     //
-	void visit(Hadamard& h) {
-		std::stringstream ss;
+  void visit(Hadamard& h) {
+    std::stringstream ss;
         ss << "u"          << "("   // Ry in U3 format
            << (0.5*pi)     << ", "  // theta
            << 0            << ", "  // phi
@@ -275,8 +275,8 @@ public:
            << h.bits()[0]  << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * Rz(angleStr) - rotate around the z-axis by angleStr radians
@@ -288,22 +288,15 @@ public:
     * Effect: appends to the std::string 'native'
     **/
     //
-    // q0: --|Ry(0.5*pi)|--|Rx(pi)|--|Rx(angleStr)|--|Ry(0.5*pi)|--|Rx(pi)|--
+    // --|Ry(0.5*pi)--|Rx(angleStr)|--|Ry(-0.5*pi)|--
     //
     void visit(Rz& rz) {
-		std::stringstream ss;
-		auto angleStr = rz.getParameter(0).toString();
+    std::stringstream ss;
+    auto angleStr = rz.getParameter(0).toString();
         ss << "u"          << "("   // Ry in U3 format
-           << (0.5*pi )    << ", "  // theta
+           << (0.5*pi )   << ", "  // theta
            << 0            << ", "  // phi
            << 0            << ") "  // lambda
-           << "q"          << "["
-           << rz.bits()[0] << "];"  // target qubit
-                           << "\n"
-           << "u"          << "("   // Rx in U3 format
-           << (pi)         << ", "  // theta
-           << (-0.5*pi)    << ", "  // phi
-           << (0.5*pi)     << ") "  // lambda
            << "q"          << "["
            << rz.bits()[0] << "];"  // target qubit
                            << "\n"
@@ -315,23 +308,17 @@ public:
            << "q"          << "["
            << rz.bits()[0] << "];"  // target qubit
                            << "\n"
+
            << "u"          << "("   // Ry in U3 format
-           << (0.5*pi)     << ", "  // theta
+           << (-0.5*pi)     << ", "  // theta
            << 0            << ", "  // phi
            << 0            << ") "  // lambda
            << "q"          << "["
            << rz.bits()[0] << "];"  // target qubit
-                           << "\n"
-           << "u"          << "("   // Rx in U3 format
-           << (pi)         << ", "  // theta
-           << (-0.5*pi)    << ", "  // phi
-           << (0.5*pi)     << ") "  // lambda
-           << "q"          << "["
-           << rz.bits()[0] << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * S - rotate around the z-axis by 0.5*pi
@@ -343,9 +330,9 @@ public:
     * Effect: appends to the std::string 'native'
     **/
 
-	void visit(S& s) {
-		std::stringstream ss;
-		auto angleStr = 0.5*pi;
+  void visit(S& s) {
+    std::stringstream ss;
+    auto angleStr = 0.5*pi;
         ss << "u"          << "("   // Ry in U3 format
            << (0.5*pi )    << ", "  // theta
            << 0            << ", "  // phi
@@ -383,8 +370,8 @@ public:
            << s.bits()[0] << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * Sdg - rotate around the z-axis by -0.5*pi
@@ -396,9 +383,9 @@ public:
     * Effect: appends to the std::string 'native'
     **/
 
-	void visit(Sdg& sdg) {
-		std::stringstream ss;
-		auto angleStr = -0.5*pi;
+  void visit(Sdg& sdg) {
+    std::stringstream ss;
+    auto angleStr = -0.5*pi;
         ss << "u"          << "("   // Ry in U3 format
            << (0.5*pi )    << ", "  // theta
            << 0            << ", "  // phi
@@ -436,8 +423,8 @@ public:
            << sdg.bits()[0] << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * T - rotate around the z-axis by 0.25*pi
@@ -449,9 +436,9 @@ public:
     * Effect: appends to the std::string 'native'
     **/
 
-	void visit(T& t) {
-		std::stringstream ss;
-		auto angleStr = 0.25*pi;
+  void visit(T& t) {
+    std::stringstream ss;
+    auto angleStr = 0.25*pi;
         ss << "u"          << "("   // Ry in U3 format
            << (0.5*pi )    << ", "  // theta
            << 0            << ", "  // phi
@@ -489,8 +476,8 @@ public:
            << t.bits()[0] << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * Tdg - rotate around the z-axis by -0.25*pi
@@ -502,9 +489,9 @@ public:
     * Effect: appends to the std::string 'native'
     **/
 
-	void visit(Tdg& tdg) {
-		std::stringstream ss;
-		auto angleStr = -0.25*pi;
+  void visit(Tdg& tdg) {
+    std::stringstream ss;
+    auto angleStr = -0.25*pi;
         ss << "u"          << "("   // Ry in U3 format
            << (0.5*pi )    << ", "  // theta
            << 0            << ", "  // phi
@@ -542,8 +529,8 @@ public:
            << tdg.bits()[0] << "];"  // target qubit
                            << "\n";
 
-		native += ss.str();
-	}
+    native += ss.str();
+  }
 
     /**
     * X - rotate around the x-axis by pi radians
@@ -557,9 +544,9 @@ public:
     //
     // q0: --|Rx(pi)|--
     //
-	void visit(X& x) {
-		std::stringstream ss;
-		ss << "u"          << "("   // X in U3 format
+  void visit(X& x) {
+    std::stringstream ss;
+    ss << "u"          << "("   // X in U3 format
            << (pi)         << ", "  // theta
            << (-0.5*pi)    << ", "  // phi
            << (0.5*pi)     << ") "  // lambda
@@ -567,7 +554,7 @@ public:
            << x.bits()[0]  << "];"  // target qubit
                            << "\n";
         native += ss.str();
-	}
+  }
 
     /**
     * Y - rotate around the y-axis by pi radians
@@ -581,9 +568,9 @@ public:
     //
     // q0: --|Ry(pi)|--
     //
-	void visit(Y& y) {
-		std::stringstream ss;
-		ss << "u"          << "("   // Y in U3 format
+  void visit(Y& y) {
+    std::stringstream ss;
+    ss << "u"          << "("   // Y in U3 format
            << (pi)         << ", "  // theta
            << 0            << ", "  // phi
            << 0            << ") "  // lambda
@@ -591,7 +578,7 @@ public:
            << y.bits()[0]  << "];"  // target qubit
                            << "\n";
         native += ss.str();
-	}
+  }
 
     /**
     * Z - rotate around the z-axis by pi radians
@@ -605,8 +592,8 @@ public:
     //
     // q0: --|Rx(pi)|--|Ry(pi)|--
     //
-	void visit(Z& z) {
-		std::stringstream ss;
+  void visit(Z& z) {
+    std::stringstream ss;
         ss << "u"          << "("   // Rx in U3 format
            << (pi)         << ", "  // theta
            << (-0.5*pi)    << ", "  // phi
@@ -622,20 +609,20 @@ public:
            << z.bits()[0] << "];"  // target qubit
                            << "\n";
         native += ss.str();
-	}
+  }
 
-	void visit(CPhase& cp) {
+  void visit(CPhase& cp) {
         xacc::error("QB SDK does not support: CPhase");
     }
 
-	void visit(Swap& s) {
+  void visit(Swap& s) {
         CNOT c1(s.bits()),
              c2(s.bits()[1],s.bits()[0]),
              c3(s.bits());
         visit(c1);
         visit(c2);
         visit(c3);
-	}
+  }
 
     void visit(U& u) {
         std::stringstream ss;
@@ -655,20 +642,20 @@ public:
 
     void visit(Measure& m) {
         std::stringstream ss;
-		ss << "creg c" << classicalBitCounter << "[1];\n";
-		ss << "measure q[" << m.bits()[0] << "] -> c" << classicalBitCounter << "[0];\n";
-		native += ss.str();
-		qubitToClassicalBitIndex.insert(std::make_pair(m.bits()[0], classicalBitCounter));
-		classicalBitCounter++;
+    ss << "creg c" << classicalBitCounter << "[1];\n";
+    ss << "measure q[" << m.bits()[0] << "] -> c" << classicalBitCounter << "[0];\n";
+    native += ss.str();
+    qubitToClassicalBitIndex.insert(std::make_pair(m.bits()[0], classicalBitCounter));
+    classicalBitCounter++;
     }
 
-	/**
-	 * Return the finished qpu OpenQasm kernel
-	 */
-	std::string getFinishedOpenQasmQpu() {
+  /**
+   * Return the finished qpu OpenQasm kernel
+   */
+  std::string getFinishedOpenQasmQpu() {
         std::string finished = native + "\n}\n";
         return finished;
-	}
+  }
 };
 
 } // namespace quantum

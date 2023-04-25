@@ -2097,6 +2097,12 @@ namespace qb
           out_qbjsons_.at(ii).at(jj) =
               tqdk->getNativeCode(citargets.at(0), mqbacc);
 
+          // Output the JSON sent to the QB hardware if debug is turned on.
+          if (debug_) {
+            std::cout << "JSON to be sent to QB hardware: " << std::endl;
+            std::cout << out_qbjsons_.at(ii).at(jj) << std::endl;
+          }
+
           try {
             tqdk->validate_capability();
           } catch (...) {
