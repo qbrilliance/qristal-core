@@ -2360,8 +2360,9 @@ PYBIND11_MODULE(core, m) {
     .value("qrlRDBMS", qb::qml::DefaultAnsatzes::qrlRDBMS)
     ;
 
-  py::class_<qb::qml::ParamCirc>(m_opt, "ParamCirc") 
+  py::class_<qb::qml::ParamCirc, qb::CircuitBuilder>(m_opt, "ParamCirc") 
     .def(py::init<size_t, qb::qml::DefaultAnsatzes, size_t, qb::VectorString>())
+    .def(py::init<size_t>())
     .def("numInputs", &qb::qml::ParamCirc::getNumInputs)
     .def("numParams", &qb::qml::ParamCirc::getNumParams)
     .def("numQubits", &qb::qml::ParamCirc::getNumQubits)

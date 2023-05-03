@@ -67,7 +67,7 @@ class QuantumLayer(torch.nn.Module):
     """
     Define PyTorch quantum layer
       inputs: 
-        circuit (qb.core.optimization.QMLParamCirc): the circuit to be used as a quantum layer in the hybrid NN
+        circuit (qb.core.optimization.ParamCirc): the circuit to be used as a quantum layer in the hybrid NN
         init_input (np.array or list): the initial inputs to use for the quantum layer
         init_weights (np.array or list): the initial weights to use for the quantum layer
 
@@ -78,7 +78,7 @@ class QuantumLayer(torch.nn.Module):
     self.out_features = 2**circuit.numInputs()
     self.num_weights = circuit.numParams()
     if type(init_input)==NoneType:
-      self.inputs = torch.nn.Parameter(torch.rand(self.in_features))# replace with torch.rand
+      self.inputs = torch.nn.Parameter(torch.rand(self.in_features))
     else:
       self.inputs = torch.nn.Parameter(torch.Tensor(init_input))
     if type(init_weights)==NoneType:

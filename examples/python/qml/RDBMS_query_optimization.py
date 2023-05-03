@@ -128,7 +128,6 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=300, gamma=0.00
 loss_arr = np.zeros(numEpisodes)
 avg_reward_arr = np.zeros(numEpisodes - 100)
 reward_arr = np.zeros(numEpisodes)
-loss_fn = torch.nn.MSELoss()
 # train the agent
 for episode in range(numEpisodes):
   # learn a new state

@@ -129,7 +129,6 @@ void QMLExecutor::run() {
   } else {
     accPointer_ = xacc::getAccelerator(acc, {{"shots", (int)numShots_}});
   }
-
   std::shared_ptr<xacc::CompositeInstruction> instructionSet =
       targetCircuit_.get();
   std::vector<double> params = constructFullParamVector();
