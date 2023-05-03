@@ -56,6 +56,7 @@ add_executable(CITests
   ##tests/circuits/SuperpositionAdderCircuitTester.cpp # SLOW (?)
   ##tests/qcstack/QuantumBrillianceRemoteAcceleratorTester.cpp # unit-test harness for Qcstack server - Qristal
   tests/placement/tketTester.cpp
+  tests/transpilationTester.cpp
 )
 
 add_test(NAME ci_tester COMMAND CITests)

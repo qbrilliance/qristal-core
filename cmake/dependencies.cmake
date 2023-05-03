@@ -8,7 +8,7 @@ find_package(CURL REQUIRED)
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
-set(XACC_TAG "96943c9d")
+set(XACC_TAG "1eadf8a6")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
 else()

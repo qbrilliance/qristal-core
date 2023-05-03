@@ -2014,6 +2014,10 @@ namespace qb
         if (accs == "aws_acc") {
           m.merge(qpu->getProperties());
         }
+        // Disable QASM inlining during placement.
+        // e.g., we don't want to map gates to the IBM gateset (defined in
+        // qelib1.inc) during placement.
+        m.insert("no-inline", true);
         auto A = xacc::getIRTransformation(placement);
         A->apply(citargets.at(0), acc, m);
       }

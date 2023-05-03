@@ -1,8 +1,8 @@
 # trigger pipeline again
 variables:
-  CI_IMAGE: quantumbrilliance/ci-ubuntu20.04:sdk-beta-18
-  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-gcc-1
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-clang-1
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ci-ubuntu20.04:sdk-beta-20
+  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-gcc-2
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-clang-2
 
 stages:
   - build
