@@ -174,7 +174,7 @@ ubuntu20-py-stack-tests:
   extends: .install-core
   image: $CI_IMAGE
   tags: 
-    - docker-heavy
+    - Qristal CI Runner
   script:
     - echo "# QB_QCSTACK_2023_2_1_URL = $QB_QCSTACK_2023_2_1_URL"
     - cd tests/qcstack && python3 -m pytest --junitxml="report-stack.xml"
