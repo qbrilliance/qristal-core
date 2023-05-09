@@ -6,6 +6,15 @@ include(add_python_module)
 set(CURL_NO_CURL_CMAKE ON)
 find_package(CURL REQUIRED)
 
+# OpenSSL
+find_package(OpenSSL REQUIRED)
+if(OPENSSL_FOUND)
+  get_filename_component(OPENSSL_INSTALL_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
+  message(STATUS " --- OPENSSL_INSTALL_DIR set to: ${OPENSSL_INSTALL_DIR}")
+else()
+  message(FATAL_ERROR "System installation of OpenSSL not found. Please add the OpenSSL development package using the appropriate management tool for your system libraries.")
+endif()
+
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF)
 set(XACC_TAG "1eadf8a6")
@@ -23,6 +32,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
     "XACC_ENABLE_MPI @ENABLE_MPI@"
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
     "CMAKE_CXX_FLAGS ${XACC_CMAKE_CXX_FLAGS}"
+    "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
 )
 
 # Python 3 interpreter and libraries

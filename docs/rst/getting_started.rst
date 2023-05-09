@@ -21,9 +21,11 @@ Dependencies
 Installing Qristal from source **requires** the following libraries/packages to be installed:
 
 * `GNU C++ Compiler <https://gcc.gnu.org/>`_ >= 7.x
+* `GNU Fortran Compiler <https://gcc.gnu.org/>`_ >= 7.x
 * `CMake <https://cmake.org/>`_ >= 3.20
-* `Python <http://python.org/>`_ >= 3.7.2
+* `Python <http://python.org/>`_ >= 3.8
 * `OpenBLAS (Basic Linear Algebra Subprograms) <https://www.openblas.net/>`_
+* `OpenSSL <https://www.openssl.org>`_
 * `Boost <https://www.boost.org/>`_ >= 1.71
 * `libcurl <https://curl.se/>`_
 

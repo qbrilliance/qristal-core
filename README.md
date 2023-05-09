@@ -16,11 +16,11 @@ At a minimum, the following packages are required:
 
 - cmake (version 3.20+)
 
-- Eigen 3.4+
-
 - Boost 1.71+
 
 - OpenBLAS
+
+- OpenSSL
 
 - Curl
 
@@ -28,7 +28,7 @@ At a minimum, the following packages are required:
 For example, on Debian-based distributions (e.g., Ubuntu), we can use `apt` to install all above prerequisites:
 
 ```
-sudo apt install build-essential cmake gfortran libboost-all-dev libcurl4-openssl-dev  libeigen3-dev libopenblas-dev libpython3-dev python3 python3-pip
+sudo apt install build-essential cmake gfortran libboost-all-dev libcurl4-openssl-dev libssl-dev libopenblas-dev libpython3-dev python3 python3-pip
 ```
 
 Qristal will be built with support for CUDA Quantum if and only if cmake detects that your system has a compatible CUDA Quantum installation.
