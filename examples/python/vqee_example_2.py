@@ -1,11 +1,11 @@
 import numpy as np
-import qb.core.optimization as qbOpt
+import qb.core.optimization.vqee as qbOpt
 
 # build default params with empty circuit and pauli strings. 
-params = qbOpt.vqee_Params()
+params = qbOpt.Params()
 
 # select predefined job
-#params = qbOpt.makeJob(qbOpt.vqee_JobID.H2_UCCSD)
+#params = qbOpt.makeJob(qbOpt.JobID.H2_UCCSD)
 
 # access params members directly
 #params.[circuitString, pauliString, tolerance, nQubits, nShots, maxIters, isDeterministic] = something
@@ -49,7 +49,7 @@ for acceleratorName in acceleratorNamesList:
 
   params.acceleratorName = acceleratorName
 
-  vqee = qbOpt.vqee_VQEE(params)
+  vqee = qbOpt.VQEE(params)
   vqee.run()
 
   # output is stored in params

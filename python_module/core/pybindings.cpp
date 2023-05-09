@@ -2321,10 +2321,11 @@ PYBIND11_MODULE(core, m) {
   py::add_ostream_redirect(m);
 
   // - - - - - - - - - - - - - - - - -  optimization modules - - - - - - - //
-  // - - - - - - - - - - - - - - - - -  vqee - - - - - - - - - - - - - - - //
-  py::module_ m_opt =
-      m.def_submodule("optimization", "Optimization modules within qb_core");
-  py::class_<qb::vqee::Params>(m_opt, "vqee_Params")
+  py::module_ m_opt = m.def_submodule("optimization", "Optimization modules within qb_core");
+    // - - - - - - - - - - - - - - - - -  vqee - - - - - - - - - - - - - - - //
+    py::module_ m_vqee = m_opt.def_submodule("vqee", "Variational Quantum Eigensolver suite within optimization modules");
+
+    py::class_<qb::vqee::Params>(m_vqee, "Params")
       .def(py::init<>())
       .def_readwrite("circuitString", &qb::vqee::Params::circuitString)
       .def_readwrite("pauliString", &qb::vqee::Params::pauliString)
@@ -2338,19 +2339,40 @@ PYBIND11_MODULE(core, m) {
       .def_readwrite("optimalParameters", &qb::vqee::Params::theta)
       .def_readonly("optimalValue", &qb::vqee::Params::optimalValue);
 
-  py::enum_<qb::vqee::JobID>(m_opt, "vqee_JobID")
+    py::enum_<qb::vqee::JobID>(m_vqee, "JobID")
       .value("H2_explicit", qb::vqee::JobID::H2_explicit)
       .value("H1_HEA", qb::vqee::JobID::H1_HEA)
       .value("H2_UCCSD", qb::vqee::JobID::H2_UCCSD)
       .value("H2_ASWAP", qb::vqee::JobID::H2_ASWAP)
       .value("H5_UCCSD", qb::vqee::JobID::H5_UCCSD);
 
-  m_opt.def("makeJob", &qb::vqee::makeJob,
-            "makeJob(vqee_JobID) -> vqee::Params: returns a predefined example "
-            "job setup",
-            py::arg("jobID"));
+    m_vqee.def("makeJob", &qb::vqee::makeJob,
+      "makeJob(JobID) -> vqee::Params: returns a predefined example "
+      "job setup",
+      py::arg("jobID"));
 
-  py::class_<qb::vqee::VQEE>(m_opt, "vqee_VQEE")
+    m_vqee.def("pauliStringFromGeometry", &qb::vqee::pauliStringFromGeometry,
+      "pauliStringFromGeometry(string, string) -> string: returns a Pauli string generated from molecule geometry using pyscf in sto-3g basis and Jordan Wigner transformation "
+      "Pauli string",
+      py::arg("geometry"),
+      py::arg("basis"));
+
+    py::enum_<qb::vqee::AnsatzID>(m_vqee, "AnsatzID")
+      .value("HEA", qb::vqee::AnsatzID::HEA)
+      .value("UCCSD", qb::vqee::AnsatzID::UCCSD)
+      .value("ASWAP", qb::vqee::AnsatzID::ASWAP);
+
+    // std::size_t setAnsatz(Params& params, const AnsatzID ansatzID, const int nQubits, const int nDEP, const bool TRS=true);
+    m_vqee.def("setAnsatz", &qb::vqee::setAnsatz,
+      "setAnsatz(Params, AnsatzID, int, int, bool) -> int: sets Ansatz in params and returns number of variational parameters "
+      "ansatz",
+      py::arg("params"),
+      py::arg("ansatzID"),
+      py::arg("nQubits"),
+      py::arg("nDEP"),
+      py::arg("TRS"));
+
+    py::class_<qb::vqee::VQEE>(m_vqee, "VQEE")
       .def(py::init<qb::vqee::Params &>())
       .def("run", &qb::vqee::VQEE::optimize, "solve VQE problem");
 

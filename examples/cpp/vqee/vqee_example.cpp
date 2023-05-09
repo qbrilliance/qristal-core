@@ -65,9 +65,7 @@ int main (int argc, char *argv[]) {
 
     const auto      nIters = params.energies.size();
     const double  cpu_ms = timer_for_cpu.getDurationMs();
-    if (isRoot){
-        std::cout << "theta: " << params.theta << ", energy: " << params.optimalValue << ", iterations: " << nIters << ", CPU wall-time: " << cpu_ms << " ms" << std::endl;
-    }
+    if (isRoot){ std::cout << "theta: " << params.theta << ", energy: " << params.optimalValue << ", iterations: " << nIters << ", CPU wall-time: " << cpu_ms << " ms" << std::endl; }
 
     xacc::Finalize();
 

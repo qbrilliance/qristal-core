@@ -1,0 +1,27 @@
+[
+    {
+        "nQubits": 4,
+        "geometry": "H 0.0 0.0 0.0; H 0.0 0.0 0.7408481486",
+        "ansatz": "UCCSD",
+        "nElectrons": 2,
+        "theta": 0.1,
+        "nThreads": 2,
+        "maxIters": 100
+    },
+    {
+        "nQubits": 4,
+        "geometry": "H 0.0 0.0 0.0; H 0.0 0.0 0.7408481486",
+        "circuit": ".compiler xasm\n.circuit ansatz\n.parameters P\n.qbit q\nX(q[0]);\nX(q[1]);\nRz(q[0], P[2]);\nRx(q[0], 0.5*pi);\nRz(q[0], P[0]);\nRx(q[0], -0.5*pi);\nRz(q[0], P[1]);\nRz(q[1], P[5]);\nRx(q[1], 0.5*pi);\nRz(q[1], P[3]);\nRx(q[1], -0.5*pi);\nRz(q[1], P[4]);\nRz(q[2], P[8]);\nRx(q[2], 0.5*pi);\nRz(q[2], P[6]);\nRx(q[2], -0.5*pi);\nRz(q[2], P[7]);\nRz(q[3], P[11]);\nRx(q[3], 0.5*pi);\nRz(q[3], P[9]);\nRx(q[3], -0.5*pi);\nRz(q[3], P[10]);\nCNOT(q[0], q[1]);\nCNOT(q[1], q[2]);\nCNOT(q[2], q[3]);\nRz(q[0], P[14]);\nRx(q[0], 0.5*pi);\nRz(q[0], P[12]);\nRx(q[0], -0.5*pi);\nRz(q[0], P[13]);\nRz(q[1], P[17]);\nRx(q[1], 0.5*pi);\nRz(q[1], P[15]);\nRx(q[1], -0.5*pi);\nRz(q[1], P[16]);\nRz(q[2], P[20]);\nRx(q[2], 0.5*pi);\nRz(q[2], P[18]);\nRx(q[2], -0.5*pi);\nRz(q[2], P[19]);\nRz(q[3], P[23]);\nRx(q[3], 0.5*pi);\nRz(q[3], P[21]);\nRx(q[3], -0.5*pi);\nRz(q[3], P[22]);\nCNOT(q[0], q[1]);\nCNOT(q[1], q[2]);\nCNOT(q[2], q[3]);\n",
+        "theta": 0.25,
+        "nThreads": 2,
+        "maxIters": 500
+    },
+    {
+        "nQubits": 1,
+        "pauli": "-1.04235464570829 + 0.18125791479311 X0 + -0.78864539363997 Z0",
+        "circuit": ".compiler xasm\n.circuit ansatz\n.parameters theta\n.qbit q\nRy(q[0], theta);",
+        "theta": 0.1,
+        "nThreads": 2,
+        "maxIters": 100
+    }
+]

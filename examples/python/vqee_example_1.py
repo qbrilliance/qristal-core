@@ -1,16 +1,16 @@
 #%% init
 import numpy as np
-import qb.core.optimization as qbOpt
+import qb.core.optimization.vqee as qbOpt
 
 # build default params with empty circuit and pauli strings. 
-params = qbOpt.vqee_Params()
+params = qbOpt.Params()
 
 # select predefined job  
 # qbOpt.vqee_JobID.H5_UCCSD takes too long to test on simple laptop
-joblist = [qbOpt.vqee_JobID.H2_explicit, 
-           qbOpt.vqee_JobID.H1_HEA, 
-           qbOpt.vqee_JobID.H2_UCCSD, 
-           qbOpt.vqee_JobID.H2_ASWAP]
+joblist = [qbOpt.JobID.H2_explicit, 
+           qbOpt.JobID.H1_HEA, 
+           qbOpt.JobID.H2_UCCSD, 
+           qbOpt.JobID.H2_ASWAP]
 
 #%% run all jobs
 for jobID in joblist:
@@ -22,7 +22,7 @@ for jobID in joblist:
 
     print("\nPauli string: ", params.pauliString)
 
-    vqee = qbOpt.vqee_VQEE(params)
+    vqee = qbOpt.VQEE(params)
     vqee.run()
 
     # output is stored in params
