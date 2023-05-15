@@ -131,7 +131,7 @@ static const char *help_execute_;
   * 
   * \f[
   * H\ket{0} \rightarrow \ket{+}
-  *
+  * \\
   * H\ket{1} \rightarrow \ket{-}
   * \f]
   *
@@ -150,7 +150,7 @@ static const char *help_execute_;
   *
   * \f[
   * X\ket{0} \rightarrow \ket{1}
-  *
+  * \\
   * X\ket{1} \rightarrow \ket{0}
   * \f]
   *
@@ -169,7 +169,7 @@ static const char *help_execute_;
   *
   * \f[
   * Y\ket{0} \rightarrow -i\ket{1}
-  *
+  * \\
   * Y\ket{1} \rightarrow i\ket{0}
   * \f]
   *
@@ -188,7 +188,7 @@ static const char *help_execute_;
   *
   * \f[
   * Z\ket{0} \rightarrow \ket{0}
-  *
+  * \\
   * Z\ket{1} \rightarrow -\ket{1}
   * \f]
   *
@@ -207,7 +207,7 @@ static const char *help_execute_;
   *
   * \f[
   * T\ket{0} \rightarrow \ket{0}
-  *
+  * \\
   * T\ket{1} \rightarrow e^{i\pi/4}\ket{1}
   * \f]
   *
@@ -226,7 +226,7 @@ static const char *help_execute_;
   *
   * \f[
   * S\ket{0} \rightarrow \ket{0}
-  *
+  * \\
   * S\ket{1} \rightarrow i\ket{1}
   * \f]
   *
@@ -245,7 +245,7 @@ static const char *help_execute_;
   *
   * \f[
   * Tdg\ket{0} \rightarrow \ket{0}
-  *
+  * \\
   * Tdg\ket{1} \rightarrow e^{-i\pi/4}\ket{1}
   * \f]
   *
@@ -263,9 +263,9 @@ static const char *help_execute_;
   * The Sdg gate is defined by its action on the basis states
   *
   * \f[
-  * Sdg\ket{0} \rightarrow \ket{1}
-  *
-  * Sdg\ket{1} \rightarrow i\ket{1}
+  * Sdg\ket{0} \rightarrow \ket{0}
+  * \\
+  * Sdg\ket{1} \rightarrow -i\ket{1}
   * \f]
   *
   * @param idx the index of the qubit being acted on [size_t]
@@ -283,7 +283,7 @@ static const char *help_execute_;
   *
   * \f[
   * RX(\theta)\ket{0} \rightarrow \cos(\theta/2)\ket{0} - i\sin(\theta/2)\ket{1}
-  *
+  * \\
   * RX(\theta)\ket{1} \rightarrow -i\sin(\theta/2)\ket{0} + \cos(\theta/2)\ket{1}
   * \f]
   *
@@ -304,7 +304,7 @@ static const char *help_execute_;
   *
   * \f[
   * RY(\theta)\ket{0} \rightarrow \cos(\theta/2)\ket{0} + \sin(\theta/2)\ket{1}
-  *
+  * \\
   * RY(\theta)\ket{1} \rightarrow -\sin(\theta/2)\ket{0} + \cos(\theta/2)\ket{1}
   * \f]
   *
@@ -325,7 +325,7 @@ static const char *help_execute_;
   *
   * \f[
   * RZ(\theta)\ket{0} \rightarrow e^{-i\theta/2}\ket{0}
-  *
+  * \\
   * RZ(\theta)\ket{1} \rightarrow e^{i\theta/2}\ket{1}
   * \f]
   *
@@ -346,7 +346,7 @@ static const char *help_execute_;
   *
   * \f[
   * U1(\theta)\ket{0} \rightarrow \ket{0}
-  *
+  * \\
   * U1(\theta)\ket{1} \rightarrow e^{i\theta}\ket{1}
   * \f]
   *
@@ -367,7 +367,7 @@ static const char *help_execute_;
   *
   * \f[
   * U3(\theta,\phi,\lambda)\ket{0} \rightarrow \cos(\theta/2)\ket{0} + e^{i\phi}\sin(\theta/2)\ket{1}
-  *
+  * \\
   * U3(\theta,\phi,\lambda)\ket{1} \rightarrow -e^{i\lambda}\sin(\theta/2)\ket{0} + e^{i(\phi+\lambda)}\cos(\theta/2)\ket{1}
   * \f]
   *
@@ -795,7 +795,7 @@ static const char *help_execute_;
   *
   * \f]
   *
-  * The Grovvers operator Q is then constructed within the method from O and the state_prep circuit A as
+  * The Grover operator Q is then constructed within the method from O and the state_prep circuit A as
   *
   * \f[
   *
