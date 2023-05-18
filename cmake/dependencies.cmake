@@ -82,6 +82,8 @@ add_dependency(nlohmann_json ${nlohmann_json_VERSION}
 )
 if(TARGET nlohmann_json)
   add_library(nlohmann::json ALIAS nlohmann_json)
+elseif(TARGET nlohmann_json::nlohmann_json)
+  add_library(nlohmann::json ALIAS nlohmann_json::nlohmann_json)
 endif()
 if(nlohmann_json_ADDED)
   set(nlohmann_json_DIR ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann/nlohmann_json)
@@ -123,6 +125,29 @@ else()
     add_library(Eigen3::Eigen ALIAS Eigen)
   endif()
 endif()
+
+# tket
+set(WITH_TKET OFF CACHE BOOL "Enable TKET for noise-aware circuit placement.")
+set(TKET_DIR ${CMAKE_INSTALL_PREFIX}/tket-local CACHE PATH "Search path for TKET installation.")
+set(TKET_VERSION 1.11.1)
+set(TKET_TAG "1cd9fe36")
+if(WITH_TKET)
+  add_poorly_behaved_dependency(TKET ${TKET_VERSION}
+    FIND_PACKAGE_NAME TKET
+    GIT_TAG ${TKET_TAG}
+    GIT_REPOSITORY https://github.com/CQCL/tket
+    UPDATE_SUBMODULES True
+    OPTIONS
+      "CMAKE_INSTALL_PREFIX ${TKET_DIR}"
+      "TKET_BUILD_TESTS OFF"
+      "CMAKE_BUILD_TYPE Release"
+      "CMAKE_EXPORT_COMPILE_COMMANDS ON"
+      "INSTALL_MISSING_CXX ON"
+      "JSON_VERSION ${nlohmann_json_VERSION}"
+    PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/tket.patch
+  )
+endif()
+
 
 # autodiff
 set(autodiff_VERSION "0.6.12")
@@ -173,7 +198,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     boto3
                     botocore
                     braket:amazon-braket-sdk
-                    conan:conan~=1.58.0
                     flask
                     http
                     json
@@ -287,8 +311,11 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   )
 
   # QASM simulator.
-  if (false) # This needs to be re-enabled once the CI image has the qasm-simulator installed.
-
+  find_program(QB_STANDALONE_AER_EXE qasm_simulator) 
+  if(${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")   
+    # only works with installed json 3.1.1 atm, no v3.11.2 as install has changed
+    # via add dependency: clone and build at cmake configuration step
+    message(STATUS "qasm_simulator not found. Use add dependency now")
     set(name "qasm_simulator")
     set(repo "https://github.com/Qiskit/qiskit-aer.git")
     set(tag "0.10.4")
@@ -302,6 +329,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       OPTIONS
         "CMAKE_MODULE_PATH ${CPM_SOURCE_CACHE}/${name}/${hash}/cmake"
         "CMAKE_BUILD_TYPE Release"
+        "DISABLE_CONAN ON"
     )
     if(qasm_simulator_ADDED)
       set(QB_STANDALONE_AER_EXE ${CMAKE_INSTALL_PREFIX}/bin/qasm_simulator)
@@ -309,29 +337,13 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       find_program(QB_STANDALONE_AER_EXE qasm_simulator)
       add_custom_target(qasm_simulator)
     endif()
-
   else()
-
-    find_program(QB_STANDALONE_AER_EXE qasm_simulator) 
-    if(${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")
-      include(ExternalProject)
-      ExternalProject_Add(qasm_simulator
-        GIT_REPOSITORY    https://github.com/Qiskit/qiskit-aer.git
-        GIT_TAG           0.10.4
-        SOURCE_DIR        "${CMAKE_BINARY_DIR}/qiskit-aer-src"
-        BINARY_DIR        "${CMAKE_BINARY_DIR}/qiskit-aer-build"
-        CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR} -DCMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}
-      )
-      set(QB_STANDALONE_AER_EXE ${CMAKE_CURRENT_BINARY_DIR}/bin/qasm_simulator)
-    else()
-      add_custom_target(qasm_simulator)
-    endif()
-
-  endif()
+    add_custom_target(qasm_simulator)
+    message(STATUS "qasm_simulator found: ${QB_STANDALONE_AER_EXE}")
+  endif() # (qasm-simulator NOTFOUND)
 
 
-
-endif()
+endif() # (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 # Get rid of other cmake paths
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake)")

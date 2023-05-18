@@ -1,8 +1,7 @@
-# trigger pipeline again
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ci-ubuntu20.04:sdk-beta-20
-  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-gcc-2
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/emulator:ci-clang-2
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-1
+  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-1
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-1
 
 stages:
   - build
@@ -26,7 +25,7 @@ workflow:
     - mv core_artefacts/build .
     - cmake --install build
 
-ubuntu20-build-for-emulator:
+ci-build-for-emulator:
   stage: build
   image: $EMULATOR_CI_IMAGE_GCC
   tags: 
@@ -42,7 +41,7 @@ ubuntu20-build-for-emulator:
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
-    - mv build cmake include core_artefacts
+    - mv build cmake include core_artefacts/
   artifacts:
     when: always
     paths: 
@@ -59,7 +58,7 @@ ubuntu20-build-for-emulator:
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       
-ubuntu20-build:
+ci-build:
   stage: build
   image: $CI_IMAGE
   tags: 
@@ -75,7 +74,7 @@ ubuntu20-build:
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
-    - mv build cmake examples include src tests core_artefacts
+    - mv build cmake examples include src tests core_artefacts/
   artifacts:
     when: always
     paths:
@@ -87,7 +86,7 @@ ubuntu20-build:
       - core_artefacts/build/CMakeFiles/Export/
       - core_artefacts/build/CITests
       - core_artefacts/build/lib*
-      - core_artefacts/build/core.cpython-38-x86_64-linux-gnu.so
+      - core_artefacts/build/core.cpython-*-linux-gnu.so
       - core_artefacts/build/plugins
       - core_artefacts/build/configured_example_files
       - core_artefacts/cmake/py_packages_path.cmake
@@ -126,7 +125,7 @@ cudaq-build:
       - core_artefacts/build/CMakeFiles/Export/
       - core_artefacts/build/CudaqCITests
       - core_artefacts/build/lib*
-      - core_artefacts/build/core.cpython-38-x86_64-linux-gnu.so
+      - core_artefacts/build/core.cpython-*-linux-gnu.so
       - core_artefacts/build/plugins
       - core_artefacts/build/configured_example_files
       - core_artefacts/cmake/py_packages_path.cmake
@@ -138,9 +137,9 @@ cudaq-build:
       - core_artefacts/src/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
-ubuntu20-cpp-tests:
+ci-cpp-tests:
   stage: test
-  needs: ["ubuntu20-build"]
+  needs: ["ci-build"]
   extends: .install-core
   image: $CI_IMAGE
   tags: 
@@ -153,9 +152,9 @@ ubuntu20-cpp-tests:
     reports:
       junit: core_gtests.xml
 
-ubuntu20-py-tests:
+ci-py-tests:
   stage: test
-  needs: ["ubuntu20-build"]
+  needs: ["ci-build"]
   extends: .install-core
   image: $CI_IMAGE
   tags: 
@@ -168,9 +167,9 @@ ubuntu20-py-tests:
     reports:
       junit: tests/python_module/report.xml
 
-ubuntu20-py-stack-tests:
+ci-py-stack-tests:
   stage: test
-  needs: ["ubuntu20-build"]
+  needs: ["ci-build"]
   extends: .install-core
   image: $CI_IMAGE
   tags: 
@@ -217,7 +216,7 @@ cudaq-cpp-tests-clang:
 # If this branch is part of a merge request, trigger downstream decoder build and test.
 trigger-decoder:
   stage: downstream
-  needs: ["ubuntu20-build"]
+  needs: ["ci-build"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -229,7 +228,7 @@ trigger-decoder:
 # If this branch is part of a merge request, trigger downstream emulator build and test.
 trigger-emulator:
   stage: downstream
-  needs: ["ubuntu20-build-for-emulator"]
+  needs: ["ci-build-for-emulator"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -241,7 +240,7 @@ trigger-emulator:
 # If this branch is part of a merge request, trigger downstream SDK build and test.
 trigger-sdk:
   stage: downstream
-  needs: ["ubuntu20-build"]
+  needs: ["ci-build"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:

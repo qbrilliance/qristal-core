@@ -49,6 +49,7 @@ macro(add_poorly_behaved_dependency NAME VERSION)
       FIND_PACKAGE_NAME
       GIT_TAG
       GIT_REPOSITORY
+      PATCH_FILE
   )
 
   set(multiValueArgs PREAMBLE OPTIONS)
@@ -167,6 +168,10 @@ macro(add_poorly_behaved_dependency NAME VERSION)
           if(NOT ${result} STREQUAL "0")
             message(FATAL_ERROR "Attempt to run git submodule update in ${NAME} failed.")
           endif()
+        endif()
+        execute_process(RESULT_VARIABLE result COMMAND ${CMAKE_COMMAND} -E chdir _deps/${NAME} git apply ${arg_PATCH_FILE})
+        if(NOT ${result} STREQUAL "0")
+          message(FATAL_ERROR "Attemp to git apply ${PATCH_FILE} of ${NAME} failed.")
         endif()
         set(DEP_CMAKE_INSTALL_PREFIX ${dir} CACHE PATH "Installation path of badly-behaved dependency => Installation is not yet complete." FORCE)
         execute_process(RESULT_VARIABLE result COMMAND ${cmake_invocation})

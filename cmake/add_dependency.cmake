@@ -33,6 +33,7 @@ macro(add_dependency NAME VERSION)
     GIT_SHALLOW
     EXCLUDE_FROM_ALL
     SOURCE_SUBDIR
+    PATCH_FILE
   )
 
   set(multiValueArgs URL OPTIONS)
@@ -98,6 +99,7 @@ macro(add_dependency NAME VERSION)
         SOURCE_SUBDIR ${arg_SOURCE_SUBDIR}
         OPTIONS ${arg_OPTIONS}
         URL ${arg_URL}
+        PATCH_COMMAND  ${arg_PATCH_COMMAND}
       )
 
     else()

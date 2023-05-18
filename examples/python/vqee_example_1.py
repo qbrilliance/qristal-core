@@ -6,11 +6,10 @@ import qb.core.optimization.vqee as qbOpt
 params = qbOpt.Params()
 
 # select predefined job  
-# qbOpt.vqee_JobID.H5_UCCSD takes too long to test on simple laptop
-joblist = [qbOpt.JobID.H2_explicit, 
-           qbOpt.JobID.H1_HEA, 
-           qbOpt.JobID.H2_UCCSD, 
-           qbOpt.JobID.H2_ASWAP]
+joblist = [qbOpt.JobID.H2_explicit, qbOpt.JobID.H1_HEA] 
+# The other predefined examples are C++ only for now as they require an embedded python interpreter loading pyscf project to C++. 
+# Python does not allow an embedded interpreter in the with Pybind11 generated interface.
+# the solution is to implement the function, that requires pyscf, directly in python shown in vqee_example_3.py
 
 #%% run all jobs
 for jobID in joblist:

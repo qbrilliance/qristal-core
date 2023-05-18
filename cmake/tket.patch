@@ -1,5 +1,282 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 00000000..5aa651c3
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,201 @@
++# Copyright (c) Quantum Brilliance Pty Ltd
++
++# Set minimum cmake version
++set(MIN_CMAKE_VERSION 3.25)
++cmake_minimum_required(VERSION ${MIN_CMAKE_VERSION} FATAL_ERROR)
++
++# Version info
++set(MAJOR_VERSION 1)
++set(MINOR_VERSION 11)
++set(PATCH_VERSION 1)
++set(TKET_VERSION 1.11.1)
++
++find_package(Git QUIET)
++execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
++  OUTPUT_VARIABLE TKET_BUILD_VERSION ERROR_QUIET
++  OUTPUT_STRIP_TRAILING_WHITESPACE
++)
++message(STATUS "TKET GIT hash: ${TKET_BUILD_VERSION}")
++
++configure_file("${CMAKE_SOURCE_DIR}/tket-config.cmake.in" "${CMAKE_BINARY_DIR}/tket-config.cmake" @ONLY)
++install(FILES "${CMAKE_BINARY_DIR}/tket-config.cmake" DESTINATION .)
++
++project(tket VERSION ${TKET_VERSION} LANGUAGES CXX HOMEPAGE_URL "https://github.com/CQCL/tket")
++
++set(LIBRARY_NAME tket)
++
++set(CMAKE_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_STANDARD 20)
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
++set(CMAKE_CXX_EXTENSIONS OFF)
++
++set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
++option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
++set(CMAKE_POSITION_INDEPENDENT_CODE ON)
++
++option(TKET_BUILD_TESTS "Build test programs" OFF)
++option(INSTALL_MISSING_CXX "Build missing c++ dependencies" OFF)
++
++if (NOT CMAKE_BUILD_TYPE)   # Default build type is "Release" if not specified
++    message(STATUS "CMAKE_BUILD_TYPE was not specified. Default to \"Release\".")
++    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug, Release, RelWithDebInfo, MinSizeRel" FORCE)
++else()
++    message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}.")
++endif()
++
++if (NOT JSON_VERSION)   # Default json version is 3.1.1 if not specified
++    message(STATUS "JSON_VERSION was not specified. Default to \"v3.1.1\".")
++    set(JSON_VERSION "v3.1.1")
++else()
++    message(STATUS "JSON_VERSION: ${JSON_VERSION}.")
++endif()
++
++
++############################################################
++# add external dependencies
++############################################################
++# Include CPM for managing dependencies, and set it up to cache them in the deps folder.
++set(CPM_DOWNLOAD_VERSION 0.36.0)
++set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_LIST_DIR}/../deps" CACHE PATH "Dependencies path.")
++set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
++if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
++  message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
++  file(DOWNLOAD
++       https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
++       ${CPM_DOWNLOAD_LOCATION}
++  )
++endif()
++include(${CPM_DOWNLOAD_LOCATION})
++
++# symengine
++find_package(SymEngine CONFIG)
++if(SYMENGINE_FOUND)
++    message(STATUS "symengine found: \n\tinclude: ${SYMENGINE_INCLUDE_DIRS}\n\t lib: ${SYMENGINE_LIBRARIES}")
++else()
++    message(STATUS "System installation of symengine not found.")
++    CPMAddPackage(
++        NAME symengine
++        GITHUB_REPOSITORY symengine/symengine
++        VERSION 0.9.0
++        GIT_TAG "v0.9.0"
++        OPTIONS
++            "BUILD_TESTS OFF"
++            "BUILD_BENCHMARKS OFF"
++            "INTEGER_CLASS boostmp"
++            "WITH_SYMENGINE_RCP ON"
++            "CMAKE_BUILD_TYPE Release"
++            "CMAKE_POLICY_DEFAULT_CMP0048 NEW"
++            "CMAKE_POLICY_DEFAULT_CMP0057 NEW"
++            "CMAKE_POLICY_DEFAULT_CMP0054 NEW"
++    )
++endif()
++
++find_package(nlohmann_json)
++if(nlohmann_json_FOUND)
++    message(STATUS "nlohmann_json ${nlohmann_json_VERSION} found: ${nlohmann_json_DIR}\n")
++else()
++    CPMAddPackage(
++        NAME nlohmann_json
++        GITHUB_REPOSITORY nlohmann/json
++        VERSION 3.1.1
++        GIT_TAG "v3.1.1"
++        OPTIONS
++            "JSON_BuildTests OFF"
++    )
++endif()
++if(NOT TARGET nlohmann::json)
++    if(TARGET nlohmann_json)
++        add_library(nlohmann::json ALIAS nlohmann_json)
++    elseif(TARGET nlohmann_json::nlohmann_json)
++        add_library(nlohmann::json ALIAS nlohmann_json::nlohmann_json)
++    endif()
++endif()
++
++# Eigen
++# Check if XACC is installed and provides Eigen3. XACC_DIR is the XACC install path,
++# which is always in place if XACC is added using add_poorly_behaved_dependency.
++if(NOT TARGET xacc::xacc)
++    find_package(XACC REQUIRED)
++    set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen")
++    if (EXISTS ${XACC_EIGEN_PATH})
++        message(STATUS "Eigen3 from XACC found at ${XACC_EIGEN_PATH}.")
++        add_library(Eigen INTERFACE IMPORTED)
++        target_include_directories(Eigen INTERFACE ${XACC_EIGEN_PATH})
++        add_library(Eigen3::Eigen ALIAS Eigen)
++    else()
++        message(ERROR "Eigen3 not found from XACC.")
++    endif()
++endif()
++
++# Disable warnings since older gcc versions (e.g., 9.4) may give false-positive warnings
++# and Tket is compiled with -Werror.
++# Note: Tket recommended gcc-11+.
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")
++
++set(tket_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
++message(STATUS "tket_SOURCE_DIR: ${tket_SOURCE_DIR}, and CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
++
++# We don't use conan, just create a stub for TKet's conan cmake file.
++set(dummy_conanbuildinfo_content "macro(conan_basic_setup)\nendmacro()")
++file(WRITE ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake "${dummy_conanbuildinfo_content}")
++
++
++############################################################
++# Build/install TKet's utils libs, e.g., its log, assert, etc. utils
++############################################################
++# Note: the linking deps was specified in conan files,
++# we just need to convert them to target_link_libraries
++add_subdirectory(${tket_SOURCE_DIR}/libs/tklog/src)
++set_property(TARGET tklog PROPERTY POSITION_INDEPENDENT_CODE ON)
++add_subdirectory(${tket_SOURCE_DIR}/libs/tkrng/src)
++set_property(TARGET tkrng PROPERTY POSITION_INDEPENDENT_CODE ON)
++add_subdirectory(${tket_SOURCE_DIR}/libs/tkassert/src)
++set_property(TARGET tkassert PROPERTY POSITION_INDEPENDENT_CODE ON)
++target_link_libraries(tkassert PRIVATE tklog)
++add_subdirectory(${tket_SOURCE_DIR}/libs/tktokenswap/src)
++set_property(TARGET tktokenswap PROPERTY POSITION_INDEPENDENT_CODE ON)
++target_link_libraries(tktokenswap PRIVATE tklog tkassert tkrng)
++add_subdirectory(${tket_SOURCE_DIR}/libs/tkwsm/src)
++target_link_libraries(tkwsm PRIVATE tkassert tkrng tklog)
++set_property(TARGET tkwsm PROPERTY POSITION_INDEPENDENT_CODE ON)
++
++#install
++set(LIBS_COMPS  tklog tkrng tkassert tktokenswap tkwsm)
++foreach(COMP ${LIBS_COMPS})
++    set(COMP_DIR ${CMAKE_SOURCE_DIR}/libs/${COMP}/src)
++    file(GLOB HEADER_FILES ${COMP_DIR}/include/${COMP}/*.hpp)
++    set_target_properties(${COMP} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
++    install(TARGETS  ${COMP}
++        ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
++        LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
++        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/include/${COMP}")
++endforeach()
++
++
++###################################
++# Build/install main TKet libraries/targets
++####################################
++add_subdirectory(${tket_SOURCE_DIR}/tket/src)
++get_property(TKET_SUBDIRS DIRECTORY ${tket_SOURCE_DIR}/tket/src PROPERTY SUBDIRECTORIES)
++foreach(SUBDIR IN LISTS TKET_SUBDIRS)
++    get_property(TKET_TARGETS DIRECTORY ${SUBDIR} PROPERTY BUILDSYSTEM_TARGETS)
++    foreach(TKET_TARGET IN LISTS TKET_TARGETS)
++        set_property(TARGET ${TKET_TARGET} PROPERTY POSITION_INDEPENDENT_CODE ON)
++        target_include_directories(${TKET_TARGET} PRIVATE ${symengine_SOURCE_DIR} ${symengine_BINARY_DIR})
++        target_link_libraries(${TKET_TARGET} PRIVATE symengine tklog tkrng tkassert tktokenswap tkwsm Eigen3::Eigen nlohmann::json)
++    endforeach()
++endforeach()
++
++# install
++set(TKET_COMPS Utils OpType ZX Graphs Clifford Ops Architecture Gate PauliGraph Circuit Simulation Diagonalisation
++    Characterisation Converters Placement MeasurementSetup ArchAwareSynth Mapping Transformations Predicates)
++foreach(COMP ${TKET_COMPS})
++    set(tket_comp tket-${COMP})
++    set(COMP_DIR ${CMAKE_SOURCE_DIR}/tket/src/${COMP})
++    file(GLOB HEADER_FILES ${COMP_DIR}/include/${COMP}/*.hpp)
++    set_target_properties(${tket_comp} PROPERTIES PUBLIC_HEADER "${HEADER_FILES}")
++    install(TARGETS ${tket_comp}
++        ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
++        LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
++        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/include/${COMP}")
++endforeach()
+diff --git a/libs/tktokenswap/src/include/tktokenswap/DistancesInterface.hpp b/libs/tktokenswap/src/include/tktokenswap/DistancesInterface.hpp
+index 954f6f20..5e74dc97 100644
+--- a/libs/tktokenswap/src/include/tktokenswap/DistancesInterface.hpp
++++ b/libs/tktokenswap/src/include/tktokenswap/DistancesInterface.hpp
+@@ -16,7 +16,7 @@
+ 
+ #include <cstdint>
+ #include <vector>
+-
++#include <stddef.h>
+ namespace tket {
+ 
+ /** What is the distance between any two vertices on a graph?
+diff --git a/libs/tktokenswap/src/include/tktokenswap/NeighboursInterface.hpp b/libs/tktokenswap/src/include/tktokenswap/NeighboursInterface.hpp
+index 8b88afd7..8df50b3a 100644
+--- a/libs/tktokenswap/src/include/tktokenswap/NeighboursInterface.hpp
++++ b/libs/tktokenswap/src/include/tktokenswap/NeighboursInterface.hpp
+@@ -16,7 +16,7 @@
+ 
+ #include <cstdint>
+ #include <vector>
+-
++#include <stddef.h>
+ namespace tket {
+ 
+ /** What are the adjacent vertices to a given vertex on a graph?
+diff --git a/tket-config.cmake.in b/tket-config.cmake.in
+new file mode 100644
+index 00000000..ada259ad
+--- /dev/null
++++ b/tket-config.cmake.in
+@@ -0,0 +1,23 @@
++# - Config file for TKET
++# To point to your install of TKET, pass the
++# TKET_ROOT flag to your cmake configure.
++#
++# It defines the following variables
++# TKET_VERSION      - full version with tag
++# TKET_INCLUDE_DIR  - include directory for TKET
++# TKET_LIBRARY_DIR  - the TKET library directory
++
++if(NOT TKET_ROOT)
++  get_filename_component(TKET_ROOT "${CMAKE_CURRENT_LIST_FILE}" PATH)
++endif()
++
++
++# Set version info
++set(TKET_VERSION_MAJOR @MAJOR_VERSION@)
++set(TKET_VERSION_MINOR @MINOR_VERSION@)
++set(TKET_VERSION_PATCH @PATCH_VERSION@)
++set(TKET_VERSION_SUFFIX @TKET_BUILD_VERSION@)
++set(TKET_VERSION "@MAJOR_VERSION@.@MINOR_VERSION@.@PATCH_VERSION@-@TKET_BUILD_VERSION@")
++
++set(TKET_LIBRARY_DIR "${TKET_ROOT}/lib")
++set(TKET_INCLUDE_ROOT "${TKET_ROOT}/include")
+\ No newline at end of file
+diff --git a/tket/src/CMakeLists.txt b/tket/src/CMakeLists.txt
+index 73cf03d7..d5a290f1 100644
+--- a/tket/src/CMakeLists.txt
++++ b/tket/src/CMakeLists.txt
+@@ -25,8 +25,7 @@ endif()
+ 
+ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ 
+-find_file(CONANBUILDINFO_FILE_TKET conanbuildinfo.cmake HINTS ${CMAKE_CURRENT_BINARY_DIR})
+-include(${CONANBUILDINFO_FILE_TKET})
++include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+ conan_basic_setup()
+ 
+ IF (WIN32)
 diff --git a/tket/src/Circuit/CircuitJson.cpp b/tket/src/Circuit/CircuitJson.cpp
-index 67f2784..3096740 100644
+index 67f27846..3096740d 100644
 --- a/tket/src/Circuit/CircuitJson.cpp
 +++ b/tket/src/Circuit/CircuitJson.cpp
 @@ -43,7 +43,7 @@ void to_json(nlohmann::json& j, const Circuit& circ) {
@@ -28,7 +305,7 @@ index 67f2784..3096740 100644
        const auto& q = j_q.get<Qubit>();
        circ.qubit_discard(q);
 diff --git a/tket/src/Circuit/CommandJson.cpp b/tket/src/Circuit/CommandJson.cpp
-index fe48cbd..da6a4d7 100644
+index fe48cbd6..da6a4d73 100644
 --- a/tket/src/Circuit/CommandJson.cpp
 +++ b/tket/src/Circuit/CommandJson.cpp
 @@ -44,7 +44,7 @@ void to_json(nlohmann::json& j, const Command& com) {
@@ -41,7 +318,7 @@ index fe48cbd..da6a4d7 100644
    }
    const op_signature_t& sig = op->get_signature();
 diff --git a/tket/src/Clifford/ChoiMixTableau.cpp b/tket/src/Clifford/ChoiMixTableau.cpp
-index 7f6e18e..8261e7b 100644
+index 7f6e18ed..8261e7bf 100644
 --- a/tket/src/Clifford/ChoiMixTableau.cpp
 +++ b/tket/src/Clifford/ChoiMixTableau.cpp
 @@ -712,7 +712,7 @@ void to_json(nlohmann::json& j, const ChoiMixTableau& tab) {
@@ -54,7 +331,7 @@ index 7f6e18e..8261e7b 100644
        j.at("qubits").get<std::vector<ChoiMixTableau::col_key_t>>();
    if (qbs.size() != tab.tab_.get_n_qubits())
 diff --git a/tket/src/Clifford/UnitaryTableau.cpp b/tket/src/Clifford/UnitaryTableau.cpp
-index d2c0839..097cba0 100644
+index d2c0839d..097cba07 100644
 --- a/tket/src/Clifford/UnitaryTableau.cpp
 +++ b/tket/src/Clifford/UnitaryTableau.cpp
 @@ -579,7 +579,7 @@ void to_json(nlohmann::json& j, const UnitaryTableau& tab) {
@@ -67,7 +344,7 @@ index d2c0839..097cba0 100644
      throw std::invalid_argument(
          "Size of tableau does not match requirements for UnitaryTableau.");
 diff --git a/tket/src/Converters/UnitaryTableauBox.cpp b/tket/src/Converters/UnitaryTableauBox.cpp
-index b965e4b..ebf750b 100644
+index b965e4b8..ebf750bf 100644
 --- a/tket/src/Converters/UnitaryTableauBox.cpp
 +++ b/tket/src/Converters/UnitaryTableauBox.cpp
 @@ -68,7 +68,7 @@ nlohmann::json UnitaryTableauBox::to_json(const Op_ptr& op) {
@@ -80,7 +357,7 @@ index b965e4b..ebf750b 100644
  }
  
 diff --git a/tket/src/Gate/Gate.cpp b/tket/src/Gate/Gate.cpp
-index 7cbf044..d177d17 100644
+index 7cbf0441..d177d173 100644
 --- a/tket/src/Gate/Gate.cpp
 +++ b/tket/src/Gate/Gate.cpp
 @@ -829,7 +829,7 @@ nlohmann::json Gate::serialize() const {
@@ -93,7 +370,7 @@ index 7cbf044..d177d17 100644
    }
    // if type has fixed number of qubits use it, otherwise it should have been
 diff --git a/tket/src/PauliGraph/PauliGraph.cpp b/tket/src/PauliGraph/PauliGraph.cpp
-index e89857a..79bf544 100644
+index e89857af..79bf544b 100644
 --- a/tket/src/PauliGraph/PauliGraph.cpp
 +++ b/tket/src/PauliGraph/PauliGraph.cpp
 @@ -396,7 +396,7 @@ void PauliGraph::sanity_check() const {
@@ -115,7 +392,7 @@ index e89857a..79bf544 100644
      }
    }
 diff --git a/tket/src/Predicates/CompilerPass.cpp b/tket/src/Predicates/CompilerPass.cpp
-index 230ca19..1a18b04 100644
+index 230ca19a..1a18b049 100644
 --- a/tket/src/Predicates/CompilerPass.cpp
 +++ b/tket/src/Predicates/CompilerPass.cpp
 @@ -487,7 +487,7 @@ void from_json(const nlohmann::json& j, PassPtr& pp) {
@@ -128,7 +405,7 @@ index 230ca19..1a18b04 100644
              content.at("x_circuit").get<Circuit>());
        }
 diff --git a/tket/src/Predicates/PassGenerators.cpp b/tket/src/Predicates/PassGenerators.cpp
-index 7ffd580..dc558d1 100644
+index 7ffd5807..dc558d12 100644
 --- a/tket/src/Predicates/PassGenerators.cpp
 +++ b/tket/src/Predicates/PassGenerators.cpp
 @@ -802,7 +802,7 @@ PassPtr CustomPass(
@@ -141,7 +418,7 @@ index 7ffd580..dc558d1 100644
      return success;
    }};
 diff --git a/tket/src/Utils/include/Utils/Json.hpp b/tket/src/Utils/include/Utils/Json.hpp
-index f677a39..54e3c58 100644
+index f677a397..c301baad 100644
 --- a/tket/src/Utils/include/Utils/Json.hpp
 +++ b/tket/src/Utils/include/Utils/Json.hpp
 @@ -69,3 +69,46 @@ void from_json(const nlohmann::json& j, std::optional<T>& v) {
