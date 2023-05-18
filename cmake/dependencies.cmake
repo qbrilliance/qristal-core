@@ -82,8 +82,10 @@ add_dependency(nlohmann_json ${nlohmann_json_VERSION}
 )
 if(TARGET nlohmann_json)
   add_library(nlohmann::json ALIAS nlohmann_json)
+  add_library(AER_DEPENDENCY_PKG::nlohmann_json ALIAS nlohmann_json)
 elseif(TARGET nlohmann_json::nlohmann_json)
   add_library(nlohmann::json ALIAS nlohmann_json::nlohmann_json)
+  add_library(AER_DEPENDENCY_PKG::nlohmann_json ALIAS nlohmann_json::nlohmann_json)
 endif()
 if(nlohmann_json_ADDED)
   set(nlohmann_json_DIR ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann/nlohmann_json)
@@ -313,19 +315,30 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # QASM simulator.
   find_program(QB_STANDALONE_AER_EXE qasm_simulator) 
   if(${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")   
-    # only works with installed json 3.1.1 atm, no v3.11.2 as install has changed
-    # via add dependency: clone and build at cmake configuration step
-    message(STATUS "qasm_simulator not found. Use add dependency now")
+    # Install required dependency spdlog
+    set(name "spdlog")
+    set(repo "https://github.com/gabime/spdlog.git")
+    set(tag "1.5.0")
+    add_dependency(${name} ${tag}
+      GIT_REPOSITORY ${repo}
+      GIT_TAG v${tag}
+    )
+    add_library(AER_DEPENDENCY_PKG::spdlog ALIAS spdlog)
+    # Now install the QASM simulator
     set(name "qasm_simulator")
     set(repo "https://github.com/Qiskit/qiskit-aer.git")
     set(tag "0.10.4")
+    set(patch ${CMAKE_CURRENT_LIST_DIR}/qasm_simulator.patch)
     list(APPEND PREHASH GIT_REPOSITORY ${repo})
     list(APPEND PREHASH GIT_TAG ${tag})
+    list(APPEND PREHASH PATCH_COMMAND git apply ${patch})
+    list(APPEND PREHASH URL)
     list(SORT PREHASH)
     string(SHA1 hash "${PREHASH}")
     add_dependency(${name} ${tag}
       GIT_REPOSITORY ${repo}
       GIT_TAG ${tag}
+      PATCH_FILE ${patch}
       OPTIONS
         "CMAKE_MODULE_PATH ${CPM_SOURCE_CACHE}/${name}/${hash}/cmake"
         "CMAKE_BUILD_TYPE Release"

@@ -80,27 +80,54 @@ macro(add_dependency NAME VERSION)
       endforeach()
       list(PREPEND arg_OPTIONS "CMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}")
 
-      CPMAddPackage(
-        NAME ${NAME}
-        VERSION ${VERSION}
-        FORCE ${arg_FORCE}
-        GIT_TAG ${arg_GIT_TAG}
-        DOWNLOAD_ONLY ${arg_DOWNLOAD_ONLY}
-        GITHUB_REPOSITORY ${arg_GITHUB_REPOSITORY}
-        GITLAB_REPOSITORY ${arg_GITLAB_REPOSITORY}
-        BITBUCKET_REPOSITORY ${arg_BITBUCKET_REPOSITORY}
-        GIT_REPOSITORY ${arg_GIT_REPOSITORY}
-        SOURCE_DIR ${arg_SOURCE_DIR}
-        DOWNLOAD_COMMAND ${arg_DOWNLOAD_COMMAND}
-        FIND_PACKAGE_ARGUMENTS ${arg_FIND_PACKAGE_ARGUMENTS}
-        NO_CACHE ${arg_NO_CACHE}
-        GIT_SHALLOW ${arg_GIT_SHALLOW}
-        EXCLUDE_FROM_ALL ${arg_EXCLUDE_FROM_ALL}
-        SOURCE_SUBDIR ${arg_SOURCE_SUBDIR}
-        OPTIONS ${arg_OPTIONS}
-        URL ${arg_URL}
-        PATCH_COMMAND  ${arg_PATCH_COMMAND}
-      )
+      if(arg_PATCH_FILE)
+
+        CPMAddPackage(
+          NAME ${NAME}
+          VERSION ${VERSION}
+          FORCE ${arg_FORCE}
+          GIT_TAG ${arg_GIT_TAG}
+          DOWNLOAD_ONLY ${arg_DOWNLOAD_ONLY}
+          GITHUB_REPOSITORY ${arg_GITHUB_REPOSITORY}
+          GITLAB_REPOSITORY ${arg_GITLAB_REPOSITORY}
+          BITBUCKET_REPOSITORY ${arg_BITBUCKET_REPOSITORY}
+          GIT_REPOSITORY ${arg_GIT_REPOSITORY}
+          SOURCE_DIR ${arg_SOURCE_DIR}
+          DOWNLOAD_COMMAND ${arg_DOWNLOAD_COMMAND}
+          FIND_PACKAGE_ARGUMENTS ${arg_FIND_PACKAGE_ARGUMENTS}
+          NO_CACHE ${arg_NO_CACHE}
+          GIT_SHALLOW ${arg_GIT_SHALLOW}
+          EXCLUDE_FROM_ALL ${arg_EXCLUDE_FROM_ALL}
+          SOURCE_SUBDIR ${arg_SOURCE_SUBDIR}
+          OPTIONS ${arg_OPTIONS}
+          URL ${arg_URL}
+          PATCH_COMMAND git apply ${arg_PATCH_FILE}
+        )
+
+      else()
+
+        CPMAddPackage(
+          NAME ${NAME}
+          VERSION ${VERSION}
+          FORCE ${arg_FORCE}
+          GIT_TAG ${arg_GIT_TAG}
+          DOWNLOAD_ONLY ${arg_DOWNLOAD_ONLY}
+          GITHUB_REPOSITORY ${arg_GITHUB_REPOSITORY}
+          GITLAB_REPOSITORY ${arg_GITLAB_REPOSITORY}
+          BITBUCKET_REPOSITORY ${arg_BITBUCKET_REPOSITORY}
+          GIT_REPOSITORY ${arg_GIT_REPOSITORY}
+          SOURCE_DIR ${arg_SOURCE_DIR}
+          DOWNLOAD_COMMAND ${arg_DOWNLOAD_COMMAND}
+          FIND_PACKAGE_ARGUMENTS ${arg_FIND_PACKAGE_ARGUMENTS}
+          NO_CACHE ${arg_NO_CACHE}
+          GIT_SHALLOW ${arg_GIT_SHALLOW}
+          EXCLUDE_FROM_ALL ${arg_EXCLUDE_FROM_ALL}
+          SOURCE_SUBDIR ${arg_SOURCE_SUBDIR}
+          OPTIONS ${arg_OPTIONS}
+          URL ${arg_URL}
+        )
+
+      endif()
 
     else()
 
