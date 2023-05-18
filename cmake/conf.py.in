@@ -83,6 +83,7 @@ myst_enable_extensions = [
 # $$ \ket{\Phi^-} = \frac{\ket{00} - \ket{11}}{\sqrt{2}} , $$
 # to be displayed as separate paragraphs (no need for empty lines b/w them).
 myst_dmath_double_inline = True
+myst_heading_anchors = 4
 
 # Prefix document path to section labels, to use:
 # `path/to/file:heading` instead of just `heading`
