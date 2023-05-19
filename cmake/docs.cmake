@@ -101,6 +101,7 @@ if (EMULATOR_DIR)
   string(REPLACE ";" " " EMULATOR_HEADERS_LIST "${EMULATOR_PUBLIC_HEADERS}")
   # Add them to the list of headers to be processed.
   string(APPEND  DOXYGEN_PUBLIC_HEADERS " ${EMULATOR_HEADERS_LIST}") 
+  message(STATUS "Found emulator documentation.")
 endif()
 
 set(SPHINX_SOURCE_DIR ${PROJECT_SOURCE_DIR}/docs)

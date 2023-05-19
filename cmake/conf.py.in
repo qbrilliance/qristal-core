@@ -128,7 +128,7 @@ exhale_args = {
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
     # Files to generate Doxygen docs from
-    "exhaleDoxygenStdin":    "INPUT = @DOXYGEN_PUBLIC_HEADERS@ \n XML_PROGRAMLISTING = NO"
+    "exhaleDoxygenStdin":    "INPUT = @DOXYGEN_PUBLIC_HEADERS@ \n XML_PROGRAMLISTING = NO \n PREDEFINED += __attribute__(x)="
 }
 
 # Tell sphinx what the primary language being documented is.
