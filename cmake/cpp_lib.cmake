@@ -4,8 +4,8 @@ set(source_files
   src/session.cpp
   src/pretranspiler.cpp
   src/profiler.cpp
-  #src/qbTketNoiseAwarePlacement.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
+  src/QuantumBrillianceRemoteVisitor.cpp
   src/thread_pool.cpp
   src/optimization/vqee/case_generator.cpp
   src/optimization/vqee/vqee.cpp

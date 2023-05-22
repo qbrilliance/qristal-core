@@ -80,14 +80,15 @@ endif()
 # TODO: refactor to use all cpplib headers once all the headers are doxygen-ready.
 # We use strict Doxygen build mode (see below) hence gradually adding more files to this list once they're ready.
 set(PUBLIC_HEADERS
+  include/qb/core/circuit_builder.hpp
+  include/qb/core/QuantumBrillianceRemoteVisitor.hpp
+  include/qb/core/session.hpp
   include/qb/core/thread_pool.hpp
   include/qb/core/noise_model/noise_model.hpp
-  include/qb/core/circuit_builder.hpp
   include/qb/core/noise_model/noise_properties.hpp
-  include/qb/core/session.hpp
+  include/qb/core/optimization/qml/qml.hpp
   include/qb/core/optimization/vqee/case_generator.hpp
   include/qb/core/optimization/vqee/vqee.hpp
-  include/qb/core/optimization/qml/qml.hpp
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)

@@ -65,3 +65,20 @@ cz q[0], q[1];
   EXPECT_EQ(program->nInstructions(), 1);
   EXPECT_EQ(program->getInstruction(0)->name(), "CZ");
 }
+
+TEST(transpilationTester, checkAngleNorm) {
+  auto vis = xacc::quantum::QuantumBrillianceRemoteVisitor(0);
+  const double pi = xacc::constants::pi;
+  EXPECT_DOUBLE_EQ(vis.norm(0.), 0.);
+  EXPECT_DOUBLE_EQ(vis.norm(pi/3.), pi/3.);
+  EXPECT_DOUBLE_EQ(vis.norm(-pi/6.), -pi/6.);
+  EXPECT_DOUBLE_EQ(std::abs(vis.norm(pi)), std::abs(pi));
+  EXPECT_DOUBLE_EQ(std::abs(vis.norm(-pi)), std::abs(-pi));
+  EXPECT_DOUBLE_EQ(vis.norm(2.*pi), 0.);
+  EXPECT_DOUBLE_EQ(vis.norm(-2.*pi), 0.);
+  EXPECT_DOUBLE_EQ(vis.norm(-3.*pi/2.), pi/2.);
+  EXPECT_DOUBLE_EQ(vis.norm(3.*pi/2.), -pi/2.);
+  EXPECT_DOUBLE_EQ(vis.norm(5.*pi+0.01), -pi+0.01);
+  EXPECT_DOUBLE_EQ(vis.norm(-5.), 2*pi-5.);
+  EXPECT_DOUBLE_EQ(vis.norm(5.), 5.-2.*pi);
+}
