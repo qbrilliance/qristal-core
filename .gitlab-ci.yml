@@ -1,7 +1,8 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-1
-  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-1
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-1
+  # TODO: remove -rc suffix
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-2
+  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-2
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-2
 
 stages:
   - build
@@ -51,7 +52,7 @@ ci-build-for-emulator:
       - core_artefacts/build/qbcore-config.cmake
       - core_artefacts/build/qbcore-config-version.cmake
       - core_artefacts/build/CMakeFiles/Export/
-      - core_artefacts/build/libnoise.so*
+      - core_artefacts/build/lib*
       - core_artefacts/cmake/py_packages_path.cmake
       - core_artefacts/cmake/xacc_utilities.cmake
       - core_artefacts/cmake/cudaq_utilities.cmake

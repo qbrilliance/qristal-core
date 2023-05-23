@@ -5,6 +5,7 @@ set(source_files
   src/pretranspiler.cpp
   src/profiler.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
+  src/QuantumBrillianceAccelerator.cpp
   src/QuantumBrillianceRemoteVisitor.cpp
   src/thread_pool.cpp
   src/optimization/vqee/case_generator.cpp
@@ -43,7 +44,6 @@ set(headers
   include/qb/core/QuantumBrillianceAccelerator.hpp
   include/qb/core/QuantumBrillianceRemoteAccelerator.hpp
   include/qb/core/QuantumBrillianceRemoteVisitor.hpp
-  include/qb/core/QuantumBrillianceVisitor.hpp
   include/qb/core/remote_async_accelerator.hpp
   include/qb/core/thread_pool.hpp
   include/qb/core/typedefs.hpp

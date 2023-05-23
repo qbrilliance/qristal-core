@@ -82,7 +82,12 @@ namespace qb
             Custom
         };
 
-    protected:
+        /// @brief  Retrieve the name of the QObj compiler to use with the AER
+        /// simulator
+        /// @return Name of the QObj compiler
+        virtual std::string get_qobj_compiler() const;
+
+      protected:
         /**
          * @brief Calculate component of Pauli error caused by decoherence on a single qubit
          *

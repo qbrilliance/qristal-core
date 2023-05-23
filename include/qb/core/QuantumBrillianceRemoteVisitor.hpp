@@ -103,9 +103,10 @@ namespace xacc {
         /// Return the finished qpu OpenQasm kernel
         std::string getXasmString();
 
+        /// Retrieved the IR tree in the basis gate set.
+        std::shared_ptr<xacc::CompositeInstruction> getTranspiledIR() const;
     };
 
-  } // namespace quantum
-
+} // namespace quantum
 } // namespace xacc
 

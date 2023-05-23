@@ -64,6 +64,11 @@ namespace qb
         }
     }
 
+    std::string NoiseModel::get_qobj_compiler() const {
+      // The default "qobj" compiler from XACC
+      return "qobj";
+    }
+    
     double NoiseModel::decoherence_pauli_error(double t1, double tphi, double gate_time)
     {
         // Formula:

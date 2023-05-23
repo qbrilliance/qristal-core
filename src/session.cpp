@@ -1756,6 +1756,7 @@ namespace qb
         }
         if (noises > 0) {
           aer_options.insert("noise-model", noiseModel.to_json());
+          aer_options.insert("qobj-compiler", noiseModel.get_qobj_compiler());
           if (debug_)
             std::cout << "# Noise model: enabled" << std::endl;
         } else {
@@ -1965,8 +1966,8 @@ namespace qb
       if (debug_)
         std::cout << "# " << accs << " accelerator: initialised" << std::endl;
 
-      std::shared_ptr<xacc::quantum::QuantumBrillianceAccelerator> acc =
-          std::make_shared<xacc::quantum::QuantumBrillianceAccelerator>();
+      std::shared_ptr<qb::QuantumBrillianceAccelerator> acc =
+          std::make_shared<qb::QuantumBrillianceAccelerator>();
       acc->updateConfiguration(mqbacc);
       if (debug_) std::cout << "# Quantum Brilliance accelerator: initialised" << std::endl;
 
@@ -2553,7 +2554,7 @@ namespace qb
     // Declare the variables that persist across locked scopes
     bool output_oqm_enableds;
     size_t n_qubits;
-    std::shared_ptr<xacc::quantum::QuantumBrillianceAccelerator> acc;
+    std::shared_ptr<qb::QuantumBrillianceAccelerator> acc;
     std::vector<std::shared_ptr<xacc::CompositeInstruction>> citargets;
     std::shared_ptr<xacc::AcceleratorBuffer> buffer_b;
     int shots;
@@ -2785,7 +2786,7 @@ namespace qb
       //
       // exec_on_hardware
       //
-      acc = std::make_shared<xacc::quantum::QuantumBrillianceAccelerator>();
+      acc = std::make_shared<qb::QuantumBrillianceAccelerator>();
       acc->updateConfiguration(mqbacc);
       if (debug_) std::cout << "# Quantum Brilliance accelerator: initialised" << std::endl;
 
@@ -2891,7 +2892,7 @@ namespace qb
               {
                 auto buffer_temp = std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
                 handle.load_result(buffer_temp);
-                auto qb_transpiler = std::make_shared<xacc::quantum::QuantumBrillianceAccelerator>();
+                auto qb_transpiler = std::make_shared<qb::QuantumBrillianceAccelerator>();
                 this->process_run_result(ii, jj, run_config, buffer_temp, timer_for_qpu.getDurationMs(), qb_transpiler);
               });
           return aws_job_handle;
@@ -2920,7 +2921,7 @@ namespace qb
 
     void session::process_run_result(const std::size_t ii, const std::size_t jj, const run_i_j_config& run_config,
                                   std::shared_ptr<xacc::AcceleratorBuffer> buffer_b, double runtime_ms,
-                                  std::shared_ptr<xacc::quantum::QuantumBrillianceAccelerator> qb_transpiler)
+                                  std::shared_ptr<qb::QuantumBrillianceAccelerator> qb_transpiler)
   {
     auto ir_target = irtarget_ms_.at(ii).at(0);
     // Get counts

@@ -41,7 +41,9 @@ Profiler::Profiler(std::string target_circuit, const int n_qubits,
 
   std::shared_ptr<xacc::IR> irtarget =
       openQasmCompiler->compile(target_circuit);
-  placed_circuit_ = irtarget->getComposite("QBCIRCUIT");
+  // We expect a single circuit in this OpenQASM input
+  assert(irtarget->getComposites().size() == 1);
+  placed_circuit_ = irtarget->getComposites().front();
 
   count_1q_gates_on_q_.resize(n_qubits);
   count_2q_gates_on_q_.resize(n_qubits);

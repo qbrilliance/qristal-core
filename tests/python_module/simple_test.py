@@ -138,22 +138,34 @@ def test_CI_210826_14_qbtheta_parameters() :
     __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
-        creg c[4];
-        x q[0];
-        x q[2];
-        u3(QBTHETA_0, 1.6, QBTHETA_1) q[3];
+        creg c[1];
+        u3(QBTHETA_0, 1.6, QBTHETA_1) q[0];
         measure q[0] -> c[0];
-        measure q[1] -> c[1];
-        measure q[2] -> c[2];
-        measure q[3] -> c[3];
     }'''
     mth = qb.core.ND()
     mth[0] = 0.05
     mth[1] = -0.7
     s.theta[0] = qb.core.MapND([mth])
     s.run()
-    assert (s.out_transpiled_circuit[0][0] == '\n__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude "qelib1.inc";\nu(3.14159, -1.5708, 1.5708) q[0];\nu(3.14159, -1.5708, 1.5708) q[2];\nu(0.05, 1.6, -0.7) q[3];\ncreg c0[1];\nmeasure q[0] -> c0[0];\ncreg c1[1];\nmeasure q[1] -> c1[0];\ncreg c2[1];\nmeasure q[2] -> c2[0];\ncreg c3[1];\nmeasure q[3] -> c3[0];\n\n}\n')
-
+   
+    # Recompile the transpiled qasm to check
+    import xacc, math
+    compiler = xacc.getCompiler("staq")
+    ir = compiler.compile(s.out_transpiled_circuit[0][0]).getComposites()[0]
+    # u => 5 rx and ry gates
+    #  --Ry(pi/2)--Rx(lambda)--Ry(theta)--Rx(phi)--Ry(-pi/2)--
+    # 5 Rx/Ry gates + measure
+    assert(ir.nInstructions() == 6)
+    assert(ir.getInstruction(0).name() == "Ry")
+    assert(ir.getInstruction(0).getParameter(0) == pytest.approx(math.pi/2, abs=1e-3))
+    assert(ir.getInstruction(1).name() == "Rx")
+    assert(ir.getInstruction(1).getParameter(0) == pytest.approx(-0.7, abs=1e-3))
+    assert(ir.getInstruction(2).name() == "Ry")
+    assert(ir.getInstruction(2).getParameter(0) == pytest.approx(0.05, abs=1e-3))
+    assert(ir.getInstruction(3).name() == "Rx")
+    assert(ir.getInstruction(3).getParameter(0) == pytest.approx(1.6, abs=1e-3))
+    assert(ir.getInstruction(4).name() == "Ry")
+    assert(ir.getInstruction(4).getParameter(0) == pytest.approx(-math.pi/2, abs=1e-3))
 
 def test_raw_openqasm_str():
     print(" Testing raw OpenQASM string input ")

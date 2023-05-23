@@ -565,7 +565,18 @@ namespace xacc
     {
       return sequence_.dump(4);
     }
-
+    
+    std::shared_ptr<xacc::CompositeInstruction> QuantumBrillianceRemoteVisitor::getTranspiledIR() const 
+    {
+      std::stringstream ss;
+      ss << "__qpu__ void __temp__xasm__kernel__(qbit q) {\n";
+      for (const auto &it : sequence_) {
+      ss << it.get<std::string>() << ";\n";
+      }
+      ss << "}";
+      auto xasmCompiler = xacc::getCompiler("xasm");
+      return xasmCompiler->compile(ss.str(), nullptr)->getComposites()[0];
+    }
 
   } // namespace quantum
 

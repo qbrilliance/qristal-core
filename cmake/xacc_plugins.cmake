@@ -1,5 +1,26 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
+# Gateset transpiler module (to be used by emulator)
+add_xacc_plugin(qb_gateset_transpiler
+  SOURCES
+    src/transpiler/QuantumBrillianceGateSetTranspiler.cpp
+    src/QuantumBrillianceRemoteVisitor.cpp
+  DEPENDENCIES
+    nlohmann::json
+)
+
+# Custom QB QObj compiler (to be used by emulator)
+add_xacc_plugin(qb_qobj_compiler
+  SOURCES
+    src/qobj/QuantumBrillianceQobjCompiler.cpp
+  HEADERS
+    include/qb/core/qobj/QuantumBrillianceQobjCompiler.hpp
+  DEPENDENCIES
+    nlohmann::json
+)
+
+if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
+
 # optimization modules
 add_xacc_plugin(optimizationModules
   SOURCES
@@ -157,4 +178,4 @@ add_xacc_plugin(vqe
     src/vqe/VariationalQuantumEigenSolver.cpp
 )
 
-
+endif()

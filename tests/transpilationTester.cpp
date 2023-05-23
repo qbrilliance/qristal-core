@@ -1,7 +1,8 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
 #include "qb/core/session.hpp"
 #include <gtest/gtest.h>
-
+#include "xacc_service.hpp"
+#include "qb/core/noise_model/noise_model.hpp"
 
 TEST(transpilationTester, checkCZOptimization) {
   // Make a QB SDK session

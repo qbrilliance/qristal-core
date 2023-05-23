@@ -16,8 +16,8 @@ else()
 endif()
 
 # For XACC, but impacts Qristal too.
-set(ENABLE_MPI OFF)
-set(XACC_TAG "1eadf8a6")
+set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
+set(XACC_TAG "05164c13")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
 else()

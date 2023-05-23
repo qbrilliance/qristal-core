@@ -36,14 +36,15 @@ include(noise_model_lib)
 # core headers and libqbcore.so shared library
 include(cpp_lib)
 
+# XACC plugin shared libraries 
+# installed to XACC framework for both core and emulator
+include(xacc_plugins)
+
 # Print out the installation directory.
 message(STATUS "Installation directory for ${PROJECT_NAME} set to ${CMAKE_INSTALL_PREFIX}.")
 
 # Nothing more to do if the caller only needs the headers
 if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
-
-  # XACC plugin shared libraries
-  include(xacc_plugins)
 
   # Python core module (Python bindings for libqbcore.so)
   include(py_lib)
