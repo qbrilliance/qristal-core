@@ -72,6 +72,20 @@ Availability on simulators:
 - [ ] sparse-sim
 - [ ] qpp
 
+### `qb-dqc2`
+
+This model is applicable to:
+
+- [ ] Open source releases: 2023 onwards
+- [X] Commercial emulator releases: 2023 onwards
+
+Availability on simulators:
+- [x] aer
+- [ ] qsim
+- [ ] tnqvm
+- [ ] sparse-sim
+- [ ] qpp
+
 ## Examples showing the use of a built-in noise model
 ### C++
 This example can be found at `examples/cpp/noise_model`, along with a `CMakeLists.txt` file for building it.

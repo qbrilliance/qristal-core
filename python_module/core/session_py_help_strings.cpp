@@ -430,7 +430,7 @@ const char* session::help_svd_cutoffs_ = R"(
 const char* session::help_noise_models_ = R"(
         noise_model:
 
-        Valid settings: "default" | "qb-nm1" | "qb-nm2" | "qb-qdk1"
+        Valid settings: "default" | "qb-nm1" | "qb-nm2" | "qb-qdk1" | "qb-dqc2"
 
         .. note::
                 Requires setting: noise = True (to have effect)
@@ -445,7 +445,9 @@ const char* session::help_noise_models_ = R"(
         
         "qb-nm2" : 8x8 NV centres in x-y grid, 1 qubit per NV centre, nearest x and nearest y connectivity
 
-        "qb-qdk1" : 1 NV centre with 2 qubits
+        "qb-qdk1" : 1 NV centre with 2 qubits, fidelities tuned to match deployed device
+
+        "qb-dqc2" : 1 NV centre with 2 qubits, fidelities tuned to match lab-based device
 
         noise_models:
 

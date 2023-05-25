@@ -259,7 +259,9 @@ namespace qb
       std::unordered_set<std::string> VALID_NOISE_MODEL_NAMES = {
         "default",
         "qb-nm1",
-        "qb-nm2"
+        "qb-nm2",
+        "qb-qdk1",
+        "qb-dqc2"
       };
 
       // More QB hardware options (similar to the above) go here
