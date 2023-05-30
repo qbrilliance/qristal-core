@@ -10,7 +10,7 @@ find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
   get_filename_component(OPENSSL_INSTALL_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-  message(STATUS " --- OPENSSL_INSTALL_DIR set to: ${OPENSSL_INSTALL_DIR}")
+  message(STATUS "OPENSSL_INSTALL_DIR set to: ${OPENSSL_INSTALL_DIR}")
 else()
   message(FATAL_ERROR "System installation of OpenSSL not found. Please add the OpenSSL development package using the appropriate management tool for your system libraries.")
 endif()
@@ -146,7 +146,7 @@ if(WITH_TKET)
       "CMAKE_EXPORT_COMPILE_COMMANDS ON"
       "INSTALL_MISSING_CXX ON"
       "JSON_VERSION ${nlohmann_json_VERSION}"
-    PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/tket.patch
+    PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/tket.patch
   )
 endif()
 
@@ -323,12 +323,16 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       GIT_REPOSITORY ${repo}
       GIT_TAG v${tag}
     )
-    add_library(AER_DEPENDENCY_PKG::spdlog ALIAS spdlog)
+    if(TARGET spdlog)
+      add_library(AER_DEPENDENCY_PKG::spdlog ALIAS spdlog)
+    elseif(TARGET spdlog::spdlog)
+      add_library(AER_DEPENDENCY_PKG::spdlog ALIAS spdlog::spdlog)
+    endif()
     # Now install the QASM simulator
     set(name "qasm_simulator")
     set(repo "https://github.com/Qiskit/qiskit-aer.git")
     set(tag "0.10.4")
-    set(patch ${CMAKE_CURRENT_LIST_DIR}/qasm_simulator.patch)
+    set(patch ${CMAKE_CURRENT_LIST_DIR}/patches/qasm_simulator.patch)
     list(APPEND PREHASH GIT_REPOSITORY ${repo})
     list(APPEND PREHASH GIT_TAG ${tag})
     list(APPEND PREHASH PATCH_COMMAND git apply ${patch})
