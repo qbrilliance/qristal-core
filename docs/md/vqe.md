@@ -152,14 +152,16 @@ The results from a completed VQE execution are available by reading the followin
 | `optimalValue`  |  `tvqep.optimalValue` | The **minimum energy** corresponding to <br />parameters set at the `optimalParameters`. |
 | `optimalParameters` | `tvqep.optimalParameters` | The values for [theta](#theta) corresponding to <br />the minimum energy that VQE <br />has found within `maxIters` iterations. |
 
+## C++ API
+<a href="../_cpp_api/classqb_1_1vqee_1_1VQEE.html">See the class documentation.</a>
 
-# General information
+## General VQE information
 
 VQE is classified as a **quantum-classical (hybrid) algorithm**. It uses a **classical optimizer** to minimize a **quantum kernel** based objective function. The objective function is usually determined by multiple measurements at each iteration.
 
 VQE finds the **ground state energy** of a physical system characterized by its **Hamiltonian** $H$ which is Hermitian. See [[Peruzzo et al. 2013](https://arxiv.org/abs/1304.3061), [O'Malley et al. 2015](https://arxiv.org/abs/1512.06860)] for details.
 
-## Quantum kernels in Qristal
+### Quantum kernels in Qristal
 In this section, the components that make up a quantum kernel are described in more detail.
 
 ### Hamiltonian
@@ -289,9 +291,6 @@ For example, an $H_2$ molecule with an atomic distance of 0.735 angstroms (Å) c
 ❗ **Important:** the default unit for coordinates is **angstroms**. 
 
 By default, Qristal uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_sets) basis set and the Jordan-Wigner fermion-to-qubit mapping.
-
-## C++ API
-<a href="../_cpp_api/classqb_1_1vqee_1_1VQEE.html">See the class documentation.</a>
 
 ## How to make function calls for a Python-level optimizer?
 

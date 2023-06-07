@@ -40,7 +40,6 @@ The Emulator plugin for Qristal `can be obtained in binary form from Quantum Bri
 
 
 .. toctree::
-   :maxdepth: 2
    :caption: Basic Usage
 
    rst/getting_started

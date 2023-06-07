@@ -1,5 +1,4 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-
 #include "qb/core/optimization/vqee/vqee.hpp"
 #include <args.hxx>
 
@@ -152,7 +151,6 @@ std::string escapeString(const std::string& str) {
 // theta and thetas provided:   ./vqeeCalculator --nThreads=2 --theta=0.2 --thetas="0.1, 0.2, 0.1"
 // pauli and geometry given:    ./vqeeCalculator --nThreads=2 --geometry="H 0.0 0.0 0.0; H 0.0 0.0 0.7408481486" --pauli="5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1" --ansatz="UCCSD" --theta=0.2 --nQubits=4 --nElectrons=2
 // circuit and ansatz given:    ./vqeeCalculator --nThreads=2 --pauli="5.907 - 2.1433 X0X1 - 2.1433 Y0Y1 + .21829 Z0 - 6.125 Z1" --circuit=".compiler xasm\n.circuit ansatz\n.parameters theta\n.qbit q\nRy(q[0], theta);" --ansatz="UCCSD" --theta=0.2 --nQubits=4 --nElectrons=2
-
 int main (int argc, char *argv[]) {
     xacc::Initialize(); //xacc::Initialize(argc, argv);
     xacc::external::load_external_language_plugins();
@@ -199,6 +197,7 @@ int main (int argc, char *argv[]) {
     args::HelpFlag                       CLIh(parser, "help", "help", {"help"});
     args::Flag                     CLIverbose(parser, "verbose", "", {"verbose"});
     args::ValueFlag<std::string>  CLIfromJson(parser, "fromJson", "Read all options from json file instead: specify [PATH]", {"fromJson"});
+    args::ValueFlag<std::string>  CLIoutputJson(parser, "outputJson", "Output results to a json file with path and name given by --outputJson", {"outputJson"});
     args::ValueFlag<std::size_t>    CLIjsonID(parser, "jsonID", "ID [0...N] of json object in array of json objects in provided json file", {"jsonID"});
 
     try {
@@ -453,11 +452,30 @@ int main (int argc, char *argv[]) {
 
     const auto      nIters = params.energies.size();
     const double    cpu_ms = timer_for_cpu.getDurationMs();
-    if (isRoot){
-        std::cout << "\ntheta: " << params.theta << ", energy: " << params.optimalValue 
-                  << ", iterations: " << nIters << ", CPU wall-time: " << cpu_ms << " ms" << std::endl;
-    }
+    if (isRoot) {
+        if (CLIoutputJson) {
+            const std::string jsonOutputPath = args::get(CLIoutputJson);
+            if (isRoot) {
+                std::cout << "Saving results to: " << jsonOutputPath << "\n";
+            }
+            json outjs;
+            std::ofstream outjs_file(jsonOutputPath);
+            outjs["theta"] = params.theta;
+            outjs["energy"] = params.optimalValue;
+            outjs["iterations"] = nIters;
+            outjs["walltime_ms"] = cpu_ms;
+            outjs["pauli"] = params.pauliString;
+            // Add more output fields here....
 
+            outjs_file << std::setw(4) << outjs << "\n";
+            outjs_file.flush();
+            outjs_file.close();
+        }
+        else {
+            std::cout << "\ntheta: " << params.theta << ", energy: " << params.optimalValue
+                      << ", iterations: " << nIters << ", CPU wall-time: " << cpu_ms << " ms" << std::endl;
+        }
+    }
     xacc::Finalize();
     return 0;
 }

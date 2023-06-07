@@ -10,6 +10,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Transpilation: out_transpiled_circuit (OpenQASM 2.0) in native gates.
 - Profiler: counting number of gates and timing data after transpilation to the native gate set.
 
+- vqeeCalculator: the command line tool for VQE has been augmented to allow output to JSON file format.
+
 ### Fixed
 
 - CMake error when spdlog is system installed but qasm_simulator is not.

@@ -67,6 +67,7 @@ Installation
 The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
 
 .. note:: The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
+.. note:: MPI is enabled by adding the option ``-DENABLE_MPI=ON`` to the ``cmake`` command.
 
 2. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced**)
 

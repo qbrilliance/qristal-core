@@ -21,9 +21,7 @@ The C++ example programs are _also_ built and properly linked automatically when
 
 A description of the available gates and the syntax used to implement them in Python is given in the [Quantum Computing](https://qristal.readthedocs.io/en/latest/rst/quantum_computing.html) section.
 
-##  Notes on specific examples ##
-
-### Python ###
+## Python ##
 
 `demo1.py`
 
@@ -365,7 +363,7 @@ _noise_: false
 Demonstrates the use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
 
 
-### C++ ###
+## C++ ##
 
 `demo1`
 
@@ -397,7 +395,8 @@ A command-line interface to Qristal.  A simple invocation after compiling the CL
 ```
 ./qbsdkcli -q2 --random=2
 ```
-which will run a random circuit on 2 qubits, with gate depth of 2. Further details can be found <a href="cli.html">here</a> if viewing the html docs (or in <a href="cpp/qbsdkcli/README.md">examples/cpp/qbsdkcli/README.md</a> if viewing this document as markdown).
+which will run a random circuit on 2 qubits, with gate depth of 2. Further details can be found <a href="cli.html">here</a>.  
+%Special note only for markdown readers: see <a href="cpp/qbsdkcli/README.md">examples/cpp/qbsdkcli/README.md</a> instead for further details.
 
 `noise_model`
 
@@ -415,8 +414,18 @@ _noise_: false
 
 Demonstrates the use of Qristal's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
 
+`vqeeCalculator`
 
-### C++ with CUDA Quantum ###
+`vqeeCalculator` is a C++ compiled executable that enables command-line access to the functionality in `vqee`.
+
+```{toctree}
+vqeeCalculator.md
+```
+
+%Special note only for markdown readers: For in-depth documentation of the `vqeeCalculator`, see <a href="cpp/vqeeCalculator/README.md">examples/cpp/vqeeCalculator/README.md</a>.
+
+
+## C++ with CUDA Quantum ##
 
 A number of additional examples are only installed when Qristal is built with CUDA Quantum support.  None of these examples has noise enabled.
 
@@ -441,10 +450,9 @@ Determination of the ground state of a chain of four hydrogen atoms, using VQE w
 Determination of the deuteron's ground state energy using VQE with the L-BFGS optimiser.
 
 
-### Further notes for beta testers ###
+## Works in progress ##
 
-This folder is to some extent a work in progress.  The examples listed above are the ones that have been fully tested and made consistent with the public version of the code.  The others listed below do not presently run or still need additional testing. This is a known issue, and thus not worth reporting as a new bug.
-
+Examples in the `wip` folder are works in progress.  These either do not presently run or still need additional testing.  This is a known issue, and thus not worth reporting as a new bug.
 
 `aws_braket`
 
@@ -458,14 +466,6 @@ These need work on the aws_s3 argument.  You should be able to get the first two
 
   - `verbatim.py`  
   A circuit run on Rigetti hardware using the AWS `verbatim` option.
-
-`q_chemistry`
-
-  - `vqe_calculator.py`
-  Implementation in Python of a generic VQE calculator for quantum chemistry. Requires `openfermionpyscf` (can be installed with pip).  Parses successfully with Python, but a tested example that uses the class has yet to be developed.
-
-  - `external_potential.py`
-  An add-in class for `vqe_calculator.py` allowing for the specification of an external potential arising from a point charge.
 
 `lambda_accelerator`
 
