@@ -18,7 +18,7 @@ macro(add_example NAME)
 
   if(TARGET ${NAME})
     target_link_libraries(${NAME} PRIVATE qb::core)
-    set_target_properties(${NAME} PROPERTIES BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib")
+    set_target_properties(${NAME} PROPERTIES BUILD_RPATH "${CMAKE_BUILD_DIR};${XACC_ROOT}/lib")
   endif()
   
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/${NAME}/CMakeLists.txt.in
