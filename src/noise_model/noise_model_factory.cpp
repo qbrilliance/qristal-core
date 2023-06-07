@@ -65,7 +65,7 @@ namespace qb
             NoiseModel noise_model;
             constexpr double GATE_FIDELITY = 0.999; // 99.9%
             // Uniform readout error of 1%
-            NoiseProperties::ReadoutError ro_error;
+            ReadoutError ro_error;
             ro_error.p_01 = 0.01;
             ro_error.p_10 = 0.01;
             // Set qubit readout errors

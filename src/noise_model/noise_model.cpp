@@ -110,7 +110,7 @@ namespace qb
         }
     }
 
-    void NoiseModel::set_qubit_readout_error(size_t qubitIdx, const NoiseProperties::ReadoutError &ro_error)
+    void NoiseModel::set_qubit_readout_error(size_t qubitIdx, const ReadoutError &ro_error)
     {
         m_readout_errors[qubitIdx] = ro_error;
     }

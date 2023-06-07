@@ -6,6 +6,7 @@
 #include "json_complex_convert.hpp"
 #include "noise_channel.hpp"
 #include "noise_properties.hpp"
+#include "readout_error.hpp"
 
 namespace qb
 {
@@ -70,7 +71,7 @@ namespace qb
          * @param qubitIdx Qubit to set
          * @param ro_error Readout error
          */
-        void set_qubit_readout_error(size_t qubitIdx, const NoiseProperties::ReadoutError& ro_error);
+        void set_qubit_readout_error(size_t qubitIdx, const ReadoutError& ro_error);
         
         /**
          * @brief Type of qubit connectivity
@@ -104,7 +105,7 @@ namespace qb
         /// If the noise is uniform (qubit independent), use empty vector for qubit operands.
         std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> m_noise_channels;
         /// @brief Readout errors
-        std::unordered_map<size_t, NoiseProperties::ReadoutError> m_readout_errors;
+        std::unordered_map<size_t, ReadoutError> m_readout_errors;
         /// @brief Qubit connectivity 
         std::vector<std::pair<int, int>> m_qubit_topology;
         /// @brief Noise model Json conforming to IBM Qiskit QObj schema if provided.

@@ -9,6 +9,7 @@ set(headers
   include/qb/core/noise_model/noise_model_factory.hpp
   include/qb/core/noise_model/noise_model.hpp
   include/qb/core/noise_model/noise_properties.hpp
+  include/qb/core/noise_model/readout_error.hpp
 )
 
 set(LIBRARY_NAME noise)

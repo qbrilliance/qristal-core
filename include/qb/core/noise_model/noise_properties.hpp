@@ -1,9 +1,11 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 
 #pragma once
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include "qb/core/noise_model/readout_error.hpp"
+
 namespace qb
 {
     /**
@@ -14,18 +16,6 @@ namespace qb
     */
     struct NoiseProperties
     {
-        /// \private
-        struct ReadoutError
-        {
-            /**
-            * @brief Classical probability of detecting 0 whereas the true state was |1>
-            */
-            double p_01;
-            /**
-            * @brief Classical probability of detecting 1 whereas the true state was |0>
-            */
-            double p_10;
-        };
 
         /**
         * @brief **T1** is the **qubit relaxation time**.  For a qubit register, with individual qubits zero-indexed by i; `t1_us` is a map from qubit[i] -> T1[i].
@@ -48,12 +38,12 @@ namespace qb
         std::unordered_map<size_t, double> t2_us;
 
         /**
-        * @brief **readout_errors** is the **classical readout error (off-diagonal elements of the confusion matrix)**.  For a qubit register, with individual qubits zero-indexed by i, `readout_errors` is a map from qubit[i] -> qb::NoiseProperties::ReadoutError[i].
+        * @brief **readout_errors** is the **classical readout error (off-diagonal elements of the confusion matrix)**.  For a qubit register, with individual qubits zero-indexed by i, `readout_errors` is a map from qubit[i] -> qb::ReadoutError[i].
         * Unit: none (quantities are probabilities).
         *
         *     // C++ code example: 2 qubits with p(0|1) = p(1|0) = 0.05, 2 qubits with p(0|1) = 0.1 and p(1|0) = 0.08
         *     qb::NoiseProperties t_qbnp;
-        *     qb::NoiseProperties::ReadoutError t_qbnpro_balanced, t_qbnpro_asym;
+        *     qb::ReadoutError t_qbnpro_balanced, t_qbnpro_asym;
         *     t_qbnpro_balanced.p_01 = 0.05;
         *     t_qbnpro_balanced.p_10 = 0.05;
         *     t_qbnpro_asym.p_01 = 0.10;

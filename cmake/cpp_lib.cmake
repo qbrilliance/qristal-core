@@ -160,7 +160,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
         cudaq-ensmallen
         cudaq-nlopt
         cudaq-platform-default
-        cudaq-qpud-client
         cudaq-spin
         nvqir
     )

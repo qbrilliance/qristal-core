@@ -20,6 +20,69 @@
 namespace qb
 {
 
+  /// Supported types of the input source string defining a quantum kernel
+  enum class source_string_type
+  {
+    XASM,
+    Quil,
+    OpenQASM
+  };
+
+  /// Indexed (i, j) run configurations of a session
+  struct run_i_j_config
+  {
+    /// Number of measurement shots (sns_)
+    int num_shots;
+    /// Number of qubits (qns_)
+    int num_qubits;
+    /// Number of repetitions (rns_)
+    int num_repetitions;
+    /// Enable post-execution transpilation and resource estimation
+    bool oqm_enabled;
+    /// Name of the backend accelerator
+    std::string acc_name;
+    /// Full path to the OpenQASM include file where custom QB gates are defined
+    std::string openqasm_qb_include_filepath;
+    /// Full path to the QPU configuration JSON file
+    std::string qpu_config_json_filepath;
+    /// QB hardware: prevent contrast thresholds from being sent from Qristal
+    bool use_default_contrast_setting;
+    /// QB hardware: init contrast thresholds
+    ND init_contrast_thresholds;
+    /// QB hardware: qubit contrast thresholds
+    ND qubit_contrast_thresholds;
+    /// Type (assembly dialect) of the input source string
+    source_string_type source_type;
+    /// Disable placement if true
+    bool no_placement;
+    /// Disable circuit optimisation if true
+    bool no_optimise;
+    /// Disable simulation (accelerator execution) if true
+    /// e.g., just want to run transpilation for resource estimation.
+    bool no_sim;
+    /// Enable noisy simulation/emulation
+    bool noise;
+    /// Name of the noise model
+    std::string noise_model;
+    /// *
+    /// Backend-specific configurations
+    /// *
+    /// [TNQVM] Max MPS bond dimension to keep
+    int max_bond_tnqvm;
+    /// [TNQVM] SVD cut-off limit for singular value truncation
+    double svd_cutoff_tnqvm;
+    /// [AWS Braket] Name of the AWS device name (e.g., SV1, TN1)
+    std::string aws_device_name;
+    /// [AWS Braket] Enable 'verbatim' mode
+    bool aws_verbatim;
+    /// [AWS Braket] Format of the AWS source string that we use to submit the request
+    std::string aws_format;
+    /// [AWS Braket] Name of the S3 bucket to store the result
+    std::string aws_s3;
+    /// [AWS Braket] Path (key) within the bucket where the result is stored
+    std::string aws_s3_path;
+  };
+
   /// A session of the QB SDK quantum programming and execution framework.
   class session
   {
@@ -1324,71 +1387,7 @@ namespace qb
       * @brief Removes all contrast thresholds stored in a Qristal session
       */
       void reset_contrasts();
-
-      /// Supported types of the input source string
-      enum class source_string_type
-      {
-        XASM,
-        Quil,
-        OpenQASM
-      };
-      
-      /// Internal struct captures (i, j) run configurations retrieved and validated from the overall config tables.
-      /// @private
-      struct run_i_j_config
-      {
-        /// Number of measurement shots (sns_)
-        int num_shots;
-        /// Number of qubits (qns_)
-        int num_qubits;
-        /// Number of repetitions (rns_)
-        int num_repetitions;
-        /// Enable post-execution transpilation and resource estimation
-        bool oqm_enabled;
-        /// Name of the backend accelerator
-        std::string acc_name;
-        /// Full path to the OpenQASM include file where custom QB gates are defined
-        std::string openqasm_qb_include_filepath;
-        /// Full path to the QPU configuration JSON file
-        std::string qpu_config_json_filepath;
-        /// QB hardware: prevent contrast thresholds from being sent from Qristal
-        bool use_default_contrast_setting;
-        /// QB hardware: init contrast thresholds
-        ND init_contrast_thresholds;
-        /// QB hardware: qubit contrast thresholds
-        ND qubit_contrast_thresholds;
-        /// Type (assembly dialect) of the input source string
-        source_string_type source_type;
-        /// Disable placement if true
-        bool no_placement;
-        /// Disable circuit optimisation if true
-        bool no_optimise;
-        /// Disable simulation (accelerator execution) if true
-        /// e.g., just want to run transpilation for resource estimation.
-        bool no_sim;
-        /// Enable noisy simulation/emulation
-        bool noise;
-        /// Name of the noise model
-        std::string noise_model;
-        /// *
-        /// Backend-specific configurations
-        /// *
-        /// [TNQVM] Max MPS bond dimension to keep
-        int max_bond_tnqvm;
-        /// [TNQVM] SVD cut-off limit for singular value truncation
-        double svd_cutoff_tnqvm;
-        /// [AWS Braket] Name of the AWS device name (e.g., SV1, TN1)
-        std::string aws_device_name;
-        /// [AWS Braket] Enable 'verbatim' mode
-        bool aws_verbatim;
-        /// [AWS Braket] Format of the AWS source string that we use to submit the request
-        std::string aws_format;
-        /// [AWS Braket] Name of the S3 bucket to store the result
-        std::string aws_s3;
-        /// [AWS Braket] Path (key) within the bucket where the result is stored
-        std::string aws_s3_path;
-      };
-    
+          
     private:
       int validate_sns_nonempty();
       int validate_qns_nonempty();

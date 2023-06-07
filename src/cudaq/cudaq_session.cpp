@@ -2,7 +2,6 @@
 #include "qb/core/cudaq/sim_pool.hpp"
 // CUDAQ
 #include "cudaq/algorithms/sample.h"
-#include "cudaq/qpud_client.h"
 
 namespace qb {
 void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) {

@@ -1013,9 +1013,9 @@ namespace qb
   }
 
   /// Retrieve and validate run configurations for index pair (ii, jj) using the table index convention.
-  session::run_i_j_config session::get_run_config(size_t ii, size_t jj)
+  run_i_j_config session::get_run_config(size_t ii, size_t jj)
   {
-    session::run_i_j_config config;
+    run_i_j_config config;
     /// Number of shots
     {
       ValidatorTwoDim<VectorN, size_t> sns_valid(sns_, session::SNS_LOWERBOUND, session::SNS_UPPERBOUND,

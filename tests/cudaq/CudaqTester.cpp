@@ -157,9 +157,9 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
 
   // Set up sensible default parameters
   my_sim.qb12();
-  // Both custatevec_f32 and custatevec are okay,
+  // Both custatevec_fp32 and custatevec_fp64 are okay,
   // use f32 to speed up the test.
-  my_sim.set_acc("custatevec_f32");
+  my_sim.set_acc("custatevec_fp32");
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);
   std::cout << "About to run quantum program..." << std::endl;

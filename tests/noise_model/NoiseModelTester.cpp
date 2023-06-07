@@ -8,8 +8,8 @@ TEST(NoiseModelTester, checkReadoutErrors)
 {
   qb::NoiseProperties noise_props;
   // Use very different values to check:
-  const qb::NoiseProperties::ReadoutError ro_1{0.1, 0.2};
-  const qb::NoiseProperties::ReadoutError ro_2{0.3, 0.4};
+  const qb::ReadoutError ro_1{0.1, 0.2};
+  const qb::ReadoutError ro_2{0.3, 0.4};
   noise_props.readout_errors = {{0, ro_1},
                                 {1, ro_2}};
   qb::NoiseModel noise_model(noise_props);
