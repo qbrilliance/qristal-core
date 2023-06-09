@@ -2,6 +2,7 @@ variables:
   CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-2
   EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-3
   EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-3
+  USE_MPI: "ON"
 
 stages:
   - build
@@ -65,12 +66,14 @@ ci-build:
     - docker-heavy
   script:
     - rm -rf ${QB_DIR}/core-local
+    - echo "MPI is $USE_MPI"
     - cmake -B build . 
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
       -DXACC_DIR=${QB_DIR}/xacc-local
       -DTNQVM_DIR=${QB_DIR}/xacc-local
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket-local
+      -DENABLE_MPI=$USE_MPI
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
