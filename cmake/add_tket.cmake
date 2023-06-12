@@ -6,9 +6,6 @@
 # Flag to enable TKET noise-aware placement.
 set(WITH_TKET OFF CACHE BOOL "Enable TKET for noise-aware circuit placement.")
 
-# Default TKET install directory
-set(TKET_DIR ${CMAKE_INSTALL_PREFIX}/tket-local CACHE PATH "Search path for TKET installation.")
-
 # Only when WITH_TKET is set
 if (WITH_TKET)
   set(TKET_PLACEMENT_LIB tket_placement)
@@ -61,6 +58,10 @@ if (WITH_TKET)
         tket-Transformations
         tket-Utils
         tket-ZX
+    )
+    # Add Tket lib directory to RPATH
+    set_target_properties(${TKET_PLACEMENT_LIB} PROPERTIES
+      INSTALL_RPATH "${INSTALL_RPATH}:${TKET_DIR}/lib"
     )
 
     foreach(TKET_LIB ${TKET_LIBS})

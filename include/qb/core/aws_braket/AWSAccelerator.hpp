@@ -38,7 +38,8 @@ namespace xacc
         bool m_noise;
         bool m_verbatim;        // Verbatim mode on AWS Braket hardware QPUs (Rigetti)
         bool debug_aws_;
-
+        // Backend connectivity graph
+        std::vector<std::pair<int, int>> m_connectivity;
       protected:
 
         int m_shots;
@@ -89,8 +90,17 @@ namespace xacc
         /// Clone the accelerator
         virtual std::shared_ptr<xacc::Accelerator> clone() override;
 
+        /// Return the connectivity graph of the backend 
+        virtual std::vector<std::pair<int, int>> getConnectivity() override;
+
+        /// Parse connectivity data from device JSON
+        void parseRigettiDeviceConnectivity(const std::string &props_json_str); 
+
         /// Retrieve properties from Rigetti hardware on AWS
-        std::string queryRigettiHardwareProperties() const;
+        std::string queryRigettiHardwareProperties(const std::string &backend_arn) const;
+
+        // Retrieve the list of all available backends and their ARN from a provider (e.g., Rigetti, IonQ, Xanadu, etc.)
+        std::unordered_map<std::string, std::string> getAvailableBackends(const std::string &provider_name) const;
 
       private:
         /// Helper to traverse the input circuit IR and generate AWS string and list of measured qubits

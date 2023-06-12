@@ -7,7 +7,7 @@ index 00000000..5aa651c3
 +# Copyright (c) Quantum Brilliance Pty Ltd
 +
 +# Set minimum cmake version
-+set(MIN_CMAKE_VERSION 3.25)
++set(MIN_CMAKE_VERSION 3.20)
 +cmake_minimum_required(VERSION ${MIN_CMAKE_VERSION} FATAL_ERROR)
 +
 +# Version info

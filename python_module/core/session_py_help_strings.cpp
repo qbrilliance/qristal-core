@@ -209,14 +209,14 @@ const char* session::help_noplacements_ = R"(
 const char *session::help_placements_ = R"(
         placement:
 
-        Valid settings: "swap-shortest-path" | "tket"
+        Valid settings: "swap-shortest-path" | "noise-aware"
 
         Setting the method to map from logical qubits to the physical qubits of the device that will be used to carry them. The single setting applies globally to all infiles and all instrings.
         Default: "swap-shortest-path"
 
         placements:
 
-        Valid settings: [["swap-shortest-path" | "tket", ...], ["swap-shortest-path" | "tket", ...]]
+        Valid settings: [["swap-shortest-path" | "noise-aware", ...], ["swap-shortest-path" | "noise-aware", ...]]
 
         The lead dimension's element 0 matches the vector of infiles, element 1 matches the vector of instrings, element 2 matches the vector of randoms.
 )";

@@ -1,0 +1,27 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Build setup for noise-aware placement example
+# using AWS from C++.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(placement_demo
+  DESCRIPTION "Quantum Brilliance noise-aware placement example"
+  LANGUAGES CXX
+)
+
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "Adopted C++ standard.")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qbcore)
+
+add_executable(placement_demo noise_aware_placement_aws.cpp)
+
+target_link_libraries(placement_demo
+  PRIVATE
+    qb::core
+)

@@ -140,6 +140,18 @@ cudaq-build:
       - core_artefacts/src/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
+# Build with INSTALL_MISSING from a vanilla Ubuntu image
+ci-build-install-missing:
+  stage: build
+  image: ubuntu:22.04
+  tags: 
+    - qb-hosted
+    - multi-core-big
+  script:
+    - apt update && apt install -y build-essential cmake gfortran git libboost-all-dev libcurl4-openssl-dev libeigen3-dev libopenblas-dev libpython3-dev libssl-dev python3 python3-pip
+    - cmake -B build . -DWITH_TKET=ON -DINSTALL_MISSING=ON
+    - cmake --build build -- -j`nproc`
+
 ci-cpp-tests:
   stage: test
   needs: ["ci-build"]

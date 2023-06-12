@@ -32,7 +32,7 @@ cmake -G "Unix Makefiles" ..
 sudo make install
 ```
 
-To enable documentation build, pass `-DQB_BUILD_DOCS=ON` to `cmake` when configuring the build.
+To enable documentation build, pass `-DBUILD_DOCS=ON` to `cmake` when configuring the build.
 
 ## Directory structures
 

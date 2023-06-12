@@ -362,6 +362,18 @@ _noise_: false
 
 Demonstrates the use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
 
+`simple_placement.py`
+
+A simple example demonstrates circuit placement based on backend topology.
+
+`noise_aware_placement.py`
+
+A simple example demonstrates noise-aware circuit placement by setting up a toy hardware configuration.
+
+`noise_aware_placement_aws_rigetti.py`
+
+An example demonstrates integrated noise-aware placement during circuit execution on hardware backend (e.g., Rigetti devices on AWS).
+Valid AWS credentials are required to run the example. 
 
 ## C++ ##
 
@@ -424,6 +436,18 @@ vqeeCalculator.md
 
 %Special note only for markdown readers: For in-depth documentation of the `vqeeCalculator`, see <a href="cpp/vqeeCalculator/README.md">examples/cpp/vqeeCalculator/README.md</a>.
 
+`noise_aware_placement_simple`
+
+A simple example demonstrates noise-aware circuit placement by setting up a toy hardware configuration.
+
+A C++ implementation of `noise_aware_placement.py`.
+
+`noise_aware_placement_aws`
+
+An example demonstrates integrated noise-aware placement during circuit execution on hardware backend (e.g., Rigetti devices on AWS).
+Valid AWS credentials are required to run the example. 
+
+A C++ implementation of `noise_aware_placement_aws_rigetti.py`.
 
 ## C++ with CUDA Quantum ##
 

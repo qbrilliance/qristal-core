@@ -16,6 +16,8 @@ set(source_files
   src/optimization/qaoa/qaoa_warmStart.cpp
   src/optimization/qaoa/qaoa_validators.cpp
   src/optimization/qml/qml.cpp
+  src/passes/noise_aware_placement_pass.cpp
+  src/passes/swap_placement_pass.cpp
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/core/session_getter_setter.cpp
@@ -50,6 +52,10 @@ set(headers
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/optimization/qaoa/qaoa.hpp
   include/qb/core/optimization/qml/qml.hpp
+  include/qb/core/passes/base_pass.hpp
+  include/qb/core/passes/noise_aware_placement_config.hpp
+  include/qb/core/passes/noise_aware_placement_pass.hpp
+  include/qb/core/passes/swap_placement_pass.hpp
 )
 
 # Lightweight header-only interface target

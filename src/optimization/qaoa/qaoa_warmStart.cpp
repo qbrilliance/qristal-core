@@ -1102,7 +1102,6 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   double accum_quantum_est_ms = 0.0;
   for (auto &kel : kernels) {
     auto profile = qb::Profiler(kel, qn);
-    profile.run();
     auto quantum_est = profile.get_total_initialisation_maxgate_readout_time_ms(0.0, sn);
     accum_quantum_est_ms += quantum_est[profile.KEY_TOTAL_TIME];
   }
@@ -1151,7 +1150,6 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     double accum_grad_quantum_est_ms = 0.0;
     for (auto &kel : gradientInstructions) {
       auto profile = qb::Profiler(kel, qn);
-      profile.run();
       auto quantum_est =
           profile.get_total_initialisation_maxgate_readout_time_ms(0.0, sn);
       accum_grad_quantum_est_ms += quantum_est[profile.KEY_TOTAL_TIME];

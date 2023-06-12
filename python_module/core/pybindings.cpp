@@ -8,6 +8,7 @@
 #include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/thread_pool.hpp"
 #include "qb/core/circuit_builders/exponent.hpp"
+#include "pybindings.hpp"
 #include "CompositeInstruction.hpp"
 #include <nlohmann/json.hpp>
 #include <pybind11/complex.h>
@@ -267,6 +268,9 @@ PYBIND11_MODULE(core, m) {
   m.doc() = "pybind11 for QB SDK";
   xacc::Initialize();
   xacc::setIsPyApi();
+
+  // Placement passes
+  qb::bind_placement_passes(m);
 
   py::bind_vector<Bool>(m, "Bool").def("__repr__", [](const Bool &a) {
     json jret = a;

@@ -110,7 +110,7 @@ namespace qb
       VectorString aws_formats_;
       VectorBool aws_verbatims_;       // Verbatim mode on AWS Braket hardware QPUs (Rigetti)
       VectorString aws_s3s_;           // Name of S3 Bucket that will store AWS Braket results.  For validation, see: VALID_AWS_S3_PREFIXS.  Has effect only when accs_ == "aws_acc".
-      VectorString aws_s3_paths_;      // Path inside S3 Bucket where AWS Braket results are kept.  Automatically created if neccessary.  Has effect only when accs_ == "aws_acc".
+      VectorString aws_s3_paths_;      // Path inside S3 Bucket where AWS Braket results are kept.  Automatically created if necessary.  Has effect only when accs_ == "aws_acc".
 
       VectorString aer_sim_types_;
 
@@ -316,7 +316,7 @@ namespace qb
 
       // Valid placements
       std::unordered_set<std::string> VALID_HARDWARE_PLACEMENTS = {
-          "swap-shortest-path", "tket"};
+          "swap-shortest-path", "noise-aware"};
 
       // Valid noise_model values
       std::unordered_set<std::string> VALID_NOISE_MODEL_NAMES = {

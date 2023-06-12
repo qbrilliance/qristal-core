@@ -1,12 +1,12 @@
 set(DOXYGEN_MIN_VERSION 1.9.1)
 find_package(Doxygen ${DOXYGEN_MIN_VERSION} REQUIRED dot)
 if (NOT DOXYGEN_FOUND)
-  message(FATAL_ERROR "Cannot locate doxygen. Please install Doxygen or disable documentation build (e.g., do not set -DQB_BUILD_DOCS=ON/TRUE when running cmake).")
+  message(FATAL_ERROR "Cannot locate doxygen. Please install Doxygen or disable documentation build (e.g., do not set -DBUILD_DOCS=ON/TRUE when running cmake).")
 endif ()
 
 execute_process(COMMAND ${Python_EXECUTABLE} -c "import sphinx" RESULT_VARIABLE SPHINX_EXISTS)
 if (SPHINX_EXISTS EQUAL "1")
-  message(FATAL_ERROR "Cannot locate sphinx. Please install sphinx 4.5.0 (e.g., 'python3 -m pip install sphinx==4.5.0') or disable documentation build (e.g., do not set -DQB_BUILD_DOCS=ON/TRUE when running cmake).")
+  message(FATAL_ERROR "Cannot locate sphinx. Please install sphinx 4.5.0 (e.g., 'python3 -m pip install sphinx==4.5.0') or disable documentation build (e.g., do not set -DBUILD_DOCS=ON/TRUE when running cmake).")
 endif ()
 
 # Determine sphinx version
@@ -82,6 +82,7 @@ endif()
 set(PUBLIC_HEADERS
   include/qb/core/circuit_builder.hpp
   include/qb/core/QuantumBrillianceRemoteVisitor.hpp
+  include/qb/core/profiler.hpp
   include/qb/core/session.hpp
   include/qb/core/thread_pool.hpp
   include/qb/core/cudaq/ir_converter.hpp
@@ -92,6 +93,10 @@ set(PUBLIC_HEADERS
   include/qb/core/optimization/qml/qml.hpp
   include/qb/core/optimization/vqee/case_generator.hpp
   include/qb/core/optimization/vqee/vqee.hpp
+  include/qb/core/passes/base_pass.hpp
+  include/qb/core/passes/noise_aware_placement_config.hpp
+  include/qb/core/passes/noise_aware_placement_pass.hpp
+  include/qb/core/passes/swap_placement_pass.hpp
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)

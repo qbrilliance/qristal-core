@@ -26,7 +26,7 @@ TEST(QBTketPlacementTester, checkSimple) {
                                acc)
                      ->getComposites()[0];
 
-  auto tket = xacc::getIRTransformation("tket");
+  auto tket = xacc::getIRTransformation("noise-aware");
   EXPECT_TRUE(tket != nullptr);
   tket->apply(program, acc);
   xacc::InstructionIterator it(program);
@@ -65,7 +65,7 @@ TEST(QBTketPlacementTester, checkSwap) {
                                acc)
                      ->getComposites()[0];
 
-  auto tket = xacc::getIRTransformation("tket");
+  auto tket = xacc::getIRTransformation("noise-aware");
   EXPECT_TRUE(tket != nullptr);
   tket->apply(program, acc);
   xacc::InstructionIterator it(program);
@@ -111,7 +111,7 @@ TEST(QBTketPlacementTester, checkWithNoise) {
 })",
                                   accelerator);
   auto program = ir->getComposites()[0];
-  auto irt = xacc::getIRTransformation("tket");
+  auto irt = xacc::getIRTransformation("noise-aware");
   const std::string BACKEND_JSON_FILE =
       std::string(TKET_TEST_RESOURCE_DIR) + "/backend.json";
   std::ifstream inFile;

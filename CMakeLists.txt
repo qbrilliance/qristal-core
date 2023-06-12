@@ -61,8 +61,8 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # Adds documentation targets (i.e. Doxygen and Sphinx targets) as dependencies of the default build targets.
   # This results in documentation targets being part of a normal build.
   # If enabled, it will **require** Doxygen and Sphinx (including the required extensions, e.g., Breathe and Exhale)
-  option (QB_BUILD_DOCS "Build the documentation." OFF)
-  if (QB_BUILD_DOCS)
+  option (BUILD_DOCS "Build the documentation." OFF)
+  if (BUILD_DOCS)
     include(docs)
   endif()
 

@@ -44,9 +44,6 @@ Profiler::Profiler(std::string target_circuit, const int n_qubits,
   // We expect a single circuit in this OpenQASM input
   assert(irtarget->getComposites().size() == 1);
   placed_circuit_ = irtarget->getComposites().front();
-
-  count_1q_gates_on_q_.resize(n_qubits);
-  count_2q_gates_on_q_.resize(n_qubits);
   run();
 }
 
@@ -63,8 +60,6 @@ Profiler::Profiler(std::shared_ptr<xacc::CompositeInstruction> &f,
       q_readout_time_ms_(q_readout_time_ms),
       pc_send_to_control_time_ms_(pc_send_to_control_time_ms),
       debug_(debug) {
-  count_1q_gates_on_q_.resize(n_qubits);
-  count_2q_gates_on_q_.resize(n_qubits);
   run();
 }
 
@@ -86,8 +81,8 @@ ND Profiler::get_total_initialisation_maxgate_readout_time_ms(
     throw std::invalid_argument("session: no gates found in circuit");
   } else {
     t_max_depth_gate_ms =
-        (count_1q_gates_on_q_.at(largestdepth_q_) * gate_1q_time_ms_) +
-        (count_2q_gates_on_q_.at(largestdepth_q_) * gate_2q_time_ms_);
+        (count_1q_gates_on_q_[largestdepth_q_] * gate_1q_time_ms_) +
+        (count_2q_gates_on_q_[largestdepth_q_] * gate_2q_time_ms_);
     ret_nd.insert(
         std::make_pair(KEY_MAX_DEPTH_GATE_TIME, shots * t_max_depth_gate_ms));
   }
@@ -111,61 +106,77 @@ ND Profiler::get_total_initialisation_maxgate_readout_time_ms(
 
 NN Profiler::get_count_1q_gates_on_q() {
   NN ret_nn;
-  int key = 0;
-  for (auto count_1q : count_1q_gates_on_q_) {
-    ret_nn.insert(std::make_pair(key, count_1q));
-    key++;
+  for (const auto &[qId, count_1q] : count_1q_gates_on_q_) {
+    ret_nn.insert(std::make_pair(qId, count_1q));
   }
   return ret_nn;
 }
 
 NN Profiler::get_count_2q_gates_on_q() {
   NN ret_nn;
-  int key = 0;
-  for (auto count_2q : count_2q_gates_on_q_) {
-    ret_nn.insert(std::make_pair(key, count_2q));
-    key++;
+  for (const auto &[qId, count_2q] : count_2q_gates_on_q_) {
+    ret_nn.insert(std::make_pair(qId, count_2q));
   }
   return ret_nn;
 }
 
+int Profiler::get_count_1q_gates_on_q(const int iq) {
+  assert(count_1q_gates_on_q_.find(iq) != count_1q_gates_on_q_.end());
+  return count_1q_gates_on_q_[iq];
+}
+
+int Profiler::get_count_2q_gates_on_q(const int iq) {
+  assert(count_2q_gates_on_q_.find(iq) != count_2q_gates_on_q_.end());
+  return count_2q_gates_on_q_[iq];
+}
+
+int Profiler::get_largestdepth_q() { return largestdepth_q_; }
+
 void Profiler::run() {
-  for (size_t iq = 0; iq < n_qubits_; iq++) {
-    count_1q_gates_on_q_.at(iq) = 0;
-    count_2q_gates_on_q_.at(iq) = 0;
-    xacc::InstructionIterator countq(placed_circuit_);
-    while (countq.hasNext()) {
-      auto nextI = countq.next();
-      if (nextI->isEnabled()) {
-        if (nextI->bits().size() == 1) {
-          if (nextI->bits()[0] == iq)
-            count_1q_gates_on_q_.at(iq)++;
-        }
-        if (nextI->bits().size() == 2) {
-          if ((nextI->bits()[0] == iq) || (nextI->bits()[1] == iq))
-            count_2q_gates_on_q_.at(iq)++;
-        }
+  // Walk the circuit and count gates on each qubit line
+  std::set<int> qubitIds;
+  xacc::InstructionIterator countq(placed_circuit_);
+  while (countq.hasNext()) {
+    auto nextI = countq.next();
+    // Don't count Measure since we have a separate readout time for it.
+    if (nextI->isEnabled() && nextI->name() != "Measure") {
+      // Which map we need to update?
+      auto &map_to_update = nextI->bits().size() == 1 ? count_1q_gates_on_q_
+                                                      : count_2q_gates_on_q_;
+      // Update gate count on qubit line(s)
+      for (const auto &qId : nextI->bits()) {
+        map_to_update[qId]++;
+        qubitIds.emplace(qId);
       }
     }
-    if (debug_) {
-      std::cout << "[debug]: q" << iq
-                << ": # 1-qubit gates: " << get_count_1q_gates_on_q(iq)
-                << std::endl;
-      std::cout << "[debug]: q" << iq
-                << ": # 2-qubit gates: " << get_count_2q_gates_on_q(iq)
-                << std::endl;
+  }
+
+  if (debug_) {
+    for (const auto &[qId, count] : count_1q_gates_on_q_) {
+      std::cout << "[debug]: q" << qId << ": # 1-qubit gates: " << count
+                << '\n';
+    }
+    for (const auto &[qId, count] : count_2q_gates_on_q_) {
+      std::cout << "[debug]: q" << qId << ": # 2-qubit gates: " << count
+                << '\n';
     }
   }
-  int previous_1q = 0;
-  int previous_2q = 0;
-  for (int iq = 0; iq < n_qubits_; iq++) {
-    if ((count_1q_gates_on_q_.at(iq) + count_2q_gates_on_q_.at(iq)) >
-        (previous_1q + previous_2q)) {
-      previous_1q = count_1q_gates_on_q_.at(iq);
-      previous_2q = count_2q_gates_on_q_.at(iq);
-      largestdepth_q_ = iq;
+
+  // Find out which qubit line has the most gates (1 qubit- + 2 qubit- gates)
+  // TODO: this works for our case since 1-q gate time == 2-q gate time.
+  // Generally, we need to find the most-critical path by translating the gate count -> circuit runtime.
+  // i.e., multiply the runtime/gate for each gate type (1q- or 2q- gates).
+  int max_gate_count = 0;
+  largestdepth_q_ = 0;
+  for (const auto &qId : qubitIds) {
+    const auto total_gates_on_q = count_1q_gates_on_q_[qId] + count_2q_gates_on_q_[qId];
+    // This qubit line has more gates, update the current max target.
+    if (total_gates_on_q > max_gate_count) {
+      max_gate_count = total_gates_on_q;
+      largestdepth_q_ = qId;
     }
   }
+
   if (debug_) {
     std::cout << "[debug]: largest depth set by q" << get_largestdepth_q()
               << std::endl;

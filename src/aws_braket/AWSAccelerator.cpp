@@ -258,7 +258,40 @@ namespace xacc
       if (params.keyExists<int>("shots"))        m_shots = params.get<int>("shots");
       if (params.keyExists<bool>("noise"))       m_noise = params.get<bool>("noise");
       if (params.keyExists<bool>("verbatim")) m_verbatim = params.get<bool>("verbatim");
-      if (m_device == "Rigetti")  device_properties_json = queryRigettiHardwareProperties();
+      // Hardware device name, we allow user to specify it in the format "<vendor>[:<backend>]",
+      // e.g. "rigetti:Aspen-10" or "rigetti:Aspen-M-3", 
+      // <backend> is optional, we will pick a suitable one from that vendor (based on availability).
+      if (m_device.rfind("Rigetti") == 0) {
+        // device name starts with "Rigetti"
+        // Note: we only support parsing Rigetti device property JSON.
+        // (each vendor has a different JSON schema)
+        const auto delim_pos = m_device.find(":");
+        const auto available_backends = getAvailableBackends("Rigetti");
+        if (available_backends.empty()) {
+          throw std::runtime_error(
+              "No Rigetti backend device is currently available.");
+        }
+        if (delim_pos != std::string::npos) {
+          const auto backend_name = m_device.substr(delim_pos + 1); 
+          const auto iter = available_backends.find(backend_name);
+          if (iter == available_backends.end()) {
+            std::cout << "The requested backend '" << backend_name << "' is not available.\n Available: \n";
+            for (const auto& [name, arn]: available_backends) {
+              std::cout << "  - " << name << "\n";
+            }
+            throw std::runtime_error("Backend unavailable");
+          }
+          device_properties_json = queryRigettiHardwareProperties(iter->second);
+        } else {
+          // No backend was specified, just pick the first one.
+          const auto iter = available_backends.begin();
+          // Let user know which backend we've selected.
+          std::cout << "Rigetti backend '" << iter->first << "' is selected automatically.\n";
+          device_properties_json = queryRigettiHardwareProperties(iter->second);
+        }
+        parseRigettiDeviceConnectivity(device_properties_json);
+      }
+
       if (debug_aws_) std::cout << "# Initialized AWSAccelerator" << "\n";
 
       // Import the aws_python_script for the first time on the main thread, as the AWS modules
@@ -322,25 +355,85 @@ namespace xacc
       return std::make_shared<xacc::quantum::AWSAccelerator>();
     }
 
+    /// Return the connectivity graph of the backend 
+    std::vector<std::pair<int, int>> AWSAccelerator::getConnectivity() 
+    {
+      return m_connectivity;
+    }
+
+    /// Parse connectivity data from device JSON
+    void AWSAccelerator::parseRigettiDeviceConnectivity(const std::string &props_json_str)
+    {
+      auto props_json = nlohmann::json::parse(props_json_str);
+      auto connectivityGraph =
+        props_json["paradigm"]["connectivity"]["connectivityGraph"];
+      // Parse AWS Rigetti connectivity in the form:
+      // {"0": ["1", "7", "103"],...} (qubit 0 is connected to 1, 7, 103)
+      // into pairwise connections.
+      for (auto it = connectivityGraph.begin(), end = connectivityGraph.end();
+           it != end; ++it) {
+        const int fromQ = std::stoi(it.key());
+        for (auto iit = it.value().begin(); iit != it.value().end(); ++iit) {
+          const int toQ = std::stoi((*iit).get<std::string>());
+          if (fromQ < toQ) {
+            m_connectivity.emplace_back(std::make_pair(fromQ, toQ));
+          } else {
+            m_connectivity.emplace_back(std::make_pair(toQ, fromQ));
+          }
+        }
+      }
+    }
+    
     /// Retrieve properties from Rigetti hardware on AWS
-    std::string AWSAccelerator::queryRigettiHardwareProperties() const
+    std::string AWSAccelerator::queryRigettiHardwareProperties(const std::string &backend_arn) const
     {
       py::gil_scoped_acquire acquire;
-      static const std::string RIGETTI_DEVICE_ARN =
-          "arn:aws:braket:us-west-1::device/qpu/rigetti/Aspen-M-2";
-      assert(m_device == "Rigetti");
       auto AwsDevice = py::module_::import("braket.aws").attr("AwsDevice");
       auto AwsSession =
           py::module_::import("braket.aws.aws_session").attr("AwsSession");
-      auto device_region = AwsDevice.attr("get_device_region")(RIGETTI_DEVICE_ARN);
+      auto device_region = AwsDevice.attr("get_device_region")(backend_arn);
       auto region_session = AwsSession().attr("copy_session")(device_region);
-      auto metadata = region_session.attr("get_device")(RIGETTI_DEVICE_ARN);
+      auto metadata = region_session.attr("get_device")(backend_arn);
       const std::string qpu_properties =
           metadata.attr("get")("deviceCapabilities").cast<std::string>();
-      // std::cout << "Properties JSON:\n" << qpu_properties << "\n";
       return qpu_properties;
     }
+    
 
+    std::unordered_map<std::string, std::string> AWSAccelerator::getAvailableBackends(const std::string &provider_name) const {
+      try
+      {
+        // Acquire the GIL
+        py::gil_scoped_acquire acquire;
+        if (debug_aws_)
+          std::cout << "# Acquired GIL"
+                    << "\n";
+
+        // Import aws_python_script as a Python module
+        if (debug_aws_)
+          std::cout << "# Importing aws_python_script"
+                    << "\n";
+        py::module_ qb_aws_mod = py::module_::import("aws_python_script");
+        if (debug_aws_)
+          std::cout << "# Binding qb_aws_mod_get_available_backends"
+                    << "\n";
+
+        pybind11::function qb_aws_mod_get_available_backends = qb_aws_mod.attr("get_available_backends");
+        auto aws_backends = qb_aws_mod_get_available_backends(provider_name);
+        return aws_backends.cast<std::unordered_map<std::string, std::string>>();
+      }
+      catch (const std::exception& ex)
+      {
+        std::cout << "Exception raised: " << ex.what() << std::endl;
+        xacc::error("Failed to query available backends from AWS Braket");
+      }
+      catch (...)
+      {
+        xacc::error("Failed to query available backends from AWS Braket");
+      }
+      // Failed to query from AWS, returns an empty list
+      return {};
+    }
   } // namespace quantum
 } // namespace xacc
 

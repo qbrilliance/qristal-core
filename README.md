@@ -52,7 +52,7 @@ If you also wish to build the C++ noise-aware circuit placement based on the [TK
 Along with the `-DINSTALL_MISSING=ON` option as shown above, `cmake` will automatically pull in and build TKET for you.
 Alternatively, if you have an existing TKET installation, you can pass `-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>` to `cmake` to let it use your installation rather than building TKET from source.  
 
-If you also wish to build the html documentation, you can pass `-DQB_BUILD_DOCS=ON` to `cmake`.
+If you also wish to build the html documentation, you can pass `-DBUILD_DOCS=ON` to `cmake`.
 
 ## Documentation
 You can find the docs for Qristal on the web at [qristal.readthedocs.io](https://qristal.readthedocs.io).  If you have built and installed the documentation (see [compilation](#compilation)), you can also find it at `<installation_directory>/docs/html/index.html`.  

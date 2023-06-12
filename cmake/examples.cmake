@@ -53,6 +53,11 @@ if(WITH_EXAMPLES)
     add_example(cudaq_vqe_lbfgs CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_lbfgs/vqe-lbfgs-cudaq.cpp)
     add_example(cudaq_vqe_hydrogens CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/vqe-hydrogens-cudaq.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/gen_h_chain.py)
   endif()
+
+  if (WITH_TKET)
+    add_example(noise_aware_placement_simple SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_simple/noise_aware_placement.cpp)
+    add_example(noise_aware_placement_aws SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/noise_aware_placement_aws.cpp)
+  endif()
   
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python

@@ -130,7 +130,6 @@ endif()
 
 # tket
 set(WITH_TKET OFF CACHE BOOL "Enable TKET for noise-aware circuit placement.")
-set(TKET_DIR ${CMAKE_INSTALL_PREFIX}/tket-local CACHE PATH "Search path for TKET installation.")
 set(TKET_VERSION 1.11.1)
 set(TKET_TAG "1cd9fe36")
 if(WITH_TKET)
@@ -140,12 +139,12 @@ if(WITH_TKET)
     GIT_REPOSITORY https://github.com/CQCL/tket
     UPDATE_SUBMODULES True
     OPTIONS
-      "CMAKE_INSTALL_PREFIX ${TKET_DIR}"
       "TKET_BUILD_TESTS OFF"
       "CMAKE_BUILD_TYPE Release"
       "CMAKE_EXPORT_COMPILE_COMMANDS ON"
       "INSTALL_MISSING_CXX ON"
       "JSON_VERSION ${nlohmann_json_VERSION}"
+      "XACC_DIR ${XACC_DIR}"
     PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/tket.patch
   )
 endif()

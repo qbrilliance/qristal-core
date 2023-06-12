@@ -95,3 +95,20 @@ def run_aws_braket(aws_device, sn, in_string, in_verbatim, in_format, out_s3, ou
         count_map[key] = measurement_counts[key]
     
     return count_map
+
+def get_available_backends(provider_name):
+    """
+        Get all available backends from an AWS provider 
+        
+        Args:
+            provider_name (String): Name of the provider (e.g., Rigetti, QuEra, Xanadu, IonQ, etc.)
+        
+        Returns:
+            Dict[str, str]: Dict of (backend name -> ARN) from that provider that is currently available.
+    """
+    avail_backends = {}
+    all_devices = AwsDevice.get_devices()
+    for device in all_devices:
+        if device.provider_name == provider_name and device.is_available:
+            avail_backends[device.name] = device.arn
+    return avail_backends

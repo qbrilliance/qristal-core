@@ -21,6 +21,10 @@
 #include "Predicates/CompilerPass.hpp"
 #include "Predicates/PassGenerators.hpp"
 #include "Predicates/PassLibrary.hpp"
+
+// QB
+#include "qb/core/passes/noise_aware_placement_config.hpp"
+
 namespace xacc {
 namespace quantum {
 class TketCircuitVisitor : public AllGateVisitor {
@@ -178,7 +182,7 @@ public:
    *
    * @return Name of this plugin
    */
-  const std::string name() const override { return "tket"; }
+  const std::string name() const override { return "noise-aware"; }
 
   /**
    * @brief Return the plugin text description
@@ -223,10 +227,23 @@ public:
     }
     auto tket_circ = visitor.getTketCircuit();
 
-    if (!acc) {
-      xacc::error("Accelerator is required for placement!");
-    }
+    auto device_info = [&]() -> std::optional<qb::noise_aware_placement_config> {
+      if (options.keyExists<qb::noise_aware_placement_config>(
+              "noise_aware_placement_config")) {
+        return options.get<qb::noise_aware_placement_config>(
+            "noise_aware_placement_config");
+      } else {
+        return std::nullopt;
+      }
+    }();
     const auto connectivity = [&]() -> std::vector<std::pair<int, int>> {
+      if (device_info.has_value()) {
+        std::vector<std::pair<int, int>> connectivity;
+        for (const auto &[q1, q2] : device_info->qubit_connectivity) {
+          connectivity.emplace_back(std::make_pair(q1, q2));
+        }
+        return connectivity;
+      }
       if (options.stringExists("device_properties") &&
           !options.getString("device_properties").empty()) {
         return parseAwsDeviceConnectivity(
@@ -263,6 +280,30 @@ public:
           !options.getString("device_properties").empty()) {
         return parseAwsDeviceCharacteristics(
             options.getString("device_properties"), connectivity);
+      } else if (acc &&
+                 acc->getProperties().stringExists("device_properties")) {
+        return parseAwsDeviceCharacteristics(
+            acc->getProperties().getString("device_properties"), connectivity);
+      } else if (device_info.has_value()) {
+        tket::avg_readout_errors_t readout_errors;
+        tket::avg_node_errors_t single_qubit_gate_errors;
+        tket::avg_link_errors_t two_qubit_gate_errors;
+        for (const auto &[qId, gate_error] :
+             device_info->avg_single_qubit_gate_errors) {
+          single_qubit_gate_errors.insert({tket::Node(qId), gate_error});
+        }
+        for (const auto &[qId, ro_error] :
+             device_info->avg_qubit_readout_errors) {
+          readout_errors.insert({tket::Node(qId), ro_error});
+        }
+        for (const auto &[qPair, gate_error] :
+             device_info->avg_two_qubit_gate_errors) {
+          two_qubit_gate_errors.insert(
+              {{tket::Node(qPair.first), tket::Node(qPair.second)},
+               gate_error});
+        }
+        return std::make_tuple(single_qubit_gate_errors, two_qubit_gate_errors,
+                               readout_errors);
       }
 
       tket::avg_readout_errors_t readout_errors;

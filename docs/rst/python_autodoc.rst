@@ -28,3 +28,30 @@ In addition to elementary gates, it also supports pre-built circuit templates fo
 
 .. autoclass:: core::Circuit
    :members:
+
+Placement
+---------
+
+Qristal contains placement methods to perform mapping from program (logical) qubits to device (physical) qubits satisfying qubit connectivity constraints.
+
+
+Noise-aware placement
+^^^^^^^^^^^^^^^^^^^^^
+
+The `noise_aware_placement_pass` takes into account gate error rates and readout errors to find the best placement map.
+
+.. autoclass:: core::noise_aware_placement_pass
+   :members:
+
+Device configuration for the noise-aware placement is defined by `noise_aware_placement_config`.
+
+.. autoclass:: core::noise_aware_placement_config
+   :members:
+
+Swap-based placement
+^^^^^^^^^^^^^^^^^^^^
+
+The `swap_placement_pass` performs circuit placement by swapping qubits (along the shortest possible path) when there are gates between uncoupled qubits.
+
+.. autoclass:: core::swap_placement_pass
+   :members:
