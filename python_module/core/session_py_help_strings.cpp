@@ -427,19 +427,23 @@ const char* session::help_svd_cutoffs_ = R"(
                 This is only needed if using the "tnqvm" backend accelerator.
 )";
 
+
 const char* session::help_noise_models_ = R"(
         noise_model:
 
-        Valid settings: "default" | "qb-nm1" | "qb-nm2" | "qb-qdk1" | "qb-dqc2"
+        Set the noise model to be used in subsequent simulations.
 
         .. note::
                 Requires setting: noise = True (to have effect)
         
-        Default: "default"
+        The default (built in) model is a simple depolarizing noise model on all qubits.
         
-        "default": Simple depolarizing noise model on all qubits (builtin)
+        Users may make their own instances of the NoiseModel class (or make an instance of the
+        default and modify it), and then assign that model to this property.  See examples/python/noise_model*.py.
         
-        These two options require the QB emulator module (addons):
+        If the Qristal Emulator is installed, the following additional models are available and
+        can be accessed by specifying the relevant model name as a string passed to the constructor
+        of the NoiseModel class:
         
         "qb-nm1" : 4x4 NV centres in x-y grid, 3 qubits per NV centre
         
@@ -454,6 +458,7 @@ const char* session::help_noise_models_ = R"(
         A 1d-array (list) version of noise_model.
 
 )";
+ 
 const char* session::help_output_amplitudes_ = R"(
         output_amplitude:
         

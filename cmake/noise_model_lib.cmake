@@ -1,12 +1,12 @@
 set(source_files
   src/noise_model/noise_channel.cpp
   src/noise_model/noise_model.cpp
-  src/noise_model/noise_model_factory.cpp
+  src/noise_model/default_noise_model.cpp
 )
 
 set(headers
+  include/qb/core/noise_model/json_complex_convert.hpp
   include/qb/core/noise_model/noise_channel.hpp
-  include/qb/core/noise_model/noise_model_factory.hpp
   include/qb/core/noise_model/noise_model.hpp
   include/qb/core/noise_model/noise_properties.hpp
   include/qb/core/noise_model/readout_error.hpp

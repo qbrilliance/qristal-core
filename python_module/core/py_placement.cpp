@@ -9,11 +9,6 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
-PYBIND11_MAKE_OPAQUE(qb::noise_aware_placement_config::device_topology_t);
-PYBIND11_MAKE_OPAQUE(
-    qb::noise_aware_placement_config::single_qubit_gate_errors_t);
-PYBIND11_MAKE_OPAQUE(qb::noise_aware_placement_config::two_qubit_gate_errors_t);
-
 namespace qb {
 void bind_placement_passes(pybind11::module &m) {
   pybind11::bind_vector<noise_aware_placement_config::device_topology_t>(

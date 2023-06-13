@@ -29,6 +29,44 @@ In addition to elementary gates, it also supports pre-built circuit templates fo
 .. autoclass:: core::Circuit
    :members:
 
+Noise Modelling
+---------------
+
+QB Qristal allows an end-user to implement noise models in Python. 
+
+.. autoclass:: core::NoiseModel
+   :members:
+
+This `NoiseModel` can be constructed from the quantum device `NoiseProperties`.
+
+.. autoclass:: core::NoiseProperties
+   :members:
+
+Additionally, users can use these builtin classes to construct commonly-used noise channels when building the `NoiseModel`.
+
+.. autoclass:: core::AmplitudeDampingChannel
+   :members:
+
+.. autoclass:: core::PhaseDampingChannel
+   :members:
+
+.. autoclass:: core::DepolarizingChannel
+   :members:
+
+.. autoclass:: core::GeneralizedPhaseAmplitudeDampingChannel
+   :members:
+
+.. autoclass:: core::GeneralizedAmplitudeDampingChannel
+   :members:
+
+.. autoclass:: core::ReadoutError
+   :members:
+
+In case no builtin noise channels are available for your use case, a fully-customized noise channel can be constructed in terms of instances of the `KrausOperator` class.
+
+.. autoclass:: core::KrausOperator
+   :members:
+
 Placement
 ---------
 

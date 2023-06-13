@@ -3,7 +3,6 @@
 #include "xacc.hpp"
 #include "Accelerator.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/noise_model/noise_model_factory.hpp"
 TEST(NoiseModelTester, checkReadoutErrors)
 {
   qb::NoiseProperties noise_props;
@@ -115,12 +114,10 @@ TEST(NoiseModelTester, checkKrausNoise)
   EXPECT_NEAR(dm[0][0].real() + dm[1][1].real(), 1.0, 1e-9);
 }
 
-TEST(NoiseModelTester, checkNoiseModelFactory)
+TEST(NoiseModelTester, checkDefaultNoiseModel)
 {
   // Get the 'default' noise model, simple uniform Pauli depolarizing noise.
-  auto noise_model_factory = qb::get_noise_model_factory("default");
-  EXPECT_TRUE(noise_model_factory != nullptr);
-  auto noise_model = noise_model_factory->Create(2);
+  auto noise_model = qb::NoiseModel("default",2);
   // std::cout << "HOWDY:\n"
   //           << noise_model.to_json() << "\n";
 

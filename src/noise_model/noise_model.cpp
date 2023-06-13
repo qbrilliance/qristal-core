@@ -1,6 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
 #include "qb/core/noise_model/noise_model.hpp"
+#include <dlfcn.h>
 
 namespace qb
 {
@@ -62,6 +63,55 @@ namespace qb
                 }
             }
         }
+    }
+
+    // Build and return a registered noise model.
+    NoiseModel::NoiseModel(const std::string& name,
+                           size_t nb_qubits, 
+                           std::optional<QubitConnectivity> connectivity,
+                           std::optional<std::reference_wrapper<const std::vector<std::pair<size_t, size_t>>>> connected_pairs)
+    {
+        // If the default model has been requested, just load it and be done
+        if (name == "default") 
+        {
+            if (connected_pairs != std::nullopt) make_default(*this, nb_qubits, *connectivity, *connected_pairs);
+            else if (connectivity != std::nullopt) make_default(*this, nb_qubits, *connectivity);
+            else make_default(*this, nb_qubits);
+            return;
+        }
+      
+        // Otherwise, we try to load the model from the emulator.
+        static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
+        void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
+        if (!handle)
+        {
+            char *error_msg = dlerror();
+            throw std::runtime_error("Failed to load noise model " + name + ".\n"
+                                     "This model is not present in the Qristal SDK, and Qristal failed to load the noise modelling "
+                                     "library from the Qristal Emulator.\n" + (error_msg ? std::string(error_msg) : ""));
+        }
+
+        // Clear all errors
+        dlerror();
+        // Attempt to get the function pointer from the shared library 
+        auto get_emulator_noise_model = reinterpret_cast<NoiseModel*(*)(const char*)>(dlsym(handle, "get_emulator_noise_model"));
+        // Check that nothing went wrong
+        char* error_msg = dlerror();
+        // Encountered an error:
+        if (error_msg)
+        {
+            throw std::runtime_error("Failed to load get_emulator_noise_model from " +
+                                     std::string(EMULATOR_NOISE_MODEL_LIB_NAME)+ ".\n" + std::string(error_msg) + ".");
+        }
+        // Get the noise model
+        NoiseModel* model = get_emulator_noise_model(name.c_str());
+        // Check that a valid result was returned.
+        if (model == nullptr)
+        {
+            throw std::runtime_error("The noise model " + name + " exists in neither the Qristal SDK nor the Qristal Emulator.");
+        }
+        model->name = name;
+        *this = *model; 
     }
 
     std::string NoiseModel::get_qobj_compiler() const {

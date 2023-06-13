@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 
 // STL
 #include <algorithm>
@@ -14,7 +14,6 @@
 // QB
 #include "qb/core/session.hpp"
 #include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
-#include "qb/core/noise_model/noise_model_factory.hpp"
 
 // XACC
 #include "CompositeInstruction.hpp"
@@ -1247,14 +1246,17 @@ namespace qb
       config.svd_cutoff_tnqvm = svd_cutoffs_valid.get(ii, jj).at(0);
     }
 
-    /// Name of the noise model
+    /// Choice of noise model
     {
-      ValidatorTwoDim<VectorString, std::string> noise_models_valid(noise_models_);
-      if (noise_models_valid.is_data_empty())
+      if (noise_models_[0].empty())
       {
-        throw std::range_error("A valid noise model [noise_model] must be specified");
+        config.noise_model = NoiseModel("default", config.num_qubits);
       }
-      config.noise_model = noise_models_valid.get(ii, jj);
+      else
+      {
+        ValidatorTwoDim<std::vector<std::vector<NoiseModel>>, NoiseModel> noise_models_valid(noise_models_);
+        config.noise_model = noise_models_valid.get(ii, jj);
+      }
     }
 
     /// QB hardware: prevent contrast thresholds from being sent by Qristal
@@ -1571,19 +1573,12 @@ namespace qb
         }
       }
 
-      const std::string noise_model_generator_name = run_config.noise_model;
-      auto noise_factory = qb::get_noise_model_factory(noise_model_generator_name);
-      if (noise_factory == nullptr) {
-         throw std::invalid_argument("The requested noise model of '" + noise_model_generator_name + "' is not implemented");
-      }
-      auto noiseModel = noise_factory->Create(run_config.num_qubits);
-
       size_t n_qubits = run_config.num_qubits;
       mqbacc.insert("n_qubits", n_qubits);
 
       if (debug_) std::cout << "# Qubits: " << n_qubits << std::endl;
-      mqbacc.insert("noise-model", noiseModel.to_json());
-      mqbacc.insert("m_connectivity", noiseModel.get_connectivity());
+      mqbacc.insert("noise-model", run_config.noise_model.to_json());
+      mqbacc.insert("m_connectivity", run_config.noise_model.get_connectivity());
       int shots = run_config.num_shots;
       mqbacc.insert("shots", shots);
       if (debug_) std::cout << "# Shots: " << shots << std::endl;
@@ -1755,8 +1750,8 @@ namespace qb
             std::cout << "# Using default AER simulation method." << std::endl;
         }
         if (noises > 0) {
-          aer_options.insert("noise-model", noiseModel.to_json());
-          aer_options.insert("qobj-compiler", noiseModel.get_qobj_compiler());
+          aer_options.insert("noise-model", run_config.noise_model.to_json());
+          aer_options.insert("qobj-compiler", run_config.noise_model.get_qobj_compiler());
           if (debug_)
             std::cout << "# Noise model: enabled" << std::endl;
         } else {
@@ -1852,7 +1847,7 @@ namespace qb
           qpu = xacc::getAccelerator("qb-lambda",
                                      {{"device", "GPU"},
                                       {"url", lambda_url},
-                                      {"noise-model", noiseModel.to_json()}});
+                                      {"noise-model", run_config.noise_model.to_json()}});
           if (debug_) {
             std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
           }
@@ -1867,16 +1862,16 @@ namespace qb
         // Use qsim via Cirq wrapper to handle noise if requested
         // The "cirq-qsim" backend is part of the external emulator package
         // to be used with the qb emulator noise models only.
-        if (run_config.noise_model != "qb-nm1" && run_config.noise_model != "qb-nm2") {
+        if (run_config.noise_model.name != "qb-nm1" && run_config.noise_model.name != "qb-nm2") {
           // We don't support arbitrary noise model in qsim yet.
           // Hence, ignore the noise request. Log info to let users know.
-          std::cout << "# The 'qsim' accelerator doesn't support noise configuration '" << run_config.noise_model << "'." << std::endl;
+          std::cout << "# The 'qsim' accelerator doesn't support noise configuration '" << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qsim with noise, please install the emulator package and select one of the QB noise models (e.g. 'qb-nm1' or 'qb-nm2')." << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {
           // Switch to "cirq-qsim" from emulator package
           qpu = xacc::getAccelerator("cirq-qsim");
-          mqbacc.insert("noise-model-name", run_config.noise_model);
+          mqbacc.insert("noise-model-name", run_config.noise_model.name);
           if (debug_) {
             std::cout << "# Noise model for qsim (from emulator package): enabled" << std::endl;
           }
@@ -2601,21 +2596,14 @@ namespace qb
       }
 
       n_qubits = run_config.num_qubits;
-      const std::string noise_model_generator_name = run_config.noise_model;
-      auto noise_factory = qb::get_noise_model_factory(noise_model_generator_name);
-      if (noise_factory == nullptr) {
-         throw std::invalid_argument("The requested noise model of '" + noise_model_generator_name + "' is not implemented");
-      }
-      auto noiseModel = noise_factory->Create(run_config.num_qubits);
-
       mqbacc.insert("n_qubits", n_qubits);
 
       if (debug_) {
         std::cout << "# Qubits: " << n_qubits << std::endl;
       }
 
-      mqbacc.insert("noise-model", noiseModel.to_json());
-      mqbacc.insert("m_connectivity", noiseModel.get_connectivity());
+      mqbacc.insert("noise-model", run_config.noise_model.to_json());
+      mqbacc.insert("m_connectivity", run_config.noise_model.get_connectivity());
       shots = run_config.num_shots;
       mqbacc.insert("shots", shots);
       if (debug_){
@@ -2682,7 +2670,7 @@ namespace qb
 
         if (noises > 0) {
           qpu->updateConfiguration(
-              {{"noise-model", noiseModel.to_json()}, {"shots", shots}});
+              {{"noise-model", run_config.noise_model.to_json()}, {"shots", shots}});
           if (debug_){
             std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
           }
@@ -2772,7 +2760,7 @@ namespace qb
         // Default AWS reverse proxy server for the QB Lambda workstation
         if (noises > 0) {
           qpu->updateConfiguration(
-              {{"noise-model", noiseModel.to_json()}, {"shots", shots}});
+              {{"noise-model", run_config.noise_model.to_json()}, {"shots", shots}});
           if (debug_)
             std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
         }

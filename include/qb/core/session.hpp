@@ -8,6 +8,7 @@
 #include "qb/core/utils.hpp"
 #include "qb/core/profiler.hpp"
 #include "qb/core/pretranspiler.hpp"
+#include "qb/core/noise_model/noise_model.hpp"
 
 // CUDAQ support
 #ifdef WITH_CUDAQ
@@ -62,8 +63,8 @@ namespace qb
     bool no_sim;
     /// Enable noisy simulation/emulation
     bool noise;
-    /// Name of the noise model
-    std::string noise_model;
+    /// Noise model
+    NoiseModel noise_model;
     /// *
     /// Backend-specific configurations
     /// *
@@ -149,7 +150,7 @@ namespace qb
       VectorMapND svd_cutoffs_;
 
       // Noise models
-      VectorString noise_models_;    // In-built noise model versions.  For validation, see VALID_NOISE_MODEL_NAMES.
+      std::vector<std::vector<NoiseModel>> noise_models_;
 
       // Variables not wrapped to Python
       VectorBool acc_uses_lsbs_;
@@ -318,15 +319,6 @@ namespace qb
       std::unordered_set<std::string> VALID_HARDWARE_PLACEMENTS = {
           "swap-shortest-path", "noise-aware"};
 
-      // Valid noise_model values
-      std::unordered_set<std::string> VALID_NOISE_MODEL_NAMES = {
-        "default",
-        "qb-nm1",
-        "qb-nm2",
-        "qb-qdk1",
-        "qb-dqc2"
-      };
-
       // More QB hardware options (similar to the above) go here
       const double CONTRAST_UPPERBOUND = 1.0;
       const double CONTRAST_LOWERBOUND = 0.0;
@@ -368,7 +360,7 @@ namespace qb
             // init_contrast_thresholds_{{{std::pair<int,double>(0,0.1)}}},
             qubit_contrast_thresholds_{{{}}},
             // qubit_contrast_thresholds_{{{std::pair<int,double>(0,0.1),std::pair<int,double>(1,0.1)}}},
-            max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{"default"}},
+            max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{}},
             acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}},
             output_amplitudes_{{}}, out_raws_{{{}}}, out_counts_{{{}}},
             out_divergences_{{{}}}, out_transpiled_circuits_{{{}}},
@@ -1112,23 +1104,23 @@ namespace qb
       static const char *help_svd_cutoffs_;
       //
       /**
-       * @brief Set the noise model name
+       * @brief Set the noise model
        * 
-       * @param noise_model Name of the noise model to use
+       * @param model The noise model to use
        */
-      void set_noise_model(const std::string &noise_model);
+      void set_noise_model(const NoiseModel& model);
       /**
-       * @brief Set the noise model name
+       * @brief Set the noise models
        * 
-       * @param noise_models Name of the noise model to use
+       * @param models The noise models to use
        */
-      void set_noise_models(const VectorString &noise_models);
+      void set_noise_models(const std::vector<std::vector<NoiseModel>>& noise_models);
       /**
-       * @brief Get the noise model name
+       * @brief Get the noise models
        * 
-       * @return Name of the noise model to use
+       * @return The noise models to use
        */
-      const VectorString &get_noise_models() const;
+      const std::vector<std::vector<NoiseModel>>& get_noise_models() const;
       /// @private
       static const char *help_noise_models_;
       //
@@ -1399,7 +1391,6 @@ namespace qb
       void validate_aws_s3(const std::string &bucket_name);
       void validate_aws_format(const std::string &format);
       void validate_aws_device_name(const std::string &device_name);
-      void validate_noise_model(const std::string &noise_model);
       void validate_aer_sim_type(const std::string &sim_type);
 
       template <class TT> int eqlength(const TT &in_d, const int N_ii);

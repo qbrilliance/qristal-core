@@ -387,30 +387,14 @@ void session::set_svd_cutoff(const ND &in_svd_cutoff) {
 void session::set_svd_cutoffs(const VectorMapND &in_svd_cutoff) { session::svd_cutoffs_ = in_svd_cutoff; }
 const VectorMapND & session::get_svd_cutoffs() const { return session::svd_cutoffs_; }
 //
-void session::set_noise_model(const std::string &noise_model) {
-  validate_noise_model(noise_model);
+void session::set_noise_model(const NoiseModel &noise_model) {
   noise_models_.clear();
-  noise_models_.emplace_back(std::vector<std::string>{noise_model});
+  noise_models_.emplace_back(std::vector<NoiseModel>{noise_model});
 }
-void session::set_noise_models(const VectorString &noise_models) {
-  for (const auto &item : noise_models) {
-    for (const auto &im : item) {
-      validate_noise_model(im);
-    }
-  }
+void session::set_noise_models(const std::vector<std::vector<NoiseModel>> &noise_models) {
   noise_models_ = noise_models;
 }
-void session::validate_noise_model(const std::string &noise_model) {
-  if (VALID_NOISE_MODEL_NAMES.find(noise_model) == VALID_NOISE_MODEL_NAMES.end()) {
-    std::stringstream noise_model_error_msg;
-    noise_model_error_msg << "QB SDK: valid settings for noise_model: " << std::endl;
-    for (auto it : VALID_NOISE_MODEL_NAMES) {
-      noise_model_error_msg << "* \"" << it << "\"" << std::endl;
-    }
-    throw std::range_error(noise_model_error_msg.str());
-  }
-}
-const VectorString &session::get_noise_models() const { return noise_models_; }
+const std::vector<std::vector<NoiseModel>> &session::get_noise_models() const { return noise_models_; }
 //
 void session::set_output_amplitude(const NC &in_output_amplitude) {
   session::output_amplitudes_.clear();
@@ -728,7 +712,7 @@ const std::string session::get_summary() const {
   //
 
   out << "* noise:" << std::endl <<
-  "    Enable the QB noise model" << std::endl <<
+  "    Enable noise modelling" << std::endl <<
   "  = ";
   for (auto item : get_noises()) {
       for (auto itel : item) {
@@ -739,17 +723,6 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* noise_model:" << std::endl <<
-  "    QB noise model name" << std::endl <<
-  "  = ";
-  for (auto item : get_noise_models()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
   out << "* notiming:" << std::endl <<
   "    Disable timing data collection" << std::endl <<
   "  = ";

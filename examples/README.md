@@ -259,6 +259,14 @@ _noise_: true
 
 A version of `quickstart.py` with noise.
 
+`noise_model_user_defined.py`
+
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
+
+A version of `noise_model.py` demonstrating the use of a user-defined noise model.
+
 `pfd.py`
 
 _qubits_: 12  
@@ -417,6 +425,14 @@ _gate depth_: 6
 _noise_: true
 
 A C++ implementation of `noise_model.py`.
+
+`noise_model_user_defined`
+
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
+
+A C++ implementation of `noise_model_user_defined.py`.
 
 `vqee`
 
