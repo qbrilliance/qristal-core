@@ -16,7 +16,7 @@ from torch import Tensor
 from torch.optim import SGD, Adam
 from subjectJoins import SubjectJoins
 from qb.core import String, VectorString 
-from qb.core.optimization import defaultAnsatzes, ParamCirc, QMLExecutor
+from qb.core.optimization import defaultAnsatzes, ParamCirc
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(sys.path[0]))), 'src', 'optimization', 'qml'))
 from qb_qml_torch_wrapper import QuantumLayer, NormLayer
 
@@ -80,8 +80,7 @@ Uncomment code below to test if the model works + visualize the model
 # # Printing all parameters that can have weights varied
 # print([param for param in model.named_parameters()]) 
 # # To visualise the computational graph of the NN
-# torchviz.make_dot(testresult,params=dict(model.named_parameters()))
-
+# torchviz.make_dot(testresult,params=dict(model.named_parameters())).render("qml_nn", format="png")
 
 """
 

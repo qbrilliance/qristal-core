@@ -2708,11 +2708,11 @@ PYBIND11_MODULE(core, m) {
     .def("numParams", &qb::qml::ParamCirc::getNumParams)
     .def("numQubits", &qb::qml::ParamCirc::getNumQubits)
     .def("numAnsatzRepetitions_", &qb::qml::ParamCirc::getNumAnsatzRepetitions)
-    .def("RX", &qb::qml::ParamCirc::RX)
-    .def("RY", &qb::qml::ParamCirc::RY)
-    .def("RZ", &qb::qml::ParamCirc::RZ)
-    .def("U1", &qb::qml::ParamCirc::U1)
-    .def("CPhase", &qb::qml::ParamCirc::CPhase)
+    .def("rx", &qb::qml::ParamCirc::RX)
+    .def("ry", &qb::qml::ParamCirc::RY)
+    .def("rz", &qb::qml::ParamCirc::RZ)
+    .def("u1", &qb::qml::ParamCirc::U1)
+    .def("cphase", &qb::qml::ParamCirc::CPhase)
     .def("reupload", &qb::qml::ParamCirc::reupload)
     ;
   

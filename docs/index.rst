@@ -48,6 +48,7 @@ The Emulator plugin for Qristal `can be obtained in binary form from Quantum Bri
    rst/quantum_computing
    rst/noise_models
    rst/vqe
+   rst/qml
 
 .. toctree::
    :maxdepth: 2

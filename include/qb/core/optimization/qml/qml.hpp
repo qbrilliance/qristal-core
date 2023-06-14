@@ -75,9 +75,9 @@ public:
    * @brief Creates a parametrized circuit with a pre-defined ansatz.
    * @param numQubits Number of qubits in the parametrised circuit (also 
    * currently sets number of input parameters) [size_t]
-   * @param defaultAnsatzes Type of parametric circuit ansatz to be created 
+   * @param ansatzType Type of parametric circuit ansatz to be created 
    * (currently only query opt. implemented) [qb::qml::DefaultAnsatzes]
-   * @param numReps Number of layers of the ansatz [size_t]
+   * @param numAnsatzRepetitions Number of layers of the ansatz [size_t]
    * @param varGates Which gates to be optimised variationally, given as a 
    * vector of gate names within {"Rx","Ry","Rz"} [qb::VectorString]
   */
@@ -106,7 +106,7 @@ public:
   * RX(\theta)\ket{1} \rightarrow -i\sin(\theta/2)\ket{0} + \cos(\theta/2)\ket{1}
   * \f]
   *
-  * @param idx the index of the qubit being acted on [size_t]
+  * @param index the index of the qubit being acted on [size_t]
   * @param type the type of input parameter ("input" or "variational") [std::string]
   */
   void RX(size_t index, char *type) {
@@ -127,7 +127,7 @@ public:
   * RY(\theta)\ket{1} \rightarrow -\sin(\theta/2)\ket{0} + \cos(\theta/2)\ket{1}
   * \f]
   *
-  * @param idx the index of the qubit being acted on [size_t]
+  * @param index the index of the qubit being acted on [size_t]
   * @param type the type of input parameter ("input" or "variational") [std::string]
   */
   void RY(size_t index, char *type) {
@@ -148,7 +148,7 @@ public:
   * RZ(\theta)\ket{1} \rightarrow e^{i\theta/2}\ket{1}
   * \f]
   *
-  * @param idx the index of the qubit being acted on [size_t]
+  * @param index the index of the qubit being acted on [size_t]
   * @param type the type of input parameter ("input" or "variational") [std::string]
   */
   void RZ(size_t index, char *type) {
@@ -169,7 +169,7 @@ public:
   * U1(\theta)\ket{1} \rightarrow e^{i\theta}\ket{1}
   * \f]
   *
-  * @param idx the index of the qubit being acted on [size_t]
+  * @param index the index of the qubit being acted on [size_t]
   * @param type the type of input parameter ("input" or "variational") [std::string]
   */
   void U1(size_t index, char *type) {
@@ -192,8 +192,8 @@ public:
   *
   * \f]
   *
-  * @param ctrl_idx the index of the control qubit [size_t]
-  * @param target_idx the index of the target qubit [size_t]
+  * @param ctrl_index the index of the control qubit [size_t]
+  * @param target_index the index of the target qubit [size_t]
   * @param type the type of input parameter ("input" or "variational") [std::string]
   */
   void CPhase(size_t ctrl_index, size_t target_index, char *type) {

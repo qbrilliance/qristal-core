@@ -11,7 +11,7 @@ Using Qristal
 Development guide
 -----------------
 
-Qristal can either be run `directly from the provided Docker image <https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker>`_, or `installed from source <https://gitlab.com/qbau/software-and-apps/public/QBSDK>`_.  This section provides instructions for working with the source.
+Qristal can either be run `directly from the provided Docker image <https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker>`_, or `installed from source <https://gitlab.com/qbau/software-and-apps/public/QBSDK>`_.  This section provides instructions for working with the source. If using Windows Subsystem for Linux 2, ensure you have Docker Desktop installed **on Windows** and not under your Linux distribution, as it allows Docker to use `WSL2 as a backend <https://docs.docker.com/desktop/windows/wsl/>`_. 
 
 Dependencies
 ^^^^^^^^^^^^

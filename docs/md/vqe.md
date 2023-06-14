@@ -1,4 +1,4 @@
-# Variational Quantum Eigensolver (VQE) in Qristal
+# Variational Quantum Eigensolver (VQE)
 
 ## Example
 

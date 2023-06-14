@@ -59,8 +59,6 @@ void ParamCirc::queryOptAnsatz() {
   // Use Rx encoding gates as default to encode input parameters
   size_t numEncodingGates = numQubits_;
   for (std::size_t i = 0; i < numEncodingGates; i++) {
-    // circuit_->addInstruction(gate_provider_->createInstruction(
-    //     "Rx", {i}, {"theta_i" + std::to_string(i)}));
     RX(i, "input");
   }
   // Add variational gates
@@ -168,7 +166,6 @@ std::vector<std::vector<double>> QMLExecutor::getStatGradients() {
   auto gradientResults =
       gradientBuffer_->getChildren(); // Output of gradient executions
   std::size_t inputSize = targetCircuit_.getNumInputs();
-  // std::size_t nShifts = gradientResults.size();
   std::size_t numOutputs = pow(2, targetCircuit_.getNumQubits());
   std::vector<std::vector<double>> gradStats(targetCircuit_.getNumParams(),
                                              std::vector<double>(numOutputs));
@@ -176,7 +173,6 @@ std::vector<std::vector<double>> QMLExecutor::getStatGradients() {
   // Iterate over all gradient executions to obtain <+> and <-> shifted
   // probabilities, then calculate the probability gradient
   for (std::size_t i = 2 * inputSize; i < gradientResults.size() - 1; i += 2) {
-    // Add targetCircuit_.numInputs_ to each i-value, to ensure that
     std::vector<double> statsPlus =
         getStatsFromShots(gradientResults[i]->getMeasurementCounts());
     std::vector<double> statsMinus =
