@@ -356,23 +356,31 @@ A simple example that prints out circuit topology and connectedness.
 
 `vqee_example_1.py`
 
-_qubits_: 4  
-_gate depth_: 83  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 1 for H2_explicit and 7 for H1_HEA
+_noise_: false
 
-Demonstrates the use of Qristal's built-in VQE routines. This example may take some time to run.
+Demonstrates the access and run of predefined examples in Qristal's built-in VQE routines.
 
 `vqee_example_2.py`
 
-_qubits_: 4  
-_gate depth_: 83  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 8
+_noise_: false
 
-Demonstrates the use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
+Demonstrates manual problem setup and use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
+
+`vqee_example_3.py`
+
+_qubits_: 4
+_gate depth_: 83
+_noise_: false
+
+Demonstrates how to inject python code into our c++ libs. Shows inclusion of external python chemistry package pyscf into Qristal's built-in VQE routines.
 
 `simple_placement.py`
 
-A simple example demonstrates circuit placement based on backend topology.
+A simple example demonstrating circuit placement based on backend topology.
 
 `noise_aware_placement.py`
 
@@ -485,7 +493,7 @@ Determination of the deuteron's ground state energy using VQE with the Cobyla op
 
 Determination of the ground state of a chain of four hydrogen atoms, using VQE with the L-BFGS optimiser.
 
-`cudaq_vqe_cobyla`
+`cudaq_vqe_lbfgs`
 
 Determination of the deuteron's ground state energy using VQE with the L-BFGS optimiser.
 

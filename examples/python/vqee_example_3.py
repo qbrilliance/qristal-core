@@ -12,7 +12,7 @@ def pauliStringFromGeometry(geometry, basis='sto-3g'):
   import xacc
   opts = {'basis':basis, 'geometry':geometry}
   fermion = xacc.getObservable('pyscf', opts) # pyscf returns a fermion
-  observable = xacc.getObservable('fermion', fermion)
+  observable = xacc.getObservable('fermion', fermion.toString())
   pauli = xacc.transformToPauli('jw', observable)
   return pauli.toString()
 
