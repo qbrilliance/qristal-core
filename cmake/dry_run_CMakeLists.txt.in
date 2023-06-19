@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION @MIN_CMAKE_VERSION@ FATAL_ERROR)
 project(poorly_behaved_dependency_dry_run LANGUAGES CXX)
-find_package(@arg_FIND_PACKAGE_NAME@ QUIET)
+find_package(@arg_FIND_PACKAGE_NAME@ QUIET HINTS @dir@)
 if(@arg_FIND_PACKAGE_NAME@_FOUND)
   if(@arg_FIND_PACKAGE_NAME@_VERSION STREQUAL "@VERSION@-@arg_GIT_TAG@")
     message("poorly_behaved_dependency_dry_run: Found")

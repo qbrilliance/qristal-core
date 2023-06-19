@@ -7,12 +7,17 @@ include(xacc_utilities)
 #  - environment variable ${FIND_PACKAGE_NAME}_ROOT
 #  - cmake variable ${FIND_PACKAGE_NAME}_ROOT (set with -D at cmake invocation)
 #  - cmake variable ${FIND_PACKAGE_NAME}_DIR (set with -D at cmake invocation)
-function(find_package_dry_run NAME VERSION arg_FIND_PACKAGE_NAME arg_GIT_TAG SUCCESS)
+function(find_package_dry_run NAME VERSION dir arg_FIND_PACKAGE_NAME arg_GIT_TAG SUCCESS)
 
   # Before running find_package, make sure that the _ROOT and _DIR paths are consistent.
-  if(${arg_FIND_PACKAGE_NAME}_ROOT AND ${arg_FIND_PACKAGE_NAME}_DIR AND
-   NOT ${arg_FIND_PACKAGE_NAME}_ROOT STREQUAL ${arg_FIND_PACKAGE_NAME}_DIR)
-    message(FATAL_ERROR "${arg_FIND_PACKAGE_NAME}_ROOT and ${arg_FIND_PACKAGE_NAME}_DIR are both non-empty, but different. To change the ${NAME} installation used, when invoking cmake please unset one or set them consistently.")
+  if(${arg_FIND_PACKAGE_NAME}_ROOT AND ${arg_FIND_PACKAGE_NAME}_DIR)
+    file(REAL_PATH ${${arg_FIND_PACKAGE_NAME}_ROOT} _ROOT)
+    file(REAL_PATH ${${arg_FIND_PACKAGE_NAME}_DIR} _DIR)
+    if(NOT ${_ROOT} STREQUAL ${_DIR})
+      message("${arg_FIND_PACKAGE_NAME}_ROOT: ${_ROOT}")
+      message("${arg_FIND_PACKAGE_NAME}_DIR: ${_DIR}")
+      message(FATAL_ERROR "${arg_FIND_PACKAGE_NAME}_ROOT and ${arg_FIND_PACKAGE_NAME}_DIR are both non-empty, but different. To change the ${NAME} installation used, when invoking cmake please unset one or set them consistently.")
+    endif()
   endif()
 
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
@@ -85,12 +90,12 @@ macro(add_poorly_behaved_dependency NAME VERSION)
   cache_install_path()
 
   # Do a dry run of find_package
-  find_package_dry_run(${NAME} ${VERSION} ${arg_FIND_PACKAGE_NAME} ${arg_GIT_TAG} DRY_RUN_SUCCEEDED)
+  find_package_dry_run(${NAME} ${VERSION} ${dir} ${arg_FIND_PACKAGE_NAME} ${arg_GIT_TAG} DRY_RUN_SUCCEEDED)
 
   # If the dry run worked, we should be safe to find the dependency with find_package
   if(DRY_RUN_SUCCEEDED)
 
-    find_package(${arg_FIND_PACKAGE_NAME} QUIET)
+    find_package(${arg_FIND_PACKAGE_NAME} QUIET HINTS ${dir})
     if(NOT ${arg_FIND_PACKAGE_NAME}_FOUND OR NOT "${${arg_FIND_PACKAGE_NAME}_VERSION}" STREQUAL "${VERSION}-${arg_GIT_TAG}")
       message(FATAL_ERROR "Inconsistent cmake results: dry run of find_package for ${arg_FIND_PACKAGE_NAME} succeeded, but actual run failed!")
     endif()

@@ -13,6 +13,18 @@ if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
 endif()
 include(${CPM_DOWNLOAD_LOCATION})
 
+# Check that the given path is not within CMAKE_INSTALL_PREFIX
+macro(is_in_install_path PATH RESULT)
+  file(REAL_PATH ${CMAKE_INSTALL_PREFIX} INSTALL_DIR)
+  file(REAL_PATH ${PATH} PACKAGE_DIR)
+  string(FIND "${PACKAGE_DIR}" "${INSTALL_DIR}" POSITION)
+  if (POSITION EQUAL 0)
+    set(${RESULT} ON)
+  else()
+    set(${RESULT} OFF)
+  endif()
+endmacro()
+
 # Add a dependent package using CPM, first looking to see if it has been installed already.
 macro(add_dependency NAME VERSION)
 
@@ -20,6 +32,7 @@ macro(add_dependency NAME VERSION)
     FIND_PACKAGE_NAME
     FIND_PACKAGE_VERSION
     FIND_PACKAGE_ARGUMENTS
+    FIND_PACKAGE_ADDITIONAL_RESULT_PATH_VAR
     FORCE
     GIT_TAG
     DOWNLOAD_ONLY
@@ -56,15 +69,22 @@ macro(add_dependency NAME VERSION)
 
   if (arg_FIND_PACKAGE_VERSION)
     if(${arg_FIND_PACKAGE_VERSION} STREQUAL " ")
-      find_package(${arg_FIND_PACKAGE_NAME} QUIET)
+      find_package(${arg_FIND_PACKAGE_NAME} QUIET ${arg_FIND_PACKAGE_ARGUMENTS})
     else()
-      find_package(${arg_FIND_PACKAGE_NAME} ${arg_FIND_PACKAGE_VERSION} QUIET)
+      find_package(${arg_FIND_PACKAGE_NAME} ${arg_FIND_PACKAGE_VERSION} QUIET ${arg_FIND_PACKAGE_ARGUMENTS})
     endif()
   else()
-    find_package(${arg_FIND_PACKAGE_NAME} ${VERSION} QUIET)
+    find_package(${arg_FIND_PACKAGE_NAME} ${VERSION} QUIET ${arg_FIND_PACKAGE_ARGUMENTS})
   endif()
 
-  if(${arg_FIND_PACKAGE_NAME}_FOUND)
+  # Don't allow find_package to find installations done by Qristal itself.  First check the package's _DIR variable.
+  is_in_install_path(${${arg_FIND_PACKAGE_NAME}_DIR} WAS_INSTALLED_BY_QRISTAL)
+  # Next check any other cmake path variable identified by the calling code as needing to be checked. 
+  if (arg_FIND_PACKAGE_ADDITIONAL_RESULT_PATH_VAR AND NOT WAS_INSTALLED_BY_QRISTAL)
+    is_in_install_path(${${arg_FIND_PACKAGE_ADDITIONAL_RESULT_PATH_VAR}} WAS_INSTALLED_BY_QRISTAL)
+  endif()
+
+  if(${arg_FIND_PACKAGE_NAME}_FOUND AND NOT WAS_INSTALLED_BY_QRISTAL)
 
     message(STATUS "System installation of ${NAME} found: version ${${arg_FIND_PACKAGE_NAME}_VERSION}")
 

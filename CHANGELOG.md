@@ -22,6 +22,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - AWS accelerator: query backend devices and their Amazon Resource Names (ARNs) for Rigetti provider.  
 - Rename the XACC plugin for noise-aware IR transformation from "tket" to "noise-aware". 
 - Harmonise install library dir name across different systems and dependencies (fixes lib vs lib64 issue)
+- Improved finding of installed dependencies with cmake.
 
 ## [1.0.0] - 2023-05-19
 

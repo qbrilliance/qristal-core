@@ -60,6 +60,7 @@ set(GTest_VERSION "1.12.1")
 add_dependency(googletest ${GTest_VERSION}
   GITHUB_REPOSITORY google/googletest
   FIND_PACKAGE_NAME GTest
+  FIND_PACKAGE_ADDITIONAL_RESULT_PATH_VAR GTEST_INCLUDE_DIR
   GIT_TAG release-1.12.1
   OPTIONS
     "INSTALL_GTEST ON"
@@ -78,6 +79,7 @@ endif()
 set(nlohmann_json_VERSION "3.1.1")
 add_dependency(nlohmann_json ${nlohmann_json_VERSION}
   GITHUB_REPOSITORY /nlohmann/json
+  FIND_PACKAGE_ARGUMENTS "EXACT"
   OPTIONS
     "JSON_BuildTests OFF"
 )
@@ -319,7 +321,8 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
   # QASM simulator.
   find_program(QB_STANDALONE_AER_EXE qasm_simulator) 
-  if(${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")   
+  is_in_install_path(${QB_STANDALONE_AER_EXE} AER_FOUND_IN_INSTALLED_QRISTAL)
+  if(AER_FOUND_IN_INSTALLED_QRISTAL OR ${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")
     # Install required dependency spdlog
     set(name "spdlog")
     set(repo "https://github.com/gabime/spdlog.git")
