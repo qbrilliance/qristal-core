@@ -31,7 +31,7 @@ macro(add_cudaq_executable TARGET_NAME BACKEND)
   set_target_properties(${TARGET_NAME} PROPERTIES LANGUAGE CUDAQ)
    
   # Add the core's include dir with -I instead of -isystem
-  target_include_directories(${TARGET_NAME} PRIVATE ${qbcore_DIR}/lib/../include)
+  target_include_directories(${TARGET_NAME} PRIVATE ${qbcore_DIR}/${qbcore_LIBDIR}/../include)
 
   # Intercept the link file created by the cmake generate step before it is used, and change all full-path linkages to uses of -L and -l.
   # Also add -Wl,-rpath, to avoid runtime "library not found" issues, and remove the curl library as it will clash with that brought in by CUDAQ. 

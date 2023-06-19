@@ -24,7 +24,7 @@ set_target_properties(py${PROJECT_NAME}
 install(
   TARGETS py${PROJECT_NAME}
   EXPORT py${PROJECT_NAME}Targets
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/qb
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/qb
 )
 
 set(pyTargetsFile "py${PROJECT_NAME}Targets.cmake")

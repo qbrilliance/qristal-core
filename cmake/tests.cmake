@@ -71,7 +71,7 @@ target_link_libraries(CITests
 
 set_target_properties(CITests
   PROPERTIES
-    BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${XACC_ROOT}/lib"
+    BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR};${XACC_ROOT}/lib"
 )
 target_compile_definitions(CITests PRIVATE TKET_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/tests/placement/resources")
 add_dependencies(CITests qasm_simulator)

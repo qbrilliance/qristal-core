@@ -68,8 +68,11 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 endif()
 
+message("ha: ${qbcore_LIBPATH}")
+
 # Ensure that all installed python modules are picked up by Python without needing to modify the PYTHONPATH env variable.
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} \
+                                                       -Dqbcore_LIBDIR=${qbcore_LIBDIR} \
                                                        -DXACC_ROOT=${XACC_ROOT} \
                                                        -DPYTHON_PACKAGES_PATH=${PYTHON_PACKAGES_PATH} \
                                                        -DPROJECT_NAME=${PROJECT_NAME} \

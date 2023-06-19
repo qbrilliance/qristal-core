@@ -131,7 +131,7 @@ macro(add_xacc_plugin LIBRARY_NAME)
   # Install the library. Headers are automatically copied when installing libqbcore.so.
   install(
     TARGETS ${LIBRARY_NAME}
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
   )
 
   # Add a symlink to {XACC_ROOT}/plugins where XACC finds its plugins by default.
@@ -149,7 +149,7 @@ macro(add_xacc_plugin LIBRARY_NAME)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${XACC_ROOT}/plugins/$<TARGET_FILE_PREFIX:${LIBRARY_NAME}>$<TARGET_FILE_BASE_NAME:${LIBRARY_NAME}>${extension})")
   endforeach()
   install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \
-     ${CMAKE_INSTALL_PREFIX}/lib/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
+     ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
      ${XACC_ROOT}/plugins/$<TARGET_FILE_NAME:${LIBRARY_NAME}>)"
   )
 

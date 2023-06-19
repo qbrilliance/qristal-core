@@ -1,10 +1,16 @@
+# Include the GNU standard installation directories
+include(GNUInstallDirs)
+
 # Set default installation dir to the build dir.  Must be done before calling add_dependency.
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)
 endif()
 
+# Set the library dir to the value of CMAKE_INSTALL_LIBDIR
+set(qbcore_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+
 # Set default RPATH to the lib dir of the installation dir.  Must be done after default installation dir is set.
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR} CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
 
 # Work out build type.  Must be done before calling add_dependency.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

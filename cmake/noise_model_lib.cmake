@@ -39,7 +39,7 @@ target_link_libraries(${LIBRARY_NAME}
 # Install the library
 install(
   TARGETS ${LIBRARY_NAME}
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
   EXPORT ${LIBRARY_NAME}Targets
 )
 

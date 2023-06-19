@@ -66,12 +66,11 @@ add_xacc_plugin(aws_braket
   DEPENDENCIES
     Python::Python
     pybind11::pybind11
-    #TODO search for and add python module dependencies: boto3, botocore, threading, braket
 )
 # Install additional runtime assets
 install(
   FILES src/aws_braket/aws_python_script.py
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
 )
 
 # Circuit library

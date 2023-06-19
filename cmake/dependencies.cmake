@@ -33,6 +33,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
     "CMAKE_CXX_FLAGS ${XACC_CMAKE_CXX_FLAGS}"
     "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
+    "CMAKE_INSTALL_LIBDIR lib"
 )
 
 # Python 3 interpreter and libraries
@@ -67,10 +68,10 @@ add_dependency(googletest ${GTest_VERSION}
 if(googletest_ADDED)
   set(GTest_DIR ${CMAKE_INSTALL_PREFIX}/cmake/googletest/GTest CACHE PATH "GTest Installation path." FORCE)
   install(
-    DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib/cmake/GTest
+    DIRECTORY ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/cmake/GTest
     DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/googletest
   )
-  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake/GTest)")
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/cmake/GTest)")
 endif()
 
 # json library
@@ -159,7 +160,6 @@ add_dependency(autodiff ${autodiff_VERSION}
     "AUTODIFF_BUILD_PYTHON OFF"
     "AUTODIFF_BUILD_EXAMPLES OFF"
     "AUTODIFF_BUILD_DOCS OFF"
-    "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}"
     "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
 )
 if(autodiff_ADDED)
@@ -301,6 +301,12 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
         FILE cpr-config.cmake
         NAMESPACE cpr::
         DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
+    if (NOT qbcore_LIBDIR STREQUAL "lib")
+      install(
+        FILES ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${CPR_LIBRARIES}${CMAKE_STATIC_LIBRARY_SUFFIX}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+      )
+    endif()
   endif()
 
   # C++ itertools
@@ -362,8 +368,12 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 endif() # (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 # Get rid of other cmake paths
-install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake)")
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/cmake)")
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/share)")
+if (NOT qbcore_LIBDIR STREQUAL "lib")
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib)")
+endif()
+
 
 # If any packages are still missing, fail.
 check_missing()
