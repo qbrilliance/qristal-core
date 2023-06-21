@@ -3,6 +3,7 @@ pybind11_add_module (py${PROJECT_NAME}
   python_module/core/session_getter_setter.cpp
   python_module/core/session_py_help_strings.cpp
   python_module/core/py_placement.cpp
+  python_module/core/py_circuit_opt.cpp
 )
 
 target_link_libraries(py${PROJECT_NAME}

@@ -1,26 +1,26 @@
-// Copyright (c) 2021 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
+#pragma once
 
-#include "qb/core/QuantumBrillianceAccelerator.hpp"
-#include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
 #include "qb/core/async_executor.hpp"
 #include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/cmake_variables.hpp"
 #include "qb/core/utils.hpp"
-#include "qb/core/profiler.hpp"
-#include "qb/core/pretranspiler.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
+#include "qb/core/passes/base_pass.hpp"
 
 // CUDAQ support
 #ifdef WITH_CUDAQ
   #include "cudaq/utils/cudaq_utils.h"
-  #include "qb/core/cudaq/sim_pool.hpp"
 #endif
 
-#pragma once
+namespace xacc::quantum {
+class QuantumBrillianceRemoteAccelerator;
+}
 
 namespace qb
 {
-
+  // Forward declarations
+  class QuantumBrillianceAccelerator;
   /// Supported types of the input source string defining a quantum kernel
   enum class source_string_type
   {
@@ -65,6 +65,10 @@ namespace qb
     bool noise;
     /// Noise model
     NoiseModel noise_model;
+    /// Noise mitigation strategy (empty if none)
+    std::string noise_mitigation;
+    /// Random seed value for the simulator (if set)
+    std::optional<int> simulator_seed;
     /// *
     /// Backend-specific configurations
     /// *
@@ -82,6 +86,8 @@ namespace qb
     std::string aws_s3;
     /// [AWS Braket] Path (key) within the bucket where the result is stored
     std::string aws_s3_path;
+    /// [AER backend] Simulator type (e.g., state vec, density matrix, etc.)
+    std::string aer_sim_type;
   };
 
   /// A session of the QB SDK quantum programming and execution framework.
@@ -117,7 +123,8 @@ namespace qb
 
       VectorN randoms_;
       VectorString placements_;
-
+      /// Circuit optimization passes to apply
+      Table2d<Passes> circuit_opts_;
       VectorBool xasms_;
       VectorBool quil1s_;
       VectorBool noplacements_;
@@ -339,60 +346,21 @@ namespace qb
        * Some parameters are uninitialized, e.g., number of qubits (`qns_`).
        * These parameters can be set manually (using corresponding setter methods) or via provided presets, e.g., qb12().
        */
-      session()
-          : debug_(false), name_m{{}}, number_m{{}}, infiles_{{}},
-            // FIXME some tests will probably fail if the SDK_SOURCE_DIR path to qblib.inc and qpu_config.json is not also added.
-            include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
-            qpu_configs_{{SDK_DIR "/include/qb/core/qpu_config.json"}},
-            instrings_{{}}, irtarget_ms_{{}},
-            accs_{{"qpp"}},
-            aws_device_names_{{"DM1"}}, aws_formats_{{"openqasm3"}}, aws_verbatims_{{{false}}},
-            aws_s3s_{{"amazon-braket-QBSDK"}}, aws_s3_paths_{{"output"}},
-            aer_sim_types_{},
-            randoms_{{}}, xasms_{{{false}}},
-            quil1s_{{{false}}}, noplacements_{{{false}}},
-            nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
-            output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
-            notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-            thetas_{{}},
-            use_default_contrast_settings_{{{true}}},
-            init_contrast_thresholds_{{{}}},
-            // init_contrast_thresholds_{{{std::pair<int,double>(0,0.1)}}},
-            qubit_contrast_thresholds_{{{}}},
-            // qubit_contrast_thresholds_{{{std::pair<int,double>(0,0.1),std::pair<int,double>(1,0.1)}}},
-            max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{}},
-            acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}},
-            output_amplitudes_{{}}, out_raws_{{{}}}, out_counts_{{{}}},
-            out_divergences_{{{}}}, out_transpiled_circuits_{{{}}},
-            out_qobjs_{{{}}}, out_qbjsons_{{{}}},
-            out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
-            out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
-            executor_(std::make_shared<Executor>()), error_mitigations_{} {
-        xacc::Initialize();
-        xacc::setIsPyApi();
-        xacc::set_verbose(debug_);
-#ifdef WITH_CUDAQ
-        // Populate VALID_ACCS with additional CUDAQ backend
-        for (const auto &qoda_sim :
-             cudaq_sim_pool::get_instance().available_simulators()) {
-          VALID_ACCS.emplace(qoda_sim);
-        }
-#endif
-      }
+      session();
 
       /**
        * @brief Construct a new session object with a specific name
        * 
        * @param name Session name
        */
-      session(const std::string &name) : session() { name_m.push_back({name}); }
+      session(const std::string &name);
       
       /**
        * @brief Construct a new session object with a specific debug flag
        * 
        * @param debug Debug flag. Printing debug messages to console if true.
        */
-      session(const bool debug) : session() { debug_ = debug; }
+      session(const bool debug);
 
       // Setters and Getters
       // Notes:
@@ -811,6 +779,30 @@ namespace qb
       const VectorBool &get_nooptimises() const;
       /// @private
       static const char *help_nooptimises_;
+      
+      //
+      /**
+       * @brief Set the circuit optimization passes
+       * 
+       * @param in_opts Sequence of optimization passes to apply
+       */
+      void set_circuit_opt(const Passes& in_passes);
+      /**
+       * @brief Set the circuit optimization passes
+       * 
+       * @param in_opts 2-D table of sequences of optimization passes to apply
+       */
+      void set_circuit_opts(const Table2d<Passes> &in_passes);
+      /**
+       * @brief Get the circuit optimization passes
+       * 
+       * @return 2-D table of sequences of optimization passes to apply
+       */
+      const Table2d<Passes> &get_circuit_opts() const;
+      /// @private
+      static const char *help_circuit_opts_;
+      //
+      
       //
       /**
        * @brief Set the nosim flag
@@ -1392,9 +1384,6 @@ namespace qb
       void validate_aws_format(const std::string &format);
       void validate_aws_device_name(const std::string &device_name);
       void validate_aer_sim_type(const std::string &sim_type);
-
-      template <class TT> int eqlength(const TT &in_d, const int N_ii);
-      template <class TT> int singleton_or_eqlength(const TT &in_d, const size_t N_ii);
       int is_ii_consistent();
       int is_jj_consistent();
        circuit_input_types validate_infiles_instrings_randoms_irtarget_ms_nonempty(const size_t ii, const size_t jj);
@@ -1427,10 +1416,43 @@ namespace qb
       /// Retrieve the target circuit string for (i, j) task:
       /// This will involve loading file (if file mode is selected), generate random circuit string (if random mode is selected), etc.
       std::string get_target_circuit_qasm_string(size_t ii, size_t jj, const run_i_j_config& run_config);
+      /// Wrap raw OpenQASM string in a QB Kernel:
+      /// - Move qreg to a kernel argument
+      /// - Denote the kernel name as 'QBCIRCUIT'
+      static std::string
+      convertRawOpenQasmToQBKernel(const std::string &in_rawQasm);
 
+      /// Parse QPU configuration JSON file.
+      // e.g., populating the list of QPU URL endpoints
+      void parse_qpu_config_json(const std::string& in_file_path);
+
+      /// Combine all QPU options into a dict (xacc::HeterogeneousMap)
+      // Note: this dict is a 'kitchen sink' of all configurations.
+      // The QPU (xacc::Accelerator) may or may not use these configurations.
+      xacc::HeterogeneousMap
+      construct_qpu_configs(const run_i_j_config &run_config);
+
+      /// Get the simulator based on `run_i_j_config`
+      std::shared_ptr<xacc::Accelerator> get_sim_qpu(const run_i_j_config &run_config);
+
+      /// Execute the circuit on a simulator
+      void execute_on_simulator(
+          std::shared_ptr<xacc::Accelerator> acc,
+          std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
+          std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
+          const run_i_j_config &run_config);
+
+      /// Execute the circuit on the QB hardware
+      /// (QuantumBrillianceRemoteAccelerator)
+      void execute_on_hardware(
+          std::shared_ptr<xacc::quantum::QuantumBrillianceRemoteAccelerator>
+              qdk,
+          std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
+          std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
+          const run_i_j_config &run_config);
 #ifdef WITH_CUDAQ
       // Run CUDAQ kernel assigned as (i, j) task of this session
-      void run_cudaq(size_t ii, size_t jj, const run_i_j_config& run_config);
+      void run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config);
 #endif
 
       /// Populate QPU execution results for task (i, j) to the session data

@@ -121,6 +121,35 @@ template <typename M, typename V> void map_to_vec(const M &m, V &v) {
   }
 }
 
+template <class TT>
+int singleton_or_eqlength(const TT &in_d, const size_t N_ii) {
+  const int INVALID = -1;
+  const int SINGLETON = 1;
+  if (in_d.size() > 0) {
+    if (N_ii == SINGLETON) {
+      return in_d.size();
+    } else {
+      if ((in_d.size() == N_ii) || (in_d.size() == SINGLETON)) {
+        return N_ii;
+      } else {
+        return INVALID;
+      }
+    }
+  } else {
+    return N_ii;
+  }
+}
+
+template <class TT> 
+int eqlength(const TT &in_d, const int N_ii) {
+  const int INVALID = -1;
+  if (in_d.size() == N_ii) {
+    return N_ii;
+  } else {
+    return INVALID;
+  }
+}
+
 // Validator class for 2-D array table: shape consistency, upper/lower bounds for numerical values, etc.
 template <class TCON, class TVAL> class ValidatorTwoDim {
 private:

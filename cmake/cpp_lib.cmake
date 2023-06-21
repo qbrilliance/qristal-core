@@ -2,6 +2,8 @@ set(source_files
   src/async_executor.cpp
   src/utils.cpp
   src/session.cpp
+  src/session_validators.cpp
+  src/session_utils.cpp
   src/pretranspiler.cpp
   src/profiler.cpp
   src/QuantumBrillianceRemoteAccelerator.cpp
@@ -18,6 +20,7 @@ set(source_files
   src/optimization/qml/qml.cpp
   src/passes/noise_aware_placement_pass.cpp
   src/passes/swap_placement_pass.cpp
+  src/passes/circuit_opt_passes.cpp
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/core/session_getter_setter.cpp
@@ -56,6 +59,7 @@ set(headers
   include/qb/core/passes/noise_aware_placement_config.hpp
   include/qb/core/passes/noise_aware_placement_pass.hpp
   include/qb/core/passes/swap_placement_pass.hpp
+  include/qb/core/passes/circuit_opt_passes.hpp
 )
 
 # Lightweight header-only interface target

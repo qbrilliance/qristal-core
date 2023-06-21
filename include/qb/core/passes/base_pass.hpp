@@ -1,8 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 #pragma once
+#include <memory>
 #include <string>
-
+#include <vector>
 namespace qb {
 // Forward declare qb::CircuitBuilder
 class CircuitBuilder;
@@ -26,4 +27,6 @@ public:
 
 /// Alias the pass that work on CircuitBuilder (i.e., XACC IR)
 using CircuitPass = Pass<CircuitBuilder>;
+/// Alias for a pipeline of passes
+using Passes = std::vector<std::shared_ptr<CircuitPass>>;
 } // namespace qb

@@ -1,9 +1,11 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
-
+#include "xacc.hpp"
 #include "qb/core/session.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
+#include "qb/core/profiler.hpp"
+#include "qb/core/pretranspiler.hpp"
 #include <string>
-
+#include <fstream>
 using namespace qb;
 
 // Quickstart

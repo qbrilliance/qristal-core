@@ -1,8 +1,10 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
 #include "qb/core/session.hpp"
 #include <gtest/gtest.h>
+#include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
+#include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
 #include <nlohmann/json.hpp>
 namespace {
 std::shared_ptr<xacc::Compiler> get_qb_qobj_compiler() {

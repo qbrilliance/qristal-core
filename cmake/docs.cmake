@@ -97,6 +97,7 @@ set(PUBLIC_HEADERS
   include/qb/core/passes/noise_aware_placement_config.hpp
   include/qb/core/passes/noise_aware_placement_pass.hpp
   include/qb/core/passes/swap_placement_pass.hpp
+  include/qb/core/passes/circuit_opt_passes.hpp
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)

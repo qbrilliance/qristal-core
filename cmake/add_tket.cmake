@@ -14,7 +14,9 @@ if (WITH_TKET)
   ##############################
   add_xacc_plugin(${TKET_PLACEMENT_LIB}
     SOURCES
-      src/placement/tket_placement.cpp  
+      src/tket/tket_placement.cpp  
+      src/tket/tket_ir_converter.cpp
+      src/tket/tket_plugin.cpp
   )
   # Use C++20 (TKET requirement)
   set_property(TARGET ${TKET_PLACEMENT_LIB} PROPERTY CXX_STANDARD 20) 

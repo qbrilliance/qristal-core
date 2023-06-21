@@ -221,6 +221,16 @@ const char *session::help_placements_ = R"(
         The lead dimension's element 0 matches the vector of infiles, element 1 matches the vector of instrings, element 2 matches the vector of randoms.
 )";
 
+const char *session::help_circuit_opts_ = R"(
+        circuit_optimization:
+
+        List of circuit optimization passes.
+
+        circuit_optimizations:
+
+        A 1d-array (list) version of circuit_optimization.
+)";
+
 const char* session::help_nooptimises_ = R"(
         nooptimise:
 

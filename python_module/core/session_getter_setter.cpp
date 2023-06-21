@@ -267,6 +267,19 @@ void session::set_nooptimises(const VectorBool &in_nooptimise) {
   session::nooptimises_ = in_nooptimise;
 }
 const VectorBool & session::get_nooptimises() const { return session::nooptimises_; }
+
+void session::set_circuit_opt(const Passes &in_passes) {
+  circuit_opts_ = {{in_passes}};
+}
+
+void session::set_circuit_opts(const Table2d<Passes> &in_passes) {
+  circuit_opts_ = in_passes;
+}
+
+const Table2d<Passes> &session::get_circuit_opts() const {
+  return circuit_opts_;
+}
+
 //
 void session::set_nosim(const bool &in_nosim) {
   session::nosims_.clear();

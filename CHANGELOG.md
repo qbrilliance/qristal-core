@@ -12,6 +12,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - vqeeCalculator: the command line tool for VQE has been augmented to allow output to JSON file format.
 - swap_placement_pass and noise_aware_placement_pass: C++ and Python classes for circuit placement.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.
+- circuit_optimizer, redundancy_removal, two_qubit_squash, peephole_optimisation and simplify_initial circuit optimization passes.
+- Ability to set circuit optimization passes using the session's circuit_optimization property. 
 
 ### Fixed
 

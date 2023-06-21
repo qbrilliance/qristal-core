@@ -473,6 +473,26 @@ Valid AWS credentials are required to run the example.
 
 A C++ implementation of `noise_aware_placement_aws_rigetti.py`.
 
+`circuit_optimization/circuit_optimizer.py`
+
+An example demonstrating the pattern-based circuit optimization pass. 
+
+`circuit_optimization/remove_redundant_gates.py`
+
+An example demonstrating the redundant gate removal circuit optimization pass. 
+
+`circuit_optimization/two_qubit_squash.py`
+
+An example demonstrating the two-qubit gate synthesis (squash) circuit optimization pass. 
+
+`circuit_optimization/simplify_initial_conditions.py`
+
+An example demonstrating the contextual circuit optimization pass, which optimizes the circuit based on the knowledge of its initial state. 
+
+`circuit_optimization/session_integration.py`
+
+An example demonstrating setting up a pipeline of circuit optimization passes when using Qristal.
+
 ## C++ with CUDA Quantum ##
 
 A number of additional examples are only installed when Qristal is built with CUDA Quantum support.  None of these examples has noise enabled.

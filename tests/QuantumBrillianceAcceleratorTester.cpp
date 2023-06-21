@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 #include "qb/core/QuantumBrillianceAccelerator.hpp"
 #include "qb/core/session.hpp"
+#include "xacc.hpp"
 
 TEST(QuantumBrillianceAcceleratorTester, checkOutputQASM) {
   qb::QuantumBrillianceAccelerator acc;

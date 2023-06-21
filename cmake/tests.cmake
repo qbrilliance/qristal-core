@@ -55,7 +55,7 @@ add_executable(CITests
   ##tests/circuits/PseudoTraceAmplitudeEstimationCircuitTester.cpp # SLOW (?)
   ##tests/circuits/SuperpositionAdderCircuitTester.cpp # SLOW (?)
   ##tests/qcstack/QuantumBrillianceRemoteAcceleratorTester.cpp # unit-test harness for Qcstack server - Qristal
-  tests/placement/tketTester.cpp
+  tests/tket/tketTester.cpp
   tests/transpilationTester.cpp
   tests/qobj/qobjTester.cpp
   tests/QuantumBrillianceAcceleratorTester.cpp
@@ -73,7 +73,7 @@ set_target_properties(CITests
   PROPERTIES
     BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR};${XACC_ROOT}/lib"
 )
-target_compile_definitions(CITests PRIVATE TKET_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/tests/placement/resources")
+target_compile_definitions(CITests PRIVATE TKET_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/tests/tket/resources")
 add_dependencies(CITests qasm_simulator)
 
 # Install assets needed for defining tests downstream

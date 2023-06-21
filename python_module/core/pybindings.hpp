@@ -29,8 +29,9 @@ PYBIND11_MAKE_OPAQUE(qb::noise_aware_placement_config::two_qubit_gate_errors_t);
 PYBIND11_MAKE_OPAQUE(std::unordered_map<std::string, std::map<std::vector<size_t>, double>>);
 PYBIND11_MAKE_OPAQUE(std::map<std::vector<size_t>, double>);
 
-namespace qb
-{
-  /// Bind circuit placement passes to Python API.
-  void bind_placement_passes(pybind11::module &m);
-}
+namespace qb {
+/// Bind circuit placement passes to Python API.
+void bind_placement_passes(pybind11::module &m);
+/// Bind circuit optimization passes to Python API.
+void bind_circuit_opt_passes(pybind11::module &m);
+} // namespace qb

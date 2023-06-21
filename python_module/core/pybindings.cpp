@@ -253,7 +253,8 @@ PYBIND11_MODULE(core, m) {
 
   // Placement passes
   qb::bind_placement_passes(m);
-
+  // Circuit optimization passes
+  qb::bind_circuit_opt_passes(m);
   py::bind_vector<Bool>(m, "Bool").def("__repr__", [](const Bool &a) {
     json jret = a;
     return jret.dump();
@@ -860,6 +861,10 @@ PYBIND11_MODULE(core, m) {
       .def_property("nooptimises", &qb::session::get_nooptimises,
                     &qb::session::set_nooptimises,
                     qb::session::help_nooptimises_)
+      .def_property("circuit_optimization", &qb::session::get_circuit_opts,
+                    &qb::session::set_circuit_opt, qb::session::help_circuit_opts_)
+      .def_property("circuit_optimizations", &qb::session::get_circuit_opts,
+                    &qb::session::set_circuit_opts, qb::session::help_circuit_opts_)
       .def_property("nosim", &qb::session::get_nosims, &qb::session::set_nosim,
                     qb::session::help_nosims_)
       .def_property("nosims", &qb::session::get_nosims,

@@ -30,5 +30,7 @@ using ND           = std::map<int,double>;
 using MapND        = std::vector<ND>;
 using VectorMapND  = std::vector<MapND>;
 
+/// Convenient type-def for nested vectors.
+template <class T> using Table2d = std::vector<std::vector<T>>;
 using json = nlohmann::json;
 } // namespace qb

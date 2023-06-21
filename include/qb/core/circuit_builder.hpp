@@ -88,10 +88,19 @@ static const char *help_execute_;
   * Creates a circuit from a specified list of instructions.
   *
   * @param composite A pointer to a xacc::CompositeInstruction object [shared ptr]
+  * @param copy_nodes If true, child nodes (instructions) of the CompositeInstruction will be copied over.
+  * Otherwise, the input composite will become the root node of this CircuitBuilder.
+  * Default to true.
   */
-  CircuitBuilder(std::shared_ptr<xacc::CompositeInstruction> &composite) : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
+  CircuitBuilder(std::shared_ptr<xacc::CompositeInstruction> &composite,
+                 bool copy_nodes = true)
+      : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
+    if (copy_nodes) {
       circuit_ = gate_provider_->createComposite("QBSDK_circuit");
       circuit_->addInstructions(composite->getInstructions());
+    } else {
+      circuit_ = composite;
+    }
   }
 
   /**
