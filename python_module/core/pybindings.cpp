@@ -2648,6 +2648,11 @@ PYBIND11_MODULE(core, m) {
   py::module_ m_opt = m.def_submodule("optimization", "Optimization modules within qb_core");
     // - - - - - - - - - - - - - - - - -  vqee - - - - - - - - - - - - - - - //
     py::module_ m_vqee = m_opt.def_submodule("vqee", "Variational Quantum Eigensolver suite within optimization modules");
+    
+    py::class_<qb::vqee::vqe_iteration_data>(m_vqee, "vqe_iteration_data")
+      .def(py::init<>())
+      .def_readonly("energy", &qb::vqee::vqe_iteration_data::energy)
+      .def_readonly("params", &qb::vqee::vqe_iteration_data::params);
 
     py::class_<qb::vqee::Params>(m_vqee, "Params")
       .def(py::init<>())
@@ -2660,6 +2665,14 @@ PYBIND11_MODULE(core, m) {
       .def_readwrite("maxIters", &qb::vqee::Params::maxIters)
       .def_readwrite("isDeterministic", &qb::vqee::Params::isDeterministic)
       .def_readonly("energies", &qb::vqee::Params::energies)
+      .def_readonly("iterationData", &qb::vqee::Params::iterationData)
+      .def_readwrite("enableVis", &qb::vqee::Params::enableVis)
+      .def_readwrite("showTheta", &qb::vqee::Params::showTheta)
+      .def_readwrite("limitThetaN", &qb::vqee::Params::limitThetaN)
+      .def_readwrite("tail", &qb::vqee::Params::tail)
+      .def_readwrite("plain", &qb::vqee::Params::plain)
+      .def_readwrite("blocked", &qb::vqee::Params::blocked)
+      .def_readonly("vis", &qb::vqee::Params::vis)
       .def_readwrite("optimalParameters", &qb::vqee::Params::theta)
       .def_readonly("optimalValue", &qb::vqee::Params::optimalValue);
 

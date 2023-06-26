@@ -13,6 +13,18 @@
 
 namespace qb::vqee {
 
+/**
+ * @brief A structure for organising and visualising VQE iterations
+*/
+struct vqe_iteration_data
+{
+  double energy;
+  std::vector<double> params;
+  bool operator==(const vqe_iteration_data& r) const {
+    return (energy == r.energy and params == r.params);
+  }
+};
+
 /// Data container for VQE optimizer problems. Everything is constant, except theta and value which should be updated during iterations
 struct Params { 
   std::shared_ptr<xacc::CompositeInstruction> ansatz{};
@@ -23,6 +35,8 @@ struct Params {
   double              optimalValue{};
   std::vector<double> energies{};
   std::vector<double> theta{};
+  /// @brief  iterationData : a structure for per-iteration energy and theta
+  std::vector<vqe_iteration_data> iterationData{};
   int                 nQubits{1};
   int                 nShots{1};
   int                 maxIters{50};
@@ -30,6 +44,22 @@ struct Params {
   int                 nThreadsPerWorker{1};
   bool                isDeterministic{true};
   bool                partitioned{false};
+  /// @brief  enableVis : when set to true, the vis member will be filled
+  /// with ASCII bar graphs.  These provide a visual cue of the VQE convergence 
+  /// from a text-only interface.  
+  bool                enableVis{false};
+  /// @brief showTheta : when set to true, selected elements of theta are added to the visualisation
+  bool                showTheta{false};
+  /// @brief limitThetaN : limit to this number of elements of theta to visualise. 0 => no limit
+  size_t              limitThetaN{0};
+  /// @brief  tail : visualise the last n=tail iterations only
+  size_t              tail{0};
+  /// @brief  plain : when set to true, no colour codes are output in vis
+  bool                plain{false};
+  /// @brief  blocked : when set to true, all elements in any given iteration are visualised in a single block.
+  bool                blocked{false};
+  /// @brief  vis : a visualisation of energy and each element of theta, at selected iterations of VQE.
+  std::string         vis{};
 };
 
 // print ansatz to string

@@ -36,6 +36,8 @@ The fields that are recognized in `$json_input_file` are shown below:
 | `acceleratorName` | `"acceleratorName": "qpp"` | Backend for executing quantum circuits |
 | `maxIters` | `"maxIters": 100` | Maximum iteration count <br />for the classical optimizer |
 | `isDeterministic` | `"isDeterministic": true` | When set to `false`, <br />expectations are calculated <br />from samples (`nShots` in size) |
+| `enableVis` | `"enableVis": true` | Enable convergence trace <br />visualisation |
+| `showTheta` | `"showTheta": true` | Enable the display of <br />theta elements in the<br />convergence trace visualisation |
 | `tolerance` | `"tolerance": 1.0e-5` | Function tolerance <br/>(used as a termination criterion <br />in the classical optimizer) |
 | `nThreads` | `"nThreads": 2` | Number of OpenMP <br />threads to use |
 
@@ -75,6 +77,7 @@ The fields that are output in `$json_output_file` are shown below:
 | `iterations` | Number of iterations reached <br />before termination of the optimization routine |
 | `pauli` | The Hamiltonian expressed as <br />a weighted sum of Pauli terms |
 | `theta` | The value of the ansatz parameters <br />that produces the corresponding <br />optimum (min.) energy |
+| `vis` | Energy and ansatz parameter <br /> trace visualization |
 | `walltime_ms` | The execution wall time, in ms |
 
 **Example output JSON file**

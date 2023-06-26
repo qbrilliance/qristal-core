@@ -9,6 +9,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Transpilation: wrapping of gate angles to [-pi,pi] for native gates.
 - Transpilation: out_transpiled_circuit (OpenQASM 2.0) in native gates.
 - Profiler: counting number of gates and timing data after transpilation to the native gate set.
+- VQE: convergence trace visualization.
 - vqeeCalculator: the command line tool for VQE has been augmented to allow output to JSON file format.
 - swap_placement_pass and noise_aware_placement_pass: C++ and Python classes for circuit placement.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.

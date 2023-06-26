@@ -10,7 +10,7 @@ params = qbOpt.Params()
 # access params members directly
 #params.[circuitString, pauliString, tolerance, nQubits, nShots, maxIters, isDeterministic] = something
 params.nQubits = 4
-params.nShots = 400000
+params.nShots = 400
 params.maxIters = 100
 params.isDeterministic = True #if true, nShots option is rendered useless
 params.tolerance = 1e-6
@@ -39,22 +39,26 @@ params.circuitString = """
 """
 
 # Set initial parameter values. These will be overwritten with the optimized solution by vqee.run()
-params.optimalParameters = 24*[0]
-
+params.enableVis = True
+params.showTheta = True
+params.limitThetaN = 4
+params.tail = 5
+params.plain = False
+params.blocked = True
 print("\nPauli string: ", params.pauliString)
 
-acceleratorNamesList = ["sparse-sim", "qpp", "aer"]
+acceleratorNamesList = ["qpp", "aer","sparse-sim", "aer"]
 for acceleratorName in acceleratorNamesList:
   print("\n\n\n*************** ",acceleratorName, "***************")
-
+  params.optimalParameters = 24*[0]
   params.acceleratorName = acceleratorName
 
   vqee = qbOpt.VQEE(params)
   vqee.run()
 
-  # output is stored in params
-  #params.energies
   optVec = params.optimalParameters
   optVal = params.optimalValue
 
-  print("\noptVal, optVec: ", optVal, optVec)
+  print("\nConvergence trace:\n", params.vis)
+  print("\nFinal iteration, energy:\n", params.iterationData[-1].energy)
+  print("\nFinal iteration, theta:\n", params.iterationData[-1].params)

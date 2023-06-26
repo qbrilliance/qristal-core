@@ -196,6 +196,8 @@ int main (int argc, char *argv[]) {
     
     args::HelpFlag                       CLIh(parser, "help", "help", {"help"});
     args::Flag                     CLIverbose(parser, "verbose", "", {"verbose"});
+    args::Flag                    CLIenableVis(parser, "enableVis", "Enable convergence trace visualization", {"enableVis"});
+    args::Flag                    CLIshowTheta(parser, "showTheta", "Enable theta elements to be included convergence trace visualization", {"showTheta"});
     args::ValueFlag<std::string>  CLIfromJson(parser, "fromJson", "Read all options from json file instead: specify [PATH]", {"fromJson"});
     args::ValueFlag<std::string>  CLIoutputJson(parser, "outputJson", "Output results to a json file with path and name given by --outputJson", {"outputJson"});
     args::ValueFlag<std::size_t>    CLIjsonID(parser, "jsonID", "ID [0...N] of json object in array of json objects in provided json file", {"jsonID"});
@@ -227,6 +229,8 @@ int main (int argc, char *argv[]) {
     params.pauliString = qb::vqee::pauliStringFromGeometry(geometry, "sto-3g");
     qb::vqee::AnsatzID ansatzID = qb::vqee::AnsatzID::UCCSD;
     params.nQubits = 4;
+    params.enableVis = false;  // disable convergence trace by default
+    params.showTheta = false;  // disable theta elements from being shown in the convergence trace by default
     int nElectrons = 2;
     bool isVerbose = false;
     std::size_t nOptParams = 0;
@@ -235,6 +239,7 @@ int main (int argc, char *argv[]) {
         isVerbose = true;
         if (isRoot) { std::cout << "setting verbose" << std::endl; }
     }
+
 
     if (CLIfromJson) {
         const std::string jsonPath = args::get(CLIfromJson);
@@ -276,6 +281,8 @@ int main (int argc, char *argv[]) {
         const bool contains_circuit = jsonObj.count("circuit");
         const bool contains_theta = jsonObj.count("theta");
         const bool contains_thetas = jsonObj.count("thetas");
+        const bool contains_enableVis = jsonObj.count("enableVis");
+        const bool contains_showTheta = jsonObj.count("showTheta");
 
         // checking for allowed combinations
         if ( !( contains_nQubits 
@@ -353,8 +360,9 @@ int main (int argc, char *argv[]) {
         readOutIfAvailable(params.nShots, jsonObj, "nShots", isRoot);
         params.isDeterministic = params.nShots<=1;
         readOutIfAvailable(params.partitioned, jsonObj, "partitioned", isRoot);
-    } 
-    else {
+        readOutIfAvailable(params.enableVis, jsonObj, "enableVis", isRoot);
+        readOutIfAvailable(params.showTheta, jsonObj, "showTheta", isRoot);
+    } else {
         // setting pauli, ansatz and circuit
         // no options except initial parameters given: using H2 default case
         if (  !( CLInQubits || CLIgeometry || CLIpauli || CLIansatz || CLIcircuit || CLInElectrons ) ) { 
@@ -436,6 +444,8 @@ int main (int argc, char *argv[]) {
         setOptionIfAvailable(params.nShots, CLInShots, "nShots", isRoot);
         setOptionIfAvailable(params.maxIters, CLImaxIters, "maxIters", isRoot);
         setOptionIfAvailable(params.tolerance, CLItolerance, "tolerance", isRoot);
+        setOptionIfAvailable(params.enableVis, CLIenableVis, "enableVis", isRoot);
+        setOptionIfAvailable(params.showTheta, CLIshowTheta, "showTheta", isRoot);
         params.isDeterministic = params.nShots<=1;
         // params.partitioned = true; // enable for cases with many Pauli-terms
 
@@ -465,6 +475,7 @@ int main (int argc, char *argv[]) {
             outjs["iterations"] = nIters;
             outjs["walltime_ms"] = cpu_ms;
             outjs["pauli"] = params.pauliString;
+            outjs["vis"] = params.vis;
             // Add more output fields here....
 
             outjs_file << std::setw(4) << outjs << "\n";
@@ -472,6 +483,9 @@ int main (int argc, char *argv[]) {
             outjs_file.close();
         }
         else {
+            if (CLIenableVis) {
+                std::cout << "\nConvergence trace:\n" << params.vis << "\n";
+            }
             std::cout << "\ntheta: " << params.theta << ", energy: " << params.optimalValue
                       << ", iterations: " << nIters << ", CPU wall-time: " << cpu_ms << " ms" << std::endl;
         }

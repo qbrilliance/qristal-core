@@ -133,10 +133,11 @@ The following VQE attributes are accepted:
 | `circuitString` | `tvqep.circuitString = '''`<br />`.compiler xasm`<br />`.circuit ansatz`<br />`.parameters theta`<br />`.qbit q`<br />`Ry(q[0], theta);'''` | Defines the [**ansatz**](#ansätze) circuit that<br /> has an associated parameter<br /> [**theta**](#theta). |
 | `pauliString` | `tvqep.pauliString = `<br />`'-1.04235464570829 `<br />`+ 0.18125791479311 X0 `<br />`+ -0.78864539363997 Z0'` | Sets the [Hamiltonian](#hamiltonian). |
 | `nQubits` | `tvqep.nQubits = `<br />`1` | Sets the number of qubits.  <br />This must be consistent <br />with both the `circuitString` and <br />the `pauliString` attributes. |
-| `optimalParameters` | `tvqep.optimalParameters = `<br />`24*[0.11]` | A vector of initial values for <br />ansatz parameters. <br />The length must match the <br />number of ansatz parameters | 
+| `optimalParameters` | `tvqep.optimalParameters = `<br />`24*[0.11]` | A vector of initial values for <br />ansatz parameters. <br />The length must match the <br />number of ansatz parameters. | 
 | `nShots` | `tvqep.nShots = `<br />`128` | Set the number of shots <br />in a single VQE iteration. |
 | `maxIters` | `tvqep.maxIters = `<br />`256` | Sets the upper limit <br />on the number of VQE <br />iterations to run. |
 | `isDeterministic` | `tvqep.isDeterministic = `<br />`True` | When set to `True`,<br /> the expectation values are <br />calculated using linear <br />algebra operations.  <br /><br />When set to `False` the <br />expectation values are <br />calculated from stochastic <br />samples of size `nShots`. |
+| `enableVis` | `tvqep.enableVis = True` | Enable the convergence trace output. <br /><br />  These will be available in <br /> `tvqep.energyVis` (for energy) <br />and <br /> `tvqep.thetaVis` (for ansatz parameters). |
 | `tolerance` | `tvqep.tolerance = `<br />`1e-6` | Sets the function tolerance <br />that is used by the optimizer. |
 | `acceleratorName` | `tvqep.acceleratorName = `<br />`'qpp'` | Selects the back-end that <br />will  perform quantum circuit <br />execution. |
 
@@ -151,6 +152,68 @@ The results from a completed VQE execution are available by reading the followin
 | ---- | ---- | ---- |
 | `optimalValue`  |  `tvqep.optimalValue` | The **minimum energy** corresponding to <br />parameters set at the `optimalParameters`. |
 | `optimalParameters` | `tvqep.optimalParameters` | The values for [theta](#theta) corresponding to <br />the minimum energy that VQE <br />has found within `maxIters` iterations. |
+| `iterationData[<index>].energy` | `tvqep.iterationData[8].energy` | The energy at iteration `<index>`. |
+| `iterationData[<index>].params` | `tvqep.iterationData[8].params` | The list of ansatz parameter <br />values at iteration `<index>`. |
+
+### Viewing the convergence trace
+**Note**: set `enableVis = True` prior to calling `run()` in order to generate the trace.
+
+This is available via the `vis` attribute.  The iteration that gave the reported optimum is marked with: `**|`.
+
+Color codes:
+* Red - indicates the optimum iteration
+* Green - indicates an iteration with the same energy as the optimum iteration
+
+**Example output** 
+```text
+Iteration 96
+Energy         |################# -0.95
+Theta
+       Element 0      |####################### 0.33*pi
+       Element 1      |##################### 0.19*pi
+       Element 2      |################### -0.12*pi
+       Element 3      |######################### 0.55*pi
+Iteration 97
+Energy       **|################ -0.98
+Theta
+       Element 0    **|####################### 0.3*pi
+       Element 1    **|##################### 0.19*pi
+       Element 2    **|#################### -0.059*pi
+       Element 3    **|######################### 0.5*pi
+Iteration 98
+Energy         |################# -0.97
+Theta
+       Element 0      |###################### 0.29*pi
+       Element 1      |##################### 0.14*pi
+       Element 2      |#################### 0.061*pi
+       Element 3      |######################### 0.55*pi
+Iteration 99
+Energy         |################ -0.98
+Theta
+       Element 0      |###################### 0.3*pi
+       Element 1      |##################### 0.19*pi
+       Element 2      |#################### -0.071*pi
+       Element 3      |######################## 0.49*pi
+Iteration 100
+Energy         |################# -0.97
+Theta
+       Element 0      |####################### 0.34*pi
+       Element 1      |##################### 0.15*pi
+       Element 2      |#################### -0.048*pi
+       Element 3      |########################## 0.62*pi
+```
+
+### Attributes related to the convergence trace
+Use these attributes to set the amount of information that appears in the convergence trace:
+
+| Attribute | Defaults | Details |
+| ---- | ---- | ---- |
+| `showTheta`  |  `tvqep.showTheta = False` | When set to `True`, <br />the elements of `theta` will <br />be displayed in the <br />convergence trace. |
+| `limitThetaN` | `tvqep.limitThetaN = 0` | Limits the number of <br />elements of `theta` appearing <br />in the trace to this value. <br />If set to 0, this <br />option is ignored.|
+| `tail` | `tvqep.tail = 0` | Output only the last <br />n=tail iterations. <br />If set to 0, this <br />option is ignored.|
+| `plain` | `tvqep.plain = False`| Setting this to `True` removes <br />color coding from the output. |
+| `blocked` | `tvqep.blocked = False`| Setting this to `True` outputs <br />the trace with all elements <br />of `theta` for any given iteration <br />contained in a single block. | 
+
 
 ## C++ API
 <a href="../_cpp_api/classqb_1_1vqee_1_1VQEE.html">See the class documentation.</a>
