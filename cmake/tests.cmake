@@ -59,6 +59,7 @@ add_executable(CITests
   tests/transpilationTester.cpp
   tests/qobj/qobjTester.cpp
   tests/QuantumBrillianceAcceleratorTester.cpp
+  tests/sessionTester.cpp
 )
 
 add_test(NAME ci_tester COMMAND CITests)

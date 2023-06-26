@@ -94,6 +94,10 @@ namespace xacc
     void QuantumBrillianceRemoteVisitor::visit(Rx &rx)
     {
       std::stringstream ss;
+      // IMPORTANT: the XASM grammar only supports the fixed point format real
+      // numbers, e.g., "0.0123", not "1.23e-2", hence, we use std::fixed format
+      // for the stringstream when constructing XASM.
+      ss << std::fixed;
       double angle = norm(mpark::get<double>(rx.getParameter(0)));
       ss << "Rx"
            << "("  // Rx in XASM format
@@ -117,7 +121,8 @@ namespace xacc
     //
     void QuantumBrillianceRemoteVisitor::visit(Ry &ry)
     {
-      std::stringstream ss;
+      std::stringstream ss; 
+      ss << std::fixed;
       double angle = norm(mpark::get<double>(ry.getParameter(0)));
         ss << "Ry"
            << "("  // Ry in XASM format
@@ -173,17 +178,20 @@ namespace xacc
       std::stringstream s1, s2, s3;
       double angle = norm(mpark::get<double>(rz.getParameter(0)));
 
-      s1 << "Ry"
+      s1 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << rz.bits()[0] << "]" // target qubit
          << "," << (0.5 * pi) << ")"; // theta=pi/2
-      s2 << "Rx"
+      s2 << std::fixed
+         << "Rx"
          << "("  // Rx in XASM format
          << "q"
          << "[" << rz.bits()[0] << "]"  // target qubit
          << "," << angle << ")";
-      s3 << "Ry"
+      s3 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << rz.bits()[0] << "]" // target qubit
@@ -209,14 +217,16 @@ namespace xacc
     {
       std::stringstream s1, s2;
 
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << h.bits()[0] << "]" // target qubit
          << "," << (0.5 * pi) << ")"; // theta=pi/2
       sequence_.push_back(s2.str());
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << h.bits()[0] << "]" // target qubit
@@ -244,14 +254,16 @@ namespace xacc
     void QuantumBrillianceRemoteVisitor::visit(CNOT &cn)
     {
       std::stringstream s1, s2, s3;
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << cn.bits()[1] << "]" // target qubit
          << "," << (0.5 * pi) << ")";  // theta=pi/2
       sequence_.push_back(s2.str());
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << cn.bits()[1] << "]" // target qubit
@@ -283,21 +295,24 @@ namespace xacc
     {
       std::stringstream s1, s2, s3;
 
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << s.bits()[0] << "]" // target qubit
          << "," << (0.5 * pi) << ")"; // theta=pi/2
       sequence_.push_back(s2.str());
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << s.bits()[0] << "]" // target qubit
          << "," << (pi) << ")";       // theta=pi
       sequence_.push_back(s1.str());
 
-      s3 << "Rx"
+      s3 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << s.bits()[0] << "]" // target qubit
@@ -320,14 +335,16 @@ namespace xacc
     {
       std::stringstream s1, s2, s3;
 
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << sdg.bits()[0] << "]" // target qubit
          << "," << (0.5 * pi) << ")";   // theta=pi/2
       sequence_.push_back(s2.str());
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << sdg.bits()[0] << "]" // target qubit
@@ -335,7 +352,8 @@ namespace xacc
       sequence_.push_back(s1.str());
 
 
-      s3 << "Rx"
+      s3 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << sdg.bits()[0] << "]" // target qubit
@@ -358,21 +376,24 @@ namespace xacc
     {
       std::stringstream s1, s2, s3;
 
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << t.bits()[0] << "]" // target qubit
          << "," << (0.5 * pi) << ")"; // theta=pi/2
       sequence_.push_back(s2.str());
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << t.bits()[0] << "]" // target qubit
          << "," << (pi) << ")";       // theta=pi
       sequence_.push_back(s1.str());
 
-      s3 << "Rx"
+      s3 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << t.bits()[0] << "]"  // target qubit
@@ -395,21 +416,24 @@ namespace xacc
     {
       std::stringstream s1, s2, s3;
 
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << tdg.bits()[0] << "]" // target qubit
          << "," << (0.5 * pi) << ")";   // theta=pi/2
       sequence_.push_back(s2.str());
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << tdg.bits()[0] << "]" // target qubit
          << "," << (pi) << ")";         // theta=pi
       sequence_.push_back(s1.str());
 
-      s3 << "Rx"
+      s3 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << tdg.bits()[0] << "]" // target qubit
@@ -435,7 +459,8 @@ namespace xacc
     {
       std::stringstream s1;
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << x.bits()[0] << "]" // target qubit
@@ -459,7 +484,8 @@ namespace xacc
     {
       std::stringstream s1;
 
-      s1 << "Ry"
+      s1 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << y.bits()[0] << "]" // target qubit
@@ -483,14 +509,16 @@ namespace xacc
     {
       std::stringstream s1, s2;
 
-      s1 << "Rx"
+      s1 << std::fixed
+         << "Rx"
          << "(" // Rx in XASM format
          << "q"
          << "[" << z.bits()[0] << "]" // target qubit
          << "," << (pi) << ")";       // theta=pi
       sequence_.push_back(s1.str());
 
-      s2 << "Ry"
+      s2 << std::fixed
+         << "Ry"
          << "(" // Ry in XASM format
          << "q"
          << "[" << z.bits()[0] << "]" // target qubit

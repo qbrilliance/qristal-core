@@ -25,6 +25,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Rename the XACC plugin for noise-aware IR transformation from "tket" to "noise-aware". 
 - Harmonise install library dir name across different systems and dependencies (fixes lib vs lib64 issue)
 - Improved finding of installed dependencies with cmake.
+- Guarantee fixed-point format for real numbers in the XASM output of the QuantumBrillianceRemoteVisitor.  
 
 ## [1.0.0] - 2023-05-19
 

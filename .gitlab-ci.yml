@@ -236,7 +236,7 @@ trigger-decoder:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/decoder  
-    branch: cmake_install_libdir
+    branch: main
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
