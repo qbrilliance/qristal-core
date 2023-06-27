@@ -23,8 +23,8 @@ set(source_files
   src/passes/circuit_opt_passes.cpp
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
-  python_module/core/session_getter_setter.cpp
-  python_module/core/session_py_help_strings.cpp
+  python_module/src/session_getter_setter.cpp
+  python_module/src/session_py_help_strings.cpp
 )
 
 if (WITH_CUDAQ)

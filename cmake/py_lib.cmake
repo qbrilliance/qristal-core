@@ -1,9 +1,19 @@
 pybind11_add_module (py${PROJECT_NAME}
-  python_module/core/pybindings.cpp
-  python_module/core/session_getter_setter.cpp
-  python_module/core/session_py_help_strings.cpp
-  python_module/core/py_placement.cpp
-  python_module/core/py_circuit_opt.cpp
+  python_module/src/pybindings.cpp
+  python_module/src/session_getter_setter.cpp
+  python_module/src/session_py_help_strings.cpp
+  python_module/src/py_placement.cpp
+  python_module/src/py_circuit_opt.cpp
+  python_module/src/py_circuit_builder.cpp
+  python_module/src/py_session.cpp
+  python_module/src/py_job_handle.cpp
+  python_module/src/py_stl_containers.cpp
+  python_module/src/py_noise_model.cpp
+  python_module/src/py_optimization_vqee.cpp
+  python_module/src/py_optimization_qml.cpp
+  python_module/src/py_optimization_qaoa_simple.cpp
+  python_module/src/py_optimization_qaoa_recursive.cpp
+  python_module/src/py_optimization_qaoa_warm_start.cpp
 )
 
 target_link_libraries(py${PROJECT_NAME}
@@ -13,7 +23,7 @@ target_link_libraries(py${PROJECT_NAME}
 
 target_include_directories(py${PROJECT_NAME} 
   PRIVATE
-    python_module/core
+    python_module/include
 )
 
 set_target_properties(py${PROJECT_NAME}

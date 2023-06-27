@@ -1,13 +1,11 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "pybindings.hpp"
+#include "py_middleware.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/passes/noise_aware_placement_config.hpp"
 #include "qb/core/passes/noise_aware_placement_pass.hpp"
 #include "qb/core/passes/swap_placement_pass.hpp"
-#include <pybind11/complex.h>
-#include <pybind11/functional.h>
-#include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
+#include "py_stl_containers.hpp"
+
 
 namespace qb {
 void bind_placement_passes(pybind11::module &m) {
