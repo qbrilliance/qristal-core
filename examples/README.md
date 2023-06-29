@@ -493,9 +493,18 @@ An example demonstrating the contextual circuit optimization pass, which optimiz
 
 An example demonstrating setting up a pipeline of circuit optimization passes when using Qristal.
 
+`cudaq_qft.py`
+
+Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum simulator backend. Required CUDA Quantum support.
+
+
 ## C++ with CUDA Quantum ##
 
 A number of additional examples are only installed when Qristal is built with CUDA Quantum support.  None of these examples has noise enabled.
+
+`cudaq_qft`
+
+Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum simulator backend.
 
 `benchmark1_cudaq`
 

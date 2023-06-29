@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 #include "AllGateVisitor.hpp"
 #include "CommonGates.hpp"
@@ -81,6 +81,22 @@ public:
   void visit(xacc::quantum::Ry &ry) override;
   /// Rotation about z axis
   void visit(xacc::quantum::Rz &rz) override;
+  /// Controlled phase (aka u1) gate
+  void visit(xacc::quantum::CPhase &cphase) override;
+  /// Swap gate
+  void visit(xacc::quantum::Swap &swap) override;
+  /// iSwap gate  
+  void visit(xacc::quantum::iSwap &iswap) override;
+  /// Controlled Y gate
+  void visit(xacc::quantum::CY &cy) override;
+  /// Controlled Rz gate
+  void visit(xacc::quantum::CRZ &crz) override;
+  /// U1 gate (equivalent to Rz up to a global phase) 
+  void visit(xacc::quantum::U1 &u1) override;
+  /// U3 gate
+  void visit(xacc::quantum::U &u3) override;
+  /// Reset gate
+  void visit(xacc::quantum::Reset &reset) override;
 
 private:
   /// @brief Helper to parse expression of type <constant> * <var_name>
@@ -89,5 +105,9 @@ private:
   /// @return <constant> and <var_name> pair
   std::pair<double, std::string>
   get_mul_factor_expression(const std::string &expr_str);
+  /// Helper to convert an instruction variable to a QuakeValue, aka, a CUDAQ
+  /// kernel variable.
+  cudaq::QuakeValue instruction_variable_to_quake(
+      const xacc::InstructionParameter &xacc_var);
 };
 } // namespace qb

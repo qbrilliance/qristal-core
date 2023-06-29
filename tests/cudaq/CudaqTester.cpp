@@ -5,6 +5,7 @@
 #include "cudaq/spin_op.h"
 #include "qb/core/cudaq/ir_converter.hpp"
 #include "qb/core/session.hpp"
+#include "qb/core/circuit_builder.hpp"
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -35,7 +36,8 @@ TEST(CudaqTester, check_kernel_execution) {
 
   // Add CUDAQ ghz kernel to the current session
   my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
-
+  // Use CUDAQ qpp backend
+  my_sim.set_acc("cudaq:qpp"); 
   // Set up sensible default parameters
   my_sim.qb12();
 
@@ -159,7 +161,7 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   my_sim.qb12();
   // Both custatevec_fp32 and custatevec_fp64 are okay,
   // use f32 to speed up the test.
-  my_sim.set_acc("custatevec_fp32");
+  my_sim.set_acc("cudaq:custatevec_fp32");
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);
   std::cout << "About to run quantum program..." << std::endl;
@@ -177,3 +179,86 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   EXPECT_EQ(sum, 20000);
 }
 #endif
+
+TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
+  // And we're off!
+  std::cout << "Executing C++ CUDAQ test..." << std::endl;
+
+  // Make a QB SDK session
+  auto my_sim = qb::session(false);
+
+  // Define the quantum program to run (aka 'quantum kernel' aka 'quantum
+  // circuit')
+  const std::string targetCircuit = R"(
+    __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
+    {
+      OPENQASM 2.0;
+      include "qelib1.inc";
+      creg c[2];
+      h q[0];
+      cx q[0], q[1];
+      measure q[1] -> c[1];
+      measure q[0] -> c[0];
+    }
+    )";
+
+  // Hand the kernel over to the sim object
+  my_sim.set_instring(targetCircuit);
+
+  // Set up sensible default parameters
+  my_sim.qb12();
+
+  // Choose how many 'shots' to run through the circuit
+  my_sim.set_sn(100);
+  my_sim.set_qn(2);
+  // Use CUDAQ "dm" backend
+  my_sim.set_acc("cudaq:dm");
+  std::cout << "About to run quantum program..." << std::endl;
+  my_sim.run();
+  // Print the cumulative results
+  std::cout << "Results:" << std::endl
+            << my_sim.get_out_raws()[0][0] << std::endl;
+  const auto out_counts = my_sim.get_out_counts()[0][0];
+  EXPECT_EQ(out_counts.size(), 2);
+  int sum = 0;
+  for (const auto &[bitStr, count] : out_counts) {
+    sum += count;
+  }
+  EXPECT_EQ(sum, 100);
+}
+
+TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
+  // And we're off!
+  std::cout << "Executing C++ CUDAQ test..." << std::endl;
+
+  // Make a QB SDK session
+  auto my_sim = qb::session(false);
+
+  qb::CircuitBuilder circ;
+  circ.H(0);
+  circ.CNOT(0, 1);
+  circ.MeasureAll(2);
+  // Hand the CircuitBuilder over to the sim object
+  my_sim.set_irtarget_m(circ.get());
+
+  // Set up sensible default parameters
+  my_sim.qb12();
+
+  // Choose how many 'shots' to run through the circuit
+  my_sim.set_sn(100);
+  my_sim.set_qn(2);
+  // Use CUDAQ "dm" backend
+  my_sim.set_acc("cudaq:dm");
+  std::cout << "About to run quantum program..." << std::endl;
+  my_sim.run();
+  // Print the cumulative results
+  std::cout << "Results:" << std::endl
+            << my_sim.get_out_raws()[0][0] << std::endl;
+  const auto out_counts = my_sim.get_out_counts()[0][0];
+  EXPECT_EQ(out_counts.size(), 2);
+  int sum = 0;
+  for (const auto &[bitStr, count] : out_counts) {
+    sum += count;
+  }
+  EXPECT_EQ(sum, 100);
+}

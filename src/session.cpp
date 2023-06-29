@@ -28,6 +28,7 @@
 // CUDAQ support
 #ifdef WITH_CUDAQ
   #include "qb/core/cudaq/sim_pool.hpp"
+  #include "qb/core/cudaq/cudaq_acc.hpp"
 #endif
 
 // Helper functions
@@ -1335,9 +1336,9 @@ namespace qb
     // If a hardware accelerator was selected...
     // then we keep acc = "tnqvm"
     // and we also set exec_on_hardware = true;
-    std::string accs = run_config.acc_name;
+    std::string acc = run_config.acc_name;
     bool exec_on_hardware = false;
-    if (VALID_QB_HARDWARE_ACCS.find(accs) == VALID_QB_HARDWARE_ACCS.end()) {
+    if (VALID_QB_HARDWARE_ACCS.find(acc) == VALID_QB_HARDWARE_ACCS.end()) {
       exec_on_hardware = false;
       if (debug_) {
         std::cout << "# QB hardware accelerator: disabled" << std::endl;
@@ -1347,8 +1348,8 @@ namespace qb
       if (debug_) {
         std::cout << "# QB hardware accelerator: enabled" << std::endl;
       }
-      // We force accs = "tnqvm" when QB hardware execution is enabled
-      accs = "tnqvm";
+      // We force acc = "tnqvm" when QB hardware execution is enabled
+      acc = "tnqvm";
     }
 
     bool noises = run_config.noise;
@@ -1370,8 +1371,20 @@ namespace qb
         std::cout << "# Seed value: " << random_seed << std::endl;
       }
     }
-    auto qpu = xacc::getAccelerator(accs, {{"seed", random_seed}});
-    if (accs.compare("tnqvm") == 0) {
+#ifdef WITH_CUDAQ
+    // If a CUDAQ backend sim was requested, returns its xacc::Accelerator
+    // wrapper.
+    if (xacc::container::contains(
+            cudaq_sim_pool::get_instance().available_simulators(), acc)) {
+      if (debug_) {
+        std::cout << "# Using CUDA Quantum Simulator backend: " << acc
+                  << std::endl;
+      }
+      return std::make_shared<qb::cudaq_acc>(acc);
+    }
+#endif
+    auto qpu = xacc::getAccelerator(acc, {{"seed", random_seed}});
+    if (acc.compare("tnqvm") == 0) {
       xacc::set_verbose(false);
       qpu = xacc::getAccelerator(
           "tnqvm", {
@@ -1380,7 +1393,7 @@ namespace qb
                        std::make_pair("svd-cutoff", svd_cutoff)
                        // , std::make_pair("shots", shots)
                    });
-    } else if (accs.compare("aer") == 0) {
+    } else if (acc.compare("aer") == 0) {
       xacc::HeterogeneousMap aer_options{{"seed", random_seed},
                                          {"shots", run_config.num_shots}};
       if (!run_config.aer_sim_type.empty()) {
@@ -1403,8 +1416,8 @@ namespace qb
           std::cout << "# Noise model: disabled" << std::endl;
       }
       // Get AER and initialize it with proper settings.
-      qpu = xacc::getAccelerator(accs, aer_options);
-    } else if (accs.compare("qb-lambda") == 0) {
+      qpu = xacc::getAccelerator(acc, aer_options);
+    } else if (acc.compare("qb-lambda") == 0) {
       std::string lambda_url = "ec2-3-26-79-252.ap-southeast-2.compute."
                                "amazonaws.com"; // Default AWS reverse proxy
                                                 // server for the QB Lambda
@@ -1434,7 +1447,7 @@ namespace qb
           std::cout << "# Noise model: disabled" << std::endl;
         }
       }
-    } else if (accs == "qsim" && noises) {
+    } else if (acc == "qsim" && noises) {
       // Use qsim via Cirq wrapper to handle noise if requested
       // The "cirq-qsim" backend is part of the external emulator package
       // to be used with the qb emulator noise models only.
@@ -1459,7 +1472,6 @@ namespace qb
         }
       }
     }
-
     return qpu;
   }
   
@@ -1489,9 +1501,11 @@ namespace qb
 
     const auto file_or_string_or_random_or_ir =
         validate_infiles_instrings_randoms_irtarget_ms_nonempty(ii, jj);
-    if (file_or_string_or_random_or_ir == session::circuit_input_types::INVALID) {
+    if (file_or_string_or_random_or_ir ==
+        session::circuit_input_types::INVALID) {
       throw std::invalid_argument("Please check your settings again.");
-    } else if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_CUDAQ) {
+    } else if (file_or_string_or_random_or_ir ==
+               session::circuit_input_types::VALID_CUDAQ) {
 #ifdef WITH_CUDAQ
       // Execute CUDAQ kernel input
       run_cudaq(ii, jj, run_config);
@@ -1499,8 +1513,7 @@ namespace qb
       throw std::runtime_error(
           "CUDAQ is not supported. Please build qb::core with CUDAQ.");
 #endif
-    }
-    else {
+    } else {
       bool noplacement      = run_config.no_placement;
       bool nooptimise       = run_config.no_optimise;
       bool nosim            = run_config.no_sim;
@@ -1775,7 +1788,7 @@ namespace qb
               timing_profile.get_total_initialisation_maxgate_readout_time_ms(
                   xacc_scope_timer_qpu_ms, shots);
         }
-      }
+    }
   }
 
   void session::run() {

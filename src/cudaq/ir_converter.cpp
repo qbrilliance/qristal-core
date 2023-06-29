@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "qb/core/cudaq/ir_converter.hpp"
 #include "cudaq/utils/cudaq_utils.h"
 #include "xacc.hpp"
@@ -78,79 +78,161 @@ void cudaq_ir_converter::visit(xacc::quantum::CH &ch) {
                                 m_cudaq_qreg[ch.bits()[1]]);
 }
 
+void cudaq_ir_converter::visit(xacc::quantum::Swap &swap) {
+  m_cudaq_builder.swap(m_cudaq_qreg[swap.bits()[0]],
+                       m_cudaq_qreg[swap.bits()[1]]);
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::iSwap &iswap) {
+  // iSwap: swap two qubit states and phase the |01> and :|10> amplitudes by i.
+  // Reference Implementation
+  //
+  //      ┌───┐┌───┐     ┌───┐
+  // q_0: ┤ S ├┤ H ├──■──┤ X ├─────
+  //      ├───┤└───┘┌─┴─┐└─┬─┘┌───┐
+  // q_1: ┤ S ├─────┤ X ├──■──┤ H ├
+  //      └───┘     └───┘     └───┘
+  auto q_0 = m_cudaq_qreg[iswap.bits()[0]];
+  auto q_1 = m_cudaq_qreg[iswap.bits()[1]];
+  m_cudaq_builder.s(q_0);
+  m_cudaq_builder.s(q_1);
+  m_cudaq_builder.h(q_0);
+  m_cudaq_builder.x<cudaq::ctrl>(q_0, q_1);
+  m_cudaq_builder.x<cudaq::ctrl>(q_1, q_0);
+  m_cudaq_builder.h(q_1);
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::CY &cy) {
+  m_cudaq_builder.y<cudaq::ctrl>(m_cudaq_qreg[cy.bits()[0]],
+                                 m_cudaq_qreg[cy.bits()[1]]);
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::Reset &reset) {
+  auto qubit = m_cudaq_qreg[reset.bits()[0]];
+  m_cudaq_builder.reset(qubit);
+}
+
+cudaq::QuakeValue cudaq_ir_converter::instruction_variable_to_quake(
+    const xacc::InstructionParameter &xacc_var) {
+  assert(xacc_var.isVariable());
+  const std::string param_str = xacc_var.toString();
+  const auto [mul_factor, variable_name] = get_mul_factor_expression(param_str);
+  assert(std::find(m_var_names.begin(), m_var_names.end(), variable_name) !=
+         m_var_names.end());
+
+  // The generated CUDAQ kernel takes a single argument of type
+  // std::vector<double> we use the index of the XACC variable in the variable
+  // name list as the CUDAQ index value when generating the QUAKE IR. This
+  // will ensure the same runtime value binding between
+  // XACC::Circuit::operator() and CUDAQ kernel invocation.
+  const auto var_index = std::distance(
+      m_var_names.begin(),
+      std::find(m_var_names.begin(), m_var_names.end(), variable_name));
+  auto &cudaq_params = m_cudaq_builder.getArguments()[0];
+  return mul_factor * cudaq_params[var_index];
+}
+
 // ================ Parameterized gates ===============
-// Need to handle the case whereby the angle is an expression 
+// Need to handle the case whereby the angle is an expression
 // involving a kernel variable.
 void cudaq_ir_converter::visit(xacc::quantum::Rx &rx) {
-  auto &cudaq_params = m_cudaq_builder.getArguments()[0];
   const auto angle_param = rx.getParameter(0);
   // Check if the angle is a variable
   if (angle_param.isVariable()) {
-    const auto param_str = angle_param.toString();
-    const auto [mul_factor, variable_name] =
-        get_mul_factor_expression(param_str);
-    assert(std::find(m_var_names.begin(), m_var_names.end(), variable_name) !=
-           m_var_names.end());
-
-    // The generated CUDAQ kernel takes a single argument of type
-    // std::vector<double> we use the index of the XACC variable in the variable
-    // name list as the CUDAQ index value when generating the QUAKE IR. This
-    // will ensure the same runtime value binding between
-    // XACC::Circuit::operator() and CUDAQ kernel invocation.
-    const auto var_index = std::distance(
-        m_var_names.begin(),
-        std::find(m_var_names.begin(), m_var_names.end(), variable_name));
-
-    m_cudaq_builder.rx(mul_factor * cudaq_params[var_index],
+    m_cudaq_builder.rx(instruction_variable_to_quake(angle_param),
                        m_cudaq_qreg[rx.bits()[0]]);
   } else {
     // Constant angle, just cast it to a double.
-    m_cudaq_builder.rx(xacc::InstructionParameterToDouble(rx.getParameter(0)),
+    m_cudaq_builder.rx(xacc::InstructionParameterToDouble(angle_param),
                        m_cudaq_qreg[rx.bits()[0]]);
   }
 }
 
 void cudaq_ir_converter::visit(xacc::quantum::Ry &ry) {
-  auto &cudaq_params = m_cudaq_builder.getArguments()[0];
   const auto angle_param = ry.getParameter(0);
   if (angle_param.isVariable()) {
-    const auto param_str = angle_param.toString();
-    const auto [mul_factor, variable_name] =
-        get_mul_factor_expression(param_str);
-    assert(std::find(m_var_names.begin(), m_var_names.end(), variable_name) !=
-           m_var_names.end());
-
-    const auto var_index = std::distance(
-        m_var_names.begin(),
-        std::find(m_var_names.begin(), m_var_names.end(), variable_name));
-
-    m_cudaq_builder.ry(mul_factor * cudaq_params[var_index],
+    m_cudaq_builder.ry(instruction_variable_to_quake(angle_param),
                        m_cudaq_qreg[ry.bits()[0]]);
   } else {
-    m_cudaq_builder.ry(xacc::InstructionParameterToDouble(ry.getParameter(0)),
+    m_cudaq_builder.ry(xacc::InstructionParameterToDouble(angle_param),
                        m_cudaq_qreg[ry.bits()[0]]);
   }
 }
 
 void cudaq_ir_converter::visit(xacc::quantum::Rz &rz) {
-  auto &cudaq_params = m_cudaq_builder.getArguments()[0];
   const auto angle_param = rz.getParameter(0);
   if (angle_param.isVariable()) {
-    const auto param_str = angle_param.toString();
-    const auto [mul_factor, variable_name] =
-        get_mul_factor_expression(param_str);
-    assert(std::find(m_var_names.begin(), m_var_names.end(), variable_name) !=
-           m_var_names.end());
-
-    const auto var_index = std::distance(
-        m_var_names.begin(),
-        std::find(m_var_names.begin(), m_var_names.end(), variable_name));
-    m_cudaq_builder.rz(mul_factor * cudaq_params[var_index],
+    m_cudaq_builder.rz(instruction_variable_to_quake(angle_param),
                        m_cudaq_qreg[rz.bits()[0]]);
   } else {
-    m_cudaq_builder.rz(xacc::InstructionParameterToDouble(rz.getParameter(0)),
+    m_cudaq_builder.rz(xacc::InstructionParameterToDouble(angle_param),
                        m_cudaq_qreg[rz.bits()[0]]);
   }
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::CPhase &cphase) {
+  const auto angle_param = cphase.getParameter(0);
+  // U1 is called R1 in CUDAQ gate vocabulary
+  if (angle_param.isVariable()) {
+    m_cudaq_builder.r1<cudaq::ctrl>(instruction_variable_to_quake(angle_param),
+                                    m_cudaq_qreg[cphase.bits()[0]],
+                                    m_cudaq_qreg[cphase.bits()[1]]);
+  } else {
+    m_cudaq_builder.r1<cudaq::ctrl>(
+        xacc::InstructionParameterToDouble(angle_param),
+        m_cudaq_qreg[cphase.bits()[0]], m_cudaq_qreg[cphase.bits()[1]]);
+  }
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::CRZ &crz) {
+  const auto angle_param = crz.getParameter(0);
+  if (angle_param.isVariable()) {
+    m_cudaq_builder.rz<cudaq::ctrl>(instruction_variable_to_quake(angle_param),
+                                    m_cudaq_qreg[crz.bits()[0]],
+                                    m_cudaq_qreg[crz.bits()[1]]);
+  } else {
+    m_cudaq_builder.rz<cudaq::ctrl>(
+        xacc::InstructionParameterToDouble(angle_param),
+        m_cudaq_qreg[crz.bits()[0]], m_cudaq_qreg[crz.bits()[1]]);
+  }
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::U1 &u1) {
+  const auto angle_param = u1.getParameter(0);
+  // U1 is called R1 in CUDAQ gate vocabulary
+  if (angle_param.isVariable()) {
+    m_cudaq_builder.r1(instruction_variable_to_quake(angle_param),
+                       m_cudaq_qreg[u1.bits()[0]]);
+  } else {
+    m_cudaq_builder.r1(xacc::InstructionParameterToDouble(angle_param),
+                       m_cudaq_qreg[u1.bits()[0]]);
+  }
+}
+
+void cudaq_ir_converter::visit(xacc::quantum::U &u3) {
+  // U3(theta, phi, lambda) ==
+  // --Ry(pi/2)--Rx(lambda)--Ry(theta)--Rx(phi)--Ry(-pi/2)--
+  auto qbit = m_cudaq_qreg[u3.bits()[0]];
+  const auto theta = u3.getParameter(0);
+  const auto phi = u3.getParameter(1);
+  const auto lambda = u3.getParameter(2);
+  m_cudaq_builder.ry(M_PI_2, qbit);
+  if (lambda.isVariable()) {
+    m_cudaq_builder.rx(instruction_variable_to_quake(lambda), qbit);
+  } else {
+    m_cudaq_builder.rx(xacc::InstructionParameterToDouble(lambda), qbit);
+  }
+  if (theta.isVariable()) {
+    m_cudaq_builder.ry(instruction_variable_to_quake(theta), qbit);
+  } else {
+    m_cudaq_builder.ry(xacc::InstructionParameterToDouble(theta), qbit);
+  }
+  if (phi.isVariable()) {
+    m_cudaq_builder.rx(instruction_variable_to_quake(phi), qbit);
+  } else {
+    m_cudaq_builder.rx(xacc::InstructionParameterToDouble(phi), qbit);
+  }
+  m_cudaq_builder.ry(-M_PI_2, qbit);
 }
 
 std::pair<double, std::string>

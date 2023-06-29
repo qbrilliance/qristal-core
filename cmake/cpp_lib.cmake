@@ -32,6 +32,7 @@ if (WITH_CUDAQ)
   list(APPEND source_files src/cudaq/cudaq_session.cpp)
   list(APPEND source_files src/cudaq/ir_converter.cpp)
   list(APPEND source_files src/cudaq/sim_pool.cpp)
+  list(APPEND source_files src/cudaq/cudaq_acc.cpp)
 endif()
 
 set(headers

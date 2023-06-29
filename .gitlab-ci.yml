@@ -1,7 +1,7 @@
 variables:
   CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-2
-  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-3
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-3
+  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-4
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-4
   USE_MPI: "ON"
 
 stages:
@@ -227,6 +227,36 @@ cudaq-cpp-tests-clang:
     when: always
     reports:
       junit: core_cudaq_gtests.xml
+
+cudaq-py-tests-gcc:
+  stage: test
+  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_GCC]"]
+  image: $EMULATOR_CI_IMAGE_GCC
+  extends: .install-core
+  tags: 
+    - cutensornet2.0
+  script:
+    - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: tests/python_module/report.xml
+
+cudaq-py-tests-clang:
+  stage: test
+  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
+  image: $EMULATOR_CI_IMAGE_CLANG
+  extends: .install-core
+  tags: 
+    - cutensornet2.0
+  script:
+    - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: tests/python_module/report.xml
 
 # If this branch is part of a merge request, trigger downstream decoder build and test.
 trigger-decoder:

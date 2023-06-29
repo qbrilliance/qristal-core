@@ -53,6 +53,7 @@ if(WITH_EXAMPLES)
     add_example(cudaq_vqe_cobyla CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_cobyla/vqe-cobyla-cudaq.cpp)
     add_example(cudaq_vqe_lbfgs CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_lbfgs/vqe-lbfgs-cudaq.cpp)
     add_example(cudaq_vqe_hydrogens CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/vqe-hydrogens-cudaq.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_vqe_hydrogens/gen_h_chain.py)
+    add_example(cudaq_qft SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/cudaq_qft/cudaq_qft.cpp)
   endif()
 
   if (WITH_TKET)

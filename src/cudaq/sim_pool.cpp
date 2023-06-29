@@ -1,20 +1,27 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 #include "qb/core/cudaq/sim_pool.hpp"
+#include "common/PluginUtils.h"
+#include "nvqir/CircuitSimulator.h"
 #include <filesystem>
 #include <iostream>
 #include <link.h>
 #include <ranges>
 #include <regex>
 #include <string.h>
-#include "common/PluginUtils.h"
-#include "nvqir/CircuitSimulator.h"
 namespace {
 // Hook to configure runtime CUDAQ NVQIR backend.
 // Implemented in the CUDAQ library.
 extern "C" {
 void __nvqir__setCircuitSimulator(nvqir::CircuitSimulator *);
 }
+
+// Prefix the backend name from CUDAQ with "cudaq:"
+// so that users can easily distinguish them and prevent name collisions,
+// e.g., "qpp".
+// With the prefix, "cudaq:qpp" is the one from CUDAQ vs. the existing "qpp"
+// from XACC
+const std::string SIM_NAME_PREFIX = "cudaq:";
 } // namespace
 namespace qb {
 
@@ -43,14 +50,41 @@ cudaq_sim_pool::cudaq_sim_pool() {
     // Find all the simulator libs
     for (auto const &dir_entry :
          std::filesystem::directory_iterator{cudaq_lib_path}) {
+      // File name without extension
       const std::string file_name = dir_entry.path().stem();
       static const std::string SIM_LIB_NAME_PREFIX = "libnvqir-";
       if (file_name.rfind(SIM_LIB_NAME_PREFIX, 0) == 0) {
         std::string sim_name = file_name.substr(SIM_LIB_NAME_PREFIX.size());
         sim_name = std::regex_replace(sim_name, std::regex("-"), "_");
-        sim_name_to_lib[sim_name] = dir_entry.path().string();
+        // Add simulator name with prefix to the map 
+        sim_name_to_lib[SIM_NAME_PREFIX + sim_name] = dir_entry.path().string();
+      }
+      // Cache the core CUDAQ lib paths when iterating the directory as well.
+      if (file_name == "libnvqir") {
+        nvqir_lib_path = dir_entry.path().string();
+      }
+      if (file_name == "libcudaq") {
+        cudaq_rt_lib_path = dir_entry.path().string();
+      }
+      if (file_name == "libcudaq-platform-default") {
+        platform_lib_path = dir_entry.path().string();
       }
     }
+  }
+}
+
+void cudaq_sim_pool::init_cudaq_runtime() {
+  for (const auto &path :
+       {nvqir_lib_path, cudaq_rt_lib_path, platform_lib_path}) {
+    assert(!path.empty());
+    auto *handle = dlopen(path.c_str(), RTLD_GLOBAL | RTLD_NOW);
+    if (!handle) {
+      char *error_msg = dlerror();
+      throw std::runtime_error("Failed to load CUDAQ library '" + path + "': " +
+                               (error_msg ? std::string(error_msg) : ""));
+    }
+    // Clear all errors
+    dlerror();
   }
 }
 
@@ -94,7 +128,9 @@ void cudaq_sim_pool::set_simulator(const std::string &name) {
 
       // Clear all errors
       dlerror();
-      const std::string get_sim_instance_fn = "getCircuitSimulator_" + name;
+      const std::string raw_sim_name = name.substr(SIM_NAME_PREFIX.length());
+      const std::string get_sim_instance_fn =
+          "getCircuitSimulator_" + raw_sim_name;
       // Load the simulator
       using func_type = nvqir::CircuitSimulator *();
       auto *get_sim_instance = reinterpret_cast<func_type *>(

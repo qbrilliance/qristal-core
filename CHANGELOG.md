@@ -19,12 +19,13 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.
 - circuit_optimizer, redundancy_removal, two_qubit_squash, peephole_optimisation and simplify_initial circuit optimization passes.
 - Ability to set circuit optimization passes using the session's circuit_optimization property. 
+- Ability to use CUDA Quantum simulator backends with non-CUDAQ kernels (e.g., OpenQASM or circuit builder).
 
 ### Fixed
 
 - CMake error when spdlog is system installed but qasm_simulator is not.
 - Minor documentation fixes.
-- CUDA Quantum: upgrade to the latest main (commit hash 06557d4).
+- CUDA Quantum: upgrade to the latest main (commit hash 603affc).
 - Profiler: measurement operations are double-counted in the timing profile (one as gate and one as readout).
 - AWS accelerator: query backend devices and their Amazon Resource Names (ARNs) for Rigetti provider.  
 - Rename the XACC plugin for noise-aware IR transformation from "tket" to "noise-aware". 

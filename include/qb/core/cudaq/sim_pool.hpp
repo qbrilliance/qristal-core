@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 #include <string>
 #include <vector>
@@ -34,6 +34,18 @@ public:
   /// Getter for the instance; makes this class a threadsafe singleton
   static cudaq_sim_pool &get_instance();
 
+  /// @brief Manual init the CUDAQ runtime by loading its core libs with
+  /// RTLD_GLOBAL.
+  // This is needed for C++ -> Python bindings.
+  // Rationale: Python loads native extensions (pybind11-based libs) with
+  // RTLD_LOCAL, hence causing some problems for CUDAQ (e.g., the JIT engine
+  // unable to find symbols from the NVQIR runtime lib, the runtime unable to
+  // find its quantum platform via symbol lookup, etc.)
+  // Note: this is equivalent to using `LD_PRELOAD`
+  // or overriding Python dlopen behaviour with
+  // `sys.setdlopenflags(os.RTLD_GLOBAL | os.RTLD_NOW)`.
+  void init_cudaq_runtime();
+
 private:
   /// Constructor
   cudaq_sim_pool();
@@ -42,10 +54,18 @@ private:
   ~cudaq_sim_pool();
 
 private:
+  /// Simulator name to lib path
   std::unordered_map<std::string, std::string> sim_name_to_lib;
-  // Sim instance pool (lazily populated)
+  /// Simulator instance pool (lazily populated)
   std::unordered_map<std::string, nvqir::CircuitSimulator *> sim_name_to_sim_ptr;
+  /// Name of the active simulator in the CUDAQ runtime
   std::string active_sim;
+  /// Path to the nvqir (i.e., libnvqir.so) lib (core CUDAQ QIR runtime implementation)
+  std::string nvqir_lib_path;
+  /// Path to the CUDAQ platform lib (i.e., libcudaq-platform-default.so)
+  std::string platform_lib_path;
+  /// Path to the CUDAQ lib (libcudaq.so)
+  std::string cudaq_rt_lib_path;
 };
 
 } // namespace qb

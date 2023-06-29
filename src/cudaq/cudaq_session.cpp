@@ -1,3 +1,5 @@
+// Copyright (c) Quantum Brilliance Pty Ltd
+
 #include "qb/core/session.hpp"
 #include "qb/core/cudaq/sim_pool.hpp"
 // CUDAQ

@@ -10,6 +10,10 @@
 #include "xacc.hpp"
 #include <pybind11/iostream.h>
 
+#ifdef WITH_CUDAQ
+#include "qb/core/cudaq/sim_pool.hpp"
+#endif
+
 namespace py = pybind11;
 /// Python binding for the Qristal's core module
 PYBIND11_MODULE(core, m) {
@@ -17,6 +21,10 @@ PYBIND11_MODULE(core, m) {
   // Initialize XACC framework during module import.
   xacc::Initialize();
   xacc::setIsPyApi();
+#ifdef WITH_CUDAQ
+  // Initialize CUDAQ runtime
+  qb::cudaq_sim_pool::get_instance().init_cudaq_runtime();
+#endif
   // Properly redirect C++ std::cout -> Python sys.stdout
   py::add_ostream_redirect(m);
   // Basic containers
