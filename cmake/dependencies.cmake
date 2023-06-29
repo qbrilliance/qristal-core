@@ -15,6 +15,15 @@ else()
   message(FATAL_ERROR "System installation of OpenSSL not found. Please add the OpenSSL development package using the appropriate management tool for your system libraries.")
 endif()
 
+# OpenMP
+find_package(OpenMP)
+if(OPENMP_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else()  
+  message(STATUS "OpenMP was not detected...continuing without it...")
+endif()  
+
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
 set(XACC_TAG "05164c13")

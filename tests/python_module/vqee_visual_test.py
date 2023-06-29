@@ -9,7 +9,7 @@ def test_vqee_toggle_visual_off() :
   params.nQubits = 4
   params.nShots = 400
   params.maxIters = 100
-  params.isDeterministic = True #if true, nShots option is rendered useless
+  params.isDeterministic = False #if true, nShots option is rendered useless
   params.tolerance = 1e-6
   params.pauliString = "-0.8124419696351861 + 0.17128249292506947 X0X1X2X3"
   params.circuitString = """
@@ -50,7 +50,7 @@ def test_vqee_toggle_visual_detect_optimum_mark() :
   params.nQubits = 4
   params.nShots = 400
   params.maxIters = 100
-  params.isDeterministic = True #if true, nShots option is rendered useless
+  params.isDeterministic = False #if true, nShots option is rendered useless
   params.tolerance = 1e-6
   params.pauliString = "-0.8124419696351861 + 0.17128249292506947 X0X1X2X3"
   params.circuitString = """

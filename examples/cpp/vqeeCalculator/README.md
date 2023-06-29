@@ -35,7 +35,7 @@ The fields that are recognized in `$json_input_file` are shown below:
 | `thetas` | `"thetas": [-0.2,0.14,1.01]` | Initial values for ansatz parameters.<br/>A value is needed for each <br />parameter in the ansatz. |
 | `acceleratorName` | `"acceleratorName": "qpp"` | Backend for executing quantum circuits |
 | `maxIters` | `"maxIters": 100` | Maximum iteration count <br />for the classical optimizer |
-| `isDeterministic` | `"isDeterministic": true` | When set to `false`, <br />expectations are calculated <br />from samples (`nShots` in size) |
+| `isDeterministic` | `"isDeterministic": true` | When set to `false`, <br />expectations are calculated <br />from samples (`nShots` in size)  <br /><br />When<br /> `"acceleratorName": "qpp"`<br />and <br/>`"isDeterministic": true`, <br />expectations are calculated directly <br />using linear algebra. |
 | `enableVis` | `"enableVis": true` | Enable convergence trace <br />visualisation |
 | `showTheta` | `"showTheta": true` | Enable the display of <br />theta elements in the<br />convergence trace visualisation |
 | `tolerance` | `"tolerance": 1.0e-5` | Function tolerance <br/>(used as a termination criterion <br />in the classical optimizer) |

@@ -64,3 +64,46 @@ TEST(vqeeTester, checkGeometryToPauli) {
     std::cout << "vqee test finished.\n";
     // this would actually need to call xacc::Finalize(); to allow single testing. Must be adapted in all tests
 }
+
+TEST(vqeeTester, check_direct_expectation) {
+    const bool isRoot = GetRank() == 0;        
+    qb::vqee::Params params{};
+    params.nWorker = GetSize();
+    params.nThreadsPerWorker = 1;
+
+    params.nQubits = 4;
+    params.maxIters = 30;
+    params.acceleratorName = "qpp";
+
+    // modify the pauli terms
+    std::string geometry = qb::vqee::hydrogenChainGeometry(2); // gives in Angstrom: "H 0.0 0.0 0.0; H 0.0 0.0 0.7408481486"
+    std::cout << geometry << std::endl;
+    params.pauliString = qb::vqee::pauliStringFromGeometry(geometry, "sto-3g");
+    std::cout << params.pauliString << std::endl;
+    double exactEnergy{-1.137275943617};
+
+    // set ansatz 
+    std::size_t nOptParams = qb::vqee::setAnsatz(params, qb::vqee::AnsatzID::UCCSD, params.nQubits, params.nQubits/2);
+    
+    // Execute standard VQE (expectation from shot sampling)
+    params.theta = std::vector<double>(nOptParams, 0.1);
+    params.isDeterministic = false;
+    params.nShots = 10000;
+
+    xacc::ScopeTimer sample_timer_for_cpu("Sampling expectation - Walltime in ms", false);
+    qb::vqee::VQEE vqe{params};
+    vqe.optimize();
+    const double sample_cpu_ms = sample_timer_for_cpu.getDurationMs();
+
+    // Execute VQE with direct expectation
+    params.theta = std::vector<double>(nOptParams, 0.1);
+    params.isDeterministic = true;
+    
+    xacc::ScopeTimer direct_timer_for_cpu("Direct expectation - Walltime in ms", false);
+    qb::vqee::VQEE vqe_direct{params};
+    vqe_direct.optimize();
+    const double direct_cpu_ms = direct_timer_for_cpu.getDurationMs();
+
+    EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);
+    ASSERT_LT(direct_cpu_ms, sample_cpu_ms);
+}

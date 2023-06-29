@@ -136,7 +136,7 @@ The following VQE attributes are accepted:
 | `optimalParameters` | `tvqep.optimalParameters = `<br />`24*[0.11]` | A vector of initial values for <br />ansatz parameters. <br />The length must match the <br />number of ansatz parameters. | 
 | `nShots` | `tvqep.nShots = `<br />`128` | Set the number of shots <br />in a single VQE iteration. |
 | `maxIters` | `tvqep.maxIters = `<br />`256` | Sets the upper limit <br />on the number of VQE <br />iterations to run. |
-| `isDeterministic` | `tvqep.isDeterministic = `<br />`True` | When set to `True`,<br /> the expectation values are <br />calculated using linear <br />algebra operations.  <br /><br />When set to `False` the <br />expectation values are <br />calculated from stochastic <br />samples of size `nShots`. |
+| `isDeterministic` | `tvqep.isDeterministic = `<br />`True` | When <br />`acceleratorName = 'qpp'` <br />and <br />`isDeterministic = True`,<br /> the expectation values are <br />calculated using linear <br />algebra operations.  <br /><br />When <br />`isDeterministic = False` <br />the expectation values are <br />calculated from stochastic <br />samples of size `nShots`. |
 | `enableVis` | `tvqep.enableVis = True` | Enable the convergence trace output. <br /><br />  These will be available in <br /> `tvqep.energyVis` (for energy) <br />and <br /> `tvqep.thetaVis` (for ansatz parameters). |
 | `tolerance` | `tvqep.tolerance = `<br />`1e-6` | Sets the function tolerance <br />that is used by the optimizer. |
 | `acceleratorName` | `tvqep.acceleratorName = `<br />`'qpp'` | Selects the back-end that <br />will  perform quantum circuit <br />execution. |

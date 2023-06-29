@@ -3,6 +3,9 @@
 Qristal is a full-stack SDK for quantum accelerators.
 
 ## [Not yet released]
+### Breaking
+
+- VQEE: isDeterministic will no longer fall back to sampling for those backends that don't support isDeterministic.  Instead, an error will now be thrown.  Only the qpp accelerator is supported when isDeterministic = True (see Added section for the reasons).
 
 ### Added
 
@@ -10,6 +13,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Transpilation: out_transpiled_circuit (OpenQASM 2.0) in native gates.
 - Profiler: counting number of gates and timing data after transpilation to the native gate set.
 - VQE: convergence trace visualization.
+- VQE: For the qpp simulator only: isDeterministic = True now saves the state-vector and calculates expectations directly (without shot sampling)
 - vqeeCalculator: the command line tool for VQE has been augmented to allow output to JSON file format.
 - swap_placement_pass and noise_aware_placement_pass: C++ and Python classes for circuit placement.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.

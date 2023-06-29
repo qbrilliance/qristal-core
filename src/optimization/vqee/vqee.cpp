@@ -41,17 +41,13 @@ namespace qb::vqee {
     // 1 of 4: ansatz from XACC qasm string
     std::shared_ptr<xacc::CompositeInstruction> ansatz;
     if (params_.ansatz) {
-    //std::cout << "found provided ansatz" << std::endl;
       ansatz = params_.ansatz;
     }
     else {
-      //std::cout << "using provided circuit string" << std::endl;
       xacc::qasm(params_.circuitString);
       ansatz = xacc::getCompiled("ansatz");
     }
-    //  std::cout << "ansatz:\n" << ansatz->toString() << std::endl;
     if (isRoot_) {
-      //std::cout << "\nAnsatz:\n" << ansatz->toString() << std::endl;
       std::cout << "Parameters: " << ansatz->getVariables() << std::endl;
       std::cout << "Ansatz depth: " << ansatz->depth() << std::endl;
     }
@@ -259,7 +255,16 @@ namespace qb::vqee {
                                                   std::make_pair("nlopt-ftol",         params_.tolerance)});
 
       // instantiate XACC VQE
-      std::shared_ptr<xacc::Algorithm> vqe = xacc::getAlgorithm("vqe");
+      std::shared_ptr<xacc::Algorithm> vqe;
+      if (params_.isDeterministic) {
+        // Handle the case where a state-vector simulator is the back-end,
+        // whereby expectation can be calculated from linear algebra    
+        vqe = xacc::getAlgorithm("vqe-gen");
+      }
+      else {   
+        // Handle the general case where expectation is found from multiple shot outcomes   
+        vqe = xacc::getAlgorithm("vqe");
+      }
       vqe->initialize({{"ansatz", ansatz},
                       {"accelerator", accelerator},
                       {"observable", observable},

@@ -43,11 +43,10 @@ public:
     return {"ansatz", "accelerator", "observable"};
   }
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override {
-    if (!isStateVectorSim(*m_accelerator)) {
-      auto default_vqe = xacc::getAlgorithm("vqe", m_parameters);
-      default_vqe->execute(buffer);
-      return;
+    if (m_accelerator->name() != "qpp") {      
+      throw std::range_error("To use direct expectation, you must use the qpp backend.");
     }
+    
     auto ham_sparse = m_observable->name() != "pauli"
                           ? xacc::getService<xacc::ObservableTransform>("jw")
                                 ->transform(xacc::as_shared_ptr(m_observable))
@@ -99,6 +98,12 @@ public:
           xacc::info(ss.str());
           // Saves the energy value.
           energies.emplace_back(energy);
+          // Append a child buffer to save the value of x
+          auto itenBuffer = xacc::qalloc(buffer->size());
+          itenBuffer->setName("parameters_at_iter");
+          itenBuffer->addExtraInfo("parameters", x);
+          buffer->appendChild("parameters_at_iter", itenBuffer);
+
           if (m_optimizer->isGradientBased()) {
             constexpr double step_size = 1e-7;
             std::vector<double> plus_results, minus_results;
@@ -185,11 +190,6 @@ public:
   const std::string description() const override { return ""; }
   DEFINE_ALGORITHM_CLONE(VqeGen)
 private:
-  bool isStateVectorSim(const Accelerator &acc) const {
-    static const std::vector<std::string> STATE_VECTOR_SIMS{"qpp", "aer"};
-    return xacc::container::contains(STATE_VECTOR_SIMS, acc.name());
-  }
-
   double computeExpVal(std::vector<SparseTriplet> &ham_mat,
                        const std::vector<std::complex<double>> &ket) const {
 
