@@ -11,27 +11,27 @@ import qb.core
 def ring_noise_model(nb_qubits):
 
   # Make an empty noise model
-  noise_model = qb.core.NoiseModel();
+  noise_model = qb.core.NoiseModel()
 
   # Name the model whatever you like
-  noise_model.name = "ring_noise_model";
+  noise_model.name = "ring_noise_model"
 
   # Define the gate fidelities (errors are 1 - fidelity)
-  u1_error = 1e-4;
-  u2_error = 1e-3;
-  u3_error = 1e-3;
-  cx_error = 1e-2;
+  u1_error = 1e-4
+  u2_error = 1e-3
+  u3_error = 1e-3
+  cx_error = 1e-2
 
   # Define the readout errors
-  ro_error = qb.core.ReadoutError();
-  ro_error.p_01 = 1e-2;
-  ro_error.p_10 = 5e-3;
+  ro_error = qb.core.ReadoutError()
+  ro_error.p_01 = 1e-2
+  ro_error.p_10 = 5e-3
 
   # Loop over the qubits
   for qId in range(nb_qubits):
 
     # Set the readout errors
-    noise_model.set_qubit_readout_error(qId, ro_error);
+    noise_model.set_qubit_readout_error(qId, ro_error)
 
     # Set the single-qubit gate fidelities
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, u1_error), "u1", [qId])
@@ -46,7 +46,7 @@ def ring_noise_model(nb_qubits):
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cx_error), "cx", [qId, qId2])
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cx_error), "cx", [qId2, qId])
   
-  return noise_model;
+  return noise_model
 
 
 def main(arguments):
@@ -64,10 +64,10 @@ def main(arguments):
   my_sim.acc = "aer"
 
   # Set this to true to include noise
-  my_sim.noise = True;
+  my_sim.noise = True
 
   # Hand over the noise model to the session.
-  my_sim.noise_model = ring_noise_model(my_sim.qn[0][0]);
+  my_sim.noise_model = ring_noise_model(my_sim.qn[0][0])
 
   # Define the kernel
   my_sim.instring = '''

@@ -21,7 +21,7 @@ def main(arguments):
   my_sim.acc = "aer"
 
   # Set this to true to include noise
-  my_sim.noise = True;
+  my_sim.noise = True
 
   # Define the kernel
   my_sim.instring = '''
@@ -46,20 +46,20 @@ def main(arguments):
     nm_name = "qb-qdk1" if "--qdk" in arguments else "default"
 
     # Create a noise model with 2 qubits.
-    nm = qb.core.NoiseModel(nm_name, my_sim.qn[0][0]);
+    nm = qb.core.NoiseModel(nm_name, my_sim.qn[0][0])
 
     # If the option "--noisier" is passed, overwrite the readout errors
     # on the first bit of the model with some very large values (for the sake of example).
     if "--noisier" in arguments:
-      ro_error = qb.core.ReadoutError();
-      ro_error.p_01 = 0.20;
-      ro_error.p_10 = 0.30;
-      nm.set_qubit_readout_error(0, ro_error);
+      ro_error = qb.core.ReadoutError()
+      ro_error.p_01 = 0.20
+      ro_error.p_10 = 0.30
+      nm.set_qubit_readout_error(0, ro_error)
 
     # Hand over the noise model to the session.  Note that if this call
     # is not made, the default model will automatically get created
     # with the correct number of qubits and used.
-    my_sim.noise_model = nm;
+    my_sim.noise_model = nm
 
   # Hit it.
   my_sim.run()
