@@ -1702,92 +1702,9 @@ namespace qb
         // ==============================================
         // ------------  Post processing  ---------------
         // ==============================================
-        double xacc_scope_timer_qpu_ms = timer_for_qpu.getDurationMs();
-        if (debug_) {
-          std::cout << std::endl;
-          buffer_b->print();
-          std::cout << std::endl;
-          std::cout << "Walltime elapsed for the simulator to perform the "
-                       "requested number of shots of the quantum circuit, in ms: "
-                    << xacc_scope_timer_qpu_ms << std::endl;
-          std::cout << std::endl;
-          std::cout << "Bit order [0=>LSB, 1=>MSB]: " << qpu->getBitOrder()
-              << " : Important note : TNQVM reports incorrect bit order - it "
-                 "uses LSB"
-              << std::endl;
-        }
-
-        // Store indicator of LSB pattern
-        // 0 => LSB
-        acc_uses_lsbs_.at(ii).at(jj) = (qpu->getBitOrder() == 0);
-        // Workaround for incorrect TNQVM reporting of LSB/MSB ordering
-        if (qpu->name().compare("tnqvm") == 0) {
-          acc_uses_lsbs_.at(ii).at(jj) = false;
-        }
-        // Workaround for aer reverse ordering
-        // Also for aer, keep the qobj so that a user can call Aer standalone later
-        if (qpu->name().compare("aer") == 0) {
-          acc_uses_lsbs_.at(ii).at(jj) = true;
-          out_qobjs_.at(ii).at(jj) = qpu->getNativeCode(citargets.at(0), mqbacc);
-        }
-
-        // Get counts
-        std::map<std::string, int> qpu_counts = buffer_b->getMeasurementCounts();
-        // Get Z operator expectation:
-        if (!nosim) {
-          if (buffer_b->hasExtraInfoKey("ro-fixed-exp-val-z") ||
-              buffer_b->hasExtraInfoKey("exp-val-z") ||
-              (!buffer_b->getMeasurementCounts().empty())) {
-            double z_expectation_val = getExpectationValueZ(buffer_b);
-            if (debug_) {
-              std::cout << "* Z-operator expectation value: "
-                        << z_expectation_val << std::endl;
-            }
-            // Save Z-operator expectation value to VectorMapND
-            ND res_z{{0, z_expectation_val}};
-            out_z_op_expects_.at(ii).at(jj) = res_z;
-          } else {
-            xacc::warning("No Z operator expectation available");
-          }
-        }
-
-        // Save the counts to VectorMapNN in out_counts_ and raw map data in
-        // out_raws
-        populate_measure_counts_data(ii, jj, qpu_counts);
-
-        // Transpile to QB native gates (acc)
-        if (run_config.oqm_enabled) {
-          auto buffer_qb = xacc::qalloc(n_qubits);
-
-          buffer_qb->resetBuffer();
-          try {
-            // acc->execute(buffer_qb, irtarget->getComposite("QBCIRCUIT"));
-            acc->execute(buffer_qb, citargets.at(0));
-          } catch (...) {
-            throw std::invalid_argument(
-                "Transpiling to QB native gates for your input circuit failed");
-          }
-
-          // Save the transpiled circuit string
-          out_transpiled_circuits_.at(ii).at(jj) = acc->getTranspiledResult();
-
-          // Invoke the Profiler
-          Profiler timing_profile(acc->getTranspiledResult(), n_qubits,
-                                  debug_);
-
-          // Save single qubit gate qtys to VectorMapNN
-          out_single_qubit_gate_qtys_.at(ii).at(jj) =
-              timing_profile.get_count_1q_gates_on_q();
-
-          // Save two-qubit gate qtys to VectorMapNN
-          out_double_qubit_gate_qtys_.at(ii).at(jj) =
-              timing_profile.get_count_2q_gates_on_q();
-
-          // Save timing results to VectorMapND
-          out_total_init_maxgate_readout_times_.at(ii).at(jj) =
-              timing_profile.get_total_initialisation_maxgate_readout_time_ms(
-                  xacc_scope_timer_qpu_ms, shots);
-        }
+        const double xacc_scope_timer_qpu_ms = timer_for_qpu.getDurationMs();
+        process_run_result(ii, jj, run_config, citargets.at(0), qpu, mqbacc,
+                           buffer_b, xacc_scope_timer_qpu_ms, acc);
     }
   }
 
@@ -2082,25 +1999,19 @@ namespace qb
   // !IMPORTANT! Make sure this function stays threadsafe
   std::shared_ptr<async_job_handle> session::run_async(const std::size_t ii, const std::size_t jj,
                        std::shared_ptr<xacc::Accelerator> accelerator) {
-
     if (debug_) {
       std::stringstream msg;
-      msg << "thread " << std::this_thread::get_id() << " run_async (ii,jj): (" << ii << ","<< jj<<") with acc: " << accelerator << std::endl; std::cout << msg.str(); msg.str("");
+      msg << "thread " << std::this_thread::get_id() << " run_async (ii,jj): ("
+          << ii << "," << jj << ") with acc: " << accelerator->name() << "(" << accelerator << ")" << std::endl;
+      std::cout << msg.str();
+      msg.str("");
     }
-    // Declare the variables that persist across locked scopes
-    bool output_oqm_enableds;
-    size_t n_qubits;
-    std::shared_ptr<qb::QuantumBrillianceAccelerator> acc;
-    std::vector<std::shared_ptr<xacc::CompositeInstruction>> citargets;
-    std::shared_ptr<xacc::AcceleratorBuffer> buffer_b;
-    int shots;
     // Retrieve and validate run configuration for this (ii, jj) task
     auto run_config = get_run_config(ii, jj);
-    auto &qpu = accelerator;
-    {
-      // Lock up until the circuit is executed
-      std::scoped_lock lock(m_);
 
+    // Check shape consistency
+    // This is thread-safe.
+    {
       int N_ii = is_ii_consistent();
       int N_jj = is_jj_consistent();
 
@@ -2111,348 +2022,285 @@ namespace qb
       if (N_jj < 0) {
         throw std::range_error("Second dimension has inconsistent length");
       }
+    }
 
-      // Resize result tables if necessary.
-      ensure_results_table_size(ii, jj);
-      // xacc::setIsPyApi();
-      // xacc::set_verbose(true);
-      xacc::HeterogeneousMap mqbacc;
-      // bool noplacement = noplacements_valid.get(ii, jj);
-      // bool nooptimise = nooptimises_valid.get(ii, jj);
-      bool nosim = run_config.no_sim;
-
-      if (debug_)
-      {
-        switch (run_config.source_type)
-        {
-        case source_string_type::XASM:
-          std::cout << "# XASM compiler: xasm" << std::endl;
-          break;
-        case source_string_type::Quil:
-          std::cout << "# Quil v1 compiler: quil" << std::endl;
-          break;
-        case source_string_type::OpenQASM:
-          std::cout << "# OpenQASM compiler: staq" << std::endl;
-        }
-      }
-
-      n_qubits = run_config.num_qubits;
-      mqbacc.insert("n_qubits", n_qubits);
-
-      if (debug_) {
-        std::cout << "# Qubits: " << n_qubits << std::endl;
-      }
-
-      mqbacc.insert("noise-model", run_config.noise_model.to_json());
-      mqbacc.insert("m_connectivity", run_config.noise_model.get_connectivity());
-      shots = run_config.num_shots;
-      mqbacc.insert("shots", shots);
-      if (debug_){
-        std::cout << "# Shots: " << shots << std::endl;
-      }
-
-      size_t n_samples = run_config.num_repetitions;
-      if (debug_){
-        std::cout << "# Repetitions: " << n_samples << std::endl;
-      }
-
-      output_oqm_enableds = run_config.oqm_enabled;
-      mqbacc.insert("output_oqm_enabled", output_oqm_enableds);
-      if (debug_) {
-        if (output_oqm_enableds) {
-          std::cout << "# Output transpiled circuit: enabled" << std::endl;
-        } else {
-          std::cout << "# Output transpiled circuit: disabled" << std::endl;
-        }
-      }
-
-      // Not implemented here, but present in sequential run():
-      //
-      // Optional random seed: randomised by default
-      //
-      // User-provided random seed
-      //
-      // exec_on_hardware
-      //
-
-      // Check the list of hardware accelerators...
-      // If a hardware accelerator was selected...
-      // then we keep acc = "tnqvm"
-      // and we also set exec_on_hardware = true;
-      bool noises = run_config.noise;
-      int max_bond_dimension = run_config.max_bond_tnqvm;
-      bool verbatim = run_config.aws_verbatim;
-
-      double svd_cutoff = run_config.svd_cutoff_tnqvm;
-
-      // Not implemented here, but present in sequential run():
-      //
-      // QCStack client
-      //
-      // xacc::quantum::QuantumBrillianceRemoteAccelerator
-      //
-      // random_seed
-
-
-      if (qpu->name() == "tnqvm") {
-        xacc::set_verbose(false);
-        qpu->updateConfiguration({{"tnqvm-visitor", "exatn-mps"},
-                                  {"max-bond-dim", max_bond_dimension},
-                                  {"svd-cutoff", svd_cutoff},
-                                  {"shots", shots}});
-      } else if (qpu->name() == "aer") {
-        //
-        // Not implemented here but present in sequential run()
-        //
-        // aer_options + random_seed
-        //
-        // aer_sim_types + sim-type
-        //
-
-        if (noises > 0) {
-          qpu->updateConfiguration(
-              {{"noise-model", run_config.noise_model.to_json()}, {"shots", shots}});
-          if (debug_){
-            std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
-          }
-        } else {
-          if (debug_){
-            std::cout << "# Noise model: disabled" << std::endl;
-          }
-        }
-      } else if (qpu->name() == "aws_acc") {
-        // AWS
-        const std::string aws_format = run_config.aws_format;
-        const std::string aws_device_names = run_config.aws_device_name;
-        const std::string aws_s3 = run_config.aws_s3;
-        const std::string aws_s3_path = run_config.aws_s3_path;
-        //
-        // Extra validation for AWS Braket
-        //
-        // Revalidate some limits that are conditional on the AWS Device selected:
-        // Handle limits for AWS SV1, DM1 and TN1 for shots and available qubits
-        if (aws_device_names.compare("DM1") == 0) {
-          ValidatorTwoDim<VectorN, size_t> qns_dm1_valid(
-              qns_, session::QNS_DM1_LOWERBOUND, session::QNS_DM1_UPPERBOUND,
-              " number of qubits, AWS Braket DM1 [qn] ");
-          if (qns_dm1_valid.is_data_empty()) {
-            throw std::range_error("Number of qubits [qn] cannot be empty");
-          }
-          n_qubits = qns_dm1_valid.get(ii, jj);
-
-          ValidatorTwoDim<VectorN, size_t> sns_dm1_valid(
-              sns_, session::SNS_DM1_LOWERBOUND, session::SNS_DM1_UPPERBOUND,
-              " number of shots, AWS Braket DM1 [sn] ");
-          if (sns_dm1_valid.is_data_empty()) {
-            throw std::range_error("Number of shots [sn] cannot be empty");
-          }
-          shots = sns_dm1_valid.get(ii, jj);
-        }
-        if (aws_device_names.compare("SV1") == 0) {
-            ValidatorTwoDim<VectorN, size_t> qns_sv1_valid(
-              qns_, session::QNS_SV1_LOWERBOUND, session::QNS_SV1_UPPERBOUND,
-              " number of qubits, AWS Braket SV1 [qn] ");
-          if (qns_sv1_valid.is_data_empty()) {
-            throw std::range_error("Number of qubits [qn] cannot be empty");
-          }
-          n_qubits = qns_sv1_valid.get(ii, jj);
-
-          ValidatorTwoDim<VectorN, size_t> sns_sv1_valid(
-              sns_, session::SNS_SV1_LOWERBOUND, session::SNS_SV1_UPPERBOUND,
-              " number of shots, AWS Braket SV1 [sn] ");
-          if (sns_sv1_valid.is_data_empty()) {
-            throw std::range_error("Number of shots [sn] cannot be empty");
-          }
-          shots = sns_sv1_valid.get(ii, jj);
-        }
-        if (aws_device_names.compare("TN1") == 0) {
-            ValidatorTwoDim<VectorN, size_t> qns_tn1_valid(
-              qns_, session::QNS_TN1_LOWERBOUND, session::QNS_TN1_UPPERBOUND,
-              " number of qubits, AWS Braket TN1 [qn] ");
-          if (qns_tn1_valid.is_data_empty()) {
-            throw std::range_error("Number of qubits [qn] cannot be empty");
-          }
-          n_qubits = qns_tn1_valid.get(ii, jj);
-
-          ValidatorTwoDim<VectorN, size_t> sns_tn1_valid(
-              sns_, session::SNS_TN1_LOWERBOUND, session::SNS_TN1_UPPERBOUND,
-              " number of shots, AWS Braket DM1 [sn] ");
-          if (sns_tn1_valid.is_data_empty()) {
-            throw std::range_error("Number of shots [sn] cannot be empty");
-          }
-          shots = sns_tn1_valid.get(ii, jj);
-        }
-
-        mqbacc.insert("format", aws_format);
-        mqbacc.insert("device", aws_device_names);
-        mqbacc.insert("s3", aws_s3);
-        mqbacc.insert("path", aws_s3_path);
-        mqbacc.insert("verbatim", verbatim);
-        mqbacc.insert("noise", noises);
-        mqbacc.insert("shots", shots);
-        qpu->updateConfiguration(mqbacc);
-        //
-      } else if (qpu->name() == "qb-lambda") {
-        //
-        // Not implemented here but present in sequential run():
-        //
-        // qb-lambda
-        //
-        // Default AWS reverse proxy server for the QB Lambda workstation
-        if (noises > 0) {
-          qpu->updateConfiguration(
-              {{"noise-model", run_config.noise_model.to_json()}, {"shots", shots}});
-          if (debug_)
-            std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
-        }
-      } else {
-        qpu->updateConfiguration({{"shots", shots}});
-      }
-      //
-      // Not implemented here but present in sequential run():
-      //
-      // accs == "qsim" && noises
-      //
-      // exec_on_hardware
-      //
-      acc = std::make_shared<qb::QuantumBrillianceAccelerator>();
-      acc->updateConfiguration(mqbacc);
-      if (debug_) std::cout << "# Quantum Brilliance accelerator: initialised" << std::endl;
-
-      if (debug_) {
-        std::cout << "# " << qpu->name() << " accelerator: initialised"
-                  << std::endl;
-      }
-
-      // Execute on simulator (qpu)
-      // auto buffer_b = xacc::qalloc(n_qubits);
-
-      // Not implemented here but present in sequential run():
-      //
-      // file_or_string_or_random_or ir != session:VALID_IR
-
-      buffer_b = std::make_shared<xacc::AcceleratorBuffer>(n_qubits);
-      const auto file_or_string_or_random_or_ir = validate_infiles_instrings_randoms_irtarget_ms_nonempty(ii, jj);
-      if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_IR)
-      {
-        // Direct IR input (e.g., circuit builder)
-        citargets.push_back(irtarget_ms_.at(ii).at(0));
-      }
-      else
-      {
-        // String input -> compile
-        const std::string target_circuit = get_target_circuit_qasm_string(ii, jj, run_config);
-        auto composite_ir                = compile_input(target_circuit, n_qubits, run_config.source_type);
-        citargets.push_back(composite_ir);
-        if (irtarget_ms_.size() < (ii + 1))
-        {
-          if (debug_)
-          {
-            std::cout << "Resizing ii: " << (ii + 1) << std::endl;
-          }
-          irtarget_ms_.resize(ii + 1);
-        }
-        irtarget_ms_.at(ii) = {composite_ir};
-      }
-
-      if (debug_) {
-        std::cout << "# " << " IR target: created" << "\n";
-      }
-
-      xacc::HeterogeneousMap m;
-
-      //
-      // Removed from run_async due to thread-safety issues:
-      //
-      // if (!noplacement) - in the upcoming SDK this is replaced with LLVM passes over QIR
-      //
-      // if (!nooptimise) - in the upcoming SDK this is replaced with LLVM passes over QIR
-      //
-      // error_mitigations - in the upcoming SDK this is replaced with LLVM passes over QIR
-      //
-
-
-      if (debug_)
-      {
-        std::cout << "Bit order [0=>LSB, 1=>MSB]: " << qpu->getBitOrder()
-                  << " : Important note : TNQVM reports incorrect bit order - it "
-                     "uses LSB"
-                  << std::endl;
-      }
-
-      // Store indicator of LSB pattern
-      // 0 => LSB
-      acc_uses_lsbs_.at(ii).at(jj) = (qpu->getBitOrder() == 0);
-
-      // Workaround for incorrect TNQVM reporting of LSB/MSB ordering
-      if (qpu->name().compare("tnqvm") == 0)
-      {
-        acc_uses_lsbs_.at(ii).at(jj) = false;
-      }
-      // Workaround for aer reverse ordering
-      // Also for aer, keep the qobj so that a user can call Aer standalone later
-      if (qpu->name().compare("aer") == 0)
-      {
-        acc_uses_lsbs_.at(ii).at(jj) = true;
-        out_qobjs_.at(ii).at(jj)     = qpu->getNativeCode(citargets.at(0), mqbacc);
-      }
-    } // End scoped_lock
-
-    buffer_b->resetBuffer();
-    xacc::ScopeTimer timer_for_qpu(
-        "Walltime, in ms, for simulator to execute quantum circuit", false);
-    if (!run_config.no_sim)
     {
-      try
-      {
-        if (debug_)
-        {
-          std::cout << "# "
-                    << " Prior to qpu->execute..."
-                    << "\n";
-        }
-        if (qpu->name() == "aws_acc" && std::dynamic_pointer_cast<qb::remote_accelerator>(qpu))
-        {
-          auto as_remote_acc = std::dynamic_pointer_cast<qb::remote_accelerator>(qpu);
-          // Asynchronous offload the circuit.
-          auto aws_job_handle = as_remote_acc->async_execute(citargets.at(0));
-          aws_job_handle->add_done_callback(
-              [=](auto& handle)
-              {
-                auto buffer_temp = std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
-                handle.load_result(buffer_temp);
-                auto qb_transpiler = std::make_shared<qb::QuantumBrillianceAccelerator>();
-                this->process_run_result(ii, jj, run_config, buffer_temp, timer_for_qpu.getDurationMs(), qb_transpiler);
-              });
-          return aws_job_handle;
-        }
-        else
-        {
-          // Blocking execution of a local simulator instance
-          qpu->execute(buffer_b, citargets.at(0));
-        }
-      }
-      catch (...)
-      {
-        throw std::invalid_argument("The simulation of your input circuit failed");
+      std::scoped_lock lock(m_);
+      // Resize result tables if necessary.
+      // (resizing vectors => need lock)
+      ensure_results_table_size(ii, jj);
+    }
+
+    // Determine what type of input is for (ii, jj)
+    // This is thread-safe (different threads looks at different vector
+    // elements)
+    const auto file_or_string_or_random_or_ir =
+        validate_infiles_instrings_randoms_irtarget_ms_nonempty(ii, jj);
+    if (file_or_string_or_random_or_ir ==
+        session::circuit_input_types::INVALID) {
+      throw std::invalid_argument("Please check your settings again.");
+    }
+
+    bool noplacement = run_config.no_placement;
+    bool nooptimise = run_config.no_optimise;
+    bool nosim = run_config.no_sim;
+    std::stringstream debug_msg;
+    if (debug_) {
+      switch (run_config.source_type) {
+      case source_string_type::XASM:
+        debug_msg << "# XASM compiler: xasm" << std::endl;
+        break;
+      case source_string_type::Quil:
+        debug_msg << "# Quil v1 compiler: quil" << std::endl;
+        break;
+      case source_string_type::OpenQASM:
+        debug_msg << "# OpenQASM compiler: staq" << std::endl;
       }
     }
 
-    /// Post-processing results for run_async with local simulators:
-    /// i.e., simulation occurs on this thread.
-    const double xacc_scope_timer_qpu_ms = timer_for_qpu.getDurationMs();
-    // Thread-locking the post-processing step to guarantee thread safety.
-    std::scoped_lock lock(m_);
-    this->process_run_result(ii, jj, run_config, buffer_b, xacc_scope_timer_qpu_ms, acc);
+    size_t n_qubits = run_config.num_qubits;
+    if (debug_)
+      debug_msg << "# Qubits: " << n_qubits << std::endl;
+    int shots = run_config.num_shots;
+    if (debug_)
+      debug_msg << "# Shots: " << shots << std::endl;
+    size_t n_samples = run_config.num_repetitions;
+    if (debug_)
+      debug_msg << "# Repetitions: " << n_samples << std::endl;
+    bool output_oqm_enableds = run_config.oqm_enabled;
+    if (debug_) {
+      if (output_oqm_enableds) {
+        debug_msg << "# Output transpiled circuit: enabled" << std::endl;
+      } else {
+        debug_msg << "# Output transpiled circuit: disabled" << std::endl;
+      }
+    }
+    if (debug_) {
+      // Flush all the debug logs in one go
+      std::cout << "thread " << std::this_thread::get_id() << "\n"
+                << debug_msg.str() << std::endl;
+      debug_msg.str("");
+    }
+
+    // Collect all the simulator options (thread safe)
+    const xacc::HeterogeneousMap mqbacc = construct_qpu_configs(run_config);
+    // Note: unlike run(i, j); run_async(i, j) has an accelerator attached to it
+    // (from a pool); hence, we don't need to construct the simulator instance
+    // (get_sim_qpu)
+    auto &qpu = accelerator;
+    auto acc = std::make_shared<qb::QuantumBrillianceAccelerator>();
+    qpu->updateConfiguration(mqbacc);
+    acc->updateConfiguration(mqbacc);
+
+    auto buffer_b = std::make_shared<xacc::AcceleratorBuffer>(n_qubits);
+    std::vector<std::shared_ptr<xacc::CompositeInstruction>> citargets;
+    {
+      // Lock up until the circuit is executed
+      std::scoped_lock lock(m_);
+      // ==============================================
+      // ----------------- Compilation ----------------
+      // ==============================================
+      if (file_or_string_or_random_or_ir ==
+          session::circuit_input_types::VALID_IR) {
+        // Direct IR input (e.g., circuit builder)
+        citargets.push_back(irtarget_ms_.at(ii).at(0));
+      } else {
+        // String input -> compile
+        const std::string target_circuit =
+            get_target_circuit_qasm_string(ii, jj, run_config);
+        // Note: compile_input may not be thread-safe, e.g., XACC's staq
+        // compiler plugin was not defined as Clonable, hence only one instance
+        // is available from the service registry.
+        citargets.push_back(
+            compile_input(target_circuit, n_qubits, run_config.source_type));
+      }
+
+      // ==============================================
+      // -----------------  Placement  ----------------
+      // ==============================================
+      xacc::HeterogeneousMap m;
+      // Transform the target to account for QB topology: XACC
+      // "swap-shortest-path"
+      if (!noplacement) {
+        if (debug_)
+          debug_msg << "# Quantum Brilliance topology placement: enabled"
+                    << std::endl;
+        std::string placement = "swap-shortest-path";
+        if (!placements_.empty()) {
+          ValidatorTwoDim<VectorString, std::string> placements_valid(
+              placements_, VALID_HARDWARE_PLACEMENTS,
+              " name of placement module");
+          const std::string placement_opt = placements_valid.get(ii, jj);
+
+          if (debug_) {
+            debug_msg << "# Placement: " << placement_opt << std::endl;
+          }
+          if (xacc::getIRTransformation(placement_opt)) {
+            placement = placement_opt;
+          } else {
+            std::cout
+                << "Placement module '" << placement_opt
+                << "' cannot be located. Please check your installation.\n";
+          }
+        }
+        if (run_config.acc_name == "aws_acc") {
+          m.merge(qpu->getProperties());
+        }
+
+        if (debug_) {
+          // Flush all the placement debug logs in one go
+          std::cout << "thread " << std::this_thread::get_id() << "\n"
+                    << debug_msg.str() << std::endl;
+          debug_msg.str("");
+        }
+
+        // Disable QASM inlining during placement.
+        // e.g., we don't want to map gates to the IBM gateset (defined in
+        // qelib1.inc) during placement.
+        m.insert("no-inline", true);
+        // TODO: investigate thread-safety of placement modules
+        // and remove this from the scoped_lock if possible.
+        auto A = xacc::getIRTransformation(placement);
+        A->apply(citargets.at(0), acc, m);
+      }
+
+      // ==============================================
+      // ----------  Circuit Optimization  ------------
+      // ==============================================
+      // Perform circuit optimisation: XACC "circuit-optimizer"
+      if (!nooptimise) {
+        if (debug_)
+          debug_msg << "# Quantum Brilliance circuit optimiser: enabled"
+                    << std::endl;
+        const auto opt_passes = [&]() -> Passes {
+          if (!circuit_opts_.empty()) {
+            ValidatorTwoDim<Table2d<Passes>, Passes> opts_valid(circuit_opts_);
+            return opts_valid.get(ii, jj);
+          }
+
+          // By default, if not otherwise specified, we apply the circuit
+          // optimizer pass
+          return {create_circuit_optimizer_pass()};
+        }();
+        // Apply those optimization passes
+        // TODO: investigate thread-safety of optimization passes
+        // and remove this from the scoped_lock if possible.
+        for (const auto &pass : opt_passes) {
+          if (debug_) {
+            debug_msg << "# Apply optimization pass: " << pass->get_name()
+                      << std::endl;
+          }
+          // Wrap the composite IR (citargets[0]) as a CircuitBuilder to send on
+          // to the optimization pass. Set copy_nodes to false to keep the root
+          // node (citargets.at(0)) intact.
+          CircuitBuilder ir_as_circuit(citargets.at(0), /*copy_nodes*/ false);
+          pass->apply(ir_as_circuit);
+        }
+        if (debug_) {
+          // Flush all the circuit optimization  debug logs in one go
+          std::cout << "thread " << std::this_thread::get_id() << "\n"
+                    << debug_msg.str() << std::endl;
+          debug_msg.str("");
+        }
+      }
+    } // End scoped_lock
+
+    // ==============================================
+    // ----------  Execution  ------------
+    // ==============================================
+    buffer_b->resetBuffer();
+    xacc::ScopeTimer timer_for_qpu(
+        "Walltime, in ms, for simulator to execute quantum circuit", false);
+    if (!nosim) {
+      try {
+        if (debug_) {
+          debug_msg << "# "
+                    << " Prior to qpu->execute..."
+                    << "\n";
+          std::cout << "thread " << std::this_thread::get_id() << "\n"
+                    << debug_msg.str() << std::endl;
+          debug_msg.str("");
+        }
+        if (qpu->name() == "aws_acc" &&
+            std::dynamic_pointer_cast<qb::remote_accelerator>(qpu)) {
+          auto as_remote_acc =
+              std::dynamic_pointer_cast<qb::remote_accelerator>(qpu);
+          // Asynchronous offload the circuit.
+          auto aws_job_handle = as_remote_acc->async_execute(citargets.at(0));
+          aws_job_handle->add_done_callback([=](auto &handle) {
+            auto buffer_temp =
+                std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
+            handle.load_result(buffer_temp);
+            auto qb_transpiler =
+                std::make_shared<qb::QuantumBrillianceAccelerator>();
+            this->process_run_result(
+                ii, jj, run_config, citargets.at(0), qpu, mqbacc, buffer_temp,
+                timer_for_qpu.getDurationMs(), qb_transpiler);
+          });
+          return aws_job_handle;
+        } else {
+          // Blocking execution of a local simulator instance
+          qpu->execute(buffer_b, citargets.at(0));
+        }
+      } catch (...) {
+        throw std::invalid_argument(
+            "The simulation of your input circuit failed");
+      }
+    }
+    // ==============================================
+    // ------------  Post processing  ---------------
+    // ==============================================
+
+    {
+      std::scoped_lock lock(m_);
+      /// Post-processing results for run_async with local simulators:
+      /// i.e., simulation occurs on this thread.
+      // Note: this will write to STL vectors, hence, needing a scoped_lock.
+      const double xacc_scope_timer_qpu_ms = timer_for_qpu.getDurationMs();
+      process_run_result(ii, jj, run_config, citargets.at(0), qpu, mqbacc,
+                         buffer_b, xacc_scope_timer_qpu_ms, acc);
+    }
     return nullptr;
   }
 
+  void session::process_run_result(
+      const std::size_t ii, const std::size_t jj,
+      const run_i_j_config &run_config,
+      std::shared_ptr<xacc::CompositeInstruction> ir_target,
+      std::shared_ptr<xacc::Accelerator> sim_qpu,
+      const xacc::HeterogeneousMap &sim_qpu_configs,
+      std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
+      double xacc_scope_timer_qpu_ms,
+      std::shared_ptr<qb::QuantumBrillianceAccelerator> qb_transpiler) {
+    if (debug_) {
+      std::cout << std::endl;
+      buffer_b->print();
+      std::cout << std::endl;
+      std::cout << "Walltime elapsed for the simulator to perform the "
+                   "requested number of shots of the quantum circuit, in ms: "
+                << xacc_scope_timer_qpu_ms << std::endl;
+      std::cout << std::endl;
+      std::cout << "Bit order [0=>LSB, 1=>MSB]: " << sim_qpu->getBitOrder()
+                << " : Important note : TNQVM reports incorrect bit order - it "
+                   "uses LSB"
+                << std::endl;
+    }
 
-    void session::process_run_result(const std::size_t ii, const std::size_t jj, const run_i_j_config& run_config,
-                                  std::shared_ptr<xacc::AcceleratorBuffer> buffer_b, double runtime_ms,
-                                  std::shared_ptr<qb::QuantumBrillianceAccelerator> qb_transpiler)
-  {
-    auto ir_target = irtarget_ms_.at(ii).at(0);
+    // Store indicator of LSB pattern
+    // 0 => LSB
+    acc_uses_lsbs_.at(ii).at(jj) = (sim_qpu->getBitOrder() == 0);
+    // Workaround for incorrect TNQVM reporting of LSB/MSB ordering
+    if (sim_qpu->name().compare("tnqvm") == 0) {
+      acc_uses_lsbs_.at(ii).at(jj) = false;
+    }
+    // Workaround for aer reverse ordering
+    // Also for aer, keep the qobj so that a user can call Aer standalone
+    // later
+    if (sim_qpu->name().compare("aer") == 0) {
+      acc_uses_lsbs_.at(ii).at(jj) = true;
+      out_qobjs_.at(ii).at(jj) = sim_qpu->getNativeCode(ir_target, sim_qpu_configs);
+    }
+
     // Get counts
     std::map<std::string, int> qpu_counts = buffer_b->getMeasurementCounts();
     // Get Z operator expectation:
@@ -2468,48 +2316,27 @@ namespace qb
         // Save Z-operator expectation value to VectorMapND
         ND res_z{{0, z_expectation_val}};
         out_z_op_expects_.at(ii).at(jj) = res_z;
-      }
-      else {
+      } else {
         xacc::warning("No Z operator expectation available");
       }
     }
 
-    // Save the counts to VectorMapNN
-    NN qpu_counts_nn;
-    std::string keystring;
-    for (auto qpu_counts_elem = qpu_counts.begin(); qpu_counts_elem != qpu_counts.end(); qpu_counts_elem++)
-    {
-      keystring = qpu_counts_elem->first;
-      if (acc_uses_lsbs_.at(ii).at(jj))
-      {
-        // 0 => LSB
-        std::reverse(keystring.begin(), keystring.end());
-      }
-      qpu_counts_nn.insert(std::make_pair(std::stoi(keystring, 0, 2), qpu_counts_elem->second));
-    }
-
-    // Store measurement counts
-    out_counts_.at(ii).at(jj) = qpu_counts_nn;
-
-    // Save results to JSON
-    nlohmann::json qpu_counts_js = qpu_counts;
-    out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
+    // Save the counts to VectorMapNN in out_counts_ and raw map data in
+    // out_raws
+    populate_measure_counts_data(ii, jj, qpu_counts);
 
     // Transpile to QB native gates (acc)
-    if (run_config.oqm_enabled)
-    {
-      auto buffer_qb = xacc::qalloc(run_config.num_qubits);
-
-      buffer_qb->resetBuffer();
-      try
-      {
-        // acc->execute(buffer_qb, irtarget->getComposite("QBCIRCUIT"));
+    if (run_config.oqm_enabled) {
+      auto buffer_qb =
+          std::make_shared<xacc::AcceleratorBuffer>(run_config.num_qubits);
+      try {
         qb_transpiler->execute(buffer_qb, ir_target);
+      } catch (...) {
+        throw std::invalid_argument(
+            "Transpiling to QB native gates for your input circuit failed");
       }
-      catch (...)
-      {
-        throw std::invalid_argument("Transpiling to QB native gates for your input circuit failed");
-      }
+
+      // Save the transpiled circuit string
       out_transpiled_circuits_.at(ii).at(jj) = qb_transpiler->getTranspiledResult();
 
       // Invoke the Profiler
@@ -2523,7 +2350,7 @@ namespace qb
 
       // Save timing results to VectorMapND
       out_total_init_maxgate_readout_times_.at(ii).at(jj) =
-          timing_profile.get_total_initialisation_maxgate_readout_time_ms(runtime_ms, run_config.num_shots);
+          timing_profile.get_total_initialisation_maxgate_readout_time_ms(xacc_scope_timer_qpu_ms, run_config.num_shots);
     }
   }
 

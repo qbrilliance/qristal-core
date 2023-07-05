@@ -1407,6 +1407,9 @@ namespace qb
       run_i_j_config get_run_config(size_t ii, size_t jj);
       /// Helper to populate result tables (e.g. counts, expectation values, resource estimations) post-execution.
       void process_run_result(const std::size_t ii, const std::size_t jj, const run_i_j_config& run_config,
+                              std::shared_ptr<xacc::CompositeInstruction> kernel_ir,
+                              std::shared_ptr<xacc::Accelerator> sim_qpu,
+                              const xacc::HeterogeneousMap& sim_qpu_configs,
                               std::shared_ptr<xacc::AcceleratorBuffer> buffer_b, double runtime_ms,
                               std::shared_ptr<qb::QuantumBrillianceAccelerator> qb_transpiler);
       /// Util method to compile input source string into IR
