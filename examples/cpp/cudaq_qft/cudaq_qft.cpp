@@ -1,4 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
+#define WITH_CUDAQ
 #include "qb/core/session.hpp"
 #include "qb/core/circuit_builder.hpp"
 

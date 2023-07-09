@@ -1,4 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#define WITH_CUDAQ
 #include "qb/core/session.hpp"
 #include <string>
 #include <iostream>

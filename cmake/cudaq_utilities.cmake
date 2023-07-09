@@ -3,6 +3,12 @@
 # Macro for adding a new CUDAQ executable
 macro(add_cudaq_executable TARGET_NAME BACKEND)
 
+  # Check if the core library has been compiled with CUDAQ support
+  get_directory_property(DEFS COMPILE_DEFINITIONS)
+  if (NOT ";${DEFS};" MATCHES ";WITH_CUDAQ;")
+    message(FATAL_ERROR "The Qristal core library was not compiled with CUDA Quantum support. To use the macro add_cudaq_executable(), please rebuild your core library with CUDA Quantum support enabled.")
+  endif()
+
   # Prevent usage of -isystem for dependency includes
   set(CMAKE_NO_SYSTEM_FROM_IMPORTED ON)
 

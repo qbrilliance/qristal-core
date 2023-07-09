@@ -1,4 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#define WITH_CUDAQ
 #include "qb/core/cudaq/ir_converter.hpp"
 #include "cudaq/algorithm.h"
 #include "cudaq/optimizers.h"
