@@ -57,7 +57,7 @@ public:
    *
    * @return Name
    */
-  const std::string name() const override { return "qb-qobj"; }
+  const std::string name() const override { return "qristal-qobj"; }
 
   /**
    * @brief Description of this service

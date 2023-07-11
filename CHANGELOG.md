@@ -33,6 +33,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Improved finding of installed dependencies with cmake.
 - Guarantee fixed-point format for real numbers in the XASM output of the QuantumBrillianceRemoteVisitor.  
 - Harmonise run and run_async methods of the session class.
+- Fixed a bug in XACC - TKET rotation parameter conversion.
 
 ## [1.0.0] - 2023-05-19
 

@@ -113,7 +113,20 @@ namespace qb
         /// @brief  Retrieve the name of the QObj compiler to use with the AER
         /// simulator
         /// @return Name of the QObj compiler
-        virtual std::string get_qobj_compiler() const;
+        std::string get_qobj_compiler() const;
+
+        /// @brief  Set the name of the QObj compiler to use with the AER
+        /// simulator
+        /// Throw if the compiler name is invalid.
+        void set_qobj_compiler(const std::string& qobj_compiler);
+
+        /// @brief Return the list of basis gates that the AER QObj will be
+        /// referring to.
+        /// @return List of basis gates.
+        /// Note: This corresponds to which QObj compiler being set.
+        /// The AER simulator will only look for gate noise associated with
+        /// these gates.
+        std::vector<std::string> get_qobj_basis_gates() const;
 
         /// The colloquial name of the noise model
         std::string name;
@@ -158,6 +171,9 @@ namespace qb
   
         /// @brief Noise model Json conforming to IBM Qiskit QObj schema if provided.
         nlohmann::json m_qobj_noise_model;
-  
+        
+        /// @brief Name of the QObj compiler to use with the AER simulator
+        // The default "xacc-qobj" compiler from XACC
+        std::string m_qobj_compiler = "xacc-qobj";
     };
 }

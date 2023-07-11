@@ -15,6 +15,8 @@ QB Qristal has built-in noise models that are useful for:
 | **Fidelity of 1-qubit gate** | 99.9% |
 | **Readout error p(0\|1)** | 0.01 |
 | **Readout error p(1\|0)** | 0.01 |
+| **QObj generator** | "xacc-qobj"|
+| **Basis gate set** | u1, u2, u3, cx |
 
 This model is applicable to:
 
@@ -32,6 +34,11 @@ This model takes the number of qubits specified by the user and generates a full
 
 ### `qb-nm1`
 
+| Model name | `qb-nm1` |
+| ---- | ---- |
+| **QObj generator** | "qristal-qobj"|
+| **Basis gate set** | rx, ry, cz |
+
 This model is applicable to:
 
 - [ ] Open source releases: 2023 onwards
@@ -45,6 +52,11 @@ Availability on simulators:
 - [ ] qpp
 
 ### `qb-nm2`
+
+| Model name | `qb-nm2` |
+| ---- | ---- |
+| **QObj generator** | "qristal-qobj"|
+| **Basis gate set** | rx, ry, cz |
 
 This model is applicable to:
 
@@ -60,6 +72,11 @@ Availability on simulators:
 
 ### `qb-qdk1`
 
+| Model name | `qb-qdk1` |
+| ---- | ---- |
+| **QObj generator** | "qristal-qobj"|
+| **Basis gate set** | rx, ry, cz |
+
 This model is applicable to:
 
 - [ ] Open source releases: 2023 onwards
@@ -73,6 +90,11 @@ Availability on simulators:
 - [ ] qpp
 
 ### `qb-dqc2`
+
+| Model name | `qb-dqc2` |
+| ---- | ---- |
+| **QObj generator** | "qristal-qobj"|
+| **Basis gate set** | rx, ry, cz |
 
 This model is applicable to:
 

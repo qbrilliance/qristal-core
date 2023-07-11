@@ -13,6 +13,7 @@ add_xacc_plugin(qb_gateset_transpiler
 add_xacc_plugin(qb_qobj_compiler
   SOURCES
     src/qobj/QuantumBrillianceQobjCompiler.cpp
+    src/qobj/QobjCompilersActivator.cpp
   HEADERS
     include/qb/core/qobj/QuantumBrillianceQobjCompiler.hpp
   DEPENDENCIES

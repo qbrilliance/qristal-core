@@ -4,7 +4,6 @@
 #include "qb/core/qobj/QuantumBrillianceQobjCompiler.hpp"
 #include <nlohmann/json.hpp>
 #include "xacc.hpp"
-#include "xacc_plugin.hpp"
 
 namespace qb {
 struct QobjOp {
@@ -81,5 +80,3 @@ const std::string QuantumBrillianceQobjCompiler::translate(
   return translate(function);
 }
 } // namespace qb
-
-REGISTER_COMPILER(qb::QuantumBrillianceQobjCompiler)

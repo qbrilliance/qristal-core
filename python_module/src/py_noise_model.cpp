@@ -293,9 +293,13 @@ void bind_noise_model(pybind11::module &m) {
       .def_property_readonly(
           "connectivity", &qb::NoiseModel::get_connectivity,
           R"(Get connectivity as a list of connected qubit pairs)")
-      .def_property_readonly(
+      .def_property(
           "qobj_compiler", &qb::NoiseModel::get_qobj_compiler,
-          R"(The name of the QObj compiler to use with the AER simulator)")
+          &qb::NoiseModel::set_qobj_compiler,
+          R"(The name of the QObj compiler to use with the AER simulator. Valid options: 'xacc-qobj' | 'qristal-qobj'.)")
+      .def_property_readonly(
+          "qobj_basis_gates", &qb::NoiseModel::get_qobj_basis_gates,
+          R"(The list of basis gates that the AER QObj will be referring to.)")
       .def_readwrite("name", &qb::NoiseModel::name,
                      R"(The colloquial name of the noise model)");
 

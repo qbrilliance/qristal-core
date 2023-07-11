@@ -115,10 +115,36 @@ namespace qb
     }
 
     std::string NoiseModel::get_qobj_compiler() const {
-      // The default "qobj" compiler from XACC
-      return "qobj";
+      return m_qobj_compiler;
     }
-    
+
+    void NoiseModel::set_qobj_compiler(const std::string &qobj_compiler) {
+      const std::vector<std::string> SUPPORTED_QOBJ_COMPILERS = {"qristal-qobj",
+                                                                 "xacc-qobj"};
+      // Check if this is something we supported/exposed in Qristal.
+      if (std::find(SUPPORTED_QOBJ_COMPILERS.begin(),
+                    SUPPORTED_QOBJ_COMPILERS.end(),
+                    qobj_compiler) == SUPPORTED_QOBJ_COMPILERS.end()) {
+        std::stringstream error_msg;
+        error_msg << "Invalid qobj_compiler. The followings are supported:\n";
+        for (const auto &name : SUPPORTED_QOBJ_COMPILERS) {
+          error_msg << " - " << name << "\n";
+        }
+        throw std::invalid_argument(error_msg.str());
+      }
+      m_qobj_compiler = qobj_compiler;
+    }
+
+    std::vector<std::string> NoiseModel::get_qobj_basis_gates() const {
+      if (m_qobj_compiler == "qristal-qobj") {
+        return {"rx", "ry", "cz"};
+      }
+
+      assert(m_qobj_compiler == "xacc-qobj");
+      // The default IBM's QObj gate set.
+      return {"u1", "u2", "u3", "cx"};
+    }
+
     double NoiseModel::decoherence_pauli_error(double t1, double tphi, double gate_time)
     {
         // Formula:

@@ -7,6 +7,12 @@
 namespace {
 using namespace xacc::quantum;
 
+/// Convert absolute angle values to tket PI normalized values
+inline double abs_angle_to_tket(double abs_angle) { return abs_angle / M_PI; }
+
+/// Convert tket PI normalized angle values to absolute values
+inline double tket_angle_to_abs(double tket_angle) { return tket_angle * M_PI; }
+
 class TketCircuitVisitor : public AllGateVisitor {
 public:
   TketCircuitVisitor(size_t nbQubits) : m_circ(nbQubits, nbQubits) {
@@ -26,22 +32,22 @@ public:
 
   void visit(Rz &rz) override {
     const double angle = InstructionParameterToDouble(rz.getParameter(0));
-    m_circ.add_op<unsigned>(tket::OpType::Rz, angle, {(unsigned)rz.bits()[0]});
+    m_circ.add_op<unsigned>(tket::OpType::Rz, abs_angle_to_tket(angle), {(unsigned)rz.bits()[0]});
   }
 
   void visit(U1 &u1) override {
     const double angle = InstructionParameterToDouble(u1.getParameter(0));
-    m_circ.add_op<unsigned>(tket::OpType::U1, angle, {(unsigned)u1.bits()[0]});
+    m_circ.add_op<unsigned>(tket::OpType::U1, abs_angle_to_tket(angle), {(unsigned)u1.bits()[0]});
   }
 
   void visit(Ry &ry) override {
     const double angle = InstructionParameterToDouble(ry.getParameter(0));
-    m_circ.add_op<unsigned>(tket::OpType::Ry, angle, {(unsigned)ry.bits()[0]});
+    m_circ.add_op<unsigned>(tket::OpType::Ry, abs_angle_to_tket(angle), {(unsigned)ry.bits()[0]});
   }
 
   void visit(Rx &rx) override {
     const double angle = InstructionParameterToDouble(rx.getParameter(0));
-    m_circ.add_op<unsigned>(tket::OpType::Rx, angle, {(unsigned)rx.bits()[0]});
+    m_circ.add_op<unsigned>(tket::OpType::Rx, abs_angle_to_tket(angle), {(unsigned)rx.bits()[0]});
   }
 
   void visit(X &x) override {
@@ -71,7 +77,7 @@ public:
 
   void visit(CRZ &crz) override {
     const double angle = InstructionParameterToDouble(crz.getParameter(0));
-    m_circ.add_op<unsigned>(tket::OpType::CRz, angle,
+    m_circ.add_op<unsigned>(tket::OpType::CRz, abs_angle_to_tket(angle),
                             {(unsigned)crz.bits()[0], (unsigned)crz.bits()[1]});
   }
 
@@ -99,7 +105,7 @@ public:
   void visit(CPhase &cphase) override {
     const double angle = InstructionParameterToDouble(cphase.getParameter(0));
     m_circ.add_op<unsigned>(
-        tket::OpType::CU1, angle,
+        tket::OpType::CU1, abs_angle_to_tket(angle),
         {(unsigned)cphase.bits()[0], (unsigned)cphase.bits()[1]});
   }
 
@@ -109,7 +115,9 @@ public:
     const auto theta = InstructionParameterToDouble(u.getParameter(0));
     const auto phi = InstructionParameterToDouble(u.getParameter(1));
     const auto lambda = InstructionParameterToDouble(u.getParameter(2));
-    m_circ.add_op<unsigned>(tket::OpType::U3, {theta, phi, lambda},
+    m_circ.add_op<unsigned>(tket::OpType::U3,
+                            {abs_angle_to_tket(theta), abs_angle_to_tket(phi),
+                             abs_angle_to_tket(lambda)},
                             {(unsigned)u.bits()[0]});
   }
 
@@ -237,7 +245,7 @@ xacc::InstPtr tket_command_to_xacc_inst(const tket::Command &command) {
   std::transform(
       tket_inst_params.cbegin(), tket_inst_params.cend(),
       std::back_inserter(xacc_inst_params), [](const tket::Expr &param_expr) {
-        return xacc::InstructionParameter(tket::eval_expr(param_expr).value());
+        return xacc::InstructionParameter(tket_angle_to_abs(tket::eval_expr(param_expr).value()));
       });
   const auto iter = XACC_IR_GEN_FNS.find(opType);
   if (iter != XACC_IR_GEN_FNS.end()) {

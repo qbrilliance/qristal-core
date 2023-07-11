@@ -6,6 +6,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
 #include <utility>
+#include <random>
 
 TEST(QBTketTester, checkSimple) {
   auto xasmCompiler = xacc::getCompiler("xasm");
@@ -265,19 +266,27 @@ TEST(QBTketTester, checkTwoQubitSquash) {
   program->addInstruction(std::make_shared<xacc::quantum::Rx>(0, 1.5));
   program->addInstruction(std::make_shared<xacc::quantum::CNOT>(0, 1));
   program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, 1.2));
+  program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, 0.125));
+  program->addInstruction(std::make_shared<xacc::quantum::Rx>(0, 1.15));
+  program->addInstruction(std::make_shared<xacc::quantum::CNOT>(0, 1));
+  program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, 0.234));
+  program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, 0.55));
+  program->addInstruction(std::make_shared<xacc::quantum::Rx>(0, 1.65));
+  program->addInstruction(std::make_shared<xacc::quantum::CNOT>(0, 1));
+  program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, 0.12));
   std::cout << "Before optimization:\n" << program->toString() << "\n";
   {
     xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::CNOT> vis(program);
-    // Two CNOT gates
-    EXPECT_EQ(vis.countGates(), 2);
+    // 4 CNOT gates
+    EXPECT_EQ(vis.countGates(), 4);
   }
   auto tket = xacc::getIRTransformation("two-qubit-squash");
   tket->apply(program, nullptr);
   std::cout << "After optimization:\n" << program->toString() << "\n";
   {
     xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::CNOT> vis(program);
-    // Only one CNOT gate remains
-    EXPECT_EQ(vis.countGates(), 1);
+    // Only 2 CNOT gate remains 
+    EXPECT_EQ(vis.countGates(), 2);
   }
 }
 
@@ -304,4 +313,47 @@ TEST(QBTketTester, checkPeepHoleOptimise) {
   std::cout << "Number of CNOT = " << vis_after.countGates() << "\n";
   // Expect some reductions.
   EXPECT_LT(vis_after.countGates(), vis_before.countGates());
+}
+
+// Check gate squash + verify the correctness of XACC-TKET conversion
+TEST(QBTketTester, checkGateConversion) {
+  std::random_device rd;
+  std::mt19937 en(rd());
+  std::uniform_real_distribution<> dist(-M_PI, M_PI);
+  auto provider = xacc::getIRProvider("quantum");
+  auto program = provider->createComposite("test");
+  // Buffers to run unoptimized/optimized circuits
+  auto buffer1 = xacc::qalloc(1);
+  auto buffer2 = xacc::qalloc(1);
+  auto qpp = xacc::getAccelerator("qpp");
+  // Test all single-qubit parameterized gates
+  for (int i = 0; i < 10; ++i) {
+    program->addInstruction(std::make_shared<xacc::quantum::Rx>(0, dist(en)));
+    program->addInstruction(std::make_shared<xacc::quantum::Ry>(0, dist(en)));
+    program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, dist(en)));
+    program->addInstruction(std::make_shared<xacc::quantum::U1>(0, dist(en)));
+    program->addInstruction(
+        std::make_shared<xacc::quantum::U>(0, dist(en), dist(en), dist(en)));
+  }
+  program->addInstruction(std::make_shared<xacc::quantum::Measure>(0));
+  std::cout << "Before optimization:\n" << program->toString() << "\n";
+  EXPECT_EQ(program->nInstructions(), 5 * 10 + 1);
+  // Run simulation of the unoptimized circuit
+  // Set seed for consistent sampling
+  qpp->initialize({{"seed", 123}, {"shots", 1000}});
+  qpp->execute(buffer1, program);
+  buffer1->print();
+  
+  auto tket = xacc::getIRTransformation("peephole-optimisation");
+  tket->apply(program, nullptr);
+  std::cout << "After optimization:\n" << program->toString() << "\n";
+  // Max: 3 rotations + 1 measure
+  EXPECT_LE(program->nInstructions(), 4);
+  // Run simulation of the optimized circuit
+  // Set seed for consistent sampling
+  qpp->initialize({{"seed", 123}, {"shots", 1000}});
+  qpp->execute(buffer2, program);
+  buffer2->print();
+  // Check that the measurement distributions are exactly identical.
+  EXPECT_EQ(buffer1->getMeasurementCounts(), buffer2->getMeasurementCounts());
 }

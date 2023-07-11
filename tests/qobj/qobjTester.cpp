@@ -8,7 +8,7 @@
 #include <nlohmann/json.hpp>
 namespace {
 std::shared_ptr<xacc::Compiler> get_qb_qobj_compiler() {
-  return xacc::getCompiler("qb-qobj");
+  return xacc::getCompiler("qristal-qobj");
 }
 } // namespace
 

@@ -267,6 +267,14 @@ _noise_: true
 
 A version of `noise_model.py` demonstrating the use of a user-defined noise model.
 
+`noise_model_user_defined_qb_gateset.py`
+
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
+
+A version of `noise_model_user_defined.py` demonstrating the use of a user-defined noise model in a different basis gate set.
+
 `pfd.py`
 
 _qubits_: 12  
