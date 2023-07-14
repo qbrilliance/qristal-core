@@ -4,6 +4,7 @@
 #include "qb/core/passes/noise_aware_placement_config.hpp"
 #include "qb/core/passes/noise_aware_placement_pass.hpp"
 #include "qb/core/passes/swap_placement_pass.hpp"
+#include "qb/core/noise_model/noise_model.hpp"
 #include "py_stl_containers.hpp"
 
 
@@ -20,6 +21,7 @@ void bind_placement_passes(pybind11::module &m) {
       "The noise_aware_placement_config class encapsulates generic backend "
       "information required by the noise-aware placement pass.")
       .def(pybind11::init<>())
+      .def(pybind11::init<NoiseModel>())
       .def_readwrite("connectivity",
                      &noise_aware_placement_config::qubit_connectivity)
       .def_readwrite(
@@ -29,6 +31,9 @@ void bind_placement_passes(pybind11::module &m) {
                      &noise_aware_placement_config::avg_two_qubit_gate_errors)
       .def_readwrite("readout_errors",
                      &noise_aware_placement_config::avg_qubit_readout_errors);
+
+  /// Allows implicit NoiseModel -> noise_aware_placement_config conversion
+  pybind11::implicitly_convertible<NoiseModel, noise_aware_placement_config>();
 
   pybind11::class_<noise_aware_placement_pass,
                    std::shared_ptr<noise_aware_placement_pass>>(

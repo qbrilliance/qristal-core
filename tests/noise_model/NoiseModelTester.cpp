@@ -3,6 +3,8 @@
 #include "xacc.hpp"
 #include "Accelerator.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
+#include "Eigen/Dense"
+#include <random>
 TEST(NoiseModelTester, checkReadoutErrors)
 {
   qb::NoiseProperties noise_props;
@@ -191,3 +193,56 @@ TEST(NoiseModelTester, checkNoiseModelFromDeviceProps)
   EXPECT_NEAR(dm[0][0].real() + dm[1][1].real(), 1.0, 1e-9);
 }
 
+TEST(NoiseModelTester, checkKrausToChoiConversion) 
+{
+  Eigen::Matrix<std::complex<double>, 4, 4> choiI;
+  choiI << 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1;
+  const double p = []() {
+    std::random_device rd;
+    std::mt19937 e(rd());
+    std::uniform_real_distribution<> dist(0.01, 0.99);
+    return dist(e);
+  }();
+  // Expected Choi matrix for a depolarizing noise channel of amplitude p
+  const Eigen::Matrix4cd expected_choi_mat =
+      (1 - p * 4 / 3) * choiI +
+      p * 4 / 3 * Eigen::Matrix<std::complex<double>, 4, 4>::Identity() / 2;
+
+  auto depol_channel = qb::DepolarizingChannel::Create(0, p);
+  const auto choi_mat = qb::kraus_to_choi(depol_channel);
+  EXPECT_EQ(choi_mat.size(), 4);
+  for (const auto &row : choi_mat) {
+    EXPECT_EQ(row.size(), 4);
+  }
+  std::cout << "Depolarizing with p = " << p << "\n";
+  std::cout << "Choi matrix:\n";
+  for (const auto &row : choi_mat) {
+    for (const auto &val : row) {
+      std::cout << val << " ";
+    }
+    std::cout << "\n";
+  }
+  std::cout << "EXPECTED:\n" << expected_choi_mat << "\n";
+
+  for (size_t row = 0; row < expected_choi_mat.rows(); ++row) {
+    for (size_t col = 0; col < expected_choi_mat.cols(); ++col) {
+      EXPECT_NEAR(std::abs(choi_mat[row][col] - expected_choi_mat(row, col)),
+                  0.0, 1e-9);
+    }
+  }
+}
+
+TEST(NoiseModelTester, checkFidelityCalc) 
+{
+  const double p = []() {
+    std::random_device rd;
+    std::mt19937 e(rd());
+    std::uniform_real_distribution<> dist(0.01, 0.99);
+    return dist(e);
+  }();
+  std::cout << "Depolarizing with p = " << p << "\n";
+  auto depol_channel = qb::DepolarizingChannel::Create(0, p);
+  const double fid = qb::process_fidelity(depol_channel);
+  std::cout << "Fidelity = " << fid << "\n";
+  EXPECT_NEAR(fid, 1.0 - p, 1e-6);
+}

@@ -392,11 +392,15 @@ A simple example demonstrating circuit placement based on backend topology.
 
 `noise_aware_placement.py`
 
-A simple example demonstrates noise-aware circuit placement by setting up a toy hardware configuration.
+A simple example demonstrating noise-aware circuit placement by setting up a toy hardware configuration.
+
+`noise_aware_placement_noise_model.py`
+
+A simple example demonstrating noise-aware circuit placement by setting up a toy noise model.
 
 `noise_aware_placement_aws_rigetti.py`
 
-An example demonstrates integrated noise-aware placement during circuit execution on hardware backend (e.g., Rigetti devices on AWS).
+An example demonstrating integrated noise-aware placement during circuit execution on a hardware backend (e.g., Rigetti devices on AWS).
 Valid AWS credentials are required to run the example. 
 
 ## C++ ##

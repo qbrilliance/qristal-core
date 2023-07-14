@@ -145,6 +145,71 @@ namespace qb
       return {"u1", "u2", "u3", "cx"};
     }
 
+    noise_aware_placement_config NoiseModel::to_noise_aware_placement_config() const 
+    {
+      noise_aware_placement_config config;
+      // Populate connectivity info
+      for (const auto &[q1, q2] : get_connectivity()) {
+        config.qubit_connectivity.emplace_back(
+            std::make_pair(static_cast<size_t>(q1), static_cast<size_t>(q2)));
+      }
+
+      // Populate readout errors
+      // Average readout error =  (p(0|1) + p(1|0))/2
+      for (const auto &[qId, readout_error] : get_readout_errors()) {
+        config.avg_qubit_readout_errors.emplace(
+            qId, (readout_error.p_01 + readout_error.p_10) / 2.0);
+      }
+
+      // Map from qubit index -> list of single-qubit gate errors for averaging.  
+      std::unordered_map<size_t, std::vector<double>> qubit_id_to_gate_errors;
+      // Iterate over the whole noise channel map
+      for (const auto &[gate_name, operands_to_noise_channels] : get_noise_channels()) {
+        for (const auto &[qubits, noise_channels] : operands_to_noise_channels) {
+          // We only expect single- or two-qubit gates here
+          assert(qubits.size() == 1 || qubits.size() == 2);
+          if (qubits.size() == 2) {
+            if ((std::find(config.qubit_connectivity.begin(),
+                           config.qubit_connectivity.end(),
+                           std::make_pair(qubits[0], qubits[1])) ==
+                 config.qubit_connectivity.end()) &&
+                (std::find(config.qubit_connectivity.begin(),
+                           config.qubit_connectivity.end(),
+                           std::make_pair(qubits[1], qubits[0])) ==
+                 config.qubit_connectivity.end())) {
+              std::stringstream error_ss;
+              error_ss << "Invalid noise specifications for two-qubit gate '"
+                       << gate_name << "' between **uncoupled** qubits "
+                       << qubits[0] << " and " << qubits[1]
+                       << ". Please check your input noise model.";
+              throw std::logic_error(error_ss.str());
+            }
+            double fid = 1.0;
+            /// Combine fidelity if there are multiple channels
+            for (const auto &chan : noise_channels) {
+              fid *= process_fidelity(chan);
+            }
+            /// Note: we only expect a single type of two-qubit gate.
+            config.avg_two_qubit_gate_errors[std::make_pair(qubits[0], qubits[1])] = 1.0 - fid;
+          } else if (qubits.size() == 1) {
+            double fid = 1.0;
+            for (const auto &chan : noise_channels) {
+              fid *= process_fidelity(chan);
+            }
+            qubit_id_to_gate_errors[qubits[0]].emplace_back(1.0 - fid);
+          }
+        }
+      }
+      
+      /// Average all single-qubit gate errors at a qubit node.
+      for (const auto &[qubit, gate_errors] : qubit_id_to_gate_errors) {
+        assert(!gate_errors.empty());
+        config.avg_single_qubit_gate_errors[qubit] = std::reduce(gate_errors.begin(), gate_errors.end()) / gate_errors.size();
+      }
+
+      return config;
+    }
+
     double NoiseModel::decoherence_pauli_error(double t1, double tphi, double gate_time)
     {
         // Formula:
@@ -258,6 +323,16 @@ namespace qb
     std::vector<std::pair<int, int>> NoiseModel::get_connectivity() const
     {
         return m_qubit_topology;
+    }
+
+    const std::unordered_map<size_t, ReadoutError> &NoiseModel::get_readout_errors() const
+    {
+        return m_readout_errors;
+    }
+
+    const std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> &NoiseModel::get_noise_channels() const 
+    {
+        return m_noise_channels;
     }
 
     void NoiseModel::add_qubit_connectivity(int q1, int q2)

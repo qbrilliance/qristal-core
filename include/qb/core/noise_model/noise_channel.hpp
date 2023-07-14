@@ -30,6 +30,22 @@ namespace qb
     using NoiseChannel = std::vector<KrausOperator>;
 
     /**
+     * @brief Convert a noise channel (list of Kraus operator matrices) into a Choi matrix representation
+     *
+     * @return Choi matrix
+     */
+    KrausOperator::Matrix kraus_to_choi(const NoiseChannel& noise_channel);
+
+    /**
+     * @brief Compute the process fidelity of a noisy quantum channel.
+     *
+     * @param noise_channel Quantum noise channel
+     * @return The process fidelity (as compared to an identity channel, aka no
+     * noise)
+     */
+    double process_fidelity(const NoiseChannel &noise_channel);
+
+    /**
      * @brief Amplitude damping channel factory
      *
      */

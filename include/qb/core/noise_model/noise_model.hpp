@@ -6,10 +6,11 @@
 #include <optional>
 #include <functional>
 
-#include "json_complex_convert.hpp"
-#include "noise_channel.hpp"
-#include "noise_properties.hpp"
-#include "readout_error.hpp"
+#include "qb/core/noise_model/json_complex_convert.hpp"
+#include "qb/core/noise_model/noise_channel.hpp"
+#include "qb/core/noise_model/noise_properties.hpp"
+#include "qb/core/noise_model/readout_error.hpp"
+#include "qb/core/passes/noise_aware_placement_config.hpp"
 
 namespace qb
 {
@@ -86,6 +87,20 @@ namespace qb
         std::vector<std::pair<int, int>> get_connectivity() const;
 
         /**
+         * @brief Get the readout errors 
+         * 
+         * @return Map from qubit index to readout errors
+        */
+        const std::unordered_map<size_t, ReadoutError>& get_readout_errors() const;
+
+        /**
+         * @brief Get all the gate noise channels
+         * 
+         * @return Map from (gate name + qubit operands) to noise channels
+        */
+        const std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>>& get_noise_channels() const;
+ 
+        /**
          * @brief Add a gate error channel for a gate operation
          *
          * @param noise_channel Noise channel to be associated with the gate
@@ -131,9 +146,14 @@ namespace qb
         /// The colloquial name of the noise model
         std::string name;
 
+        /// Conversion into a noise_aware_placement_config
+        operator noise_aware_placement_config() const noexcept {
+          return to_noise_aware_placement_config();
+        }
+
       protected:
-  
-          /**
+
+        /**
          * @brief Build and return the default noise model.
          * Optionally allows for customization, e.g., number of qubits, if supported.
          *
@@ -158,6 +178,13 @@ namespace qb
          */
         double decoherence_pauli_error(double t1, double tphi, double gate_time);
 
+        /**
+         * @brief Helper method to convert this NoiseModel into a noise aware placement configuration
+         * 
+         * @return noise_aware_placement_config 
+         */
+        noise_aware_placement_config to_noise_aware_placement_config() const;
+        
         /// @brief Gate noise channel registry
         /// Map from gate name -> a map of qubit operands -> noise channel
         /// If the noise is uniform (qubit independent), use empty vector for qubit operands.

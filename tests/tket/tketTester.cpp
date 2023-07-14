@@ -7,6 +7,9 @@
 #include <gtest/gtest.h>
 #include <utility>
 #include <random>
+#include "qb/core/noise_model/noise_model.hpp"
+#include "qb/core/passes/noise_aware_placement_pass.hpp"
+#include "qb/core/circuit_builder.hpp"
 
 TEST(QBTketTester, checkSimple) {
   auto xasmCompiler = xacc::getCompiler("xasm");
@@ -356,4 +359,82 @@ TEST(QBTketTester, checkGateConversion) {
   buffer2->print();
   // Check that the measurement distributions are exactly identical.
   EXPECT_EQ(buffer1->getMeasurementCounts(), buffer2->getMeasurementCounts());
+}
+
+TEST(QBTketTester, checkNoiseAwarePlacementFromNoiseModel) {
+  // Make an empty noise model
+  qb::NoiseModel ring_noise_model;
+
+  // Name the model whatever you like
+  ring_noise_model.name = "ring_noise_model";
+
+  // Define the gate fidelities (errors are 1 - fidelity)
+  constexpr double u1_error = 1e-4;
+  constexpr double u2_error = 1e-3;
+  constexpr double u3_error = 1e-3;
+  constexpr double cx_error = 1e-2;
+
+  // Define the readout errors
+  qb::ReadoutError ro_error;
+  ro_error.p_01 = 1e-2;
+  ro_error.p_10 = 5e-3;
+  constexpr int nb_qubits = 3;
+  constexpr size_t bad_qubit = 0;
+  // Loop over the qubits
+  for (size_t qId = 0; qId < nb_qubits; ++qId) {
+    // Set the readout errors
+    ring_noise_model.set_qubit_readout_error(qId, ro_error);
+
+    // Set the single-qubit gate fidelities
+    if (qId == bad_qubit) {
+      // Amplify the noise channels on bad qubits
+      ring_noise_model.add_gate_error(
+          qb::DepolarizingChannel::Create(qId, 10 * u1_error), "u1", {qId});
+      ring_noise_model.add_gate_error(
+          qb::DepolarizingChannel::Create(qId, 10 * u2_error), "u2", {qId});
+      ring_noise_model.add_gate_error(
+          qb::DepolarizingChannel::Create(qId, 10 * u3_error), "u3", {qId});
+    } else {
+      ring_noise_model.add_gate_error(
+          qb::DepolarizingChannel::Create(qId, u1_error), "u1", {qId});
+      ring_noise_model.add_gate_error(
+          qb::DepolarizingChannel::Create(qId, u2_error), "u2", {qId});
+      ring_noise_model.add_gate_error(
+          qb::DepolarizingChannel::Create(qId, u3_error), "u3", {qId});
+    }
+
+    // Set the qubit connections to form a ring
+    const size_t qId2 = (qId != nb_qubits - 1 ? qId + 1 : 0);
+    ring_noise_model.add_qubit_connectivity(qId, qId2);
+
+    // Set the corresponding two-qubit gate fidelities
+    ring_noise_model.add_gate_error(
+        qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx",
+        {qId, qId2});
+    ring_noise_model.add_gate_error(
+        qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx",
+        {qId2, qId});
+  }
+
+  auto noise_aware_placement =
+      qb::create_noise_aware_placement_pass(ring_noise_model);
+  qb::CircuitBuilder my_circuit;
+  my_circuit.H(0);
+  my_circuit.H(1);
+  my_circuit.CNOT(0, 1);
+  noise_aware_placement->apply(my_circuit);
+  my_circuit.print();
+  // Expected to map to
+  // H q1
+  // H q2
+  // CNOT q1,q2
+  // (qubit 0 has much stronger depolarizing noises => bad)
+  auto xacc_ir = my_circuit.get();
+  EXPECT_EQ(xacc_ir->getInstruction(0)->name(), "H");
+  EXPECT_EQ(xacc_ir->getInstruction(0)->bits()[0], 1);
+  EXPECT_EQ(xacc_ir->getInstruction(1)->name(), "H");
+  EXPECT_EQ(xacc_ir->getInstruction(1)->bits()[0], 2);
+  EXPECT_EQ(xacc_ir->getInstruction(2)->name(), "CNOT");
+  EXPECT_EQ(xacc_ir->getInstruction(2)->bits()[0], 1);
+  EXPECT_EQ(xacc_ir->getInstruction(2)->bits()[1], 2);
 }

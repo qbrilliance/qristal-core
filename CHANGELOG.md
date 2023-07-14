@@ -20,6 +20,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - circuit_optimizer, redundancy_removal, two_qubit_squash, peephole_optimisation and simplify_initial circuit optimization passes.
 - Ability to set circuit optimization passes using the session's circuit_optimization property. 
 - Ability to use CUDA Quantum simulator backends with non-CUDAQ kernels (e.g., OpenQASM or circuit builder).
+- Ability to use NoiseModel instances as input to the noise-aware placement pass.
 
 ### Fixed
 

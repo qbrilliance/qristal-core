@@ -4,6 +4,35 @@
 #include <Eigen/Dense>
 #include <unsupported/Eigen/KroneckerProduct>
 
+namespace 
+{
+    using eigen_cmat = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>;
+    using eigen_cvec = Eigen::Vector<std::complex<double>, Eigen::Dynamic>;
+
+    /// Convert an STL-based matrix to an eigen matrix
+    eigen_cmat matrix_to_eigen(const qb::KrausOperator::Matrix &mat) {
+      assert(!mat.empty());
+      const size_t rows = mat.size();
+      const size_t cols = mat.at(0).size();
+      eigen_cmat eigen_mat(rows, cols);
+      for (size_t i = 0; i < rows; ++i) {
+        eigen_mat.row(i) = eigen_cvec::Map(&mat[i][0], mat[i].size());
+      }
+      return eigen_mat;
+    }
+
+    /// Convert an eigen matrix to an STL-based matrix 
+    qb::KrausOperator::Matrix eigen_to_matrix(const eigen_cmat &eigen_mat) {
+      qb::KrausOperator::Matrix mat;
+      for (size_t i = 0; i < eigen_mat.rows(); ++i) {
+        eigen_cvec eigen_row = eigen_mat.row(i);
+        std::vector<std::complex<double>> row(
+            eigen_row.data(), eigen_row.data() + eigen_row.size());
+        mat.emplace_back(row);
+      }
+      return mat;
+    }
+}
 namespace qb
 {
 
@@ -155,4 +184,95 @@ namespace qb
         return GeneralizedPhaseAmplitudeDampingChannel::Create(q, excited_state_population, gamma, /*param_phase*/ 0.0);
     }
 
-}
+    /// Internal method to convert noise channel from Kraus -> Choi representation.
+    /// A CPTP noise channel represented by a list of Kraus operators (matrices)
+    /// can be converted into a single Choi matrix representing that map.
+    /// Note: Kraus matrices acting on N qubits have dimension (2^N, 2^N);
+    /// the corresponding Choi matrix has dimension (4^N, 4^N).
+    static eigen_cmat kraus_to_choi_impl(const std::vector<eigen_cmat> &kraus_mats) 
+    {
+      const std::size_t input_dim = kraus_mats[0].cols();
+      const std::size_t output_dim = kraus_mats[0].rows();
+
+      // construct the un-normalized maximally entangled state
+      eigen_cmat max_entangled_state =
+          eigen_cmat::Zero(input_dim * input_dim, 1);
+      for (size_t i = 0; i < input_dim; ++i) {
+        max_entangled_state(i * input_dim + i, 0) = 1;
+      }
+      eigen_cmat max_entangled_state_adj = max_entangled_state.adjoint();
+      eigen_cmat Omega = max_entangled_state * max_entangled_state_adj;
+
+      eigen_cmat choi_mat =
+          eigen_cmat::Zero(input_dim * output_dim, input_dim * output_dim);
+
+      for (const auto &kraus_mat : kraus_mats) {
+        choi_mat +=
+            Eigen::kroneckerProduct(eigen_cmat::Identity(input_dim, input_dim),
+                                    kraus_mat) *
+            Omega *
+            ((Eigen::kroneckerProduct(
+                  eigen_cmat::Identity(input_dim, input_dim), kraus_mat))
+                 .adjoint());
+      }
+      return choi_mat;
+    }
+
+    /// Helper to convert a noise channel into a list of Kraus ops as Eigen matrices
+    static std::vector<eigen_cmat> noise_channel_to_eigen(const NoiseChannel &noise_channel) 
+    {
+      assert(!noise_channel.empty());
+      std::vector<eigen_cmat> kraus_mats;
+      for (const auto &chan : noise_channel) {
+        kraus_mats.emplace_back(matrix_to_eigen(chan.matrix));
+      }
+      return kraus_mats;
+    }
+
+    /// Apply sqrt to singular values of a matrix.
+    /// i.e., returns U * sqrt(S) * V^T
+    /// where S is the diagonal matrix of singular values
+    static eigen_cmat sqrt_svd_transform(const eigen_cmat &matrix) 
+    {
+      Eigen::JacobiSVD<eigen_cmat> svd(matrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
+      eigen_cmat unitary1 = svd.matrixU();
+      eigen_cmat unitary2 = svd.matrixV();
+      auto singular_values = svd.singularValues();
+      // apply sqrt
+      auto sqrt_singular_values = singular_values.cwiseSqrt();
+      return unitary1 * sqrt_singular_values.asDiagonal() * unitary2.transpose();
+    }
+
+    /// Compute the fidelity of two normalized CPTP maps 
+    /// Returns a value in the range of [0.0, 1.0], assuming that these matrices have been normalized.
+    static double compute_fidelity(const eigen_cmat &mat1, const eigen_cmat &mat2) {
+      /// Ref: https://qiskit.org/documentation/stubs/qiskit.quantum_info.process_fidelity.html#qiskit.quantum_info.process_fidelity
+      auto s1sq = sqrt_svd_transform(mat1);
+      auto s2sq = sqrt_svd_transform(mat2);
+      const auto compute_nuclear_norm = [](const eigen_cmat &mat) -> double {
+        // Sum of eigen values
+        Eigen::JacobiSVD<eigen_cmat> svd(mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
+        return svd.singularValues().sum();
+      };
+      const double fid = std::pow(compute_nuclear_norm(s1sq * s2sq), 2.0);
+      return std::pow(compute_nuclear_norm(s1sq * s2sq), 2.0);
+    }
+
+    KrausOperator::Matrix kraus_to_choi(const NoiseChannel &noise_channel) {
+      return eigen_to_matrix(kraus_to_choi_impl(noise_channel_to_eigen(noise_channel)));
+    }
+
+    /// Compute the process fidelity of a noise channel as compared to a no-noise (Identity) channel.
+    /// e.g., a value of 0.9 means that this channel is equivalent to a ~10% gate noise (as measured by tomography).
+    double process_fidelity(const NoiseChannel &noise_channel) {
+      const size_t input_dim = 1u << (noise_channel[0].qubits.size());
+      auto id_mat = eigen_cmat::Identity(input_dim, input_dim);
+      eigen_cmat choi_id = kraus_to_choi_impl({id_mat});
+      eigen_cmat choi_chan =kraus_to_choi_impl(noise_channel_to_eigen(noise_channel));
+      // normalized by the system dimension
+      // ref: https://qiskit.org/documentation/stubs/qiskit.quantum_info.process_fidelity.html#qiskit.quantum_info.process_fidelity
+      return compute_fidelity(choi_id / (double)input_dim,
+                              choi_chan / (double)input_dim);
+    }
+} // namespace qb
+   
