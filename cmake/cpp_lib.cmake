@@ -79,6 +79,7 @@ target_link_libraries(lightweight_${PROJECT_NAME}
     xacc::xacc
     xacc::quantum_gate
     nlohmann::json
+    yaml-cpp::yaml-cpp
     autodiff::autodiff
     # The following are not strictly needed, but save dependent packages from having to locate them themselves.
     taywee::args
@@ -135,6 +136,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       xacc::pauli
       taywee::args
       nlohmann::json
+      yaml-cpp::yaml-cpp
       autodiff::autodiff
       CURL::libcurl
     PRIVATE
@@ -228,9 +230,12 @@ file(APPEND ${deps_cmake_file} "\nif (NOT COMMAND add_cudaq_executable)\
                                 \nendif()\
                                 \nset(XACC_DIR ${XACC_DIR})\
                                 \nset(nlohmann_json_DIR ${nlohmann_json_DIR})\
+                                \nset(yaml-cpp_DIR ${yaml-cpp_DIR})\
                                 \nset(args_DIR ${args_DIR})\
                                 \nset(pybind11_DIR ${pybind11_DIR})\
-                                \nset(autodiff_DIR ${autodiff_DIR})")
+                                \nset(autodiff_DIR ${autodiff_DIR})\
+                                ")
+
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${deps_cmake_file} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)") 
 else()
@@ -243,6 +248,7 @@ file(APPEND ${deps_cmake_file} "\ncache_install_path()\
                                 \n  find_dependency(XACC)\
                                 \nreset_install_path()\
                                 \nfind_dependency(nlohmann_json ${nlohmann_json_VERSION})\
+                                \nfind_dependency(yaml-cpp)\
                                 \nfind_dependency(args)\
                                 \nset(CURL_NO_CURL_CMAKE ON)\
                                 \nfind_dependency(CURL)\

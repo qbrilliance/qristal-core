@@ -64,6 +64,37 @@ if(pybind11_ADDED)
   install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11)")
 endif()
 
+# Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/23075
+# Redirect YAML_CPP_DIR environment variable to cmake variable yaml-cpp_DIR
+# only when it was not provided on the command line via
+# -Dyaml-cpp_DIR (which will take precedent)
+if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "")
+  if (DEFINED ENV{YAML_CPP_DIR} AND EXISTS "$ENV{YAML_CPP_DIR}")
+    message(STATUS "Setting CMake var yaml-cpp_DIR to: $ENV{YAML_CPP_DIR}/lib/cmake/yaml-cpp")
+    set(yaml-cpp_DIR $ENV{YAML_CPP_DIR}/lib/cmake/yaml-cpp)
+  endif()
+endif()
+set(yamlcpp_VERSION "0.7.0")
+add_dependency(yamlcpp ${yamlcpp_VERSION}
+  GITHUB_REPOSITORY jbeder/yaml-cpp
+  FIND_PACKAGE_NAME yaml-cpp
+  FIND_PACKAGE_VERSION " " #for manual cmake build
+  GIT_TAG b888265
+  PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/yaml-cpp.patch
+  OPTIONS
+    "YAML_BUILD_SHARED_LIBS ON"
+    "YAML_CPP_INSTALL ON"
+    "CMAKE_INSTALL_CONFIG_NAME None"
+    "CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}"
+  )
+if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "yaml-cpp_DIR-NOTFOUND")
+  set(yaml-cpp_DIR "${CMAKE_INSTALL_PREFIX}/cmake/yaml-cpp/yaml-cpp")
+endif()
+if(NOT yamlcpp_ADDED AND TARGET yaml-cpp)
+  add_library(yaml-cpp::yaml-cpp ALIAS yaml-cpp)
+endif()
+
 # Gtest
 set(GTest_VERSION "1.12.1")
 add_dependency(googletest ${GTest_VERSION}
