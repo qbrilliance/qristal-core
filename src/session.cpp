@@ -34,6 +34,24 @@
 // Helper functions
 namespace
 {
+  /// Wrapper of std::scoped_lock to allow for optional locking,
+  /// e.g., doing nothing if no mutex is given.
+  /// Note: std::scoped_lock is templated, i.e., std::scoped_lock<> (no op) and std::scoped_lock<std::mutex> are different types,
+  /// hence cannot use the ternary operator to switch between them.
+  class optional_scoped_lock {
+    /// The real lock (if a mutex is given)
+    std::unique_ptr<std::scoped_lock<std::mutex>> m_lock;
+
+  public:
+    optional_scoped_lock(std::mutex *mutex) {
+      if (mutex) {
+        /// Construct the lock
+        m_lock = std::make_unique<std::scoped_lock<std::mutex>>(*mutex);
+      }
+    }
+    ~optional_scoped_lock() = default;
+  };
+
   // Trim from left (remove leading white spaces, e.g., spaces, tab, empty lines)
   inline std::string ltrim(const std::string &in_str,
                            const char *t = " \t\n\r\f\v")
@@ -972,8 +990,6 @@ namespace qb
       // Random input: generate random circuit
       target_circuit = random_circuit(run_config.num_qubits, (randoms_[ii])[0]);
       {
-        std::scoped_lock lock(m_);
-        // Thread-safe increase the size of instrings_ to cache the random circuit
         if (instrings_.size() < (ii + 1))
         {
           if (debug_)
@@ -1477,235 +1493,7 @@ namespace qb
   
   /// Run (execute) task specified by the (ii, jj) index pair
   void session::run(const size_t ii, const size_t jj) {
-    // Construct validations
-    if (debug_) {
-      std::cout << "Invoked run on circuit: " << ii << ", setting:" << jj
-                << std::endl;
-    }
-
-    // Retrieve and validate run configuration for this (ii, jj) task
-    auto run_config = get_run_config(ii, jj);
-
-    // Check shape consistency
-    int N_ii = is_ii_consistent();
-    int N_jj = is_jj_consistent();
-    if (N_ii < 0) {
-      throw std::range_error("Leading dimension has inconsistent length");
-    }
-
-    if (N_jj < 0) {
-      throw std::range_error("Second dimension has inconsistent length");
-    }
-    // Resize result tables if necessary.
-    ensure_results_table_size(ii, jj);
-
-    const auto file_or_string_or_random_or_ir =
-        validate_infiles_instrings_randoms_irtarget_ms_nonempty(ii, jj);
-    if (file_or_string_or_random_or_ir ==
-        session::circuit_input_types::INVALID) {
-      throw std::invalid_argument("Please check your settings again.");
-    } else if (file_or_string_or_random_or_ir ==
-               session::circuit_input_types::VALID_CUDAQ) {
-#ifdef WITH_CUDAQ
-      // Execute CUDAQ kernel input
-      run_cudaq(ii, jj, run_config);
-#else
-      throw std::runtime_error(
-          "CUDAQ is not supported. Please build qb::core with CUDAQ.");
-#endif
-    } else {
-      bool noplacement      = run_config.no_placement;
-      bool nooptimise       = run_config.no_optimise;
-      bool nosim            = run_config.no_sim;
-      if (debug_)
-      {
-        switch (run_config.source_type)
-        {
-        case source_string_type::XASM:
-          std::cout << "# XASM compiler: xasm" << std::endl;
-          break;
-        case source_string_type::Quil:
-          std::cout << "# Quil v1 compiler: quil" << std::endl;
-          break;
-        case source_string_type::OpenQASM:
-          std::cout << "# OpenQASM compiler: staq" << std::endl;
-        }
-      }
-
-      size_t n_qubits = run_config.num_qubits;
-      if (debug_) std::cout << "# Qubits: " << n_qubits << std::endl;
-      int shots = run_config.num_shots;
-      if (debug_) std::cout << "# Shots: " << shots << std::endl;
-      size_t n_samples = run_config.num_repetitions;
-      if (debug_) std::cout << "# Repetitions: " << n_samples << std::endl;
-      bool output_oqm_enableds = run_config.oqm_enabled;
-      if (debug_) {
-        if (output_oqm_enableds) {
-          std::cout << "# Output transpiled circuit: enabled" << std::endl;
-        } else {
-          std::cout << "# Output transpiled circuit: disabled" << std::endl;
-        }
-      }
-
-      // Read JSON configuration qpu_config
-      const std::string qcv = run_config.qpu_config_json_filepath;
-      parse_qpu_config_json(qcv);
-
-      // ==============================================
-      // Construct/initialize the Accelerator instance
-      // ==============================================
-      // A QCStack client - provide argument 'true' for debug mode
-      std::shared_ptr<xacc::Client> qcs_qdk =
-          std::make_shared<xacc::QCStackClient>();
-      std::shared_ptr<xacc::quantum::QuantumBrillianceRemoteAccelerator> tqdk =
-          std::make_shared<xacc::quantum::QuantumBrillianceRemoteAccelerator>(
-              qcs_qdk);
-      const bool exec_on_hardware =
-          VALID_QB_HARDWARE_ACCS.find(run_config.acc_name) !=
-          VALID_QB_HARDWARE_ACCS.end();
-      // Collect all the options
-      const xacc::HeterogeneousMap mqbacc = construct_qpu_configs(run_config);
-      // Get the simulator
-      auto qpu = get_sim_qpu(run_config);
-      qpu->updateConfiguration(mqbacc);
-      if (exec_on_hardware) {
-        tqdk->updateConfiguration(mqbacc);
-        if (debug_)
-          std::cout << "# " << run_config.acc_name
-                    << " accelerator: initialised" << std::endl;
-      }
-      if (debug_)
-        std::cout << "# " << qpu->name() << " accelerator: initialised"
-                  << std::endl;
-
-      std::shared_ptr<qb::QuantumBrillianceAccelerator> acc =
-          std::make_shared<qb::QuantumBrillianceAccelerator>();
-      acc->updateConfiguration(mqbacc);
-      if (debug_)
-        std::cout << "# Quantum Brilliance accelerator: initialised"
-                  << std::endl;
-
-      // Execute on simulator (qpu)
-      auto buffer_b = xacc::qalloc(n_qubits);
-
-      // ==============================================
-      // ----------------- Compilation ----------------
-      // ==============================================
-      // Get the composite IR to run:
-      std::vector<std::shared_ptr<xacc::CompositeInstruction>> citargets;
-      if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_IR)
-      {
-        // Direct IR input (e.g., circuit builder)
-        citargets.push_back(irtarget_ms_.at(ii).at(0));
-      }
-      else
-      {
-        // String input -> compile
-        const std::string target_circuit = get_target_circuit_qasm_string(ii, jj, run_config);
-        citargets.push_back(compile_input(target_circuit, n_qubits, run_config.source_type));
-      }
-
-      // ==============================================
-      // -----------------  Placement  ----------------
-      // ==============================================
-      xacc::HeterogeneousMap m;
-      // Transform the target to account for QB topology: XACC
-      // "swap-shortest-path"
-      if (!noplacement) {
-        if (debug_)
-          std::cout << "# Quantum Brilliance topology placement: enabled"
-                    << std::endl;
-        std::string placement = "swap-shortest-path";
-        if (!placements_.empty()) {
-          ValidatorTwoDim<VectorString, std::string> placements_valid(
-              placements_, VALID_HARDWARE_PLACEMENTS,
-              " name of placement module");
-          const std::string placement_opt = placements_valid.get(ii, jj);
-
-          if (debug_) {
-            std::cout << "# Placement: " << placement_opt << std::endl;
-          }
-          if (xacc::getIRTransformation(placement_opt)) {
-            placement = placement_opt;
-          } else {
-            std::cout << "Placement module '" << placement_opt
-                      << "' cannot be located. Please check your installation.\n";
-          }
-        }
-        if (run_config.acc_name == "aws_acc") {
-          m.merge(qpu->getProperties());
-        }
-        // Disable QASM inlining during placement.
-        // e.g., we don't want to map gates to the IBM gateset (defined in
-        // qelib1.inc) during placement.
-        m.insert("no-inline", true);
-        auto A = xacc::getIRTransformation(placement);
-        A->apply(citargets.at(0), acc, m);
-      }
-
-      // ==============================================
-      // ----------  Circuit Optimization  ------------
-      // ==============================================
-      // Perform circuit optimisation: XACC "circuit-optimizer"
-      if (!nooptimise) {
-        if (debug_)
-          std::cout << "# Quantum Brilliance circuit optimiser: enabled"
-                    << std::endl;
-        const auto opt_passes = [&]() -> Passes {
-          if (!circuit_opts_.empty()) {
-            ValidatorTwoDim<Table2d<Passes>, Passes> opts_valid(circuit_opts_);
-            return opts_valid.get(ii, jj);
-          }
-
-          // By default, if not otherwise specified, we apply the circuit
-          // optimizer pass
-          return {create_circuit_optimizer_pass()};
-        }();
-        // Apply those optimization passes
-        for (const auto &pass : opt_passes) {
-          if (debug_) {
-            std::cout << "# Apply optimization pass: " << pass->get_name()
-                      << std::endl;
-          }
-          // Wrap the composite IR (citargets[0]) as a CircuitBuilder to send on
-          // to the optimization pass. Set copy_nodes to false to keep the root
-          // node (citargets.at(0)) intact.
-          CircuitBuilder ir_as_circuit(citargets.at(0), /*copy_nodes*/ false);
-          pass->apply(ir_as_circuit);
-        }
-      }
-
-      // ==============================================
-      // ----------  Execution  ------------
-      // ==============================================
-        buffer_b->resetBuffer();
-        xacc::ScopeTimer timer_for_qpu(
-            "Walltime, in ms, for simulator to execute quantum circuit", false);
-        if (!nosim && !exec_on_hardware) {
-          // Execute on the selected simulator
-          execute_on_simulator(qpu, buffer_b, citargets, run_config);
-        }
-        if (exec_on_hardware) {
-          // Store the JSON sent to the QB hardware for the user to inspect
-          out_qbjsons_.at(ii).at(jj) =
-              tqdk->getNativeCode(citargets.at(0), mqbacc);
-
-          // Output the JSON sent to the QB hardware if debug is turned on.
-          if (debug_) {
-            std::cout << "JSON to be sent to QB hardware: " << std::endl;
-            std::cout << out_qbjsons_.at(ii).at(jj) << std::endl;
-          }
-          // Execute (and polling wait)
-          execute_on_hardware(tqdk, buffer_b, citargets, run_config);
-        }
-
-        // ==============================================
-        // ------------  Post processing  ---------------
-        // ==============================================
-        const double xacc_scope_timer_qpu_ms = timer_for_qpu.getDurationMs();
-        process_run_result(ii, jj, run_config, citargets.at(0), qpu, mqbacc,
-                           buffer_b, xacc_scope_timer_qpu_ms, acc);
-    }
+   run_internal(ii, jj, /*acc = */ nullptr);
   }
 
   void session::run() {
@@ -1996,10 +1784,14 @@ namespace qb
 
   Executor &session::get_executor() { return *executor_; }
 
-  // !IMPORTANT! Make sure this function stays threadsafe
-  std::shared_ptr<async_job_handle> session::run_async(const std::size_t ii, const std::size_t jj,
-                       std::shared_ptr<xacc::Accelerator> accelerator) {
-    if (debug_) {
+  std::shared_ptr<async_job_handle> session::run_async(const std::size_t ii, const std::size_t jj, std::shared_ptr<xacc::Accelerator> accelerator) {
+    static std::mutex shared_mutex;
+    return run_internal(ii, jj, accelerator, &shared_mutex);
+  }
+
+   std::shared_ptr<async_job_handle> session::run_internal(const std::size_t ii, const std::size_t jj,
+                     std::shared_ptr<xacc::Accelerator> accelerator, std::mutex* optional_mutex) {
+    if (debug_ && accelerator) {
       std::stringstream msg;
       msg << "thread " << std::this_thread::get_id() << " run_async (ii,jj): ("
           << ii << "," << jj << ") with acc: " << accelerator->name() << "(" << accelerator << ")" << std::endl;
@@ -2025,7 +1817,7 @@ namespace qb
     }
 
     {
-      std::scoped_lock lock(m_);
+      optional_scoped_lock lock(optional_mutex);
       // Resize result tables if necessary.
       // (resizing vectors => need lock)
       ensure_results_table_size(ii, jj);
@@ -2039,6 +1831,19 @@ namespace qb
     if (file_or_string_or_random_or_ir ==
         session::circuit_input_types::INVALID) {
       throw std::invalid_argument("Please check your settings again.");
+    }
+
+    if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_CUDAQ) {
+#ifdef WITH_CUDAQ
+      // Running CUDAQ in an async. context is illegal!
+      assert(!optional_mutex);
+      // Execute CUDAQ kernel input
+      run_cudaq(ii, jj, run_config);
+      return nullptr;
+#else
+      throw std::runtime_error(
+          "CUDAQ is not supported. Please build qb::core with CUDAQ.");
+#endif
     }
 
     bool noplacement = run_config.no_placement;
@@ -2082,12 +1887,24 @@ namespace qb
       debug_msg.str("");
     }
 
+    // Read JSON configuration qpu_config (QB hardware configurations)
+    if (!accelerator) {
+      const std::string qcv = run_config.qpu_config_json_filepath;
+      parse_qpu_config_json(qcv);
+    }
+    const bool exec_on_hardware = VALID_QB_HARDWARE_ACCS.find(run_config.acc_name) != VALID_QB_HARDWARE_ACCS.end();
     // Collect all the simulator options (thread safe)
     const xacc::HeterogeneousMap mqbacc = construct_qpu_configs(run_config);
-    // Note: unlike run(i, j); run_async(i, j) has an accelerator attached to it
-    // (from a pool); hence, we don't need to construct the simulator instance
-    // (get_sim_qpu)
-    auto &qpu = accelerator;
+
+    // ==============================================
+    // Construct/initialize the Accelerator instance
+    // ==============================================
+    // Note: there are two cases here: 
+    // (1) Asynchronous execution: an accelerator instance is explicitly provided 
+    // i.e., run_async(i, j), whereby an accelerator from a pre-defined pool is provided.
+    // (2) Synchronous/sequential execution whereby the accelerator name for this (i, j) job is set in this session object,
+    // hence, we just construct/retrieve it accordingly. 
+    auto qpu = accelerator ? accelerator : get_sim_qpu(run_config);
     auto acc = std::make_shared<qb::QuantumBrillianceAccelerator>();
     qpu->updateConfiguration(mqbacc);
     acc->updateConfiguration(mqbacc);
@@ -2096,7 +1913,7 @@ namespace qb
     std::vector<std::shared_ptr<xacc::CompositeInstruction>> citargets;
     {
       // Lock up until the circuit is executed
-      std::scoped_lock lock(m_);
+      optional_scoped_lock lock(optional_mutex);
       // ==============================================
       // ----------------- Compilation ----------------
       // ==============================================
@@ -2211,7 +2028,7 @@ namespace qb
     buffer_b->resetBuffer();
     xacc::ScopeTimer timer_for_qpu(
         "Walltime, in ms, for simulator to execute quantum circuit", false);
-    if (!nosim) {
+    if (!nosim && !exec_on_hardware) {
       try {
         if (debug_) {
           debug_msg << "# "
@@ -2240,19 +2057,41 @@ namespace qb
           return aws_job_handle;
         } else {
           // Blocking execution of a local simulator instance
-          qpu->execute(buffer_b, citargets.at(0));
+          execute_on_simulator(qpu, buffer_b, citargets, run_config);
         }
       } catch (...) {
         throw std::invalid_argument(
             "The simulation of your input circuit failed");
       }
+    } else if (exec_on_hardware) {
+      // Hardware execution
+      // We don't expect to run this in an async. context (e.g., an acceletor
+      // instance from a pool given)
+      assert(!accelerator && !optional_mutex);
+      // A QCStack client - provide argument 'true' for debug mode
+      std::shared_ptr<xacc::Client> qcs_qdk = std::make_shared<xacc::QCStackClient>();
+      std::shared_ptr<xacc::quantum::QuantumBrillianceRemoteAccelerator> tqdk = std::make_shared<xacc::quantum::QuantumBrillianceRemoteAccelerator>(qcs_qdk);
+      tqdk->updateConfiguration(mqbacc);
+      if (debug_)
+        std::cout << "# " << run_config.acc_name
+                  << " accelerator: initialised" << std::endl;
+      // Store the JSON sent to the QB hardware for the user to inspect
+      out_qbjsons_.at(ii).at(jj) = tqdk->getNativeCode(citargets.at(0), mqbacc);
+
+      // Output the JSON sent to the QB hardware if debug is turned on.
+      if (debug_) {
+        std::cout << "JSON to be sent to QB hardware: " << std::endl;
+        std::cout << out_qbjsons_.at(ii).at(jj) << std::endl;
+      }
+      // Execute (and polling wait)
+      execute_on_hardware(tqdk, buffer_b, citargets, run_config);
     }
     // ==============================================
     // ------------  Post processing  ---------------
     // ==============================================
 
     {
-      std::scoped_lock lock(m_);
+      optional_scoped_lock lock(optional_mutex);
       /// Post-processing results for run_async with local simulators:
       /// i.e., simulation occurs on this thread.
       // Note: this will write to STL vectors, hence, needing a scoped_lock.

@@ -178,10 +178,6 @@ namespace qb
       VectorMapND out_total_init_maxgate_readout_times_;
       VectorMapND out_z_op_expects_;
 
-
-
-      // Thread locking
-      std::mutex m_;
       // Parallel (async) executor
       std::shared_ptr<Executor> executor_;
 
@@ -1453,6 +1449,12 @@ namespace qb
           std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
           std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
           const run_i_j_config &run_config);
+
+      /// Internal (ii, jj) task execution.
+      /// acc: if given (not null), this will be used for simulation. Otherwise, constructed from the run configuration for (ii, jj).
+      /// optional_mutex: if not null, performed locking as appropriate to make this execution thread safe (e.g., accessing data members of this session instance). 
+      std::shared_ptr<async_job_handle> run_internal(const std::size_t ii, const std::size_t jj,
+                     std::shared_ptr<xacc::Accelerator> acc, std::mutex* optional_mutex = nullptr); 
 #ifdef WITH_CUDAQ
       // Run CUDAQ kernel assigned as (i, j) task of this session
       void run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config);
