@@ -256,7 +256,7 @@ namespace qb::vqee {
 
       // instantiate XACC VQE
       std::shared_ptr<xacc::Algorithm> vqe;
-      if (params_.isDeterministic) {
+      if ((params_.isDeterministic) && (accelerator->name() != "hpc-virtualization")) {
         // Handle the case where a state-vector simulator is the back-end,
         // whereby expectation can be calculated from linear algebra    
         vqe = xacc::getAlgorithm("vqe-gen");
