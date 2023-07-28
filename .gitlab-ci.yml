@@ -48,6 +48,7 @@ ci-build-for-emulator:
     paths: 
       # These are all the things required to install the core for supporting the build of the emulator.
       - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/afterCPMAddPackage.cmake
       - core_artefacts/build/coreDependencies.cmake
       - core_artefacts/build/qbcore-config.cmake
       - core_artefacts/build/qbcore-config-version.cmake
@@ -83,6 +84,7 @@ ci-build:
     paths:
       # These are all the things required to install the full core.
       - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/afterCPMAddPackage.cmake
       - core_artefacts/build/coreDependencies.cmake
       - core_artefacts/build/qbcore-config.cmake
       - core_artefacts/build/qbcore-config-version.cmake
@@ -123,6 +125,7 @@ cudaq-build:
     paths:
       # These are all the things required to install the full core.
       - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/afterCPMAddPackage.cmake
       - core_artefacts/build/coreDependencies.cmake
       - core_artefacts/build/qbcore-config.cmake
       - core_artefacts/build/qbcore-config-version.cmake

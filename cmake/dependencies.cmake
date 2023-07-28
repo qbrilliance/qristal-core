@@ -26,13 +26,13 @@ endif()
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
+# XACC
 set(XACC_TAG "05164c13")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
 else()
   set(XACC_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 endif()
-# XACC
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
   GIT_TAG ${XACC_TAG}
