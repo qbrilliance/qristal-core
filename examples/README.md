@@ -386,6 +386,14 @@ _noise_: false
 
 Demonstrates how to inject python code into our c++ libs. Shows inclusion of external python chemistry package pyscf into Qristal's built-in VQE routines.
 
+`vqee_example_4.py`
+
+_qubits_: 4
+_gate depth_: 1
+_noise_: false
+
+Demonstrates selection of a different classical optimization algorithm (Nelder-Mead), along with extra options to constrain the parameters and terminate the optimization.
+
 `simple_placement.py`
 
 A simple example demonstrating circuit placement based on backend topology.

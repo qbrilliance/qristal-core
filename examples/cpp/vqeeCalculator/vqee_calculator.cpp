@@ -194,6 +194,12 @@ int main (int argc, char *argv[]) {
     args::ValueFlag<int>          CLImaxIters(parser, "maxIters", "Max optimizer iterations, e.g. 50", {"maxIters"});
     args::ValueFlag<double>      CLItolerance(parser, "tolerance", "Optimizer tolerance, e.g. 1E-6", {"tolerance"});  
     
+    // Classical optimiser selection
+    args::ValueFlag<std::string>       CLIalgorithm(parser, "algorithm", "Algorithm for optimiser, e.g. \"nelder-mead\"", {"algorithm"});
+
+    // Classical optimiser: additional options in YAML format
+    args::ValueFlag<std::string>     CLIextraOptions(parser, "extraOptions", "extra options (in YAML string format) for the optimiser, e.g. \"{upperbound: [0.1,0.1,0.1], lowerbound: [-0.5,-0.5,-0.5]}\"", {"extraOptions"});
+
     args::HelpFlag                       CLIh(parser, "help", "help", {"help"});
     args::Flag                     CLIverbose(parser, "verbose", "", {"verbose"});
     args::Flag                    CLIenableVis(parser, "enableVis", "Enable convergence trace visualization", {"enableVis"});
@@ -359,7 +365,8 @@ int main (int argc, char *argv[]) {
         readOutIfAvailable(params.tolerance, jsonObj, "tolerance", isRoot);
         readOutIfAvailable(params.nShots, jsonObj, "nShots", isRoot);
         params.isDeterministic = params.nShots<=1;
-        readOutIfAvailable(params.partitioned, jsonObj, "partitioned", isRoot);
+        readOutIfAvailable(params.algorithm, jsonObj, "algorithm", isRoot);
+        readOutIfAvailable(params.extraOptions, jsonObj, "extraOptions", isRoot);
         readOutIfAvailable(params.enableVis, jsonObj, "enableVis", isRoot);
         readOutIfAvailable(params.showTheta, jsonObj, "showTheta", isRoot);
     } else {
@@ -446,6 +453,8 @@ int main (int argc, char *argv[]) {
         setOptionIfAvailable(params.tolerance, CLItolerance, "tolerance", isRoot);
         setOptionIfAvailable(params.enableVis, CLIenableVis, "enableVis", isRoot);
         setOptionIfAvailable(params.showTheta, CLIshowTheta, "showTheta", isRoot);
+        setOptionIfAvailable(params.algorithm, CLIalgorithm, "algorithm", isRoot);
+        setOptionIfAvailable(params.extraOptions, CLIextraOptions, "extraOptions", isRoot);
         params.isDeterministic = params.nShots<=1;
         // params.partitioned = true; // enable for cases with many Pauli-terms
 

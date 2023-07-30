@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "job_constants.hpp"
+#include "yaml-cpp/yaml.h"
 
 // from xacc libs
 #include "Utils.hpp"
@@ -31,6 +32,10 @@ struct Params {
   std::string         circuitString{};
   std::string         pauliString{};
   std::string         acceleratorName{"qpp"};
+  /// @brief algorithm : sets the classical optimisation algorithm, e.g "nelder-mead", "cobyla", "l-bfgs"
+  std::string         algorithm{"cobyla"};
+  /// @brief extraOptions : YAML format for options to use with the classical optimiser
+  std::string         extraOptions{};
   double              tolerance{1E-6};
   double              optimalValue{};
   std::vector<double> energies{};
@@ -60,6 +65,159 @@ struct Params {
   bool                blocked{false};
   /// @brief  vis : a visualisation of energy and each element of theta, at selected iterations of VQE.
   std::string         vis{};
+};
+
+/**
+ * @brief Selection of classical optimisation algorithms and associated hyperparameters.
+ * Override get() in a derived class and provide a definition that validates the relevant hyperparameters there.
+ * 
+ * Additional hyperparameters ie "extra options" should be stored in the YAML::Node member [m_node_]
+ */
+class VqeOpt {
+  protected:
+    /// Name for the C++ optimisation library.  These libraries supply a collection of algorithms through a consistent interface.
+    std::string m_provider_;
+
+    /// Name for an algorithm that performs optimisation
+    std::string m_algorithm_;
+
+    /// Initial values for theta (the parameters that will be varied to find the optimum)
+    std::vector<double> m_initial_parameters_;
+
+    /// Max number of iterations
+    int m_maxeval_;
+
+    /// Function tolerance
+    double m_ftol_;
+
+    /// Extra options to supply as configuration information to the optimiser
+    YAML::Node m_node_;
+  public:
+    /// Default constructor
+    VqeOpt() :
+      m_provider_{},
+      m_algorithm_{},
+      m_initial_parameters_{},
+      m_maxeval_{},
+      m_ftol_{},
+      m_node_{}
+    {}
+
+    /// Constructor for the most common use case
+    VqeOpt(const std::string& in_provider,
+           const std::string& in_algorithm) :
+      m_provider_(in_provider),
+      m_algorithm_ (in_algorithm)
+    {}
+
+    /// Constructor for initialisation of all data members
+    VqeOpt(const std::string& in_provider,
+           const std::string& in_algorithm,
+           const std::vector<double>& in_initial_parameters,
+           const int in_maxeval,
+           const double in_ftol,
+           const YAML::Node& in_node) :
+                 m_provider_(in_provider),
+                 m_algorithm_(in_algorithm),
+                 m_initial_parameters_(in_initial_parameters),
+                 m_maxeval_(in_maxeval),
+                 m_ftol_(in_ftol),
+                 m_node_(in_node)
+    {}
+
+    /// Getters
+    virtual std::shared_ptr<xacc::Optimizer> get() {}; // provide override in derived class
+    
+    /**
+     * Helper template for converting YAML to XACC options
+     * 
+     * @param node YAML formatted string of extra options
+     * @param keys std::set of key names expected in the YAML that all have a corresponding value of type T
+     * @param yaml_to_xacc_keys Lookup from keys in YAML to keys recognised by XACC
+     * @param in_xoptions Resulting XACC options 
+     * @param debug Debug flag
+     */
+    template<typename T> 
+    static void pass_yaml_to_xacc(const YAML::Node& node, 
+                                  const std::set<std::string>& keys, 
+                                  const std::map<std::string, std::string>& yaml_to_xacc_keys,
+                                  xacc::HeterogeneousMap& in_xoptions,
+                                  bool debug = false) {
+      for (const std::string& key : keys) {
+        // Make sure key has a xacc equivalent
+        if (yaml_to_xacc_keys.count(key) != 1) {
+          throw std::range_error("No XACC equivalent for " + key);
+        }  
+        // If the key has been passed, send it on to XACC
+        if (node[key]) {
+          if (debug) std::cout << "Adding: " << yaml_to_xacc_keys.at(key) << " : " << node[key] << "\n";
+          in_xoptions.insert(yaml_to_xacc_keys.at(key), node[key].as<T>());
+        }
+      }
+    }
+};
+
+/** @brief Nelder-Mead algorithm from the nlopt library
+ *  Nelder-Mead is a gradient-free algorithm and works 
+ *  best when some noise is present.
+ */
+class NelderMeadNLO : public VqeOpt {
+  private:
+    /// Extra options accepted by Nelder-Mead that will be detected from the YAML string
+    
+    /// Integer-valued fields
+    std::set<std::string> integer_valued_fields_{};
+    
+    /// String-valued fields
+    std::set<std::string> string_valued_fields_{};
+    
+    /// Boolean-valued fields
+    std::set<std::string> boolean_valued_fields_{"maximise",
+                                                 "maximize"};
+    
+    /// Double-valued fields
+    std::set<std::string> double_valued_fields_{"stopval"};
+
+    /// Vector of double fields
+    std::set<std::string> vector_double_valued_fields_{"upperbounds",
+                                                       "lowerbounds"};
+    /// Union of all the above fields. Conversion of keys from YAML -> XACC
+    std::map<std::string, std::string> all_valid_fields_yaml_xacc_{
+                                                {"maximise","maximize"},
+                                                {"maximize","maximize"},
+                                                {"stopval","nlopt-stopval"},
+                                                {"upperbounds","nlopt-upper-bounds"},
+                                                {"lowerbounds","nlopt-lower-bounds"}};
+              
+  public:
+    /// Default constructor - calls the base class and sets the provider name and algorithm name
+    NelderMeadNLO() : VqeOpt("nlopt", "nelder-mead") {};
+
+    /// Constructor showing all defaults, except for in_initial_parameters
+    NelderMeadNLO(const std::vector<double>& in_initial_parameters,
+                  const int in_maxeval = 1000,
+                  const double in_ftol = 1.0e-6) : VqeOpt("nlopt", "nelder-mead")
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;  
+    }
+
+    /// Constructor that also accept extra options in YAML format
+    NelderMeadNLO(const std::vector<double>& in_initial_parameters,
+                  const int in_maxeval,
+                  const double in_ftol,
+                  const YAML::Node& in_node) : VqeOpt("nlopt", "nelder-mead")
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;
+      m_node_ = in_node;
+    }
+
+    /// Getters
+    std::shared_ptr<xacc::Optimizer> get() override;    
+    
 };
 
 // print ansatz to string

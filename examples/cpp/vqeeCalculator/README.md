@@ -11,7 +11,6 @@ make
 ```
 
 ## Limitations
-- Classical optimization algorithm: `cobyla`
 - Noise model: none
 
 ## JSON input and output
@@ -35,7 +34,9 @@ The fields that are recognized in `$json_input_file` are shown below:
 | `thetas` | `"thetas": [-0.2,0.14,1.01]` | Initial values for ansatz parameters.<br/>A value is needed for each <br />parameter in the ansatz. |
 | `acceleratorName` | `"acceleratorName": "qpp"` | Backend for executing quantum circuits |
 | `maxIters` | `"maxIters": 100` | Maximum iteration count <br />for the classical optimizer |
-| `isDeterministic` | `"isDeterministic": true` | When set to `false`, <br />expectations are calculated <br />from samples (`nShots` in size)  <br /><br />When<br /> `"acceleratorName": "qpp"`<br />and <br/>`"isDeterministic": true`, <br />expectations are calculated directly <br />using linear algebra. |
+| `algorithm` | `"algorithm": "nelder-mead"` | Selects the algorithm used for optimization |
+| `extraOptions` | `"extraOptions": "{<key1>: <value1>, <key2>: <value2>, ...}"` | Extra options specific <br />to the optimization <br />algorithm set in <br />`algorithm`.  <br /><br />More details on the <br />key-value pairs relevant to each <br />algorithm are at this [link](https://qristal.readthedocs.io/en/latest/rst/vqe.html#setting-up-the-optimization-algorithm). |
+| `isDeterministic` |`"isDeterministic": true` | When set to `false`, <br />expectations are calculated <br />from samples (`nShots` in size)  <br /><br />When<br /> `"acceleratorName": "qpp"`<br />and <br/>`"isDeterministic": true`, <br />expectations are calculated directly <br />using linear algebra. |
 | `enableVis` | `"enableVis": true` | Enable convergence trace <br />visualisation |
 | `showTheta` | `"showTheta": true` | Enable the display of <br />theta elements in the<br />convergence trace visualisation |
 | `tolerance` | `"tolerance": 1.0e-5` | Function tolerance <br/>(used as a termination criterion <br />in the classical optimizer) |

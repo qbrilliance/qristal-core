@@ -248,12 +248,22 @@ namespace qb::vqee {
       std::shared_ptr<xacc::Observable> observable{getObservable()};          // 3 of 4: observable from string
       
       // 4 of 4: optimiser
-      std::shared_ptr<xacc::Optimizer> optimizer = xacc::getOptimizer("nlopt");
-      optimizer->setOptions(xacc::HeterogeneousMap{std::make_pair("initial-parameters", params_.theta),
-                                                  std::make_pair("nlopt-optimizer",    "cobyla"), // ["nelder-mead", "l-bfgs" or "cobyla"], default: "cobyla"
+      std::shared_ptr<xacc::Optimizer> optimizer;
+      if (params_.algorithm == "nelder-mead") {
+          qb::vqee::NelderMeadNLO opt_nlmd = qb::vqee::NelderMeadNLO(params_.theta, 
+                                                               params_.maxIters,
+                                                               params_.tolerance,
+                                                               YAML::Load(params_.extraOptions));
+          optimizer = opt_nlmd.get();
+      } else {
+          // This is the default when no algorithm is specified
+          optimizer = xacc::getOptimizer("nlopt");
+          optimizer->setOptions(xacc::HeterogeneousMap{std::make_pair("initial-parameters", params_.theta),
+                                                  std::make_pair("nlopt-optimizer",    "cobyla"), // default: "cobyla"
                                                   std::make_pair("nlopt-maxeval",      params_.maxIters),
                                                   std::make_pair("nlopt-ftol",         params_.tolerance)});
-
+      }
+ 
       // instantiate XACC VQE
       std::shared_ptr<xacc::Algorithm> vqe;
       if ((params_.isDeterministic) && (accelerator->name() != "hpc-virtualization")) {

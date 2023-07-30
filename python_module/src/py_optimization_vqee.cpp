@@ -25,6 +25,8 @@ void bind_vqee(pybind11::module &opt_m) {
       .def_readwrite("nQubits", &qb::vqee::Params::nQubits)
       .def_readwrite("nShots", &qb::vqee::Params::nShots)
       .def_readwrite("maxIters", &qb::vqee::Params::maxIters)
+      .def_readwrite("algorithm", &qb::vqee::Params::algorithm)
+      .def_readwrite("extraOptions", &qb::vqee::Params::extraOptions)
       .def_readwrite("isDeterministic", &qb::vqee::Params::isDeterministic)
       .def_readonly("energies", &qb::vqee::Params::energies)
       .def_readonly("iterationData", &qb::vqee::Params::iterationData)

@@ -141,6 +141,26 @@ The following VQE attributes are accepted:
 | `tolerance` | `tvqep.tolerance = `<br />`1e-6` | Sets the function tolerance <br />that is used by the optimizer. |
 | `acceleratorName` | `tvqep.acceleratorName = `<br />`'qpp'` | Selects the back-end that <br />will  perform quantum circuit <br />execution. |
 
+### Setting up the optimization algorithm
+By default, the `cobyla` (gradient-free) algorithm will be used.  Alternative algorithms for driving the optimization can be used, along with extra options that are specific to individual algorithms.  The setup for each algorithm is discussed in the next sections.
+
+**Note**: These previously described attributes also apply to all algorithms below:
+
+* `maxIters`
+* `tolerance`
+* `optimalParameters`
+#### **Nelder-Mead**
+
+| Attribute | Example | Details |
+| ---- | ---- | ---- |
+| `algorithm` | `tvqep.algorithm = `<br />` "nelder-mead"` | Selects the <br /> Nelder-Mead algorithm from <br /> the nlopt C++ library. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"stopval: -1.05"` | Exits the optimization <br />as soon as the **energy <br />is below this threshold value**. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"lowerbounds: [-0.01, -0.01, -0.01]"` | Imposes  **lower-bounds** <br />on the value of `theta`. <br /><br />The number of elements <br />in the list must <br /> equal the number of <br />elements in `theta`. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"upperbounds: [0.1, 0.1, 0.1]"` | Imposes  **upper-bounds** <br />on the value of `theta`. <br /><br />The number of elements <br />in the list must <br /> equal the number of <br />elements in `theta`. |
+
+**Note**: `extraOptions` is a YAML string field, so you can for example have all options specified with:
+
+`tvqep.extraOptions = `<br />`"{lowerbounds: [-0.01, -0.01, -0.01], upperbounds: [0.1, 0.1, 0.1], stopval: -1.05}"`
 ### Triggering the VQE execution
 ```python
 qv = qbOpt.VQEE(tvqep)
