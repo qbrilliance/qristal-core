@@ -25,6 +25,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "None" "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Determine whether to permit optimisations based on the local architecture
+option(COMPILE_FOR_LOCAL_ARCH OFF)
+if(COMPILE_FOR_LOCAL_ARCH)
+  message(STATUS "Enabling optimisations based on local architecture.")
+else()
+  message(STATUS "Using cross-compilation mode (no optimisations based on local architecture).")
+endif()
+
 # Parse INSTALL_MISSING
 if (INSTALL_MISSING STREQUAL "CXX" OR INSTALL_MISSING STREQUAL "CPP")
   set(INSTALL_MISSING_CXX ON)

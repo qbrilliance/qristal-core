@@ -1,0 +1,73 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d00884ff..281a76fa 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -154,6 +154,12 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "DEBUG")
+   add_compile_definitions(_XACC_DEBUG)
+ ENDIF()
+ 
++# Whether to allow accelerators to build binaries optimised for the local architecture or not.
++option(COMPILE_FOR_LOCAL_ARCH ON)
++if(COMPILE_FOR_LOCAL_ARCH)
++  add_compile_definitions(__COMPILE_FOR_LOCAL_ARCH__)
++endif()
++
+ # Find LAPACK (optional)
+ find_package(LAPACK)
+ 
+@@ -318,4 +324,4 @@ if(XACC_CPACK_RPM_PLATFORM)
+   endif()
+ 
+   include(CPack)
+-endif()
+\ No newline at end of file
++endif()
+diff --git a/quantum/plugins/ibm/aer/CMakeLists.txt b/quantum/plugins/ibm/aer/CMakeLists.txt
+index d1a65250..057f0cc3 100644
+--- a/quantum/plugins/ibm/aer/CMakeLists.txt
++++ b/quantum/plugins/ibm/aer/CMakeLists.txt
+@@ -3,7 +3,7 @@ set(LIBRARY_NAME xacc-aer)
+ add_subdirectory(py-aer)
+ 
+ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+-  if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
++  if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64" AND COMPILE_FOR_LOCAL_ARCH)
+     set(AER_SIMD_SOURCE_FILE src/simulators/statevector/qv_avx2.cpp)
+   endif()
+ endif()
+@@ -30,7 +30,7 @@ target_link_libraries(${LIBRARY_NAME}
+                         )
+ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64" OR CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
+   if(APPLE OR UNIX)
+-    if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
++    if (NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64" AND COMPILE_FOR_LOCAL_ARCH)
+       set_source_files_properties(${AER_SIMD_SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-march=native -mfma -mavx2")
+     endif()
+   endif()    
+diff --git a/quantum/plugins/ibm/aer/src/misc/common_macros.hpp b/quantum/plugins/ibm/aer/src/misc/common_macros.hpp
+index 0d6029fd..2c5a60c3 100644
+--- a/quantum/plugins/ibm/aer/src/misc/common_macros.hpp
++++ b/quantum/plugins/ibm/aer/src/misc/common_macros.hpp
+@@ -15,7 +15,7 @@
+ #ifndef QASM_SIMULATOR_COMMON_MACROS_HPP
+ #define QASM_SIMULATOR_COMMON_MACROS_HPP
+ 
+-#if defined(__GNUC__) && defined(__x86_64__)
++#if defined(__GNUC__) && defined(__x86_64__) && defined(__COMPILE_FOR_LOCAL_ARCH__)
+  #define GNUC_AVX2
+ #endif
+ 
+diff --git a/quantum/plugins/qsim/CMakeLists.txt b/quantum/plugins/qsim/CMakeLists.txt
+index 7026f728..6e9754e7 100644
+--- a/quantum/plugins/qsim/CMakeLists.txt
++++ b/quantum/plugins/qsim/CMakeLists.txt
+@@ -21,7 +21,8 @@ if(OpenMP_CXX_FOUND)
+   target_compile_definitions(${LIBRARY_NAME} PUBLIC _OPENMP)
+   target_link_libraries(${LIBRARY_NAME} PUBLIC OpenMP::OpenMP_CXX)
+ endif()
+-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
++if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)"
++    AND COMPILE_FOR_LOCAL_ARCH)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+ endif()
+ 
