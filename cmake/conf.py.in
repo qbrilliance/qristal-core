@@ -16,6 +16,12 @@ import sys
 sys.path.insert(0, '@CMAKE_CURRENT_BINARY_DIR@')
 import sphinx_rtd_theme
 
+# -- Google Analytics --
+
+def setup(app):
+    app.add_js_file("https://www.googletagmanager.com/gtag/js?id=@QB_GOOGLE_ANALYTICS_ID@", loading_method="async")
+    app.add_js_file("js/qb_ga.js")
+
 # -- Project information -----------------------------------------------------
 
 project = 'Quantum SDK'

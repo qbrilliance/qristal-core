@@ -4,6 +4,9 @@ if (NOT DOXYGEN_FOUND)
   message(FATAL_ERROR "Cannot locate doxygen. Please install Doxygen or disable documentation build (e.g., do not set -DBUILD_DOCS=ON/TRUE when running cmake).")
 endif ()
 
+set(QB_GOOGLE_ANALYTICS_ID G-EML76VL6ZZ)
+set(QB_CLARITY_ID i8ah5yqrew)
+
 execute_process(COMMAND ${Python_EXECUTABLE} -c "import sphinx" RESULT_VARIABLE SPHINX_EXISTS)
 if (SPHINX_EXISTS EQUAL "1")
   message(FATAL_ERROR "Cannot locate sphinx. Please install sphinx 4.5.0 (e.g., 'python3 -m pip install sphinx==4.5.0') or disable documentation build (e.g., do not set -DBUILD_DOCS=ON/TRUE when running cmake).")
@@ -121,6 +124,9 @@ set(SPHINX_CONFIG_OUT ${SPHINX_OUTPUT_DIR}/conf.py)
 set(SPHINX_BUILD_DIR ${SPHINX_OUTPUT_DIR}/_build)
 set(RTD_INDEX_FILE ${SPHINX_BUILD_DIR}/html/index.html)
 
+set(GOOGLE_ANALYTICS_CONFIG_IN ${CMAKE_CURRENT_LIST_DIR}/qb_ga.js.in)
+set(GOOGLE_ANALTYICS_CONFIG_OUT ${SPHINX_SOURCE_DIR}/static/js/qb_ga.js)
+
 # Set up dependencies for cmake incremental build
 # All the extra markdown and reStructuredText files.
 # i.e., cmake to invoke the custom target below when these files are changed.
@@ -132,6 +138,9 @@ list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/cpp/vqeeCalculat
 
 #Replace variables inside @@ with the current values
 configure_file(${SPHINX_CONFIG_IN} ${SPHINX_CONFIG_OUT} @ONLY)
+configure_file(${GOOGLE_ANALYTICS_CONFIG_IN} ${GOOGLE_ANALTYICS_CONFIG_OUT} @ONLY)
+
+
 # Sphinx build flags:
 #   (1) "-E -a": force rebuild
 #   (2) "-W": treat warnings as errors (e.g., missing Doxygen comments in the files that we want to document)
