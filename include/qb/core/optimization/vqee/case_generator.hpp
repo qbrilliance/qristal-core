@@ -157,6 +157,92 @@ class VqeOpt {
     }
 };
 
+/** @brief ADAptive Momentum (ADAM) estimator algorithm from the mlpack library
+ * ADAM is a stochastic gradient descent algorithm often used in machine learning applications.
+ */
+class AdamMLP : public VqeOpt {
+  private:
+    /// Extra options accepted by ADAM that will be detected from the YAML string
+    /**
+     * Step size for each iteration
+     *   YAML key: "stepsize"
+     *   XACC key: "mlpack-step-size"
+     *   Default: [double] 0.5
+     * 
+     * Exponential decay rate for the first moment estimates
+     *   YAML key: "beta1"
+     *   XACC key: "mlpack-beta1"
+     *   Default: [double] 0.7
+     * 
+     * Exponential decay rate for the weighted infinity-norm estimates
+     *   YAML key: "beta2"
+     *   XACC key: "mlpack-beta2"
+     *   Default: [double] 0.999
+     * 
+     * Mean-squared gradient initial value
+     *   YAML key: "eps"
+     *   XACC key: "mlpack-eps"
+     *   Default: [double] 1.0e-8
+     * 
+     * Momentum
+     *   YAML key: "momentum"
+     *   XACC key: "mlpack-momentum"
+     *   Default: [double] 0.05
+     * 
+     * Exact objective
+     *   YAML key: "exactobjective"
+     *   XACC key: "adam-exact-objective"
+     *   Default: [boolean] false
+     */
+    
+    /// Integer-valued fields
+    std::set<std::string> integer_valued_fields_{};
+    
+    /// String-valued fields
+    std::set<std::string> string_valued_fields_{};
+    
+    /// Boolean-valued fields
+    std::set<std::string> boolean_valued_fields_{"exactobjective"};
+    
+    /// Double-valued fields
+    std::set<std::string> double_valued_fields_{"stepsize",
+                                                "beta1",
+                                                "beta2",
+                                                "eps",
+                                                "momentum"};
+
+    /// Vector of double fields
+    std::set<std::string> vector_double_valued_fields_{};
+
+    /// Union of all the above fields. Conversion of keys from YAML -> XACC
+    std::map<std::string, std::string> all_valid_fields_yaml_xacc_{
+                                                {"exactobjective","adam-exact-objective"},
+                                                {"stepsize","mlpack-step-size"},
+                                                {"beta1","mlpack-beta1"},
+                                                {"beta2","mlpack-beta2"},
+                                                {"eps","mlpack-eps"},
+                                                {"momentum","mlpack-momentum"}};
+              
+  public:
+    /// Default constructor - calls the base class and sets the provider name and algorithm name
+    AdamMLP() : VqeOpt("mlpack", "adam") {};
+
+    /// Constructor that shows all defaults
+    AdamMLP(const std::vector<double>& in_initial_parameters,
+                  const int in_maxeval = 500000,
+                  const double in_ftol = 1.0e-4,
+                  const YAML::Node& in_node = YAML::Load("")) : VqeOpt("mlpack", "adam")
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;
+      m_node_ = in_node;
+    }
+
+    /// Getters
+    std::shared_ptr<xacc::Optimizer> get() override; 
+};
+
 /** @brief Nelder-Mead algorithm from the nlopt library
  *  Nelder-Mead is a gradient-free algorithm and works 
  *  best when some noise is present.

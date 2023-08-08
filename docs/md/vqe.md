@@ -149,6 +149,24 @@ By default, the `cobyla` (gradient-free) algorithm will be used.  Alternative al
 * `maxIters`
 * `tolerance`
 * `optimalParameters`
+### Stochastic gradient algorithms
+#### **ADAM [Adaptive Momentum estimator]**
+
+| Attribute | Example | Details |
+| ---- | ---- | ---- |
+| `algorithm` | `tvqep.algorithm = `<br />` "adam"` | Selects the <br /> ADAM algorithm from <br /> the mlpack C++ library. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"stepsize: 0.5"` | Step size for each <br />iteration. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"beta1: 0.7"` | Exponential decay rate for<br /> the first moment estimates. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"beta2: 0.999"` | Exponential decay rate for <br /> the weighted infinity-norm estimates. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"eps: 1.0e-8"` | Mean-squared gradient initial value. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"momentum: 0.05"` | Momentum |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"exactobjective: false"` | ADAM exact objective |
+
+**Note**: `extraOptions` is a YAML string field, so you can for example have all options specified with:
+
+`tvqep.extraOptions = `<br />`"{stepsize: 0.1, beta1: 0.67, beta2: 0.9, momentum: 0.11, exactobjective: true}"`
+
+### Gradient-free algorithms
 #### **Nelder-Mead**
 
 | Attribute | Example | Details |

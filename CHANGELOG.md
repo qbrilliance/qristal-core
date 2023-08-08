@@ -15,6 +15,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - VQE: convergence trace visualization.
 - VQE: For the qpp simulator only: isDeterministic = True now saves the state-vector and calculates expectations directly (without shot sampling)
 - VQE: Nelder-Mead optimiser, including extra options for constraining the ansatz parameters [lowerbounds, upperbounds] and for stopping the optimisation upon reaching a set energy threshold [stopval].
+- VQE: ADAM optimiser, including extra options: beta1, beta2, eps, exactobjective, momentum, stepsize.
 - vqeeCalculator: the command line tool for VQE has been augmented to allow output to JSON file format.
 - swap_placement_pass and noise_aware_placement_pass: C++ and Python classes for circuit placement.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.

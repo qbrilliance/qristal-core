@@ -394,6 +394,15 @@ _noise_: false
 
 Demonstrates selection of a different classical optimization algorithm (Nelder-Mead), along with extra options to constrain the parameters and terminate the optimization.
 
+
+`vqee_example_5.py`
+
+_qubits_: 4
+_gate depth_: 1
+_noise_: false
+
+Similar to `vqee_example_4` except the classical algorithm used here is ADAM.
+
 `simple_placement.py`
 
 A simple example demonstrating circuit placement based on backend topology.

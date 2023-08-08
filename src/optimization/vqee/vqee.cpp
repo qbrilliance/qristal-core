@@ -255,7 +255,14 @@ namespace qb::vqee {
                                                                params_.tolerance,
                                                                YAML::Load(params_.extraOptions));
           optimizer = opt_nlmd.get();
-      } else {
+      } else if (params_.algorithm =="adam"){
+          qb::vqee::AdamMLP opt_adam = qb::vqee::AdamMLP(params_.theta,
+                                                       params_.maxIters,
+                                                       params_.tolerance,
+                                                       YAML::Load(params_.extraOptions));
+          optimizer = opt_adam.get();
+      }
+      else {
           // This is the default when no algorithm is specified
           optimizer = xacc::getOptimizer("nlopt");
           optimizer->setOptions(xacc::HeterogeneousMap{std::make_pair("initial-parameters", params_.theta),

@@ -205,3 +205,21 @@ TEST(vqeeTester, check_nelder_mead_theta_upperb) {
     ASSERT_LE(params.theta.at(1), 0.02);
     ASSERT_LE(params.theta.at(2), 0.02);
 }
+
+TEST(vqeeTester, adam_checkH2_UCCSD) {
+    const bool isRoot = GetRank() == 0;        
+    qb::vqee::Params params{qb::vqee::makeJob(qb::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
+
+    params.nWorker = GetSize();
+    params.nThreadsPerWorker = 1;
+
+    // set ADAM
+    params.algorithm = "adam";
+    params.extraOptions = "{stepsize: 0.1, beta1: 0.67, beta2: 0.9, momentum: 0.11, exactobjective: true}";
+
+    qb::vqee::VQEE vqe{params};
+    vqe.optimize();
+
+    double exactEnergy{-1.137275943617};
+    EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);
+}

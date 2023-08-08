@@ -13,6 +13,7 @@ set(source_files
   src/optimization/vqee/case_generator.cpp
   src/optimization/vqee/vqee.cpp
   src/optimization/vqee/vqee_nlopt.cpp
+  src/optimization/vqee/vqee_mlpack.cpp
   src/optimization/qaoa/qaoa_base.cpp
   src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_recursive.cpp
