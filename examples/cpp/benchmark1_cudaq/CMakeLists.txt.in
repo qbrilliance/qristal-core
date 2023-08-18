@@ -6,10 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-set(CMAKE_CUDAQ_COMPILER @NVQPP_EXECUTABLE@)
-set(CMAKE_CXX_COMPILER /opt/llvm/bin/clang++)
-set(CMAKE_CXX_COMPILER_WORKS ON)
-
 project(benchmark1_cudaq
   DESCRIPTION "Quantum Brilliance Benchmark 1: CUDAQ version."
   LANGUAGES CXX
@@ -22,9 +18,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(qbcore_DIR @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 
-# Valid backends are: qpp, dm, cuquantum
-# If you change this, make sure to clean your build dir before rebuilding.
-add_cudaq_executable(benchmark1_cudaq qpp benchmark1_cudaq.cpp)
+add_cudaq_executable(benchmark1_cudaq benchmark1_cudaq.cpp)
 
 target_link_libraries(benchmark1_cudaq
   PRIVATE

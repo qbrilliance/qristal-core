@@ -1,7 +1,7 @@
 # Copyright (c) Quantum Brilliance Pty Ltd
 
 # Macro for adding a new CUDAQ executable
-macro(add_cudaq_executable TARGET_NAME BACKEND)
+macro(add_cudaq_executable TARGET_NAME)
 
   # Check if the core library has been compiled with CUDAQ support
   get_directory_property(DEFS COMPILE_DEFINITIONS)
@@ -20,15 +20,6 @@ macro(add_cudaq_executable TARGET_NAME BACKEND)
 
   find_package(CUDAQ REQUIRED)
   
-  # Modify CUDAQ to support specification of backend.
-  if (${BACKEND} STREQUAL "qpp")
-    set(CMAKE_CUDAQ_BACKEND_COMMAND "")
-  else()
-    set(CMAKE_CUDAQ_BACKEND_COMMAND "--qpu ${BACKEND}")
-  endif()
-  set(CMAKE_CUDAQ_COMPILE_OBJECT "${CMAKE_CUDAQ_COMPILE_OBJECT} ${CMAKE_CUDAQ_BACKEND_COMMAND}")
-  set(CMAKE_CUDAQ_LINK_EXECUTABLE "${CMAKE_CUDAQ_LINK_EXECUTABLE} ${CMAKE_CUDAQ_BACKEND_COMMAND}")
-
   # Modify CUDAQ to support extra include paths.
   # This will be available in the public release.
   set(CMAKE_INCLUDE_FLAG_CUDAQ "-I")

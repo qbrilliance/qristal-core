@@ -27,6 +27,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Fixed
 
+- Linking errors with CUDA Quantum C++ examples caused by update of CUDA Quantum version 
 - CMake error when spdlog is system installed but qasm_simulator is not.
 - Minor documentation fixes.
 - CUDA Quantum: upgrade to the latest main (commit hash 603affc).

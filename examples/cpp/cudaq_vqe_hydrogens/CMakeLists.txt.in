@@ -7,10 +7,6 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-set(CMAKE_CUDAQ_COMPILER @NVQPP_EXECUTABLE@)
-set(CMAKE_CXX_COMPILER /opt/llvm/bin/clang++)
-set(CMAKE_CXX_COMPILER_WORKS ON)
-
 project(vqe-cudaq-hydrogens
   DESCRIPTION "Quantum Brilliance VQE example implemented with CUDAQ to solve H-chain (H4) ground-state energy."
   LANGUAGES CXX
@@ -23,7 +19,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(qbcore_DIR  @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 
-add_cudaq_executable(vqe-cudaq-hydrogens qpp vqe-hydrogens-cudaq.cpp)
+add_cudaq_executable(vqe-cudaq-hydrogens vqe-hydrogens-cudaq.cpp)
 
 target_link_libraries(vqe-cudaq-hydrogens
   PRIVATE

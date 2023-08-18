@@ -6,10 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-set(CMAKE_CUDAQ_COMPILER @NVQPP_EXECUTABLE@)
-set(CMAKE_CXX_COMPILER /opt/llvm/bin/clang++)
-set(CMAKE_CXX_COMPILER_WORKS ON)
-
 project(benchmark1_qasm
   DESCRIPTION "Quantum Brilliance Benchmark 1: QASM version."
   LANGUAGES CXX

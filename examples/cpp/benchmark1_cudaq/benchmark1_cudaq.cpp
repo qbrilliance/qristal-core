@@ -29,6 +29,9 @@ int main()
   // Number of qubits we want to run
   constexpr int NB_QUBITS = 20;
   
+  // Choose a CUDAQ simulator backend, e.g., qpp
+  my_sim.set_acc("cudaq:qpp");
+
   // Add CUDAQ ghz kernel to the current session
   my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
   
