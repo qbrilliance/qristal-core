@@ -176,7 +176,7 @@ endif()
 # tket
 set(WITH_TKET OFF CACHE BOOL "Enable TKET for noise-aware circuit placement.")
 set(TKET_VERSION 1.11.1)
-set(TKET_TAG "1cd9fe36")
+set(TKET_TAG "1cd9fe36c")
 if(WITH_TKET)
   add_poorly_behaved_dependency(TKET ${TKET_VERSION}
     FIND_PACKAGE_NAME TKET
@@ -271,8 +271,10 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # EXATN
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(EXATN_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+    set(EXATN_C_COMPILER ${CMAKE_C_COMPILER})
   else()
     set(EXATN_CXX_COMPILER "g++")
+    set(EXATN_C_COMPILER "gcc")
   endif()
   add_poorly_behaved_dependency(exatn 1.0.0
     FIND_PACKAGE_NAME EXATN
@@ -284,6 +286,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       "BLAS_PATH @BLAS_PATH@"
       "EXATN_BUILD_TESTS OFF"
       "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
+      "CMAKE_C_COMPILER ${EXATN_C_COMPILER}"
   )
 
   # TNQVM
