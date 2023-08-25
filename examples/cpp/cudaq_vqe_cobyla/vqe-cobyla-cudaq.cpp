@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#define WITH_CUDAQ
 #include "qb/core/cudaq/ir_converter.hpp"
+#include "qb/core/cudaq/sim_pool.hpp"
 #include "cudaq/algorithm.h"
 #include "cudaq/optimizers.h"
 #include "cudaq/spin_op.h"
@@ -36,6 +36,11 @@ int main() {
                     .21829 * cudaq::spin::z(0) - 6.125 * cudaq::spin::z(1);
   std::cout << "Constructed Deuteron Hamiltonian as CUDAQ spin_op: \n";
   h.dump();
+
+  // Load the cudaq version of qpp
+  std::string be = "qpp";
+  std::cout << "Connecting CUDA Quantum backend " << be << std::endl;
+  qb::load_cudaq_backend(be);
 
   // Run VQE with the builder
   cudaq::optimizers::cobyla c_opt;

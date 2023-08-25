@@ -217,9 +217,6 @@ install(
   DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 
-# Import the cudaq_utilities so that they are available even in lightweight mode.
-include(cudaq_utilities)
-
 # Generate the afterCPMAddPackage.cmake file.
 set(afterCPMAddPackageFile "afterCPMAddPackage.cmake")
 set(outfile "${CMAKE_CURRENT_BINARY_DIR}/${afterCPMAddPackageFile}")

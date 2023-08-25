@@ -11,14 +11,10 @@ project(benchmark1_cudaq
   LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(qbcore_DIR @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 
-add_cudaq_executable(benchmark1_cudaq benchmark1_cudaq.cpp)
+add_executable(benchmark1_cudaq benchmark1_cudaq.cpp)
 
 target_link_libraries(benchmark1_cudaq
   PRIVATE

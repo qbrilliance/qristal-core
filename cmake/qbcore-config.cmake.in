@@ -2,7 +2,11 @@
 
 include(CMakeFindDependencyMacro)
 
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/cudaq_utilities.cmake")
+# Set Compiler Support
+set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/xacc_utilities.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/@afterCPMAddPackageFile@")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/@dependenciesFile@")

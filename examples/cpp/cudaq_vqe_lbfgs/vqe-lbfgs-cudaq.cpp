@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#define WITH_CUDAQ
 #include "qb/core/cudaq/ir_converter.hpp"
+#include "qb/core/cudaq/sim_pool.hpp"
 #include "cudaq/algorithm.h"
 #include "cudaq/gradients/central_difference.h"
 #include "cudaq/optimizers.h"
@@ -38,8 +38,13 @@ int main() {
 
   std::cout << "Constructed Deuteron Hamiltonian as CUDAQ spin_op: \n";
   h.dump();
-  // Run VQE with the builder
 
+  // Load the cudaq version of qpp
+  std::string be = "qpp";
+  std::cout << "Connecting CUDA Quantum backend " << be << std::endl;
+  qb::load_cudaq_backend(be);
+
+  // Run VQE with the builder
   cudaq::optimizers::lbfgs l_opt;
   cudaq::gradients::central_difference gradient(cudaq_builder);
   std::cout << "Running VQE with L-BFGS optimizer, central difference gradient "

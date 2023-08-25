@@ -49,9 +49,22 @@ endif()
 set(NAMESPACE qb)
 
 # Set Compiler Support
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "Adopted C++ standard.")
+set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Set minimum compiler versions
+set(MIN_CLANG_VERSION 16.0.0)
+set(MIN_GNU_VERSION 11.4.0)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_GNU_VERSION)
+    message(FATAL_ERROR "Please use a later version of gcc. Qristal supports v${MIN_GNU_VERSION} and later, but you have ${CMAKE_CXX_COMPILER_VERSION}.")
+  endif()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_CLANG_VERSION)
+    message(FATAL_ERROR "Please use a later version of clang. Qristal supports v${MIN_CLANG_VERSION} and later, but you have ${CMAKE_CXX_COMPILER_VERSION}.")
+  endif()
+endif()
 
 # Enable/disable warnings
 if(WARNINGS)

@@ -12,14 +12,10 @@ project(vqe-cudaq-gradients
   LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(qbcore_DIR  @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 
-add_cudaq_executable(vqe-cudaq-gradients vqe-lbfgs-cudaq.cpp)
+add_executable(vqe-cudaq-gradients vqe-lbfgs-cudaq.cpp)
 
 target_link_libraries(vqe-cudaq-gradients
   PRIVATE

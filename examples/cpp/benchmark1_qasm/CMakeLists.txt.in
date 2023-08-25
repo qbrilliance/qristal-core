@@ -11,10 +11,6 @@ project(benchmark1_qasm
   LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 20 CACHE STRING "Adopted C++ standard.")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(qbcore_DIR @CMAKE_INSTALL_PREFIX@)
 find_package(qbcore)
 

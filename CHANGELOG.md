@@ -9,6 +9,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Adopted C++20 across the board, not just for CUDA Quantum mains.
+- Added the ability to choose CUDA Quantum backends at runtime rather than compile time. 
 - Transpilation: wrapping of gate angles to [-pi,pi] for native gates.
 - Transpilation: out_transpiled_circuit (OpenQASM 2.0) in native gates.
 - Profiler: counting number of gates and timing data after transpilation to the native gate set.

@@ -25,6 +25,13 @@ const std::string SIM_NAME_PREFIX = "cudaq:";
 } // namespace
 namespace qb {
 
+/// Easy loader for cudaq backends
+void load_cudaq_backend(std::string name)
+{
+  if (not name.starts_with(SIM_NAME_PREFIX)) name = SIM_NAME_PREFIX + name; 
+  cudaq_sim_pool::get_instance().set_simulator(name);
+}
+
 /// Getter for the instance; makes this class a threadsafe singleton
 cudaq_sim_pool &cudaq_sim_pool::get_instance() {
   static cudaq_sim_pool instance;

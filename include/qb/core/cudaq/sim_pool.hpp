@@ -9,6 +9,10 @@ class CircuitSimulator;
 }
 
 namespace qb {
+
+/// @brief Easy loader for cudaq backends
+void load_cudaq_backend(std::string name);
+
 /// @brief Singleton util class holding/caching references to CUDAQ backend simulator instances.
 // Rationale: 
 // - CudaQ QIR backends are implemented in dynamic libs (libnvqir-<backend name>.so).
