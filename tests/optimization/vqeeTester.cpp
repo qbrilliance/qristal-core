@@ -273,3 +273,21 @@ TEST(vqeeTester, lbfgs_checkH2_UCCSD) {
     EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);
 }
 
+TEST(vqeeTester, cmaes_checkH2_UCCSD) {
+    const bool isRoot = GetRank() == 0;        
+    qb::vqee::Params params{qb::vqee::makeJob(qb::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
+
+    params.nWorker = GetSize();
+    params.nThreadsPerWorker = 1;
+
+    // set L-BFGS
+    params.algorithm = "cmaes";
+    // Reverse upper and lower : see https://github.com/eclipse/xacc/issues/574
+    params.extraOptions = "{upper: -10.0, lower: 10.0}";
+
+    qb::vqee::VQEE vqe{params};
+    vqe.optimize();
+
+    double exactEnergy{-1.137275943617};
+    EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);    
+}

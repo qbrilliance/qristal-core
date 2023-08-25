@@ -20,6 +20,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - VQE: Nelder-Mead optimiser, including extra options for constraining the ansatz parameters [lowerbounds, upperbounds] and for stopping the optimisation upon reaching a set energy threshold [stopval].
 - VQE: L-BFGS optimiser, with extra options identical to that of Nelder-Mead shown above.
 - VQE: ADAM optimiser, including extra options: beta1, beta2, eps, exactobjective, momentum, stepsize.
+- VQE: CMA-ES optimiser, including extra options: lambda, lower, upper. Note this known issue: https://github.com/eclipse/xacc/issues/574
 - vqeeCalculator: the command line tool for VQE has been augmented to allow output to JSON file format.
 - swap_placement_pass and noise_aware_placement_pass: C++ and Python classes for circuit placement.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.

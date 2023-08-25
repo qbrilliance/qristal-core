@@ -166,6 +166,20 @@ By default, the `cobyla` (gradient-free) algorithm will be used.  Alternative al
 
 `tvqep.extraOptions = `<br />`"{stepsize: 0.1, beta1: 0.67, beta2: 0.9, momentum: 0.11, exactobjective: true}"`
 
+### Heuristic algorithms
+#### **CMA-ES [Covariance Matrix Adapter Evolution Strategy]**
+
+| Attribute | Example | Details |
+| ---- | ---- | ---- |
+| `algorithm` | `tvqep.algorithm = `<br />` "cmaes"` | Selects the <br /> CMA-ES algorithm from <br /> the mlpack C++ library. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"lambda: 0"` | Population size |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"lower: -10.0"` | Lower-bound of decision<br /> variables. |
+| `extraOptions` | `tvqep.extraOptions = `<br />`"upper: 10.0"` | Upper-bound of decision<br /> variables. |
+
+**Note**: `extraOptions` is a YAML string field, so you can for example have all options specified with:
+
+`tvqep.extraOptions = `<br />`"{lambda: 0, upper: 10.0, lower: -10.0}"`
+
 ### Gradient-based algorithms
 #### **L-BFGS**
 
@@ -186,6 +200,7 @@ By default, the `cobyla` (gradient-free) algorithm will be used.  Alternative al
 **Note**: `extraOptions` is a YAML string field, so you can for example have all options specified with:
 
 `tvqep.extraOptions = `<br />`"{lowerbounds: [-0.01, -0.01, -0.01], upperbounds: [0.1, 0.1, 0.1], stopval: -1.05}"`
+
 ### Triggering the VQE execution
 ```python
 qv = qbOpt.VQEE(tvqep)

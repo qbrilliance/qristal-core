@@ -267,6 +267,12 @@ namespace qb::vqee {
                                                        params_.tolerance,
                                                        YAML::Load(params_.extraOptions));
           optimizer = opt_adam.get();
+      } else if (params_.algorithm =="cmaes"){
+          qb::vqee::CmaesMLP opt_cmaes = qb::vqee::CmaesMLP(params_.theta,
+                                                       params_.maxIters,
+                                                       params_.tolerance,
+                                                       YAML::Load(params_.extraOptions));
+          optimizer = opt_cmaes.get();
       }
       else {
           // This is the default when no algorithm is specified

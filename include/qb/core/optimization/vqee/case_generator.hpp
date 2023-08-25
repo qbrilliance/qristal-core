@@ -243,6 +243,73 @@ class AdamMLP : public VqeOpt {
     std::shared_ptr<xacc::Optimizer> get() override; 
 };
 
+/** @brief CMA-ES - Covariance Matrix Adaptation Evolution Strategy is a stochastic search algorithm from the mlpack C++ library.
+ *  It works by estimating a positive definite matrix within an iterative procedure using the covariance matrix.
+ *  In this instance, the batchSize is fixed (= 1), and 
+ *  SelectionPolicy is also fixed (= FullSelection).
+ */
+class CmaesMLP : public VqeOpt {
+  private:
+    /// Extra options accepted by CMA-ES that will be detected from the YAML string
+    /**
+     * The population size
+     *   YAML key: "lambda"
+     *   XACC key: "mlpack-cmaes-lambda"
+     *   Default: [int] 0
+     * 
+     * Upper-bound of decision variables
+     *   YAML key: "upper"
+     *   XACC key: "mlpack-cmaes-upper-bound"
+     *   Default: [double] 10.0
+     * 
+     * Lower-bound of decision variables
+     *   YAML key: "lower"
+     *   XACC key: "mlpack-cmaes-lower-bound"
+     *   Default: [double] -10.0
+     */
+    
+    /// Integer-valued fields
+    std::set<std::string> integer_valued_fields_{"lambda"};
+    
+    /// String-valued fields
+    std::set<std::string> string_valued_fields_{};
+    
+    /// Boolean-valued fields
+    std::set<std::string> boolean_valued_fields_{};
+    
+    /// Double-valued fields
+    std::set<std::string> double_valued_fields_{"upper",
+                                                "lower"};
+
+    /// Vector of double fields
+    std::set<std::string> vector_double_valued_fields_{};
+
+    /// Union of all the above fields. Conversion of keys from YAML -> XACC
+    std::map<std::string, std::string> all_valid_fields_yaml_xacc_{
+                                                {"lambda","mlpack-cmaes-lambda"},
+                                                {"upper","mlpack-cmaes-upper-bound"},
+                                                {"lower","mlpack-cmaes-lower-bound"}};
+              
+  public:
+    /// Default constructor - calls the base class and sets the provider name and algorithm name
+    CmaesMLP() : VqeOpt("mlpack", "cmaes") {};
+
+    /// Constructor that shows all defaults
+    CmaesMLP(const std::vector<double>& in_initial_parameters,
+                  const int in_maxeval = 500000,
+                  const double in_ftol = 1.0e-4,
+                  const YAML::Node& in_node = YAML::Load("")) : VqeOpt("mlpack", "cmaes")
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;
+      m_node_ = in_node;
+    }
+
+    /// Getters
+    std::shared_ptr<xacc::Optimizer> get() override; 
+};
+
 /** @brief NLOpt library with common options for these algorithms:
  *   - L-BFGS
  *   - Nelder-Mead
