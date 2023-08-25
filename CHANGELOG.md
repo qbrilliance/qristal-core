@@ -2,7 +2,8 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
-## [Not yet released]
+## [1.1.0] - 2023-08-25
+
 ### Breaking
 
 - VQEE: isDeterministic will no longer fall back to sampling for those backends that don't support isDeterministic.  Instead, an error will now be thrown.  Only the qpp accelerator is supported when isDeterministic = True (see Added section for the reasons).
