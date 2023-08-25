@@ -166,6 +166,13 @@ By default, the `cobyla` (gradient-free) algorithm will be used.  Alternative al
 
 `tvqep.extraOptions = `<br />`"{stepsize: 0.1, beta1: 0.67, beta2: 0.9, momentum: 0.11, exactobjective: true}"`
 
+### Gradient-based algorithms
+#### **L-BFGS**
+
+| Attribute | Example | Details |
+| ---- | ---- | ---- |
+| `algorithm` | `tvqep.algorithm = `<br />` "l-bfgs"` | Selects the <br /> L-BFGS algorithm from <br /> the nlopt C++ library. |
+| `extraOptions` | | Identical to those for [Nelder-Mead](#nelder-mead) below.|
 ### Gradient-free algorithms
 #### **Nelder-Mead**
 

@@ -26,3 +26,20 @@ for jobID in joblist:
     optVal = params.optimalValue
 
     print("\noptVal, optVec: ", optVal, optVec)
+    
+    params_lbfgs = qbOpt.makeJob(jobID)
+
+    print("\nPauli string: ", params_lbfgs.pauliString)
+
+    params_lbfgs.algorithm = "l-bfgs"
+    params_lbfgs.isDeterministic = True
+
+    vqee_lbfgs = qbOpt.VQEE(params_lbfgs)
+    vqee_lbfgs.run()
+
+    # output is stored in params
+    #params.energies
+    optVec = params_lbfgs.optimalParameters
+    optVal = params_lbfgs.optimalValue
+
+    print("\noptVal, optVec: ", optVal, optVec)

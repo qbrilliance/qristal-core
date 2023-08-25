@@ -3,9 +3,8 @@
 #include "qb/core/optimization/vqee/vqee.hpp"
 
 namespace qb::vqee {
-
-  std::shared_ptr<xacc::Optimizer> NelderMeadNLO::get() {
-    std::cout << "Nelder-Mead algorithm provided by nlopt" << "\n";
+  std::shared_ptr<xacc::Optimizer> NLO::get() {
+    show_info();
     xacc::HeterogeneousMap xoptions;
     pass_yaml_to_xacc<int>(m_node_, integer_valued_fields_, all_valid_fields_yaml_xacc_, xoptions, true);
     pass_yaml_to_xacc<std::string>(m_node_, string_valued_fields_, all_valid_fields_yaml_xacc_, xoptions, true);
@@ -23,6 +22,6 @@ namespace qb::vqee {
     ret_optimizer->setOptions(xoptions);
     return ret_optimizer;
   }
-
+  
   // Add other algorithms from nlopt
 } //namespace qb::vqee

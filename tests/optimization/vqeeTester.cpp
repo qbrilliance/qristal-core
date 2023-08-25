@@ -140,6 +140,38 @@ TEST(vqeeTester, check_nelder_mead_stopval) {
     EXPECT_NEAR(params.optimalValue, stopEnergy, 5e-2);
 }
 
+TEST(vqeeTester, check_lbfgs_stopval) {
+    const bool isRoot = GetRank() == 0;        
+    qb::vqee::Params params{};
+    params.nWorker = GetSize();
+    params.nThreadsPerWorker = 1;
+
+    params.nQubits = 4;
+    params.maxIters = 1024;
+    params.acceleratorName = "qpp";
+
+    // modify the pauli terms
+    std::string geometry = qb::vqee::hydrogenChainGeometry(2); // gives in Angstrom: "H 0.0 0.0 0.0; H 0.0 0.0 0.7408481486"
+    params.pauliString = qb::vqee::pauliStringFromGeometry(geometry, "sto-3g");
+    double stopEnergy{-1.05};
+
+    // set ansatz 
+    std::size_t nOptParams = qb::vqee::setAnsatz(params, qb::vqee::AnsatzID::UCCSD, params.nQubits, params.nQubits/2);
+    
+    // set L-BFGS with stopval
+    params.algorithm = "l-bfgs";
+    params.extraOptions = "stopval: -1.05";
+
+    // Execute standard VQE (expectation from shot sampling)
+    params.theta = std::vector<double>(nOptParams, 0.1);
+    params.isDeterministic = false;
+    params.nShots = 10000;
+    
+    qb::vqee::VQEE vqe{params};
+    vqe.optimize();
+    EXPECT_NEAR(params.optimalValue, stopEnergy, 1.0e-1);
+}
+
 TEST(vqeeTester, check_nelder_mead_theta_lowerb) {
     const bool isRoot = GetRank() == 0;        
     qb::vqee::Params params{};
@@ -223,3 +255,21 @@ TEST(vqeeTester, adam_checkH2_UCCSD) {
     double exactEnergy{-1.137275943617};
     EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);
 }
+
+TEST(vqeeTester, lbfgs_checkH2_UCCSD) {
+    const bool isRoot = GetRank() == 0;        
+    qb::vqee::Params params{qb::vqee::makeJob(qb::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
+
+    params.nWorker = GetSize();
+    params.nThreadsPerWorker = 1;
+
+    // set L-BFGS
+    params.algorithm = "l-bfgs";
+    params.isDeterministic = true;
+    qb::vqee::VQEE vqe{params};
+    vqe.optimize();
+
+    double exactEnergy{-1.137275943617};
+    EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);
+}
+

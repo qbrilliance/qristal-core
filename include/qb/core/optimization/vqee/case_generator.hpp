@@ -243,14 +243,12 @@ class AdamMLP : public VqeOpt {
     std::shared_ptr<xacc::Optimizer> get() override; 
 };
 
-/** @brief Nelder-Mead algorithm from the nlopt library
- *  Nelder-Mead is a gradient-free algorithm and works 
- *  best when some noise is present.
+/** @brief NLOpt library with common options for these algorithms:
+ *   - L-BFGS
+ *   - Nelder-Mead
  */
-class NelderMeadNLO : public VqeOpt {
-  private:
-    /// Extra options accepted by Nelder-Mead that will be detected from the YAML string
-    
+class NLO : public VqeOpt {
+  private: 
     /// Integer-valued fields
     std::set<std::string> integer_valued_fields_{};
     
@@ -277,23 +275,17 @@ class NelderMeadNLO : public VqeOpt {
               
   public:
     /// Default constructor - calls the base class and sets the provider name and algorithm name
-    NelderMeadNLO() : VqeOpt("nlopt", "nelder-mead") {};
+    NLO() : VqeOpt("nlopt", "cobyla") {};
 
-    /// Constructor showing all defaults, except for in_initial_parameters
-    NelderMeadNLO(const std::vector<double>& in_initial_parameters,
-                  const int in_maxeval = 1000,
-                  const double in_ftol = 1.0e-6) : VqeOpt("nlopt", "nelder-mead")
-    {
-      m_initial_parameters_ = in_initial_parameters;
-      m_maxeval_ = in_maxeval;
-      m_ftol_ = in_ftol;  
-    }
+    /// Simple constructor
+    NLO(const std::string& in_algorithm) : VqeOpt("nlopt", in_algorithm) {};
 
-    /// Constructor that also accept extra options in YAML format
-    NelderMeadNLO(const std::vector<double>& in_initial_parameters,
-                  const int in_maxeval,
-                  const double in_ftol,
-                  const YAML::Node& in_node) : VqeOpt("nlopt", "nelder-mead")
+    /// Constructor with defaults shown
+    NLO(const std::vector<double>& in_initial_parameters,
+        const std::string& in_algorithm = "cobyla",
+        const int in_maxeval = 1000,
+        const double in_ftol = 1.0e-6,
+        const YAML::Node& in_node = YAML::Load("")) : VqeOpt("nlopt", in_algorithm)
     {
       m_initial_parameters_ = in_initial_parameters;
       m_maxeval_ = in_maxeval;
@@ -302,8 +294,61 @@ class NelderMeadNLO : public VqeOpt {
     }
 
     /// Getters
-    std::shared_ptr<xacc::Optimizer> get() override;    
+    std::shared_ptr<xacc::Optimizer> get() override;
+    virtual void show_info() {};
+};
+
+/** @brief L-BFGS algorithm from the nlopt library
+ *  L-BFGS is a gradient-based algorithm (quasi-Newton) 
+ */
+class LbfgsNLO : public NLO {
+  private:
+    std::string information_{"L-BFGS algorithm provided by nlopt"};
+  public:
+    LbfgsNLO() : NLO("l-bfgs") {};
     
+    /// Constructor with defaults shown
+    LbfgsNLO(const std::vector<double>& in_initial_parameters,
+        const int in_maxeval = 1000,
+        const double in_ftol = 1.0e-6,
+        const YAML::Node& in_node = YAML::Load(""),
+        const std::string& in_algorithm = "l-bfgs") : NLO(in_algorithm)
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;
+      m_node_ = in_node;
+    }
+
+    /// Print information
+    void show_info() override { std::cout << information_ << "\n"; }
+};
+
+/** @brief Nelder-Mead algorithm from the nlopt library
+ *  Nelder-Mead is a gradient-free algorithm and works 
+ *  best when some noise is present.
+ */
+class NelderMeadNLO : public NLO {
+  private:
+    std::string information_{"Nelder-Mead algorithm provided by nlopt"};
+  public:
+    NelderMeadNLO() : NLO("nelder-mead") {};
+    
+    /// Constructor with defaults shown
+    NelderMeadNLO(const std::vector<double>& in_initial_parameters,
+        const int in_maxeval = 1000,
+        const double in_ftol = 1.0e-6,
+        const YAML::Node& in_node = YAML::Load(""),
+        const std::string& in_algorithm = "nelder-mead") : NLO(in_algorithm)
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;
+      m_node_ = in_node;
+    }
+
+    /// Print information
+    void show_info() override { std::cout << information_ << "\n"; }
 };
 
 // print ansatz to string

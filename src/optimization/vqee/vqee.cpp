@@ -255,6 +255,12 @@ namespace qb::vqee {
                                                                params_.tolerance,
                                                                YAML::Load(params_.extraOptions));
           optimizer = opt_nlmd.get();
+      } else if (params_.algorithm =="l-bfgs"){
+          qb::vqee::LbfgsNLO opt_lbfgs = qb::vqee::LbfgsNLO(params_.theta,
+                                                       params_.maxIters,
+                                                       params_.tolerance,
+                                                       YAML::Load(params_.extraOptions));
+          optimizer = opt_lbfgs.get();
       } else if (params_.algorithm =="adam"){
           qb::vqee::AdamMLP opt_adam = qb::vqee::AdamMLP(params_.theta,
                                                        params_.maxIters,
