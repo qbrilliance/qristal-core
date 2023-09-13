@@ -310,8 +310,52 @@ class CmaesMLP : public VqeOpt {
     std::shared_ptr<xacc::Optimizer> get() override; 
 };
 
+/** @brief L-BFGS algorithm from the mlpack library
+ *  L-BFGS is a gradient-based algorithm (quasi-Newton) 
+ */
+class LbfgsMLP : public VqeOpt {
+  private:
+    /// Integer-valued fields
+    std::set<std::string> integer_valued_fields_{};
+    
+    /// String-valued fields
+    std::set<std::string> string_valued_fields_{};
+    
+    /// Boolean-valued fields
+    std::set<std::string> boolean_valued_fields_{};
+    
+    /// Double-valued fields
+    std::set<std::string> double_valued_fields_{};
+
+    /// Vector of double fields
+    std::set<std::string> vector_double_valued_fields_{};
+
+    /// Union of all the above fields. Conversion of keys from YAML -> XACC
+    std::map<std::string, std::string> all_valid_fields_yaml_xacc_{};
+              
+  public:
+    /// Default constructor - calls the base class and sets the provider name and algorithm name
+    LbfgsMLP() : VqeOpt("mlpack", "l-bfgs") {};
+
+    /// Constructor that shows all defaults
+    LbfgsMLP(const std::vector<double>& in_initial_parameters,
+                  const int in_maxeval = 500000,
+                  const double in_ftol = 1.0e-4,
+                  const YAML::Node& in_node = YAML::Load("")) : VqeOpt("mlpack", "cmaes")
+    {
+      m_initial_parameters_ = in_initial_parameters;
+      m_maxeval_ = in_maxeval;
+      m_ftol_ = in_ftol;
+      m_node_ = in_node;
+    }
+
+    /// Getters
+    std::shared_ptr<xacc::Optimizer> get() override; 
+};
+
+
+
 /** @brief NLOpt library with common options for these algorithms:
- *   - L-BFGS
  *   - Nelder-Mead
  */
 class NLO : public VqeOpt {
@@ -363,32 +407,6 @@ class NLO : public VqeOpt {
     /// Getters
     std::shared_ptr<xacc::Optimizer> get() override;
     virtual void show_info() {};
-};
-
-/** @brief L-BFGS algorithm from the nlopt library
- *  L-BFGS is a gradient-based algorithm (quasi-Newton) 
- */
-class LbfgsNLO : public NLO {
-  private:
-    std::string information_{"L-BFGS algorithm provided by nlopt"};
-  public:
-    LbfgsNLO() : NLO("l-bfgs") {};
-    
-    /// Constructor with defaults shown
-    LbfgsNLO(const std::vector<double>& in_initial_parameters,
-        const int in_maxeval = 1000,
-        const double in_ftol = 1.0e-6,
-        const YAML::Node& in_node = YAML::Load(""),
-        const std::string& in_algorithm = "l-bfgs") : NLO(in_algorithm)
-    {
-      m_initial_parameters_ = in_initial_parameters;
-      m_maxeval_ = in_maxeval;
-      m_ftol_ = in_ftol;
-      m_node_ = in_node;
-    }
-
-    /// Print information
-    void show_info() override { std::cout << information_ << "\n"; }
 };
 
 /** @brief Nelder-Mead algorithm from the nlopt library

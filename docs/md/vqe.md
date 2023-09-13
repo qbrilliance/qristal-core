@@ -185,8 +185,8 @@ By default, the `cobyla` (gradient-free) algorithm will be used.  Alternative al
 
 | Attribute | Example | Details |
 | ---- | ---- | ---- |
-| `algorithm` | `tvqep.algorithm = `<br />` "l-bfgs"` | Selects the <br /> L-BFGS algorithm from <br /> the nlopt C++ library. |
-| `extraOptions` | | Identical to those for [Nelder-Mead](#nelder-mead) below.|
+| `algorithm` | `tvqep.algorithm = `<br />` "l-bfgs"` | Selects the <br /> L-BFGS algorithm from <br /> the mlpack C++ library. |
+| `extraOptions` | | None|
 ### Gradient-free algorithms
 #### **Nelder-Mead**
 

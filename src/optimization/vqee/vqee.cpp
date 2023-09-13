@@ -256,7 +256,7 @@ namespace qb::vqee {
                                                                YAML::Load(params_.extraOptions));
           optimizer = opt_nlmd.get();
       } else if (params_.algorithm =="l-bfgs"){
-          qb::vqee::LbfgsNLO opt_lbfgs = qb::vqee::LbfgsNLO(params_.theta,
+          qb::vqee::LbfgsMLP opt_lbfgs = qb::vqee::LbfgsMLP(params_.theta,
                                                        params_.maxIters,
                                                        params_.tolerance,
                                                        YAML::Load(params_.extraOptions));

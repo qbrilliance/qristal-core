@@ -1,6 +1,11 @@
 # Changelog
 
 Qristal is a full-stack SDK for quantum accelerators.
+## [1.1.1] 
+
+### Breaking
+
+- VQEE: L-BFGS no longer accepts extra options because the underlying library that provides the implementation has been switched from NLOpt to MLPACK.
 
 ## [1.1.0] - 2023-08-25
 
