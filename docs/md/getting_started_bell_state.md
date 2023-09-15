@@ -1,5 +1,5 @@
 # Quickstart
-The fastest way to get a working Qristal installation is to [run it directly from the provided Docker image](https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker).
+The fastest way to get a working Qristal installation is to [run it directly from the provided Docker image](https://github.com/qbrilliance/qristal#docker).
 
 To learn how to use Qristal, let's run a simple Python example to create a Bell state.
 

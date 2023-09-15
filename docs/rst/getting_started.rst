@@ -11,7 +11,7 @@ Using Qristal
 Development guide
 -----------------
 
-Qristal can either be run `directly from the provided Docker image <https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker>`_, or `installed from source <https://gitlab.com/qbau/software-and-apps/public/QBSDK>`_.  This section provides instructions for working with the source. If using Windows Subsystem for Linux 2, ensure you have Docker Desktop installed **on Windows** and not under your Linux distribution, as it allows Docker to use `WSL2 as a backend <https://docs.docker.com/desktop/windows/wsl/>`_. 
+Qristal can either be run `directly from the provided Docker image <https://github.com/qbrilliance/qristal#docker>`_, or `installed from source <https://github.com/qbrilliance/qristal>`_.  This section provides instructions for working with the source. If using Windows Subsystem for Linux 2, ensure you have Docker Desktop installed **on Windows** and not under your Linux distribution, as it allows Docker to use `WSL2 as a backend <https://docs.docker.com/desktop/windows/wsl/>`_. 
 
 Dependencies
 ^^^^^^^^^^^^
@@ -29,7 +29,7 @@ Installing Qristal from source **requires** the following libraries/packages to 
 * `Boost <https://www.boost.org/>`_ >= 1.71
 * `libcurl <https://curl.se/>`_
 
-Also, note that Qristal will be built with support for CUDA Quantum if and only if cmake detects that your system has a compatible CUDA Quantum installation. A shortcut is to run Qristal directly from `the Docker image that we provide with a compatible version of CUDA Quantum already installed <https://gitlab.com/qbau/software-and-apps/public/QBSDK/-/blob/main/README.md#docker>`_.
+Also, note that Qristal will be built with support for CUDA Quantum if and only if cmake detects that your system has a compatible CUDA Quantum installation. A shortcut is to run Qristal directly from `the Docker image that we provide with a compatible version of CUDA Quantum already installed <https://github.com/qbrilliance/qristal#docker>`_.
 
 .. _auto_install_deps:
 
@@ -58,7 +58,7 @@ Installation
 
 .. code-block:: bash
 
-    git clone https://gitlab.com/qbau/software-and-apps/public/qbsdk.git qristal
+    git clone https://github.com/qbrilliance/qristal.git qristal
     cd qristal
     mkdir build && cd build
     cmake .. -DINSTALL_MISSING=ON
@@ -100,13 +100,13 @@ Here are some ideas for how you can get involved.
 
 Have a question? Some concepts are hard-to-understand?
 
-Please feel free to file an issue to ask your questions `here <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues/new>`_.
+Please feel free to file an issue to ask your questions `here <https://github.com/qbrilliance/qristal/issues/new/choose>`_.
 
 Your question will serve as resource to others searching for help.
 
 2. **Reporting and/or Commenting on Issues**
 
-If you have feedback about Qristal, please let us know by filing a `new issue <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues/new>`_!
+If you have feedback about Qristal, please let us know by filing a `new issue <https://github.com/qbrilliance/qristal/issues/new/choose>`_!
 
 When filing a bug report, please follow the below template:
 
@@ -135,27 +135,27 @@ When filing a bug report, please follow the below template:
    - Operating system:
 
 
-We also encourage you to look at the list of currently `open issues <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/issues>`_ to share your ideas and expertise.
+We also encourage you to look at the list of currently `open issues <https://github.com/qbrilliance/qristal/issues>`_ to share your ideas and expertise.
 
 3. **Contributing Code**
 
-Before submitting a `new merge request <https://gitlab.com/qbau/software-and-apps/public/qbsdk/-/merge_requests/new>`_, please make sure the following is done:
+Before submitting a `new pull request <https://github.com/qbrilliance/qristal/pulls>`_, please make sure the following is done:
 
 * **New features should include a unit test.** If you've fixed a bug or added
   code that should be tested, add a test to the ``tests`` directory.
 
 * **Ensure that the test suite passes**, e.g., by running ``ctest``. This will also be checked by our CI when the MR is submitted.
 
-When ready, submit your fork as a `merge request <https://docs.gitlab.com/ee/user/project/merge_requests/getting_started.html>`_
-to the QB GitLab repository, filling out the merge request form.
+When ready, submit your fork as a `pull request <https://docs.github.com/articles/using-pull-requests>`_
+to the QB GitHub repository, filling out the pull request form.
 
-* When describing the merge request, please include as much detail as possible
+* When describing the pull request, please include as much detail as possible
   regarding the changes made/new features added/performance improvements. If including any
   bug fixes, mention the issue numbers associated with the bugs.
 
-* Once you have submitted the merge request, the **CI pipeline** will automatically run to ensure that all tests continue to pass.
+* Once you have submitted the pull request, the **CI pipeline** will automatically run to ensure that all tests continue to pass.
 
-We may ask for changes to a merge request if it requires more documentation or unit tests to better make use of it.
+We may ask for changes to a pull request if it requires more documentation or unit tests to better make use of it.
 
 Last but not least, **thank you** for taking the time to contribute.
 
