@@ -1,4 +1,51 @@
 # Quantum Brilliance SDK Qristal -- Core #
+---
+### Important change announcement for Qristal users:
+
+>
+> **Qristal is moving to GitHub**
+>
+> [https://github.com/qbrilliance/qristal](https://github.com/qbrilliance/qristal)
+>
+> We are making this change to engage more effectively with the developer community.
+>
+>Please read the following information, as you will need to take action as soon as possible to minimise any potential impact to your development workflow.
+>
+> **When is the change happening?**
+>
+> Qristal is available [from GitHub](https://github.com/qbrilliance/) **now**.
+>
+> On **Friday, 20 October 2023**,  public access will be removed from the existing GitLab repository.
+>
+
+#### If I have cloned Qristal Core, how do I set the new GitHub repository as the `remote`?
+```
+git remote remove origin
+git remote add origin https://github.com/qbrilliance/qristal-core.git
+git fetch
+git branch --set-upstream-to=origin/main main
+```
+
+#### If I have used Qristal Core as a git submodule of my project, how do I update this to use the new GitHub repository?
+```
+git rm your/project/path/to/Qristal-Core
+git submodule add https://github.com/qbrilliance/qristal-core.git your/project/path/to/Qristal-Core
+git submodule update --init --recursive
+```
+
+#### What will happen to my local repository if I don’t take any action?
+
+Your local repository will no longer be in sync with newer releases of Qristal.
+
+#### Who can I contact if I have questions about the change to GitHub?
+
+Please raise any questions with:
+
+Simon Yin (Developer Relations, <simon.y@quantum-brilliance.com>)
+
+
+
+---
 
 Qristal is the QB Software Development Kit for quantum computing.  This is its core module.
 
@@ -25,7 +72,7 @@ At a minimum, the following packages are required:
 - Curl
 
 
-For example, on the latest Debian-based distributions (e.g. Ubuntu 22.04 or above), we can use `apt` to install all above prerequisites. 
+For example, on the latest Debian-based distributions (e.g. Ubuntu 22.04 or above), we can use `apt` to install all above prerequisites.
 
 ```
 sudo apt install build-essential cmake gfortran libboost-all-dev libcurl4-openssl-dev libssl-dev libopenblas-dev libpython3-dev python3 python3-pip
@@ -55,7 +102,7 @@ Alternatively, if you have an existing TKET installation, you can pass `-DWITH_T
 If you also wish to build the html documentation, you can pass `-DBUILD_DOCS=ON` to `cmake`.
 
 ## Documentation
-You can find the docs for Qristal on the web at [qristal.readthedocs.io](https://qristal.readthedocs.io).  If you have built and installed the documentation (see [compilation](#compilation)), you can also find it at `<installation_directory>/docs/html/index.html`.  
+You can find the docs for Qristal on the web at [qristal.readthedocs.io](https://qristal.readthedocs.io).  If you have built and installed the documentation (see [compilation](#compilation)), you can also find it at `<installation_directory>/docs/html/index.html`.
 
 ## License ##
 [Apache 2.0](LICENSE)
