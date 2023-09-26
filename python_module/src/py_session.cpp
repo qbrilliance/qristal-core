@@ -244,10 +244,10 @@ void bind_session(pybind11::module &m) {
                              qb::session::help_out_raws_)
       .def_property_readonly("out_raws", &qb::session::get_out_raws,
                              qb::session::help_out_raws_)
-      .def_property_readonly("out_count", &qb::session::get_out_counts,
-                             qb::session::help_out_counts_)
-      .def_property_readonly("out_counts", &qb::session::get_out_counts,
-                             qb::session::help_out_counts_)
+      .def_property_readonly("out_bitstring", &qb::session::get_out_bitstrings,
+                             qb::session::help_out_bitstrings_)
+      .def_property_readonly("out_bitstrings", &qb::session::get_out_bitstrings,
+                             qb::session::help_out_bitstrings_)
       .def_property_readonly("out_divergence",
                              &qb::session::get_out_divergences,
                              qb::session::help_out_divergences_)

@@ -21,25 +21,29 @@ def test_CI_210826_2_qb12_check_sn_equals_1024() :
 
 def test_CI_210826_4_qb12_random_5() :
     print("* CI_210826_4_qb12_random_5:")
-    print("* With default qb12 settings, with the Aer backend, run a depth 5 circuit, check the length of the out_count dictionary is >0")
-    import qb.core
+    print("* With default qb12 settings, with the Aer backend, run a depth 5 circuit, check the length of the out_raw dictionary is >0")
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.random = 5
     s.acc = 'aer'
     s.run()
-    assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_4_qb12_random_5 - Aer"
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_4_qb12_random_5 - Aer"
 
 def test_CI_210826_5_qb12_random_5() :
     print("* CI_210826_5_qb12_random_5:")
-    print("* With default qb12 settings, with the qpp backend, run a depth 3 circuit, check the length of the out_count dictionary is >0")
-    import qb.core
+    print("* With default qb12 settings, with the qpp backend, run a depth 3 circuit, check the length of the out_raw dictionary is >0")
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.random = 3
     s.acc = 'qpp'
     s.run()
-    assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_5_qb12_random_5 - qpp"
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_5_qb12_random_5 - qpp"
 
 def test_CI_210826_6_qb12_random_0() :
     print("* CI_210826_4_qb12_random_0:")
@@ -62,15 +66,16 @@ def test_CI_210826_7_qb12_random_minus_one() :
 
 def test_CI_210826_8_qb12_random_256() :
     print("* CI_210826_8_qb12_random_256:")
-    print("* With default qb12 settings, run a depth 256 circuit, check the length of the out_count dictionary is >0")
-    import qb.core
+    print("* With default qb12 settings, run a depth 256 circuit, check the length of the out_raw dictionary is >0")
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.random = 256
     s.run()
-    assert (len(s.out_count[0][0])) > 0, "[QB SDK] failed test: CI_210826_8_qb12_random_256"
-
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys()))) > 0, "[QB SDK] failed test: CI_210826_8_qb12_random_256"
 
 def test_CI_210826_9_qn_minus_one() :
     print("* CI_210826_9_qn_minus_one:")
@@ -169,7 +174,7 @@ def test_CI_210826_14_qbtheta_parameters() :
 
 def test_raw_openqasm_str():
     print(" Testing raw OpenQASM string input ")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.debug = True
     nb_qubits = 12
@@ -184,11 +189,13 @@ def test_raw_openqasm_str():
     s.instring = circ.openqasm()
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
 def test_raw_openqasm_file():
     print(" Testing raw OpenQASM file input ")
-    import qb.core
+    import qb.core, ast
     import os
     s = qb.core.session()
     s.debug = True
@@ -197,11 +204,13 @@ def test_raw_openqasm_file():
     s.qb12()
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
 def test_raw_openqasm_custom_qreg_names():
     print(" Testing raw OpenQASM input using different qreg variable names")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.instring = '''
@@ -216,7 +225,9 @@ def test_raw_openqasm_custom_qreg_names():
     '''
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
     s.instring = '''
     OPENQASM 2.0;
@@ -230,7 +241,9 @@ def test_raw_openqasm_custom_qreg_names():
     '''
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
     s.instring = '''
     OPENQASM 2.0;
@@ -244,4 +257,6 @@ def test_raw_openqasm_custom_qreg_names():
     '''
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)

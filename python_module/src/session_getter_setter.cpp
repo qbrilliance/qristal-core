@@ -409,14 +409,17 @@ void session::set_noise_models(const std::vector<std::vector<NoiseModel>> &noise
 }
 const std::vector<std::vector<NoiseModel>> &session::get_noise_models() const { return noise_models_; }
 //
-void session::set_output_amplitude(const NC &in_output_amplitude) {
+void session::set_output_amplitude(const std::map<
+    std::string, std::complex<double>> &in_output_amplitude) {
   session::output_amplitudes_.clear();
   session::output_amplitudes_.push_back({in_output_amplitude});
 }
-void session::set_output_amplitudes(const VectorMapNC &in_output_amplitude) {
+void session::set_output_amplitudes(const std::vector<std::vector<std::map<
+    std::string, std::complex<double>>>> &in_output_amplitude) {
   session::output_amplitudes_ = in_output_amplitude;
 }
-const VectorMapNC & session::get_output_amplitudes() const { return session::output_amplitudes_; }
+const std::vector<std::vector<std::map<std::string, std::complex<double>>>> &
+    session::get_output_amplitudes() const { return session::output_amplitudes_; }
 //
 void session::set_debug(const bool & debug) {
   session::debug_ = debug;
@@ -430,7 +433,9 @@ const VectorString & session::getName() const { return session::name_m; }
 const VectorString & session::get_out_raws() const { return session::out_raws_ ; }
 //
 
-const VectorMapNN & session::get_out_counts() const { return session::out_counts_ ; }
+const std::vector<std::vector<std::map<std::string, int>>> & session::get_out_bitstrings() const {
+  return session::out_bitstrings_ ;
+}
 //
 
 const VectorMapND & session::get_out_divergences() const { return session::out_divergences_ ; }
@@ -904,11 +909,11 @@ out << "* verbatim:" << std::endl <<
   out << std::endl << std::endl;
   //
 
-  out << "* out_count:" << std::endl <<
-  "    Measured counts" << std::endl <<
-  "      [integer] Keys: state labels (assuming BCD format)" << std::endl <<
+  out << "* out_bitstring:" << std::endl <<
+  "    Measured bitstrings" << std::endl <<
+  "      [string] Keys: bitstrings" << std::endl <<
   "  = ";
-  for (auto item : get_out_counts()) {
+  for (auto item : get_out_bitstrings()) {
       out << std::endl << " ";
       for (auto itel : item) {
           for (auto it : itel) {

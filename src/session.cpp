@@ -123,7 +123,7 @@ namespace qb
         // qubit_contrast_thresholds_{{{std::pair<int,double>(0,0.1),std::pair<int,double>(1,0.1)}}},
         max_bond_dimensions_{{}}, svd_cutoffs_{{}}, noise_models_{{}},
         acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}}, output_amplitudes_{{}},
-        out_raws_{{{}}}, out_counts_{{{}}}, out_divergences_{{{}}},
+        out_raws_{{{}}}, out_bitstrings_{{{}}}, out_divergences_{{{}}},
         out_transpiled_circuits_{{{}}}, out_qobjs_{{{}}}, out_qbjsons_{{{}}},
         out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
@@ -309,46 +309,28 @@ namespace qb
    *   D_KL(P||Q) = P' * (log(P)-log(Q))  : P,Q are column vectors.  Exclude all
    *elements of Q that are zero
    **/
-  template <typename TP> double session::get_probability(const TP &in_elem) {
-    return in_elem;
-  }
 
-  // Specialise for complex double
-  template <> double session::get_probability(const std::complex<double> &in_elem) {
-    return std::norm(in_elem);
-  }
-
-  template <>
-  double session::get_probability(
-      const std::pair<const int, std::complex<double>> &in_pair) {
-    return std::norm(in_pair.second);
-  }
-
-  template <class TV>
-  int session::get_key(const std::pair<const int, TV> &el) {
-    return el.first;
-  }
-
-  template <class TQ, typename TP>
-  double session::get_jensen_shannon_divergence(const std::map<TQ, int> &in_q,
-                                             const TP &in_p) {
+  double session::get_jensen_shannon_divergence(const std::map<std::string, int> &in_q,
+                                                  const std::map<std::string, std::complex<double>> &in_p) {
     double divergence = 0.0;
     int sum_in_q = 0;
     for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
       sum_in_q += in_q_elem->second;
     }
 
-    typename std::map<TQ, int>::const_iterator in_q_elem;
-    int i_iter = 0;
+    std::map<std::string, int>::const_iterator in_q_elem;
+    std::string n_str = in_q.begin()->first;
+    unsigned int n_q = n_str.size();
+
     for (auto in_p_elem = in_p.begin(); in_p_elem != in_p.end(); in_p_elem++) {
-      auto statelabel = get_key(*in_p_elem);
-      double nipe = get_probability(in_p_elem->second);
+      double nipe = std::norm(in_p_elem->second);
+      // Search in_q for a state with the label matching in_p_elem
+      std::string statelabel = in_p_elem->first;
       if (debug_) {
-        std::cout << "[debug]: i_iter: " << i_iter
-                  << " , statelabel: " << statelabel << " , nipe: " << nipe
-                  << std::endl;
+        std::cout << "[debug]: statelabel: " << statelabel << " , nipe: " << nipe << std::endl;
       }
       in_q_elem = in_q.find(statelabel);
+
       if (in_q_elem != in_q.end()) {
         double rfq = (1.0 / sum_in_q) * (in_q_elem->second);
         if (debug_) {
@@ -374,21 +356,19 @@ namespace qb
             0.5 * nipe * std::log(2); // divergence += 0.5*nipe*(std::log(nipe) -
                                       // std::log(m)); m = 0.5*nipe
       }
-      i_iter++;
     }
+
     // Check for entries of in_q that are sparse (zero) for in_p
-    i_iter = 0;
     for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
-      // auto statelabel = get_key(in_p, *in_q_elem, i_iter);
-      auto statelabel = get_key(*in_q_elem);
+      std::string statelabel = in_q_elem->first;
       double rfq = (1.0 / sum_in_q) * (in_q_elem->second);
       auto in_p_el = in_p.find(statelabel);
+
       if (in_p_el == in_p.end()) {
         divergence +=
             0.5 * rfq * std::log(2); // divergence += 0.5*rfq*(std::log(rfq) -
                                      // std::log(m)); m = 0.5*rfq
       }
-      i_iter++;
     }
 
     return divergence;
@@ -405,8 +385,8 @@ namespace qb
     int N_ii = SINGLETON;
     int N_jj = SINGLETON;
 
-    if ((N_ii = singleton_or_eqlength(out_counts_, N_ii)) == INVALID) {
-      throw std::range_error("[out_counts] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(out_bitstrings_, N_ii)) == INVALID) {
+      throw std::range_error("[out_bitstrings] shape is invalid");
     }
     if ((N_ii = singleton_or_eqlength(output_amplitudes_, N_ii)) == INVALID) {
       throw std::range_error("[output_amplitudes] shape is invalid");
@@ -414,9 +394,9 @@ namespace qb
     if ((N_ii = singleton_or_eqlength(acc_uses_lsbs_, N_ii)) == INVALID) {
       throw std::range_error("[acc_uses_lsbs] shape is invalid");
     }
-    for (auto el : out_counts_) {
+    for (auto el : out_bitstrings_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[out_counts] shape is invalid");
+        throw std::range_error("[out_bitstrings] shape is invalid");
       }
     }
     for (auto el : output_amplitudes_) {
@@ -444,7 +424,7 @@ namespace qb
     }
 
     double jsdivergence = get_jensen_shannon_divergence(
-        out_counts_.at(ii).at(jj), output_amplitudes_.at(ii).at(jj));
+        out_bitstrings_.at(ii).at(jj), output_amplitudes_.at(ii).at(jj));
     ND jsdivergence_nd;
     jsdivergence_nd.insert(std::make_pair(0, jsdivergence));
     out_divergences_.at(ii).at(jj) = jsdivergence_nd;
@@ -459,15 +439,15 @@ namespace qb
     int N_ii = SINGLETON;
     int N_jj = SINGLETON;
 
-    if ((N_ii = singleton_or_eqlength(out_counts_, N_ii)) == INVALID) {
-      throw std::range_error("[out_counts] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(out_bitstrings_, N_ii)) == INVALID) {
+      throw std::range_error("[out_bitstrings] shape is invalid");
     }
     if ((N_ii = singleton_or_eqlength(output_amplitudes_, N_ii)) == INVALID) {
       throw std::range_error("[output_amplitudes] shape is invalid");
     }
-    for (auto el : out_counts_) {
+    for (auto el : out_bitstrings_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[out_counts] shape is invalid");
+        throw std::range_error("[out_bitstrings] shape is invalid");
       }
     }
     for (auto el : output_amplitudes_) {
@@ -948,7 +928,7 @@ namespace qb
     resize_for_i_j(acc_uses_n_bits_, "acc_uses_n_bits_");
     resize_for_i_j(output_amplitudes_, "output_amplitudes_");
     resize_for_i_j(out_raws_, "out_raws_");
-    resize_for_i_j(out_counts_, "out_counts_");
+    resize_for_i_j(out_bitstrings_, "out_bitstrings_");
     resize_for_i_j(out_divergences_, "out_divergences_");
     resize_for_i_j(out_transpiled_circuits_, "out_transpiled_circuits_");
     resize_for_i_j(out_qobjs_, "out_qobjs_");
@@ -1522,9 +1502,9 @@ namespace qb
     for (auto el : out_raws_) {
       el.resize(N_jj);
     }
-    out_counts_.clear();
-    out_counts_.resize(N_ii);
-    for (auto el : out_counts_) {
+    out_bitstrings_.clear();
+    out_bitstrings_.resize(N_ii);
+    for (auto el : out_bitstrings_) {
       el.resize(N_jj);
     }
     out_divergences_.clear();
@@ -2160,8 +2140,20 @@ namespace qb
       }
     }
 
-    // Save the counts to VectorMapNN in out_counts_ and raw map data in
-    // out_raws
+    // Flip the bit string (key in map qpu_counts) if AER backend is used. This is
+    // to ensure that the printed bit string in out_raw has the same order as other
+    // backends.
+    if (sim_qpu->name().compare("aer") == 0) {
+      std::map<std::string, int> qpu_counts_aer;
+      for (const auto &[bit_string, count] : qpu_counts) {
+        std::string bit_string_reverse = bit_string;
+        std::reverse(bit_string_reverse.begin(), bit_string_reverse.end());
+        qpu_counts_aer.insert(std::make_pair(bit_string_reverse, count));
+      }
+      qpu_counts = qpu_counts_aer;
+    }
+
+    // Save the counts to out_bitstrings_ and raw map data in out_raws
     populate_measure_counts_data(ii, jj, qpu_counts);
 
     // Transpile to QB native gates (acc)

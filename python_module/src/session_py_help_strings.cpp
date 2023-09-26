@@ -489,14 +489,14 @@ const char* session::help_out_raws_ = R"(
         A 1d-array (list) version of session.out_raw.
 )";
 
-const char* session::help_out_counts_ = R"(
-        out_count:
+const char* session::help_out_bitstrings_ = R"(
+        out_bitstring:
 
-        After calling session.run(), the counts from running sn shots are stored in session.out_count, using a dictionary where the keys are state label bits interpreted as BCD (MSB format).
+        After calling session.run(), the counts from running sn shots are stored in session.out_bitstring, using a dictionary where the keys are state label bits.
 
-        out_counts:
+        out_bitstrings:
 
-        A 1d-array (list) version of session.out_count.
+        A 1d-array (list) version of session.out_bitstring.
 )";
 
 const char* session::help_out_divergences_ = R"(

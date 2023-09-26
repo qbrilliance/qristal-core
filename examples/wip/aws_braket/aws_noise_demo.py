@@ -36,4 +36,4 @@ for kernel_str in all_kernels:
 
 s.noise = True
 s.run()
-print(s.out_counts)
+print(s.out_raw[0][0])

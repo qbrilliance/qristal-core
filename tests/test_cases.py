@@ -22,35 +22,41 @@ def test_CI_210826_2_qb12_check_sn_equals_1024() :
 #
 # def test_CI_210826_3_qb12_random_5() :
 #     print("* CI_210826_3_qb12_random_5:")
-#     print("* With default qb12 settings, with the default (TNQVM-ExaTN-MPS) backend, run a depth 5 circuit, check the length of the out_count dictionary is >0")
-#     import qb.core
+#     print("* With default qb12 settings, with the default (TNQVM-ExaTN-MPS) backend, run a depth 5 circuit, check the length of the out_raw dictionary is >0")
+#     import qb.core, ast
 #     s = qb.core.session()
 #     s.qb12()
 #     s.random = 5
 #     s.run()
-#     assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_3_qb12_random_5 - TNQVM-ExaTN-MPS"
+#     result = s.out_raw[0][0]
+#     res = ast.literal_eval(result)
+#     assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_3_qb12_random_5 - TNQVM-ExaTN-MPS"
 
 def test_CI_210826_4_qb12_random_5() :
     print("* CI_210826_4_qb12_random_5:")
-    print("* With default qb12 settings, with the Aer backend, run a depth 5 circuit, check the length of the out_count dictionary is >0")
-    import qb.core
+    print("* With default qb12 settings, with the Aer backend, run a depth 5 circuit, check the length of the out_raw dictionary is >0")
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.random = 5
     s.acc = 'aer'
     s.run()
-    assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_4_qb12_random_5 - Aer"
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_4_qb12_random_5 - Aer"
 
 def test_CI_210826_5_qb12_random_5() :
     print("* CI_210826_5_qb12_random_5:")
-    print("* With default qb12 settings, with the qpp backend, run a depth 3 circuit, check the length of the out_count dictionary is >0")
-    import qb.core
+    print("* With default qb12 settings, with the qpp backend, run a depth 3 circuit, check the length of the out_raw dictionary is >0")
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.random = 3
     s.acc = 'qpp'
     s.run()
-    assert (len(s.out_count[0][0])) > 0, "[QB SDK] Failed test: CI_210826_5_qb12_random_5 - qpp"
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_5_qb12_random_5 - qpp"
 
 def test_CI_210826_6_qb12_random_0() :
     print("* CI_210826_4_qb12_random_0:")
@@ -73,15 +79,16 @@ def test_CI_210826_7_qb12_random_minus_one() :
 
 def test_CI_210826_8_qb12_random_256() :
     print("* CI_210826_8_qb12_random_256:")
-    print("* With default qb12 settings, run a depth 256 circuit, check the length of the out_count dictionary is >0")
-    import qb.core
+    print("* With default qb12 settings, run a depth 256 circuit, check the length of the out_raw dictionary is >0")
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
     s.random = 256
     s.run()
-    assert (len(s.out_count[0][0])) > 0, "[QB SDK] failed test: CI_210826_8_qb12_random_256"
-
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys()))) > 0, "[QB SDK] failed test: CI_210826_8_qb12_random_256"
 
 def test_CI_210826_9_qn_minus_one() :
     print("* CI_210826_9_qn_minus_one:")
@@ -168,7 +175,7 @@ def test_CI_210826_14_qbtheta_parameters() :
 def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -192,12 +199,14 @@ def test_CI_210826_15_qb_c5_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][31] == 1024 )
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(31)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -221,12 +230,14 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][61] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(61)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -250,12 +261,14 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][32] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(32)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -283,13 +296,14 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][127] == 1024)
-
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(127)[2:].zfill(8))] == 1024)
 
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
     print("* With default qb12 settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -307,7 +321,9 @@ def test_CI_210826_19_qb_c2_x_x_dag() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][3] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(3)[2:].zfill(3))] == 1024)
 
 def test_qft4() :
     print("* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, ExaTN-MPS")
@@ -449,7 +465,7 @@ def test_aer_matrix_product_state_method_large_circuit() :
 def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
     print("* With default qb12 settings, check the functionality of QB's custom controlled Ry gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -467,12 +483,14 @@ def test_qblib_custom_gates() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][1] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(1)[2:].zfill(2))] == 1024)
 
 # Deprecated after implementing resampling - 220308
 # def test_loopback_qcstack_dummy() :
 #    print(" Loopback QCStack dummy count data")
-#    import qb.core
+#    import qb.core, ast
 #    s = qb.core.session()
 #    s.qb12()
 #    s.qn = 3
@@ -490,8 +508,10 @@ def test_qblib_custom_gates() :
 #        measure q[0] -> c[0];
 #    }'''
 #    s.run()
-#    assert (s.out_count[0][0][4] == 4)
-#    assert (s.out_count[0][0][5] == 4)
+#    result = s.out_raw[0][0]
+#    res = ast.literal_eval(result)
+#    assert (res[''.join(bin(4)[2:].zfill(3))] == 4)
+#    assert (res[''.join(bin(5)[2:].zfill(3))] == 4)
 
 def test_loopback_rx_ry_rz() :
     print(" Loopback QCStack check transpiling into discrete angles")
@@ -1518,7 +1538,7 @@ def test_controlled_multiplication():
 
 def test_raw_openqasm_str():
     print(" Testing raw OpenQASM string input ")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.debug = True
     nb_qubits = 12
@@ -1533,11 +1553,13 @@ def test_raw_openqasm_str():
     s.instring = circ.openqasm()
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
 def test_raw_openqasm_file():
     print(" Testing raw OpenQASM file input ")
-    import qb.core
+    import qb.core, ast
     import os
     s = qb.core.session()
     s.debug = True
@@ -1546,11 +1568,13 @@ def test_raw_openqasm_file():
     s.qb12()
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
 def test_raw_openqasm_custom_qreg_names():
     print(" Testing raw OpenQASM input using different qreg variable names")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.instring = '''
@@ -1565,7 +1589,9 @@ def test_raw_openqasm_custom_qreg_names():
     '''
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
     s.instring = '''
     OPENQASM 2.0;
@@ -1579,7 +1605,9 @@ def test_raw_openqasm_custom_qreg_names():
     '''
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
     s.instring = '''
     OPENQASM 2.0;
@@ -1593,11 +1621,13 @@ def test_raw_openqasm_custom_qreg_names():
     '''
     s.run()
     print(s.out_raw[0])
-    assert(len(s.out_count[0][0]) == 2)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (len(list(res.keys())) == 2)
 
 def test_async_run_and_wait():
     print(" Testing asynchronous job runs ")
-    import qb.core
+    import qb.core, ast
     import json
     import numpy as np
     s = qb.core.session()
@@ -1664,15 +1694,17 @@ def test_async_run_and_wait():
         if not all_done:
             time.sleep(1)
 
-    assert(len(s.out_count) == 2)
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[1][0]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
     # Bell States
-    assert(len(s.out_count[0][0]) == 2)
-    assert(len(s.out_count[1][0]) == 2)
-
+    assert(len(list(res1.keys())) == 2)
+    assert(len(list(res2.keys())) == 2)
 
 def test_normal_request_with_downsampling():
     print("Using loopback to test downsampling")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -1694,11 +1726,13 @@ def test_normal_request_with_downsampling():
     s.qpu_config = "../../qpu_config_resample.json"
 
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 3)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 3)
 
 def test_normal_request_with_upsampling():
     print("Using loopback to test upsampling")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -1719,11 +1753,13 @@ def test_normal_request_with_upsampling():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 30)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 30)
 
 def test_normal_request_recursive_with_resampling_above_threshold():
     print("Using loopback to test recursive requests + forced resampling when 50% or above of requested measurements are successful")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -1744,12 +1780,14 @@ def test_normal_request_recursive_with_resampling_above_threshold():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
 
 
 def test_normal_request_recursive_no_resampling():
     print("Using loopback to test recursive requests + no resampling")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -1770,11 +1808,13 @@ def test_normal_request_recursive_no_resampling():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
 
 def test_over_request_recursive_no_resampling():
     print("Using loopback to test recursive 8x over-requests + no resampling")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -1795,7 +1835,9 @@ def test_over_request_recursive_no_resampling():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
 
 def test_over_request_recursive_resampling_qb_safe_limit_shots():
     print("Using loopback to test QB_SAFE_LIMIT_SHOTS")

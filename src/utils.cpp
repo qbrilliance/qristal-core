@@ -27,46 +27,6 @@ int ipow(int base, int exp) {
   return result;
 }
 
-template <typename TT>
-double get_jensen_shannon(std::map<std::string, int> &in_q, const TT &in_p, bool is_sim_msb) {
-    double divergence = 0.0;
-    int sum_in_q = 0;
-    int i_iter = 0;
-    std::string n_str = in_q.begin()->first; unsigned int n_q = n_str.size();
-    for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) { sum_in_q += in_q_elem->second; }
-    std::map<std::string, int>::iterator in_q_elem;
-    for (auto in_p_elem = in_p.begin(); in_p_elem != in_p.end(); in_p_elem++) {
-      double nipe = get_probability(*in_p_elem);
-
-      // Search in_q for a state with the label (BCD) matching i_iter
-      boost::dynamic_bitset<> statelabel_v(n_q, i_iter);
-      std::string statelabel;
-      to_string(statelabel_v, statelabel);
-
-      if (is_sim_msb) {
-          std::reverse(statelabel.begin(),statelabel.end());
-      }
-
-      in_q_elem = in_q.find(statelabel);
-      if (in_q_elem != in_q.end()) {
-            double rfq = (1.0/sum_in_q)*(in_q_elem->second);
-            double m = 0.5*(rfq + nipe);
-            if ((in_q_elem->second > 0) && (nipe > 0)) {
-                divergence += 0.5*( nipe*(std::log(nipe) - std::log(m)) + rfq*(std::log(rfq) - std::log(m)) );
-            } else if ((in_q_elem->second > 0) && (nipe == 0)) {
-                divergence += 0.5*rfq*(std::log(rfq) - std::log(m));
-            } else if ((in_q_elem->second == 0) && (nipe > 0)) {
-                divergence += 0.5*nipe*(std::log(nipe) - std::log(m));
-            }
-      } else {
-          // Sparse element - in_q_elem assumed to have 0 probability
-          divergence += 0.5*nipe*std::log(2);
-      }
-      i_iter++;
-    }
-    return divergence;
-}
-
 double get_XEBdiff(std::vector<std::map<std::string, int>>& allresults, const int& shots, const int& n_exp) {
 
     double XEBdiff = 0.0;

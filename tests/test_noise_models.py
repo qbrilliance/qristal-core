@@ -5,6 +5,7 @@ import qb.core
 import numpy as np
 import qiskit
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+import ast
 
 def qb_pauli_measurement_circuit(
         op: str,
@@ -200,7 +201,9 @@ def get_experiment_result(session):
     Output: qiskit.result.result.Result
     '''
     experiment_result_data = []
-    counts = session.out_count
+    result = session.out_raw[0][0]
+    res = ast.literal_eval(result)
+    counts = len(list(res.keys()))
     #print(counts)
     i = 0
     for row in counts:

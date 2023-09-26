@@ -58,6 +58,7 @@ add_executable(CITests
   tests/tket/tketTester.cpp
   tests/transpilationTester.cpp
   tests/qobj/qobjTester.cpp
+  tests/jensen_shannon.cpp
   tests/QuantumBrillianceAcceleratorTester.cpp
   tests/sessionTester.cpp
 )

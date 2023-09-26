@@ -5,7 +5,7 @@ import pytest
 def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -29,12 +29,14 @@ def test_CI_210826_15_qb_c5_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][31] == 1024 )
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(31)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -58,12 +60,14 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][61] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(61)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -87,12 +91,14 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][32] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(32)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
     print("* With default qb12 settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -120,13 +126,14 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][127] == 1024)
-
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(127)[2:].zfill(8))] == 1024)
 
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
     print("* With default qb12 settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -144,7 +151,9 @@ def test_CI_210826_19_qb_c2_x_x_dag() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][3] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(3)[2:].zfill(3))] == 1024)
 
 def test_qft4() :
     print("* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, ExaTN-MPS")
@@ -286,7 +295,7 @@ def test_aer_matrix_product_state_method_large_circuit() :
 def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
     print("* With default qb12 settings, check the functionality of QB's custom controlled Ry gate")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aer"
@@ -305,11 +314,13 @@ def test_qblib_custom_gates() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_count[0][0][1] == 1024)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert (res[''.join(bin(1)[2:].zfill(2))] == 1024)
 
 def test_async_run_and_wait():
     print(" Testing asynchronous job runs ")
-    import qb.core
+    import qb.core, ast
     import json
     import numpy as np
     s = qb.core.session()
@@ -376,10 +387,13 @@ def test_async_run_and_wait():
         if not all_done:
             time.sleep(1)
 
-    assert(len(s.out_count) == 2)
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[1][0]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
     # Bell States
-    assert(len(s.out_count[0][0]) == 2)
-    assert(len(s.out_count[1][0]) == 2)
+    assert(len(list(res1.keys())) == 2)
+    assert(len(list(res2.keys())) == 2)
 
 def test_potential_async_deadlock():
     print("Test dispatching a large number of async jobs")

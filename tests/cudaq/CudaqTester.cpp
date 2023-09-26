@@ -49,7 +49,7 @@ TEST(CudaqTester, check_kernel_execution) {
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_counts()[0][0];
+  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
   EXPECT_EQ(out_counts.size(), 2);
   int sum = 0;
   for (const auto &[bitStr, count] : out_counts) {
@@ -170,7 +170,7 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_counts()[0][0];
+  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
   EXPECT_EQ(out_counts.size(), 2);
   int sum = 0;
   for (const auto &[bitStr, count] : out_counts) {
@@ -218,7 +218,7 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_counts()[0][0];
+  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
   EXPECT_EQ(out_counts.size(), 2);
   int sum = 0;
   for (const auto &[bitStr, count] : out_counts) {
@@ -254,7 +254,7 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_counts()[0][0];
+  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
   EXPECT_EQ(out_counts.size(), 2);
   int sum = 0;
   for (const auto &[bitStr, count] : out_counts) {

@@ -75,7 +75,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
 
 def test_CI_230131_cz_arbitrary_rotation():
     print("Checks CZ and Ry at arbitrary rotation angle.  Verifies that the requested number of shots is actually performed via recursive requests")
-    import qb.core
+    import qb.core, ast
     import json
     import os
     qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
@@ -114,11 +114,13 @@ def test_CI_230131_cz_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == s.sn[0][0])
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == s.sn[0][0])
 
 def test_CI_230131_arbitrary_rotation():
     print("Checks Rx and Ry arbitrary rotation angles.  Verifies that the requested number of shots is actually performed via recursive requests")
-    import qb.core
+    import qb.core, ast
     import json
     import os
     qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
@@ -158,7 +160,9 @@ def test_CI_230131_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == s.sn[0][0])
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == s.sn[0][0])
 
 def test_CI_230106_1_loopback_6s():
     print("Check 2s and 6s polling interval set from JSON config file")
@@ -274,7 +278,7 @@ def test_CI_220225_1_init_measure_no_gates() :
 
 def test_normal_request_with_upsampling():
     print("Using loopback to test upsampling")
-    import qb.core
+    import qb.core, ast
     import os
     qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
     s = qb.core.session()
@@ -297,11 +301,13 @@ def test_normal_request_with_upsampling():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 30)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 30)
 
 def test_over_request_recursive_with_resampling_above_threshold():
     print("Using loopback to test recursive 4x-over-requests + forced resampling when 50% or above of requested measurements are successful")
-    import qb.core
+    import qb.core, ast
     import os
     qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
     s = qb.core.session()
@@ -324,12 +330,13 @@ def test_over_request_recursive_with_resampling_above_threshold():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
-
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
 
 def test_normal_request_recursive_no_resampling():
     print("Using loopback to test recursive requests + no resampling")
-    import qb.core
+    import qb.core, ast
     import os
     qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
     s = qb.core.session()
@@ -352,11 +359,13 @@ def test_normal_request_recursive_no_resampling():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
 
 def test_over_request_recursive_no_resampling():
     print("Using loopback to test recursive 8x over-requests + no resampling")
-    import qb.core
+    import qb.core, ast
     import os
     qqu = os.environ['QB_QCSTACK_2023_2_1_URL'] + "/api/v1/"
     s = qb.core.session()
@@ -380,7 +389,9 @@ def test_over_request_recursive_no_resampling():
     json_file.close()
     s.qpu_config = "../../qpu_config_resample.json"
     s.run()
-    assert(sum([jj for jj in (s.out_count[0][0]).values()]) == 16)
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
 
 def test_over_request_recursive_resampling_qb_safe_limit_shots():
     print("Using loopback to test QB_SAFE_LIMIT_SHOTS")

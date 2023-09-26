@@ -355,13 +355,10 @@ int main(int argc, char **argv) {
   mqbacc.insert("m_connectivity", noiseModel.get_connectivity());
 
   // output_amplitude: theoretical output amplitude
-  std::vector<std::complex<double>> output_amplitude;
-  NC nc_output_amplitude;
+  std::map<std::string, std::complex<double>> output_amplitude;
   if (!output_to_js["output_amplitude"].empty()) {
-      std::cout << "* output_amplitude has been specified:" << std::endl;
-      output_amplitude = output_to_js["output_amplitude"].get<std::vector<std::complex<double>>>();
-      qb::vec_to_map(nc_output_amplitude, output_amplitude);
-      s.set_output_amplitude(nc_output_amplitude);
+    std::cout << "* output_amplitude has been specified:" << std::endl;
+    s.set_output_amplitude(output_amplitude);
   }
 
   /* Accelerator selection:

@@ -62,7 +62,7 @@ def test_CI_220602_3_simple_aws_tn1():
 def test_CI_220608_1_aws_sv1_openqasm3():
     print("* CI_220608_1_aws_sv1_openqasm3:")
     print("* QB SDK offload to AWS SV1, 2-qubit Bell state.")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aws_acc"
@@ -81,13 +81,17 @@ def test_CI_220608_1_aws_sv1_openqasm3():
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
 
 def test_CI_220614_1_aws_tn1_openqasm3():
     print("* CI_220614_1_aws_tn1_openqasm3:")
     print("* QB SDK offload to AWS TN1, 2-qubit Bell state.")
-    import qb.core
+    import qb.core, ast
     s = qb.core.session()
     s.qb12()
     s.acc = "aws_acc"
@@ -106,8 +110,12 @@ def test_CI_220614_1_aws_tn1_openqasm3():
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220614_1_aws_tn1_openqasm3"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220614_1_aws_tn1_openqasm3"
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220614_1_aws_tn1_openqasm3"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220614_1_aws_tn1_openqasm3"
 
 def test_CI_220614_2_aws_dm1_openqasm3():
     print("* CI_220614_1_aws_dm1_openqasm3:")
@@ -131,8 +139,12 @@ def test_CI_220614_2_aws_dm1_openqasm3():
         measure q[0] -> c[0];
     }'''
     s.run()
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
 
 def test_CI_220616_1_aws_dm1_async():
     print("* CI_220616_1_aws_dm1_async:")
@@ -175,9 +187,15 @@ __qpu__ void QBCIRCUIT(qreg q) {
         time.sleep(1)
 
     # Now show the finished results
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220616_1_aws_dm1_async"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220616_1_aws_dm1_async"
-    assert (s.out_counts[0][2][0] + s.out_counts[0][2][3]) == 512, "[QB SDK] Failed test: CI_220616_1_aws_dm1_async"
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    result3 = s.out_raw[0][2]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    res3 = ast.literal_eval(result3)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220616_1_aws_dm1_async"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220616_1_aws_dm1_async"
+    assert (res3[''.join(reversed(bin(0)[2:].zfill(2)))] + res3[''.join(reversed(bin(3)[2:].zfill(2)))]) == 512, "[QB SDK] Failed test: CI_220616_1_aws_dm1_async"
 
 def test_CI_220616_2_aws_sv1_async():
     print("* CI_220616_2_aws_sv1_async:")
@@ -220,10 +238,15 @@ __qpu__ void QBCIRCUIT(qreg q) {
         time.sleep(1)
 
     # Now show the finished results
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220616_2_aws_sv1_async"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220616_2_aws_sv1_async"
-    assert (s.out_counts[0][2][0] + s.out_counts[0][2][3]) == 512, "[QB SDK] Failed test: CI_220616_2_aws_sv1_async"
-
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    result3 = s.out_raw[0][2]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    res3 = ast.literal_eval(result3)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220616_2_aws_sv1_async"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220616_2_aws_sv1_async"
+    assert (res3[''.join(reversed(bin(0)[2:].zfill(2)))] + res3[''.join(reversed(bin(3)[2:].zfill(2)))]) == 512, "[QB SDK] Failed test: CI_220616_2_aws_sv1_async"
 
 def test_CI_220616_3_aws_tn1_async():
     print("* CI_220616_3_aws_tn1_async:")
@@ -266,9 +289,15 @@ __qpu__ void QBCIRCUIT(qreg q) {
         time.sleep(1)
 
     # Now show the finished results
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
-    assert (s.out_counts[0][2][0] + s.out_counts[0][2][3]) == 512, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    result3 = s.out_raw[0][2]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    res3 = ast.literal_eval(result3)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
+    assert (res3[''.join(reversed(bin(0)[2:].zfill(2)))] + res3[''.join(reversed(bin(3)[2:].zfill(2)))]) == 512, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
 
 def test_CI_220908_1_aws_check_s3_prefix():
     print("* CI_220908_1_aws_check_s3_prefix:")
@@ -342,6 +371,12 @@ __qpu__ void QBCIRCUIT(qreg q) {
         time.sleep(1)
 
     # Now show the finished results
-    assert (s.out_counts[0][0][0] + s.out_counts[0][0][3]) == 64,  "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
-    assert (s.out_counts[0][1][0] + s.out_counts[0][1][3]) == 256, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
-    assert (s.out_counts[0][2][0] + s.out_counts[0][2][3]) == 512, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
+    result1 = s.out_raw[0][0]
+    result2 = s.out_raw[0][1]
+    result3 = s.out_raw[0][2]
+    res1 = ast.literal_eval(result1)
+    res2 = ast.literal_eval(result2)
+    res3 = ast.literal_eval(result3)
+    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
+    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
+    assert (res3[''.join(reversed(bin(0)[2:].zfill(2)))] + res3[''.join(reversed(bin(3)[2:].zfill(2)))]) == 512, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"

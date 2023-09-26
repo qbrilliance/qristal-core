@@ -20,41 +20,6 @@ int binomialCoefficient(int n, int k);
 // https://stackoverflow.com/questions/101439/the-most-efficient-way-to-implement-an-integer-based-power-function-powint-int
 int ipow(int base, int exp);
 
-/**
- * get_jensen_shannon - calculate the divergence between two discrete probability distributions supported in the same space
- *
- * Input:
- *
- *     [std::map<std::string, int>]        in_q : the counts from a quantum simulation.  The string key is assumed to be a BCD index for in_p
- *
- *     [std::vector<std::complex<double>>] in_p : the amplitudes for the theoretical distribution of states from which in_q has been sampled.  begin() corresponds to |00...0>. end() corresponds to |111...1>.  Increments in the state label correspond to increments in the iterator.
- *
- * Output:
- *
- *     [double]  divergence : 0.5*(D_KL(in_p||m) + D_KL(in_q||m))
- *
- * where:
- *
- *   m = 0.5*(in_p + in_q)
- *
- *   D_KL(P||Q) = P' * (log(P)-log(Q))  : P,Q are column vectors.  Exclude all elements of Q that are zero
-**/
-
-/*
-template <typename TT>
-double get_probability(const TT &in_elem) {
-    return in_elem;
-}
-
-template <>
-double get_probability(const std::complex<double> &in_elem) {
-    return std::norm(in_elem);
-}
-*/
-
-template <typename TT>
-double get_jensen_shannon(std::map<std::string, int> &in_q, const TT &in_p, bool is_sim_msb = false);
-
 double get_XEBdiff(std::vector<std::map<std::string, int>>& allresults, const int& shots, const int& n_exp);
 
 double accumulate_counts_with_parity(const std::map<std::string, int> &in_stateVec);

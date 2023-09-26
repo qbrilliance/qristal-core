@@ -11,6 +11,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 ### Added
 
 - GitHub hosting for publicly available repositories of Qristal
+- Standardised bitstring printing order for all backends
 
 ## [1.1.0] - 2023-08-25
 

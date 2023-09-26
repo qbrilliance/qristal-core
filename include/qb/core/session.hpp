@@ -163,11 +163,11 @@ namespace qb
       VectorBool acc_uses_lsbs_;
       VectorN acc_uses_n_bits_;
 
-      VectorMapNC output_amplitudes_;
+      std::vector<std::vector<std::map<std::string, std::complex<double>>>> output_amplitudes_;
 
       // For storing results
       VectorString out_raws_;
-      VectorMapNN out_counts_;
+      std::vector<std::vector<std::map<std::string, int>>> out_bitstrings_;
       VectorMapND out_divergences_;
       VectorString out_transpiled_circuits_;
       VectorString out_qobjs_;
@@ -1117,19 +1117,20 @@ namespace qb
        * 
        * @param in_output_amplitude Amplitude values
        */
-      void set_output_amplitude(const NC &in_output_amplitude);
+      void set_output_amplitude(const std::map<std::string, std::complex<double>> &in_output_amplitude);
       /**
        * @brief Set the amplitudes for Jensen–Shannon divergence calculation
        * 
        * @param in_output_amplitude Amplitude values
        */
-      void set_output_amplitudes(const VectorMapNC &in_output_amplitude);
+      void set_output_amplitudes(const std::vector<std::vector<std::map<
+          std::string, std::complex<double>>>> &in_output_amplitude);
       /**
        * @brief Get the amplitudes for Jensen–Shannon divergence calculation
        * 
        * @return Amplitude values
        */
-      const VectorMapNC &get_output_amplitudes() const;
+      const std::vector<std::vector<std::map<std::string, std::complex<double>>>> &get_output_amplitudes() const;
       /// @private
       static const char *help_output_amplitudes_;
       //
@@ -1163,9 +1164,9 @@ namespace qb
        * 
        * @return Measurement count map
        */
-      const VectorMapNN &get_out_counts() const;
+      const std::vector<std::vector<std::map<std::string, int>>> &get_out_bitstrings() const;
       /// @private
-      static const char *help_out_counts_;
+      static const char *help_out_bitstrings_;
       //
       /**
        * @brief Get the output Jensen–Shannon divergence results
@@ -1387,14 +1388,8 @@ namespace qb
       // Methods
       std::string random_circuit(const int n_q, const int depth);
 
-      template <typename TT> double get_probability(const TT &in_elem);
-
-      template <class TV>
-      int get_key(const std::pair<const int, TV> &el);
-
-      template <typename TQ, typename TP>
-      double get_jensen_shannon_divergence(const std::map<TQ, int> &in_q,
-                                           const TP &in_p);
+      double get_jensen_shannon_divergence(const std::map<std::string, int> &in_q,
+                                           const std::map<std::string, std::complex<double>> &in_p);
 
       std::string aer_circuit_transpiler(std::string &circuit);
       /// Ensure that all result tables are resized/expanded to accommodate (ii, jj) experiment index.
@@ -1465,8 +1460,8 @@ namespace qb
       template <typename CountMapT>
       void populate_measure_counts_data(size_t ii, size_t jj,
                                         const CountMapT &measure_counts_map) {
-        // Save the counts to VectorMapNN
-        NN qpu_counts_nn;
+        // Save the counts to a string-to-int map
+        std::map<std::string, int> keystring_all;
         for (const auto &[bit_string, count] : measure_counts_map) {
           std::string keystring = bit_string;
           if (acc_uses_lsbs_.at(ii).at(jj)) {
@@ -1474,8 +1469,7 @@ namespace qb
             std::reverse(keystring.begin(), keystring.end());
           }
           if (keystring.size() < 32) {
-            qpu_counts_nn.insert(
-                std::make_pair(std::stoi(keystring, 0, 2), count));
+            keystring_all.insert(std::make_pair(keystring, count));
           } else {
             if (debug_) {
               std::cout << "Cannot represent bitstring as integer. Please use "
@@ -1485,8 +1479,8 @@ namespace qb
           }
         }
 
-        // Store measure counts
-        out_counts_.at(ii).at(jj) = qpu_counts_nn;
+        // Store bitstring and measured counts
+        out_bitstrings_.at(ii).at(jj) = keystring_all;
 
         // Save results to JSON
         nlohmann::json qpu_counts_js = measure_counts_map;
