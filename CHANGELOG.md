@@ -2,6 +2,13 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
+## [<version>] - <date>
+
+### Added
+
+- QML: Option to set the number of shots and seed in QMLExecutor python interface
+- QML: Fixed output dimensions for QML Python wrapper
+
 ## [1.2.0] - 2023-09-20
 
 ### Breaking

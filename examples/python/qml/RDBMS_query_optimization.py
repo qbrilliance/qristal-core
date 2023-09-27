@@ -55,7 +55,7 @@ num_params = num_qubits*reps*len(param_gates)
 circuit = ParamCirc(num_qubits, defaultAnsatzes.qrlRDBMS, reps, param_gates)
 # Connect to PyTorch
 initial_weights = np.pi*(2*np.random.rand(num_params) - 1)
-quantum_nn = QuantumLayer(circuit, init_weights=initial_weights)
+quantum_nn = QuantumLayer(circuit, init_weights=initial_weights, seed=seed, num_shots=1024)
 
 # --------------------------------------------------------------
 # ------------------- End quantum section ----------------------

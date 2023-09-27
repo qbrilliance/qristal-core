@@ -25,6 +25,10 @@ class QGrad(torch.autograd.Function):
     ctx.weights = weights
     # Run circuit serially for forward pass
     ctx.executor = QMLExecutor(layer.circuit, inputs.tolist(), weights.tolist())
+    if layer.seed is not None:
+      ctx.executor.seed = layer.seed
+    if layer.num_shots is not None:
+      ctx.executor.numShots = layer.num_shots
     ctx.executor.run()
     probs = ctx.executor.getStats()
     # Return results for next layer, save weights for retrieval in backward pass
@@ -63,19 +67,21 @@ class QuantumLayer(torch.nn.Module):
   
   """
 
-  def __init__(self, circuit, init_input=None, init_weights=None, seed=None):
+  def __init__(self, circuit, init_input=None, init_weights=None, seed=None, num_shots=None):
     """
     Define PyTorch quantum layer
       inputs: 
         circuit (qb.core.optimization.ParamCirc): the circuit to be used as a quantum layer in the hybrid NN
         init_input (np.array or list): the initial inputs to use for the quantum layer
         init_weights (np.array or list): the initial weights to use for the quantum layer
+        seed (int): the seed to use for the quantum circuit executor
+        num_shots (int): number of shots to run the quantum circuit for when executing
 
     """
     super().__init__()
     NoneType = type(None)
     self.in_features = circuit.numInputs()
-    self.out_features = 2**circuit.numInputs()
+    self.out_features = 2**circuit.numQubits()
     self.num_weights = circuit.numParams()
     if type(init_input)==NoneType:
       self.inputs = torch.nn.Parameter(torch.rand(self.in_features))
@@ -90,6 +96,7 @@ class QuantumLayer(torch.nn.Module):
     self.inputs.grad = torch.zeros_like(self.inputs)
     self.circuit = circuit
     self.seed = seed
+    self.num_shots = num_shots
 
   def forward(self, input):
     """ 

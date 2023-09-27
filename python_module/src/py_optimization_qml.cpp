@@ -36,6 +36,10 @@ void bind_qml(pybind11::module &opt_m) {
                     &qb::qml::QMLExecutor::setInputParams)
       .def_property("weights", &qb::qml::QMLExecutor::getWeights,
                     &qb::qml::QMLExecutor::setWeights)
+      .def_property("numShots", &qb::qml::QMLExecutor::getNumShots,
+                    &qb::qml::QMLExecutor::setNumShots)
+      .def_property("seed", &qb::qml::QMLExecutor::getSeed,
+                    &qb::qml::QMLExecutor::setSeed)
       .def_readwrite("acc", &qb::qml::QMLExecutor::acc)
       .def("run", &qb::qml::QMLExecutor::run)
       .def("getStats", &qb::qml::QMLExecutor::getStats)

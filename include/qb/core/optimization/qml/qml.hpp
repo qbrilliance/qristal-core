@@ -329,7 +329,7 @@ public:
   /**
    * @brief Manually set the number of shots to run the circuit for during execution.
   */
-  void setNumShots(std::size_t numShots) { numShots_ = numShots; };
+  void setNumShots(std::size_t numShots) { numShots_ = numShots; }
   /**
    * @brief Manually set the seed for the circuit executor.
   */
@@ -356,7 +356,7 @@ public:
   /**
    * @brief Return the currently defined number of shots.
   */
-  std::size_t getNumShots() { return numShots_; };
+  std::size_t getNumShots() { return numShots_; }
   /**
    * @brief Return the currently defined seed.
   */
