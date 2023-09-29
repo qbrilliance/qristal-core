@@ -411,6 +411,32 @@ const char* session::help_qubit_contrast_thresholds_ = R"(
         A 1d-array (list) version of qubit_contrast_threshold.
 )";
 
+const char* session::help_initial_bond_dimensions_ = R"(
+        initial_bond_dimension:
+
+        Set the initial bond dimension (MPS simulator). The single setting applies globally.
+
+        initial_bond_dimensions:
+
+        A 1d-array (list) version of initial_bond_dimension.
+
+        .. note::
+                This is only needed if using the "tnqvm" backend accelerator.
+)";
+
+const char* session::help_initial_kraus_dimensions_ = R"(
+        initial_kraus_dimension:
+
+        Set the initial kraus dimension (MPS simulator). The single setting applies globally.
+
+        initial_kraus_dimensions:
+
+        A 1d-array (list) version of initial_kraus_dimension.
+
+        .. note::
+                This is only needed if using the "tnqvm" backend accelerator.
+)";
+
 const char* session::help_max_bond_dimensions_ = R"(
         max_bond_dimension:
 
@@ -424,6 +450,19 @@ const char* session::help_max_bond_dimensions_ = R"(
                 This is only needed if using the "tnqvm" backend accelerator.
 )";
 
+const char* session::help_max_kraus_dimensions_ = R"(
+        max_kraus_dimension:
+
+        Set the maximum kraus dimension (MPS simulator). The single setting applies globally.
+
+        max_kraus_dimensions:
+
+        A 1d-array (list) version of max_kraus_dimension.
+
+        .. note::
+                This is only needed if using the "tnqvm" backend accelerator.
+)";
+
 const char* session::help_svd_cutoffs_ = R"(
         svd_cutoff:
 
@@ -432,6 +471,19 @@ const char* session::help_svd_cutoffs_ = R"(
         svd_cutoffs:
 
         A 1d-array (list) version of svd_cutoff.
+
+        .. note::
+                This is only needed if using the "tnqvm" backend accelerator.
+)";
+
+const char* session::help_rel_svd_cutoffs_ = R"(
+        rel_svd_cutoff:
+
+        Set the relative SVD cutoff threshold value (MPS simulator). The single setting applies globally.
+
+        rel_svd_cutoffs:
+
+        A 1d-array (list) version of rel_svd_cutoff.
 
         .. note::
                 This is only needed if using the "tnqvm" backend accelerator.

@@ -10,15 +10,13 @@ macro(add_example NAME)
     message(FATAL_ERROR "[add_example]: SOURCES requires at least one value")
   endif()
 
-  if (NOT arg_CUDAQ)
+  if (WITH_CUDAQ OR NOT arg_CUDAQ)
     add_executable(${NAME} ${arg_SOURCES})
-  #elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") # Can only do this when building Qristal using clang; needs more testing even in that case.
-  #  add_cudaq_executable(${NAME} ${arg_SOURCES})
   endif()
 
   if(TARGET ${NAME})
+    set_property(TARGET ${NAME} PROPERTY BUILD_RPATH "${CMAKE_BUILD_DIR};${XACC_ROOT}/lib")
     target_link_libraries(${NAME} PRIVATE qb::core)
-    set_target_properties(${NAME} PROPERTIES BUILD_RPATH "${CMAKE_BUILD_DIR};${XACC_ROOT}/lib")
   endif()
   
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/${NAME}/CMakeLists.txt.in
@@ -46,6 +44,9 @@ if(WITH_EXAMPLES)
   add_example(qbsdkcli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/qbsdkcli.cpp)
   add_example(vqee SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqee/vqee_example.cpp)
   add_example(vqeeCalculator SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqeeCalculator/vqee_calculator.cpp)
+  add_example(qb_mpdo_noisy SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qb_mpdo_noisy/qb_mpdo_noisy.cpp)
+  add_example(qb_purification_noisy SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qb_purification_noisy/qb_purification_noisy.cpp)
+  add_example(qb_mps_noisy SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qb_mps_noisy/qb_mps_noisy.cpp)
   if (WITH_CUDAQ)
     add_example(benchmark1_qasm SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/benchmark1_qasm/benchmark1_qasm.cpp)
     add_example(benchmark1_cudaq CUDAQ SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/benchmark1_cudaq/benchmark1_cudaq.cpp)

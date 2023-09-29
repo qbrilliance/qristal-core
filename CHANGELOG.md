@@ -6,8 +6,15 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Access to emulator tensor network parameters from session object
 - QML: Option to set the number of shots and seed in QMLExecutor python interface
 - QML: Fixed output dimensions for QML Python wrapper
+- Build CUDA Quantum examples automatically
+
+### Fixed
+
+- Enforce C++20 more stringently
+
 
 ## [1.2.0] - 2023-09-20
 
@@ -19,6 +26,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 - GitHub hosting for publicly available repositories of Qristal
 - Standardised bitstring printing order for all backends
+
 
 ## [1.1.0] - 2023-08-25
 
@@ -64,6 +72,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Guarantee fixed-point format for real numbers in the XASM output of the QuantumBrillianceRemoteVisitor.  
 - Harmonise run and run_async methods of the session class.
 - Fixed a bug in XACC - TKET rotation parameter conversion.
+
 
 ## [1.0.0] - 2023-05-19
 

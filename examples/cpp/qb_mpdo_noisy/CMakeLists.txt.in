@@ -1,0 +1,23 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to set up the build of a
+# C++ main program.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(qb_mpdo_noisy
+  DESCRIPTION "Quantum Brilliance qb_mpdo_noisy example"
+  LANGUAGES CXX
+)
+
+set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qbcore)
+
+add_executable(qb_mpdo_noisy qb_mpdo_noisy.cpp)
+
+target_link_libraries(qb_mpdo_noisy
+  PRIVATE
+    qb::core
+)

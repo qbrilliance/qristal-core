@@ -386,6 +386,20 @@ void session::set_qubit_contrast_thresholds(const VectorMapND &in_qubit_contrast
 }
 const VectorMapND & session::get_qubit_contrast_thresholds() const { return session::qubit_contrast_thresholds_; }
 //
+void session::set_initial_bond_dimension(const size_t &in_initial_bond_dimension) {
+  session::initial_bond_dimensions_.clear();
+  session::initial_bond_dimensions_.push_back({in_initial_bond_dimension});
+}
+void session::set_initial_bond_dimensions(const VectorN &in_initial_bond_dimension) { session::initial_bond_dimensions_ = in_initial_bond_dimension; }
+const VectorN & session::get_initial_bond_dimensions() const { return session::initial_bond_dimensions_; }
+//
+void session::set_initial_kraus_dimension(const size_t &in_initial_kraus_dimension) {
+  session::initial_kraus_dimensions_.clear();
+  session::initial_kraus_dimensions_.push_back({in_initial_kraus_dimension});
+}
+void session::set_initial_kraus_dimensions(const VectorN &in_initial_kraus_dimension) { session::initial_kraus_dimensions_ = in_initial_kraus_dimension; }
+const VectorN & session::get_initial_kraus_dimensions() const { return session::initial_kraus_dimensions_; }
+//
 void session::set_max_bond_dimension(const size_t &in_max_bond_dimension) {
   session::max_bond_dimensions_.clear();
   session::max_bond_dimensions_.push_back({in_max_bond_dimension});
@@ -393,12 +407,26 @@ void session::set_max_bond_dimension(const size_t &in_max_bond_dimension) {
 void session::set_max_bond_dimensions(const VectorN &in_max_bond_dimension) { session::max_bond_dimensions_ = in_max_bond_dimension; }
 const VectorN & session::get_max_bond_dimensions() const { return session::max_bond_dimensions_; }
 //
+void session::set_max_kraus_dimension(const size_t &in_max_kraus_dimension) {
+  session::max_kraus_dimensions_.clear();
+  session::max_kraus_dimensions_.push_back({in_max_kraus_dimension});
+}
+void session::set_max_kraus_dimensions(const VectorN &in_max_kraus_dimension) { session::max_kraus_dimensions_ = in_max_kraus_dimension; }
+const VectorN & session::get_max_kraus_dimensions() const { return session::max_kraus_dimensions_; }
+//
 void session::set_svd_cutoff(const ND &in_svd_cutoff) {
   session::svd_cutoffs_.clear();
   session::svd_cutoffs_.push_back({in_svd_cutoff});
 }
 void session::set_svd_cutoffs(const VectorMapND &in_svd_cutoff) { session::svd_cutoffs_ = in_svd_cutoff; }
 const VectorMapND & session::get_svd_cutoffs() const { return session::svd_cutoffs_; }
+//
+void session::set_rel_svd_cutoff(const ND &in_rel_svd_cutoff) {
+  session::rel_svd_cutoffs_.clear();
+  session::rel_svd_cutoffs_.push_back({in_rel_svd_cutoff});
+}
+void session::set_rel_svd_cutoffs(const VectorMapND &in_rel_svd_cutoff) { session::rel_svd_cutoffs_ = in_rel_svd_cutoff; }
+const VectorMapND & session::get_rel_svd_cutoffs() const { return session::rel_svd_cutoffs_; }
 //
 void session::set_noise_model(const NoiseModel &noise_model) {
   noise_models_.clear();
@@ -866,8 +894,32 @@ out << "* verbatim:" << std::endl <<
   out << std::endl << std::endl;
   //
 
+  out << "* initial_bond_dimension:" << std::endl <<
+  "    Tensor network initial bond dimension" << std::endl <<
+  "  = ";
+  for (auto item : get_initial_bond_dimensions()) {
+    for (auto itel : item) {
+      out << " " << itel;
+    }
+    out << std::endl;
+  }
+  out << std::endl << std::endl;
+  //
+
+  out << "* initial_kraus_dimension:" << std::endl <<
+  "    Purification initial kraus dimension" << std::endl <<
+  "  = ";
+  for (auto item : get_initial_kraus_dimensions()) {
+    for (auto itel : item) {
+      out << " " << itel;
+    }
+    out << std::endl;
+  }
+  out << std::endl << std::endl;
+  //
+
   out << "* max_bond_dimension:" << std::endl <<
-  "    ExaTN-MPS maximum bond dimension" << std::endl <<
+  "    Tensor network maximum bond dimension" << std::endl <<
   "  = ";
   for (auto item : get_max_bond_dimensions()) {
     for (auto itel : item) {
@@ -878,10 +930,41 @@ out << "* verbatim:" << std::endl <<
   out << std::endl << std::endl;
   //
 
+  out << "* max_kraus_dimension:" << std::endl <<
+  "    Purification maximum kraus dimension" << std::endl <<
+  "  = ";
+  for (auto item : get_max_kraus_dimensions()) {
+    for (auto itel : item) {
+      out << " " << itel;
+    }
+    out << std::endl;
+  }
+  out << std::endl << std::endl;
+  //
+
   out << "* svd_cutoff:" << std::endl <<
-  "    ExaTN-MPS SVD cutoff" << std::endl <<
+  "    Tensor network SVD cutoff" << std::endl <<
   "  = ";
   for (auto item : get_svd_cutoffs()) {
+      out << std::endl << " ";
+      for (auto itel : item) {
+          for (auto it : itel) {
+              out << " | " << it.first << ": " << it.second;
+          }
+          if (itel.size() > 0) {
+              out << " | ";
+          } else {
+              out << " NA ";
+          }
+      }
+  }
+  out << std::endl << std::endl;
+  //
+
+  out << "* rel_svd_cutoff:" << std::endl <<
+  "    Tensor network relative SVD cutoff" << std::endl <<
+  "  = ";
+  for (auto item : get_rel_svd_cutoffs()) {
       out << std::endl << " ";
       for (auto itel : item) {
           for (auto it : itel) {

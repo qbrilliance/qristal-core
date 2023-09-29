@@ -74,8 +74,16 @@ namespace qb
     /// *
     /// [TNQVM] Max MPS bond dimension to keep
     int max_bond_tnqvm;
-    /// [TNQVM] SVD cut-off limit for singular value truncation
+    /// [TNQVM] Max MPS kraus dimension to keep
+    int max_kraus_tnqvm;
+    /// [TNQVM] Initial MPS bond dimension to keep
+    int initial_bond_tnqvm;
+    /// [TNQVM] Initial MPS kraus dimension to keep
+    int initial_kraus_tnqvm;
+    /// [TNQVM] Absolute SVD cut-off limit for singular value truncation
     double svd_cutoff_tnqvm;
+    /// [TNQVM] Relative SVD cut-off limit for singular value truncation
+    double rel_svd_cutoff_tnqvm;
     /// [AWS Braket] Name of the AWS device name (e.g., SV1, TN1)
     std::string aws_device_name;
     /// [AWS Braket] Enable 'verbatim' mode
@@ -154,7 +162,11 @@ namespace qb
 
       // ExaTN-MPS settings
       VectorN max_bond_dimensions_;
+      VectorN initial_bond_dimensions_;
+      VectorN max_kraus_dimensions_;
+      VectorN initial_kraus_dimensions_;
       VectorMapND svd_cutoffs_;
+      VectorMapND rel_svd_cutoffs_;
 
       // Noise models
       std::vector<std::vector<NoiseModel>> noise_models_;
@@ -213,6 +225,12 @@ namespace qb
       const size_t RNS_UPPERBOUND = 1000000;
       const size_t MAX_BOND_DIMENSION_LOWERBOUND = 1;
       const size_t MAX_BOND_DIMENSION_UPPERBOUND = 50000;
+      const size_t INITIAL_BOND_DIMENSION_LOWERBOUND = 1;
+      const size_t INITIAL_BOND_DIMENSION_UPPERBOUND = 50000;
+      const size_t MAX_KRAUS_DIMENSION_LOWERBOUND = 1;
+      const size_t MAX_KRAUS_DIMENSION_UPPERBOUND = 50000;
+      const size_t INITIAL_KRAUS_DIMENSION_LOWERBOUND = 1;
+      const size_t INITIAL_KRAUS_DIMENSION_UPPERBOUND = 50000;
 
 
       // Valid strings
@@ -226,7 +244,11 @@ namespace qb
           "qdk_gen1",
           "loopback",
           "qb-lambda",
-          "sparse-sim"
+          "sparse-sim",
+          "cirq-qsim",
+          "qb-mps",
+          "qb-purification",
+          "qb-mpdo"
       };
 
       std::unordered_set<std::string> VALID_QB_HARDWARE_ACCS = {
@@ -1048,6 +1070,50 @@ namespace qb
       static const char *help_qubit_contrast_thresholds_;
       //
       /**
+       * @brief Set the initial bond dimension (MPS simulator)
+       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * 
+       * @param in_initial_bond_dimension Initial MPS bond dimension value
+       */
+      void set_initial_bond_dimension(const size_t &in_initial_bond_dimension);
+      /**
+       * @brief Set the initial bond dimension (MPS simulator)
+       * 
+       * @param in_initial_bond_dimension Initial MPS bond dimension value
+       */
+      void set_initial_bond_dimensions(const VectorN &in_initial_bond_dimension);
+      /**
+       * @brief Get the initial bond dimension (MPS simulator)
+       * 
+       * @return Initial MPS bond dimension value
+       */
+      const VectorN &get_initial_bond_dimensions() const;
+      /// @private
+      static const char *help_initial_bond_dimensions_;
+      //
+      /**
+       * @brief Set the initial kraus dimension (MPS simulator)
+       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * 
+       * @param in_initial_kraus_dimension Initial MPS kraus dimension value
+       */
+      void set_initial_kraus_dimension(const size_t &in_initial_kraus_dimension);
+      /**
+       * @brief Set the initial kraus dimension (MPS simulator)
+       * 
+       * @param in_initial_kraus_dimension Initial MPS kraus dimension value
+       */
+      void set_initial_kraus_dimensions(const VectorN &in_initial_kraus_dimension);
+      /**
+       * @brief Get the initial kraus dimension (MPS simulator)
+       * 
+       * @return Initial MPS kraus dimension value
+       */
+      const VectorN &get_initial_kraus_dimensions() const;
+      /// @private
+      static const char *help_initial_kraus_dimensions_;
+      //
+      /**
        * @brief Set the maximum bond dimension (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
        * 
@@ -1070,6 +1136,28 @@ namespace qb
       static const char *help_max_bond_dimensions_;
       //
       /**
+       * @brief Set the maximum kraus dimension (MPS simulator)
+       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * 
+       * @param in_max_kraus_dimension Max MPS kraus dimension value
+       */
+      void set_max_kraus_dimension(const size_t &in_max_kraus_dimension);
+      /**
+       * @brief Set the maximum kraus dimension (MPS simulator)
+       * 
+       * @param in_max_kraus_dimension Max MPS kraus dimension value
+       */
+      void set_max_kraus_dimensions(const VectorN &in_max_kraus_dimension);
+      /**
+       * @brief Get the maximum kraus dimension (MPS simulator)
+       * 
+       * @return Max MPS kraus dimension value
+       */
+      const VectorN &get_max_kraus_dimensions() const;
+      /// @private
+      static const char *help_max_kraus_dimensions_;
+      //
+      /**
        * @brief Set the SVD cutoff limit (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
        * 
@@ -1090,6 +1178,28 @@ namespace qb
       const VectorMapND &get_svd_cutoffs() const;
       /// @private
       static const char *help_svd_cutoffs_;
+      //
+      /**
+       * @brief Set the relative SVD cutoff limit (MPS simulator)
+       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * 
+       * @param in_rel_svd_cutoff SVD cutoff value
+       */
+      void set_rel_svd_cutoff(const ND &in_rel_svd_cutoff);
+      /**
+       * @brief Set the relative SVD cutoff limit (MPS simulator)
+       * 
+       * @param in_rel_svd_cutoff SVD cutoff value
+       */
+      void set_rel_svd_cutoffs(const VectorMapND &in_rel_svd_cutoff);
+      /**
+       * @brief Get the relative SVD cutoff limit (MPS simulator)
+       * 
+       * @return Relative SVD cutoff value
+       */
+      const VectorMapND &get_rel_svd_cutoffs() const;
+      /// @private
+      static const char *help_rel_svd_cutoffs_;
       //
       /**
        * @brief Set the noise model

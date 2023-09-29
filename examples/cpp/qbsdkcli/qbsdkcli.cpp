@@ -218,6 +218,11 @@ int main(int argc, char **argv) {
       "--svd-cutoff=1.0e-12 sets the cutoff for exatn-mps to 1.0e-12, default: "
       "1.0e-8",
       {"svd-cutoff"});
+  args::ValueFlag<double> arg_rel_svd_cutoff(
+      backend_opts, "Relative SVD cutoff",
+      "--rel-svd-cutoff=1.0e-12 sets the relative cutoff for exatn-mps to 1.0e-12, default: "
+      "1.0e-8",
+      {"rel-svd-cutoff"});
   args::ValueFlag<int> arg_max_bond_dimension(
       backend_opts, "max bond dimension",
       "--max-bond-dimension=2000 sets the maximum bond dimenson for exatn-mps "
@@ -375,6 +380,12 @@ int main(int argc, char **argv) {
   ND u_svd_cutoff{{0, svd_cutoff}};
   s.set_svd_cutoff(u_svd_cutoff);
 
+  double rel_svd_cutoff = 1.0e-8;
+  rel_svd_cutoff =
+      qb::get_arg_or_cfg(rel_svd_cutoff, arg_rel_svd_cutoff, output_to_js, "rel_svd_cutoff");
+  ND u_rel_svd_cutoff{{0, rel_svd_cutoff}};
+  s.set_rel_svd_cutoff(u_rel_svd_cutoff);
+
   int max_bond_dimension = 256;
   max_bond_dimension =
       qb::get_arg_or_cfg(max_bond_dimension, arg_max_bond_dimension, output_to_js,
@@ -423,6 +434,7 @@ int main(int argc, char **argv) {
           std::cout << std::endl << "* Set n_qubits: " << n_qubits << std::endl;
           std::cout << "* Set shots: " << shots << std::endl;
           std::cout << "* Set SVD cutoff: " << svd_cutoff << std::endl;
+          std::cout << "* Set relative SVD cutoff: " << rel_svd_cutoff << std::endl;
           std::cout << "* Set maximum bond dimension: " << max_bond_dimension << std::endl;
           std::cout << "* Set accelerator: " << u_acc  << std::endl;
           std::cout << "* Set random circuit depth: " << depth_rndcct << std::endl;

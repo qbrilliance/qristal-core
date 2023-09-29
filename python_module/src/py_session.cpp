@@ -227,6 +227,26 @@ void bind_session(pybind11::module &m) {
       .def_property("svd_cutoffs", &qb::session::get_svd_cutoffs,
                     &qb::session::set_svd_cutoffs,
                     qb::session::help_svd_cutoffs_)
+      .def_property("rel_svd_cutoff", &qb::session::get_rel_svd_cutoffs,
+                    &qb::session::set_rel_svd_cutoff,
+                    qb::session::help_rel_svd_cutoffs_)
+      .def_property("rel_svd_cutoffs", &qb::session::get_rel_svd_cutoffs,
+                    &qb::session::set_rel_svd_cutoffs,
+                    qb::session::help_rel_svd_cutoffs_)
+      .def_property("initial_bond_dimension", &qb::session::get_initial_bond_dimensions,
+                    &qb::session::set_initial_bond_dimension,
+                    qb::session::help_initial_bond_dimensions_)
+      .def_property("initial_bond_dimensions",
+                    &qb::session::get_initial_bond_dimensions,
+                    &qb::session::set_initial_bond_dimensions,
+                    qb::session::help_initial_bond_dimensions_)
+      .def_property("initial_kraus_dimension", &qb::session::get_initial_kraus_dimensions,
+                    &qb::session::set_initial_kraus_dimension,
+                    qb::session::help_initial_kraus_dimensions_)
+      .def_property("initial_kraus_dimensions",
+                    &qb::session::get_initial_kraus_dimensions,
+                    &qb::session::set_initial_kraus_dimensions,
+                    qb::session::help_initial_kraus_dimensions_)
       .def_property("max_bond_dimension", &qb::session::get_max_bond_dimensions,
                     &qb::session::set_max_bond_dimension,
                     qb::session::help_max_bond_dimensions_)
@@ -234,6 +254,13 @@ void bind_session(pybind11::module &m) {
                     &qb::session::get_max_bond_dimensions,
                     &qb::session::set_max_bond_dimensions,
                     qb::session::help_max_bond_dimensions_)
+      .def_property("max_kraus_dimension", &qb::session::get_max_kraus_dimensions,
+                    &qb::session::set_max_kraus_dimension,
+                    qb::session::help_max_kraus_dimensions_)
+      .def_property("max_kraus_dimensions",
+                    &qb::session::get_max_kraus_dimensions,
+                    &qb::session::set_max_kraus_dimensions,
+                    qb::session::help_max_kraus_dimensions_)
       .def_property("output_amplitude", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitude,
                     qb::session::help_output_amplitudes_)

@@ -170,8 +170,20 @@ json get_session_cfg(const std::string &config_buf) {
   if (config.count("svd-cutoff")) {
       output_to_js["svd_cutoff"] = config["svd-cutoff"];
   }
+  if (config.count("rel-svd-cutoff")) {
+      output_to_js["rel_svd_cutoff"] = config["rel-svd-cutoff"];
+  }
+  if (config.count("initial-bond-dimension")) {
+      output_to_js["initial_bond_dimension"] = config["initial-bond-dimension"];
+  }
+  if (config.count("initial-kraus-dimension")) {
+      output_to_js["initial_kraus_dimension"] = config["initial-kraus-dimension"];
+  }
   if (config.count("max-bond-dimension")) {
       output_to_js["max_bond_dimension"] = config["max-bond-dimension"];
+  }
+  if (config.count("max-kraus-dimension")) {
+      output_to_js["max_kraus_dimension"] = config["max-kraus-dimension"];
   }
   if (config.count("qaoa")) {
     output_to_js["qaoa"] = config["qaoa"].get<std::vector<double>>();
