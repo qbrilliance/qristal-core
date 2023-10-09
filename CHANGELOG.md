@@ -2,13 +2,14 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
-## [<version>] - <date>
+## [1.3.0] - 2023-10-10
 
 ### Added
 
 - Access to emulator tensor network parameters from session object
 - QML: Option to set the number of shots and seed in QMLExecutor python interface
 - QML: Fixed output dimensions for QML Python wrapper
+- Nextflow: ReadtheDocs now describes how to use Nextflow and Qristal together 
 - Build CUDA Quantum examples automatically
 
 ### Fixed
