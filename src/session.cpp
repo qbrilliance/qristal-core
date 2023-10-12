@@ -329,6 +329,7 @@ namespace qb
       double nipe = std::norm(in_p_elem->second);
       // Search in_q for a state with the label matching in_p_elem
       std::string statelabel = in_p_elem->first;
+      std::reverse(statelabel.begin(), statelabel.end());
       if (debug_) {
         std::cout << "[debug]: statelabel: " << statelabel << " , nipe: " << nipe << std::endl;
       }
@@ -364,6 +365,7 @@ namespace qb
     // Check for entries of in_q that are sparse (zero) for in_p
     for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
       std::string statelabel = in_q_elem->first;
+      std::reverse(statelabel.begin(), statelabel.end());
       double rfq = (1.0 / sum_in_q) * (in_q_elem->second);
       auto in_p_el = in_p.find(statelabel);
 
