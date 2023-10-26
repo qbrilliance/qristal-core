@@ -187,21 +187,13 @@ const std::string QuantumBrillianceRemoteAccelerator::processInput(
  */
 int QuantumBrillianceRemoteAccelerator::validate_capability() {  
   int retval = QRISTAL_QB_NATIVE_GATES_SUCCESS;
-  std::string native_gates_endpoint = get_native_gates_endpoint();
   if (debug_qb_hw_) {
-    std::cout << "* Query for native gates supported at path: " << remoteUrl << native_gates_endpoint
+    std::cout << "* Query for native gates supported at path: " << remoteUrl << native_gates_get_path_
               << std::endl;
   }
-  json fromqdk;
-  if (remoteUrl.back() == '/') {
-    fromqdk = json::parse(
+  json fromqdk = json::parse(
       QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
-      remoteUrl, native_gates_endpoint, headers));
-  } else {
-    fromqdk = json::parse(
-      QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
-      remoteUrl, "/" + native_gates_endpoint, headers));
-  }
+      remoteUrl, native_gates_get_path_, headers));
   if (debug_qb_hw_) {
     std::cout << "* Native gates query returned: " << fromqdk.dump() << "\n";
   }
@@ -276,10 +268,11 @@ std::string QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
   bool succeeded = false;
   auto m = getProperties();
   int retries = m.get<int>("retries_get");
+
   // Execute HTTP Get
   do {
     try {
-      getResponse = restClient->get(_url, path, headers, extraParams);
+      getResponse = restClient->get( _url + ((_url.back() != '/') ? "/" : ""), path, headers, extraParams);
       succeeded = true;
       break;
     } catch (std::exception &e) {
@@ -356,16 +349,9 @@ int QuantumBrillianceRemoteAccelerator::pollForResults(
     std::cout << "* Poll for results at path: " << remoteUrl << postPath
               << std::endl;
   }
-  json fromqdk;
-  if (remoteUrl.back() == '/') {
-    fromqdk = json::parse(
+  json fromqdk = json::parse(
       QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
       remoteUrl, postPath, headers));
-  } else {
-    fromqdk = json::parse(
-      QuantumBrillianceRemoteAccelerator::handleExceptionRestClientGet(
-      remoteUrl, "/" + postPath, headers));
-  }
 
   std::default_random_engine qb_rnd_gen(
       static_cast<long unsigned int>(time(0)));

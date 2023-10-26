@@ -21,8 +21,7 @@ namespace xacc {
  * Methods supported:
  *    POST
  *    GET
- * Return codes 300 (legacy) or 425 (api/v1) are used by 
- * the QC Stack Server to indicate to a 
+ * Return code 425 is used by the QC Stack Server api/v1 to indicate to a 
  * client that polling for results should be reattempted.
  */
 class QCStackClient : public xacc::Client {
@@ -32,10 +31,7 @@ private:
 
   ///
   /// List of HTTP return codes that the client should interpret as: "continue with polling"
-  /// The 300 code was legacy from an earlier implementations of QC Stack server.
-  /// We keep this until the new api/v1 that uses code 425 is out and verified
-  /// in deployed QDKs.
-  const std::vector<int> VALID_HTTP_RETURN_CODES_{300, 425};
+  const std::vector<int> VALID_HTTP_RETURN_CODES_{425};
 
 public:
   
@@ -168,18 +164,6 @@ public:
             "hwbackend",         "remote_url", "post_path",   "over_request",
             "recursive_request", "resample",   "retries_get", "retries_post",
             "resample_above_percentage"};
-  }
-
-  /// Get the endpoint for querying the QB hardware about native-gates
-  const std::string get_native_gates_endpoint() {
-    std::string retval;
-
-    if (remoteUrl.find("api/v1") != std::string::npos) {
-      retval = native_gates_get_path_;
-    } else {
-      retval = "api/v1/" + native_gates_get_path_;
-    }
-    return retval;
   }
 
   /**

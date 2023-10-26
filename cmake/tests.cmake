@@ -54,7 +54,7 @@ add_executable(CITests
   ##tests/circuits/MeanValueFinderCircuitTester.cpp #SLOW(?)
   ##tests/circuits/PseudoTraceAmplitudeEstimationCircuitTester.cpp # SLOW (?)
   ##tests/circuits/SuperpositionAdderCircuitTester.cpp # SLOW (?)
-  ##tests/qcstack/QuantumBrillianceRemoteAcceleratorTester.cpp # unit-test harness for Qcstack server - Qristal
+  tests/qcstack/QuantumBrillianceRemoteAcceleratorTester.cpp # unit-test harness for Qristal-Qcstack server interface. 
   tests/tket/tketTester.cpp
   tests/transpilationTester.cpp
   tests/qobj/qobjTester.cpp
