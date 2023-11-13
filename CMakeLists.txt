@@ -36,7 +36,7 @@ include(noise_model_lib)
 # core headers and libqbcore.so shared library
 include(cpp_lib)
 
-# XACC plugin shared libraries 
+# XACC plugin shared libraries
 # installed to XACC framework for both core and emulator
 include(xacc_plugins)
 

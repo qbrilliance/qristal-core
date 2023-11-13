@@ -84,6 +84,9 @@ install(
   DESTINATION ${CMAKE_INSTALL_PREFIX}/tests
 )
 
+# add CITests without GPU
+option(BUILD_TESTS_WITHOUT_GPU "build tests that do not use GPU." OFF)
+
 # Adding CUDAQ tests
 # Note: the test requires extra deps and C++20; hence making it a standalone test suite rather than combining with the overall CITests.
 if (WITH_CUDAQ)
@@ -93,7 +96,7 @@ if (WITH_CUDAQ)
   target_link_libraries(CudaqCITests PUBLIC qb::core)
   include(CheckLanguage)
   check_language(CUDA)
-  if(CMAKE_CUDA_COMPILER)
+  if(CMAKE_CUDA_COMPILER AND NOT BUILD_TESTS_WITHOUT_GPU)
     message(STATUS "CUDA language found. Enable CUDAQ GPU tests.")
     target_compile_definitions(CudaqCITests PUBLIC ENABLE_CUDA_TESTS)
   endif()

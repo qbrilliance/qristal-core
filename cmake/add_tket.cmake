@@ -14,31 +14,31 @@ if (WITH_TKET)
   ##############################
   add_xacc_plugin(${TKET_PLACEMENT_LIB}
     SOURCES
-      src/tket/tket_placement.cpp  
+      src/tket/tket_placement.cpp
       src/tket/tket_ir_converter.cpp
       src/tket/tket_plugin.cpp
   )
   # Use C++20 (TKET requirement)
-  set_property(TARGET ${TKET_PLACEMENT_LIB} PROPERTY CXX_STANDARD 20) 
+  set_property(TARGET ${TKET_PLACEMENT_LIB} PROPERTY CXX_STANDARD 20)
   target_link_libraries(${TKET_PLACEMENT_LIB} PRIVATE Eigen3::Eigen xacc::xacc xacc::quantum_gate nlohmann::json)
 
   # tket was added as dependency. Check if the installation is valid
   if(EXISTS "${TKET_DIR}" AND EXISTS "${TKET_DIR}/lib" AND EXISTS "${TKET_DIR}/include")
     # Include Tket headers and its deps
-    target_include_directories(${TKET_PLACEMENT_LIB} PRIVATE 
+    target_include_directories(${TKET_PLACEMENT_LIB} PRIVATE
       ${TKET_DIR}/include
       ${TKET_DIR}/tkassert/include
       ${TKET_DIR}/tklog/include
       ${TKET_DIR}/tkrng/include
       ${TKET_DIR}/tktokenswap/include
       ${TKET_DIR}/tkwsm/include
-      ${TKET_DIR}/nlohmann_json/include 
+      ${TKET_DIR}/nlohmann_json/include
       ${TKET_DIR}/gmp/include
       ${TKET_DIR}/symengine/include
     )
 
     # List of TKET libraries for linking
-    list(APPEND 
+    list(APPEND
       TKET_LIBS
         tket-ArchAwareSynth
         tket-Architecture

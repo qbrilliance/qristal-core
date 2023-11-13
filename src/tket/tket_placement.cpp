@@ -190,7 +190,13 @@ void TketPlacement::apply(std::shared_ptr<xacc::CompositeInstruction> program,
           backendNoiseModel->averageTwoQubitGateFidelity();
       std::vector<std::pair<size_t, size_t>> processedPairs;
       std::vector<std::tuple<size_t, size_t, double>> avgData;
-      for (const auto &[q1, q2, fidelity] : twoQubitFidelity) {
+      // for (const auto &[q1, q2, fidelity] : twoQubitFidelity) {
+      // bugfix for clang-16: capturing a structured binding is not yet supported in OpenMP
+      for (const auto& tqf : twoQubitFidelity) {
+        const auto& q1 = std::get<0>(tqf);
+        const auto& q2 = std::get<1>(tqf);
+        const auto& fidelity = std::get<2>(tqf);
+
         if (!xacc::container::contains(processedPairs,
                                        std::make_pair(q1, q2))) {
           assert(!xacc::container::contains(processedPairs,

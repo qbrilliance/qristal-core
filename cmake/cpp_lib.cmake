@@ -128,7 +128,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:include>
   )
-  
+
   # Link dependencies
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
@@ -166,19 +166,19 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     target_compile_definitions(${PROJECT_NAME} PUBLIC WITH_CUDAQ)
 
     # List of CUDAQ libraries for linking
-    list(APPEND 
+    list(APPEND
       CUDAQ_LIBS
-        cudaq 
+        cudaq
         cudaq-builder
         cudaq-common
-        cudaq-em-qir
+        cudaq-em-default
         cudaq-ensmallen
         cudaq-nlopt
         cudaq-platform-default
         cudaq-spin
         nvqir
     )
-    
+
     # Find the paths to the corresponding *.so files for linking.
     foreach(CUDAQ_LIB ${CUDAQ_LIBS})
       find_library(${CUDAQ_LIB}_FULL_PATH
@@ -228,7 +228,7 @@ file(WRITE ${outfile} "# Set all cmake variables needed when using CPMAddPackage
                      \nreset_install_path()\
                      \nset(qbcore_LIBDIR ${qbcore_LIBDIR})\
                      ")
-                                                             
+
 # Generate the coreDependencies.cmake file.
 set(dependenciesFile "coreDependencies.cmake")
 set(outfile "${CMAKE_CURRENT_BINARY_DIR}/${dependenciesFile}")
@@ -246,7 +246,7 @@ file(WRITE ${outfile} "# Import all transitive dependencies of qbcore needed whe
                      \nset(autodiff_DIR ${autodiff_DIR})\
                      \nfind_dependency(autodiff ${autodiff_VERSION})\
                      \nset(CURL_NO_CURL_CMAKE ON)\
-                     \nfind_dependency(CURL)") 
+                     \nfind_dependency(CURL)")
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${outfile} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)\
                           \nadd_eigen_from_xacc()")
@@ -258,13 +258,13 @@ if(NOT "${GTest_DIR}" STREQUAL "GTest_DIR-NOTFOUND")
   file(APPEND ${outfile} "\nset(GTest_DIR ${GTest_DIR})")
 endif()
 file(APPEND ${outfile} "\nfind_dependency(GTest ${GTest_VERSION})")
-if (WITH_CUDAQ) 
+if (WITH_CUDAQ)
   file(APPEND ${outfile} "\nadd_compile_definitions(WITH_CUDAQ)")
 endif()
 
 # Install both files
 install(
-  FILES 
+  FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${afterCPMAddPackageFile}
     ${CMAKE_CURRENT_BINARY_DIR}/${dependenciesFile}
   DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"

@@ -2,6 +2,13 @@ include(add_dependency)
 include(add_poorly_behaved_dependency)
 include(add_python_module)
 
+# add compatibility for user provided boost
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27.0")
+  cmake_policy(SET CMP0144 NEW)
+endif()
+find_package(Boost 1.7.1 REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 # curl (needed by XACC and CPR)
 set(CURL_NO_CURL_CMAKE ON)
 find_package(CURL REQUIRED)
@@ -20,9 +27,9 @@ find_package(OpenMP)
 if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-else()  
+else()
   message(STATUS "OpenMP was not detected...continuing without it...")
-endif()  
+endif()
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
@@ -52,7 +59,7 @@ find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
 
 # Pybind11.
 set(pybind11_VERSION "2.10.0")
-add_dependency(pybind11 ${pybind11_VERSION} 
+add_dependency(pybind11 ${pybind11_VERSION}
   GITHUB_REPOSITORY pybind/pybind11
   OPTIONS
     "PYBIND11_INSTALL ON"
@@ -72,8 +79,8 @@ endif()
 # -Dyaml-cpp_DIR (which will take precedent)
 if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "")
   if (DEFINED ENV{YAML_CPP_DIR} AND EXISTS "$ENV{YAML_CPP_DIR}")
-    message(STATUS "Setting CMake var yaml-cpp_DIR to: $ENV{YAML_CPP_DIR}/lib/cmake/yaml-cpp")
-    set(yaml-cpp_DIR $ENV{YAML_CPP_DIR}/lib/cmake/yaml-cpp)
+    message(STATUS "Setting CMake var yaml-cpp_DIR to: $ENV{YAML_CPP_DIR}/${qbcore_LIBDIR}/cmake/yaml-cpp")
+    set(yaml-cpp_DIR $ENV{YAML_CPP_DIR}/${qbcore_LIBDIR}/cmake/yaml-cpp)
   endif()
 endif()
 set(yamlcpp_VERSION "0.7.0")
@@ -153,7 +160,7 @@ endif()
 # Eigen
 # Check if XACC is installed and provides Eigen3. XACC_DIR is the XACC install path,
 # which is always in place if XACC is added using add_poorly_behaved_dependency.
-set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen") 
+set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen")
 if (EXISTS ${XACC_EIGEN_PATH})
   add_eigen_from_xacc()
 else()
@@ -220,7 +227,7 @@ add_dependency(args ${args_VERSION}
     "ARGS_BUILD_EXAMPLE OFF"
     "ARGS_BUILD_UNITTESTS OFF"
 )
-# If args was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory. 
+# If args was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory.
 if(args_ADDED)
   set(args_DIR ${CMAKE_INSTALL_PREFIX}/cmake/args)
   add_library(taywee::args ALIAS args)
@@ -229,7 +236,7 @@ if(args_ADDED)
       FILE args-config.cmake
       NAMESPACE taywee::
       DESTINATION ${args_DIR})
-  install(FILES ${args_SOURCE_DIR}/args.hxx 
+  install(FILES ${args_SOURCE_DIR}/args.hxx
           DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
 endif()
 
@@ -260,13 +267,10 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     threading
                     time
                     timeit
-                    torch 
-                    torchviz 
+                    torch
+                    torchviz
                     uuid
                    )
-
-  # Boost headers
-  find_package(Boost 1.71 REQUIRED)
 
   # EXATN
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -317,43 +321,64 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${lib} ${XACC_ROOT}/plugins/${filename})")
   endforeach()
 
+
   # CPR curl wrapper
-  list(APPEND CMAKE_PREFIX_PATH "/usr/local/")
-  if(CMAKE_BUILD_TYPE STREQUAL "None")
-    set(cpr_CMAKE_BUILD_TYPE "Release")
+  IF( DEFINED ENV{CPR_DIR} )
+    SET( CPR_DIR "$ENV{CPR_DIR}" )
+  ENDIF()
+  find_path(CPR_INCLUDE_DIR
+                NAMES cpr/cpr.h
+                HINTS ${CPR_DIR}/include)
+  find_library(CPR_LIBRARY
+                NAMES cpr
+                HINTS ${CPR_DIR}/lib)
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(CPR REQUIRED_VARS CPR_LIBRARY CPR_INCLUDE_DIR)
+  if(CPR_FOUND)
+    set(CPR_LIBRARIES ${CPR_LIBRARY})
+    set(CPR_INCLUDE_DIRS ${CPR_INCLUDE_DIR})
+    add_library(cpr INTERFACE)
+    target_link_libraries(cpr INTERFACE ${CPR_LIBRARY})
+    message(STATUS "cpr system install found: ${CPR_LIBRARY}.")
+    message(STATUS "cpr include dir: ${CPR_INCLUDE_DIR}.")
   else()
-    set(cpr_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
-  endif()
-  add_dependency(cpr 1.3.0
-    GIT_TAG 2305262
-    GITHUB_REPOSITORY ornl-qci/cpr
-    FIND_PACKAGE_VERSION " " #for manual cmake build
-    OPTIONS
-      "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
-      "USE_SYSTEM_CURL ON"
-      "BUILD_CPR_TESTS OFF"
-      "CMAKE_POSITION_INDEPENDENT_CODE ON"
-  )
-  # If cpr was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory. 
-  if(cpr_ADDED)
-    # Remove the INTERFACE_INCLUDE_DIRECTORIES property erroneously added by cpr/CMakeLists.txt's use of target_include_directories with PUBLIC keyword.
-    set_target_properties(cpr PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
-    # Now do it properly.
-    target_include_directories(cpr INTERFACE
-      $<BUILD_INTERFACE:${CPR_INCLUDE_DIRS}>
-      $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
-    )
-    install(TARGETS cpr EXPORT cpr-targets)
-    install(EXPORT cpr-targets
-        FILE cpr-config.cmake
-        NAMESPACE cpr::
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
-    if (NOT qbcore_LIBDIR STREQUAL "lib")
-      install(
-        FILES ${CMAKE_INSTALL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}${CPR_LIBRARIES}${CMAKE_STATIC_LIBRARY_SUFFIX}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
-      )
+    list(APPEND CMAKE_PREFIX_PATH "/usr/local/")
+    if(CMAKE_BUILD_TYPE STREQUAL "None")
+      set(cpr_CMAKE_BUILD_TYPE "Release")
+    else()
+      set(cpr_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
     endif()
+    add_dependency(cpr 1.3.0
+      GIT_TAG 2305262
+      GITHUB_REPOSITORY ornl-qci/cpr
+      FIND_PACKAGE_VERSION " " #for manual cmake build
+      OPTIONS
+        "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
+        "USE_SYSTEM_CURL ON"
+        "BUILD_CPR_TESTS OFF"
+        "CMAKE_POSITION_INDEPENDENT_CODE ON"
+    )
+    # If cpr was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory.
+    if(cpr_ADDED)
+      # Remove the INTERFACE_INCLUDE_DIRECTORIES property erroneously added by cpr/CMakeLists.txt's use of target_include_directories with PUBLIC keyword.
+      set_target_properties(cpr PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+      # Now do it properly.
+    endif()
+  endif()
+  target_include_directories(cpr INTERFACE
+    $<BUILD_INTERFACE:${CPR_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
+  )
+  install(TARGETS cpr EXPORT cpr-targets)
+  install(EXPORT cpr-targets
+      FILE cpr-config.cmake
+      NAMESPACE cpr::
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
+  if (NOT qbcore_LIBDIR STREQUAL "lib")
+    install(
+        FILES ${CPR_LIBRARIES}
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+    )
   endif()
 
   # C++ itertools
@@ -365,7 +390,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   )
 
   # QASM simulator.
-  find_program(QB_STANDALONE_AER_EXE qasm_simulator) 
+  find_program(QB_STANDALONE_AER_EXE qasm_simulator)
   is_in_install_path(${QB_STANDALONE_AER_EXE} AER_FOUND_IN_INSTALLED_QRISTAL)
   if(AER_FOUND_IN_INSTALLED_QRISTAL OR ${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")
     # Install required dependency spdlog

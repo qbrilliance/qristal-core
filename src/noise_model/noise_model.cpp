@@ -82,7 +82,7 @@ namespace qb
       
         // Otherwise, we try to load the model from the emulator.
         static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
-        void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
+        void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
         if (!handle)
         {
             char *error_msg = dlerror();

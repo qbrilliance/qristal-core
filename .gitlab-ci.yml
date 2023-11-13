@@ -1,7 +1,8 @@
 variables:
   CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-4
-  EMULATOR_CI_IMAGE_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-gcc-6
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-6
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-8
+  EMULATOR_RHEL_X86_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-x86:emulator-1
+  EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-power:emulator-1
   USE_MPI: "ON"
 
 stages:
@@ -26,16 +27,17 @@ workflow:
     - mv core_artefacts/build .
     - cmake --install build
 
+# - - - - - - - build - - - - - - - #
 ci-build-for-emulator:
   stage: build
-  image: $EMULATOR_CI_IMAGE_GCC
-  tags: 
+  image: $EMULATOR_CI_IMAGE_CLANG
+  tags:
     - cutensornet2.0
   script:
     - rm -rf ${QB_DIR}/core-local
     # Build core with SUPPORT_EMULATOR_BUILD_ONLY=ON
-    - cmake -B build . 
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
       -DXACC_DIR=${QB_DIR}/xacc-local
       -Dautodiff_DIR=${QB_DIR}/autodiff-local/lib/cmake/autodiff
       -DSUPPORT_EMULATOR_BUILD_ONLY=ON
@@ -45,7 +47,7 @@ ci-build-for-emulator:
     - mv build cmake include core_artefacts/
   artifacts:
     when: always
-    paths: 
+    paths:
       # These are all the things required to install the core for supporting the build of the emulator.
       - core_artefacts/build/cmake_install.cmake
       - core_artefacts/build/afterCPMAddPackage.cmake
@@ -59,17 +61,17 @@ ci-build-for-emulator:
       - core_artefacts/cmake/cudaq_utilities.cmake
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
-      
+
 ci-build:
   stage: build
   image: $CI_IMAGE
-  tags: 
-    - docker-heavy
+  tags:
+    - cutensornet2.0
   script:
     - rm -rf ${QB_DIR}/core-local
     - echo "MPI is $USE_MPI"
-    - cmake -B build . 
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local 
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
       -DXACC_DIR=${QB_DIR}/xacc-local
       -DTNQVM_DIR=${QB_DIR}/xacc-local
       -DWITH_TKET=ON
@@ -109,13 +111,13 @@ cudaq-build:
   image: ${CUDAQ_CI_IMAGE}
   parallel:
     matrix:
-      - CUDAQ_CI_IMAGE: ["$EMULATOR_CI_IMAGE_GCC", "$EMULATOR_CI_IMAGE_CLANG"]
-  tags: 
+      - CUDAQ_CI_IMAGE: ["$EMULATOR_CI_IMAGE_CLANG"]
+  tags:
     - cutensornet2.0
   script:
     - rm -rf ${QB_DIR}/core-local
-    - cmake -B build . 
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local  
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
@@ -148,7 +150,7 @@ cudaq-build:
 ci-build-install-missing:
   stage: build
   image: ubuntu:22.04
-  tags: 
+  tags:
     - qb-hosted
     - multi-core-xlarge
   script:
@@ -156,13 +158,15 @@ ci-build-install-missing:
     - cmake -B build . -DWITH_TKET=ON -DINSTALL_MISSING=ON
     - cmake --build build -- -j`nproc`
 
+
+# - - - - - - - test - - - - - - - #
 ci-cpp-tests:
   stage: test
   needs: ["ci-build"]
   extends: .install-core
   image: $CI_IMAGE
-  tags: 
-    - docker-heavy
+  tags:
+    - cutensornet2.0
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -176,8 +180,8 @@ ci-py-tests:
   needs: ["ci-build"]
   extends: .install-core
   image: $CI_IMAGE
-  tags: 
-    - docker-heavy
+  tags:
+    - cutensornet2.0
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -191,7 +195,7 @@ ci-py-stack-tests:
   needs: ["ci-build"]
   extends: .install-core
   image: $CI_IMAGE
-  tags: 
+  tags:
     - installmissing
   script:
     - echo "# QB_QCSTACK_2023_2_1_URL = $QB_QCSTACK_2023_2_1_URL"
@@ -202,12 +206,12 @@ ci-py-stack-tests:
     reports:
       junit: tests/qcstack/report-stack.xml
 
-cudaq-cpp-tests-gcc:
+cudaq-cpp-tests:
   stage: test
-  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_GCC]"]
-  image: $EMULATOR_CI_IMAGE_GCC
+  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
+  image: $EMULATOR_CI_IMAGE_CLANG
   extends: .install-core
-  tags: 
+  tags:
     - cutensornet2.0
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
@@ -217,27 +221,12 @@ cudaq-cpp-tests-gcc:
     reports:
       junit: core_cudaq_gtests.xml
 
-cudaq-cpp-tests-clang:
+cudaq-py-tests:
   stage: test
   needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
   image: $EMULATOR_CI_IMAGE_CLANG
   extends: .install-core
-  tags: 
-    - cutensornet2.0
-  script:
-    - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
-  artifacts:
-    when: always
-    reports:
-      junit: core_cudaq_gtests.xml
-
-cudaq-py-tests-gcc:
-  stage: test
-  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_GCC]"]
-  image: $EMULATOR_CI_IMAGE_GCC
-  extends: .install-core
-  tags: 
+  tags:
     - cutensornet2.0
   script:
     - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
@@ -247,21 +236,8 @@ cudaq-py-tests-gcc:
     reports:
       junit: tests/python_module/report.xml
 
-cudaq-py-tests-clang:
-  stage: test
-  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
-  image: $EMULATOR_CI_IMAGE_CLANG
-  extends: .install-core
-  tags: 
-    - cutensornet2.0
-  script:
-    - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
-    - rm -rf ${QB_DIR}/core-local
-  artifacts:
-    when: always
-    reports:
-      junit: tests/python_module/report.xml
 
+# - - - - - - - trigger - - - - - - - #
 # If this branch is part of a merge request, trigger downstream decoder build and test.
 trigger-decoder:
   stage: downstream
@@ -269,7 +245,7 @@ trigger-decoder:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
-    project: qbau/software-and-apps/decoder  
+    project: qbau/software-and-apps/decoder
     branch: main
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
@@ -285,6 +261,7 @@ trigger-emulator:
     branch: main
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
+    UPSTREAM_JOB: trigger-emulator
 
 # If this branch is part of a merge request, trigger downstream SDK build and test.
 trigger-sdk:
@@ -297,3 +274,213 @@ trigger-sdk:
     branch: main
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
+
+
+
+# - - - - - - - - - - - - - - - - - - RHEL - - - - - - - - - - - - - - - - - - #
+# RHEL on powerpc with cuda-quantum uses powerDocker and EMULATOR_RHEL_POWER_IMAGE
+# RHEL on amd64 with cuda-quantum uses cutensornet2.0 and EMULATOR_RHEL_X86_IMAGE
+# - - - - - - - build - - - - - - - #
+rhel-x86-build:
+  stage: build
+  image: $EMULATOR_RHEL_X86_IMAGE
+  tags:
+    - cutensornet2.0
+  script:
+    - rm -rf ${QB_DIR}/core-local
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+      -DXACC_DIR=${QB_DIR}/xacc-local
+      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket-local
+      -DENABLE_MPI=$USE_MPI
+    - cmake --build build -- -j`nproc`
+    - cmake --install build
+    - mkdir core_artefacts
+    - mv build cmake examples include src tests core_artefacts
+  artifacts:
+    when: always
+    paths:
+      # These are all the things required to install the full core.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/afterCPMAddPackage.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/CITests
+      - core_artefacts/build/CudaqCITests
+      - core_artefacts/build/lib*
+      - core_artefacts/build/core.cpython-*-linux-gnu.so
+      - core_artefacts/build/plugins
+      - core_artefacts/build/configured_example_files
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      - core_artefacts/examples
+      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/tests/XaccInitialisedTests.cpp
+
+rhel-power-build:
+  stage: build
+  image: $EMULATOR_RHEL_POWER_IMAGE
+  tags:
+    - powerDocker
+  script:
+    - rm -rf ${QB_DIR}/core-local
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+      -DXACC_DIR=${QB_DIR}/xacc-local
+      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket-local
+      -DENABLE_MPI=$USE_MPI
+      -DBUILD_TESTS_WITHOUT_GPU=ON
+    - cmake --build build -- -j`nproc`
+    - cmake --install build
+    - mkdir core_artefacts
+    - mv build cmake examples include src tests core_artefacts
+  when: manual
+  artifacts:
+    when: always
+    paths:
+      # These are all the things required to install the full core.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/afterCPMAddPackage.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/CITests
+      - core_artefacts/build/CudaqCITests
+      - core_artefacts/build/lib*
+      - core_artefacts/build/core.cpython-*-linux-gnu.so
+      - core_artefacts/build/plugins
+      - core_artefacts/build/configured_example_files
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      - core_artefacts/examples
+      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/tests/XaccInitialisedTests.cpp
+
+# - - - - - - - test - - - - - - - #
+rhel-x86-cpp-tests:
+  stage: test
+  needs: ["rhel-x86-build"]
+  extends: .install-core
+  image: $EMULATOR_RHEL_X86_IMAGE
+  tags:
+    - cutensornet2.0
+  script:
+    - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: core_gtests.xml
+
+rhel-power-cpp-tests:
+  stage: test
+  needs: ["rhel-power-build"]
+  extends: .install-core
+  image: $EMULATOR_RHEL_POWER_IMAGE
+  tags:
+    - powerDocker
+  script:
+    - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: core_gtests.xml
+
+rhel-x86-cudaq-tests:
+  stage: test
+  needs: ["rhel-x86-build"]
+  extends: .install-core
+  image: $EMULATOR_RHEL_X86_IMAGE
+  tags:
+    - cutensornet2.0
+  script:
+    - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: core_cudaq_gtests.xml
+
+rhel-power-cudaq-tests:
+  stage: test
+  needs: ["rhel-power-build"]
+  extends: .install-core
+  image: $EMULATOR_RHEL_POWER_IMAGE
+  tags:
+    - powerDocker
+  script:
+    - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: core_cudaq_gtests.xml
+
+rhel-x86-py-tests:
+  stage: test
+  needs: ["rhel-x86-build"]
+  extends: .install-core
+  image: $EMULATOR_RHEL_X86_IMAGE
+  tags:
+    - cutensornet2.0
+  script:
+    - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: tests/python_module/report.xml
+
+rhel-power-py-tests:
+  stage: test
+  needs: ["rhel-power-build"]
+  extends: .install-core
+  image: $EMULATOR_RHEL_POWER_IMAGE
+  tags:
+    - powerDocker
+  script:
+    - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
+    - rm -rf ${QB_DIR}/core-local
+  artifacts:
+    when: always
+    reports:
+      junit: tests/python_module/report.xml
+
+# - - - - - - - trigger - - - - - - - #
+# If this branch is part of a merge request, trigger downstream emulator build and test.
+rhel-x86-trigger-emulator:
+  stage: downstream
+  needs: ["rhel-x86-build"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  trigger:
+    project: qbau/software-and-apps/emulator
+    branch: main
+  variables:
+    UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
+    UPSTREAM_JOB: rhel-x86-trigger-emulator
+
+rhel-power-trigger-emulator:
+  stage: downstream
+  needs: ["rhel-power-build"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  trigger:
+    project: qbau/software-and-apps/emulator
+    branch: main
+  variables:
+    UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
+    UPSTREAM_JOB: rhel-power-trigger-emulator
+# - - - - - - - - - - - - - - - - - - RHEL (end)- - - - - - - - - - - - - - - - - - #

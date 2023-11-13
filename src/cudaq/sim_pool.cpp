@@ -28,7 +28,7 @@ namespace qb {
 /// Easy loader for cudaq backends
 void load_cudaq_backend(std::string name)
 {
-  if (not name.starts_with(SIM_NAME_PREFIX)) name = SIM_NAME_PREFIX + name; 
+  if (not name.starts_with(SIM_NAME_PREFIX)) name = SIM_NAME_PREFIX + name;
   cudaq_sim_pool::get_instance().set_simulator(name);
 }
 
@@ -63,7 +63,7 @@ cudaq_sim_pool::cudaq_sim_pool() {
       if (file_name.rfind(SIM_LIB_NAME_PREFIX, 0) == 0) {
         std::string sim_name = file_name.substr(SIM_LIB_NAME_PREFIX.size());
         sim_name = std::regex_replace(sim_name, std::regex("-"), "_");
-        // Add simulator name with prefix to the map 
+        // Add simulator name with prefix to the map
         sim_name_to_lib[SIM_NAME_PREFIX + sim_name] = dir_entry.path().string();
       }
       // Cache the core CUDAQ lib paths when iterating the directory as well.

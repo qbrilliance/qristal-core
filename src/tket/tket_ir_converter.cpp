@@ -178,7 +178,7 @@ get_xacc_operation(const std::vector<std::size_t> &qbits,
   } else if constexpr (std::is_constructible<xacc_op_type, std::size_t,
                                              xacc::InstructionParameter &&>{}) {
     // Some single-qubit, single-param gates (e.g., Rx, Ry, or Rz)
-    // have a simplified constructor signature, 
+    // have a simplified constructor signature,
     // e.g., Rx(std::size_t, xacc::InstructionParameter &&)
     assert(qbits.size() == 1);
     assert(params.size() == 1);
