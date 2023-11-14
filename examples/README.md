@@ -427,6 +427,17 @@ A simple example demonstrating noise-aware circuit placement by setting up a toy
 An example demonstrating integrated noise-aware placement during circuit execution on a hardware backend (e.g., Rigetti devices on AWS).
 Valid AWS credentials are required to run the example. 
 
+`aws_braket_qft.py`
+
+_qubits_: 4
+_noise_: true
+
+A simple example demonstrating asynchronous circuit execution on AWS Braket. Note that currently only asynchronous circuit execution (via `run_async`) is supported for AWS Braket. To run on AWS Braket:
+* Set up AWS account (e.g., using CLI) and enable AWS Braket;
+* Use an AWS Region that supports AWS Braket (e.g., us-east-1);
+* Create an S3 Bucket with prefix `amazon-braket-*` and create a folder inside the S3 bucket to store results.
+
+
 ## C++ ##
 
 `demo1`

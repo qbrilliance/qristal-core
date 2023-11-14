@@ -1,10 +1,9 @@
 import qb.core
+import os
 import numpy as np
-s = qb.core.session()
+s = qb.core.session(True)
 s.qb12()
-# s.debug = True
-# FIXME qb.core.sdk_dir does not exist yet
-s.qpu_config = qb.core.sdk_dir + "/examples/lambda_accelerator/lambda_config.json"
+s.qpu_config = os.getcwd() + "/lambda_config.json"
 s.xasm = True
 
 s.sn = 1024

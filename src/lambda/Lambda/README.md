@@ -21,26 +21,31 @@ docker run -d -t --gpus all lambda
 - Step 2: Compile AER inside the container:
 
 ```
+cd /mnt/qb
 git clone https://github.com/Qiskit/qiskit-aer.git
 cd qiskit-aer/
-mkdir build
-cd build/
-cmake -DAER_THRUST_BACKEND=CUDA -DBUILD_TESTS=True -DAER_MPI=True -DCUSTATEVEC_ROOT=/opt/nvidia/cuquantum ..
-make
+git reset --hard 0.10.4 
+git submodule init
+git submodule update --init --recursive
+cmake -B build . -DAER_THRUST_BACKEND=CUDA -DBUILD_TESTS=True -DAER_MPI=True -DDISABLE_CONAN=ON -DCMAKE_PREFIX_PATH=/mnt/qb -DCMAKE_BUILD_TYPE=Release ..
+cd build && make
+make install
 ```
 
-- Step 3: Start the server inside the container (at `localhost:5000`).
+- Step 3: Start the server inside the container (at `localhost:5000`) in detachable mode (e.g.
+  tmux):
 
 ```
 python3 server.py
 ```
 
-- Step 4: ssh from inside the container to the permanent AWS reverse proxy instance (forward port 5000)
+- Step 4: ssh from inside the container to the permanent AWS reverse proxy instance (forward port 5000) in detachable mode (e.g., tmux):
 
 ```
-ssh -o ServerAliveInterval=30 -R 5000:localhost:5000 lambda@ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com
+ssh -o ServerAliveInterval=30 -R 5000:localhost:5000 ubuntu@ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com
 ```
 
+- Step 5: To test using the qb-lambda backend, run `run_lambda.py` and `run_async.py` in the examples folder.
 
 # Notes
 
@@ -67,3 +72,5 @@ server {
   }
 }
 ```
+
+- Calling the qb-lambda backend makes a json request to the server, a qobj.json specifying the job and a config.json specifying settings. Then qasm_simulator is used for execution. 

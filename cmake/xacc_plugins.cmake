@@ -67,6 +67,7 @@ add_xacc_plugin(aws_braket
   DEPENDENCIES
     Python::Python
     pybind11::pybind11
+    qb::core
 )
 # Install additional runtime assets
 install(

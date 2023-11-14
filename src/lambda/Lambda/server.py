@@ -4,9 +4,13 @@ from qiskit import QuantumCircuit, transpile
 from qiskit.compiler import assemble
 import threading, queue
 from pathlib import Path
+import logging
+# Setup basic logging
+logging.basicConfig(filename='server.log', level=logging.INFO)
+logging.info('Logger is set up.')
 # This is currently a user-level executable
 # We could compile it at root level.
-AER_SIMULATOR_PATH = '/root/qiskit-aer/build/Release/qasm_simulator'
+AER_SIMULATOR_PATH = '/mnt/qb/qiskit-aer-local/build/Release/qasm_simulator'
 app = Flask(__name__)
 job_list = queue.Queue()
 # run_with_ngrok(app)
@@ -20,28 +24,26 @@ def check_for_job():
     global running_job_id
     while True:
         job_id = job_list.get()
-        print(f'Working on {job_id}')
+        logging.info(f'Working on {job_id}')
         dir_path = os.path.dirname(os.path.realpath(__file__))
         qobj_file = dir_path + '/data/' + str(job_id) + '.qobj'
         config_file = dir_path + '/data/' + str(job_id) + '_config.json'
         # Run the simulation:
         running_job_id = str(job_id)
         result = subprocess.run([AER_SIMULATOR_PATH, '-c', config_file, qobj_file], stdout=subprocess.PIPE)
-        result_str = str(result.stdout.decode('utf8')) 
+        result_str = str(result.stdout.decode('utf8'))
         # Handle the case where the simulation failed/crashed
         try:
             result_str = "{" + result_str.split("{", 1) [1]
             result_json = json.loads(result_str)
         except:
             result_json = {"status": "FAILED"}
-            
-        #print("Result:\n", result_str)
+
         result_json = json.loads(result_str)
         result_json_file = dir_path + '/data/' + str(job_id) + '_result.json'
-        #print("Result JSON:\n", json.dumps(result_json), "\n")
         with open(result_json_file, 'w') as f:
             json.dump(result_json, f)
-        print(f'Finished {job_id}')
+        logging.info(f'Finished {job_id}')
         running_job_id = ''
         job_list.task_done()
 
@@ -66,10 +68,10 @@ def new_job():
         "blocking_enable": True,
         "blocking_qubits": 27
     }
-    
+
     if ("device" in request_body):
         run_config["device"] = str(request_body["device"])
-    
+
     if ("method" in request_body):
         run_config["method"] = str(request_body["method"])
 

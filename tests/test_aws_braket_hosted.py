@@ -10,8 +10,8 @@ def test_CI_220601_1_simple_aws_sv1():
     import boto3
     aws_account_id = boto3.client("sts").get_caller_identity()["Account"]
 
-    my_bucket = "amazon-braket-QBSDK-2022"
-    my_prefix = "guest"
+    my_bucket = "amazon-braket-qbsdk-2023"
+    my_prefix = "simple_aws"
     s3_folder = (my_bucket,my_prefix)
     bell = Circuit().h(0).cnot(control=0,target=1)
     device = AwsDevice("arn:aws:braket:::device/quantum-simulator/amazon/sv1")
@@ -29,8 +29,8 @@ def test_CI_220601_2_simple_aws_dm1():
     import boto3
     aws_account_id = boto3.client("sts").get_caller_identity()["Account"]
 
-    my_bucket = "amazon-braket-QBSDK-2022"
-    my_prefix = "guest"
+    my_bucket = "amazon-braket-qbsdk-2023"
+    my_prefix = "simple_aws"
     s3_folder = (my_bucket,my_prefix)
     bell = Circuit().h(0).cnot(control=0,target=1)
     device = AwsDevice("arn:aws:braket:::device/quantum-simulator/amazon/dm1")
@@ -49,8 +49,8 @@ def test_CI_220602_3_simple_aws_tn1():
     import boto3
     aws_account_id = boto3.client("sts").get_caller_identity()["Account"]
 
-    my_bucket = "amazon-braket-QBSDK-2022"
-    my_prefix = "guest"
+    my_bucket = "amazon-braket-qbsdk-2023"
+    my_prefix = "simple_aws"
     s3_folder = (my_bucket,my_prefix)
     bell = Circuit().h(0).cnot(control=0,target=1)
     device = AwsDevice("arn:aws:braket:::device/quantum-simulator/amazon/tn1")
@@ -59,117 +59,32 @@ def test_CI_220602_3_simple_aws_tn1():
     assert (counts['11'] + counts['00']) == 256,  "[QB SDK] Failed test: CI_220602_3_simple_aws_tn1"
     assert (counts['11'] / counts['00']) == pytest.approx(1.0, None, 0.8), "[QB SDK] Failed test: CI_220602_3_simple_aws_tn1"
 
-def test_CI_220608_1_aws_sv1_openqasm3():
-    print("* CI_220608_1_aws_sv1_openqasm3:")
-    print("* QB SDK offload to AWS SV1, 2-qubit Bell state.")
-    import qb.core, ast
-    s = qb.core.session()
-    s.qb12()
-    s.acc = "aws_acc"
-    s.aws_device = "SV1"
-    s.sn[0].clear()
-    s.sn[0].append(64)
-    s.sn[0].append(256)
-    s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
-        include "qelib1.inc";
-        creg c[2];
-        h q[0];
-        cx q[0],q[1];
-        measure q[1] -> c[1];
-        measure q[0] -> c[0];
-    }'''
-    s.run()
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    res1 = ast.literal_eval(result1)
-    res2 = ast.literal_eval(result2)
-    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
-    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
-
-def test_CI_220614_1_aws_tn1_openqasm3():
-    print("* CI_220614_1_aws_tn1_openqasm3:")
-    print("* QB SDK offload to AWS TN1, 2-qubit Bell state.")
-    import qb.core, ast
-    s = qb.core.session()
-    s.qb12()
-    s.acc = "aws_acc"
-    s.aws_device = "TN1"
-    s.sn[0].clear()
-    s.sn[0].append(64)
-    s.sn[0].append(256)
-    s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
-        include "qelib1.inc";
-        creg c[2];
-        h q[0];
-        cx q[0],q[1];
-        measure q[1] -> c[1];
-        measure q[0] -> c[0];
-    }'''
-    s.run()
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    res1 = ast.literal_eval(result1)
-    res2 = ast.literal_eval(result2)
-    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220614_1_aws_tn1_openqasm3"
-    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220614_1_aws_tn1_openqasm3"
-
-def test_CI_220614_2_aws_dm1_openqasm3():
-    print("* CI_220614_1_aws_dm1_openqasm3:")
-    print("* QB SDK offload to AWS DM1, 2-qubit Bell state.")
-    import qb.core
-    s = qb.core.session()
-    s.qb12()
-    s.acc = "aws_acc"
-    s.aws_device = "DM1"
-    s.sn[0].clear()
-    s.sn[0].append(64)
-    s.sn[0].append(256)
-    s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
-        include "qelib1.inc";
-        creg c[2];
-        h q[0];
-        cx q[0],q[1];
-        measure q[1] -> c[1];
-        measure q[0] -> c[0];
-    }'''
-    s.run()
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    res1 = ast.literal_eval(result1)
-    res2 = ast.literal_eval(result2)
-    assert (res1[''.join(reversed(bin(0)[2:].zfill(2)))] + res1[''.join(reversed(bin(3)[2:].zfill(2)))]) == 64,  "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
-    assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220608_1_aws_sv1_openqasm3"
-
 def test_CI_220616_1_aws_dm1_async():
     print("* CI_220616_1_aws_dm1_async:")
     print("* Asynchronous operation - offload to AWS DM1, 2-qubit Bell state.")
-    import qb.core
+    import qb.core, ast
     import json
     import time
     #
     s = qb.core.session()
+    s.qb12()
     s.aws32dm1()
-    #
+    s.aws_s3 = 'amazon-braket-qbsdk-2023'
+    s.aws_s3_path = 'dm1-async'
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
     s.sn[0].append(512)
     s.instring = '''
-__qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
+    __qpu__ void QBCIRCUIT(qreg q) {
+        OPENQASM 3.0;
         include "qelib1.inc";
         creg c[2];
         h q[0];
         cx q[0],q[1];
         measure q[1] -> c[1];
         measure q[0] -> c[0];
-}'''
+    }'''
 
     # Launch asynchronous tasks now
     jtask_64 = s.run_async(0, 0)
@@ -200,27 +115,29 @@ __qpu__ void QBCIRCUIT(qreg q) {
 def test_CI_220616_2_aws_sv1_async():
     print("* CI_220616_2_aws_sv1_async:")
     print("* Asynchronous operation - offload to AWS SV1, 2-qubit Bell state.")
-    import qb.core
+    import qb.core, ast
     import json
     import time
     #
     s = qb.core.session()
+    s.qb12()
     s.aws32sv1()
-    #
+    s.aws_s3 = 'amazon-braket-qbsdk-2023'
+    s.aws_s3_path = 'sv1-async'
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
     s.sn[0].append(512)
     s.instring = '''
-__qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
+    __qpu__ void QBCIRCUIT(qreg q) {
+        OPENQASM 3.0;
         include "qelib1.inc";
         creg c[2];
         h q[0];
         cx q[0],q[1];
         measure q[1] -> c[1];
         measure q[0] -> c[0];
-}'''
+    }'''
 
     # Launch asynchronous tasks now
     jtask_64 = s.run_async(0, 0)
@@ -251,19 +168,21 @@ __qpu__ void QBCIRCUIT(qreg q) {
 def test_CI_220616_3_aws_tn1_async():
     print("* CI_220616_3_aws_tn1_async:")
     print("* Asynchronous operation - offload to AWS TN1, 2-qubit Bell state.")
-    import qb.core
+    import qb.core, ast
     import json
     import time
     #
     s = qb.core.session()
+    s.qb12()
     s.aws8tn1()
-    #
+    s.aws_s3 = 'amazon-braket-qbsdk-2023'
+    s.aws_s3_path = 'tn1-async'
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
     s.sn[0].append(512)
     s.instring = '''
-__qpu__ void QBCIRCUIT(qreg q) {
+    __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
         creg c[2];
@@ -271,7 +190,7 @@ __qpu__ void QBCIRCUIT(qreg q) {
         cx q[0],q[1];
         measure q[1] -> c[1];
         measure q[0] -> c[0];
-}'''
+    }'''
 
     # Launch asynchronous tasks now
     jtask_64 = s.run_async(0, 0)
@@ -307,14 +226,16 @@ def test_CI_220908_1_aws_check_s3_prefix():
     import time
     #
     s = qb.core.session()
+    s.qb12()
     s.aws8tn1()
-    #
+    s.aws_s3 = 'amazon-braket-qbsdk-2023'
+    s.aws_s3_path = 'sv1-async'
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
     s.sn[0].append(512)
     s.instring = '''
-__qpu__ void QBCIRCUIT(qreg q) {
+    __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
         creg c[2];
@@ -322,20 +243,20 @@ __qpu__ void QBCIRCUIT(qreg q) {
         cx q[0],q[1];
         measure q[1] -> c[1];
         measure q[0] -> c[0];
-}'''
+    }'''
 
-    s.aws_s3_path = "sv1-async"
     with pytest.raises(ValueError):
         s.aws_s3 = "mybucket-QBSDK"
 
 def test_CI_220908_2_aws_tn1_async_s3_s3_prefix():
     print("* CI_220908_2_aws_tn1_async_s3_s3_prefix:")
     print("* Asynchronous operation - offload to AWS TN1, 2-qubit Bell state, specify s3_prefix.")
-    import qb.core
+    import qb.core, ast
     import json
     import time
     #
     s = qb.core.session()
+    s.qb12()
     s.aws8tn1()
     #
     s.sn[0].clear()
@@ -343,18 +264,18 @@ def test_CI_220908_2_aws_tn1_async_s3_s3_prefix():
     s.sn[0].append(256)
     s.sn[0].append(512)
     s.instring = '''
-__qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
+    __qpu__ void QBCIRCUIT(qreg q) {
+        OPENQASM 3.0;
         include "qelib1.inc";
         creg c[2];
         h q[0];
         cx q[0],q[1];
         measure q[1] -> c[1];
         measure q[0] -> c[0];
-}'''
+    }'''
 
-    s.aws_s3 = "amazon-braket-QBSDK-2022"
-    s.aws_s3_path = "ci-results"
+    s.aws_s3 = "amazon-braket-qbsdk-2023"
+    s.aws_s3_path = "tn1-async"
     # Launch asynchronous tasks now
     jtask_64 = s.run_async(0, 0)
     jtask_256 = s.run_async(0, 1)
