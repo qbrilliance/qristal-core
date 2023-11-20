@@ -2,10 +2,14 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
-## [x.x.x] - 202x-xx-xx
+## [1.4.0] - 2023-11-20
 
 ### Added
 
+- Support for PowerPC CPU architectures
+- Support for NVIDIA Volta, Ampere and Hopper GPU architectures
+- Bump up compiler requirements in readthedocs
+- Add emulator readme to readthedocs
 - Removed support for legacy qcstack API in QB hardware interface (QuantumBrillianceRemteAccelerator).
 - Added ability to use 'qb-nm3' noise model.
 

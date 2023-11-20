@@ -106,7 +106,7 @@ set(PUBLIC_HEADERS
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)
 string(REPLACE ";" " " DOXYGEN_PUBLIC_HEADERS "${PUBLIC_HEADERS}")
 
-# If emulator directory is provided, include its API docs 
+# If emulator directory is provided, include its readme/getting started guid and API docs
 if (EMULATOR_DIR)
   set(EMULATOR_DOXYGEN_CONFIG_FILE ${EMULATOR_DIR}/docs/emulator_docs.cmake)
   # Read the config file, which defines the list of public headers (EMULATOR_PUBLIC_HEADERS)
@@ -114,7 +114,13 @@ if (EMULATOR_DIR)
   string(REPLACE ";" " " EMULATOR_HEADERS_LIST "${EMULATOR_PUBLIC_HEADERS}")
   # Add them to the list of headers to be processed.
   string(APPEND  DOXYGEN_PUBLIC_HEADERS " ${EMULATOR_HEADERS_LIST}") 
+  # Write an emulator.rst file and symlink README.md from the emulator
+  file(COPY_FILE ${PROJECT_SOURCE_DIR}/docs/rst/emulator.rst.enabled ${PROJECT_SOURCE_DIR}/docs/rst/emulator.rst)
+  file(CREATE_LINK ${EMULATOR_DIR}/README.md ${PROJECT_SOURCE_DIR}/docs/md/emulator.md SYMBOLIC)
   message(STATUS "Found emulator documentation.")
+else()
+  # Write a dummy emulator.rst
+  file(COPY_FILE ${PROJECT_SOURCE_DIR}/docs/rst/emulator.rst.disabled ${PROJECT_SOURCE_DIR}/docs/rst/emulator.rst)
 endif()
 
 set(SPHINX_SOURCE_DIR ${PROJECT_SOURCE_DIR}/docs)
