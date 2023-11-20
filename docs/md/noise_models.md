@@ -70,6 +70,25 @@ Availability on simulators:
 - [ ] sparse-sim
 - [ ] qpp
 
+### `qb-nm3`
+
+| Model name | `qb-nm3` |
+| ---- | ---- |
+| **QObj generator** | "qristal-qobj"|
+| **Basis gate set** | rx, ry, cz |
+
+This model is applicable to:
+
+- [ ] Open source releases: 2023 onwards
+- [X] Commercial emulator releases: 2023 onwards
+
+Availability on simulators:
+- [x] aer
+- [x] qsim
+- [ ] tnqvm
+- [ ] sparse-sim
+- [ ] qpp
+
 ### `qb-qdk1`
 
 | Model name | `qb-qdk1` |

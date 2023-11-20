@@ -1518,7 +1518,8 @@ namespace qb
       // The "cirq-qsim" backend is part of the external emulator package
       // to be used with the qb emulator noise models only.
       if (run_config.noise_model.name != "qb-nm1" &&
-          run_config.noise_model.name != "qb-nm2") {
+          run_config.noise_model.name != "qb-nm2" &&
+          run_config.noise_model.name != "qb-nm3") {
         // We don't support arbitrary noise model in qsim yet.
         // Hence, ignore the noise request. Log info to let users know.
         std::cout
@@ -1526,7 +1527,7 @@ namespace qb
             << run_config.noise_model.name << "'." << std::endl;
         std::cout << "# If you wish to use qsim with noise, please install the "
                      "emulator package and select one of the QB noise models "
-                     "(e.g. 'qb-nm1' or 'qb-nm2')."
+                     "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                   << std::endl;
         std::cout << "# Disabling noise." << std::endl;
       } else {
@@ -1544,6 +1545,7 @@ namespace qb
         // to be used with the qb emulator noise models only.
         if (run_config.noise_model.name != "qb-nm1" &&
             run_config.noise_model.name != "qb-nm2" &&
+            run_config.noise_model.name != "qb-nm3" &&
             run_config.noise_model.name != "qb-qdk1" &&
             run_config.noise_model.name != "qb-dqc2") {
           // We don't support arbitrary noise model in qb-mps yet.
@@ -1553,7 +1555,7 @@ namespace qb
               << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qb-mps with noise, please install the "
                       "emulator package and select one of the QB noise models "
-                      "(e.g. 'qb-nm1' or 'qb-nm2')."
+                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                     << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {
@@ -1596,6 +1598,7 @@ namespace qb
         // to be used with the qb emulator noise models only.
         if (run_config.noise_model.name != "qb-nm1" &&
             run_config.noise_model.name != "qb-nm2" &&
+            run_config.noise_model.name != "qb-nm3" &&
             run_config.noise_model.name != "qb-qdk1" &&
             run_config.noise_model.name != "qb-dqc2") {
           // We don't support arbitrary noise model in qb-purification yet.
@@ -1605,7 +1608,7 @@ namespace qb
               << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qb-purification with noise, please install the "
                       "emulator package and select one of the QB noise models "
-                      "(e.g. 'qb-nm1' or 'qb-nm2')."
+                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                     << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {
@@ -1652,6 +1655,7 @@ namespace qb
         // to be used with the qb emulator noise models only.
         if (run_config.noise_model.name != "qb-nm1" &&
             run_config.noise_model.name != "qb-nm2" &&
+            run_config.noise_model.name != "qb-nm3" &&
             run_config.noise_model.name != "qb-qdk1" &&
             run_config.noise_model.name != "qb-dqc2") {
           // We don't support arbitrary noise model in qb-mpdo yet.
@@ -1661,7 +1665,7 @@ namespace qb
               << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qb-mpdo with noise, please install the "
                       "emulator package and select one of the QB noise models "
-                      "(e.g. 'qb-nm1' or 'qb-nm2')."
+                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                     << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {

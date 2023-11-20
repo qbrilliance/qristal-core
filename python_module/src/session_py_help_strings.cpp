@@ -511,6 +511,8 @@ const char* session::help_noise_models_ = R"(
         
         "qb-nm2" : 8x8 NV centres in x-y grid, 1 qubit per NV centre, nearest x and nearest y connectivity
 
+        "qb-nm3" : 48 NV centres in a 1-dimensional grid with linear qubit index, 1 qubits per NV centre
+
         "qb-qdk1" : 1 NV centre with 2 qubits, fidelities tuned to match deployed device
 
         "qb-dqc2" : 1 NV centre with 2 qubits, fidelities tuned to match lab-based device
