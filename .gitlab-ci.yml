@@ -5,6 +5,9 @@ variables:
   EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-power:emulator-2
   USE_MPI: "ON"
 
+  # branch to use for emulator repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
+  EMULATOR_TRIGGER_BRANCH: "main"
+
 stages:
   - build
   - test
@@ -258,7 +261,7 @@ trigger-emulator:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/emulator
-    branch: main
+    branch: $EMULATOR_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: trigger-emulator
@@ -467,7 +470,7 @@ rhel-x86-trigger-emulator:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/emulator
-    branch: main
+    branch: $EMULATOR_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: rhel-x86-trigger-emulator
@@ -479,7 +482,7 @@ rhel-power-trigger-emulator:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/emulator
-    branch: main
+    branch: $EMULATOR_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: rhel-power-trigger-emulator
