@@ -22,7 +22,8 @@ s.aws_s3_path = 'dm1'
 # Other session settings
 s.xasm = True
 s.noise = True
-s.qn = 4
+num_qubits = 4
+s.qn = num_qubits
 print("Backend chosen: ", s.acc)
 print("Device from qft.py: ", s.aws_device)
 
@@ -31,34 +32,12 @@ s.sn[0].clear()
 s.sn[0].append(64)
 s.sn[0].append(256)
 
-s.instring = '''
-__qpu__ void QBCIRCUIT(qreg q)
-{
-   X(q[3]);
-    // Hadamard on all qubits
-    H(q[0]);
-    H(q[1]);
-    H(q[2]);
-    H(q[3]);
-    // Balanced Oracle
-    X(q[0]);
-    X(q[2]);
-    CX(q[0],q[3]);
-    CX(q[1],q[3]);
-    CX(q[2],q[3]);
-    X(q[0]);
-    X(q[2]);
-    // Hadamard on q[0-2]
-    H(q[0]);
-    H(q[1]);
-    H(q[2]);
-
-    Measure(q[0]);
-    Measure(q[1]);
-    Measure(q[2]);
-    Measure(q[3]);
-}
-'''
+# Define the quantum program to run
+# Use Qristal circuit builder to construct a QFT circuit
+circ = qb.core.Circuit()
+circ.qft(range(num_qubits))
+circ.measure_all()
+s.ir_target = circ
 
 # run_async(0, 0) submits the job with 64 shots asynchronously
 # run_async(0, 1) submits the job with 256 shots asynchronously

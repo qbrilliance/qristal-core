@@ -41,7 +41,7 @@ TEST(QuantumBrillianceRemoteAcceleratorTester, testInstantiationGetDetails) {
     std::cout << "    " << cel << std::endl;
   }
 
-  mm.insert("remote_url", std::string("https://myuser23:myPass*23@8dd1-3-26-179-186.au.ngrok.io/api/v1/"));
+  mm.insert("remote_url", std::string("https://myuser23:myPass*23@5795-13-211-253-224.au.ngrok.io/api/v1/"));
   mm.insert("post_path", std::string(""));
   mm.insert("shots", shots);
   mm.insert("init", init_qubits);
