@@ -2,6 +2,17 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
+## [Version] - Date
+
+### Breaking
+
+### Added
+
+- Added ability to extract state vector from qpp accelerator.
+
+### Fixed
+
+
 ## [1.4.0] - 2023-11-20
 
 ### Added

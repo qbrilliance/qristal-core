@@ -193,6 +193,10 @@ namespace qb
       // Parallel (async) executor
       std::shared_ptr<Executor> executor_;
 
+      // State vector from qpp
+      bool in_get_state_vec_;
+      std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> state_vec_;
+
       // Error mitigation
       VectorString error_mitigations_;
 
@@ -867,6 +871,20 @@ namespace qb
       const VectorBool &get_noises() const;
       /// @private
       static const char *help_noises_;
+      /**
+       * @brief Get the full state vector (works with QPP backend only!)
+       * 
+       * @return Full complex state vector as std::vector<std::complex<double>>
+       */
+      const std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> &get_state_vec_raw() const;
+      /**
+       * @brief Set the flag to retrieve the state vector
+       * 
+       * @param in_get_state_vec Flag to retrieve state vector (works with QPP backend only!)
+       */
+      void get_state_vec(const bool &in_get_state_vec);
+      /// @private
+      static const char* help_state_vec_;
       //
       /**
        * @brief Set the output transpilation and resource estimation flag

@@ -130,7 +130,8 @@ namespace qb
         out_transpiled_circuits_{{{}}}, out_qobjs_{{{}}}, out_qbjsons_{{{}}},
         out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
-        executor_(std::make_shared<Executor>()), error_mitigations_{} {
+        executor_(std::make_shared<Executor>()), error_mitigations_{}, state_vec_{},
+        in_get_state_vec_(false) {
     xacc::Initialize();
     xacc::setIsPyApi();
     xacc::set_verbose(debug_);
@@ -2377,6 +2378,12 @@ namespace qb
       } else {
         xacc::warning("No Z operator expectation available");
       }
+    }
+
+    // Get the state vector from qpp
+    if (sim_qpu->name().compare("qpp") == 0 && in_get_state_vec_ == true) {
+      state_vec_ = sim_qpu->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
+                        xacc::ExecutionInfo::WaveFuncKey);
     }
 
     // Flip the bit string (key in map qpu_counts) if AER backend is used. This is

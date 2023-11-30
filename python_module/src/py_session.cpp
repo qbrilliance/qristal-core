@@ -267,6 +267,17 @@ void bind_session(pybind11::module &m) {
       .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitudes,
                     qb::session::help_output_amplitudes_)
+      .def_property("state_vector",
+          [&](qb::session &s) {
+            std::vector<std::complex<double>> stateVecData;
+            std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> stateVec = s.get_state_vec_raw();
+            for (const auto x : *stateVec) {
+              stateVecData.emplace_back(x);
+            }
+            return stateVecData;
+          },
+          &qb::session::get_state_vec,
+          qb::session::help_state_vec_)
       .def_property_readonly("out_raw", &qb::session::get_out_raws,
                              qb::session::help_out_raws_)
       .def_property_readonly("out_raws", &qb::session::get_out_raws,

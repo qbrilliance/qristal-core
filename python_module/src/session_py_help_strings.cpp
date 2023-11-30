@@ -272,6 +272,11 @@ const char* session::help_noises_ = R"(
 
         A 1d-array (list) version of noise.
 )";
+const char* session::help_state_vec_ = R"(
+        in_get_state_vec:
+
+        Using this will extract the state vector (supported by the `qpp` backend only).
+)";
 const char* session::help_notimings_ = R"(
         .. warning::
                 This property is currently unused.
