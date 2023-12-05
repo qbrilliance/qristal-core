@@ -490,7 +490,7 @@ const VectorMapND & session::get_out_total_init_maxgate_readout_times() const { 
 const VectorMapND & session::get_out_z_op_expects() const { return session::out_z_op_expects_ ; }
 //
 
-const std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> & session::get_state_vec_raw() const {return session::state_vec_ ;}
+const std::shared_ptr<std::vector<std::complex<double>>> & session::get_state_vec_raw() const {return session::state_vec_ ;}
 //
 
 void session::get_state_vec(const bool &in_get_state_vec) {session::in_get_state_vec_ = in_get_state_vec ;}

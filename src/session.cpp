@@ -1461,8 +1461,17 @@ namespace qb
                        // , std::make_pair("shots", shots)
                    });
     } else if (acc.compare("aer") == 0) {
-      xacc::HeterogeneousMap aer_options{{"seed", random_seed},
-                                         {"shots", run_config.num_shots}};
+      xacc::HeterogeneousMap aer_options{{"seed", random_seed}};
+
+      // Omit shots if the state vector is requested. This triggers Xacc AER to use
+      // the statevector simulation type instead of qasm simulation type. The former
+      // then populates its ExecutionInfo::WaveFuncKey.
+      if (!in_get_state_vec_) {
+        aer_options.insert("shots", run_config.num_shots);
+      } else if (in_get_state_vec_ == true && run_config.num_shots > 0) {
+        std::cout << "Warning: Requesting AER state vector will ignore shot sampling!\n";
+      }
+
       if (!run_config.aer_sim_type.empty()) {
         aer_options.insert("sim-type", run_config.aer_sim_type);
         if (debug_)
@@ -2380,8 +2389,10 @@ namespace qb
       }
     }
 
-    // Get the state vector from qpp
-    if (sim_qpu->name().compare("qpp") == 0 && in_get_state_vec_ == true) {
+    // Get the state vector from qpp or AER
+    if ((sim_qpu->name().compare("qpp") == 0 ||
+        (sim_qpu->name().compare("aer") == 0 && run_config.aer_sim_type == "statevector"))
+        && in_get_state_vec_ == true) {
       state_vec_ = sim_qpu->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
                         xacc::ExecutionInfo::WaveFuncKey);
     }

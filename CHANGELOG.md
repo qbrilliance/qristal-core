@@ -8,7 +8,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
-- Added ability to extract state vector from qpp accelerator.
+- Added ability to extract state vector from qpp and AER accelerator.
 
 ### Fixed
 

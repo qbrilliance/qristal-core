@@ -270,7 +270,7 @@ void bind_session(pybind11::module &m) {
       .def_property("state_vector",
           [&](qb::session &s) {
             std::vector<std::complex<double>> stateVecData;
-            std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> stateVec = s.get_state_vec_raw();
+            std::shared_ptr<std::vector<std::complex<double>>> stateVec = s.get_state_vec_raw();
             for (const auto x : *stateVec) {
               stateVecData.emplace_back(x);
             }

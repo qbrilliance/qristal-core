@@ -195,7 +195,7 @@ namespace qb
 
       // State vector from qpp
       bool in_get_state_vec_;
-      std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> state_vec_;
+      std::shared_ptr<std::vector<std::complex<double>>> state_vec_;
 
       // Error mitigation
       VectorString error_mitigations_;
@@ -876,7 +876,7 @@ namespace qb
        * 
        * @return Full complex state vector as std::vector<std::complex<double>>
        */
-      const std::shared_ptr<xacc::ExecutionInfo::WaveFuncType> &get_state_vec_raw() const;
+      const std::shared_ptr<std::vector<std::complex<double>>> &get_state_vec_raw() const;
       /**
        * @brief Set the flag to retrieve the state vector
        * 
