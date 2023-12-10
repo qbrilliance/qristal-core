@@ -5,6 +5,7 @@
 #include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/cmake_variables.hpp"
 #include "qb/core/utils.hpp"
+#include "qb/core/session_utils.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
 #include "qb/core/passes/base_pass.hpp"
 
@@ -13,90 +14,23 @@
   #include "cudaq/utils/cudaq_utils.h"
 #endif
 
-namespace xacc::quantum {
-class QuantumBrillianceRemoteAccelerator;
-}
+// STL
+#include <complex>
+#include <functional>
+#include <map>
+#include <string>
+#include <vector>
+
+// YAML
+#include "yaml-cpp/yaml.h"
+
+// Forward declarations
+namespace xacc::quantum { class qb_qpu; }
+namespace qb { class backend; }
+
 
 namespace qb
 {
-  // Forward declarations
-  class QuantumBrillianceAccelerator;
-  /// Supported types of the input source string defining a quantum kernel
-  enum class source_string_type
-  {
-    XASM,
-    Quil,
-    OpenQASM
-  };
-
-  /// Indexed (i, j) run configurations of a session
-  struct run_i_j_config
-  {
-    /// Number of measurement shots (sns_)
-    int num_shots;
-    /// Number of qubits (qns_)
-    int num_qubits;
-    /// Number of repetitions (rns_)
-    int num_repetitions;
-    /// Enable post-execution transpilation and resource estimation
-    bool oqm_enabled;
-    /// Name of the backend accelerator
-    std::string acc_name;
-    /// Full path to the OpenQASM include file where custom QB gates are defined
-    std::string openqasm_qb_include_filepath;
-    /// Full path to the QPU configuration JSON file
-    std::string qpu_config_json_filepath;
-    /// QB hardware: prevent contrast thresholds from being sent from Qristal
-    bool use_default_contrast_setting;
-    /// QB hardware: init contrast thresholds
-    ND init_contrast_thresholds;
-    /// QB hardware: qubit contrast thresholds
-    ND qubit_contrast_thresholds;
-    /// Type (assembly dialect) of the input source string
-    source_string_type source_type;
-    /// Disable placement if true
-    bool no_placement;
-    /// Disable circuit optimisation if true
-    bool no_optimise;
-    /// Disable simulation (accelerator execution) if true
-    /// e.g., just want to run transpilation for resource estimation.
-    bool no_sim;
-    /// Enable noisy simulation/emulation
-    bool noise;
-    /// Noise model
-    NoiseModel noise_model;
-    /// Noise mitigation strategy (empty if none)
-    std::string noise_mitigation;
-    /// Random seed value for the simulator (if set)
-    std::optional<int> simulator_seed;
-    /// *
-    /// Backend-specific configurations
-    /// *
-    /// [TNQVM] Max MPS bond dimension to keep
-    int max_bond_tnqvm;
-    /// [TNQVM] Max MPS kraus dimension to keep
-    int max_kraus_tnqvm;
-    /// [TNQVM] Initial MPS bond dimension to keep
-    int initial_bond_tnqvm;
-    /// [TNQVM] Initial MPS kraus dimension to keep
-    int initial_kraus_tnqvm;
-    /// [TNQVM] Absolute SVD cut-off limit for singular value truncation
-    double svd_cutoff_tnqvm;
-    /// [TNQVM] Relative SVD cut-off limit for singular value truncation
-    double rel_svd_cutoff_tnqvm;
-    /// [AWS Braket] Name of the AWS device name (e.g., SV1, TN1)
-    std::string aws_device_name;
-    /// [AWS Braket] Enable 'verbatim' mode
-    bool aws_verbatim;
-    /// [AWS Braket] Format of the AWS source string that we use to submit the request
-    std::string aws_format;
-    /// [AWS Braket] Name of the S3 bucket to store the result
-    std::string aws_s3;
-    /// [AWS Braket] Path (key) within the bucket where the result is stored
-    std::string aws_s3_path;
-    /// [AER backend] Simulator type (e.g., state vec, density matrix, etc.)
-    std::string aer_sim_type;
-  };
 
   /// A session of the QB SDK quantum programming and execution framework.
   class session
@@ -107,25 +41,21 @@ namespace qb
       // Debugging
       bool debug_;
 
+      // Remote backend database
+      std::string remote_backend_database_path_;
+      YAML::Node remote_backend_database_;
+
       // Names
       VectorString name_m;
       std::vector<std::vector<std::vector<int>>> number_m;
       VectorString infiles_;
       VectorString include_qbs_;
-      VectorString qpu_configs_;
       VectorString instrings_;
       std::vector<std::pair<std::string, std::function<void()>>> cudaq_kernels_;
 
       std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> irtarget_ms_;
 
       VectorString accs_;
-
-      // AWS Braket related members
-      VectorString aws_device_names_;  // AWS Braket hosted simulator or hosted hardware QPU to run circuits on.  For validation, see: VALID_AWS_DEVICES.  Has effect only when accs_ == "aws_acc".
-      VectorString aws_formats_;
-      VectorBool aws_verbatims_;       // Verbatim mode on AWS Braket hardware QPUs (Rigetti)
-      VectorString aws_s3s_;           // Name of S3 Bucket that will store AWS Braket results.  For validation, see: VALID_AWS_S3_PREFIXS.  Has effect only when accs_ == "aws_acc".
-      VectorString aws_s3_paths_;      // Path inside S3 Bucket where AWS Braket results are kept.  Automatically created if necessary.  Has effect only when accs_ == "aws_acc".
 
       VectorString aer_sim_types_;
 
@@ -150,15 +80,6 @@ namespace qb
 
       VectorMapND betas_;
       VectorMapND thetas_;
-
-      /// QB hardware configuration: contrast thresholds (non-negative real number)
-      /// The balanced SSR contrast below which a shot will be ignored.  
-      /// init_contrast_thresholds_ applies during initialisation.
-      /// qubit_contrast_thresholds_ applies on a per-qubit basis during final readout
-      /// use_default_contrast_settings_ excludes all contrast threshold settings from being sent to the QB hardware
-      VectorBool use_default_contrast_settings_;
-      VectorMapND init_contrast_thresholds_;
-      VectorMapND qubit_contrast_thresholds_;
 
       // ExaTN-MPS settings
       VectorN max_bond_dimensions_;
@@ -211,20 +132,8 @@ namespace qb
       const size_t RANDOMS_UPPERBOUND = 1000;
       const size_t SNS_LOWERBOUND = 1;
       const size_t SNS_UPPERBOUND = 1000000;
-      const size_t SNS_DM1_LOWERBOUND = 1;
-      const size_t SNS_DM1_UPPERBOUND = 10000;
-      const size_t SNS_SV1_LOWERBOUND = 1;
-      const size_t SNS_SV1_UPPERBOUND = 10000;
-      const size_t SNS_TN1_LOWERBOUND = 1;
-      const size_t SNS_TN1_UPPERBOUND = 999;
       const size_t QNS_LOWERBOUND = 1;
       const size_t QNS_UPPERBOUND = 10000;
-      const size_t QNS_DM1_LOWERBOUND = 1;
-      const size_t QNS_DM1_UPPERBOUND = 17;
-      const size_t QNS_SV1_LOWERBOUND = 1;
-      const size_t QNS_SV1_UPPERBOUND = 34;
-      const size_t QNS_TN1_LOWERBOUND = 1;
-      const size_t QNS_TN1_UPPERBOUND = 48;
       const size_t RNS_LOWERBOUND = 1;
       const size_t RNS_UPPERBOUND = 1000000;
       const size_t MAX_BOND_DIMENSION_LOWERBOUND = 1;
@@ -255,83 +164,11 @@ namespace qb
           "qb-mpdo"
       };
 
-      std::unordered_set<std::string> VALID_QB_HARDWARE_ACCS = {
-          "dqc_gen1",
-          "qdk_gen1",
-          "loopback"
-      };
-
-      // Valid AWS backend strings
-      std::unordered_set<std::string> VALID_AWS_DEVICES = {
-          "SV1",
-          "DM1",
-          "TN1",
-          "LocalSimulator",
-          "Rigetti"
-      };
-
-      // Valid AWS backend formats
-      std::unordered_set<std::string> VALID_AWS_FORMATS = {
-          "braket",
-          "openqasm3"
-      };
-
-      // Valid AWS Braket S3 bucket name prefixs
-      std::unordered_set<std::string> VALID_AWS_S3_PREFIXS = {
-          "amazon-braket-"
-      };
-
       // Valid AER simulator types
       std::unordered_set<std::string> VALID_AER_SIM_TYPES = {
         "statevector",
         "density_matrix",
         "matrix_product_state"
-      };
-
-      std::unordered_set<std::string> VALID_QB_HARDWARE_COMMANDS = {
-          "circuit"
-      };
-
-      std::map<std::string,std::string> VALID_QB_HARDWARE_URLS = {
-          {"dqc_gen1", "https://172.17.0.1:8443"},
-          {"qdk_gen1", "https://172.17.0.1:8443"},
-          {"loopback", "http://127.0.0.1:8000"}
-      };
-
-      std::map<std::string,std::string> VALID_QB_HARDWARE_POSTPATHS = {
-          {"dqc_gen1", ""},
-          {"qdk_gen1", ""}
-      };
-
-      std::map<std::string,int> VALID_QB_HARDWARE_POLLING_SECS = {
-          {"dqc_gen1", 3},
-          {"qdk_gen1", 3}
-      };
-
-      std::map<std::string,int> VALID_QB_HARDWARE_POLLING_RETRY_LIMITS = {
-          {"dqc_gen1", 10},
-          {"qdk_gen1", 10}
-      };
-
-      std::map<std::string,int> VALID_QB_HARDWARE_OVER_REQUEST_FACTORS = {
-          {"dqc_gen1", 4},
-          {"qdk_gen1", 4}
-      };
-
-      std::map<std::string,bool> VALID_QB_HARDWARE_RESAMPLE_ENABLEDS = {
-          {"dqc_gen1", false},
-          {"qdk_gen1", false}
-      };
-
-      std::map<std::string,bool> VALID_QB_HARDWARE_RECURSIVE_REQUEST_ENABLEDS = {
-          {"dqc_gen1", true},
-          {"qdk_gen1", true}
-      };
-
-      std::map<std::string,int> VALID_QB_HARDWARE_RESAMPLE_ABOVE_PERCENTAGES = {
-          {"dqc_gen1", 95},
-          {"qdk_gen1", 95},
-          {"loopback", 95}
       };
 
       std::unordered_set<std::string> VALID_ERROR_MITIGATIONS = {
@@ -347,19 +184,6 @@ namespace qb
       // Valid placements
       std::unordered_set<std::string> VALID_HARDWARE_PLACEMENTS = {
           "swap-shortest-path", "noise-aware"};
-
-      // More QB hardware options (similar to the above) go here
-      const double CONTRAST_UPPERBOUND = 1.0;
-      const double CONTRAST_LOWERBOUND = 0.0;
-
-      const int VALID_QB_HARDWARE_INIT = 0;
-      const int VALID_QB_HARDWARE_REQUEST_ID = 0;
-      const int VALID_QB_HARDWARE_POLL_ID = 0;
-      const int VALID_QB_HARDWARE_CYCLES = 1;
-
-      const int POLLING_NOT_READY = 300;
-      const int POLLING_PROCESS_FAILED = 500;
-      const int POLLING_SUCCESS = 0;
 
     public:
       /**
@@ -500,25 +324,19 @@ namespace qb
       static const char *help_include_qbs_;
       //
       /**
-       * @brief Set the path to the qpu config JSON file.
+       * @brief Set the path to the remote backend database yaml file.
        * 
-       * @param qpu_config Path to the qpu config JSON file
+       * @param remote_backend_database_path Path to the remote backend database yaml file.
        */
-      void set_qpu_config(const std::string &qpu_config);
+      void set_remote_backend_database_path(const std::string &remote_backend_database);
       /**
-       * @brief Set the list of paths to the qpu config JSON files.
+       * @brief Get the path to the remote backend database yaml file.
        * 
-       * @param qpu_configs List of paths to the qpu config JSON files
+       * @return Path to the remote backend database yaml file.
        */
-      void set_qpu_configs(const VectorString &qpu_configs);
-      /**
-       * @brief Get the list of paths to the qpu config JSON files.
-       * 
-       * @return List of paths to the qpu config JSON files
-       */
-      const VectorString &get_qpu_configs() const;
+      const std::string &get_remote_backend_database_path() const;
       /// @private
-      static const char *help_qpu_configs_;
+      static const char *help_remote_backend_database_path_;
       //
       /**
        * @brief Set the backend accelerator. 
@@ -541,112 +359,7 @@ namespace qb
       const VectorString &get_accs() const;
       /// @private
       static const char *help_accs_;
-      //
-      /**
-       * @brief Set the AWS Braket device name, e.g., SV1, DM1, etc.
-       * 
-       * @param device_name Name of AWS Braket device
-       */
-      void set_aws_device_name(const std::string &device_name);
-      /**
-       * @brief Set AWS Braket device names.
-       * 
-       * @param device_names Names of AWS Braket devices
-       */
-      void set_aws_device_names(const VectorString &device_names);
-      /**
-       * @brief Get AWS Braket device names.
-       * 
-       * @return Names of AWS Braket devices
-       */
-      const VectorString &get_aws_device_names() const;
-      /// @private
-      static const char *help_aws_device_names_;
-      //
-      /**
-       * @brief Set the format to submit circuits to AWS Braket  
-       * 
-       * @param format Format type (e.g., openqasm3)
-       */
-      void set_aws_format(const std::string &format);
-      /**
-       * @brief Set the format to submit circuits to AWS Braket  
-       * 
-       * @param formats List of format types (e.g., openqasm3)
-       */
-      void set_aws_formats(const VectorString &formats);
-      /**
-       * @brief Get format to submit circuits to AWS Braket 
-       * 
-       * @return List of format types
-       */
-      const VectorString &get_aws_formats() const;
-      /// @private
-      static const char *help_aws_formats_;
-      //
-      /**
-       * @brief Set the AWS S3 bucket to store results
-       * 
-       * @param bucket_name Name of S3 bucket
-       */
-      void set_aws_s3(const std::string &bucket_name);       // Setter for scalar case. Used by pybind11.
-      /**
-       * @brief Set the AWS S3 bucket to store results
-       * 
-       * @param bucket_names Names of S3 bucket
-       */
-      void set_aws_s3s(const VectorString &bucket_names);    // Setter for vector case. User by pybind11.
-      /**
-       * @brief Get the AWS S3 bucket to store results
-       * 
-       * @return Names of S3 bucket
-       */
-      const VectorString &get_aws_s3s() const;               // Getter that works for scalar and vector cases
-      /// @private
-      static const char *help_aws_s3s_;                      // Help/summary screen text
-      //
-      /**
-       * @brief Set the AWS S3 path 
-       * 
-       * @param path AWS S3 path
-       */
-      void set_aws_s3_path(const std::string &path);
-      /**
-       * @brief Set the AWS S3 paths 
-       * 
-       * @param paths AWS S3 paths
-       */
-      void set_aws_s3_paths(const VectorString &paths);
-      /**
-       * @brief Get the AWS S3 paths 
-       * 
-       * @return AWS S3 paths
-       */
-      const VectorString &get_aws_s3_paths() const;
-      /// @private
-      static const char *help_aws_s3_paths_;
-      //
-      /**
-       * @brief Set the AWS verbatim mode
-       * 
-       * @param verbatim Verbatim mode
-       */
-      void set_aws_verbatim(const bool &verbatim);
-      /**
-       * @brief Set the AWS verbatim modes
-       * 
-       * @param verbatims Verbatim modes
-       */
-      void set_aws_verbatims(const VectorBool &verbatims);
-      /**
-       * @brief Get the AWS verbatim mode
-       * 
-       * @return Verbatim modes
-       */
-      const VectorBool &get_aws_verbatims() const;
-      /// @private
-      static const char *help_aws_verbatims_;
-      //
+      //      
       /**
        * @brief Set the AER backend simulator type
        * 
@@ -1035,57 +748,6 @@ namespace qb
       const VectorMapND &get_thetas() const;
       /// @private
       static const char *help_thetas_;
-      //
-      /**
-       * @brief Get the use_default_contrast_setting configuration flags
-       * 
-       * @return Config. values
-       */
-      const VectorBool &get_use_default_contrast_settings() const;
-      /// @private
-      static const char *help_use_default_contrast_settings_;
-      //
-      /**
-       * @brief Set QB hardware contrast threshold above which initialisation is deemed successful
-       *
-       * @param in_init_contrast_threshold Non-negative threshold value
-       */
-       void set_init_contrast_threshold(const double &in_init_contrast_threshold);
-      /**
-       * @brief Set QB hardware contrast threshold above which initialisation is deemed successful
-       *
-       * @param in_init_contrast_thresholds Non-negative threshold values
-       */
-       void set_init_contrast_thresholds(const VectorMapND &in_init_contrast_thresholds);
-      /**
-      * @brief Get the contrast threshold for initialisation
-      *
-      * @return Initialisation contrast thresholds
-      */
-      const VectorMapND &get_init_contrast_thresholds() const;
-      /// @private
-      static const char *help_init_contrast_thresholds_;
-      //
-      /**
-      * @brief Set QB hardware contrast thresholds during final readout on a per-qubit basis
-      *
-      * @param in_qubit_contrast_threshold Non-negative qubit readout threshold
-      */
-      void set_qubit_contrast_threshold(const ND &in_qubit_contrast_threshold);
-      /**
-      * @brief Set QB hardware contrast thresholds during final readout on a per-qubit basis
-      *
-      * @param in_qubit_contrast_thresholds Non-negative qubit readout threshold
-      */
-      void set_qubit_contrast_thresholds(const VectorMapND &in_qubit_contrast_thresholds);
-      /**
-      * @brief Get the qubit contrast thresholds for final readout
-      *
-      * @return Contrast thresholds used for final readout 
-      */
-      const VectorMapND &get_qubit_contrast_thresholds() const;
-      /// @private
-      static const char *help_qubit_contrast_thresholds_;
       //
       /**
        * @brief Set the initial bond dimension (MPS simulator)
@@ -1481,21 +1143,6 @@ namespace qb
       /// AWS Braket TN1, 8 async workers, 49 qubits, 256 shots, noiseless
       void aws8tn1();
 
-      /// For QB hardware: contrast threshold helper methods
-      
-      /**
-       * @brief Contrast thresholds for QB hardware.  Applies globally throughout a Qristal session.
-       * 
-       * @param init_ct Input contrast threshold used for initialisation
-       * @param q0_ct Input contrast threshold used for final readout of qubit[0]
-       * @param q1_ct Input contrast threshold used for final readout of qubit[1]
-       */
-      void set_contrasts(const double &init_ct, const double &q0_ct, const double &q1_ct);
-
-      /**
-      * @brief Removes all contrast thresholds stored in a Qristal session
-      */
-      void reset_contrasts();
           
     private:
       int validate_sns_nonempty();
@@ -1505,9 +1152,6 @@ namespace qb
       int validate_instrings();
       void validate_acc(const std::string &acc);
       void validate_noise_mitigation(const std::string &noise_mitigate);
-      void validate_aws_s3(const std::string &bucket_name);
-      void validate_aws_format(const std::string &format);
-      void validate_aws_device_name(const std::string &device_name);
       void validate_aer_sim_type(const std::string &sim_type);
       int is_ii_consistent();
       int is_jj_consistent();
@@ -1530,7 +1174,7 @@ namespace qb
                               std::shared_ptr<xacc::Accelerator> sim_qpu,
                               const xacc::HeterogeneousMap& sim_qpu_configs,
                               std::shared_ptr<xacc::AcceleratorBuffer> buffer_b, double runtime_ms,
-                              std::shared_ptr<qb::QuantumBrillianceAccelerator> qb_transpiler);
+                              std::shared_ptr<qb::backend> qb_transpiler);
       /// Util method to compile input source string into IR
       /// This method is thread-safe, thus can be used to compile multiple source strings in parallel.
       std::shared_ptr<xacc::CompositeInstruction> compile_input(const std::string& in_source_string, int in_num_qubits, source_string_type in_source_type);
@@ -1543,32 +1187,13 @@ namespace qb
       /// - Denote the kernel name as 'QBCIRCUIT'
       static std::string
       convertRawOpenQasmToQBKernel(const std::string &in_rawQasm);
-
-      /// Parse QPU configuration JSON file.
-      // e.g., populating the list of QPU URL endpoints
-      void parse_qpu_config_json(const std::string& in_file_path);
-
-      /// Combine all QPU options into a dict (xacc::HeterogeneousMap)
-      // Note: this dict is a 'kitchen sink' of all configurations.
-      // The QPU (xacc::Accelerator) may or may not use these configurations.
-      xacc::HeterogeneousMap
-      construct_qpu_configs(const run_i_j_config &run_config);
-
+      
       /// Get the simulator based on `run_i_j_config`
-      std::shared_ptr<xacc::Accelerator> get_sim_qpu(const run_i_j_config &run_config);
+      std::shared_ptr<xacc::Accelerator> get_sim_qpu(bool execute_on_hardware, const run_i_j_config& run_config);
 
       /// Execute the circuit on a simulator
       void execute_on_simulator(
           std::shared_ptr<xacc::Accelerator> acc,
-          std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
-          std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
-          const run_i_j_config &run_config);
-
-      /// Execute the circuit on the QB hardware
-      /// (QuantumBrillianceRemoteAccelerator)
-      void execute_on_hardware(
-          std::shared_ptr<xacc::quantum::QuantumBrillianceRemoteAccelerator>
-              qdk,
           std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
           std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
           const run_i_j_config &run_config);

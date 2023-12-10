@@ -365,20 +365,22 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       # Now do it properly.
     endif()
   endif()
-  target_include_directories(cpr INTERFACE
-    $<BUILD_INTERFACE:${CPR_INCLUDE_DIRS}>
-    $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
-  )
-  install(TARGETS cpr EXPORT cpr-targets)
-  install(EXPORT cpr-targets
-      FILE cpr-config.cmake
-      NAMESPACE cpr::
-      DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
-  if (NOT qbcore_LIBDIR STREQUAL "lib")
-    install(
-        FILES ${CPR_LIBRARIES}
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+  if (TARGET cpr)
+    target_include_directories(cpr INTERFACE
+      $<BUILD_INTERFACE:${CPR_INCLUDE_DIRS}>
+      $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
     )
+    install(TARGETS cpr EXPORT cpr-targets)
+    install(EXPORT cpr-targets
+        FILE cpr-config.cmake
+        NAMESPACE cpr::
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
+    if (NOT qbcore_LIBDIR STREQUAL "lib")
+      install(
+          FILES ${CPR_LIBRARIES}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+      )
+    endif()
   endif()
 
   # C++ itertools

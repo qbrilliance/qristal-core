@@ -1,15 +1,18 @@
 set(source_files
   src/async_executor.cpp
-  src/utils.cpp
-  src/session.cpp
-  src/session_validators.cpp
-  src/session_utils.cpp
+  src/backend.cpp
+  src/backend_utils.cpp  
   src/pretranspiler.cpp
   src/profiler.cpp
-  src/QuantumBrillianceRemoteAccelerator.cpp
-  src/QuantumBrillianceAccelerator.cpp
-  src/QuantumBrillianceRemoteVisitor.cpp
+  src/session.cpp
+  src/session_validators.cpp
   src/thread_pool.cpp
+  src/utils.cpp
+  src/backends/qb_hardware/qb_qpu.cpp
+  src/backends/qb_hardware/qb_visitor.cpp
+  src/backends/qb_hardware/qcstack_client.cpp
+  src/backends/qb_hardware/options.cpp
+  src/backends/aws_braket/options.cpp
   src/optimization/vqee/case_generator.cpp
   src/optimization/vqee/vqee.cpp
   src/optimization/vqee/vqee_nlopt.cpp
@@ -39,22 +42,24 @@ endif()
 
 set(headers
   include/qb/core/qblib.inc
-  include/qb/core/qpu_config.json
   include/qb/core/async_executor.hpp
+  include/qb/core/backend.hpp
+  include/qb/core/backend_utils.hpp
   include/qb/core/cmake_variables.hpp
   include/qb/core/circuit_builder.hpp
   include/qb/core/circuit_builders/exponent.hpp
   include/qb/core/circuit_builders/ry_encoding.hpp
   include/qb/core/session.hpp
+  include/qb/core/session_utils.hpp
   include/qb/core/utils.hpp
   include/qb/core/pretranspiler.hpp
   include/qb/core/profiler.hpp
-  include/qb/core/QuantumBrillianceAccelerator.hpp
-  include/qb/core/QuantumBrillianceRemoteAccelerator.hpp
-  include/qb/core/QuantumBrillianceRemoteVisitor.hpp
   include/qb/core/remote_async_accelerator.hpp
   include/qb/core/thread_pool.hpp
   include/qb/core/typedefs.hpp
+  include/qb/core/backends/qb_hardware/qb_qpu.hpp
+  include/qb/core/backends/qb_hardware/qb_visitor.hpp
+  include/qb/core/backends/qb_hardware/qcstack_client.hpp
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/optimization/qaoa/qaoa.hpp
   include/qb/core/optimization/qml/qml.hpp
@@ -198,6 +203,12 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     TARGETS ${PROJECT_NAME}
     DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
     EXPORT ${PROJECT_NAME}Targets
+  )
+
+  # Install the default remote backend database
+  install(
+    FILES "remote_backends.yaml"
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
   )
 
   # Install the Targets.cmake file for the library

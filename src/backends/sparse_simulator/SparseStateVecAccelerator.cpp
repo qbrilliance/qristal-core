@@ -1,14 +1,21 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
+
+// Qristal
+#include "qb/core/backends/sparse_simulator/SparseSimulator.h"
+#include "qb/core/backends/sparse_simulator/types.h"
+
+// XACC
 #include "Accelerator.hpp"
 #include "AllGateVisitor.hpp"
 #include "CommonGates.hpp"
 #include "CountGatesOfTypeVisitor.hpp"
 #include "GateModifier.hpp"
-#include "qb/core/sparse_simulator/SparseSimulator.h"
-#include "qb/core/sparse_simulator/types.h"
 #include "xacc.hpp"
 #include "xacc_plugin.hpp"
+
+// STL
 #include <cassert>
+
 namespace xacc {
 namespace quantum {
 using namespace Microsoft::Quantum::SPARSESIMULATOR;

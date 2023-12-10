@@ -1,8 +1,6 @@
-/**
- * Copyright Quantum Brilliance
- */
+// Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/QuantumBrillianceRemoteVisitor.hpp"
+#include "qb/core/backends/qb_hardware/qb_visitor.hpp"
 
 
 /**
@@ -38,19 +36,19 @@ namespace xacc
   {
 
     /// Return name of the visitor
-    const std::string QuantumBrillianceRemoteVisitor::name() const
+    const std::string qb_visitor::name() const
     {
       return "quantumbrilliance-remote-visitor";
     }
       
     /// Return description of the visitor
-    const std::string QuantumBrillianceRemoteVisitor::description() const
+    const std::string qb_visitor::description() const
     {
       return "Maps XACC IR to QB XASM, output in JSON format";
     }
       
     /// Normalise angles to the interval [-pi,pi]
-    double QuantumBrillianceRemoteVisitor::norm(const double& a)
+    double qb_visitor::norm(const double& a)
     {
       if (not restrict_angles_to_pmpi_) return a;
       return std::fmod(a+std::copysign(pi,a),2*pi)-std::copysign(pi,a);
@@ -68,7 +66,7 @@ namespace xacc
     //
     // q0: --|I|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Identity &id)
+    void qb_visitor::visit(Identity &id)
     {
       std::stringstream ss;
       ss << "I"
@@ -91,7 +89,7 @@ namespace xacc
     //
     // q0: --|Rx(theta)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Rx &rx)
+    void qb_visitor::visit(Rx &rx)
     {
       std::stringstream ss;
       // IMPORTANT: the XASM grammar only supports the fixed point format real
@@ -119,7 +117,7 @@ namespace xacc
     //
     // q0: --|Ry(theta)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Ry &ry)
+    void qb_visitor::visit(Ry &ry)
     {
       std::stringstream ss; 
       ss << std::fixed;
@@ -147,7 +145,7 @@ namespace xacc
     //
     // q1: ------------|CZ|-------------
     //
-    void QuantumBrillianceRemoteVisitor::visit(CZ &cz)
+    void qb_visitor::visit(CZ &cz)
     {
       std::stringstream ss;
       ss << "CZ"
@@ -173,7 +171,7 @@ namespace xacc
     // q0:
     // --|Ry(0.5*pi)--|Rx(theta)|--|Ry(-0.5*pi)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Rz &rz)
+    void qb_visitor::visit(Rz &rz)
     {
       std::stringstream s1, s2, s3;
       double angle = norm(mpark::get<double>(rz.getParameter(0)));
@@ -213,7 +211,7 @@ namespace xacc
     //
     // q0: --|Ry(0.5*pi)|--|Rx(pi)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Hadamard &h)
+    void qb_visitor::visit(Hadamard &h)
     {
       std::stringstream s1, s2;
 
@@ -251,7 +249,7 @@ namespace xacc
     //
     // q1: --|Rx(pi)|--|Ry(0.5*pi)|--|CZ|--|Rx(pi)|--|Ry(0.5*pi)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(CNOT &cn)
+    void qb_visitor::visit(CNOT &cn)
     {
       std::stringstream s1, s2, s3;
       s2 << std::fixed
@@ -291,7 +289,7 @@ namespace xacc
      *
      * Effect: push S to the back of JSON object: sequence_
      **/
-    void QuantumBrillianceRemoteVisitor::visit(S &s)
+    void qb_visitor::visit(S &s)
     {
       std::stringstream s1, s2, s3;
 
@@ -331,7 +329,7 @@ namespace xacc
      *
      * Effect: push Sdg to the back of JSON object: sequence_
      **/
-    void QuantumBrillianceRemoteVisitor::visit(Sdg &sdg)
+    void qb_visitor::visit(Sdg &sdg)
     {
       std::stringstream s1, s2, s3;
 
@@ -372,7 +370,7 @@ namespace xacc
      *
      * Effect: push T to the back of JSON object: sequence_
      **/
-    void QuantumBrillianceRemoteVisitor::visit(T &t)
+    void qb_visitor::visit(T &t)
     {
       std::stringstream s1, s2, s3;
 
@@ -412,7 +410,7 @@ namespace xacc
      *
      * Effect: push Tdg to the back of JSON object: sequence_
      **/
-    void QuantumBrillianceRemoteVisitor::visit(Tdg &tdg)
+    void qb_visitor::visit(Tdg &tdg)
     {
       std::stringstream s1, s2, s3;
 
@@ -455,7 +453,7 @@ namespace xacc
     //
     // q0: --|Rx(pi)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(X &x)
+    void qb_visitor::visit(X &x)
     {
       std::stringstream s1;
 
@@ -480,7 +478,7 @@ namespace xacc
     //
     // q0: --|Ry(pi)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Y &y)
+    void qb_visitor::visit(Y &y)
     {
       std::stringstream s1;
 
@@ -505,7 +503,7 @@ namespace xacc
     //
     // q0: --|Rx(pi)|--|Ry(pi)|--
     //
-    void QuantumBrillianceRemoteVisitor::visit(Z &z)
+    void qb_visitor::visit(Z &z)
     {
       std::stringstream s1, s2;
 
@@ -527,13 +525,13 @@ namespace xacc
     }
 
     /// Controlled phase gate
-    void QuantumBrillianceRemoteVisitor::visit(CPhase &)
+    void qb_visitor::visit(CPhase &)
     {
       xacc::error("QB SDK does not support: CPhase");
     }
 
     /// Swap the values of two qubits
-    void QuantumBrillianceRemoteVisitor::visit(Swap &s)
+    void qb_visitor::visit(Swap &s)
     {
       CNOT c1(s.bits()), c2(s.bits()[1], s.bits()[0]), c3(s.bits());
       visit(c1);
@@ -556,7 +554,7 @@ namespace xacc
     // q0:
     // --Ry(pi/2)--Rx(lambda)--Ry(theta)--Rx(phi)--Ry(-pi/2)--
     //
-    void QuantumBrillianceRemoteVisitor::visit(U &u)
+    void qb_visitor::visit(U &u)
     {
       double theta = norm(mpark::get<double>(u.getParameter(0)));
       double phi = norm(mpark::get<double>(u.getParameter(1)));
@@ -580,7 +578,7 @@ namespace xacc
     }
 
     /// Measure a qubit 
-    void QuantumBrillianceRemoteVisitor::visit(Measure &m)
+    void qb_visitor::visit(Measure &m)
     {
       unsigned int qubit = m.bits()[0];
       if (qubit >= nQubits_) xacc::error("Requested to measure qubit that does not exist in this circuit.");  
@@ -589,12 +587,12 @@ namespace xacc
     }
 
     /// Return the finished qpu OpenQasm kernel
-    std::string QuantumBrillianceRemoteVisitor::getXasmString()
+    std::string qb_visitor::getXasmString()
     {
       return sequence_.dump(4);
     }
     
-    std::shared_ptr<xacc::CompositeInstruction> QuantumBrillianceRemoteVisitor::getTranspiledIR() const 
+    std::shared_ptr<xacc::CompositeInstruction> qb_visitor::getTranspiledIR() const 
     {
       std::stringstream ss;
       ss << "__qpu__ void __temp__xasm__kernel__(qbit q) {\n";

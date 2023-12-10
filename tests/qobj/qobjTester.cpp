@@ -4,7 +4,7 @@
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
+#include "qb/core/backends/qb_hardware/qb_visitor.hpp"
 #include <nlohmann/json.hpp>
 namespace {
 std::shared_ptr<xacc::Compiler> get_qb_qobj_compiler() {
@@ -24,8 +24,7 @@ TEST(transpilationTester, checkQBAccTranspile) {
                                nullptr)
                      ->getComposites()[0];
 
-  auto visitor =
-      std::make_shared<xacc::quantum::QuantumBrillianceRemoteVisitor>(3);
+  auto visitor = std::make_shared<xacc::quantum::qb_visitor>(3);
   xacc::InstructionIterator it(program);
   while (it.hasNext()) {
     // Get the next node in the tree

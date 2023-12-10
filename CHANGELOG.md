@@ -12,6 +12,13 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Fixed
 
+## [x.x.x] - 202x-xx-xx
+
+### Added
+
+- Added YAML interface for remote backend options, including QB hardware
+- Restructured remote backend interfaces
+
 
 ## [1.4.0] - 2023-11-20
 

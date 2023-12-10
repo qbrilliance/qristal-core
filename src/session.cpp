@@ -12,8 +12,10 @@
 #include <boost/dynamic_bitset.hpp>
 
 // QB
-#include "qb/core/QuantumBrillianceAccelerator.hpp"
-#include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
+#include "qb/core/backend.hpp"
+#include "qb/core/backend_utils.hpp"
+#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qb/core/backends/qb_hardware/qcstack_client.hpp"
 #include "qb/core/pretranspiler.hpp"
 #include "qb/core/profiler.hpp"
 #include "qb/core/session.hpp"
@@ -31,6 +33,7 @@
   #include "qb/core/cudaq/cudaq_acc.hpp"
 #endif
 
+// dlopen
 #include <dlfcn.h>
 
 // Helper functions
@@ -106,23 +109,15 @@ namespace qb
   /// Default session constructor
   session::session()
       : debug_(false), name_m{{}}, number_m{{}}, infiles_{{}},
-        // FIXME some tests will probably fail if the SDK_SOURCE_DIR path to
-        // qblib.inc and qpu_config.json is not also added.
         include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
-        qpu_configs_{{SDK_DIR "/include/qb/core/qpu_config.json"}},
+        remote_backend_database_path_{SDK_DIR "/remote_backends.yaml"},
         instrings_{{}}, irtarget_ms_{{}}, accs_{{"qpp"}},
-        aws_device_names_{{"DM1"}}, aws_formats_{{"openqasm3"}},
-        aws_verbatims_{{{false}}}, aws_s3s_{{"amazon-braket-QBSDK"}},
-        aws_s3_paths_{{"output"}}, aer_sim_types_{}, randoms_{{}},
+        aer_sim_types_{}, randoms_{{}},
         xasms_{{{false}}}, quil1s_{{{false}}}, noplacements_{{{false}}},
         nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
         output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
         notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-        thetas_{{}}, use_default_contrast_settings_{{{true}}},
-        init_contrast_thresholds_{{{}}},
-        // init_contrast_thresholds_{{{std::pair<int,double>(0,0.1)}}},
-        qubit_contrast_thresholds_{{{}}},
-        // qubit_contrast_thresholds_{{{std::pair<int,double>(0,0.1),std::pair<int,double>(1,0.1)}}},
+        thetas_{{}}, 
         initial_bond_dimensions_{{}}, initial_kraus_dimensions_{{}}, max_bond_dimensions_{{}},
         max_kraus_dimensions_{{}}, svd_cutoffs_{{}}, rel_svd_cutoffs_{{}}, noise_models_{{}},
         acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}}, output_amplitudes_{{}},
@@ -597,94 +592,6 @@ namespace qb
       config.acc_name = accs_valid.get(ii, jj);
     }
 
-    /// AWS device name
-    {
-      ValidatorTwoDim<VectorString, std::string> aws_device_names_valid(
-          aws_device_names_, VALID_AWS_DEVICES, " name of AWS back-end simulator/QPU [aws_backend] ");
-      if (aws_device_names_valid.is_data_empty())
-      {
-        throw std::range_error("An AWS back-end simulator/QPU [aws_backend] must be specified");
-      }
-      config.aws_device_name = aws_device_names_valid.get(ii, jj);
-
-      if (config.acc_name == "aws_acc") 
-      {
-        //
-        // Extra validation for AWS Braket
-        //
-        // Revalidate some limits that are conditional on the AWS Device
-        // selected: Handle limits for AWS SV1, DM1 and TN1 for shots and
-        // available qubits Lower and upper bounds
-        using check_range = std::pair<size_t, size_t>;
-        // Map from device name -> qubits and shots ranges for validation
-        const std::unordered_map<std::string,
-                                 std::pair<check_range, check_range>>
-            AWS_DEVICE_TO_QUBIT_AND_SHOTS_RANGE{
-                {"DM1",
-                 {{session::QNS_DM1_LOWERBOUND, session::QNS_DM1_UPPERBOUND},
-                  {session::SNS_DM1_LOWERBOUND, session::SNS_DM1_UPPERBOUND}}},
-                {"SV1",
-                 {{session::QNS_SV1_LOWERBOUND, session::QNS_SV1_UPPERBOUND},
-                  {session::SNS_SV1_LOWERBOUND, session::SNS_SV1_UPPERBOUND}}},
-                {"TN1",
-                 {{session::QNS_TN1_LOWERBOUND, session::QNS_TN1_UPPERBOUND},
-                  {session::SNS_TN1_LOWERBOUND, session::SNS_TN1_UPPERBOUND}}}};
-        // Find out the limits to validate
-        const auto iter = AWS_DEVICE_TO_QUBIT_AND_SHOTS_RANGE.find(
-            config.aws_device_name);
-        if (iter != AWS_DEVICE_TO_QUBIT_AND_SHOTS_RANGE.end()) {
-          const auto [qubits_lower_bound, qubits_upper_bound] =
-              iter->second.first;
-          ValidatorTwoDim<VectorN, size_t> qns_valid(
-              qns_, qubits_lower_bound, qubits_upper_bound,
-              " number of qubits, AWS Braket [qn] ");
-          if (qns_valid.is_data_empty()) {
-            throw std::range_error("Number of qubits [qn] cannot be empty");
-          }
-
-          const auto [shots_lower_bound, shots_upper_bound] =
-              iter->second.second;
-          ValidatorTwoDim<VectorN, size_t> sns_valid(
-              sns_, shots_lower_bound, shots_upper_bound,
-              " number of shots, AWS Braket [sn] ");
-          if (sns_valid.is_data_empty()) {
-            throw std::range_error("Number of shots [sn] cannot be empty");
-          }
-        }
-      }
-    }
-
-    /// AWS S3 bucket
-    {
-      ValidatorTwoDim<VectorString, std::string> aws_s3_valid(aws_s3s_);
-      if (aws_s3_valid.is_data_empty())
-      {
-        throw std::range_error("An AWS bucket [aws_s3] must be specified");
-      }
-      config.aws_s3 = aws_s3_valid.get(ii, jj);
-    }
-
-    /// AWS S3 path
-    {
-      ValidatorTwoDim<VectorString, std::string> aws_s3_path_valid(aws_s3_paths_);
-      if (aws_s3_path_valid.is_data_empty())
-      {
-        throw std::range_error("An AWS path inside aws_s3 [aws_s3_path] must be specified");
-      }
-      config.aws_s3_path = aws_s3_path_valid.get(ii, jj);
-    }
-
-    /// AWS format for submission
-    {
-      ValidatorTwoDim<VectorString, std::string> aws_format_valid(aws_formats_, VALID_AWS_FORMATS,
-                                                                  " AWS language format [aws_format] ");
-      if (aws_format_valid.is_data_empty())
-      {
-        throw std::range_error(" AWS language format [aws_format] must be specified");
-      }
-      config.aws_format = aws_format_valid.get(ii, jj);
-    }
-
     /// QB custom OpenQASM include file
     {
       ValidatorTwoDim<VectorString, std::string> include_qbs_valid(include_qbs_);
@@ -693,17 +600,6 @@ namespace qb
         throw std::range_error("A file for custom OpenQASM gates [include_qb] must be specified");
       }
       config.openqasm_qb_include_filepath = include_qbs_valid.get(ii, jj);
-    }
-
-    /// QPU configuration JSON file
-    {
-      ValidatorTwoDim<VectorString, std::string> qpu_configs_valid(qpu_configs_);
-      if (qpu_configs_valid.is_data_empty())
-      {
-        throw std::range_error(
-            "A JSON configuration file for Quantum Brilliance hardware [qpu_config] must be specified");
-      }
-      config.qpu_config_json_filepath = qpu_configs_valid.get(ii, jj);
     }
 
     /// Input source string type (OpenQASM/XASM/Quil)
@@ -780,16 +676,6 @@ namespace qb
         throw std::range_error("Enable the QB noise model [noise] cannot be empty");
       }
       config.noise = noises_valid.get(ii, jj);
-    }
-
-    /// AWS verbatim mode flag
-    {
-      ValidatorTwoDim<VectorBool, bool> verbatim_valid(aws_verbatims_, false, true, " enable the verbatim [noise] ");
-      if (verbatim_valid.is_data_empty())
-      {
-        throw std::range_error("Enable the verbatim mode [verbatim] cannot be empty");
-      }
-      config.aws_verbatim = verbatim_valid.get(ii, jj);
     }
 
     /// QB tensor network simulators initial bond dimension
@@ -899,47 +785,6 @@ namespace qb
             seeds_, 0, std::numeric_limits<int>::max(), " random seed [seed] ");
         config.simulator_seed = seeds_valid.get(ii, jj);
       }
-    }
-    /// QB hardware: prevent contrast thresholds from being sent by Qristal
-    {
-      ValidatorTwoDim<VectorBool, bool> use_default_contrast_settings_valid(use_default_contrast_settings_, false, true, " prevent contrast thresholds from being sent [use_default_contrast_setting] ");
-      if (use_default_contrast_settings_valid.is_data_empty())
-      {
-        throw std::range_error("Indicator to prevent sending contrast thresholds [use_default_contrast_setting] cannot be empty");
-      }
-      config.use_default_contrast_setting = use_default_contrast_settings_valid.get(ii, jj);
-    }
-
-    /// QB hardware: contrast threshold during init
-    {
-      ND init_contrast_threshold_lowerbound{{0, CONTRAST_LOWERBOUND}};
-      ND init_contrast_threshold_upperbound{{0, CONTRAST_UPPERBOUND}}; 
-      ValidatorTwoDim<VectorMapND, ND> init_contrast_thresholds_valid(init_contrast_thresholds_,
-                                                                      init_contrast_threshold_lowerbound,
-                                                                      init_contrast_threshold_upperbound,
-                                                                      " init contrast threshold [init_contrast_threshold] ");
-
-      if (init_contrast_thresholds_valid.is_data_empty())
-      {
-        throw std::range_error("Contrast threshold for init [init_contrast_threshold] cannot be empty");
-      }
-      config.init_contrast_thresholds = init_contrast_thresholds_valid.get(ii, jj);
-    }
-
-    /// QB hardware: contrast threshold for each qubit during final readout 
-    {
-      ND qubit_contrast_threshold_lowerbound{{0, CONTRAST_LOWERBOUND}};
-      ND qubit_contrast_threshold_upperbound{{0, CONTRAST_UPPERBOUND}}; 
-      ValidatorTwoDim<VectorMapND, ND> qubit_contrast_thresholds_valid(qubit_contrast_thresholds_,
-                                                                      qubit_contrast_threshold_lowerbound,
-                                                                      qubit_contrast_threshold_upperbound,
-                                                                      " qubit final readout contrast threshold [qubit_contrast_threshold] ");
-
-      if (qubit_contrast_thresholds_valid.is_data_empty())
-      {
-        throw std::range_error("Contrast threshold for qubit final readout [qubit_contrast_threshold] cannot be empty");
-      }
-      config.qubit_contrast_thresholds = qubit_contrast_thresholds_valid.get(ii, jj);
     }
 
     /// AER simulator type
@@ -1161,67 +1006,6 @@ namespace qb
     return target_circuit;
   }
 
-  void session::execute_on_hardware(
-      std::shared_ptr<xacc::quantum::QuantumBrillianceRemoteAccelerator> tqdk,
-      std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
-      std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
-      const run_i_j_config &run_config) {
-    try {
-      tqdk->validate_capability();
-    } catch (...) {
-      throw std::runtime_error("Please recheck your hardware settings");
-    }
-
-    try {
-      tqdk->execute(buffer_b, circuits);
-    } catch (...) {
-      throw std::invalid_argument(
-          "The execution on hardware of your input circuit failed");
-    }
-
-    // Set up polling
-    const std::string exhwacc = run_config.acc_name;
-    int polling_interval = 1;
-    int polling_attempts = 1;
-    auto k_polling_interval = VALID_QB_HARDWARE_POLLING_SECS.find(exhwacc);
-    if (k_polling_interval != VALID_QB_HARDWARE_POLLING_SECS.end()) {
-      if (debug_) {
-        std::cout << "# QB hardware accelerator polling interval, in seconds: "
-                  << k_polling_interval->second << std::endl;
-      }
-      polling_interval = k_polling_interval->second;
-    }
-    auto k_polling_attempts =
-        VALID_QB_HARDWARE_POLLING_RETRY_LIMITS.find(exhwacc);
-    if (k_polling_attempts != VALID_QB_HARDWARE_POLLING_RETRY_LIMITS.end()) {
-      if (debug_) {
-        std::cout << "# QB hardware accelerator polling max. attempts: "
-                  << k_polling_attempts->second << std::endl;
-      }
-      polling_attempts = k_polling_attempts->second;
-    }
-    using namespace std::chrono_literals;
-    for (int i = 0; i < polling_attempts; i++) {
-      std::this_thread::sleep_for(std::chrono::seconds(polling_interval));
-      if (debug_) {
-        std::cout << "# Waited for " << polling_interval << " seconds"
-                  << std::endl;
-      }
-      int poll_return = POLLING_NOT_READY;
-      // Accumulate counts in a map of string -> int
-      std::map<std::string, int> counts;
-      poll_return = tqdk->pollForResults(buffer_b, circuits, counts,
-                                         polling_interval, polling_attempts);
-
-      if (debug_) {
-        std::cout << "# Polling returned status: " << poll_return << std::endl;
-      }
-      if (poll_return == POLLING_SUCCESS) {
-        break;
-      }
-    }
-  }
-
   void session::execute_on_simulator(
       std::shared_ptr<xacc::Accelerator> qpu,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
@@ -1266,146 +1050,14 @@ namespace qb
           "The simulation of your input circuit failed");
     }
   }
-
-  xacc::HeterogeneousMap
-  session::construct_qpu_configs(const run_i_j_config &run_config) {
-    xacc::HeterogeneousMap mqbacc;
-    mqbacc.insert("n_qubits", static_cast<size_t>(run_config.num_qubits));
-    mqbacc.insert("noise-model", run_config.noise_model.to_json());
-    mqbacc.insert("m_connectivity", run_config.noise_model.get_connectivity());
-    mqbacc.insert("shots", run_config.num_shots);
-    mqbacc.insert("output_oqm_enabled", run_config.oqm_enabled);
-
-    // User-provided random seed
-    if (run_config.simulator_seed.has_value()) {
-      mqbacc.insert("seed", run_config.simulator_seed.value());
-    }
-    if (run_config.acc_name == "aws_acc") {
-      mqbacc.insert("format", run_config.aws_format);
-      mqbacc.insert("device", run_config.aws_device_name);
-      mqbacc.insert("s3", run_config.aws_s3);
-      mqbacc.insert("path", run_config.aws_s3_path);
-      mqbacc.insert("verbatim", run_config.aws_verbatim);
-      mqbacc.insert("noise", run_config.noise);
-    }
-    mqbacc.insert("noise-model-name", run_config.noise_model.name);
-
-    // Adding QB hardware options
-    const bool exec_on_hardware =
-        VALID_QB_HARDWARE_ACCS.find(run_config.acc_name) !=
-        VALID_QB_HARDWARE_ACCS.end();
-
-    if (exec_on_hardware) {
-      // Extra information for the JSON payload sent to QB hardware
-      const std::string hwacc = run_config.acc_name;
-
-      auto in_hw_urls = VALID_QB_HARDWARE_URLS.find(hwacc);
-      if (in_hw_urls != VALID_QB_HARDWARE_URLS.end()) {
-        if (debug_) {
-          std::cout << "# QB hardware accelerator URL: " << in_hw_urls->second
-                    << std::endl;
-        }
-        mqbacc.insert("remote_url", in_hw_urls->second);
-      }
-
-      auto in_hw_postpaths = VALID_QB_HARDWARE_POSTPATHS.find(hwacc);
-      if (in_hw_postpaths != VALID_QB_HARDWARE_POSTPATHS.end()) {
-        if (debug_) {
-          std::cout << "# QB hardware accelerator POST path: "
-                    << in_hw_postpaths->second << std::endl;
-        }
-        mqbacc.insert("post_path", in_hw_postpaths->second);
-      }
-
-      auto in_hw_over_request_factor =
-          VALID_QB_HARDWARE_OVER_REQUEST_FACTORS.find(hwacc);
-      if (in_hw_over_request_factor !=
-          VALID_QB_HARDWARE_OVER_REQUEST_FACTORS.end()) {
-        if (debug_) {
-          std::cout << "# QB hardware over request shots by factor: "
-                    << in_hw_over_request_factor->second << std::endl;
-        }
-        mqbacc.insert("over_request", in_hw_over_request_factor->second);
-      }
-
-      auto in_hw_recursive_request =
-          VALID_QB_HARDWARE_RECURSIVE_REQUEST_ENABLEDS.find(hwacc);
-      if (in_hw_recursive_request !=
-          VALID_QB_HARDWARE_RECURSIVE_REQUEST_ENABLEDS.end()) {
-        if (debug_) {
-          std::cout << "# QB hardware recursive request enabled: "
-                    << in_hw_recursive_request->second << std::endl;
-        }
-        mqbacc.insert("recursive_request", in_hw_recursive_request->second);
-      }
-
-      auto in_hw_resample = VALID_QB_HARDWARE_RESAMPLE_ENABLEDS.find(hwacc);
-      if (in_hw_resample != VALID_QB_HARDWARE_RESAMPLE_ENABLEDS.end()) {
-        if (debug_) {
-          std::cout << "# QB hardware sample-with-replacement enabled: "
-                    << in_hw_resample->second << std::endl;
-        }
-        mqbacc.insert("resample", in_hw_resample->second);
-      }
-
-      auto in_hw_resample_above_percentage =
-          VALID_QB_HARDWARE_RESAMPLE_ABOVE_PERCENTAGES.find(hwacc);
-      if (in_hw_resample_above_percentage !=
-          VALID_QB_HARDWARE_RESAMPLE_ABOVE_PERCENTAGES.end()) {
-        if (debug_) {
-          std::cout << "# QB hardware sample-with-replacement enforced above "
-                       "threshold (%): "
-                    << in_hw_resample_above_percentage->second << std::endl;
-        }
-        mqbacc.insert("resample_above_percentage",
-                      in_hw_resample_above_percentage->second);
-      }
-
-      std::vector<int> init_qubits(run_config.num_qubits, VALID_QB_HARDWARE_INIT);
-      mqbacc.insert("init", init_qubits);
-      mqbacc.insert("request_id", VALID_QB_HARDWARE_REQUEST_ID);
-      mqbacc.insert("poll_id", VALID_QB_HARDWARE_POLL_ID);
-      mqbacc.insert("cycles", VALID_QB_HARDWARE_CYCLES);
-      mqbacc.insert("use_default_contrast_settings",
-                    run_config.use_default_contrast_setting);
-      mqbacc.insert("init_contrast_thresholds",
-                    run_config.init_contrast_thresholds);
-      mqbacc.insert("qubit_contrast_thresholds",
-                    run_config.qubit_contrast_thresholds);
-      if (hwacc.compare("qdk_gen1") == 0) {
-        // QDK specific fields
-
-      } else if (hwacc.compare("dqc_gen1") == 0) {
-        // DQC specific fields
-      }
-    }
-    return mqbacc;
-  }
   
   /// Get the simulator based on `run_i_j_config`
-  std::shared_ptr<xacc::Accelerator> session::get_sim_qpu(const run_i_j_config &run_config) {
-    // Check the list of hardware accelerators...
-    // If a hardware accelerator was selected...
-    // then we keep acc = "tnqvm"
-    // and we also set exec_on_hardware = true;
-    std::string acc = run_config.acc_name;
-    bool exec_on_hardware = false;
-    if (VALID_QB_HARDWARE_ACCS.find(acc) == VALID_QB_HARDWARE_ACCS.end()) {
-      exec_on_hardware = false;
-      if (debug_) {
-        std::cout << "# QB hardware accelerator: disabled" << std::endl;
-      }
-    } else {
-      exec_on_hardware = true;
-      if (debug_) {
-        std::cout << "# QB hardware accelerator: enabled" << std::endl;
-      }
-      // We force acc = "tnqvm" when QB hardware execution is enabled
-      acc = "tnqvm";
-    }
+  std::shared_ptr<xacc::Accelerator> session::get_sim_qpu(bool execute_on_hardware, const run_i_j_config &run_config)
+  {
+    // If a hardware accelerator was selected, we set acc = "tnqvm"
+    std::string acc = (execute_on_hardware ? "tnqvm" : run_config.acc_name);
 
     bool noises = run_config.noise;
-    bool verbatim = run_config.aws_verbatim;
     int max_bond_dimension = run_config.max_bond_tnqvm;
     int max_kraus_dimension = run_config.max_kraus_tnqvm;
     int initial_bond_dimension = run_config.initial_bond_tnqvm;
@@ -1499,13 +1151,11 @@ namespace qb
                                                 // server for the QB Lambda
                                                 // workstation
       //"10.10.8.50:4000"; // internal address
-      if (VALID_QB_HARDWARE_URLS.find("qb-lambda") !=
-          VALID_QB_HARDWARE_URLS.end()) {
-        lambda_url = VALID_QB_HARDWARE_URLS["qb-lambda"];
-      }
-      if (debug_) {
-        std::cout << "Execute on Lambda workstation @ " << lambda_url
-                  << std::endl;
+      // TODO add checking for existence of url key
+      if (remote_backend_database_["qb-lambda"]) 
+      {
+        lambda_url = remote_backend_database_["qb-lambda"]["url"].as<std::string>();
+        if (debug_) std::cout << "Execute on Lambda workstation @ " << lambda_url << std::endl;
       }
 
       if (noises) {
@@ -1843,7 +1493,6 @@ namespace qb
     set_svd_cutoff(scut);
     set_output_oqm_enabled(true);
     set_acc("aws_acc");
-    set_aws_device_name("DM1");
     std::stringstream async_workers;
     async_workers << "{\"accs\": [";
     for (int iw=0; iw<(wn-1); iw++) {
@@ -1870,7 +1519,6 @@ namespace qb
     set_svd_cutoff(scut);
     set_output_oqm_enabled(true);
     set_acc("aws_acc");
-    set_aws_device_name("SV1");
     std::stringstream async_workers;
     async_workers << "{\"accs\": [";
     for (int iw=0; iw<(wn-1); iw++) {
@@ -1897,7 +1545,6 @@ namespace qb
     set_svd_cutoff(scut);
     set_output_oqm_enabled(true);
     set_acc("aws_acc");
-    set_aws_device_name("TN1");
     std::stringstream async_workers;
     async_workers << "{\"accs\": [";
     for (int iw=0; iw<(wn-1); iw++) {
@@ -1905,29 +1552,6 @@ namespace qb
     }
     async_workers << "{\"acc\": \"aws_acc\"}]}";
     set_parallel_run_config(async_workers.str());
-  }
-
-  /// Setter for QB hardware contrast thresholds globally in a Qristal session
-  void session::set_contrasts(const double &init_ct, const double &q0_ct, const double &q1_ct) {
-    if (debug_) {
-      std::cout
-          << "Setting QB hardware init contrast threshold: " << init_ct << "\n"
-          << "Setting QB hardware qubit[0] final readout contrast threshold: " << q0_ct << "\n"
-          << "Setting QB hardware qubit[1] final readout contrast threshold: " << q1_ct << "\n"
-          << std::endl;
-    }
-    bool use_default_ct = false;
-    ND qubit_ct_nd{{0, q0_ct}, {1, q1_ct}};
-    set_init_contrast_threshold(init_ct);
-    set_qubit_contrast_threshold(qubit_ct_nd);
-    use_default_contrast_settings_ = {{use_default_ct}};
-  }
-
-  /// Setter that clears all contrast thresholds
-  void session::reset_contrasts() {
-    use_default_contrast_settings_ = {{true}};
-    ((init_contrast_thresholds_.at(0)).at(0)).clear();
-    ((qubit_contrast_thresholds_.at(0)).at(0)).clear();
   }
 
   /// Util method to compile input source string into IR
@@ -2018,8 +1642,9 @@ namespace qb
     return run_internal(ii, jj, accelerator, &shared_mutex);
   }
 
-   std::shared_ptr<async_job_handle> session::run_internal(const std::size_t ii, const std::size_t jj,
-                     std::shared_ptr<xacc::Accelerator> accelerator, std::mutex* optional_mutex) {
+  std::shared_ptr<async_job_handle> session::run_internal(const std::size_t ii, const std::size_t jj,
+                     std::shared_ptr<xacc::Accelerator> accelerator, std::mutex* optional_mutex)
+  {
     if (debug_ && accelerator) {
       std::stringstream msg;
       msg << "thread " << std::this_thread::get_id() << " run_async (ii,jj): ("
@@ -2116,14 +1741,16 @@ namespace qb
       debug_msg.str("");
     }
 
-    // Read JSON configuration qpu_config (QB hardware configurations)
-    if (!accelerator) {
-      const std::string qcv = run_config.qpu_config_json_filepath;
-      parse_qpu_config_json(qcv);
-    }
-    const bool exec_on_hardware = VALID_QB_HARDWARE_ACCS.find(run_config.acc_name) != VALID_QB_HARDWARE_ACCS.end();
+    // Load the remote backend database
+    remote_backend_database_ = YAML::LoadFile(remote_backend_database_path_);
+
+    // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS or Lambda.
+    const bool exec_on_hardware = run_config.acc_name != "aws_acc" and 
+                                  run_config.acc_name != "qb-lambda" and
+                                  remote_backend_database_[run_config.acc_name];
+
     // Collect all the simulator options (thread safe)
-    const xacc::HeterogeneousMap mqbacc = construct_qpu_configs(run_config);
+    const xacc::HeterogeneousMap mqbacc = backend_config(remote_backend_database_, run_config);
 
     // ==============================================
     // Construct/initialize the Accelerator instance
@@ -2133,8 +1760,8 @@ namespace qb
     // i.e., run_async(i, j), whereby an accelerator from a pre-defined pool is provided.
     // (2) Synchronous/sequential execution whereby the accelerator name for this (i, j) job is set in this session object,
     // hence, we just construct/retrieve it accordingly. 
-    auto qpu = accelerator ? accelerator : get_sim_qpu(run_config);
-    auto acc = std::make_shared<qb::QuantumBrillianceAccelerator>();
+    auto qpu = accelerator ? accelerator : get_sim_qpu(exec_on_hardware, run_config);
+    auto acc = std::make_shared<qb::backend>();
     qpu->updateConfiguration(mqbacc);
     acc->updateConfiguration(mqbacc);
 
@@ -2277,8 +1904,7 @@ namespace qb
             auto buffer_temp =
                 std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
             handle.load_result(buffer_temp);
-            auto qb_transpiler =
-                std::make_shared<qb::QuantumBrillianceAccelerator>();
+            auto qb_transpiler = std::make_shared<qb::backend>();
             this->process_run_result(
                 ii, jj, run_config, citargets.at(0), qpu, mqbacc, buffer_temp,
                 timer_for_qpu.getDurationMs(), qb_transpiler);
@@ -2299,7 +1925,7 @@ namespace qb
       assert(!accelerator && !optional_mutex);
       // A QCStack client - provide argument 'true' for debug mode
       std::shared_ptr<xacc::Client> qcs_qdk = std::make_shared<xacc::QCStackClient>();
-      std::shared_ptr<xacc::quantum::QuantumBrillianceRemoteAccelerator> tqdk = std::make_shared<xacc::quantum::QuantumBrillianceRemoteAccelerator>(qcs_qdk);
+      std::shared_ptr<xacc::quantum::qb_qpu> tqdk = std::make_shared<xacc::quantum::qb_qpu>(qcs_qdk);
       tqdk->updateConfiguration(mqbacc);
       if (debug_)
         std::cout << "# " << run_config.acc_name
@@ -2313,7 +1939,7 @@ namespace qb
         std::cout << out_qbjsons_.at(ii).at(jj) << std::endl;
       }
       // Execute (and polling wait)
-      execute_on_hardware(tqdk, buffer_b, citargets, run_config);
+      execute_on_qb_hardware(tqdk, buffer_b, citargets, run_config, debug_);
     }
     // ==============================================
     // ------------  Post processing  ---------------
@@ -2339,7 +1965,7 @@ namespace qb
       const xacc::HeterogeneousMap &sim_qpu_configs,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
       double xacc_scope_timer_qpu_ms,
-      std::shared_ptr<qb::QuantumBrillianceAccelerator> qb_transpiler) {
+      std::shared_ptr<qb::backend> qb_transpiler) {
     if (debug_) {
       std::cout << std::endl;
       buffer_b->print();

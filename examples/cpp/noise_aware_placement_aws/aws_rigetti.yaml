@@ -1,0 +1,6 @@
+aws_braket:
+  device_name: "Rigetti"
+  format: "openqasm3"
+  s3: "amazon-braket-QBSDK"
+  path: "output"
+        

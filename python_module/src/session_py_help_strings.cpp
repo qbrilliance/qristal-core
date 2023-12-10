@@ -65,16 +65,8 @@ const char* session::help_include_qbs_ = R"(
         A 1d-array (list) version of session.include_qb.
 )";
 
-const char* session::help_qpu_configs_ = R"(
-        qpu_config:
-
-        A JSON file that contains configuration data for Quantum Brilliance hardware.
-
-        qpu_configs:
-
-        Valid settings: [qpu_config, ...]
-
-        A 1d-array (list) version of session.qpu_config.
+const char* session::help_remote_backend_database_path_ = R"(
+        A YAML file that contains configuration data for remote backends (including hardware).
 )";
 
 const char* session::help_accs_ = R"(
@@ -89,67 +81,6 @@ const char* session::help_accs_ = R"(
         Valid settings: [[aer|tnqvm, ...], [aer|tnqvm, ...]]
 
         The lead dimension's element 0 matches the vector of infiles, element 1 matches the vector of instrings, element 2 matches the vector of random depths.
-)";
-
-const char* session::help_aws_device_names_ = R"(
-        aws_device:
-
-        Valid settings: SV1 | TN1 | DM1 | Rigetti | LocalSimulator
-
-        Selects an AWS Braket back-end simulator or QPU.
-
-        aws_devices:
-
-        A 1d-array (list) version of aws_device.
-)";
-
-const char* session::help_aws_formats_ = R"(
-        aws_format:
-
-        Valid settings: braket | openqasm3
-
-        Selects an AWS Braket back-end simulator or QPU language.
-
-        aws_formats:
-
-        A 1d-array (list) version of aws_device.
-)";
-
-const char* session::help_aws_s3s_ = R"(
-        aws_s3:
-
-        Valid settings: amazon-braket-*
-
-        Specifies an AWS S3 bucket in which to store outputs from AWS Braket.
-        Must begin with the prefix: "amazon-braket-"
-
-        aws_s3s:
-
-        A 1d-array (list) version of aws_s3.
-)";
-
-const char* session::help_aws_s3_paths_ = R"(
-        aws_s3_path:
-
-        Valid settings: see AWS documentation for S3 path name conventions.
-
-        Specifies a path (inside the S3 bucket specified by aws_s3) to store outputs from AWS Braket.
-
-        aws_s3_paths:
-
-        A 1d-array (list) version of aws_s3_path.
-)";
-
-const char* session::help_aws_verbatims_ = R"(
-        aws_verbatim:
-
-        Valid settings: true | false
-
-        Selects whether verbatim mode is used on AWS Braket hardware QPU (currently Rigetti).
-
-        aws_verbatims:
-
-        A 1d-array (list) version of aws_verbatim flag.
 )";
 
 const char* session::help_aer_sim_types_ = R"(
@@ -376,44 +307,6 @@ const char* session::help_thetas_ = R"(
         thetas:
 
         A 1d-array (list) version of theta.
-)";
-
-const char* session::help_use_default_contrast_settings_ = R"(
-        use_default_contrast_setting:
-
-        Valid settings: True | False
-
-        Setting this to True prevents any contrast threshold settings from being sent to QB hardware.
-
-        use_default_contrast_settings:
-
-        Valid settings: [[True|False, ...], [True|False, ...]]
-
-        A 1d-array (list) version of use_default_contrast_setting.
-)";
-
-const char* session::help_init_contrast_thresholds_ = R"(
-        init_contrast_threshold:
-        
-        [Applies to QB hardware] The balanced SSR contrast threshold during init.  All shots with init contrast below this threshold will be dropped.
-        0.6 is the usable upper bound.  Default: 0.1.
-
-        init_contrast_thresholds:
-
-        A 1d-array (list) version of init_contrast_threshold.
-)";
-
-
-const char* session::help_qubit_contrast_thresholds_ = R"(
-        qubit_contrast_threshold:
-        
-        [Applies to QB hardware] Contrast threshold on per-qubit basis for final readout.
-        Best case is ~0.3, unusable when <0.05.  Indexing of this list matches to the index of qubits.
-        Defaults: qubit 0 = 0.1, qubit 1 = 0.1
-
-        qubit_contrast_thresholds:
-
-        A 1d-array (list) version of qubit_contrast_threshold.
 )";
 
 const char* session::help_initial_bond_dimensions_ = R"(

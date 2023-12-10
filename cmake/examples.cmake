@@ -58,7 +58,7 @@ if(WITH_EXAMPLES)
 
   if (WITH_TKET)
     add_example(noise_aware_placement_simple SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_simple/noise_aware_placement.cpp)
-    add_example(noise_aware_placement_aws SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/noise_aware_placement_aws.cpp)
+    add_example(noise_aware_placement_aws SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/noise_aware_placement_aws.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/aws_rigetti.yaml)
   endif()
   
   install(

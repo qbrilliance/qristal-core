@@ -458,24 +458,6 @@ int session::is_jj_consistent() {
       return INVALID;
     }
   }
-  for (auto el : aws_device_names_) {
-    if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-      std::cout << "[aws_device_name] shape is invalid" << std::endl;
-      return INVALID;
-    }
-  }
-  for (auto el : aws_s3s_) {
-    if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-      std::cout << "[aws_s3] shape is invalid" << std::endl;
-      return INVALID;
-    }
-  }
-  for (auto el : aws_s3_paths_) {
-    if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-      std::cout << "[aws_s3_path] shape is invalid" << std::endl;
-      return INVALID;
-    }
-  }
   for (auto el : noise_models_) {
     if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
       std::cout << "[noise_model] shape is invalid" << std::endl;

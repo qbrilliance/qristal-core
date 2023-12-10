@@ -1,12 +1,12 @@
-/**
- * Copyright Quantum Brilliance
- */
-#include "qb/core/QuantumBrillianceRemoteVisitor.hpp"
+// Copyright (c) Quantum Brilliance Pty Ltd
+
+#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
 #include "xacc_plugin.hpp"
+
 namespace qb {
 /**
  * @brief QuantumBrillianceGateSetTransformation transform the input IR using 
- * QuantumBrillianceRemoteVisitor
+ * qb_qpu
  */
 class QuantumBrillianceGateSetTransformation : public xacc::IRTransformation {
 public:
@@ -26,7 +26,7 @@ public:
              const std::shared_ptr<xacc::Accelerator> accelerator,
              const xacc::HeterogeneousMap &options = {}) override {
     auto visitor =
-        std::make_shared<xacc::quantum::QuantumBrillianceRemoteVisitor>(
+        std::make_shared<xacc::quantum::qb_visitor>(
             function->nPhysicalBits());
     xacc::InstructionIterator it(function);
     std::vector<xacc::InstPtr> measure_insts;

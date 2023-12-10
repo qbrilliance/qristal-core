@@ -83,7 +83,7 @@ ci-build:
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
-    - mv build cmake examples include src tests core_artefacts/
+    - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
     paths:
@@ -95,6 +95,7 @@ ci-build:
       - core_artefacts/build/qbcore-config-version.cmake
       - core_artefacts/build/CMakeFiles/Export/
       - core_artefacts/build/CITests
+      - core_artefacts/build/HardwareTests
       - core_artefacts/build/lib*
       - core_artefacts/build/core.cpython-*-linux-gnu.so
       - core_artefacts/build/plugins
@@ -105,7 +106,8 @@ ci-build:
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       - core_artefacts/examples
-      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/remote_backends.yaml
+      - core_artefacts/src/backends/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
 # Build with CUDA (GPU) and CUDA Quantum support (using emulator image and runner)
@@ -124,7 +126,7 @@ cudaq-build:
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
-    - mv build cmake examples include src tests core_artefacts
+    - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
     paths:
@@ -136,6 +138,7 @@ cudaq-build:
       - core_artefacts/build/qbcore-config-version.cmake
       - core_artefacts/build/CMakeFiles/Export/
       - core_artefacts/build/CudaqCITests
+      - core_artefacts/build/HardwareTests
       - core_artefacts/build/lib*
       - core_artefacts/build/core.cpython-*-linux-gnu.so
       - core_artefacts/build/plugins
@@ -146,7 +149,8 @@ cudaq-build:
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       - core_artefacts/examples
-      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/remote_backends.yaml
+      - core_artefacts/src/backends/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
 # Build with INSTALL_MISSING from a vanilla Ubuntu image
@@ -193,7 +197,7 @@ ci-py-tests:
     reports:
       junit: tests/python_module/report.xml
 
-ci-py-stack-tests:
+ci-hardware-tests:
   stage: test
   needs: ["ci-build"]
   extends: .install-core
@@ -201,13 +205,15 @@ ci-py-stack-tests:
   tags:
     - qb-hosted
   script:
-    - echo "# QB_QCSTACK_2023_2_1_URL = $QB_QCSTACK_2023_2_1_URL"
-    - cd tests/qcstack && python3 -m pytest --junitxml="report-stack.xml"
+    - echo "# QCSTACK_TEST_SERVER_URL = $QCSTACK_TEST_SERVER_URL"
+    - pip install pyyaml
+    - ./build/HardwareTests --test --gtest_output='xml:core_hardware_gtests.xml'
+    - cd tests/qcstack && python3 -m pytest --junitxml="report-qcstack.xml"
     - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
-      junit: tests/qcstack/report-stack.xml
+      junit: [tests/qcstack/report-qcstack.xml, core_hardware_gtests.xml]
 
 cudaq-cpp-tests:
   stage: test
@@ -301,7 +307,7 @@ rhel-x86-build:
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
-    - mv build cmake examples include src tests core_artefacts
+    - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
     paths:
@@ -314,6 +320,7 @@ rhel-x86-build:
       - core_artefacts/build/CMakeFiles/Export/
       - core_artefacts/build/CITests
       - core_artefacts/build/CudaqCITests
+      - core_artefacts/build/HardwareTests
       - core_artefacts/build/lib*
       - core_artefacts/build/core.cpython-*-linux-gnu.so
       - core_artefacts/build/plugins
@@ -323,7 +330,8 @@ rhel-x86-build:
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       - core_artefacts/examples
-      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/remote_backends.yaml
+      - core_artefacts/src/backends/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
 rhel-power-build:
@@ -344,7 +352,7 @@ rhel-power-build:
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
-    - mv build cmake examples include src tests core_artefacts
+    - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   when: manual
   artifacts:
     when: always
@@ -358,6 +366,7 @@ rhel-power-build:
       - core_artefacts/build/CMakeFiles/Export/
       - core_artefacts/build/CITests
       - core_artefacts/build/CudaqCITests
+      - core_artefacts/build/HardwareTests
       - core_artefacts/build/lib*
       - core_artefacts/build/core.cpython-*-linux-gnu.so
       - core_artefacts/build/plugins
@@ -367,7 +376,8 @@ rhel-power-build:
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
       - core_artefacts/examples
-      - core_artefacts/src/aws_braket/aws_python_script.py
+      - core_artefacts/remote_backends.yaml
+      - core_artefacts/src/backends/aws_braket/aws_python_script.py
       - core_artefacts/tests/XaccInitialisedTests.cpp
 
 # - - - - - - - test - - - - - - - #

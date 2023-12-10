@@ -1,15 +1,26 @@
-#include "qb/core/aws_braket/AWSAccelerator.hpp"
+// Copyright (c) Quantum Brilliance Pty Ltd
+
+// Qristal
 #include "qb/core/cmake_variables.hpp"
-#include "qb/core/aws_braket/AWSOpenQasm3Visitor.hpp"
-#include "qb/core/aws_braket/AWSQuantumTask.hpp"
+#include "qb/core/backends/aws_braket/AWSAccelerator.hpp"
+#include "qb/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp"
+#include "qb/core/backends/aws_braket/AWSQuantumTask.hpp"
+
+// XACC
 #include "xacc_plugin.hpp"
-#include <AcceleratorBuffer.hpp>
+#include "AcceleratorBuffer.hpp"
+
+// dlopen
 #include <dlfcn.h>
+
+// STL
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <memory>
 #include <unordered_map>
+
+// pybind11
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 

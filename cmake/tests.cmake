@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 
 configure_file(tests/lambda/fake_aer_server.py.in
   ${CMAKE_BINARY_DIR}/plugins/qb_lambda/tests/fake_aer_server.py
@@ -54,28 +54,37 @@ add_executable(CITests
   ##tests/circuits/MeanValueFinderCircuitTester.cpp #SLOW(?)
   ##tests/circuits/PseudoTraceAmplitudeEstimationCircuitTester.cpp # SLOW (?)
   ##tests/circuits/SuperpositionAdderCircuitTester.cpp # SLOW (?)
-  tests/qcstack/QuantumBrillianceRemoteAcceleratorTester.cpp # unit-test harness for Qristal-Qcstack server interface. 
   tests/tket/tketTester.cpp
   tests/transpilationTester.cpp
   tests/qobj/qobjTester.cpp
   tests/jensen_shannon.cpp
-  tests/QuantumBrillianceAcceleratorTester.cpp
+  tests/backendTester.cpp
   tests/sessionTester.cpp
 )
 
+add_executable(HardwareTests
+  tests/qcstack/qbqpuTester.cpp 
+)
+
 add_test(NAME ci_tester COMMAND CITests)
+add_test(NAME ci_hardware_tester COMMAND HardwareTests)
 
 target_link_libraries(CITests
   PRIVATE
     qb::core
     cppitertools::cppitertools
 )
+target_link_libraries(HardwareTests
+  PRIVATE
+    qb::core
+    cppitertools::cppitertools
+)
 
-set_target_properties(CITests
+set_target_properties(CITests HardwareTests
   PROPERTIES
     BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR};${XACC_ROOT}/lib"
+    COMPILE_DEFINITIONS TKET_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/tests/tket/resources"
 )
-target_compile_definitions(CITests PRIVATE TKET_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/tests/tket/resources")
 add_dependencies(CITests qasm_simulator)
 
 # Install assets needed for defining tests downstream
@@ -85,7 +94,7 @@ install(
 )
 
 # add CITests without GPU
-option(BUILD_TESTS_WITHOUT_GPU "build tests that do not use GPU." OFF)
+option(BUILD_TESTS_WITHOUT_GPU "Build only tests that do not use GPUs." OFF)
 
 # Adding CUDAQ tests
 # Note: the test requires extra deps and C++20; hence making it a standalone test suite rather than combining with the overall CITests.

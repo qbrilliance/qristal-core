@@ -1,14 +1,23 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
+
+// JSON
+#include <nlohmann/json.hpp>
+
+// XACC
 #include "Accelerator.hpp"
-#include "json.hpp"
 #include "xacc.hpp"
 #include "xacc_plugin.hpp"
-#include <cpr/cpr.h>
-#include <thread>
 #include "CountGatesOfTypeVisitor.hpp"
 #include "CommonGates.hpp"
+
+// CPR
+#include <cpr/cpr.h>
+
+// STL
+#include <thread>
 #include <bitset>
 #include <type_traits>
+
 
 namespace {
 #define IS_INTEGRAL(T)                                                         \

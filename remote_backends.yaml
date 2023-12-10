@@ -1,0 +1,39 @@
+dqc_gen1:
+  url: https://10.10.10.120:8443
+  poll_secs: 6
+  poll_retries: 100
+  over_request: 8
+  recursive_request: true
+  resample: false
+  resample_above_percentage: 50
+  request_exclusive_access: false
+  
+qdk_gen1:
+  url: https://10.10.10.121:8443
+  poll_secs: 6
+  poll_retries: 100
+  over_request: 8
+  recursive_request: true
+  resample: false
+  resample_above_percentage: 50
+  request_exclusive_access: true
+  job_id: $SLURM_JOB_ID
+  shared_secret: ilikequbitsandicannotlie
+  timeout: $SLURM_JOB_END_TIME
+
+loopback:
+  url: http://127.0.0.1:8000
+  poll_secs: 1
+  poll_retries: 100
+  over_request: 1
+  recursive_request: true
+  resample: false
+  resample_above_percentage: 100
+  request_exclusive_access: false
+
+aws_braket:
+  device_name: "DM1"
+  format: "openqasm3"
+  s3: "amazon-braket-QBSDK"
+  path: "output"
+        

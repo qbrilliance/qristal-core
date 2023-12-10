@@ -39,12 +39,10 @@ void session::set_include_qb(const std::string &include_qb) {
 void session::set_include_qbs(const VectorString &include_qbs) { session::include_qbs_ = include_qbs; }
 const VectorString & session::get_include_qbs() const { return session::include_qbs_; }
 //
-void session::set_qpu_config(const std::string &qpu_config) {
-  session::qpu_configs_.clear();
-  session::qpu_configs_.push_back({qpu_config});
+void session::set_remote_backend_database_path(const std::string &path) {
+  session::remote_backend_database_path_ = path;
 }
-void session::set_qpu_configs(const VectorString &qpu_configs) { session::qpu_configs_ = qpu_configs; }
-const VectorString & session::get_qpu_configs() const { return session::qpu_configs_; }
+const std::string& session::get_remote_backend_database_path() const { return session::remote_backend_database_path_; }
 //
 void session::set_acc(const std::string &acc) {
   session::validate_acc(acc);
@@ -72,127 +70,6 @@ void session::validate_acc(const std::string &acc) {
 }
 const VectorString & session::get_accs() const { return session::accs_; }
 //
-void session::set_aws_device_name(const std::string &device_name) {
-  session::validate_aws_device_name(device_name);
-  session::aws_device_names_.clear();
-  session::aws_device_names_.push_back({device_name});
-}
-//
-void session::set_aws_device_names(const VectorString &device_names) {
-  for (auto item : device_names) {
-    for (auto im : item) {
-      session::validate_aws_device_name(im);
-    }
-  }
-  session::aws_device_names_ = device_names;
-}
-//
-void session::validate_aws_device_name(const std::string &device_name) {
-  if (VALID_AWS_DEVICES.find(device_name) == VALID_AWS_DEVICES.end()) {
-      std::stringstream listawsds;
-      listawsds << "QB SDK: valid settings for aws_device: " << std::endl;
-      for (auto it : VALID_AWS_DEVICES) {
-          listawsds << "* \"" << it << "\"" << std::endl;
-      }
-      throw std::range_error(listawsds.str());
-  }
-}
-//
-const VectorString & session::get_aws_device_names() const { return session::aws_device_names_; }
-
-//
-void session::set_aws_s3(const std::string &bucket_name) {
-  session::validate_aws_s3(bucket_name);
-  session::aws_s3s_.clear();
-  session::aws_s3s_.push_back({bucket_name});
-}
-
-//
-void session::set_aws_s3s(const VectorString &bucket_names) {
-  for (auto item : bucket_names) {
-    for (auto im : item) {
-      session::validate_aws_s3(im);
-    }
-  }
-  session::aws_s3s_ = bucket_names;
-}
-
-//
-void session::validate_aws_s3(const std::string &bucket_name) {
-  bool prefix_is_valid = false;
-  for (auto epf : VALID_AWS_S3_PREFIXS) {
-      auto res = std::mismatch(epf.begin(), epf.end(), bucket_name.begin());
-      if (res.first == epf.end()) {
-          prefix_is_valid = true;
-      }
-  }
-  if (!prefix_is_valid) {
-      std::stringstream listawspf;
-      listawspf << "QB SDK: valid prefix strings for aws_s3: " << std::endl;
-      for (auto it : VALID_AWS_S3_PREFIXS) {
-          listawspf << "* \"" << it << "\"" << std::endl;
-      }
-      throw std::range_error(listawspf.str());
-  }
-}
-
-const VectorString & session::get_aws_s3s() const { return session::aws_s3s_; }
-
-//
-void session::set_aws_s3_path(const std::string &path) {
-  session::aws_s3_paths_.clear();
-  session::aws_s3_paths_.push_back({path});
-}
-
-//
-void session::set_aws_s3_paths(const VectorString &paths) {
-  session::aws_s3_paths_ = paths;
-}
-
-const VectorString & session::get_aws_s3_paths() const { return session::aws_s3_paths_; }
-
-//
-void session::set_aws_format(const std::string &format) {
-  session::validate_aws_format(format);
-  session::aws_formats_.clear();
-  session::aws_formats_.push_back({format});
-}
-
-//
-void session::set_aws_formats(const VectorString &formats) {
-  for (auto item : formats) {
-    for (auto im : item) {
-      session::validate_aws_format(im);
-    }
-  }
-  session::aws_formats_ = formats;
-}
-
-void session::validate_aws_format(const std::string &format) {
-  if (VALID_AWS_FORMATS.find(format) == VALID_AWS_FORMATS.end()) {
-      std::stringstream listawsds;
-      listawsds << "QB SDK: valid settings for aws_format: " << std::endl;
-      for (auto it : VALID_AWS_FORMATS) {
-          listawsds << "* \"" << it << "\"" << std::endl;
-      }
-      throw std::range_error(listawsds.str());
-  }
-}
-
-const VectorString & session::get_aws_formats() const { return session::aws_formats_; }
-
-
-void session::set_aws_verbatim(const bool &verbatim) {
-  //session::validate_aws_verbatim(verbatim);
-  session::aws_verbatims_.clear();
-  session::aws_verbatims_.push_back({verbatim});
-}
-
-void session::set_aws_verbatims(const VectorBool &verbatims) { session::aws_verbatims_ = verbatims; }
-const VectorBool & session::get_aws_verbatims() const { return session::aws_verbatims_; }
-
-//
-
 void session::set_aer_sim_type(const std::string &sim_type) {
   validate_aer_sim_type(sim_type);
   aer_sim_types_.clear();
@@ -362,30 +239,6 @@ void session::set_thetas(const VectorMapND &in_theta) { session::thetas_ = in_th
 const VectorMapND & session::get_thetas() const { return session::thetas_; }
 //
 
-void session::set_init_contrast_threshold(const double &in_init_contrast_threshold) { 
-  session::init_contrast_thresholds_.clear();
-  ND scalar_init;
-  scalar_init[0] = in_init_contrast_threshold;
-  session::init_contrast_thresholds_.push_back({scalar_init});
-  session::use_default_contrast_settings_ = {{false}};
-}
-void session::set_init_contrast_thresholds(const VectorMapND &in_init_contrast_thresholds) {
-  session::init_contrast_thresholds_ = in_init_contrast_thresholds;
-  session::use_default_contrast_settings_ = {{false}};
-}
-const VectorMapND & session::get_init_contrast_thresholds() const { return session::init_contrast_thresholds_; }
-//
-void session::set_qubit_contrast_threshold(const ND &in_qubit_contrast_threshold) {
-  session::qubit_contrast_thresholds_.clear();
-  session::qubit_contrast_thresholds_.push_back({in_qubit_contrast_threshold});
-  session::use_default_contrast_settings_ = {{false}};
-}
-void session::set_qubit_contrast_thresholds(const VectorMapND &in_qubit_contrast_thresholds) {
-  session::qubit_contrast_thresholds_ = in_qubit_contrast_thresholds;
-  session::use_default_contrast_settings_ = {{false}};
-}
-const VectorMapND & session::get_qubit_contrast_thresholds() const { return session::qubit_contrast_thresholds_; }
-//
 void session::set_initial_bond_dimension(const size_t &in_initial_bond_dimension) {
   session::initial_bond_dimensions_.clear();
   session::initial_bond_dimensions_.push_back({in_initial_bond_dimension});
@@ -603,16 +456,10 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* qpu_config:" << std::endl <<
-  "    Filename for JSON file with configuration data for Quantum Brilliance hardware" << std::endl <<
+  out << "* remote_backend_database_path:" << std::endl <<
+  "    Filename for YAML file with configuration data for remote backends (including hardware)" << std::endl <<
   "  = ";
-  for (auto item : get_qpu_configs()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
+  out << get_remote_backend_database_path() << std::endl << std::endl;
   //
 
   out << "* instring:" << std::endl <<
@@ -659,66 +506,6 @@ const std::string session::get_summary() const {
   "    Back-end simulator" << std::endl <<
   "  = ";
   for (auto item : get_accs()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* aws_device:" << std::endl <<
-  "    AWS back-end simulator or QPU" << std::endl <<
-  "  = ";
-  for (auto item : get_aws_device_names()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* aws_format:" << std::endl <<
-  "    AWS Braket language format" << std::endl <<
-  "  = ";
-  for (auto item : get_aws_formats()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* aws_s3:" << std::endl <<
-  "    AWS S3 bucket for storing outputs" << std::endl <<
-  "  = ";
-  for (auto item : get_aws_s3s()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* aws_s3_path:" << std::endl <<
-  "    Path inside [aws_s3] bucket for storing outputs" << std::endl <<
-  "  = ";
-  for (auto item : get_aws_s3_paths()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* aws_format:" << std::endl <<
-  "    AWS Braket language format" << std::endl <<
-  "  = ";
-  for (auto item : get_aws_formats()) {
       for (auto itel : item) {
               out << " " << itel;
       }
@@ -787,19 +574,6 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-out << "* verbatim:" << std::endl <<
-  "    Enable the verbatim model" << std::endl <<
-  "  = ";
-  for (auto item: get_aws_verbatims()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  //
-
-  out << std::endl << std::endl;
-
   out << "* output_oqm_enabled:" << std::endl <<
   "    Enable output of transpiled circuit" << std::endl <<
   "  = ";
@@ -847,44 +621,6 @@ out << "* verbatim:" << std::endl <<
   "    Hyperparameters for algorithms" << std::endl <<
   "  = ";
   for (auto item : get_thetas()) {
-      out << std::endl << " ";
-      for (auto itel : item) {
-          for (auto it : itel) {
-              out << " | " << it.first << ": " << it.second;
-          }
-          if (itel.size() > 0) {
-              out << " | ";
-          } else {
-              out << " NA ";
-          }
-      }
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* init_contrast_threshold:" << std::endl <<
-  "    For QB hardware: balanced SSR contrast threshold during init" << std::endl <<
-  "  = ";
-  for (auto item : get_init_contrast_thresholds()) {
-      out << std::endl << " ";
-      for (auto itel : item) {
-          for (auto it : itel) {
-              out << " | " << it.first << ": " << it.second;
-          }
-          if (itel.size() > 0) {
-              out << " | ";
-          } else {
-              out << " NA ";
-          }
-      }
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* qubit_contrast_threshold:" << std::endl <<
-  "    For QB hardware: contrast threshold for each qubit during final readout" << std::endl <<
-  "  = ";
-  for (auto item : get_qubit_contrast_thresholds()) {
       out << std::endl << " ";
       for (auto itel : item) {
           for (auto it : itel) {

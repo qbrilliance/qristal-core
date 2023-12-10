@@ -1,7 +1,7 @@
 // Copyright Quantum Brilliance Pty Ltd
 
 #include "qb/core/profiler.hpp"
-#include "qb/core/QuantumBrillianceRemoteAccelerator.hpp"
+#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
 #include "CompositeInstruction.hpp"
 
 namespace qb {

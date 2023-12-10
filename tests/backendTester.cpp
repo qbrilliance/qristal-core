@@ -1,12 +1,13 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
 #include "qb/core/session.hpp"
 #include <gtest/gtest.h>
-#include "qb/core/QuantumBrillianceAccelerator.hpp"
+#include "qb/core/backend.hpp"
 #include "qb/core/session.hpp"
 #include "xacc.hpp"
 
-TEST(QuantumBrillianceAcceleratorTester, checkOutputQASM) {
-  qb::QuantumBrillianceAccelerator acc;
+TEST(backendTester, checkOutputQASM) {
+  
+  qb::backend acc;
 
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
@@ -43,7 +44,7 @@ TEST(QuantumBrillianceAcceleratorTester, checkOutputQASM) {
   EXPECT_EQ(reconstructed->getInstruction(8)->name(), "Measure");
 }
 
-TEST(QuantumBrillianceAcceleratorTester, checkSessionIntegration1) {
+TEST(backendTester, checkSessionIntegration1) {
     // Make a QB SDK session
   auto my_sim = qb::session(false);
   // Set up sensible default parameters
@@ -88,7 +89,7 @@ CX q[0], q[1];
   EXPECT_EQ(my_sim.get_out_double_qubit_gate_qtys()[0][0].at(1), 1);
 }
 
-TEST(QuantumBrillianceAcceleratorTester, checkSessionIntegration2) {
+TEST(backendTester, checkSessionIntegration2) {
     // Make a QB SDK session
   auto my_sim = qb::session(false);
   // Set up sensible default parameters

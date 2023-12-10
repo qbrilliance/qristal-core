@@ -1,10 +1,11 @@
-// Copyright (c) 2023 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
+
 #include "qb/core/session.hpp"
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/QuantumBrillianceRemoteVisitor.hpp"
+#include "qb/core/backends/qb_hardware/qb_visitor.hpp"
 
 TEST(transpilationTester, checkCZOptimization) {
   // Make a QB SDK session
@@ -70,7 +71,7 @@ cz q[0], q[1];
 }
 
 TEST(transpilationTester, checkAngleNorm) {
-  auto vis = xacc::quantum::QuantumBrillianceRemoteVisitor(0);
+  auto vis = xacc::quantum::qb_visitor(0);
   const double pi = xacc::constants::pi;
   EXPECT_DOUBLE_EQ(vis.norm(0.), 0.);
   EXPECT_DOUBLE_EQ(vis.norm(pi/3.), pi/3.);

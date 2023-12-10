@@ -84,10 +84,12 @@ endif()
 # We use strict Doxygen build mode (see below) hence gradually adding more files to this list once they're ready.
 set(PUBLIC_HEADERS
   include/qb/core/circuit_builder.hpp
-  include/qb/core/QuantumBrillianceRemoteVisitor.hpp
   include/qb/core/profiler.hpp
   include/qb/core/session.hpp
   include/qb/core/thread_pool.hpp
+  include/qb/core/backends/qb_hardware/qb_qpu.hpp
+  include/qb/core/backends/qb_hardware/qb_visitor.hpp
+  include/qb/core/backends/qb_hardware/qcstack_client.hpp
   include/qb/core/cudaq/ir_converter.hpp
   include/qb/core/cudaq/sim_pool.hpp
   include/qb/core/noise_model/noise_model.hpp

@@ -17,7 +17,7 @@ namespace xacc {
 
   namespace quantum {
    
-    class QuantumBrillianceRemoteVisitor : public AllGateVisitor {
+    class qb_visitor : public AllGateVisitor {
     
       protected:
       
@@ -42,12 +42,12 @@ namespace xacc {
       public:
       
         /// Constructor
-        QuantumBrillianceRemoteVisitor(const int nQubits, const bool cut_angles = true)
+        qb_visitor(const int nQubits, const bool cut_angles = true)
             : nQubits_(nQubits),
               restrict_angles_to_pmpi_(cut_angles) {}
       
         /// Destructor
-        virtual ~QuantumBrillianceRemoteVisitor() {}
+        virtual ~qb_visitor() {}
       
         /// Return name of the visitor 
         virtual const std::string name() const;

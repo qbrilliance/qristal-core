@@ -86,44 +86,13 @@ void bind_session(pybind11::module &m) {
       .def_property("include_qbs", &qb::session::get_include_qbs,
                     &qb::session::set_include_qbs,
                     qb::session::help_include_qbs_)
-      .def_property("qpu_config", &qb::session::get_qpu_configs,
-                    &qb::session::set_qpu_config,
-                    qb::session::help_qpu_configs_)
-      .def_property("qpu_configs", &qb::session::get_qpu_configs,
-                    &qb::session::set_qpu_configs,
-                    qb::session::help_qpu_configs_)
+      .def_property("remote_backend_database_path", &qb::session::get_remote_backend_database_path,
+                    &qb::session::set_remote_backend_database_path,
+                    qb::session::help_remote_backend_database_path_)
       .def_property("acc", &qb::session::get_accs, &qb::session::set_acc,
                     qb::session::help_accs_)
       .def_property("accs", &qb::session::get_accs, &qb::session::set_accs,
                     qb::session::help_accs_)
-      .def_property("aws_verbatim", &qb::session::get_aws_verbatims,
-                    &qb::session::set_aws_verbatim,
-                    qb::session::help_aws_verbatims_)
-      .def_property("aws_verbatims", &qb::session::get_aws_verbatims,
-                    &qb::session::set_aws_verbatims,
-                    qb::session::help_aws_verbatims_)
-      .def_property("aws_format", &qb::session::get_aws_formats,
-                    &qb::session::set_aws_format,
-                    qb::session::help_aws_formats_)
-      .def_property("aws_formats", &qb::session::get_aws_formats,
-                    &qb::session::set_aws_formats,
-                    qb::session::help_aws_formats_)
-      .def_property("aws_device", &qb::session::get_aws_device_names,
-                    &qb::session::set_aws_device_name,
-                    qb::session::help_aws_device_names_)
-      .def_property("aws_devices", &qb::session::get_aws_device_names,
-                    &qb::session::set_aws_device_names,
-                    qb::session::help_aws_device_names_)
-      .def_property("aws_s3", &qb::session::get_aws_s3s,
-                    &qb::session::set_aws_s3, qb::session::help_aws_s3s_)
-      .def_property("aws_s3s", &qb::session::get_aws_s3s,
-                    &qb::session::set_aws_s3s, qb::session::help_aws_s3s_)
-      .def_property("aws_s3_path", &qb::session::get_aws_s3_paths,
-                    &qb::session::set_aws_s3_path,
-                    qb::session::help_aws_s3_paths_)
-      .def_property("aws_s3_paths", &qb::session::get_aws_s3_paths,
-                    &qb::session::set_aws_s3_paths,
-                    qb::session::help_aws_s3_paths_)
       .def_property("aer_sim_type", &qb::session::get_aer_sim_types,
                     &qb::session::set_aer_sim_type,
                     qb::session::help_aer_sim_types_)
@@ -366,14 +335,6 @@ void bind_session(pybind11::module &m) {
            "AWS Braket SV1, 32 async workers")
       .def("aws8tn1", py::overload_cast<>(&qb::session::aws8tn1),
            "AWS Braket TN1, 8 async workers")
-      .def("set_contrasts",
-           py::overload_cast<const double &, const double &, const double &>(
-               &qb::session::set_contrasts),
-           "QB hardware contrast thresholds: init, qubit[0] final readout, "
-           "qubit[1] final readout")
-      .def("reset_contrasts",
-           py::overload_cast<>(&qb::session::reset_contrasts),
-           "QB hardware contrast thresholds reset")
       .def("set_parallel_run_config", &qb::session::set_parallel_run_config,
            "Set the parallel execution configuration")
       .def(

@@ -1,9 +1,8 @@
-/***
- *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
- ***/
+/// Copyright (c) Quantum Brilliance Pty Ltd
+
 #include <iostream>
 #include <thread>
-#include "qb/core/aws_braket/AWSQuantumTask.hpp"
+#include "qb/core/backends/aws_braket/AWSQuantumTask.hpp"
 #include "qb/core/thread_pool.hpp"
 
 namespace qb
