@@ -93,7 +93,8 @@ This is the entrypoint script that drives the Nextflow execution.  Below is an e
         print("SVD cutoff: ", tqb.svd_cutoff[0][0][0])
         print(tqb.out_raw[0][0])
         """
-    
+    }
+
     workflow {
       channel.of(0.1, 0.01, 0.001, 0.0001, 0.00001) | sweepSvdCutoff | view 
     }
@@ -204,10 +205,21 @@ The pipeline parallelises circuit evaluation across multiple processes, and acro
     workflow {
       circuit_ch = Channel.fromPath("*.oqm")
       shots_N_ch = (0..<N_PROCESSES).collect { N_SHOTS/N_PROCESSES }
-      shotoutcomes_ch = partitionCircuitQubitBackend(circuit_ch, qubits_N_ch, backend_ch, shots_N_ch, workers_N_ch).map { jsonSlurper.parseText( it ) } 
+      shotoutcomes_ch = partitionCircuitQubitBackend(circuit_ch, shots_N_ch).map { jsonSlurper.parseText( it ) } 
       (shotoutcomes_ch.map { gatherall = (gatherall.keySet() + it.keySet()).collectEntries { k -> [k, (gatherall[k] ?: 0) + (it[k] ?: 0)] } }).last().view()
     }
 
+### Example OpenQASM file: `ex-nf1.oqm`
+```
+OPENQASM 2.0;
+include "qelib1.inc";
+qreg q[2];
+creg c[2];
+h q[0];
+cx q[0],q[1];
+measure q[0] -> c[0];
+measure q[1] -> c[1];
+```
 Execute the pipeline using:
 ```
 nextflow run main-partitioned.nf
