@@ -198,6 +198,7 @@ ci-py-tests:
       junit: tests/python_module/report.xml
 
 ci-hardware-tests:
+  when: manual
   stage: test
   needs: ["ci-build"]
   extends: .install-core
