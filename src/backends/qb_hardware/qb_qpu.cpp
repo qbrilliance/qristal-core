@@ -29,14 +29,7 @@ namespace qb
       const run_i_j_config &run_config,
       bool debug)
   {
-    try
-    {
       tqdk->validate_capability();
-    }
-    catch (...)
-    {
-      throw std::runtime_error("Please recheck your hardware settings");
-    }
 
     try
     {
@@ -378,6 +371,7 @@ namespace xacc
         catch (std::exception &e)
         {
           ex = e;
+          std::cout << e.what() << std::endl;
           xacc::info("Remote Accelerator " + name() +
                      " caught exception while calling restClient->get() "
                      "- " + std::string(e.what()));
