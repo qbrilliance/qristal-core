@@ -41,6 +41,10 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   mm.insert("post_path", std::string(""));
   mm.insert("shots", shots);
   mm.insert("init", init_qubits);
+  mm.insert("use_default_contrast_settings", false);
+  mm.insert("init_contrast_threshold", double(0));
+  std::map<int,double> qubit_contrast_thresholds = {{0,0},{1,0}};
+  mm.insert("qubit_contrast_thresholds", qubit_contrast_thresholds);
 
   // Simple checker and printer
   auto printout = [&](const std::vector<std::string>& vec)

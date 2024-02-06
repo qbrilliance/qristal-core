@@ -16,20 +16,25 @@ qdk_gen1:
   recursive_request: true
   resample: false
   resample_above_percentage: 50
-  request_exclusive_access: true
+  request_exclusive_access: false
   job_id: $SLURM_JOB_ID
-  shared_secret: ilikequbitsandicannotlie
+  shared_secret: $QDK_PRIVATE_TOKEN
   timeout: $SLURM_JOB_END_TIME
 
 loopback:
-  url: http://127.0.0.1:8000
-  poll_secs: 1
+  url: https://localhost:8443/api/v1
+  poll_secs: 2
   poll_retries: 100
-  over_request: 1
+  over_request: 8
   recursive_request: true
   resample: false
   resample_above_percentage: 100
   request_exclusive_access: false
+  use_default_contrast_settings: false
+  init_contrast_threshold: 0
+  qubit_contrast_thresholds:
+    0: 0
+    1: 0
 
 aws_braket:
   device_name: "DM1"
