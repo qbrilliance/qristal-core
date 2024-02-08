@@ -2,23 +2,17 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
-## [Version] - Date
-
-### Breaking
-
-### Added
-
-- Added ability to extract state vector from qpp and AER accelerator.
-
-### Fixed
 
 ## [x.x.x] - 202x-xx-xx
 
 ### Added
 
+- Added ability to extract state vector from qpp and AER accelerator.
 - Added YAML interface for remote backend options, including QB hardware
 - Restructured remote backend interfaces
+- Added installation of py_packages_path.cmake in order to facilitate relocatable builds
 
+### Fixed
 
 ## [1.4.0] - 2023-11-20
 

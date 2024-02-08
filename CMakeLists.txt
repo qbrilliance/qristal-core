@@ -68,20 +68,21 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 endif()
 
+# Install the xacc_utilities.cmake, py_packages_path.cmake and manifest.json template files
+install(
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xacc_utilities.cmake
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/py_packages_path.cmake
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/manifest.json.in
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
+
 # Ensure that all installed python modules are picked up by Python without needing to modify the PYTHONPATH env variable.
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} \
                                                        -Dqbcore_LIBDIR=${qbcore_LIBDIR} \
                                                        -DXACC_ROOT=${XACC_ROOT} \
                                                        -DPYTHON_PACKAGES_PATH=${PYTHON_PACKAGES_PATH} \
                                                        -DPROJECT_NAME=${PROJECT_NAME} \
-                                                       -P${CMAKE_CURRENT_SOURCE_DIR}/cmake/py_packages_path.cmake)")
-
-# Install the xacc_utilities.cmake and manifest.json template
-install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/xacc_utilities.cmake
-          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/manifest.json.in
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
-)
+                                                       -P${CMAKE_INSTALL_PREFIX}/cmake/py_packages_path.cmake)")
 
 # Generate and install the qbcore-config.cmake and qbcore-config-version.cmake files
 include(CMakePackageConfigHelpers)
