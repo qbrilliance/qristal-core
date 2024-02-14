@@ -524,10 +524,109 @@ namespace xacc
       sequence_.push_back(s2.str());
     }
 
-    /// Controlled phase gate
-    void qb_visitor::visit(CPhase &)
+    /**
+     * CPhase - controlled-phase
+     *
+     * Input: reference to IR object of class CPhase
+     *
+     * Output: none
+     *
+     * Effect: push CPhase to the back of JSON object: sequence_
+     **/
+    //
+    // q0: --|Rx(pi/2)|--|Ry(-theta/2)|--|Rx(-pi/2)|--|C|-------------------|C|--------------------------------
+    //                                                 |                     |
+    // q1: --|Ry(pi/2)|--|Rx(pi)|---------------------|CZ|--|Rx(-theta/2)|--|CZ|--|Rx(lambda)|--|Ry(-0.5*pi)|--
+    //
+    // lambda = sign(theta) * (|theta|/2 - pi)
+    //
+    void qb_visitor::visit(CPhase &cphase)
     {
-      xacc::error("QB SDK does not support: CPhase");
+      std::stringstream s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
+      double angle = mpark::get<double>(cphase.getParameter(0));
+      double lambda = (angle < 0.0 ? -1.0 : 1.0) * (0.5*std::abs(angle) - pi);
+
+      s1 << std::fixed
+         << "Rx"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[0] << "]" // control qubit
+         << "," << (0.5*pi) << ")";
+      sequence_.push_back(s1.str());
+
+      s2 << std::fixed
+         << "Ry"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[0] << "]"  // control qubit
+         << "," << -0.5*angle << ")";
+      sequence_.push_back(s2.str());
+
+      s3 << std::fixed
+         << "Rx"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[0] << "]" // control qubit
+         << "," << (-0.5*pi) << ")";
+      sequence_.push_back(s3.str());
+
+      s4 << std::fixed
+         << "Ry"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << "," << (0.5*pi) << ")";
+      sequence_.push_back(s4.str());
+
+      s5 << std::fixed
+         << "Rx"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << "," << (pi) << ")";
+      sequence_.push_back(s5.str());
+
+      s6 << "CZ"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[0] << "]," // control qubit
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << ")";
+      sequence_.push_back(s6.str());
+
+      s7 << std::fixed
+         << "Rx"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << "," << (-0.5*angle) << ")";
+      sequence_.push_back(s7.str());
+
+      s8 << "CZ"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[0] << "]," // control qubit
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << ")";
+      sequence_.push_back(s8.str());
+
+      s9 << std::fixed
+         << "Rx"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << "," << (lambda) << ")";
+      sequence_.push_back(s9.str());
+
+      s10 << std::fixed
+         << "Ry"
+         << "("
+         << "q"
+         << "[" << cphase.bits()[1] << "]" // target qubit
+         << "," << (-0.5*pi) << ")";
+      sequence_.push_back(s10.str());
     }
 
     /// Swap the values of two qubits
