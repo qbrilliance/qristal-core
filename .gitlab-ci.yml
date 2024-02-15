@@ -17,6 +17,7 @@ stages:
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "schedule"
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
     - if: $CI_COMMIT_BRANCH
@@ -31,11 +32,13 @@ workflow:
     - cmake --install build
 
 # - - - - - - - build - - - - - - - #
-ci-build-for-emulator:
+ci-lightweight-build-for-emulator:
   stage: build
   image: $EMULATOR_CI_IMAGE_CLANG
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     # Build core with SUPPORT_EMULATOR_BUILD_ONLY=ON
@@ -64,11 +67,57 @@ ci-build-for-emulator:
       - core_artefacts/cmake/manifest.json.in
       - core_artefacts/include
 
+ci-full-build-for-emulator:
+  stage: build
+  image: $EMULATOR_CI_IMAGE_CLANG
+  tags:
+    - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - rm -rf ${QB_DIR}/core-local
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+      -DXACC_DIR=${QB_DIR}/xacc-local
+      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket-local
+    - cmake --build build -- -j`nproc`
+    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
+    - mkdir core_artefacts
+    - mv build cmake examples include src tests remote_backends.yaml core_artefacts
+  artifacts:
+    when: always
+    paths:
+      # These are all the things required to install the full core.
+      - core_artefacts/build/cmake_install.cmake
+      - core_artefacts/build/afterCPMAddPackage.cmake
+      - core_artefacts/build/coreDependencies.cmake
+      - core_artefacts/build/qbcore-config.cmake
+      - core_artefacts/build/qbcore-config-version.cmake
+      - core_artefacts/build/CMakeFiles/Export/
+      - core_artefacts/build/CITests
+      - core_artefacts/build/HardwareTests
+      - core_artefacts/build/lib*
+      - core_artefacts/build/core.cpython-*-linux-gnu.so
+      - core_artefacts/build/plugins
+      - core_artefacts/build/configured_example_files
+      - core_artefacts/cmake/py_packages_path.cmake
+      - core_artefacts/cmake/xacc_utilities.cmake
+      - core_artefacts/cmake/manifest.json.in
+      - core_artefacts/include
+      - core_artefacts/examples
+      - core_artefacts/remote_backends.yaml
+      - core_artefacts/src/backends/aws_braket/aws_python_script.py
+      - core_artefacts/tests/XaccInitialisedTests.cpp
+
 ci-build:
   stage: build
   image: $CI_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - echo "MPI is $USE_MPI"
@@ -117,6 +166,8 @@ cudaq-build:
       - CUDAQ_CI_IMAGE: ["$EMULATOR_CI_IMAGE_CLANG"]
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - cmake -B build .
@@ -155,6 +206,8 @@ ci-build-install-missing:
   stage: build
   tags:
     - lambda
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - apt update && apt install -y build-essential cmake gfortran git libboost-all-dev libcurl4-openssl-dev libeigen3-dev libopenblas-dev libpython3-dev libssl-dev python3 python3-pip
     - cmake -B build .
@@ -201,6 +254,8 @@ ci-cpp-tests:
   image: $CI_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -216,6 +271,8 @@ ci-py-tests:
   image: $CI_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -231,6 +288,8 @@ ci-hardware-tests:
   needs: ["ci-build-install-missing"]
   tags:
     - lambda
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - mv core_artefacts/build .
     - mv core_artefacts/deps .
@@ -264,6 +323,8 @@ cudaq-cpp-tests:
   extends: .install-core
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -279,6 +340,8 @@ cudaq-py-tests:
   extends: .install-core
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -304,7 +367,7 @@ trigger-decoder:
 # If this branch is part of a merge request, trigger downstream emulator build and test.
 trigger-emulator:
   stage: downstream
-  needs: ["ci-build-for-emulator"]
+  needs: ["ci-lightweight-build-for-emulator"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -326,6 +389,18 @@ trigger-sdk:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
+# Trigger downstream emulator build and run benchmark.
+trigger-emulator-benchmark:
+  stage: downstream
+  needs: ["ci-full-build-for-emulator"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  trigger:
+    project: qbau/software-and-apps/emulator
+    branch: $EMULATOR_TRIGGER_BRANCH
+  variables:
+    UPSTREAM_REF: main
+    UPSTREAM_JOB: trigger-emulator-benchmark
 
 
 # - - - - - - - - - - - - - - - - - - RHEL - - - - - - - - - - - - - - - - - - #
@@ -337,6 +412,8 @@ rhel-x86-build:
   image: $EMULATOR_RHEL_X86_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - cmake -B build .
@@ -381,6 +458,8 @@ rhel-power-build:
   image: $EMULATOR_RHEL_POWER_IMAGE
   tags:
     - powerDocker
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - cmake -B build .
@@ -430,6 +509,8 @@ rhel-x86-cpp-tests:
   image: $EMULATOR_RHEL_X86_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -445,6 +526,8 @@ rhel-power-cpp-tests:
   image: $EMULATOR_RHEL_POWER_IMAGE
   tags:
     - powerDocker
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -460,6 +543,8 @@ rhel-x86-cudaq-tests:
   image: $EMULATOR_RHEL_X86_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -475,6 +560,8 @@ rhel-power-cudaq-tests:
   image: $EMULATOR_RHEL_POWER_IMAGE
   tags:
     - powerDocker
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -490,6 +577,8 @@ rhel-x86-py-tests:
   image: $EMULATOR_RHEL_X86_IMAGE
   tags:
     - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -505,6 +594,8 @@ rhel-power-py-tests:
   image: $EMULATOR_RHEL_POWER_IMAGE
   tags:
     - powerDocker
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
