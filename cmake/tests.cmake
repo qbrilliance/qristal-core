@@ -48,6 +48,13 @@ add_executable(CITests
   tests/optimization/vqeeTester.cpp
   tests/optimization/qaoaTester.cpp
   tests/optimization/qmlTester.cpp
+  tests/benchmark/workflows/QuantumProcessTomographyTester.cpp
+  tests/benchmark/workflows/QuantumStateTomographyTester.cpp
+  tests/benchmark/workflows/SPAMBenchmarkTester.cpp
+  tests/benchmark/workflows/RotationSweepTester.cpp
+  tests/benchmark/metrics/QuantumProcessFidelityTester.cpp
+  tests/benchmark/metrics/QuantumStateFidelityTester.cpp
+  tests/benchmark/metrics/CircuitFidelityTester.cpp
   ##tests/circuits/ControlledPFDCircuitTester.cpp #SLOW(?)
   ##tests/circuits/ControlledQAETester.cpp #SLOW (?)
   ##tests/circuits/ControlledSubtractionCircuitTester.cpp # SLOW(?)

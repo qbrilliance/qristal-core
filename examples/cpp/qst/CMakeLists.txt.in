@@ -1,0 +1,24 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Demonstration of a Quantum State Tomography 
+# experiment calculating the quantum density 
+# of a Bell state
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(vqee
+  DESCRIPTION "Quantum Brilliance QST example"
+  LANGUAGES CXX
+)
+
+set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qbcore)
+
+add_executable(qst qst_example.cpp)
+
+target_link_libraries(qst
+  PRIVATE
+    qb::core
+)

@@ -217,6 +217,23 @@ if(autodiff_ADDED)
   set(autodiff_DIR ${CMAKE_INSTALL_PREFIX}/cmake/autodiff)
 endif()
 
+# cereal
+set(cereal_VERSION "1.3.2")
+add_dependency(cereal ${cereal_VERSION}
+  GITHUB_REPOSITORY USCiLab/cereal
+  OPTIONS
+    "SKIP_PORTABILITY_TEST ON"
+    "BUILD_DOC OFF"
+    "BUILD_SANDBOX OFF"
+    "SKIP_PERFORMANCE_COMPARISON ON"
+    "THREAD_SAFE ON"
+    "CEREAL_INSTALL ON"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
+)
+if(cereal_ADDED)
+  set(cereal_DIR ${CMAKE_INSTALL_PREFIX}/cmake/cereal)
+endif()
+
 # args library
 set(args_VERSION "6.4.1")
 add_dependency(args ${args_VERSION}

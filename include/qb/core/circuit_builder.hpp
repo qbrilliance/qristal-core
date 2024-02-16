@@ -113,7 +113,7 @@ static const char *help_execute_;
   /**
   * @brief print the list of instructions comprising the circuit
   */
-  void print() { std::cout << circuit_->toString() << std::endl; }
+  void print() const { std::cout << circuit_->toString() << std::endl; }
 
   /**
   * @brief append another CircuitBuilder object to this one

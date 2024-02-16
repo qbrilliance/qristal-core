@@ -5,7 +5,7 @@ variables:
   EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-power:emulator-3
   USE_MPI: "ON"
 
-  # branch to use for emulator repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
+ # branch to use for emulator repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
   EMULATOR_TRIGGER_BRANCH: "main"
 
 stages:

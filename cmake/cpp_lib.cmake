@@ -26,6 +26,12 @@ set(source_files
   src/passes/noise_aware_placement_pass.cpp
   src/passes/swap_placement_pass.cpp
   src/passes/circuit_opt_passes.cpp
+  src/benchmark/Serializer.cpp
+  src/benchmark/DataLoaderGenerator.cpp
+  src/benchmark/workflows/SPAMBenchmark.cpp
+  src/benchmark/workflows/RotationSweep.cpp
+  src/benchmark/workflows/QuantumStateTomography.cpp
+  src/benchmark/workflows/QuantumProcessTomography.cpp
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/src/session_getter_setter.cpp
@@ -68,6 +74,21 @@ set(headers
   include/qb/core/passes/noise_aware_placement_pass.hpp
   include/qb/core/passes/swap_placement_pass.hpp
   include/qb/core/passes/circuit_opt_passes.hpp
+  include/qb/core/benchmark/workflows/SPAMBenchmark.hpp
+  include/qb/core/benchmark/workflows/RotationSweep.hpp
+  include/qb/core/benchmark/workflows/SimpleCircuitExecution.hpp
+  include/qb/core/benchmark/workflows/QuantumStateTomography.hpp
+  include/qb/core/benchmark/workflows/QuantumProcessTomography.hpp
+  include/qb/core/benchmark/metrics/CircuitFidelity.hpp
+  include/qb/core/benchmark/metrics/QuantumStateFidelity.hpp
+  include/qb/core/benchmark/metrics/QuantumProcessFidelity.hpp
+  include/qb/core/benchmark/metrics/QuantumStateDensity.hpp
+  include/qb/core/benchmark/metrics/QuantumProcessMatrix.hpp
+  include/qb/core/benchmark/Serializer.hpp
+  include/qb/core/benchmark/DataLoaderGenerator.hpp
+  include/qb/core/benchmark/Concepts.hpp
+  include/qb/core/benchmark/Task.hpp
+  include/qb/core/tools/zip_tool.hpp
 )
 
 # Lightweight header-only interface target
@@ -88,6 +109,7 @@ target_link_libraries(lightweight_${PROJECT_NAME}
     nlohmann::json
     yaml-cpp::yaml-cpp
     autodiff::autodiff
+    cereal::cereal
     # The following are not strictly needed, but save dependent packages from having to locate them themselves.
     taywee::args
     Eigen3::Eigen
@@ -145,6 +167,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       nlohmann::json
       yaml-cpp::yaml-cpp
       autodiff::autodiff
+      cereal::cereal
       CURL::libcurl
     PRIVATE
       cpr
@@ -254,10 +277,12 @@ file(WRITE ${outfile} "# Import all transitive dependencies of qbcore needed whe
                      \nfind_dependency(Python 3 COMPONENTS Interpreter Development)\
                      \nset(pybind11_DIR ${pybind11_DIR})\
                      \nfind_dependency(pybind11 ${pybind11_VERSION})\
+                     \nset(cereal_DIR ${cereal_DIR})\
                      \nset(autodiff_DIR ${autodiff_DIR})\
                      \nfind_dependency(autodiff ${autodiff_VERSION})\
                      \nset(CURL_NO_CURL_CMAKE ON)\
-                     \nfind_dependency(CURL)")
+                     \nfind_dependency(cereal ${cereal_VERSION})\
+                     \nfind_dependency(CURL)") 
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${outfile} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)\
                           \nadd_eigen_from_xacc()")

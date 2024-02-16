@@ -11,6 +11,19 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added YAML interface for remote backend options, including QB hardware
 - Restructured remote backend interfaces
 - Added installation of py_packages_path.cmake in order to facilitate relocatable builds
+- Added qb::benchmark namespace with modular, concept-based functionalities to execute arbitrary benchmarks 
+- Added dependency to serialization library "cereal" and added serialization wrappers for qb::session, measured bit string counts (given as qb::String), and complex dense Eigen matrices
+- Added data loading and generating engine connecting metric evaluation and workflow execution in a separate level of abstraction without introducing dependencies between metrics and workflows
+- Added simple circuit execution workflow wrapper for arbitrary quantum circuits (based on qb::CircuitBuilder)
+- Added standard SPAM benchmark workflow creating circuits that initialize all possible bit string states |0..0> to |1..1>
+- Added rotation sweep benchmark workflow creating circuits that apply single rotation gates Rx, Ry, Rz(, or Ri = I) to an arbitrary amount of qubits from a given start angle to an end angle for a given number of points 
+- Added standard quantum state tomography workflow wrapper for arbitrary (compatible) workflows, and measurement bases 
+- Added standard quantum process tomography workflow wrapper for arbitrary (compatible) workflows, measurement bases, and initialization state bases
+- Added classical circuit fidelity metric compatible with workflows that can generate measured and ideal bit string counts 
+- Added quantum state density metric compatible with quantum state tomography workflows that can generate measured bit strings and assemble density matrices from them 
+- Added quantum process matrix metric compatible with quantum process tomography workflows that can generate measured bit strings and assemble process matrices from them
+- Added quantum state fidelity metric compatible with workflows that can generate measured bit string results and ideal quantum densities
+- Added quantum process fidelity metric compatible with workflows that can generate measured bit string results and ideal quantum process matrices
 
 ### Fixed
 

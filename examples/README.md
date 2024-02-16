@@ -544,6 +544,38 @@ An example demonstrating setting up a pipeline of circuit optimization passes wh
 
 Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum simulator backend. Required CUDA Quantum support.
 
+`qst`
+
+_qubits_: 2  
+_gate depth_: 2  
+_noise_: false 
+
+This example shows the execution of a standard quantum state tomography workflow for a two qubit Bell state, evaluating and printing the quantum state density.
+
+`qst_fidelity`
+
+_qubits_: 2  
+_gate depth_: 1  
+_noise_: false 
+
+This example shows the execution of a standard quantum state tomography workflow wrapped around a SPAM benchmark. For each circuit, the quantum state fidelity metric is evaluated and printed.
+
+`qpt`
+
+_qubits_: 1  
+_gate depth_: 1  
+_noise_: false 
+
+This example shows the execution of a standard quantum process tomography workflow for a single Rx(pi/2) gate, evaluating and printing the quantum process matrix.
+
+`qpt_fidelity`
+
+_qubits_: 2  
+_gate depth_: 1  
+_noise_: false 
+
+This example shows the execution of a standard quantum process tomography workflow wrapped around a rotation sweep benchmark rotating qubit 0 from -pi to +pi applying Rx gates in 5 steps. For each circuit, the quantum process fidelity metric is evaluated and printed.
+
 
 ## C++ with CUDA Quantum ##
 
