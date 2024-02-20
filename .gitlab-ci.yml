@@ -295,14 +295,12 @@ ci-hardware-tests:
     - mv core_artefacts/deps .
     - cmake --install build
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER $CI_REGISTRY --password-stdin
-    - export QCSTACK_TEST_SERVER_URL=https://localhost:8443/api/v1
-    - echo "QCSTACK_TEST_SERVER_URL = $QCSTACK_TEST_SERVER_URL"
     # Just in case a previous run failed before stopping the qcstack container
     - docker stop -t5 qcstack_server || true
     # Give qcstack time to shut down cleanly
     - sleep 5
     - docker pull registry.gitlab.com/qbau/control/qcstack/qcstack_server:latest
-    - docker run -d --rm --name qcstack_server -p=8443:8443 registry.gitlab.com/qbau/control/qcstack/qcstack_server --ssl-cert-dir /root/default_certs --hal "" --max-circuit-depth 1000  --reservation-shared-secret ilikequbitsandicannotlie --calibration False --benchmark False
+    - docker run -d --rm --name qcstack_server -p=8443:8443 registry.gitlab.com/qbau/control/qcstack/qcstack_server --ssl-cert-dir /root/default_certs --hal "" --max-circuit-depth 1000  --reservation-shared-secret hello --calibration False --benchmark False
     # Give qcstack time to spin up properly
     - sleep 20
     # Run C++ tests of qcstack interface

@@ -10,7 +10,6 @@ set(source_files
   src/utils.cpp
   src/backends/qb_hardware/qb_qpu.cpp
   src/backends/qb_hardware/qb_visitor.cpp
-  src/backends/qb_hardware/qcstack_client.cpp
   src/backends/qb_hardware/options.cpp
   src/backends/aws_braket/options.cpp
   src/optimization/vqee/case_generator.cpp
@@ -65,7 +64,6 @@ set(headers
   include/qb/core/typedefs.hpp
   include/qb/core/backends/qb_hardware/qb_qpu.hpp
   include/qb/core/backends/qb_hardware/qb_visitor.hpp
-  include/qb/core/backends/qb_hardware/qcstack_client.hpp
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/optimization/qaoa/qaoa.hpp
   include/qb/core/optimization/qml/qml.hpp

@@ -15,7 +15,6 @@
 #include "qb/core/backend.hpp"
 #include "qb/core/backend_utils.hpp"
 #include "qb/core/backends/qb_hardware/qb_qpu.hpp"
-#include "qb/core/backends/qb_hardware/qcstack_client.hpp"
 #include "qb/core/pretranspiler.hpp"
 #include "qb/core/profiler.hpp"
 #include "qb/core/session.hpp"
@@ -1110,7 +1109,6 @@ namespace qb
                        std::make_pair("tnqvm-visitor", "exatn-mps"),
                        std::make_pair("max-bond-dim", max_bond_dimension),
                        std::make_pair("svd-cutoff", svd_cutoff)
-                       // , std::make_pair("shots", shots)
                    });
     } else if (acc.compare("aer") == 0) {
       xacc::HeterogeneousMap aer_options{{"seed", random_seed}};
@@ -1920,26 +1918,18 @@ namespace qb
       }
     } else if (exec_on_hardware) {
       // Hardware execution
-      // We don't expect to run this in an async. context (e.g., an acceletor
-      // instance from a pool given)
+      // We don't expect to run this in an async. context (e.g., an acceletor instance from a pool)
       assert(!accelerator && !optional_mutex);
-      // A QCStack client - provide argument 'true' for debug mode
-      std::shared_ptr<xacc::Client> qcs_qdk = std::make_shared<xacc::QCStackClient>();
-      std::shared_ptr<xacc::quantum::qb_qpu> tqdk = std::make_shared<xacc::quantum::qb_qpu>(qcs_qdk);
-      tqdk->updateConfiguration(mqbacc);
-      if (debug_)
-        std::cout << "# " << run_config.acc_name
-                  << " accelerator: initialised" << std::endl;
-      // Store the JSON sent to the QB hardware for the user to inspect
-      out_qbjsons_.at(ii).at(jj) = tqdk->getNativeCode(citargets.at(0), mqbacc);
+      std::shared_ptr<xacc::quantum::qb_qpu> hardware_device = std::make_shared<xacc::quantum::qb_qpu>(debug_);
+      hardware_device->updateConfiguration(mqbacc);
+      if (debug_) std::cout << "# " << run_config.acc_name << " accelerator: initialised" << std::endl;
 
-      // Output the JSON sent to the QB hardware if debug is turned on.
-      if (debug_) {
-        std::cout << "JSON to be sent to QB hardware: " << std::endl;
-        std::cout << out_qbjsons_.at(ii).at(jj) << std::endl;
-      }
       // Execute (and polling wait)
-      execute_on_qb_hardware(tqdk, buffer_b, citargets, run_config, debug_);
+      execute_on_qb_hardware(hardware_device, buffer_b, citargets, run_config, debug_);
+
+      // Store the JSON sent to the QB hardware for the user to inspect
+      out_qbjsons_.at(ii).at(jj) = hardware_device->get_qbjson();
+
     }
     // ==============================================
     // ------------  Post processing  ---------------
@@ -1997,6 +1987,7 @@ namespace qb
 
     // Get counts
     std::map<std::string, int> qpu_counts = buffer_b->getMeasurementCounts();
+
     // Get Z operator expectation:
     if (!run_config.no_sim) {
       if (buffer_b->hasExtraInfoKey("ro-fixed-exp-val-z") ||

@@ -1,23 +1,8 @@
 # API V1 QC Stack Server integration with Qristal
 # The QC Stack Server used here is a software-only instance.
-#
-# Qristal integration test with a software-only QC Stack Server (part of QB Control Team's software stack)
-#
-# IMPORTANT: 
-#    QC Stack Server software-only instances are available as
-#    AWS Templates - [Sydney availability region] QB-SDK-2022-JUPYTER-WORKSHOP version 3
-#    Note: HTTPS with Basic password auth is set up in the above template
-#    that must be used for the URL of the 'loopback' entry.
-#        Example: https://<replace-with-username>:<replace-with-password>@473b-3-26-179-186.au.ngrok.io
-#
-#    These tests will gain access to the URL via:
-#       import os
-#       qqu = os.environ['QCSTACK_TEST_SERVER_URL']
-#
-#    Here the QCSTACK_TEST_SERVER_URL is provided
-#    through GitLab CI variables.
 
 import pytest
+
 def test_CI_230208_simple_setters_for_contrast_thresholds():
     print("This test checks the ability to set contrast thresholds.")
     import qb.core
@@ -50,8 +35,6 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
-    db["over_request"] = 8
     db["recursive_request"] = False
     db["use_default_contrast_settings"] = False
     db["init_contrast_threshold"] = init_thresh
@@ -83,7 +66,6 @@ def test_CI_230131_cz_arbitrary_rotation():
     import qb.core, ast
     from yaml import safe_load, dump
     import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn = 2
@@ -106,8 +88,6 @@ def test_CI_230131_cz_arbitrary_rotation():
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
-    db["over_request"] = 8
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -123,7 +103,6 @@ def test_CI_230131_arbitrary_rotation():
     import qb.core, ast
     from yaml import safe_load, dump
     import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn = 2
@@ -147,8 +126,6 @@ def test_CI_230131_arbitrary_rotation():
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
-    db["over_request"] = 8
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -165,7 +142,6 @@ def test_CI_230106_1_loopback_6s():
     from yaml import safe_load, dump
     import timeit
     import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn = 1
@@ -187,7 +163,6 @@ def test_CI_230106_1_loopback_6s():
     # Set new options (including 6s polling)
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
     db["poll_secs"] = 6
     db["recursive_request"] = False
     db["resample_above_percentage"] = 95
@@ -233,9 +208,9 @@ def test_CI_220225_1_init_measure_no_gates() :
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
     db["recursive_request"] = False
     db["resample_above_percentage"] = 95
+    db["over_request"] = 1
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -261,7 +236,6 @@ def test_normal_request_with_upsampling():
     import qb.core, ast
     from yaml import safe_load, dump
     import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -271,9 +245,9 @@ def test_normal_request_with_upsampling():
     s.sn=30
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
     db["recursive_request"] = False
     db["resample"] = True
+    db["over_request"] = 1
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -287,7 +261,6 @@ def test_over_request_recursive_with_resampling_above_threshold():
     import qb.core, ast
     from yaml import safe_load, dump
     import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -297,7 +270,6 @@ def test_over_request_recursive_with_resampling_above_threshold():
     s.sn=16
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
     db["over_request"] = 4
     db["resample_above_percentage"] = 95
     stream = open(s.remote_backend_database_path + ".temp", 'w')
@@ -313,7 +285,6 @@ def test_normal_request_recursive_no_resampling():
     import qb.core, ast
     from yaml import safe_load, dump
     import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -323,7 +294,7 @@ def test_normal_request_recursive_no_resampling():
     s.sn=16
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
+    db["over_request"] = 1
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -335,9 +306,6 @@ def test_normal_request_recursive_no_resampling():
 def test_over_request_recursive_no_resampling():
     print("Using loopback to test recursive 8x over-requests + no resampling")
     import qb.core, ast
-    from yaml import safe_load, dump
-    import os
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     s = qb.core.session()
     s.qb12()
     s.qn=2
@@ -346,13 +314,6 @@ def test_over_request_recursive_no_resampling():
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
-    db["over_request"] = 8
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     s.run()
     result = s.out_raw[0][0]
     res = ast.literal_eval(result)
@@ -364,7 +325,6 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     from yaml import safe_load, dump
     import os
     import json
-    qqu = os.environ['QCSTACK_TEST_SERVER_URL']
     QB_SAFE_LIMIT_SHOTS = 512
     s = qb.core.session()
     s.qb12()
@@ -375,8 +335,6 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     s.sn=1024
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["url"] = os.environ['QCSTACK_TEST_SERVER_URL']
-    db["over_request"] = 8
     db["resample"] = True
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
@@ -384,3 +342,30 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     s.run()
     tjs = json.loads(s.out_qbjson[0][0])
     assert(tjs['settings']['shots'] == QB_SAFE_LIMIT_SHOTS)
+
+# Note that the reservation is not released after this test, so the qcstack server 
+# remains in exclusive access mode afterwards -- so this test must run after all 
+# others that don't use exclusive access mode!
+def test_reservation():
+    print("Using json web token to reserve qcstack for exclusive access")
+    import qb.core, ast
+    from yaml import safe_load, dump
+    import os
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=16
+    stream = open(s.remote_backend_database_path, 'r')
+    db = safe_load(stream)["loopback"]
+    db["exclusive_access"] = True
+    stream = open(s.remote_backend_database_path + ".temp", 'w')
+    dump({'loopback': db}, stream)
+    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+    s.run()
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
+

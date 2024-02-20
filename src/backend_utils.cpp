@@ -25,22 +25,24 @@ namespace qb
       while (s.find("$") != std::string::npos) 
       {
         // Extract the environment variable.  If the $ is followed by opening curly braces, read only to their close
-        std::regex rgx1("\$\{(.+?)\}"), rgx2("\$(.+)");
+        const std::regex rgx1("\\$\\{([^\\s\\$]+?)\\}"), rgx2("\\$(\\S+)");
         std::smatch matches;
-        std::regex_match(s, matches, rgx1);
-        bool has_braces = true;
+        // Try the brace-enclosed form first
+        std::regex_search(s, matches, rgx1);
+        // No hits with braces.  Next try without braces.
         if (matches.empty())
         {
-          has_braces = false;
           std::regex_match(s, matches, rgx2);
+          if (matches.empty()) throw std::runtime_error("Badly formed expression in backend database YAML file: " + s);
         }
-        std::cout << matches[0].str() << std::endl;
-        char* val = std::getenv(matches[0].str().c_str());
+        // Dereference the environment variable
+        char* val = std::getenv(matches.str(1).c_str());
         if (val == NULL)
         {
-          throw std::runtime_error("Environment variable "+ matches[0].str() +" referenced in backend database YAML file is not set.");
+          throw std::runtime_error("Environment variable " + matches.str(1) + " referenced in backend database YAML file is not set.");
         }
-        std::regex_replace(s, (has_braces ? rgx1 : rgx2), val);      
+        // Replace the environment variable with its value in the input string
+        s.replace(matches.position(0), matches.length(0), val);
       }
       return s;
     }

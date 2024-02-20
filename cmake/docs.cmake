@@ -89,7 +89,6 @@ set(PUBLIC_HEADERS
   include/qb/core/thread_pool.hpp
   include/qb/core/backends/qb_hardware/qb_qpu.hpp
   include/qb/core/backends/qb_hardware/qb_visitor.hpp
-  include/qb/core/backends/qb_hardware/qcstack_client.hpp
   include/qb/core/cudaq/ir_converter.hpp
   include/qb/core/cudaq/sim_pool.hpp
   include/qb/core/noise_model/noise_model.hpp

@@ -23,17 +23,17 @@ namespace qb
     // Base settings 
     required<std::string>("url", y, m);
     required<double>("poll_secs", y, m);
-    required<int>("poll_retries", y, m);    
-    required<int>("over_request", y, m);
+    required<uint>("poll_retries", y, m);    
+    required<uint>("over_request", y, m);
     required<bool>("recursive_request", y, m);
     required<bool>("resample", y, m);
     required<double>("resample_above_percentage", y, m);
     optional<std::string>("post_path", "", y,  m);
-    optional<bool>("request_exclusive_access", false, y, m); 
-    optional<std::vector<int>>("init", std::vector<int>(run_config.num_qubits, 0), y, m);
+    optional<bool>("exclusive_access", false, y, m); 
+    optional<std::vector<uint>>("init", std::vector<uint>(run_config.num_qubits, 0), y, m);
     optional<int>("request_id", 0, y, m);
-    optional<int>("poll_id", 0, y, m);
-    optional<int>("cycles", 1, y, m);
+    optional<uint>("poll_id", 0, y, m);
+    optional<uint>("cycles", 1, y, m);
     optional<bool>("use_default_contrast_settings", true, y, m);
 
     // Options setting the balanced SSR contrast below which a shot will be ignored.
@@ -56,13 +56,11 @@ namespace qb
       }
     }
 
-    // Additional options needed for successfully requesting exclusive access
-    if (m.get<bool>("request_exclusive_access"))
+    // Additional option needed for successfully using exclusive access mode
+    if (m.get<bool>("exclusive_access"))
     {
-      const std::string why_required = "Required if request_exclusive_access = true.";
-      required<std::string>("job_id", y, m, why_required);
-      required<std::string>("shared_secret", y, m, why_required);
-      required<int>("timeout", y, m, why_required);
+      const std::string why_required = "Required if exclusive_access = true.";
+      required<std::string>("exclusive_access_token", y, m, why_required);
     }
 
   }

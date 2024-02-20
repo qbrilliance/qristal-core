@@ -42,12 +42,8 @@ namespace xacc
         const int QB_SAFE_LIMIT_SHOTS = 512;
       
         /// Default constructor that just inits the parent class
-        qb_qpu(const bool debug = false) : RemoteAccelerator(), debug_qb_hw_(debug) {}
-        
-        /// Constructor that uses a custom HTTP client, such as QCStackClient
-        qb_qpu(std::shared_ptr<Client> client, const bool debug = false)
-            : RemoteAccelerator(client), debug_qb_hw_(debug) {}
-            
+        qb_qpu(const bool debug_flag = false) : RemoteAccelerator(), debug(debug_flag) {}
+                    
         /// Destructor
         virtual ~qb_qpu() {}
       
@@ -55,16 +51,9 @@ namespace xacc
         const std::string getSignature() override;
         const std::string name() const override;
         const std::string description() const override;
+        const std::string get_qbjson() const;
         /// @}
-      
-        /// @brief Get the JSON payload that is sent to QB hardware
-        ///
-        /// @param program Input the XACC IR representation of a quantum circuit
-        /// @param config Input the configuration settings to apply to a quantum circuit
-        ///
-        std::string getNativeCode(std::shared_ptr<CompositeInstruction> program,
-                                  const HeterogeneousMap &config = {}) override;
-      
+
         /// Indicate that this is indeed a remote XACC accelerator
         bool isRemote() override;
       
@@ -86,33 +75,35 @@ namespace xacc
         ///
         void initialize(const HeterogeneousMap &params = {}) override;
         
-        /// @brief Converts the circuit to a representation that QB hardware accepts
-        ///
-        /// @param buffer Output location and storage of intermediate results
-        /// @param functions Input circuit in XACC IR format
-        ///
-        const std::string processInput(
-            std::shared_ptr<AcceleratorBuffer> buffer,
-            std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
-      
-        /// Validate the capabilities of the QB hardware against what the session requires
-        int validate_capability();
-      
+        /// Initialise the QB hardware (reserve, get native gateset, etc.)
+        void setup_hardware();
+
         /// @brief Submit the circuit with HTTP POST to QB hardware and poll for results with HTTP GET
         ///
         /// @param buffer Output location and storage of intermediate results
         /// @param functions Input circuit in XACC IR format
         ///
         void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-                     const std::vector<std::shared_ptr<CompositeInstruction>>
-                         functions) override;
+         const std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
       
-        /**
-         * Handle the response to the initial POST (circuit submission)
-         *
-         * @param buffer Output location and storage of intermediate results
-         * @param response Input the response body returned by the prior POST request
-         */
+        /// @brief Converts the circuit to a representation that QB hardware accepts
+        ///
+        /// Sets up QB specific metadata, visits XACC IR to construct JSON strings 
+        /// for the circuit and required measurements, then combines both into the 
+        /// HTTP POST request body.
+        ///
+        /// @param buffer Output location and storage of intermediate results
+        /// @param functions Input circuit in XACC IR format
+        ///
+        const std::string processInput(
+         std::shared_ptr<AcceleratorBuffer> buffer,
+         std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
+ 
+        /// @brief Handle the response to the initial POST (circuit submission)
+        ///
+        /// @param buffer Output location and storage of intermediate results
+        /// @param response Input the response body returned by the prior POST request
+        ///
         void processResponse(std::shared_ptr<AcceleratorBuffer> buffer,
                              const std::string &response) override;
       
@@ -124,88 +115,108 @@ namespace xacc
         /// @param polling_interval Input the time in seconds between polling attempts - used only during recursive execution
         /// @param polling_attempts Input the max number of attempts to poll for the shot outcomes - used only during recursive execution
         ///
-        int pollForResults(
-            std::shared_ptr<AcceleratorBuffer> buffer,
-            const std::vector<std::shared_ptr<CompositeInstruction>> citargets,
-            std::map<std::string, int> &counts, int polling_interval,
-            int polling_attempts);
+        bool resultsReady(
+             std::shared_ptr<AcceleratorBuffer> buffer,
+             const std::vector<std::shared_ptr<CompositeInstruction>> citargets,
+             std::map<std::string, int> &counts, int polling_interval,
+             int polling_attempts);
       
       
       protected:
       
-        bool debug_qb_hw_;
+        bool debug;
       
         /// Command
-        std::string command_ = "circuit";
+        std::string command = "circuit";
       
         /// Number of shots in a cycle
-        int shots_ = 1024;
+        int shots = 0;
       
         /// Request ID
-        int request_id_ = 0;
+        int request_id = 0;
       
         /// Poll ID
-        int poll_id_ = 0;
+        uint poll_id = 0;
       
         /// Poll seconds
-        double poll_secs_ = 0;
+        double poll_secs = 0;
 
         /// Number of qubits
-        size_t n_qubits_ = 2;
+        size_t n_qubits = 0;
       
         /// Init (vector of qubits, value is the initial state)
-        std::vector<int> init_ = {0, 0};
+        std::vector<uint> init = {0, 0};
       
         /// Contrast thresholds
-        bool use_default_contrast_settings_ = true;
-        double init_contrast_threshold_ = 0; 
-        std::map<int,double> qubit_contrast_thresholds_ = {}; 
+        bool use_default_contrast_settings = true;
+        double init_contrast_threshold = 0; 
+        std::map<int,double> qubit_contrast_thresholds = {}; 
       
         /// Number of cycles
-        int cycles_ = 1;
+        uint cycles = 1;
       
         /// Format for results
-        std::string results_ = "normal";
+        std::string results = "normal";
       
         /// Real or dummy backend
-        std::string hwbackend_ = "gen1_canberra";
-      
-        /// HTTP POST, returning the HTTP status code
-        std::string handleExceptionRestClientPost(
-            const std::string &postUrl, const std::string &path,
-            const std::string &postStr, std::map<std::string, std::string> headers);
-      
+        std::string hwbackend = "gen1_canberra";
+            
         /// HTTP poll retries allowed
-        int poll_retries_ = 1;
+        uint poll_retries = 0;
       
         /// Order of measurements
-        std::vector<int> order_of_m_ = {};
+        std::vector<int> order_of_m = {};
       
         /// Over-request factor
-        int over_request_ = 4;
+        uint over_request = 0;
       
-        /// Enable recursive request to fulfill the shots_
-        bool recursive_request_ = true;
+        /// Enable recursive request to fulfill the shots
+        bool recursive_request = true;
       
         /// Enable sample-with-replacement when set to true
-        bool resample_ = false;
+        bool resample = false;
         
-        /// HTTP GET, returning the HTTP status code
-        std::string handleExceptionRestClientGet(
-            const std::string &postUrl, const std::string &path,
-            std::map<std::string, std::string> headers =
-                std::map<std::string, std::string>{},
-            std::map<std::string, std::string> extraParams = {});
-            
         /// % threshold for valid shot results (as a proportion of requested shots) 
         /// above which we will force the use of sample-with-replacement
-        int resample_above_percentage_ = 95;
+        double resample_above_percentage = 0;
       
+        /// Assume exclusive use of the hardware device. If this flag is set true, the hardware
+        /// will be assumed to only accept circuits accompanied by an appropriate token.
+        bool exclusive_access;
+
+        /// The encrypted JSON web token used to authenticate with a hardware device operating
+        /// in exclusive access mode.       
+        std::string exclusive_access_token;     
+
+        /// The http header sent to the hardware
+        std::map<std::string, std::string> http_header;
+
+        /// The JSON string sent to the hardware
+        std::string qbjson;
+
         /// To keep history of the HTTP POST path
-        std::string previous_post_path_ = {};
+        std::string previous_post_path = {};
       
-        /// Endpoint for GET of native gates
-        std::string native_gates_get_path_ = "native-gates";
+        /// HTTP POST, returning the HTTP status code
+        std::string Post(
+            const std::string& url, 
+            const std::string& path,
+            const std::string& postStr,
+            std::map<std::string, std::string> headers = {});
+
+        /// HTTP GET, returning the HTTP status code
+        std::string Get(
+            const std::string& url,
+            const std::string& path,
+            std::map<std::string, std::string> headers = {},
+            std::map<std::string, std::string> extraParams = {});
+
+        /// HTTP PUT, returning the HTTP status code
+        std::string Put(
+            const std::string& url, 
+            const std::string& path,
+            const std::string& putStr,
+            std::map<std::string, std::string> headers = {});
 
     };
   

@@ -338,7 +338,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${lib} ${XACC_ROOT}/plugins/${filename})")
   endforeach()
 
-
   # CPR curl wrapper
   IF( DEFINED ENV{CPR_DIR} )
     SET( CPR_DIR "$ENV{CPR_DIR}" )
@@ -455,7 +454,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     add_custom_target(qasm_simulator)
     message(STATUS "qasm_simulator found: ${QB_STANDALONE_AER_EXE}")
   endif() # (qasm-simulator NOTFOUND)
-
 
 endif() # (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
