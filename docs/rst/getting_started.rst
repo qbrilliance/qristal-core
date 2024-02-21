@@ -20,7 +20,7 @@ Dependencies
 
 Installing Qristal from source **requires** the following libraries/packages to be installed:
 
-* `GNU C++ Compiler <https://gcc.gnu.org/>`_ >= 11.4.0.  Usage of clang 16.0.0 or later is supported, but gcc/g++ is still required for building exatn and tnqvm.
+* `GNU C++ Compiler <https://gcc.gnu.org/>`_ >= 11.4.0.  Usage of clang 16.0.6 or later is supported, but gcc/g++ is still required for building exatn and tnqvm.
 * `GNU Fortran Compiler <https://gcc.gnu.org/>`_ >= 11.4.0
 * `CMake <https://cmake.org/>`_ >= 3.20
 * `Python <http://python.org/>`_ >= 3.8
@@ -47,7 +47,8 @@ Additional dependencies that can be installed automatically at build time:
 * `Nlohmann JSON <https://github.com/nlohmann/json>`_ >= 3.1.1
 * Various Python modules.
 
-.. note:: **Automatic dependency installation**
+.. note::
+      **Automatic dependency installation**
 
       It is highly recommended that users let the Qristal build system install the :ref:`additional dependencies mentioned above <auto_install_deps>`, by setting the ``-DINSTALL_MISSING=ON`` CMake option.
 
@@ -64,12 +65,23 @@ Installation
     cmake .. -DINSTALL_MISSING=ON
     make install
 
-The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
+-The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
 
-.. note:: The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
-.. note:: MPI is enabled by adding the option ``-DENABLE_MPI=ON`` to the ``cmake`` command.
+The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
 
-2. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced**)
+
+2. Other useful ``cmake`` options
+
+The directory into which Qristal is to be installed can be specified by setting ``-DCMAKE_INSTALL_PREFIX=<YOUR QRISTAL INSTALLATION DIR>``.
+
+If you wish to build Qristal's C++ noise-aware circuit placement routines, you must also enable the use of the additional dependency `TKET <https://github.com/CQCL/tket>`_. This is done by passing ``-DWITH_TKET=ON`` to ``cmake``. TKET will be installed automatically by ``cmake`` if both ``-DWITH_TKET=ON`` and ``-DINSTALL_MISSING=ON`` (or ``-DINSTALL_MISSING=CXX``) are passed to `cmake`.
+
+MPI is enabled by adding the option ``-DENABLE_MPI=ON``.
+
+If you also wish to build this html documentation, pass ``-DBUILD_DOCS=ON``.
+
+
+3. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced alternative to step 1**)
 
 - Follow the installation instructions of `XACC <https://github.com/eclipse/xacc>`_, `ExaTN <https://github.com/ORNL-QCI/exatn>`_ and `TNQVM <https://github.com/ORNL-QCI/tnqvm>`_.
 
@@ -81,12 +93,11 @@ The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any)
 
     cmake .. -DXACC_DIR=<YOUR XACC INSTALLATION DIR> -DEXATN_DIR=<YOUR EXATN INSTALLATION DIR> -DTNQVM_DIR=<YOUR TNQVM INSTALLATION DIR>
 
-.. note::
+In this manual mode, the build system will check for a **specific** version of XACC, EXATN and TNQVM as provided.
+If not satisfied, it will terminate the build and ask for a reinstallation of the dependency.
+Please follow the error message to install the correct version (specified as a git commit hash key).
 
-      In this manual mode, the build system will check for a **specific** version of XACC, EXATN and TNQVM as provided.
-      If not satisfied, it will terminate the build and ask for a reinstallation of the dependency.
-      Please follow the error message to install the correct version (specified as a git commit hash key).
-
+Similarly, if building with noise-aware placement routines enabled using ``-DWITH_TKET=ON``, you can pass ``-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>`` to ``cmake`` to tell it to use your own installation of TKET rather than building TKET from source.
 
 Contributing
 ^^^^^^^^^^^^
@@ -139,12 +150,14 @@ We also encourage you to look at the list of currently `open issues <https://git
 
 3. **Contributing Code**
 
-Before submitting a `new pull request <https://github.com/qbrilliance/qristal/pulls>`_, please make sure the following is done:
+Before submitting a `new pull request <https://github.com/qbrilliance/qristal/pulls>`_, please make sure to do the following:
 
-* **New features should include a unit test.** If you've fixed a bug or added
+* **Include a unit test for any new routines or features.** If you've fixed a bug or added
   code that should be tested, add a test to the ``tests`` directory.
 
-* **Ensure that the test suite passes**, e.g., by running ``ctest``. This will also be checked by our CI when the MR is submitted.
+* **Ensure that the test suite passes**, e.g., by running the ``CITests`` executable. This will also be checked by our CI when the MR is submitted.
+
+* **Fix (not suppress) any warnings generated by your changes.** You can turn warnings on in the code by passing ``-DWARNINGS=ON`` to ``cmake``.
 
 When ready, submit your fork as a `pull request <https://docs.github.com/articles/using-pull-requests>`_
 to the QB GitHub repository, filling out the pull request form.
