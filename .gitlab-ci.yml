@@ -299,8 +299,8 @@ ci-hardware-tests:
     - docker stop -t5 qcstack_server || true
     # Give qcstack time to shut down cleanly
     - sleep 5
-    - docker pull registry.gitlab.com/qbau/control/qcstack/qcstack_server:latest
-    - docker run -d --rm --name qcstack_server -p=8443:8443 registry.gitlab.com/qbau/control/qcstack/qcstack_server --ssl-cert-dir /root/default_certs --hal "" --max-circuit-depth 1000  --reservation-shared-secret hello --calibration False --benchmark False
+    - docker pull registry.gitlab.com/qbau/control/qcstack/qcstack_server:2024.2.2
+    - docker run -d --rm --name qcstack_server -p=8443:8443 registry.gitlab.com/qbau/control/qcstack/qcstack_server:2024.2.2 --ssl-cert-dir /root/default_certs --hal "" --max-circuit-depth 1000  --reservation-shared-secret hello --calibration False --benchmark False
     # Give qcstack time to spin up properly
     - sleep 20
     # Run C++ tests of qcstack interface
