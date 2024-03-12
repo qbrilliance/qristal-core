@@ -8,6 +8,7 @@ set(source_files
   src/session_validators.cpp
   src/thread_pool.cpp
   src/utils.cpp
+  src/primitives.cpp
   src/backends/qb_hardware/qb_qpu.cpp
   src/backends/qb_hardware/qb_visitor.cpp
   src/backends/qb_hardware/options.cpp
@@ -29,8 +30,6 @@ set(source_files
   src/benchmark/DataLoaderGenerator.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
   src/benchmark/workflows/RotationSweep.cpp
-  src/benchmark/workflows/QuantumStateTomography.cpp
-  src/benchmark/workflows/QuantumProcessTomography.cpp
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/src/session_getter_setter.cpp
@@ -62,6 +61,7 @@ set(headers
   include/qb/core/remote_async_accelerator.hpp
   include/qb/core/thread_pool.hpp
   include/qb/core/typedefs.hpp
+  include/qb/core/primitives.hpp
   include/qb/core/backends/qb_hardware/qb_qpu.hpp
   include/qb/core/backends/qb_hardware/qb_visitor.hpp
   include/qb/core/optimization/vqee/vqee.hpp

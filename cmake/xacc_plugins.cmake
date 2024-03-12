@@ -7,6 +7,7 @@ add_xacc_plugin(qb_gateset_transpiler
     src/backends/qb_hardware/qb_visitor.cpp
   DEPENDENCIES
     nlohmann::json
+    Eigen3::Eigen
 )
 
 # Custom QB QObj compiler (to be used by emulator)

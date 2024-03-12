@@ -1,8 +1,10 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#ifndef _QB_NOISE_CHANNEL_
+#define _QB_NOISE_CHANNEL_
 
-#pragma once
 #include <complex>
 #include <vector>
+#include <Eigen/Dense>
 
 namespace qb
 {
@@ -30,11 +32,132 @@ namespace qb
     using NoiseChannel = std::vector<KrausOperator>;
 
     /**
-     * @brief Convert a noise channel (list of Kraus operator matrices) into a Choi matrix representation
+     * @brief Convert a noise channel (list of STL-based Kraus operator matrices) into their Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param noise_channel the noise channel composed of STL-based Kraus matrices.
      *
-     * @return Choi matrix
+     * @return KrausOperator::Matrix the STL-based Choi matrix representation.
      */
     KrausOperator::Matrix kraus_to_choi(const NoiseChannel& noise_channel);
+    /**
+     * @brief Convert a vector of Eigen-based Kraus operator matrices into their Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param kraus_mats a std::vector of Eigen-based, complex-valued Kraus matrices.
+     *
+     * @return Eigen::MatrixXcd the Choi representation.
+     */
+    Eigen::MatrixXcd kraus_to_choi(const std::vector<Eigen::MatrixXcd> &kraus_mats);
+
+    /**
+     * @brief Obtain basis transformation matrix from the computational to the Pauli basis.
+     * 
+     * Arguments: 
+     * @param n_qubits the unsigned integer number of qubits. The basis transformation may be applied to.
+     *
+     * @return Eigen::MatrixXcd the basis transformation matrix. 
+     * 
+     * @details This function generates transformation matrices for the standard computational basis 
+     * (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|) to the standard Pauli basis 
+     * (II..I, II..X, ... ZZ..Y, ZZ..Z) for an arbitrary number of qubits.
+     */
+    Eigen::MatrixXcd get_computational_to_pauli_transform(const size_t n_qubits);
+
+    /**
+     * @brief Convert an STL-based process matrix to its STL-based Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param process_matrix the STL-based (std::vector<std::vector<T>>) process matrix in the 
+     * standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z
+     *
+     * @return Choi matrix in the computational basis ordered in ascending bit string order 
+     * (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|)
+     * 
+     * @details This function may be used to convert arbitrary STL-based quantum process 
+     * matrices to their Choi representation by delegating the transformation to the Eigen-based 
+     * implementation.
+     */
+    KrausOperator::Matrix process_to_choi(const KrausOperator::Matrix& process_matrix);
+    /**
+     * @brief Convert an Eigen-based process matrix to its Eigen-based Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param process_matrix the Eigen-based (Eigen::MatrixXcd) process matrix in the 
+     * standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z
+     *
+     * @return Choi matrix in the computational basis ordered in ascending bit string order 
+     * (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|)
+     * 
+     * @details This function may be used to convert arbitrary Eigen-based quantum process 
+     * matrices to their Choi representation by applying a basis transformation obtained via
+     * get_computational_to_pauli_transform.
+     */
+    Eigen::MatrixXcd process_to_choi(const Eigen::MatrixXcd& process_matrix);
+
+    /**
+     * @brief Convert an STL-based Choi matrix to a NoiseChannel of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param choi_matrix the STL-based Choi matrix of the quantum process.
+     *
+     * @return NoiseChannel the noise channel containing all complex Kraus operator matrices.
+     * 
+     * @details This function will convert the STL-based Choi matrix to a complex-valued 
+     * Eigen matrix and delegate the conversion to choi_to_kraus(const Eigen::MatrixXcd&).
+     */
+    NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix);
+    /**
+     * @brief Convert an Eigen-based Choi matrix to a std::vector of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param choi_matrix the Eigen-based Choi matrix of the quantum process.
+     *
+     * @return std::vector<Eigen::MatrixXcd> a vector containing all complex Kraus operator matrices.
+     * 
+     * @details This function will convert arbitrary Eigen-based Choi matrices to their Kraus 
+     * representation by (i) obtaining eigenvalues and eigenvectors of the Choi matrix, and 
+     * (ii) building Kraus matrics via sqrt(l)*unvec(v) for eigenvalues |l| > 1e-14 and 
+     * matrix-reshaped eigenvectors v. 
+     */
+    std::vector<Eigen::MatrixXcd> choi_to_kraus(const Eigen::MatrixXcd& choi_matrix);
+
+    /**
+     * @brief Convert an STL-based process matrix to a NoiseChannel of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param process_matrix the STL-based process matrix of the quantum process.
+     *
+     * @return NoiseChannel a noise channel containing all complex Kraus operator matrices.
+     * 
+     * @details This function transforms arbitrary STL-based process matrices to a NoiseChannel 
+     * object by (i) converting the STL-based process matrix to an Eigen matrix, (ii) calling 
+     * process_to_kraus(const Eigen::MatrixXcd&), and (iii) calling eigen_to_noisechannel.
+     */
+    NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix);
+    /**
+     * @brief Convert an Eigen-based process matrix to a std::vector of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param process_matrix the Eigen-based process matrix of the quantum process.
+     *
+     * @return std::vector<Eigen::MatrixXcd> a vector containing all complex Kraus operator matrices.
+     * 
+     * @details This function transforms arbitrary Eigen-based process matrices to their Kraus 
+     * representation by (i) transforming the process matrix to its Choi representation and (ii) 
+     * transforming the Choi matrix to individual Kraus operators. 
+     */
+    std::vector<Eigen::MatrixXcd> process_to_kraus(const Eigen::MatrixXcd& process_matrix);
+
+    /**
+     * @brief Convert a std::vector of Eigen-based Kraus matrices to a NoiseChannel object.
+     * 
+     * Arguments: 
+     * @param kraus_mats a std::vector of complex-valued Kraus matrices.
+     *
+     * @return NoiseChannel the noise channel containing all complex Kraus operator matrices.
+     */
+    NoiseChannel eigen_to_noisechannel(const std::vector<Eigen::MatrixXcd>& kraus_mats);
 
     /**
      * @brief Compute the process fidelity of a noisy quantum channel.
@@ -134,3 +257,5 @@ namespace qb
             size_t q, double excited_state_population, double gamma);
     };
 }
+
+#endif

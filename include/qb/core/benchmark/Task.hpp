@@ -34,6 +34,8 @@ namespace qb {
                     return "processes";
                 case Task::Session:
                     return "session";
+                default: 
+                    assert(false && "Requested task does not have specifier!");
             }
         }
 

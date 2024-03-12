@@ -2,6 +2,12 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
+## [X.X.X] - YYYY-MM-DD
+
+### Added 
+
+- Added functions to transform arbitrary Eigen- and vector-based quantum process matrices to their Choi and Kraus representation.
+- Refactored qb::benchmark::Pauli and qb::benchmark::BlochSphereUnitState to the qb namespace in a standalone qb/core/primitives.hpp header to circumvent noise_channel dependencies to qb::benchmark. 
 
 ## [1.5.0] - 2024-02-21
 

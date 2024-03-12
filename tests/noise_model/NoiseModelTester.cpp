@@ -1,10 +1,14 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #include <gtest/gtest.h>
+#include <random>
+
 #include "xacc.hpp"
 #include "Accelerator.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
 #include "Eigen/Dense"
-#include <random>
+
+#include "qb/core/noise_model/noise_model.hpp"
+#include "qb/core/primitives.hpp"
+
 TEST(NoiseModelTester, checkReadoutErrors)
 {
   qb::NoiseProperties noise_props;
@@ -224,8 +228,8 @@ TEST(NoiseModelTester, checkKrausToChoiConversion)
   }
   std::cout << "EXPECTED:\n" << expected_choi_mat << "\n";
 
-  for (size_t row = 0; row < expected_choi_mat.rows(); ++row) {
-    for (size_t col = 0; col < expected_choi_mat.cols(); ++col) {
+  for (Eigen::Index row = 0; row < expected_choi_mat.rows(); ++row) {
+    for (Eigen::Index col = 0; col < expected_choi_mat.cols(); ++col) {
       EXPECT_NEAR(std::abs(choi_mat[row][col] - expected_choi_mat(row, col)),
                   0.0, 1e-9);
     }
@@ -245,4 +249,109 @@ TEST(NoiseModelTester, checkFidelityCalc)
   const double fid = qb::process_fidelity(depol_channel);
   std::cout << "Fidelity = " << fid << "\n";
   EXPECT_NEAR(fid, 1.0 - p, 1e-6);
+}
+
+
+Eigen::MatrixXcd evolve_density_process(const Eigen::MatrixXcd& process_matrix, const Eigen::MatrixXcd& density) {
+  size_t n_qubits = std::log2(density.rows());
+  Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> result = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>::Zero(density.rows(), density.cols());
+  std::vector<qb::Pauli> basis{
+    qb::Pauli::Symbol::I,
+    qb::Pauli::Symbol::X,
+    qb::Pauli::Symbol::Y,
+    qb::Pauli::Symbol::Z 
+  };
+  for (Eigen::Index i = 0; i < process_matrix.rows(); ++i) {
+    auto left = qb::build_up_matrix_by_Kronecker_product(i, basis, n_qubits);
+    for (Eigen::Index j = 0; j < process_matrix.cols(); ++j) {
+      auto right = qb::build_up_matrix_by_Kronecker_product(j, basis, n_qubits);
+      result += process_matrix(i,j) * left * density * right.adjoint(); //evolve density
+    } 
+  }
+  return result;
+}
+
+Eigen::MatrixXcd evolve_density_choi(const Eigen::MatrixXcd& choi_matrix, const Eigen::MatrixXcd& density) {
+  Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(density.rows(), density.cols());
+  for (Eigen::Index i = 0; i < choi_matrix.rows(); ++i) {
+    Eigen::MatrixXcd basis_i = Eigen::MatrixXcd::Zero(density.rows(), density.cols());
+    basis_i(i / density.rows(), i % density.rows()) = std::complex<double>(1.0); 
+    for (Eigen::Index j = 0; j < choi_matrix.cols(); ++j) {
+      Eigen::MatrixXcd basis_j = Eigen::MatrixXcd::Zero(density.rows(), density.cols());
+      basis_j(j / density.rows(), j % density.rows()) = std::complex<double>(1.0);
+      result += choi_matrix(i,j) * basis_i.adjoint() * density * basis_j;  
+    }
+  }
+  return result;
+}
+
+Eigen::MatrixXcd evolve_density_kraus(const std::vector<Eigen::MatrixXcd>& kraus_mats, const Eigen::MatrixXcd& density) {
+  Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(density.rows(), density.cols());
+  for (const auto& kraus : kraus_mats) {
+    result += kraus * density * kraus.adjoint();
+  }
+  return result;
+}
+
+TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
+  const size_t n_qubits = 3; 
+  std::uniform_real_distribution<double> gen(-1.0*std::numbers::pi, std::numbers::pi);
+  std::default_random_engine re;
+  //process to test: Rx, Ry, Rz with random angles applied to qubits 0, 1, and 2 
+  double t = gen(re);
+  double c = cos(t/2.0);
+  double s = sin(t/2.0);
+  Eigen::MatrixXcd Rx(4, 4); 
+  Rx <<                                c*c, std::complex<double>(0.0, -1.0*s*c), 0.0, 0.0, 
+        std::complex<double>(0.0, 1.0*s*c),                                 s*s, 0.0, 0.0,
+                                       0.0,                                 0.0, 0.0, 0.0, 
+                                       0.0,                                 0.0, 0.0, 0.0;
+  t = gen(re);
+  c = cos(t/2.0);
+  s = sin(t/2.0);
+  Eigen::MatrixXcd Ry(4, 4);
+  Ry <<                                c*c, 0.0, std::complex<double>(0.0, -1.0*s*c), 0.0, 
+                                       0.0, 0.0,                                 0.0, 0.0,
+        std::complex<double>(0.0, 1.0*s*c), 0.0,                                 s*s, 0.0, 
+                                       0.0, 0.0,                                 0.0, 0.0;
+  t = gen(re);
+  c = cos(t/2.0);
+  s = sin(t/2.0);                           
+  Eigen::MatrixXcd Rz(4, 4);
+  Rz <<                                c*c, 0.0, 0.0, std::complex<double>(0.0, -1.0*s*c), 
+                                       0.0, 0.0, 0.0,                                 0.0,
+                                       0.0, 0.0, 0.0,                                 0.0,
+        std::complex<double>(0.0, 1.0*s*c), 0.0, 0.0,                                 s*s; 
+  Eigen::MatrixXcd process_mat = Eigen::kroneckerProduct(Rx, Rz).eval(); 
+  process_mat = Eigen::kroneckerProduct(process_mat, Ry).eval();
+
+  //transform to Choi matrix: 
+  auto choi_mat = qb::process_to_choi(process_mat);
+
+  //transform to Kraus matrices
+  auto kraus_mats_1 = qb::choi_to_kraus(choi_mat);
+  auto kraus_mats_2 = qb::process_to_kraus(process_mat); //also test the direct call
+
+  //initialize random density 
+  Eigen::Vector<std::complex<double>, Eigen::Dynamic> state = Eigen::Vector<std::complex<double>, Eigen::Dynamic>::Random(std::pow(2, n_qubits));
+  state.normalize();
+  Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> density = state * state.adjoint();
+
+  //evolve density with process matrix
+  auto evolved_density_process = evolve_density_process(process_mat, density);
+  //evolve density with choi matrix
+  auto evolved_density_choi = evolve_density_choi(choi_mat, density);
+  //evolve density with kraus matrices 
+  auto evolved_density_kraus_1 = evolve_density_kraus(kraus_mats_1, density);
+  auto evolved_density_kraus_2 = evolve_density_kraus(kraus_mats_2, density);
+
+  //check if they are identical
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_choi, 1e-14));
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_1, 1e-14));
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_2, 1e-14));
+
+  //final check: transform to kraus matrices to NoiseChannel and back to Choi matrix 
+  auto choi_mat2 = qb::kraus_to_choi(kraus_mats_1);
+
+  EXPECT_TRUE(choi_mat.isApprox(choi_mat2, 1e-14));
 }

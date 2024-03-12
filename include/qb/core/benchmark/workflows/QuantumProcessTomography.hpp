@@ -15,92 +15,6 @@ namespace qb
     namespace benchmark
     {   
         /**
-        * @brief Convenient handler for the unit Bloch sphere unit input states. 
-        * 
-        * @details This class builds upon the Z+, Z-, X+, X-, Y+, and Y- symbols to define a convenient handler for the Bloch sphere unit input states. 
-        */
-        class BlochSphereUnitState {
-            public: 
-                /**
-                * @brief The usable symbols of type BlochSphereUnitState::Symbol denoting unit states along the direction of the three Bloch sphere axes.
-                */
-                enum class Symbol {Zp, Zm, Xp, Xm, Yp, Ym};
-
-                /**
-                * @brief Constructor for BlochSphereUnitState objects from given @param symbol of type BlochSphereUnitState::Symbol.
-                */
-                constexpr BlochSphereUnitState(const Symbol& symbol) : symbol_(symbol) {}
-
-                /**
-                * @brief Translate the BlochSphereUnitState symbol into its matrix representation.
-                * 
-                * Arguments: ---
-                * 
-                * @return Eigen::Matrix a dense complex matrix corresponding to the representation of the BlochSphereUnitState symbol.
-                */
-                Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> get_matrix() const;
-                /**
-                * @brief Prepend a given quantum circuit by rotation gates initializing the respective BlochSphereUnitState symbol input basis.
-                * 
-                * Arguments:
-                * @param cb the quantum circuit to be appended given as a qb::CircuitBuilder object 
-                * @param q the unsigned integer qubit index on which the rotation gates are applied.
-                * 
-                * @return qb::Circuitbuilder reference to the preprended circuit.
-                */
-                qb::CircuitBuilder& append_circuit(qb::CircuitBuilder& cb, const size_t q) const;
-                /**
-                * @brief Return a constant reference to the wrapped symbol.
-                */
-                const Symbol& get_symbol() const {return symbol_;}
-
-            private: 
-                Symbol symbol_{};
-
-        };
-        /**
-        * @brief Helper function to print BlochSphereUnitState symbols to std::ostream by overloading the << operator.
-        * 
-        * Arguments: 
-        * @param os the std::ostream where the output is directed
-        * @param bsu the BlochSphereUnitState symbol to print.
-        * 
-        * @return std::ostream reference to the output stream.
-        */
-        std::ostream & operator << (std::ostream & os, const BlochSphereUnitState& bsu);
-        /**
-        * @brief Helper function to print std::vector of BlochSphereUnitState symbols to std::ostream by overloading the << operator.
-        * 
-        * Arguments: 
-        * @param os the std::ostream where the output is directed
-        * @param bsus the std::vector of BlochSphereUnitState symbols to print.
-        * 
-        * @return std::ostream reference to the output stream.
-        */
-        std::ostream & operator << (std::ostream & os, const std::vector<BlochSphereUnitState>& bsus);
-
-        /**
-        * @brief Calculate the tensor (Kronecker) product of a given vector of matrix translatable symbols by implicitly calculating the string of basis symbols from a given index.
-        * 
-        * Arguments: 
-        * @param index the unsigned integer index of the n-qubit basis symbol string to be constructed
-        * @param basis a std::vector of matrix translatable Symbols
-        * @param basis_string_length the length of the basis string to be constructed from the unsigned integer index.
-        * 
-        * @return Eigen::Matrix a dense complex matrix containing the tensor (Kronecker) product of all given symbols. 
-        */
-        template <typename Symbol> 
-        ComplexMatrix build_up_matrix_by_Kronecker_product(const size_t index, const std::vector<Symbol>& basis, const size_t basis_string_length) {
-            //first convert index to x-nary number to find the basis symbol for each repeat 
-            std::vector<size_t> indices = convert_decimal(index, basis.size(), basis_string_length); 
-            std::vector<Symbol> vec; 
-            for (const auto& i : indices) {
-                vec.push_back(basis[i]);
-            }
-            return calculate_Kronecker_product<Symbol>(vec);
-        }
-
-        /**
         * @brief Calculate the Hilbert-Schmidt inner product of two given complex matrices.
         * 
         * Arguments: 
@@ -109,7 +23,9 @@ namespace qb
         * 
         * @return std::complex<double> the inner product, i.e., tr(a' * b). 
         */
-        std::complex<double> HilbertSchmidtInnerProduct(const Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>& a, const Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>& b);
+        inline std::complex<double> HilbertSchmidtInnerProduct(const Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>& a, const Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>& b) {
+            return (a.adjoint() * b).trace();
+        }
 
         /**
         * @brief Standard quantum process tomography workflow templated for arbitrary wrapped quantum state tomography workflows and input state bases.

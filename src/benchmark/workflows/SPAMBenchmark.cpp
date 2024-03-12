@@ -1,5 +1,4 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
-#pragma once 
 
 #include <cmath>
 #include <boost/dynamic_bitset.hpp>

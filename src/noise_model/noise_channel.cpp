@@ -1,8 +1,12 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
 #include "qb/core/noise_model/noise_channel.hpp"
-#include <Eigen/Dense>
+#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
+#include "qb/core/tools/zip_tool.hpp"
+
+#include <numeric>
 #include <unsupported/Eigen/KroneckerProduct>
+#include "qb/core/primitives.hpp"
 
 namespace 
 {
@@ -24,7 +28,7 @@ namespace
     /// Convert an eigen matrix to an STL-based matrix 
     qb::KrausOperator::Matrix eigen_to_matrix(const eigen_cmat &eigen_mat) {
       qb::KrausOperator::Matrix mat;
-      for (size_t i = 0; i < eigen_mat.rows(); ++i) {
+      for (Eigen::Index i = 0; i < eigen_mat.rows(); ++i) {
         eigen_cvec eigen_row = eigen_mat.row(i);
         std::vector<std::complex<double>> row(
             eigen_row.data(), eigen_row.data() + eigen_row.size());
@@ -86,10 +90,7 @@ namespace qb
             assert(pauli_str.size() == 2);
             const auto first_mat = pauli_op_map.find(pauli_str[0])->second;
             const auto second_mat = pauli_op_map.find(pauli_str[1])->second;
-//            Eigen::MatrixXcd kron_mat = Eigen::kroneckerProduct(first_mat, second_mat);
-//            kron_mat = coeff * kron_mat;
             Eigen::MatrixXcd kron_mat = coeff * Eigen::kroneckerProduct(first_mat, second_mat);
-            // std::cout << pauli_str << ":\n" << kron_mat << "\n";
             assert(kron_mat.rows() == 4);
             assert(kron_mat.cols() == 4);
             KrausOperator::Matrix mat(kron_mat.rows());
@@ -189,7 +190,7 @@ namespace qb
     /// can be converted into a single Choi matrix representing that map.
     /// Note: Kraus matrices acting on N qubits have dimension (2^N, 2^N);
     /// the corresponding Choi matrix has dimension (4^N, 4^N).
-    static eigen_cmat kraus_to_choi_impl(const std::vector<eigen_cmat> &kraus_mats) 
+    eigen_cmat kraus_to_choi(const std::vector<eigen_cmat> &kraus_mats) 
     {
       const std::size_t input_dim = kraus_mats[0].cols();
       const std::size_t output_dim = kraus_mats[0].rows();
@@ -254,12 +255,79 @@ namespace qb
         Eigen::JacobiSVD<eigen_cmat> svd(mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
         return svd.singularValues().sum();
       };
-      const double fid = std::pow(compute_nuclear_norm(s1sq * s2sq), 2.0);
       return std::pow(compute_nuclear_norm(s1sq * s2sq), 2.0);
     }
 
     KrausOperator::Matrix kraus_to_choi(const NoiseChannel &noise_channel) {
-      return eigen_to_matrix(kraus_to_choi_impl(noise_channel_to_eigen(noise_channel)));
+      return eigen_to_matrix(kraus_to_choi(noise_channel_to_eigen(noise_channel)));
+    }
+
+    KrausOperator::Matrix process_to_choi(const KrausOperator::Matrix& process_matrix) {
+      return eigen_to_matrix(process_to_choi(matrix_to_eigen(process_matrix)));
+    }
+
+    Eigen::MatrixXcd get_computational_to_pauli_transform(const size_t n_qubits) {
+      std::vector<qb::Pauli> basis{
+        qb::Pauli::Symbol::I,
+        qb::Pauli::Symbol::X,
+        qb::Pauli::Symbol::Y,
+        qb::Pauli::Symbol::Z 
+      };
+      const size_t dim = std::pow(basis.size(), n_qubits);
+      Eigen::MatrixXcd conversion_mat = Eigen::MatrixXcd::Zero(dim, dim);
+      for (size_t i = 0; i < dim; ++i) {
+        Eigen::VectorXcd pauli = Eigen::VectorXcd{qb::build_up_matrix_by_Kronecker_product(i, basis, n_qubits).transpose().reshaped()};
+        conversion_mat.row(i) = pauli; //set row-wise
+      }
+      return conversion_mat;
+    }
+
+    Eigen::MatrixXcd process_to_choi(const Eigen::MatrixXcd& process_matrix) {
+      //transform process matrix in Pauli basis (II..I, II..X, ..., ZZ..Z) to computational basis (|0..0><0..0|, ..., |1..1><1..1|)
+      const size_t n_qubits = std::log2(process_matrix.rows()) / 2;
+      auto T = get_computational_to_pauli_transform(n_qubits);
+      return T.adjoint() * process_matrix * T; //return transformed process matrix
+    }
+
+    NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix) {
+      return eigen_to_noisechannel(choi_to_kraus(matrix_to_eigen(choi_matrix)));
+    }
+
+    std::vector<Eigen::MatrixXcd> choi_to_kraus(const Eigen::MatrixXcd& choi_matrix) {
+      std::vector<Eigen::MatrixXcd> result;
+      const size_t n_qubits = std::log2(choi_matrix.rows()) / 2;
+      const size_t dim = std::pow(2, n_qubits);
+      Eigen::ComplexEigenSolver<eigen_cmat> solver(choi_matrix); 
+      for (Eigen::Index i = 0; i < solver.eigenvalues().size(); ++i) {
+        if (std::abs(solver.eigenvalues()[i]) > 1e-14) { //only add non-zero channels
+          Eigen::MatrixXcd eigenvec = solver.eigenvectors().col(i);
+          eigenvec.resize(dim, dim);
+          result.push_back(std::sqrt(solver.eigenvalues()[i]) * eigenvec);
+        }
+      }
+      return result;
+    }
+    
+    NoiseChannel eigen_to_noisechannel(const std::vector<Eigen::MatrixXcd>& kraus_mats) {
+      NoiseChannel result; 
+      for (const auto & kraus_mat : kraus_mats) {
+        const size_t n_qubits = std::log2(kraus_mat.rows());
+        std::vector<size_t> qubits(n_qubits);
+        std::iota(qubits.begin(), qubits.end(), 0);
+        KrausOperator ko; 
+        ko.matrix = eigen_to_matrix(kraus_mat);
+        ko.qubits = qubits;
+        result.push_back(ko);
+      }
+      return result;
+    }
+
+    NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix) {
+      return eigen_to_noisechannel(choi_to_kraus(process_to_choi(matrix_to_eigen(process_matrix))));
+    }
+
+    std::vector<Eigen::MatrixXcd> process_to_kraus(const Eigen::MatrixXcd& process_matrix) {
+      return choi_to_kraus(process_to_choi(process_matrix));
     }
 
     /// Compute the process fidelity of a noise channel as compared to a no-noise (Identity) channel.
@@ -267,8 +335,8 @@ namespace qb
     double process_fidelity(const NoiseChannel &noise_channel) {
       const size_t input_dim = 1u << (noise_channel[0].qubits.size());
       auto id_mat = eigen_cmat::Identity(input_dim, input_dim);
-      eigen_cmat choi_id = kraus_to_choi_impl({id_mat});
-      eigen_cmat choi_chan =kraus_to_choi_impl(noise_channel_to_eigen(noise_channel));
+      eigen_cmat choi_id = kraus_to_choi({id_mat});
+      eigen_cmat choi_chan =kraus_to_choi(noise_channel_to_eigen(noise_channel));
       // normalized by the system dimension
       // ref: https://qiskit.org/documentation/stubs/qiskit.quantum_info.process_fidelity.html#qiskit.quantum_info.process_fidelity
       return compute_fidelity(choi_id / (double)input_dim,

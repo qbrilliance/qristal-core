@@ -9,7 +9,6 @@
 #include "qb/core/benchmark/workflows/QuantumProcessTomography.hpp"
 #include "qb/core/benchmark/workflows/SimpleCircuitExecution.hpp"
 #include "qb/core/benchmark/DataLoaderGenerator.hpp"
-#include "qb/core/benchmark/workflows/SimpleCircuitExecution.hpp"
 
 using namespace qb::benchmark;
 

@@ -285,8 +285,8 @@ namespace qb
                     for ( auto const & d : densities_ ) {
                         ar(d.rows());
                         ar(d.cols());
-                        for (size_t row = 0; row < d.rows(); ++row)
-                            for (size_t col = 0; col < d.cols(); ++col)
+                        for (Eigen::Index row = 0; row < d.rows(); ++row)
+                            for (Eigen::Index col = 0; col < d.cols(); ++col)
                                 ar(d(row, col));
                     }
                 }

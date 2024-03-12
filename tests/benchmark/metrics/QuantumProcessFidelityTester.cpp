@@ -8,7 +8,6 @@
 #include "qb/core/noise_model/noise_model.hpp"
 #include "qb/core/benchmark/workflows/SPAMBenchmark.hpp"
 #include "qb/core/benchmark/workflows/RotationSweep.hpp"
-#include "qb/core/benchmark/workflows/QuantumProcessTomography.hpp"
 #include "qb/core/benchmark/metrics/QuantumProcessFidelity.hpp"
 
 using namespace qb::benchmark;

@@ -7,173 +7,17 @@
 #include <filesystem>
 #include <map>
 #include <ranges>
-#include <unsupported/Eigen/KroneckerProduct>
 
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
 #include "qb/core/tools/zip_tool.hpp"
 #include "qb/core/benchmark/Serializer.hpp" // contains "qb/core/session.hpp" & typedefs
-#include "qb/core/circuit_builder.hpp"
 #include "qb/core/benchmark/Concepts.hpp"
+#include "qb/core/primitives.hpp"
 
 namespace qb
 {
     namespace benchmark
     {   
-
-        /**
-        * @brief Concept of matrix translatable symbols, e.g., Pauli basis (I, X, Y, Z). 
-        * 
-        * @details This concept enforces a get_matrix member function for templated symbols @tparam Symbol. The tranlsatability of basis symbols to 
-        * matrix representations is required by the standard quantum state tomography procedure to calculate projections.
-        */
-        template <typename Symbol> 
-        concept MatrixTranslatable = requires( Symbol s ) {
-            {s.get_matrix()} -> std::same_as<Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>>;
-        };
-        
-        /**
-        * @brief Concept of circuit appendable symbols, e.g., Pauli basis (I, X, Y, Z). 
-        * 
-        * @details This concept enforces an append_circuit member function for templated symbols @tparam Symbol. Each basis usable in the standard 
-        * quantum state tomography workflow is required to have a known basis transformation gate sequence appendable to qb::CircuitBuilder.
-        */
-        template <typename Symbol>
-        concept CircuitAppendable = requires( Symbol s, CircuitBuilder& cb, const size_t& q ) {
-            {s.append_circuit(cb, q)} -> std::same_as<CircuitBuilder&>;
-        };
-        
-        /**
-        * @brief Templated global function to return the identity symbol for a given symbolized basis class @tparam Symbol (e.g. Paulis) 
-        */
-        template <typename Symbol> 
-        Symbol get_identity();
-        
-        /**
-        * @brief Concept of symbolized basis classes possessing an identity, e.g., Pauli (I, X, Y, Z). 
-        * 
-        * @details This concept enforces the existence of get_identity<Symbol> for templated symbols @tparam Symbol. 
-        */
-        template <typename Symbol> 
-        concept HasIdentity = requires() {
-            {get_identity<Symbol>()} -> std::same_as<Symbol>;
-        };
-
-        /**
-        * @brief Calculate the tensor (Kronecker) product of a given vector of matrix translatable symbols. 
-        * 
-        * Arguments: 
-        * @param symbol_list a std::vector of matrix translatable Symbols. 
-        * 
-        * @return Eigen::Matrix a dense complex matrix containing the tensor (Kronecker) product of all given symbols. 
-        * 
-        * @details This global function consecutively envokes Eigen::kroneckerProduct on all given matrix translatable symbols (via get_matrix) to build the tensor (Kronecker) product. 
-        * The product ordering is 0 ... n-1 for n given Symbols. 
-        */
-        template <MatrixTranslatable MatrixSymbol_> 
-        Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> calculate_Kronecker_product(const std::vector<MatrixSymbol_>& symbol_list) {
-            //initialize result as dynamic matrix from first matrix in symbol list
-            Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> result = symbol_list[0].get_matrix();
-            for (const auto& symbol : symbol_list | std::views::drop(1)) {
-                result = Eigen::kroneckerProduct(result, symbol.get_matrix()).eval();
-            }
-            return result;
-        }
-
-        /**
-        * @brief Convenient handler for the standard Pauli measurement basis. 
-        * 
-        * @details This class builds upon the I, X, Y, Z symbols to define a convenient handler for the standard Pauli measurement basis. 
-        */
-        class Pauli {
-            public: 
-                /**
-                * @brief The usable symbols of type Pauli::Symbol denoting Pauli I, X, Y, and Z matrices.
-                */
-                enum class Symbol {I, X, Y, Z};
-
-                /**
-                * @brief Constructor for Pauli object from given @param symbol of type Pauli::Symbol.
-                */
-                constexpr Pauli(const Symbol& symbol) : symbol_(symbol) {}
-                /**
-                * @brief Equality comparison operator for Pauli symbols.
-                */
-                bool operator == (const Pauli& p) const {
-                    return symbol_ == p.get_symbol();
-                }
-                /**
-                * @brief Translate the Pauli symbol into its matrix representation.
-                * 
-                * Arguments: ---
-                * 
-                * @return Eigen::Matrix a dense complex matrix corresponding to the representation of the Pauli symbol.
-                */
-                Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> get_matrix() const;
-                /**
-                * @brief Append a given quantum circuit by rotation gates transforming to the respective Pauli symbol measurement basis.
-                * 
-                * Arguments:
-                * @param cb the quantum circuit to be appended given as a qb::CircuitBuilder object 
-                * @param q the unsigned integer qubit index on which the rotation gates are applied.
-                * 
-                * @return qb::Circuitbuilder reference to the appended circuit.
-                */
-                qb::CircuitBuilder& append_circuit(qb::CircuitBuilder& cb, const size_t q) const;
-
-                /**
-                * @brief Return a constant reference to the wrapped symbol.
-                */
-                const Symbol& get_symbol() const {return symbol_;}
-
-            private: 
-                Symbol symbol_;
-
-        };
-        //explicitly instantiate identity
-        template <>
-        Pauli get_identity();
-        /**
-        * @brief Helper function to print Pauli symbols to std::ostream by overloading the << operator.
-        * 
-        * Arguments: 
-        * @param os the std::ostream where the output is directed
-        * @param p the Pauli symbol to print.
-        * 
-        * @return std::ostream reference to the output stream.
-        */
-        std::ostream & operator << (std::ostream & os, const Pauli& p);
-        /**
-        * @brief Helper function to print std::vector of Pauli symbols to std::ostream by overloading the << operator.
-        * 
-        * Arguments: 
-        * @param os the std::ostream where the output is directed
-        * @param paulis the std::vector of Pauli symbols to print.
-        * 
-        * @return std::ostream reference to the output stream.
-        */
-        std::ostream & operator << (std::ostream & os, const std::vector<Pauli>& paulis);
-
-        /**
-        * @brief Helper function to convert any unsigned integer into to a number of a given base and minimal length.
-        * 
-        * Arguments: 
-        * @param number the unsigned integer to convert
-        * @param base the targeted base of the converted number 
-        * @param min_length the minimal lenght of the converted number.
-        * 
-        * @return std::vector<size_t> the converted number represented as a std::vector.
-        */
-        std::vector<size_t> convert_decimal(const size_t number, const size_t base, const size_t min_length);
-
-        template <typename T> 
-        std::vector<T> generate_qubit_vec(const T& start, const T& end) {
-            std::vector<T> v; 
-            for (T i = start; i < end; ++i) {
-                v.push_back(i);
-            }
-            return v;
-        }
-
         /**
         * @brief Standard quantum state tomography workflow templated for arbitrary wrapped workflows and measurement bases
         * 
