@@ -437,6 +437,13 @@ A simple example demonstrating asynchronous circuit execution on AWS Braket. Not
 * Use an AWS Region that supports AWS Braket (e.g., us-east-1);
 * Create an S3 Bucket with prefix `amazon-braket-*` and create a folder inside the S3 bucket to store results.
 
+`execute_GST_XY.py`
+
+_qubits_: 1
+_noise_: true/false (depends on setting in C++ runner)
+
+A simple example demonstrating the creation of a gate set tomography experiment design for 1-qubit gates Rx(pi/2) and Ry(pi/2) using pyGSTi. An exported circuit list is passed to a provided pyGSTi_runner (using qb::benchmark). The gathered results are loaded back into pyGSTi and used to create an html report.
+
 
 ## C++ ##
 
@@ -576,6 +583,13 @@ _noise_: false
 
 This example shows the execution of a standard quantum process tomography workflow wrapped around a rotation sweep benchmark rotating qubit 0 from -pi to +pi applying Rx gates in 5 steps. For each circuit, the quantum process fidelity metric is evaluated and printed.
 
+`pyGSTi_runner`
+
+_qubits_: 1  
+_gate depth_: depends on pyGSTi experiment design  
+_noise_: false/true
+
+Example executor for 1-qubit pyGSTi experiments reading in pyGSTi circuits from std::cin and printing pyGSTi compatible results to std::cout. This example is used in the python example execute_GST_XY.py to create a pyGSTi report. 
 
 ## C++ with CUDA Quantum ##
 

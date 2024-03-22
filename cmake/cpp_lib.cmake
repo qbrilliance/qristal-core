@@ -30,6 +30,7 @@ set(source_files
   src/benchmark/DataLoaderGenerator.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
   src/benchmark/workflows/RotationSweep.cpp
+  src/benchmark/workflows/PyGSTiBenchmark.cpp
   # We need these in order to complete the linking
   # TODO: refactor session.hpp to no longer contain getters/setters declarations...
   python_module/src/session_getter_setter.cpp
@@ -77,11 +78,13 @@ set(headers
   include/qb/core/benchmark/workflows/SimpleCircuitExecution.hpp
   include/qb/core/benchmark/workflows/QuantumStateTomography.hpp
   include/qb/core/benchmark/workflows/QuantumProcessTomography.hpp
+  include/qb/core/benchmark/workflows/PyGSTiBenchmark.hpp
   include/qb/core/benchmark/metrics/CircuitFidelity.hpp
   include/qb/core/benchmark/metrics/QuantumStateFidelity.hpp
   include/qb/core/benchmark/metrics/QuantumProcessFidelity.hpp
   include/qb/core/benchmark/metrics/QuantumStateDensity.hpp
   include/qb/core/benchmark/metrics/QuantumProcessMatrix.hpp
+  include/qb/core/benchmark/metrics/PyGSTiResults.hpp
   include/qb/core/benchmark/Serializer.hpp
   include/qb/core/benchmark/DataLoaderGenerator.hpp
   include/qb/core/benchmark/Concepts.hpp

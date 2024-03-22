@@ -34,13 +34,14 @@ namespace qb
                 * @param workflow_identifier a unique string workflow identifier set and stored in each workflow
                 * @param metric_tasks a std::vector of required tasks for successful metric evaluation (e.g., quantum state fidelity evaluation requires measured and ideal densities while classical circuit fidelities require ideal and measured bitstring counts only)
                 * (optional) @param force_new a boolean flag to force a new workflow execution. This is used in unit tests and omits checking already generated files to retrieve data. Defaults to false
+                * (optional) @param verbose a boolean flag to print verbose messages to std::cout. Defaults to true
                 * 
                 * @return ---
                 * 
                 * @details Fills member @param metric_regex_ an std::vector of std::regex objects with regular file name expressions to look for each task and workflow  
                 */
-                DataLoaderGenerator(const std::string& workflow_identifier, const std::vector<Task>& metric_tasks, const bool force_new = false) 
-                : workflow_identifier_(workflow_identifier), metric_tasks_(metric_tasks), force_new_(force_new) {
+                DataLoaderGenerator(const std::string& workflow_identifier, const std::vector<Task>& metric_tasks, const bool force_new = false, const bool verbose = true) 
+                : workflow_identifier_(workflow_identifier), metric_tasks_(metric_tasks), force_new_(force_new), verbose_(verbose) {
                     //build regex for each metric identifier (to be checked when calling load_available_timestamps)
                     for ( auto const & t : metric_tasks )
                         metric_regex_.push_back(std::regex("[a-zA-Z]+_" + get_identifier(t) + "_([0-9]+)\\.bin"));
@@ -97,10 +98,14 @@ namespace qb
                 */
                 template <typename WORKFLOW>
                 void executeWorkflow(WORKFLOW& workflow) {
-                    std::cout << "Executing workflow now." << std::endl; 
+                    if (verbose_) {
+                        std::cout << "Executing workflow now." << std::endl; 
+                    }
                     std::time_t time = workflow.execute(metric_tasks_); 
                     timestamps_.push_back(time);
-                    std::cout << "Done!" << std::endl;
+                    if (verbose_) {
+                        std::cout << "Done!" << std::endl;
+                    }
                 }
 
                 /**
@@ -133,7 +138,9 @@ namespace qb
                     }
 
                     if (force_new_ || generate_new) {
-                        std::cout << (force_new_ ? "Forced new execution!\n" : ""); 
+                        if (verbose_) {
+                            std::cout << (force_new_ ? "Forced new execution!\n" : ""); 
+                        }
                         executeWorkflow<WORKFLOW>(workflow);
                     }
                 }
@@ -219,9 +226,11 @@ namespace qb
                 }
 
             private:
-                bool force_new_; 
                 const std::string workflow_identifier_;
                 const std::vector<Task> metric_tasks_;
+                bool force_new_; 
+                bool verbose_;
+
                 std::vector<std::regex> metric_regex_; //to check all metric identifiers required by metric evaluation (e.g., "measured", "ideal" for CircuitFidelity)
                 std::vector<std::time_t> timestamps_; //time stamps to read in (filled by load_available_timestamps)
         };

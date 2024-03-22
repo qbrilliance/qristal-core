@@ -681,6 +681,7 @@ static const char *help_execute_;
                      {"num_evaluation_qubits", num_evaluation_qubits},
                      {"trial_qubits", trial_qubits},
                      {"evaluation_qubits", evaluation_qubits}});
+    assert(expand_ok);
     circuit_->addInstructions(qpe->getInstructions());
   }
 
@@ -729,6 +730,7 @@ static const char *help_execute_;
                     {"evaluation_qubits", evaluation_qubits},
                     {"num_trial_qubits", num_trial_qubits},
                     {"no_state_prep", no_state_prep}});
+    assert(expand_ok);
     circuit_->addInstructions(ae->getInstructions());
   }
 
@@ -1108,6 +1110,7 @@ static const char *help_execute_;
                       {"is_LSB", is_LSB},
                       {"controls_on", controls_on},
                       {"controls_off", controls_off}});
+    assert(expand_ok);
     circuit_->addInstructions(comp->getInstructions());
   }
 
@@ -1147,6 +1150,7 @@ static const char *help_execute_;
                       {"is_LSB", is_LSB},
                       {"controls_on", controls_on},
                       {"controls_off", controls_off}});
+    assert(expand_ok);
     circuit_->addInstructions(comp->getInstructions());
   }
 
@@ -1197,6 +1201,7 @@ static const char *help_execute_;
                     {"use_ancilla", use_ancilla},
                     {"qubits_init_flag", qubits_init_flag},
                     {"flag_integer", flag_integer}});
+    assert(expand_ok);
     circuit_->addInstructions(ee->getInstructions());
   }
 
@@ -1231,6 +1236,7 @@ static const char *help_execute_;
                                        {"qubits_ancilla", qubits_ancilla},
                                        {"controls_on", controls_on},
                                        {"controls_off", controls_off}});
+    assert(expand_ok);
     circuit_->addInstructions(ec->getInstructions());
   }
 
@@ -1255,6 +1261,7 @@ static const char *help_execute_;
                                        {"qubits_b", qubits_b},
                                        {"flags_on", flags_on},
                                        {"flags_off", flags_off}});
+    assert(expand_ok);
     circuit_->addInstructions(cs->getInstructions());
   }
 
@@ -1283,6 +1290,7 @@ static const char *help_execute_;
                                        {"flags_on", flags_on},
                                        {"flags_off", flags_off},
                                        {"no_overflow", no_overflow}});
+    assert(expand_ok);
     circuit_->addInstructions(ca->getInstructions());
   }
 
@@ -1306,6 +1314,7 @@ static const char *help_execute_;
     const bool expand_ok = gmcx->expand({{"target", target},
                                         {"controls_on", controls_on},
                                         {"controls_off", controls_off}});
+    assert(expand_ok);
     circuit_->addInstructions(gmcx->getInstructions());
   }
 
@@ -1329,6 +1338,7 @@ static const char *help_execute_;
                                         {"SA", SA},
                                         {"SB", SB},
                                         {"simplified", simplified}});
+    assert(expand_ok);
     circuit_->addInstructions(cbo->getInstructions());
   }
 
@@ -1380,6 +1390,7 @@ static const char *help_execute_;
       {"ae_state_prep_circ", ae_state_prep_circ.circuit_},
       {"qubits_ancilla", qubits_ancilla},
       {"qubits_beam_metric", qubits_beam_metric}});
+    assert(expand_ok);
     circuit_->addInstructions(sa->getInstructions());
   }
 
@@ -1412,6 +1423,7 @@ static const char *help_execute_;
     auto is = std::dynamic_pointer_cast<xacc::CompositeInstruction>(
         xacc::getService<xacc::Instruction>("InverseCircuit"));
     const bool expand_ok = is->expand({{"circ", circ.circuit_}});
+    assert(expand_ok);
     circuit_->addInstructions(is->getInstructions());
   }
 
@@ -1443,6 +1455,7 @@ static const char *help_execute_;
                                       {"qubits_smaller", qubits_smaller},
                                       {"qubit_ancilla", qubit_ancilla},
                                       {"is_LSB", is_LSB}});
+    assert(expand_ok);
     circuit_->addInstructions(s->getInstructions());
   }
   /**
@@ -1471,6 +1484,7 @@ static const char *help_execute_;
                                        {"qubit_ancilla", qubit_ancilla},
                                        {"controls_on", controls_on},
                                        {"controls_off", controls_off}});
+    assert(expand_ok);
     circuit_->addInstructions(cs->getInstructions());
   }
 
@@ -1507,6 +1521,7 @@ static const char *help_execute_;
                      {"qubits_fraction", qubits_fraction},
                      {"qubits_ancilla", qubits_ancilla},
                      {"is_LSB", is_LSB}});
+    assert(expand_ok);
     circuit_->addInstructions(PFD->getInstructions());
   }
 
@@ -1543,6 +1558,7 @@ static const char *help_execute_;
                       {"controls_on", controls_on},
                       {"controls_off", controls_off},
                       {"is_LSB", is_LSB}});
+    assert(expand_ok);
     circuit_->addInstructions(cPFD->getInstructions());
   }
 
@@ -1572,6 +1588,7 @@ static const char *help_execute_;
                      {"qubit_flag", qubit_flag},
                      {"qubit_ancilla", qubit_ancilla},
                      {"is_LSB", is_LSB}});
+    assert(expand_ok);
     circuit_->addInstructions(cgt->getInstructions());
   }
 
@@ -1605,6 +1622,7 @@ static const char *help_execute_;
         {"qubits_b", qubits_b},
         {"qubits_result", qubits_result},
         {"is_LSB", is_LSB}});
+    assert(expand_ok);
     circuit_->addInstructions(multiplication->getInstructions());
   }
 
@@ -1636,6 +1654,7 @@ static const char *help_execute_;
         {"is_LSB", is_LSB},
         {"controls_on", controls_on},
         {"controls_off", controls_off}});
+    assert(expand_ok);
     circuit_->addInstructions(multiplication->getInstructions());
   }
 

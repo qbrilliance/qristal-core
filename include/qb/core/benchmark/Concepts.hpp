@@ -48,6 +48,17 @@ namespace qb
         };
 
         /**
+        * @brief Concept for the bare minimum pyGSTi workflow usable in qb::benchmark
+        *
+        * @details Each pyGSTi workflow usable within qb::benchmark must be able to expose the internal 
+        * one-line quantum circuit string representation used by pyGSTi.
+        */
+        template <typename PyGSTiWrapper>
+        concept PyGSTiWorkflow = requires(PyGSTiWrapper pygsti) {
+            {pygsti.get_pyGSTi_circuit_strings()} -> std::same_as<const std::vector<std::string>&>;
+        };
+
+        /**
         * @brief Workflow concept specializing benchmarks that can store circuit information
         * 
         * @details Any compatible workflow needs to store circuit information (gate composition, circuit depth, width, etc.) through a call to serialize_circuit_information() 

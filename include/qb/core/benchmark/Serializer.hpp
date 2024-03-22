@@ -181,25 +181,47 @@ namespace qb
 
         // - - - BitCounts - - - //
         /**
-        * @brief Helper function to convert from bit string counts from std::string to std::map
+        * @brief Helper function to convert from bit string counts from std::string to std::map<std::string, size_t>
         * 
         * Arguments:
         * @param bitstrings bit string counts of type std::string
         * @param n_qubits number of qubits.
         * 
-        * @return Converted bit string counts in std::map container.
+        * @return Converted bit string counts in std::map<std::string, size_t> container.
         */
         std::map<std::string, size_t> convert_to_counts_map(const std::string& bitstrings, const size_t n_qubits); 
         /**
-        * @brief Helper function to convert list of bit string counts from qb::String (aka std::vector<std::string>) to std::vector<std::map>
+        * @brief Helper function to convert from bit string counts from std::string to std::map<size_t, size_t>
         * 
         * Arguments:
-        * @param list_of_bitstrings collection of bit string counts of type qb::String as returned by qb::session
+        * @param bitstrings bit string counts of type std::string.
+        * @param n_qubits number of qubits.
+        * @param r2l_ordered assumed qubit ordering. If true, least significant bit is assumed to be on the very right.
+        * 
+        * @return Converted bit string counts in std::map<size_t, size_t> container.
+        */
+        std::map<size_t, size_t> convert_to_counts_map(const std::string& bitstrings, const size_t n_qubits, const bool r2l_ordered); 
+        /**
+        * @brief Helper function to convert list of bit string counts from qb::String (aka std::vector<std::string>) to std::vector<std::map<std::string, size_t>>
+        * 
+        * Arguments:
+        * @param list_of_bitstrings collection of bit string counts of type qb::String as returned by qb::session.
         * @param n_qubits number of qubits.
         * 
-        * @return Converted bit string counts in std::vector<std::map> container.
+        * @return Converted bit string counts in std::vector<std::map<std::string, size_t>> container.
         */
         std::vector<std::map<std::string, size_t>> convert_to_count_maps(const qb::String& list_of_bitstrings, const size_t n_qubits);
+        /**
+        * @brief Helper function to convert list of bit string counts from qb::String (aka std::vector<std::string>) to std::vector<std::map<size_t, size_t>>
+        * 
+        * Arguments:
+        * @param list_of_bitstrings collection of bit string counts of type qb::String as returned by qb::session.
+        * @param n_qubits number of qubits.
+        * @param r2l_ordered assumed qubit ordering. If true, least significant bit is assumed to be on the very right.
+        * 
+        * @return Converted bit string counts in std::vector<std::map<size_t, size_t>> container.
+        */
+        std::vector<std::map<size_t, size_t>> convert_to_count_maps(const qb::String& list_of_bitstrings, const size_t n_qubits, const bool r2l_ordered);
 
         /**
         * @brief Container object for bit string counts from qb::String

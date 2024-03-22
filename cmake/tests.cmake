@@ -52,6 +52,7 @@ add_executable(CITests
   tests/benchmark/workflows/QuantumStateTomographyTester.cpp
   tests/benchmark/workflows/SPAMBenchmarkTester.cpp
   tests/benchmark/workflows/RotationSweepTester.cpp
+  tests/benchmark/workflows/PyGSTiBenchmarkTester.cpp
   tests/benchmark/metrics/QuantumProcessFidelityTester.cpp
   tests/benchmark/metrics/QuantumStateFidelityTester.cpp
   tests/benchmark/metrics/CircuitFidelityTester.cpp
