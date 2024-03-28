@@ -31,8 +31,6 @@ namespace qb
     optional<std::string>("post_path", "", y,  m);
     optional<bool>("exclusive_access", false, y, m); 
     optional<std::vector<uint>>("init", std::vector<uint>(run_config.num_qubits, 0), y, m);
-    optional<int>("request_id", 0, y, m);
-    optional<uint>("poll_id", 0, y, m);
     optional<uint>("cycles", 1, y, m);
     optional<bool>("use_default_contrast_settings", true, y, m);
 

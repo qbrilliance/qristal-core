@@ -4,11 +4,18 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ## [X.X.X] - YYYY-MM-DD
 
-### Added 
+### Breaking
+
+- Removed the need to include /api/v1 in hardware device URLs. URLs containing this suffix will no longer work.
+- Support new circuit endpoint /api/v1/circuits in qcstack 2024.3.1 and later. Earlier qcstack versions no longer supported.
+
+### Added
 
 - Added functions to transform arbitrary Eigen- and vector-based quantum process matrices to their Choi and Kraus representation.
 - Refactored qb::benchmark::Pauli and qb::benchmark::BlochSphereUnitState to the qb namespace in a standalone qb/core/primitives.hpp header to circumvent noise_channel dependencies to qb::benchmark.
 - Added pyGSTi wrapper to qb::benchmark including a workflow executor (benchmark/workflows/PyGSTiBenchmark.hpp) and a results evaluator (benchmark/metrics/PyGSTiResults.hpp). Arbitrary pyGSTi experiment designs may now be exported and executed to qb::benchmark through PyGSTiBenchmark and then consecutively evaluated and printed in pyGSTi compatible format using PyGSTiResults. 
+- Simplified qb_qpu hardware device class
+
 
 ## [1.5.0] - 2024-02-21
 

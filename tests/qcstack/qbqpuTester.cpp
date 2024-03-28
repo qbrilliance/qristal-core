@@ -32,7 +32,6 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   YAML::Node db = YAML::LoadFile(SDK_DIR "/remote_backends.yaml");
   const std::string url = db["loopback"]["url"].as<std::string>();
   mm.insert("url", url.back() == '/' ? url : url + '/');
-  mm.insert("post_path", std::string(""));
   mm.insert("shots", shots);
   mm.insert("over_request", uint(1));
   mm.insert("init", init_qubits);
@@ -43,7 +42,7 @@ TEST(qbqpuTester, testInstantiationGetDetails)
 
   // Simple checker and printer
   std::cout << "* shots: " << mm.get<int>("shots") << std::endl;
-  for (auto s : {"results", "hwbackend", "url", "post_path"}) std::cout << "* " << s << ": " << mm.get<std::string>(s) << std::endl;
+  for (auto s : {"results", "url"}) std::cout << "* " << s << ": " << mm.get<std::string>(s) << std::endl;
   if (mm.keyExists<std::vector<uint>>("init"))
   {
     std::cout << "* init_: " << "\n";
@@ -55,7 +54,6 @@ TEST(qbqpuTester, testInstantiationGetDetails)
 
   // Read the configuration back and check against sent values
   xacc::HeterogeneousMap mm2 = hardware_device->getProperties();
-  ASSERT_EQ(mm.get<std::string>("post_path"), mm2.get<std::string>("post_path"));
   ASSERT_EQ(mm.get<int>("shots"),             mm2.get<int>("shots"));
   ASSERT_EQ(mm.get<std::vector<uint>>("init"), mm2.get<std::vector<uint>>("init"));
 

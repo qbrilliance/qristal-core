@@ -131,13 +131,7 @@ namespace xacc
       
         /// Number of shots in a cycle
         int shots = 0;
-      
-        /// Request ID
-        int request_id = 0;
-      
-        /// Poll ID
-        uint poll_id = 0;
-      
+
         /// Poll seconds
         double poll_secs = 0;
 
@@ -152,15 +146,15 @@ namespace xacc
         double init_contrast_threshold = 0; 
         std::map<int,double> qubit_contrast_thresholds = {}; 
       
+        /// Id number of last submitted circuit
+        uint circuit_id;
+
         /// Number of cycles
         uint cycles = 1;
       
         /// Format for results
         std::string results = "normal";
       
-        /// Real or dummy backend
-        std::string hwbackend = "gen1_canberra";
-            
         /// HTTP poll retries allowed
         uint poll_retries = 0;
       

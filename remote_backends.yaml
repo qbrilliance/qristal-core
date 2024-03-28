@@ -19,7 +19,7 @@ qdk_gen1:
   exclusive_access: false
 
 loopback:
-  url: https://localhost:8443/api/v1
+  url: https://localhost:8443
   poll_secs: 2
   poll_retries: 100
   over_request: 8

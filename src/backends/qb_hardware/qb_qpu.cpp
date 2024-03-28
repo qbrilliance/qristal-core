@@ -16,6 +16,9 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+const std::string circuitEndpoint = "api/v1/circuits/";
+const std::string nativeGateEndpoint = "api/v1/native-gates/";
+const std::string reservationEndpoint = "api/v1/reservations/";
 
 namespace qb
 {
@@ -104,8 +107,6 @@ namespace xacc
       m.insert("init", init);
       m.insert("n_qubits", n_qubits);
       m.insert("shots", shots);
-      m.insert("request_id", request_id);
-      m.insert("poll_id", poll_id);
       m.insert("poll_secs", poll_secs);
       m.insert("poll_retries", poll_retries);
       m.insert("use_default_contrast_settings", use_default_contrast_settings);
@@ -113,9 +114,7 @@ namespace xacc
       m.insert("qubit_contrast_thresholds", qubit_contrast_thresholds);
       m.insert("cycles", cycles);
       m.insert("results", results);
-      m.insert("hwbackend", hwbackend);
       m.insert("url", remoteUrl);
-      m.insert("post_path", postPath);
       m.insert("over_request", over_request);
       m.insert("recursive_request", recursive_request);
       m.insert("resample", resample);
@@ -134,8 +133,6 @@ namespace xacc
         "init",
         "n_qubits",
         "shots",
-        "request_id",
-        "poll_id",
         "poll_secs",
         "poll_retries",
         "use_default_contrast_settings",
@@ -143,9 +140,7 @@ namespace xacc
         "qubit_contrast_thresholds",
         "cycles",
         "results",
-        "hwbackend",
         "url",
-        "post_path",
         "over_request",
         "recursive_request",
         "resample",
@@ -166,8 +161,6 @@ namespace xacc
       update("init", init);
       update("shots", shots);
       update("n_qubits", n_qubits);
-      update("request_id", request_id);
-      update("poll_id", poll_id);
       update("poll_secs", poll_secs);
       update("poll_retries", poll_retries);
       update("use_default_contrast_settings", use_default_contrast_settings);
@@ -175,17 +168,10 @@ namespace xacc
       update("qubit_contrast_thresholds", qubit_contrast_thresholds);
       update("cycles", cycles);
       update("results", results);
-      update("hwbackend", hwbackend);
       update("url", remoteUrl);
-      update("post_path", postPath);
       update("over_request", over_request);
       update("recursive_request", recursive_request);
       update("resample", resample);
-      update("request_id", request_id);
-      update("poll_id", poll_id);
-      update("cycles", cycles);
-      update("results", results);
-      update("hwbackend", hwbackend);
       update("resample_above_percentage", resample_above_percentage);
       update("exclusive_access", exclusive_access);
       update("exclusive_access_token", exclusive_access_token);
@@ -316,11 +302,11 @@ namespace xacc
         if (exclusive_access)
         {          
           http_header = {{"Authorization", "Bearer " + exclusive_access_token}};
-          Put(remoteUrl, "reservations/", "", http_header);
+          Put(remoteUrl, reservationEndpoint, "", http_header);
         }
         
         // Get native gateset
-        json fromqdk = json::parse(qb_qpu::Get(remoteUrl, "native-gates"));
+        json fromqdk = json::parse(Get(remoteUrl, nativeGateEndpoint));
         if (debug) std::cout << "* Native gates query returned: " << fromqdk.dump() << "\n";
 
       }
@@ -347,7 +333,7 @@ namespace xacc
           qbjson = processInput(tmpBuffer, std::vector<std::shared_ptr<CompositeInstruction>>{f});
           // Output the JSON sent to the QB hardware if debug is turned on.
           if (debug) std::cout << "* JSON to be sent to QB hardware: " << std::endl << qbjson << std::endl;
-          std::string responseStr = Post(remoteUrl, postPath, qbjson, http_header);
+          std::string responseStr = Post(remoteUrl, circuitEndpoint, qbjson, http_header);
           processResponse(tmpBuffer, responseStr);
           tmpBuffers.push_back(tmpBuffer);
           buffer->appendChild(tmpBuffer->name(), tmpBuffer);
@@ -398,7 +384,6 @@ namespace xacc
         }
         jsel["settings"]["readout_contrast_threshold"]["qubits"] = qctjs;
       }
-      jsel["hwbackend"] = hwbackend;         // default: "gen1_canberra"
       jsel["init"] = init;
     
       // Circuit
@@ -442,11 +427,12 @@ namespace xacc
     void qb_qpu::processResponse(std::shared_ptr<AcceleratorBuffer> , const std::string &response)
     {
       if (debug) std::cout << "* Response from HTTP POST: " << response << std::endl;
-      json respost = json::parse(response);
-      auto idstr = respost["id"].get<int>();
-      previous_post_path = postPath;
-      postPath.append(std::to_string(idstr));   
-      if (debug) std::cout << "* POST done - poll for results at path: " << remoteUrl << postPath << std::endl;
+      circuit_id = json::parse(response)["id"].get<uint>();
+      if (debug)
+      {
+        std::string path = circuitEndpoint + std::to_string(circuit_id);
+        std::cout << "* POST done - poll for results at path: " << remoteUrl << path << std::endl;
+      }
       return;
     }
     
@@ -459,8 +445,9 @@ namespace xacc
         int polling_attempts)
     {         
       int acc_valid = 0;
-      if (debug) std::cout << "* Poll for results at path: " << remoteUrl << postPath << std::endl;
-      json fromqdk = json::parse(qb_qpu::Get(remoteUrl, postPath, http_header));
+      std::string path = circuitEndpoint + std::to_string(circuit_id);
+      if (debug) std::cout << "* Poll for results at path: " << remoteUrl << path << std::endl;
+      json fromqdk = json::parse(Get(remoteUrl, path, http_header));
       auto data = fromqdk["data"];                 
       if (data == nullptr) return false;
   
@@ -527,15 +514,11 @@ namespace xacc
           next_properties.insert("over_request", over_request*8);
         }
 
-        next_properties.insert("post_path", previous_post_path);
         hardware_device->updateConfiguration(next_properties);
         if (debug)
         {
           std::cout << "# Recursive request: remote URL is "
                     << next_properties.get<std::string>("url")
-                    << std::endl;
-          std::cout << "# Recursive request: post path is "
-                    << next_properties.get<std::string>("post_path")
                     << std::endl;
           std::cout << "# Recursive request: shots is "
                     << next_properties.get<int>("shots") << std::endl;
