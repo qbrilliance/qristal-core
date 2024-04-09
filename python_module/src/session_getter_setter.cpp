@@ -281,6 +281,13 @@ void session::set_rel_svd_cutoff(const ND &in_rel_svd_cutoff) {
 void session::set_rel_svd_cutoffs(const VectorMapND &in_rel_svd_cutoff) { session::rel_svd_cutoffs_ = in_rel_svd_cutoff; }
 const VectorMapND & session::get_rel_svd_cutoffs() const { return session::rel_svd_cutoffs_; }
 //
+void session::set_measure_sample_sequential(const bool &in_measure_sample_sequential) {
+  session::measure_sample_sequentials_.clear();
+  session::measure_sample_sequentials_.push_back({in_measure_sample_sequential});
+}
+void session::set_measure_sample_sequentials(const VectorBool &in_measure_sample_sequential) { session::measure_sample_sequentials_ = in_measure_sample_sequential; }
+const VectorBool & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
+//
 void session::set_noise_model(const NoiseModel &noise_model) {
   noise_models_.clear();
   noise_models_.emplace_back(std::vector<NoiseModel>{noise_model});
@@ -718,6 +725,18 @@ const std::string session::get_summary() const {
               out << " NA ";
           }
       }
+  }
+  out << std::endl << std::endl;
+  //
+
+  out << "* measure_sample_sequential:" << std::endl <<
+  "    QB tensor network measurement sampling method" << std::endl <<
+  "  = ";
+  for (auto item : get_measure_sample_sequentials()) {
+    for (auto itel : item) {
+      out << " " << itel;
+    }
+    out << std::endl;
   }
   out << std::endl << std::endl;
   //

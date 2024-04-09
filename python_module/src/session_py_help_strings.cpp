@@ -387,6 +387,18 @@ const char* session::help_rel_svd_cutoffs_ = R"(
                 This is only needed if using the "tnqvm" backend accelerator.
 )";
 
+const char* session::help_measure_sample_sequentials_ = R"(
+        measure_sample_sequential:
+
+        Set the measurement sampling method (QB emulator tensor network simulator). The single setting applies globally.
+
+        measure_sample_sequentials:
+
+        A 1d-array (list) version of measure_sample_sequential.
+
+        .. note::
+                This is only needed if using the emulator tensor network accelerators.
+)";
 
 const char* session::help_noise_models_ = R"(
         noise_model:

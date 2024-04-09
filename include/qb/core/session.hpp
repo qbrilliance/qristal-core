@@ -81,13 +81,14 @@ namespace qb
       VectorMapND betas_;
       VectorMapND thetas_;
 
-      // ExaTN-MPS settings
+      // ExaTN-MPS and QB tensor network settings
       VectorN max_bond_dimensions_;
       VectorN initial_bond_dimensions_;
       VectorN max_kraus_dimensions_;
       VectorN initial_kraus_dimensions_;
       VectorMapND svd_cutoffs_;
       VectorMapND rel_svd_cutoffs_;
+      VectorBool measure_sample_sequentials_;
 
       // Noise models
       std::vector<std::vector<NoiseModel>> noise_models_;
@@ -880,6 +881,30 @@ namespace qb
       const VectorMapND &get_rel_svd_cutoffs() const;
       /// @private
       static const char *help_rel_svd_cutoffs_;
+      //
+      /**
+       * @brief Set the measurement sampling method - "false" uses the cutensorNet
+       * contraction method of the entire tensor network state (default).
+       * "true" uses the cutensor sequential  contraction method.
+       * @note This is only needed if using the emulator tensor network accelerator
+       * 
+       * @param in_measure_sample_sequential Measure sampling option value
+       */
+      void set_measure_sample_sequential(const bool &in_measure_sample_sequential);
+      /**
+       * @brief Set the measurement sampling methods
+       * 
+       * @param in_measure_sample_sequential Measure sampling option values
+       */
+      void set_measure_sample_sequentials(const VectorBool &in_measure_sample_sequential);
+      /**
+       * @brief Get the measurement sampling method
+       * 
+       * @return Measure sampling option values
+       */
+      const VectorBool &get_measure_sample_sequentials() const;
+      /// @private
+      static const char *help_measure_sample_sequentials_;
       //
       /**
        * @brief Set the noise model

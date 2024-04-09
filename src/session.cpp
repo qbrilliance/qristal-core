@@ -125,7 +125,7 @@ namespace qb
         out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
         executor_(std::make_shared<Executor>()), error_mitigations_{}, state_vec_{},
-        in_get_state_vec_(false) {
+        in_get_state_vec_(false), measure_sample_sequentials_{{false}} {
     xacc::Initialize();
     xacc::setIsPyApi();
     xacc::set_verbose(debug_);
@@ -753,6 +753,17 @@ namespace qb
       config.rel_svd_cutoff_tnqvm = rel_svd_cutoffs_valid.get(ii, jj).at(0);
     }
 
+    /// QB tensor network accelerator measurement sampling method
+    {
+      ValidatorTwoDim<VectorBool, bool> measure_sample_sequential_valid(
+          measure_sample_sequentials_, false, true, " Measurement sampling method [measure-sample-sequential] ");
+      if (measure_sample_sequential_valid.is_data_empty())
+      {
+        throw std::range_error("Measure sampling method [measure-sample-sequential] cannot be empty");
+      }
+      config.measure_sample_sequential = measure_sample_sequential_valid.get(ii, jj);
+    }
+
     /// Choice of noise model
     {
       if (noise_models_[0].empty())
@@ -1063,6 +1074,7 @@ namespace qb
     int initial_kraus_dimension = run_config.initial_kraus_tnqvm;
     double svd_cutoff = run_config.svd_cutoff_tnqvm;
     double rel_svd_cutoff = run_config.rel_svd_cutoff_tnqvm;
+    bool measure_sample_sequential = run_config.measure_sample_sequential;
     // Optional random seed: randomized by default.
     int random_seed = []() {
       static std::random_device dev;
@@ -1236,7 +1248,8 @@ namespace qb
               {"max-bond-dim", max_bond_dimension},
               {"abs-truncation-threshold", svd_cutoff},
               {"rel-truncation-threshold", rel_svd_cutoff},
-              {"noise-model", noise_model_name}});
+              {"noise-model", noise_model_name},
+              {"measurement-sampling-sequential", measure_sample_sequential}});
           if (debug_) {
             std::cout << "# Noise model for qb-mps (from emulator package): enabled"
                       << std::endl;
@@ -1247,7 +1260,8 @@ namespace qb
             {"initial-bond-dim", initial_bond_dimension},
             {"max-bond-dim", max_bond_dimension},
             {"abs-truncation-threshold", svd_cutoff},
-            {"rel-truncation-threshold", rel_svd_cutoff}});
+            {"rel-truncation-threshold", rel_svd_cutoff},
+            {"measurement-sampling-sequential", measure_sample_sequential}});
       }
     } else if (acc == "qb-purification") {
       if (noises) {
@@ -1472,6 +1486,7 @@ namespace qb
     ND rel_scut{{0, 1.0e-4}};
     set_rel_svd_cutoff(rel_scut);
     set_output_oqm_enabled(true);
+    set_measure_sample_sequential(false);
   }
 
   void session::aws32dm1() {

@@ -230,6 +230,13 @@ void bind_session(pybind11::module &m) {
                     &qb::session::get_max_kraus_dimensions,
                     &qb::session::set_max_kraus_dimensions,
                     qb::session::help_max_kraus_dimensions_)
+      .def_property("measure_sample_sequential", &qb::session::get_measure_sample_sequentials,
+                    &qb::session::set_measure_sample_sequential,
+                    qb::session::help_measure_sample_sequentials_)
+      .def_property("measure_sample_sequentials",
+                    &qb::session::get_measure_sample_sequentials,
+                    &qb::session::set_measure_sample_sequentials,
+                    qb::session::help_measure_sample_sequentials_)
       .def_property("output_amplitude", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitude,
                     qb::session::help_output_amplitudes_)
