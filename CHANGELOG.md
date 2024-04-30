@@ -17,6 +17,10 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Simplified qb_qpu hardware device class
 - Added sequential contraction method option for qb-mps measurement sampling.
 
+### Fixed
+
+- Updated warning flags passed to dependencies, enabled Werror when WARNINGS=ON is set at cmake time.
+
 
 ## [1.5.0] - 2024-02-21
 

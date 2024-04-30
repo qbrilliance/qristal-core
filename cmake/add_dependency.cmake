@@ -98,7 +98,9 @@ macro(add_dependency NAME VERSION)
           list(PREPEND arg_OPTIONS "${option}=${${option}}")
         endif()
       endforeach()
-      list(PREPEND arg_OPTIONS "CMAKE_CXX_FLAGS=${dashw_IF_NOT_WARNINGS}")
+
+      # Default values for options (overridden by any explicit values passed to add_dependency).
+      list(PREPEND arg_OPTIONS "CMAKE_CXX_FLAGS=-w")
 
       if(arg_PATCH_FILE)
 

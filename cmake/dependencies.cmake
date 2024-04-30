@@ -33,6 +33,7 @@ endif()
 
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
+
 # XACC
 set(XACC_TAG "05164c13")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
@@ -49,7 +50,6 @@ add_poorly_behaved_dependency(xacc 1.0.0
     "XACC_ENABLE_MPI @ENABLE_MPI@"
     "COMPILE_FOR_LOCAL_ARCH ${COMPILE_FOR_LOCAL_ARCH}"
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
-    "CMAKE_CXX_FLAGS ${XACC_CMAKE_CXX_FLAGS}"
     "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
     "CMAKE_INSTALL_LIBDIR lib"
 )
