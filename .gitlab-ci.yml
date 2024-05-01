@@ -1,8 +1,8 @@
 variables:
   CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-5
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-10
-  EMULATOR_RHEL_X86_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-x86:emulator-3
-  EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-power:emulator-3
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-cuda12.4
+  EMULATOR_RHEL_X86_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-x86:emulator-cuda12.4
+  EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-power:emulator-cuda12.4
   USE_MPI: "ON"
 
  # branch to use for emulator repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"

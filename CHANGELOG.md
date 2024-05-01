@@ -20,6 +20,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 ### Fixed
 
 - Updated warning flags passed to dependencies, enabled Werror when WARNINGS=ON is set at cmake time.
+- Updated CUDA Quantum version to latest release (0.7.0) for cutensor2 support.
 
 
 ## [1.5.0] - 2024-02-21
