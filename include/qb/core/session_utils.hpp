@@ -72,7 +72,7 @@ namespace qb
     /// [AER backend] Simulator type (e.g., state vec, density matrix, etc.)
     std::string aer_sim_type;
     /// [Emulator tensor network accelerators] Measurement sampling method
-    bool measure_sample_sequential;
+    std::string measure_sample_sequential;
   };
 
 }

@@ -281,12 +281,31 @@ void session::set_rel_svd_cutoff(const ND &in_rel_svd_cutoff) {
 void session::set_rel_svd_cutoffs(const VectorMapND &in_rel_svd_cutoff) { session::rel_svd_cutoffs_ = in_rel_svd_cutoff; }
 const VectorMapND & session::get_rel_svd_cutoffs() const { return session::rel_svd_cutoffs_; }
 //
-void session::set_measure_sample_sequential(const bool &in_measure_sample_sequential) {
+void session::set_measure_sample_sequential(const std::string &in_measure_sample_sequential) {
+  validate_measure_sample_options(in_measure_sample_sequential);
   session::measure_sample_sequentials_.clear();
   session::measure_sample_sequentials_.push_back({in_measure_sample_sequential});
 }
-void session::set_measure_sample_sequentials(const VectorBool &in_measure_sample_sequential) { session::measure_sample_sequentials_ = in_measure_sample_sequential; }
-const VectorBool & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
+void session::set_measure_sample_sequentials(const VectorString &in_measure_sample_sequential) {
+  for (auto item : in_measure_sample_sequential) {
+    for (auto im : item) {
+      session::validate_measure_sample_options(im);
+    }
+  }
+  session::measure_sample_sequentials_ = in_measure_sample_sequential;
+}
+void session::validate_measure_sample_options(const std::string &measure_sample_options) {
+  if (VALID_MEASURE_SAMPLING_OPTIONS.find(measure_sample_options) == VALID_MEASURE_SAMPLING_OPTIONS.end()) {
+    std::stringstream measure_sample_options_error_message;
+    measure_sample_options_error_message << "Valid measure sampling options: " << std::endl;
+    for (auto it : VALID_MEASURE_SAMPLING_OPTIONS) {
+      measure_sample_options_error_message << "* \"" << it << "\"" << std::endl;
+    }
+    throw std::range_error(measure_sample_options_error_message.str());
+  }
+}
+const VectorString & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
+
 //
 void session::set_noise_model(const NoiseModel &noise_model) {
   noise_models_.clear();

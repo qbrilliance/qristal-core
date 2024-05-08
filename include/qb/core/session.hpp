@@ -88,7 +88,7 @@ namespace qb
       VectorN initial_kraus_dimensions_;
       VectorMapND svd_cutoffs_;
       VectorMapND rel_svd_cutoffs_;
-      VectorBool measure_sample_sequentials_;
+      VectorString measure_sample_sequentials_;
 
       // Noise models
       std::vector<std::vector<NoiseModel>> noise_models_;
@@ -185,6 +185,10 @@ namespace qb
       // Valid placements
       std::unordered_set<std::string> VALID_HARDWARE_PLACEMENTS = {
           "swap-shortest-path", "noise-aware"};
+
+      // Valid measurement sampling options
+      std::unordered_set<std::string> VALID_MEASURE_SAMPLING_OPTIONS = {
+          "auto", "on", "off"};
 
     public:
       /**
@@ -883,26 +887,30 @@ namespace qb
       static const char *help_rel_svd_cutoffs_;
       //
       /**
-       * @brief Set the measurement sampling method - "false" uses the cutensorNet
-       * contraction method of the entire tensor network state (default).
-       * "true" uses the cutensor sequential  contraction method.
+       * @brief Set the measurement sampling method - "off" uses the cutensorNet
+       * contraction method of the entire tensor network state. Program terminates
+       * with error meassage if cutensorNet fails. 
+       * "on" uses the cutensor sequential contraction method.
+       * "auto" (default) uses the cutensorNet contraction method and automatically 
+       * swithes to the cutensor sequential contraction method if the cutensorNet
+       * method fails.
        * @note This is only needed if using the emulator tensor network accelerator
        * 
        * @param in_measure_sample_sequential Measure sampling option value
        */
-      void set_measure_sample_sequential(const bool &in_measure_sample_sequential);
+      void set_measure_sample_sequential(const std::string &in_measure_sample_sequential);
       /**
        * @brief Set the measurement sampling methods
        * 
        * @param in_measure_sample_sequential Measure sampling option values
        */
-      void set_measure_sample_sequentials(const VectorBool &in_measure_sample_sequential);
+      void set_measure_sample_sequentials(const VectorString &in_measure_sample_sequential);
       /**
        * @brief Get the measurement sampling method
        * 
        * @return Measure sampling option values
        */
-      const VectorBool &get_measure_sample_sequentials() const;
+      const VectorString &get_measure_sample_sequentials() const;
       /// @private
       static const char *help_measure_sample_sequentials_;
       //
@@ -1178,6 +1186,7 @@ namespace qb
       void validate_acc(const std::string &acc);
       void validate_noise_mitigation(const std::string &noise_mitigate);
       void validate_aer_sim_type(const std::string &sim_type);
+      void validate_measure_sample_options(const std::string &measure_sample_options);
       int is_ii_consistent();
       int is_jj_consistent();
        circuit_input_types validate_infiles_instrings_randoms_irtarget_ms_nonempty(const size_t ii, const size_t jj);

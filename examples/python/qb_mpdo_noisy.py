@@ -17,6 +17,7 @@ s.initial_bond_dimension = 1
 s.max_bond_dimension = 256
 s.svd_cutoffs[0][0][0] = 1.0e-15 # Set the absolute SVD cut-off
 s.rel_svd_cutoffs[0][0][0] = 1.0e-10 # Set the relative SVD cut-off
+s.measure_sample_sequential = "auto"
 
 # Uncomment the following lines to introduce noise to the simulation.
 # You will need to have the Qristal emulator installed for this to work.
