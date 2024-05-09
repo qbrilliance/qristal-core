@@ -10,7 +10,6 @@ pybind11_add_module (py${PROJECT_NAME}
   python_module/src/py_stl_containers.cpp
   python_module/src/py_noise_model.cpp
   python_module/src/py_optimization_vqee.cpp
-  python_module/src/py_optimization_qml.cpp
   python_module/src/py_optimization_qaoa_simple.cpp
   python_module/src/py_optimization_qaoa_recursive.cpp
   python_module/src/py_optimization_qaoa_warm_start.cpp

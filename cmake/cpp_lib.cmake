@@ -2,6 +2,7 @@ set(source_files
   src/async_executor.cpp
   src/backend.cpp
   src/backend_utils.cpp  
+  src/circuit_builder.cpp
   src/pretranspiler.cpp
   src/profiler.cpp
   src/session.cpp
@@ -22,7 +23,6 @@ set(source_files
   src/optimization/qaoa/qaoa_recursive.cpp
   src/optimization/qaoa/qaoa_warmStart.cpp
   src/optimization/qaoa/qaoa_validators.cpp
-  src/optimization/qml/qml.cpp
   src/passes/noise_aware_placement_pass.cpp
   src/passes/swap_placement_pass.cpp
   src/passes/circuit_opt_passes.cpp
@@ -67,7 +67,6 @@ set(headers
   include/qb/core/backends/qb_hardware/qb_visitor.hpp
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/optimization/qaoa/qaoa.hpp
-  include/qb/core/optimization/qml/qml.hpp
   include/qb/core/passes/base_pass.hpp
   include/qb/core/passes/noise_aware_placement_config.hpp
   include/qb/core/passes/noise_aware_placement_pass.hpp

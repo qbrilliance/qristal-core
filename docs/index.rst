@@ -47,8 +47,8 @@ The Emulator plugin for Qristal `can be obtained in binary form from Quantum Bri
    rst/cli
    rst/quantum_computing
    rst/noise_models
+   rst/parametrization
    rst/vqe
-   rst/qml
    rst/nextflow
    rst/emulator
 

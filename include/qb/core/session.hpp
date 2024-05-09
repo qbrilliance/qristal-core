@@ -8,7 +8,6 @@
 #include "qb/core/session_utils.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
 #include "qb/core/passes/base_pass.hpp"
-
 // CUDAQ support
 #ifdef WITH_CUDAQ
   #include "cudaq/utils/cudaq_utils.h"
@@ -72,6 +71,7 @@ namespace qb
       VectorBool output_oqm_enableds_;
       VectorBool log_enableds_;
       VectorBool notimings_;
+      VectorBool calc_jacobians_;
 
       VectorN qns_;
       VectorN rns_;
@@ -80,6 +80,8 @@ namespace qb
 
       VectorMapND betas_;
       VectorMapND thetas_;
+
+      Table2d<std::vector<double>> parameter_vectors_;
 
       // ExaTN-MPS and QB tensor network settings
       VectorN max_bond_dimensions_;
@@ -94,18 +96,20 @@ namespace qb
       std::vector<std::vector<NoiseModel>> noise_models_;
 
       // Variables not wrapped to Python
-      VectorBool acc_uses_lsbs_;
       VectorN acc_uses_n_bits_;
 
       std::vector<std::vector<std::map<std::string, std::complex<double>>>> output_amplitudes_;
 
       // For storing results
       VectorString out_raws_;
-      std::vector<std::vector<std::map<std::string, int>>> out_bitstrings_;
+      Table2d<std::vector<double>> out_probs_;
+      Table2d<std::vector<int>> out_counts_;
       VectorMapND out_divergences_;
       VectorString out_transpiled_circuits_;
       VectorString out_qobjs_;
       VectorString out_qbjsons_;
+      Table2d<Table2d<double>> out_prob_gradients_;
+      VectorBool acc_uses_lsbs_;
       //
       VectorMapNN out_single_qubit_gate_qtys_;
       VectorMapNN out_double_qubit_gate_qtys_;
@@ -329,6 +333,48 @@ namespace qb
       static const char *help_include_qbs_;
       //
       /**
+       * @brief Set the parameter values for execution.
+       * 
+       * @param vals_vec New parameter vector for runtime substitution
+       */
+      void set_parameter_vector(const std::vector<double> &vals_vec);
+      /**
+       * @brief Set the list of parameter values for execution.
+       * 
+       * @param vals_vecs New parameter vectors for runtime substitution
+       */
+      void set_parameter_vectors(Table2d<std::vector<double>> vals_vecs);
+      /**
+       * @brief Get the parameter values for runtime circuit execution.
+       * 
+       * @return A vector-of-vectors of parameter values
+       */
+      const Table2d<std::vector<double>> &get_parameter_vectors() const;
+      /// @private
+      static const char *help_parameter_vectors_;
+      /**
+       * @brief Determine whether jacobians will be calculated for parametrized circuits.
+       * 
+       * @param calculate_gradients_m Whether to calculate jacobians for parametrized circuits
+       */
+      void set_calc_jacobian(bool calculate_gradients_m);
+      /**
+       * @brief Determine whether jacobians will be calculated for specific parametrized circuits.
+       * 
+       * @param calculate_gradients_ms Whether to calculate jacobians for specific parametrized circuits
+       */
+      void set_calc_jacobians(VectorBool calculate_gradients_ms);
+      /**
+       * @brief Get the jacobians calculation flags.
+       * 
+       * @return A 1-d array of jacobians calculation flags
+       */
+      const VectorBool &get_calc_jacobians() const;
+      /// @private
+      static const char *help_calc_jacobians_;
+      //
+      /**
+       * @brief Set the path to the qpu config JSON file.
        * @brief Set the path to the remote backend database yaml file.
        * 
        * @param remote_backend_database_path Path to the remote backend database yaml file.
@@ -983,13 +1029,26 @@ namespace qb
       static const char *help_out_raws_;
       //
       /**
-       * @brief Get the output measurement counts 
+       * @brief Get the output measurement counts as a vector
        * 
-       * @return Measurement count map
+       * @return Measurement counts vector
        */
-      const std::vector<std::vector<std::map<std::string, int>>> &get_out_bitstrings() const;
-      /// @private
-      static const char *help_out_bitstrings_;
+      const Table2d<std::vector<int>> &get_out_counts() const;
+      static const char *help_out_counts_;
+      /**
+       * @brief Get the output probabilities
+       * 
+       * @return Measurement probabilities vector
+       */
+      const Table2d<std::vector<double>> &get_out_probs() const;
+      static const char *help_out_probs_;
+      /**
+       * @brief Get the output probability gradients
+       * 
+       * @return Table of probability jacobians w.r.t. runtime parameters
+       */
+      const Table2d<Table2d<double>> &get_out_prob_jacobians() const;
+      static const char *help_out_jacobians_;
       //
       /**
        * @brief Get the output Jensen–Shannon divergence results
@@ -1149,12 +1208,15 @@ namespace qb
       
       /// Run a quantum task at the (ii, jj) index in the experiment table.
       void run(const size_t ii, const size_t jj);
-      
+      /// Validate the run i.e. ensure all configurations are set in a 
+      /// valid manner. 
+      void validate_run();
       /**
        * @brief Execute all quantum tasks
        *
        */
       void run();
+
       /// Set the multi-qpu run configurations:
       /// e.g., the list of QPUs paricipate in this run
       void set_parallel_run_config(const std::string &in_config);
@@ -1175,7 +1237,20 @@ namespace qb
       void aws32sv1();
       /// AWS Braket TN1, 8 async workers, 49 qubits, 256 shots, noiseless
       void aws8tn1();
-
+      
+      /**
+       * @brief Returns the (base-10) integer vector index for the probabilities/
+       * counts vector, corresponding to a bitstring for the quantum experiment 
+       * at (ii, jj).
+       * 
+       * @param in_bitstring The bitstring to be converted to the vector index
+       * @param ii The first index for the quantum experiment
+       * @param jj The second index for the quantum experiment
+       */
+      inline size_t bitstring_index(std::string in_bitstring, size_t ii,
+                                    size_t jj);
+      /// @private
+      static const char *help_bitstring_index_;
           
     private:
       int validate_sns_nonempty();
@@ -1189,13 +1264,13 @@ namespace qb
       void validate_measure_sample_options(const std::string &measure_sample_options);
       int is_ii_consistent();
       int is_jj_consistent();
-       circuit_input_types validate_infiles_instrings_randoms_irtarget_ms_nonempty(const size_t ii, const size_t jj);
+      circuit_input_types validate_infiles_instrings_randoms_irtarget_ms_nonempty(const size_t ii, const size_t jj);
 
       // Methods
       std::string random_circuit(const int n_q, const int depth);
 
-      double get_jensen_shannon_divergence(const std::map<std::string, int> &in_q,
-                                           const std::map<std::string, std::complex<double>> &in_p);
+      double get_jensen_shannon_divergence(const std::vector<int> counts,
+                                           const std::vector<std::complex<double>> amplitudes);
 
       std::string aer_circuit_transpiler(std::string &circuit);
       /// Ensure that all result tables are resized/expanded to accommodate (ii, jj) experiment index.
@@ -1225,6 +1300,10 @@ namespace qb
       /// Get the simulator based on `run_i_j_config`
       std::shared_ptr<xacc::Accelerator> get_sim_qpu(bool execute_on_hardware, const run_i_j_config& run_config);
 
+      /// Calculate the gradients for the parametrized quantum task at the 
+      /// (ii, jj) index in the experiment table.
+      void run_gradients(const size_t ii, const size_t jj);
+
       /// Execute the circuit on a simulator
       void execute_on_simulator(
           std::shared_ptr<xacc::Accelerator> acc,
@@ -1247,28 +1326,36 @@ namespace qb
       template <typename CountMapT>
       void populate_measure_counts_data(size_t ii, size_t jj,
                                         const CountMapT &measure_counts_map) {
-        // Save the counts to a string-to-int map
-        std::map<std::string, int> keystring_all;
-        for (const auto &[bit_string, count] : measure_counts_map) {
-          std::string keystring = bit_string;
-          if (acc_uses_lsbs_.at(ii).at(jj)) {
-            // 0 => LSB
-            std::reverse(keystring.begin(), keystring.end());
-          }
-          if (keystring.size() < 32) {
-            keystring_all.insert(std::make_pair(keystring, count));
-          } else {
-            if (debug_) {
-              std::cout << "Cannot represent bitstring as integer. Please use "
-                           ".out_raw method instead.\n";
-            }
-            break;
-          }
+        run_i_j_config run_config = get_run_config(ii, jj);
+        // Unless the parameters are defined differently for each
+        // experiment, use the global setting
+        size_t num_qubits = run_config.num_qubits;
+        size_t num_shots = run_config.num_shots;
+        // Check that the number of qubits is set correctly
+        std::string sample_keystring = measure_counts_map.begin()->first;
+        if (sample_keystring.length() > num_qubits) {
+          std::string err_msg = "Not enough physical qubits! "
+                                 "Set qn to at least " +
+                                 std::to_string(sample_keystring.length());
+          throw std::logic_error(err_msg);
         }
-
-        // Store bitstring and measured counts
-        out_bitstrings_.at(ii).at(jj) = keystring_all;
-
+        // Also save the counts and probabilities as a vector
+        if (num_qubits < 32) {
+          const size_t num_entries = std::pow(2, num_qubits);
+          std::vector<int> counts_all(num_entries);
+          for (const auto &[bit_string, count] : measure_counts_map) {
+            std::string keystring = bit_string;
+            size_t idx = bitstring_index(keystring, ii, jj);
+            counts_all[idx] = count;
+          }
+          // Store measured counts
+          out_counts_.at(ii).at(jj) = counts_all;
+        } else {
+            if (debug_) {
+              std::cout << "Cannot represent bitstring(s) as integer(s). Please use "
+                            ".out_raw method instead.\n";
+            }
+        }
         // Save results to JSON
         nlohmann::json qpu_counts_js = measure_counts_map;
         out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);

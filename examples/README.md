@@ -275,6 +275,14 @@ _noise_: true
 
 A version of `noise_model_user_defined.py` demonstrating the use of a user-defined noise model in a different basis gate set.
 
+`parametrization_demo.py`
+
+_qubits_: 2
+_gate depth_: 4
+_noise_: false
+
+An extremely simple demonstration of how to construct and execute parametrized circuits using Qristal.
+
 `pfd.py`
 
 _qubits_: 12  
@@ -303,14 +311,6 @@ _qubits_: 5
 _noise_: false  
 
 Example of a quantum Fourier transform.
-
-`qml/RDBMS_query_optimization.py`
-
-_qubits_: 4
-_variational_params_: 40
-_noise_: false
-
-Example showing QML wrapped in PyTorch for optimizing the join order of tables for reduced query latency in relational database management systems (such as PostgreSQL).
 
 `qpe.py`
 
@@ -495,6 +495,15 @@ _gate depth_: 6
 _noise_: true
 
 A C++ implementation of `noise_model_user_defined.py`.
+
+`parametrizatrion`
+
+_qubits_: 1-2
+_circuits_: 2
+_gate depth_: 1
+_noise_: false
+
+Demonstrates the use of parametrized gates/circuits in Qristal, as well as how to execute parametrized circuits after providing runtime parameters, and calculating jacobians for these parameters. 
 
 `vqee`
 

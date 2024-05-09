@@ -20,6 +20,7 @@ def test_cz_optimization():
     s.nooptimise = False
     s.noplacement = True
     s.notiming = True
+    s.nosim = True
     s.run()
     print(s.out_transpiled_circuit[0][0])
     # Use xacc to recompile the transpiled qasm for validation
@@ -40,6 +41,7 @@ def test_cz_placement():
     s.nooptimise = True
     s.noplacement = False
     s.notiming = True
+    s.nosim = True
     s.run()
     print(s.out_transpiled_circuit[0][0])
     # Use xacc to recompile the transpiled qasm for validation
@@ -82,6 +84,7 @@ def test_cphase_simple():
     circ_qb = qb.core.Circuit()
     circ_qb.cphase(0, 1, theta)
     my_sim.ir_target = circ_qb
+    my_sim.nosim = True
     my_sim.run()
     transpiled_circ_qb = my_sim.out_transpiled_circuit[0][0]
 

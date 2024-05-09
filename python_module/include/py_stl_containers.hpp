@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-PYBIND11_MAKE_OPAQUE(std::vector<int>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::string>);
 PYBIND11_MAKE_OPAQUE(std::vector<size_t>);
 PYBIND11_MAKE_OPAQUE(std::vector<bool>);
@@ -21,7 +20,6 @@ PYBIND11_MAKE_OPAQUE(std::map<int, std::complex<double>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::map<int, double>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::map<int, std::complex<double>>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<size_t>>);
-PYBIND11_MAKE_OPAQUE(std::map<std::string, double>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::string>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<bool>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::map<int, std::complex<double>>>>);

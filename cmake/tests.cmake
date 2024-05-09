@@ -41,13 +41,13 @@ add_executable(CITests
   tests/circuits/UPrimeTester.cpp
   tests/circuits/UQPrimeTester.cpp
   tests/circuits/WPrimeTester.cpp
+  tests/circuit_builders/ParametrizedCircuitTester.cpp
   tests/coreCLITester.cpp
   tests/noise_model/NoiseModelTester.cpp
   tests/sparse_simulator/QBSparseSimTester.cpp
   tests/uccsd/UCCSDTester.cpp
   tests/optimization/vqeeTester.cpp
   tests/optimization/qaoaTester.cpp
-  tests/optimization/qmlTester.cpp
   tests/benchmark/workflows/QuantumProcessTomographyTester.cpp
   tests/benchmark/workflows/QuantumStateTomographyTester.cpp
   tests/benchmark/workflows/SPAMBenchmarkTester.cpp

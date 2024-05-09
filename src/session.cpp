@@ -116,13 +116,13 @@ namespace qb
         nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
         output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
         notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-        thetas_{{}}, 
+        calc_jacobians_{{{false}}}, thetas_{{}}, parameter_vectors_{{{}}},
         initial_bond_dimensions_{{}}, initial_kraus_dimensions_{{}}, max_bond_dimensions_{{}},
         max_kraus_dimensions_{{}}, svd_cutoffs_{{}}, rel_svd_cutoffs_{{}}, noise_models_{{}},
         acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}}, output_amplitudes_{{}},
-        out_raws_{{{}}}, out_bitstrings_{{{}}}, out_divergences_{{{}}},
-        out_transpiled_circuits_{{{}}}, out_qobjs_{{{}}}, out_qbjsons_{{{}}},
-        out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
+        out_raws_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
+        out_divergences_{{{}}}, out_transpiled_circuits_{{{}}}, out_qobjs_{{{}}},
+        out_qbjsons_{{{}}}, out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
         executor_(std::make_shared<Executor>()), error_mitigations_{}, state_vec_{},
         in_get_state_vec_(false), measure_sample_sequentials_{{"auto"}} {
@@ -288,10 +288,9 @@ namespace qb
    *
    * Input:
    *
-   *     [std::map<std::string, int>]        in_q : the counts from a quantum
-   *simulation.  The string key is assumed to be a BCD index for in_p
+   *     [std::vector<int>] counts: the counts from a quantum simulation.
    *
-   *     [std::vector<std::complex<double>>] in_p : the amplitudes for the
+   *     [std::vector<std::complex<double>>] amplitudes : the amplitudes for the
    *theoretical distribution of states from which in_q has been sampled.  begin()
    *corresponds to |00...0>. end() corresponds to |111...1>.  Increments in the
    *state label correspond to increments in the iterator.
@@ -304,74 +303,29 @@ namespace qb
    *
    *   m = 0.5*(in_p + in_q)
    *
-   *   D_KL(P||Q) = P' * (log(P)-log(Q))  : P,Q are column vectors.  Exclude all
-   *elements of Q that are zero
+   *   D_KL(X||Y) = X' * (log(X)-log(Y))  : X,Y are column vectors.  Exclude all
+   *elements of X or Y that are zero
    **/
 
-  double session::get_jensen_shannon_divergence(const std::map<std::string, int> &in_q,
-                                                  const std::map<std::string, std::complex<double>> &in_p) {
+  double session::get_jensen_shannon_divergence(const std::vector<int> counts,
+                                                const std::vector<std::complex<double>> amplitudes) {
+    // Ensure that both vectors are the same size
+    assert(counts.size() == amplitudes.size());
+    
     double divergence = 0.0;
-    int sum_in_q = 0;
-    for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
-      sum_in_q += in_q_elem->second;
+    double sum_counts = std::accumulate(counts.begin(), counts.end(), 0);
+    double d_pm, d_qm;
+    for (size_t i = 0; i < counts.size(); i++) {
+      // Calculate the mixture vector element m(i) = 0.5*(in_p(i) + in_q(i))
+      double p_i = counts.at(i) / (1.0 * sum_counts);
+      double q_i = std::norm(amplitudes.at(i));
+      double m_i = 0.5 * (p_i + q_i);
+      // get the Kullback-Leibler divergence of probs p and q wrt m
+      if (m_i > 0 && p_i > 0) d_pm += p_i * std::log(p_i/m_i);
+      if (m_i > 0 && q_i > 0) d_qm += q_i * std::log(q_i/m_i);
     }
 
-    std::map<std::string, int>::const_iterator in_q_elem;
-    std::string n_str = in_q.begin()->first;
-    unsigned int n_q = n_str.size();
-
-    for (auto in_p_elem = in_p.begin(); in_p_elem != in_p.end(); in_p_elem++) {
-      double nipe = std::norm(in_p_elem->second);
-      // Search in_q for a state with the label matching in_p_elem
-      std::string statelabel = in_p_elem->first;
-      std::reverse(statelabel.begin(), statelabel.end());
-      if (debug_) {
-        std::cout << "[debug]: statelabel: " << statelabel << " , nipe: " << nipe << std::endl;
-      }
-      in_q_elem = in_q.find(statelabel);
-
-      if (in_q_elem != in_q.end()) {
-        double rfq = (1.0 / sum_in_q) * (in_q_elem->second);
-        if (debug_) {
-          std::cout << "[debug]: rfq: " << rfq << std::endl;
-        }
-        double m = 0.5 * (rfq + nipe);
-        if ((in_q_elem->second > 0) && (nipe > 0)) {
-          divergence += 0.5 * (nipe * (std::log(nipe) - std::log(m)) +
-                               rfq * (std::log(rfq) - std::log(m)));
-        } else if ((in_q_elem->second > 0) && (nipe == 0)) {
-          divergence += 0.5 * rfq * (std::log(rfq) - std::log(m));
-        } else if ((in_q_elem->second == 0) && (nipe > 0)) {
-          divergence += 0.5 * nipe * (std::log(nipe) - std::log(m));
-        } else {
-          if (debug_) {
-            std::cout
-                << "Ignoring a state that has zero probability in both P and Q"
-                << std::endl;
-          }
-        }
-      } else {
-        divergence +=
-            0.5 * nipe * std::log(2); // divergence += 0.5*nipe*(std::log(nipe) -
-                                      // std::log(m)); m = 0.5*nipe
-      }
-    }
-
-    // Check for entries of in_q that are sparse (zero) for in_p
-    for (auto in_q_elem = in_q.begin(); in_q_elem != in_q.end(); in_q_elem++) {
-      std::string statelabel = in_q_elem->first;
-      std::reverse(statelabel.begin(), statelabel.end());
-      double rfq = (1.0 / sum_in_q) * (in_q_elem->second);
-      auto in_p_el = in_p.find(statelabel);
-
-      if (in_p_el == in_p.end()) {
-        divergence +=
-            0.5 * rfq * std::log(2); // divergence += 0.5*rfq*(std::log(rfq) -
-                                     // std::log(m)); m = 0.5*rfq
-      }
-    }
-
-    return divergence;
+    return (0.5*d_pm) + (0.5*d_qm);
   }
 
   void session::get_jensen_shannon(const size_t &ii, const size_t &jj) {
@@ -385,8 +339,8 @@ namespace qb
     int N_ii = SINGLETON;
     int N_jj = SINGLETON;
 
-    if ((N_ii = singleton_or_eqlength(out_bitstrings_, N_ii)) == INVALID) {
-      throw std::range_error("[out_bitstrings] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(out_counts_, N_ii)) == INVALID) {
+      throw std::range_error("[out_counts_] shape is invalid");
     }
     if ((N_ii = singleton_or_eqlength(output_amplitudes_, N_ii)) == INVALID) {
       throw std::range_error("[output_amplitudes] shape is invalid");
@@ -394,9 +348,9 @@ namespace qb
     if ((N_ii = singleton_or_eqlength(acc_uses_lsbs_, N_ii)) == INVALID) {
       throw std::range_error("[acc_uses_lsbs] shape is invalid");
     }
-    for (auto el : out_bitstrings_) {
+    for (auto el : out_counts_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[out_bitstrings] shape is invalid");
+        throw std::range_error("[out_counts_] shape is invalid");
       }
     }
     for (auto el : output_amplitudes_) {
@@ -423,8 +377,14 @@ namespace qb
       out_divergences_.at(ii).resize(jj + 1);
     }
 
+    std::vector<std::complex<double>> out_amps(out_counts_.at(ii).at(jj).size());
+    for (auto el: output_amplitudes_.at(ii).at(jj)) {
+      std::string bitstring = el.first;
+      out_amps[bitstring_index(bitstring, ii, jj)] = el.second;
+    }
+
     double jsdivergence = get_jensen_shannon_divergence(
-        out_bitstrings_.at(ii).at(jj), output_amplitudes_.at(ii).at(jj));
+        out_counts_.at(ii).at(jj), out_amps);
     ND jsdivergence_nd;
     jsdivergence_nd.insert(std::make_pair(0, jsdivergence));
     out_divergences_.at(ii).at(jj) = jsdivergence_nd;
@@ -438,16 +398,15 @@ namespace qb
     const int SINGLETON = 1;
     int N_ii = SINGLETON;
     int N_jj = SINGLETON;
-
-    if ((N_ii = singleton_or_eqlength(out_bitstrings_, N_ii)) == INVALID) {
-      throw std::range_error("[out_bitstrings] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(out_counts_, N_ii)) == INVALID) {
+      throw std::range_error("[out_counts_] shape is invalid");
     }
     if ((N_ii = singleton_or_eqlength(output_amplitudes_, N_ii)) == INVALID) {
       throw std::range_error("[output_amplitudes] shape is invalid");
     }
-    for (auto el : out_bitstrings_) {
+    for (auto el : out_counts_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[out_bitstrings] shape is invalid");
+        throw std::range_error("[out_counts_] shape is invalid");
       }
     }
     for (auto el : output_amplitudes_) {
@@ -567,6 +526,16 @@ namespace qb
         throw std::range_error("Number of repetitions [rn] cannot be empty");
       }
       config.num_repetitions = rns_valid.get(ii, jj);
+    }
+
+    /// Enable gradient calculation for parametrized circuit
+    {
+      ValidatorTwoDim<VectorBool, bool> calc_jacobians_valid(calc_jacobians_, false, true);
+      if (calc_jacobians_valid.is_data_empty())
+      {
+        throw std::range_error("Cannot determine whether to calculate gradients");
+      }
+      config.calc_jacobian = calc_jacobians_valid.get(ii, jj);
     }
 
     /// Enable output transpilation and resource estimation
@@ -839,7 +808,9 @@ namespace qb
     resize_for_i_j(acc_uses_n_bits_, "acc_uses_n_bits_");
     resize_for_i_j(output_amplitudes_, "output_amplitudes_");
     resize_for_i_j(out_raws_, "out_raws_");
-    resize_for_i_j(out_bitstrings_, "out_bitstrings_");
+    resize_for_i_j(out_probs_, "out_probs_");
+    resize_for_i_j(out_counts_, "out_counts_");
+    resize_for_i_j(out_prob_gradients_, "out_prob_gradients_");
     resize_for_i_j(out_divergences_, "out_divergences_");
     resize_for_i_j(out_transpiled_circuits_, "out_transpiled_circuits_");
     resize_for_i_j(out_qobjs_, "out_qobjs_");
@@ -1381,11 +1352,10 @@ namespace qb
   
   /// Run (execute) task specified by the (ii, jj) index pair
   void session::run(const size_t ii, const size_t jj) {
-   run_internal(ii, jj, /*acc = */ nullptr);
+    run_internal(ii, jj, /*acc = */ nullptr);
   }
 
-  void session::run() {
-    if (debug_) std::cout << "Invoked run()" << std::endl;
+  void session::validate_run() {
 
     // Shape consistency
     const int N_ii = is_ii_consistent();
@@ -1410,9 +1380,19 @@ namespace qb
     for (auto el : out_raws_) {
       el.resize(N_jj);
     }
-    out_bitstrings_.clear();
-    out_bitstrings_.resize(N_ii);
-    for (auto el : out_bitstrings_) {
+    out_probs_.clear();
+    out_probs_.resize(N_ii);
+    for (auto el : out_probs_) {
+      el.resize(N_jj);
+    }
+    out_counts_.clear();
+    out_counts_.resize(N_ii);
+    for (auto el : out_counts_) {
+      el.resize(N_jj);
+    }
+    out_prob_gradients_.clear();
+    out_prob_gradients_.resize(N_ii);
+    for (auto el : out_prob_gradients_) {
       el.resize(N_jj);
     }
     out_divergences_.clear();
@@ -1460,12 +1440,71 @@ namespace qb
     for (auto el : acc_uses_n_bits_) {
       el.resize(N_jj);
     }
+  }
 
+  void session::run() {
+    if (debug_) std::cout << "Invoked run()" << std::endl;
+    const int N_ii = is_ii_consistent();
+    const int N_jj = is_jj_consistent();
+    validate_run();
     for (size_t ii = 0; ii < N_ii; ii++) {
       for (size_t jj = 0; jj < N_jj; jj++) {
         run(ii, jj);
       }
     }
+  }
+
+  void session::run_gradients(const size_t ii, const size_t jj) {
+    // Initialize
+    std::shared_ptr<xacc::CompositeInstruction> target_circuit = irtarget_ms_.at(ii).at(jj);
+    std::vector<double> param_vals = parameter_vectors_.at(ii).at(jj);
+    Table2d<std::shared_ptr<xacc::CompositeInstruction>> gradient_circs;
+    size_t num_params = param_vals.size();
+    try {
+      assert(target_circuit->nVariables() > 0);
+      assert(num_params == target_circuit->nVariables());
+    }
+    catch (...) {
+      throw std::logic_error("This circuit is not parametrized correctly, so gradients cannot be calculated.");
+    }
+    // Calculate param-shift gradient
+    for (size_t i = 0; i < 2*num_params; i+=2) {
+      std::vector<double> vals(param_vals);
+      vals[i/2] += M_PI_2; // Increase by pi/2 
+      auto evaled_circ_plus = (*target_circuit)(vals);
+      vals[i/2] -= M_PI; // Reduce by pi to get -pi/2 overall
+      auto evaled_circ_minus = (*target_circuit)(vals);
+      gradient_circs.push_back({evaled_circ_plus});
+      gradient_circs.push_back({evaled_circ_minus});
+    }
+    // Create new session object to run shifted gradient circuits
+    qb::session gradient_sess(*this);
+    gradient_sess.set_calc_jacobian(false);
+    gradient_sess.set_irtarget_ms(gradient_circs);
+    gradient_sess.run();
+    run_i_j_config run_config = get_run_config(ii, jj);
+    size_t num_qubits = run_config.num_qubits;
+    size_t num_shots = run_config.num_shots;
+    size_t num_outputs = ipow(2, num_qubits);
+    // Construct the jacobian
+    Table2d<double> jacobian(num_outputs, std::vector<double>(num_outputs));
+    std::vector<double> probs_all(num_outputs);
+    for (size_t i = 0; i < 2*num_params; i += 2) {
+      // Find the bitstring indices that are non-zero in at least one run
+      std::vector<int> counts_plus = 
+                          gradient_sess.get_out_counts().at(i).at(0);
+      std::vector<int> counts_minus = 
+                          gradient_sess.get_out_counts().at(i+1).at(0);
+      // Only loop over non-zero bitstrings and populate jacobian
+      for (size_t j = 0; j < num_outputs; j++) {
+        probs_all.at(j) = out_counts_.at(ii).at(jj).at(j) / (1.0 * num_shots);
+        jacobian.at(i / 2).at(j) = 0.5 * (counts_plus[j] - counts_minus[j]) / (1.0 * num_shots);
+      }
+    }
+    // Populate the correct fields
+    out_prob_gradients_.at(ii).at(jj).resize(num_params, std::vector<double>(num_outputs));
+    out_prob_gradients_.at(ii).at(jj) = jacobian;
+    out_probs_.at(ii).at(jj) = probs_all;
   }
 
   void session::qb12() {
@@ -1791,7 +1830,11 @@ namespace qb
       if (file_or_string_or_random_or_ir ==
           session::circuit_input_types::VALID_IR) {
         // Direct IR input (e.g., circuit builder)
-        citargets.push_back(irtarget_ms_.at(ii).at(0));
+        std::shared_ptr<xacc::CompositeInstruction> in_circ = irtarget_ms_.at(ii).at(0);
+        if (in_circ->nVariables() > 0) {
+          in_circ = in_circ->operator()(parameter_vectors_.at(ii).at(0));
+        }
+        citargets.push_back(in_circ);
       } else {
         // String input -> compile
         const std::string target_circuit =
@@ -1897,6 +1940,7 @@ namespace qb
     // ----------  Execution  ------------
     // ==============================================
     buffer_b->resetBuffer();
+
     xacc::ScopeTimer timer_for_qpu(
         "Walltime, in ms, for simulator to execute quantum circuit", false);
     if (!nosim && !exec_on_hardware) {
@@ -2043,9 +2087,15 @@ namespace qb
       }
       qpu_counts = qpu_counts_aer;
     }
+    if (!run_config.no_sim) {
+      // Save the counts to out_counts_, and raw map data in out_raws
+      populate_measure_counts_data(ii, jj, qpu_counts);
 
-    // Save the counts to out_bitstrings_ and raw map data in out_raws
-    populate_measure_counts_data(ii, jj, qpu_counts);
+      // If required to calculate gradients, do it now
+      if (run_config.calc_jacobian) {
+        run_gradients(ii, jj);
+      }
+    }
 
     // Transpile to QB native gates (acc)
     if (run_config.oqm_enabled) {
@@ -2111,5 +2161,16 @@ namespace qb
           "__qpu__ void QBCIRCUIT(qreg q) {\n" + in_rawQasm + '}';
       return qbstr;
     }
+  }
+
+  size_t session::bitstring_index(std::string in_bitstring, size_t ii,
+                                    size_t jj) {
+    // MSB/LSB checker implemented for now, qubit->classical register
+    // mapping implemented in future iteration
+    if (acc_uses_lsbs_.at(ii).at(jj)) {
+      std::reverse(in_bitstring.begin(), 
+                    in_bitstring.end());
+    }
+    return (size_t) std::stoi(in_bitstring, 0, 2);
   }
 } // namespace qb

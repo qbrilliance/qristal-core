@@ -43,18 +43,16 @@ TEST(CudaqTester, check_kernel_execution) {
 
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);
+  my_sim.set_qn(NB_QUBITS);
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
-  EXPECT_EQ(out_counts.size(), 2);
-  int sum = 0;
-  for (const auto &[bitStr, count] : out_counts) {
-    sum += count;
-  }
+  const auto out_counts = my_sim.get_out_counts()[0][0];
+  EXPECT_EQ(qb::count_nonzero(out_counts), 2);
+  int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
   EXPECT_EQ(sum, 20000);
 }
 
@@ -148,11 +146,11 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
   // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  auto my_sim = qb::session(true);
 
   // Number of qubits we want to run
   // Large number of qubits, since we are using GPUs!
-  constexpr int NB_QUBITS = 30;
+  constexpr int NB_QUBITS = 31;
 
   // Add CUDAQ ghz kernel to the current session
   my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
@@ -164,18 +162,16 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   my_sim.set_acc("cudaq:custatevec_fp32");
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);
+  my_sim.set_qn(NB_QUBITS);
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
-  EXPECT_EQ(out_counts.size(), 2);
-  int sum = 0;
-  for (const auto &[bitStr, count] : out_counts) {
-    sum += count;
-  }
+  const auto out_counts = my_sim.get_out_counts()[0][0];
+  EXPECT_EQ(qb::count_nonzero(out_counts), 2);
+  int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
   EXPECT_EQ(sum, 20000);
 }
 #endif
@@ -218,12 +214,9 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
-  EXPECT_EQ(out_counts.size(), 2);
-  int sum = 0;
-  for (const auto &[bitStr, count] : out_counts) {
-    sum += count;
-  }
+  const auto out_counts = my_sim.get_out_counts()[0][0];
+  EXPECT_EQ(qb::count_nonzero(out_counts), 2);
+  int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
   EXPECT_EQ(sum, 100);
 }
 
@@ -254,11 +247,8 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   // Print the cumulative results
   std::cout << "Results:" << std::endl
             << my_sim.get_out_raws()[0][0] << std::endl;
-  const auto out_counts = my_sim.get_out_bitstrings()[0][0];
-  EXPECT_EQ(out_counts.size(), 2);
-  int sum = 0;
-  for (const auto &[bitStr, count] : out_counts) {
-    sum += count;
-  }
+  const auto out_counts = my_sim.get_out_counts()[0][0];
+  EXPECT_EQ(qb::count_nonzero(out_counts), 2);
+  int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
   EXPECT_EQ(sum, 100);
 }

@@ -39,6 +39,26 @@ void session::set_include_qb(const std::string &include_qb) {
 void session::set_include_qbs(const VectorString &include_qbs) { session::include_qbs_ = include_qbs; }
 const VectorString & session::get_include_qbs() const { return session::include_qbs_; }
 //
+void session::set_parameter_vector(const std::vector<double> &vals) {
+  session::parameter_vectors_.clear();
+  session::parameter_vectors_.push_back({vals});
+}
+void session::set_parameter_vectors(Table2d<std::vector<double>> vals) {
+  session::parameter_vectors_ = vals;
+}
+const Table2d<std::vector<double>> & session::get_parameter_vectors() const {
+  return session::parameter_vectors_;
+}
+//
+void session::set_calc_jacobian(bool calc_jacobian) {
+  session::calc_jacobians_.clear();
+  session::calc_jacobians_.push_back({calc_jacobian});
+}
+void session::set_calc_jacobians(VectorBool calc_jacobians) {
+session::calc_jacobians_ = calc_jacobians;
+}
+const VectorBool & session::get_calc_jacobians() const { return session::calc_jacobians_; }
+//
 void session::set_remote_backend_database_path(const std::string &path) {
   session::remote_backend_database_path_ = path;
 }
@@ -339,12 +359,18 @@ const VectorString & session::getName() const { return session::name_m; }
 
 const VectorString & session::get_out_raws() const { return session::out_raws_ ; }
 //
-
-const std::vector<std::vector<std::map<std::string, int>>> & session::get_out_bitstrings() const {
-  return session::out_bitstrings_ ;
+const Table2d<std::vector<int>> & session::get_out_counts() const {
+  return session::out_counts_;
 }
 //
-
+const Table2d<std::vector<double>> & session::get_out_probs() const {
+  return session::out_probs_;
+}
+//
+const Table2d<Table2d<double>> & session::get_out_prob_jacobians() const {
+  return session::out_prob_gradients_;
+}
+//
 const VectorMapND & session::get_out_divergences() const { return session::out_divergences_ ; }
 //
 
@@ -367,6 +393,7 @@ const VectorMapND & session::get_out_total_init_maxgate_readout_times() const { 
 //
 
 const VectorMapND & session::get_out_z_op_expects() const { return session::out_z_op_expects_ ; }
+
 //
 
 const std::shared_ptr<std::vector<std::complex<double>>> & session::get_state_vec_raw() const {return session::state_vec_ ;}
@@ -772,15 +799,17 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* out_bitstring:" << std::endl <<
-  "    Measured bitstrings" << std::endl <<
-  "      [string] Keys: bitstrings" << std::endl <<
+  //
+  out << "* out_counts:" << std::endl <<
+  "    Measured counts" << std::endl <<
+  "      [int] Bitstring indices" << std::endl <<
   "  = ";
-  for (auto item : get_out_bitstrings()) {
+  for (auto item : get_out_counts()) {
       out << std::endl << " ";
       for (auto itel : item) {
-          for (auto it : itel) {
-              out << " | " << it.first << ": " << it.second;
+          for (size_t i = 0; auto it : itel) {
+              out << " | " << i << ": " << it;
+              i++;
           }
           if (itel.size() > 0) {
               out << " | ";

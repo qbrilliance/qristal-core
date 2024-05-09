@@ -21,6 +21,15 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Updated CUDA Quantum version to latest release (0.7.0) for cutensor2 support.
 - Enabled Werror when WARNINGS=ON is set at cmake time.
 - Added instance handlers for PowerPC CI pipelines
+- Parametrized circuit building now supported using the `CircuitBuilder` (C++)/`Circuit` (Python) objects, with execution using `session`. Optimization examples can be seen in `tests/sessionOptTester.cpp`.
+- `session` now calculates and outputs probability jacobians if the property `set_calc_jacobian(s)` is set to `true`. The jacobians can be accessed using `get_out_jacobians`. If the jacobians are calculated, the vectors of output probabilities can also be accessed using `get_out_probs`.
+- A mapping from bitstring to vector index can be accessed using the method `session.bitstring_index`. Check the docs and python help strings for details.
+
+### Breaking
+
+- `session` no longer outputs a bitstring-to-counts map through `get_out_bitstrings`. A list (python)/vector(C++) of counts can be caccessed through `get_out_counts`.
+- QML: No longer part of the core repository as parametrized functionality has been introduced to CircuitBuilder. QML-specific functions should be fetched from the upcoming QML repo.
+
 
 ### Fixed
 

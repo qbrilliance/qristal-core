@@ -31,6 +31,8 @@ namespace qb
     int num_repetitions;
     /// Enable post-execution transpilation and resource estimation
     bool oqm_enabled;
+    /// Whether or not jacobian should be calculated
+    bool calc_jacobian;
     /// Name of the backend accelerator
     std::string acc_name;
     /// Full path to the OpenQASM include file where custom QB gates are defined
@@ -48,6 +50,8 @@ namespace qb
     bool no_sim;
     /// Enable noisy simulation/emulation
     bool noise;
+    /// Runtime parameters for parametrized circuit
+    std::vector<double> param_values;
     /// Noise model
     NoiseModel noise_model;
     /// Noise mitigation strategy (empty if none)

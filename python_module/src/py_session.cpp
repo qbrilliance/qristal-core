@@ -111,6 +111,12 @@ void bind_session(pybind11::module &m) {
                     qb::session::help_quil1s_)
       .def_property("quil1s", &qb::session::get_quil1s,
                     &qb::session::set_quil1s, qb::session::help_quil1s_)
+      .def_property("calc_jacobian", &qb::session::get_calc_jacobians,
+                    &qb::session::set_calc_jacobian,
+                    qb::session::help_calc_jacobians_)
+      .def_property("calc_jacobians", &qb::session::get_calc_jacobians,
+                    &qb::session::set_calc_jacobians,
+                    qb::session::help_calc_jacobians_)
       .def_property("noplacement", &qb::session::get_noplacements,
                     &qb::session::set_noplacement,
                     qb::session::help_noplacements_)
@@ -190,6 +196,12 @@ void bind_session(pybind11::module &m) {
                     qb::session::help_thetas_)
       .def_property("thetas", &qb::session::get_thetas,
                     &qb::session::set_thetas, qb::session::help_thetas_)
+      .def_property("parameter_list", &qb::session::get_parameter_vectors,
+                    &qb::session::set_parameter_vector,
+                    qb::session::help_parameter_vectors_)
+      .def_property("parameter_lists", &qb::session::get_parameter_vectors,
+                    &qb::session::set_parameter_vectors,
+                    qb::session::help_parameter_vectors_)
       .def_property("svd_cutoff", &qb::session::get_svd_cutoffs,
                     &qb::session::set_svd_cutoff,
                     qb::session::help_svd_cutoffs_)
@@ -258,10 +270,12 @@ void bind_session(pybind11::module &m) {
                              qb::session::help_out_raws_)
       .def_property_readonly("out_raws", &qb::session::get_out_raws,
                              qb::session::help_out_raws_)
-      .def_property_readonly("out_bitstring", &qb::session::get_out_bitstrings,
-                             qb::session::help_out_bitstrings_)
-      .def_property_readonly("out_bitstrings", &qb::session::get_out_bitstrings,
-                             qb::session::help_out_bitstrings_)
+      .def_property_readonly("out_probs", &qb::session::get_out_probs,
+                             qb::session::help_out_probs_)
+      .def_property_readonly("out_counts", &qb::session::get_out_counts,
+                             qb::session::help_out_counts_)
+      .def_property_readonly("out_prob_jacobians", &qb::session::get_out_prob_jacobians,
+                             qb::session::help_out_jacobians_)
       .def_property_readonly("out_divergence",
                              &qb::session::get_out_divergences,
                              qb::session::help_out_divergences_)
@@ -332,6 +346,9 @@ void bind_session(pybind11::module &m) {
       .def("runit",
            py::overload_cast<const size_t, const size_t>(&qb::session::run),
            "runit(i,j) : Execute circuit i, condition j")
+      .def("bitstring_index",
+           py::overload_cast<std::string, size_t, size_t>(&qb::session::bitstring_index),
+           qb::session::help_bitstring_index_)
       .def("divergence", py::overload_cast<>(&qb::session::get_jensen_shannon),
            "Calculate Jensen-Shannon divergence")
       .def("qb12", py::overload_cast<>(&qb::session::qb12),

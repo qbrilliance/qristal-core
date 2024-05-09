@@ -5,6 +5,7 @@
 
 #include "args.hxx"
 
+#include <bitset> 
 #include <stdexcept>
 #include <unordered_set>
 
@@ -15,6 +16,15 @@ namespace qb {
 
 /// Computes the binomial coefficient for (n, k)
 int binomialCoefficient(int n, int k);
+
+template <typename num_t>
+size_t count_nonzero(std::vector<num_t> in_vec) {
+  size_t num_nonzero = 0;
+  for (auto elem: in_vec) {
+    num_nonzero += (elem != 0);
+  }
+  return num_nonzero;
+}
 
 // The most efficient exponentiating method by Elias Yarrkov:
 // https://stackoverflow.com/questions/101439/the-most-efficient-way-to-implement-an-integer-based-power-function-powint-int
@@ -68,7 +78,7 @@ TT2 get_arg_or_cfg(const TT2 &in_v, args::ValueFlag<TT2> &in_arg,
 template <typename M, typename V> void vec_to_map(M &m, const V &v) {
   int iix = 0;
   for (typename V::const_iterator it = v.begin(); it != v.end(); ++it) {
-    m.insert({iix, v.at(iix)});
+    if (v.at(iix) != 0) m.insert({iix, v.at(iix)});
     iix++;
   }
 }

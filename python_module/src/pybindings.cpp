@@ -46,8 +46,6 @@ PYBIND11_MODULE(core, m) {
       m.def_submodule("optimization", "Optimization modules within qb_core");
   // VQEE
   qb::bind_vqee(m_opt);
-  // QML
-  qb::bind_qml(m_opt);
   // Simple QAOA
   qb::bind_qaoa_simple(m_opt);
   // Recursive QAOA

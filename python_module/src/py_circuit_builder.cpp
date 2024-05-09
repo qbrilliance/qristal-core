@@ -18,11 +18,15 @@ void bind_circuit_builder(pybind11::module &m) {
       .def(
           "openqasm",
           [&](qb::CircuitBuilder &this_) {
+            if (this_.is_parametrized()) 
+            {
+              throw std::runtime_error("Cannot convert parametrized circuit to OpenQASM!");
+            }
             auto staq = xacc::getCompiler("staq");
             const auto openQASMSrc = staq->translate(this_.get());
             return openQASMSrc;
           },
-          "Get the OpenQASM representation of the circuit.")
+          "Get the OpenQASM representation of the (non-parametrized) circuit.")
       .def(
           "append",
           [&](qb::CircuitBuilder &this_, qb::CircuitBuilder other) {
@@ -58,6 +62,36 @@ void bind_circuit_builder(pybind11::module &m) {
               - **NUM_QUBITS** The number of qubits required for the circuit [int]
 
           )")
+      .def(
+          "num_qubits", [&](qb::CircuitBuilder &builder) {builder.num_qubits();}, R"(
+      Returns the number of (physical) qubits in the circuit.
+    )")
+      .def(
+          "num_free_params", [&](qb::CircuitBuilder &builder) {builder.num_free_params();}, R"(
+      Returns the number of free parameters in the (parametrized) circuit.
+    )")
+      .def(
+          "param_dict_to_list", 
+          [&](qb::CircuitBuilder &builder, std::map<std::string, double> param_dict) {
+            return builder.param_map_to_vec(param_dict);
+          }, R"(
+      Convert a dictionary that defines parameter assignments to a vector for 
+      input to the session object. The vector will be ordered according to 
+      the definition of the free parameter in the circuit; for example, if 
+      a gate is defined with the free parameter "alpha" in an empty circuit, 
+      its mapped parameter will be at index 0 in the vector. If another gate 
+      exists in this circuit with the parameter "beta", the value for this 
+      mapped parameter will be at index 1, and so on.
+
+      Parameters:
+
+      - **param_dict** the dictionary 
+
+      Returns:
+
+      A vector containing the ordered parameter values.
+
+    )")
       .def(
           "h", [&](qb::CircuitBuilder &builder, int idx) { builder.H(idx); },
           py::arg("idx"), R"(
@@ -179,6 +213,23 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
+          "rx",
+          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+            builder.RX(idx, param_name);
+          },
+          py::arg("idx"), py::arg("name"), R"(
+      RX gate
+
+     This method adds an x-axis rotation (RX) gate with a free parameter "
+     "to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
+
+    )")
+      .def(
           "ry",
           [&](qb::CircuitBuilder &builder, int idx, double theta) {
             builder.RY(idx, theta);
@@ -195,6 +246,23 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
+          "ry",
+          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+            builder.RY(idx, param_name);
+          },
+          py::arg("idx"), py::arg("param_name"), R"(
+      RY gate
+
+     This method adds a y-axis rotation (RY) gate with a free parameter "
+     "to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
+
+    )")
+      .def(
           "rz",
           [&](qb::CircuitBuilder &builder, int idx, double theta) {
             builder.RZ(idx, theta);
@@ -208,6 +276,23 @@ void bind_circuit_builder(pybind11::module &m) {
 
      - **idx** the index of the qubit being acted on [int]
      - **theta** the angle of rotation about the z-axis [double]
+
+    )")
+      .def(
+          "rz",
+          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+            builder.RZ(idx, param_name);
+          },
+          py::arg("idx"), py::arg("param_name"), R"(
+      RZ gate
+
+     This method adds a z-axis rotation (RZ) gate with a free parameter "
+     "to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
 
     )")
       .def(
@@ -309,6 +394,27 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
+          "cphase",
+          [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx,
+              std::string param_name) { builder.CPhase(ctrl_idx, target_idx, param_name); },
+          py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("param_name"),
+          R"(
+      CPhase gate
+
+     This method adds a controlled-U1 (CPhase) gate with a free parameter "
+     "to the circuit.
+
+     The CPHase gate performs a U1(theta) gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+     - **name** the name of the free parameter [string]
+
+    )")
+      .def(
           "cz",
           [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
             builder.CZ(ctrl_idx, target_idx);
@@ -358,6 +464,23 @@ void bind_circuit_builder(pybind11::module &m) {
 
      - **idx** the index of the qubit being acted on [int]
      - **theta** the value of the phase [double]
+
+    )")
+      .def(
+          "u1",
+          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+            builder.U1(idx, param_name);
+          },
+          py::arg("idx"), py::arg("param_name"), R"(
+     U1 gate
+
+     This method adds a phase (U1) gate with a free parameter "
+     "to the circuit.
+
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
 
     )")
       .def(

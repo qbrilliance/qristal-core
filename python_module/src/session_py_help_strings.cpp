@@ -123,6 +123,21 @@ const char* session::help_quil1s_ = R"(
         The lead dimension's element 0 matches the vector of infiles, element 1 matches the vector of instrings, element 2 matches the vector of randoms.
 )";
 
+const char* session::help_calc_jacobians_ = R"(
+        calc_jacobian:
+
+        Valid settings: True | False
+
+        Setting this to True will calculate gradients for the circuit when session.run() is evoked. The single setting applies globally.
+        The gradients calculated will be a jacobian of the output probabilities with respect to the input parameters, i.e. d_probs/d_params.
+
+        calc_jacobians:
+
+        Valid settings: [[True|False, ...], [True|False, ...]]
+
+        A 1d-array (list) version of calc_jacobian.
+)";     
+
 const char* session::help_noplacements_ = R"(
         noplacement:
 
@@ -309,6 +324,16 @@ const char* session::help_thetas_ = R"(
         A 1d-array (list) version of theta.
 )";
 
+const char* session::help_parameter_vectors_ = R"(
+        parameter_vector:
+
+        Runtime parameters for the input parametrized circuit. The single setting applies globally.
+
+        parameter_vectors:
+
+        A 1d-array (list) version of parameter_vector.
+)";
+
 const char* session::help_initial_bond_dimensions_ = R"(
         initial_bond_dimension:
 
@@ -453,14 +478,34 @@ const char* session::help_out_raws_ = R"(
         A 1d-array (list) version of session.out_raw.
 )";
 
-const char* session::help_out_bitstrings_ = R"(
-        out_bitstring:
+const char* session::help_out_counts_ = R"(
+        out_counts:
 
-        After calling session.run(), the counts from running sn shots are stored in session.out_bitstring, using a dictionary where the keys are state label bits.
+        After calling session.run(), the counts from running sn shots are stored in a list of shot counts.
+        The indices of this list correspond to a different possible base-2 bitstring solution, with the mapping from bitstring to list index provided by the function bitstring_index.
+)";
 
-        out_bitstrings:
+const char* session::help_out_probs_ = R"(
+        out_probs:
 
-        A 1d-array (list) version of session.out_bitstring.
+        After calling session.run() with `calc_jacobian(s)` set to true, the probability distribution from running sn shots stored in a list of solution output probabilities.
+        The indices of this list correspond to a different possible base-2 bitstring solution, with the mapping from bitstring to list index provided by the function bitstring_index.
+)";
+
+const char* session::help_out_jacobians_ = R"(
+        out_prob_jacobians:
+
+        After calling session.run() with `calc_jacobian(s)` set to true, the probability jacobians from running sn shots are stored in session.out_prob_jacobian, using a list of 2D list-of-lists format.
+        The jacobians calculate the gradients of the probability with respect to the runtime parameters, in the following format (where y is the probability list and x is the parameter list):
+
+        [[dy_0/dx_0, dy_0/dx_1, ... dy_0/dx_n],
+         [dy_1/dx_0, dy_1/dx_1, ... dy_1/dx_n],
+          ...
+         [dy_m/dx_0, dy_m/dx_1, ... dy_m/dx_n]]
+
+        Since the jacobian is returned as a list-of-lists, it can be accessed in row major format, and indexing the above matrix can be done accordingly, i.e. get_out_jacobians()[0][1] corresponds to the dy_0/dx_1 value. 
+        x_i correspond to the parameters set in the parameter list (i.e. the parameters ordered by their first appearance in the circuit.)
+        y_i are the output probabilities of different bitstrings, indexed in the same manner as the out_count list. Explicitly, the index i corresponding to a specific bitstring can be obtained by calling bitstring_index(bitstring, j, k) for experiment (j, k). 
 )";
 
 const char* session::help_out_divergences_ = R"(
@@ -585,5 +630,9 @@ const char* session::help_seeds_ = R"(
         seeds:
 
         A 1d-array (list) version of seed.
+)";
+
+const char* session::help_bitstring_index_ = R"(
+        Get the (base-10) integer index for the counts/probabilities list, corresponding to a bitstring for the quantum experiment at (ii, jj).
 )";
 } // namespace qb

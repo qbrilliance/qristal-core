@@ -284,8 +284,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
                     threading
                     time
                     timeit
-                    torch
-                    torchviz
                     uuid
                    )
 

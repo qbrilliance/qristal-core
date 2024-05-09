@@ -94,7 +94,6 @@ set(PUBLIC_HEADERS
   include/qb/core/noise_model/noise_model.hpp
   include/qb/core/noise_model/noise_properties.hpp
   include/qb/core/noise_model/readout_error.hpp
-  include/qb/core/optimization/qml/qml.hpp
   include/qb/core/optimization/vqee/case_generator.hpp
   include/qb/core/optimization/vqee/vqee.hpp
   include/qb/core/passes/base_pass.hpp

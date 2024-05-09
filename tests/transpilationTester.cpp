@@ -25,6 +25,7 @@ h q[1];
   // single CZ.
   my_sim.set_nooptimise(false);
   my_sim.set_noplacement(true);
+  my_sim.set_nosim(true);
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
@@ -55,6 +56,7 @@ cz q[0], q[1];
   // Enable only placement 
   my_sim.set_nooptimise(true);
   my_sim.set_noplacement(false);
+  my_sim.set_nosim(true);
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 

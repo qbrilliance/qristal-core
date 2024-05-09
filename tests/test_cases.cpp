@@ -192,15 +192,8 @@ TEST(SDKTester, test_readout_error_mitigation) {
   const auto iter = s.get_out_z_op_expects()[0][0].find(0);
   EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
   const double exp_val = iter->second;
-  double raw_exp_val = 0.0;
-  for (const auto &[bitString, count] : s.get_out_bitstrings()[0][0]) {
-    if (bitString == "0") {
-      raw_exp_val += (static_cast<double>(count) / 1024);
-    } else {
-      EXPECT_EQ(bitString, "1");
-      raw_exp_val += (-static_cast<double>(count) / 1024);
-    }
-  }
+  std::vector<int> out_counts = s.get_out_counts()[0][0];
+  double raw_exp_val = (out_counts[0] - out_counts[1]) / (1.0 * n_shots);
   std::cout << "Error mitigated exp-val = " << exp_val
             << " vs. raw exp-val = " << raw_exp_val << "\n";
   // Ideal result is -1.0 (|1> state)
@@ -358,24 +351,24 @@ TEST(InitRepeatFlag_1, checkSimple) {
 
   int nq_next_letter = qubits_next_letter.size();
   int string_integer;
-  auto out_count = s.get_out_bitstrings()[0][0];
+  auto out_count = s.get_out_counts()[0][0];
 
-  auto a1 = out_count["01000000"]; //64
-  auto a2 = out_count["01100001"]; //97
-  auto a3 = out_count["01000010"]; //66
-  auto a4 = out_count["01000011"]; //67
-  auto a5 = out_count["01000100"]; //68
-  auto a6 = out_count["01100101"]; //101
-  auto a7 = out_count["01000110"]; //70
-  auto a8 = out_count["01000111"]; //71
-  auto a9 = out_count["01001000"]; //72
-  auto a10 = out_count["01101001"]; //105
-  auto a11 = out_count["01001010"]; //74
-  auto a12 = out_count["01001011"]; //75
-  auto a13 = out_count["01001011"]; //76
-  auto a14 = out_count["01101101"]; //109
-  auto a15 = out_count["01001110"]; //78
-  auto a16 = out_count["01001111"]; //79
+  auto a1 = out_count[64];   //"01000000"
+  auto a2 = out_count[97];   //"01100001"
+  auto a3 = out_count[66];   //"01000010"
+  auto a4 = out_count[67];   //"01000011"
+  auto a5 = out_count[68];   //"01000100"
+  auto a6 = out_count[101];  //"01100101"
+  auto a7 = out_count[70];   //"01000110"
+  auto a8 = out_count[71];   //"01000111"
+  auto a9 = out_count[72];   //"01001000"
+  auto a10 = out_count[105]; //"01101001"
+  auto a11 = out_count[74];  //"01001010"
+  auto a12 = out_count[75];  //"01001011"
+  auto a13 = out_count[76];  //"01001011"
+  auto a14 = out_count[109]; //"01101101"
+  auto a15 = out_count[78];  //"01001110"
+  auto a16 = out_count[79];  //"01001111"
 
   EXPECT_GT(a1, 0);
   EXPECT_GT(a2, 0);
@@ -492,12 +485,12 @@ TEST(QDBeamStatePrepCircuitTester, simple) {
   // Beam a-, three components equally weighted from strings aa, a-, -a. All metrics 11. Iterations and nulls marked differently
   // --->>> |1010011100>, |1010011101>, |1001101101>
 
-  auto out_count = s.get_out_bitstrings()[0][0];
+  auto out_count = s.get_out_counts()[0][0];
 
-  auto a = out_count["1111011000"]; //984
-  auto b = out_count["001110010"]; //229
-  auto c = out_count["1011011001"]; //741
-  auto d = out_count["1011100101"]; //729
+  auto a = out_count[984]; //"1111011000"
+  auto b = out_count[229]; //"001110010"
+  auto c = out_count[741]; //"1011011001"
+  auto d = out_count[729]; //"1011100101"
 
   EXPECT_GT(a, 0);
   EXPECT_GT(b, 0);
@@ -588,6 +581,6 @@ TEST(SuperpositionAdderCircuitTester, check1) {
 
   // The expected outputs are:
 
-  auto out_count = s.get_out_bitstrings()[0][0];
-  EXPECT_EQ((int)out_count.size(), 2);
+  auto out_count = s.get_out_counts()[0][0];
+  EXPECT_EQ(count_nonzero(out_count), 2);
 }
