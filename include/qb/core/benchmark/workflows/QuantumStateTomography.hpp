@@ -150,6 +150,7 @@ namespace qb
                         ComplexMatrix density = ComplexMatrix::Zero(density_dimension, density_dimension);
                         for (size_t measurement = 0; measurement < n_qubit_basis_size; ++measurement) { //Each circuit was measured 3^n times 
                             const std::map<std::string, size_t> counts = convert_to_counts_map(measurement_counts[task + measurement], qubits_.size()); //convert string to counts map
+                            const size_t n_shots = sumMapValues(counts);
                             std::vector<std::vector<SYMBOL>> accessible_bases; // collect all accessible bases for the given measurement (e.g., IX and ZX from ZX)
                             //convert i to x-nary number of length qubits.size() to find out which basis rotation to apply on which qubit
                             std::vector<size_t> indices = convert_decimal(measurement, basis_.size(), qubits_.size());
@@ -177,7 +178,7 @@ namespace qb
                                 for (const auto& [exp_value, accessible_base] : std::ranges::views::zip(exp_values, accessible_bases)) {
                                     //evaluate sign with which the measured bitstring contributes to all basis expectation values 
                                     int sign = evaluate_sign(bitstring, accessible_base); 
-                                    exp_value += static_cast<double>(sign) * static_cast<double>(count) / static_cast<double>(workflow_.get_session().get_sns()[0][0]);
+                                    exp_value += static_cast<double>(sign) * static_cast<double>(count) / static_cast<double>(n_shots);
                                 }
                             }
                             //finally go through all expectation values, build full matrix representation of basis and add to density matrix 

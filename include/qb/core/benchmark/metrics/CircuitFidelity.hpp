@@ -2,26 +2,17 @@
 #ifndef _QB_BENCHMARK_CIRCUITFIDELITY_
 #define _QB_BENCHMARK_CIRCUITFIDELITY_
 
-#include <ranges>
-
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
 #include "qb/core/tools/zip_tool.hpp"
 #include "qb/core/benchmark/Serializer.hpp"
 #include "qb/core/benchmark/DataLoaderGenerator.hpp"
+#include "qb/core/primitives.hpp"
 
 namespace qb
 {
     namespace benchmark 
     {
-        /**
-        * @brief Helper function returning the sum over all values of an std::map.
-        */
-        template <typename Key, typename Value>
-        Value sumMapValues(const std::map<Key, Value>& p) {
-            return std::accumulate(p.begin(), p.end(), 0, [](const size_t previous, decltype(*p.begin()) x) { return previous+x.second; }); 
-        } 
-
-
+        
         /**
         * @brief Circuit fidelity metric evaluation class templated for arbitrary @tparam ExecutableWorkflow workflows.
         * 

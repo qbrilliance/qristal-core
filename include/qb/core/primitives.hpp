@@ -3,6 +3,8 @@
 
 #include <Eigen/Dense>
 #include <unsupported/Eigen/KroneckerProduct>
+#include <map>
+#include <numeric>
 
 
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
@@ -11,6 +13,14 @@
 namespace qb {
 
     class CircuitBuilder;
+
+    /**
+    * @brief Helper function returning the sum over all values of an std::map.
+    */
+    template <typename Key, typename Value>
+    inline Value sumMapValues(const std::map<Key, Value>& p) {
+        return std::accumulate(p.begin(), p.end(), 0, [](const size_t previous, decltype(*p.begin()) x) { return previous+x.second; }); 
+    } 
 
     /**
     * @brief Concept of matrix translatable symbols, e.g., Pauli basis (I, X, Y, Z). 
