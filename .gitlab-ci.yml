@@ -18,6 +18,7 @@ workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
     - if: $CI_COMMIT_BRANCH
@@ -155,7 +156,7 @@ ci-lightweight-build-for-emulator:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     # Build core with SUPPORT_EMULATOR_BUILD_ONLY=ON
@@ -213,7 +214,7 @@ ci-build:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - echo "MPI is $USE_MPI"
@@ -242,7 +243,7 @@ cudaq-build:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - cmake -B build .
@@ -285,7 +286,7 @@ ci-cpp-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -302,7 +303,7 @@ ci-py-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -319,7 +320,12 @@ ci-hardware-tests:
   tags:
     - lambda
   rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_PIPELINE_SOURCE != "schedule"
+      variables:
+        QCSTACK_REGISTRY: registry.gitlab.com/qbau/control/qcstack/qcstack_server
+        QCSTACK_TAG: latest
+        QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --max-circuit-depth 1000 --reservation-shared-secret hello --calibration False --benchmark False"
   script:
     - mv core_artefacts/build .
     - mv core_artefacts/deps .
@@ -331,8 +337,8 @@ ci-hardware-tests:
     - docker stop -t5 qcstack_server || true
     # Give qcstack time to shut down cleanly
     - sleep 5
-    - docker pull registry.gitlab.com/qbau/control/qcstack/qcstack_server:latest
-    - docker run -d --rm --name qcstack_server -p=8443:8443 registry.gitlab.com/qbau/control/qcstack/qcstack_server --ssl-cert-dir /root/default_certs --hal "" --max-circuit-depth 1000  --reservation-shared-secret hello --calibration False --benchmark False
+    - docker pull $QCSTACK_REGISTRY:$QCSTACK_TAG
+    - docker run -d --rm --name qcstack_server -p=8443:8443 $QCSTACK_REGISTRY $QCSTACK_ARGS
     # Give qcstack time to spin up properly
     - sleep 20
     # Run C++ tests of qcstack interface
@@ -354,7 +360,7 @@ cudaq-cpp-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -371,7 +377,7 @@ cudaq-py-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local
@@ -443,7 +449,7 @@ rhel-x86-build:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core-local
     - cmake -B build .
@@ -470,7 +476,7 @@ rhel-x86-cpp-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -487,7 +493,7 @@ rhel-x86-cudaq-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
@@ -504,7 +510,7 @@ rhel-x86-py-tests:
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
     - rm -rf ${QB_DIR}/core-local

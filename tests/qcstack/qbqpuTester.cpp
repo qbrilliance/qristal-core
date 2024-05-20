@@ -29,7 +29,7 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   std::cout << "* Keys:" << "\n";
   for (std::string cel : config_qb_qdk) std::cout << "    " << cel << std::endl;
 
-  YAML::Node db = YAML::LoadFile(SDK_DIR "/remote_backends.yaml");
+  YAML::Node db = YAML::LoadFile("remote_backends.yaml");
   const std::string url = db["loopback"]["url"].as<std::string>();
   mm.insert("url", url.back() == '/' ? url : url + '/');
   mm.insert("shots", shots);
