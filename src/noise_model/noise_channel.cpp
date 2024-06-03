@@ -37,6 +37,7 @@ namespace
       return mat;
     }
 }
+
 namespace qb
 {
 
@@ -341,6 +342,27 @@ namespace qb
       // ref: https://qiskit.org/documentation/stubs/qiskit.quantum_info.process_fidelity.html#qiskit.quantum_info.process_fidelity
       return compute_fidelity(choi_id / (double)input_dim,
                               choi_chan / (double)input_dim);
+    }
+
+    NoiseChannel krausOpToChannel::Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen) {
+      NoiseChannel kraus_ops;
+      for (size_t i = 0; i < kraus_ops_eigen.size(); i++) {
+        Eigen::MatrixXcd kraus_op_mat = kraus_ops_eigen[i];
+        if (qubits.size() == 1) {
+          assert(kraus_op_mat.rows() == 2);
+          assert(kraus_op_mat.cols() == 2);
+        } else {
+          assert(kraus_op_mat.rows() == 4);
+          assert(kraus_op_mat.cols() == 4);
+        }
+
+        qb::KrausOperator kraus_op;
+        kraus_op.matrix = eigen_to_matrix(kraus_op_mat);
+        kraus_op.qubits = qubits;
+        kraus_ops.emplace_back(kraus_op);
+      }
+
+      return kraus_ops;
     }
 } // namespace qb
    

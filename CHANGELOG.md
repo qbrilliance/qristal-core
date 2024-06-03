@@ -24,6 +24,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Parametrized circuit building now supported using the `CircuitBuilder` (C++)/`Circuit` (Python) objects, with execution using `session`. Optimization examples can be seen in `tests/sessionOptTester.cpp`.
 - `session` now calculates and outputs probability jacobians if the property `set_calc_jacobian(s)` is set to `true`. The jacobians can be accessed using `get_out_jacobians`. If the jacobians are calculated, the vectors of output probabilities can also be accessed using `get_out_probs`.
 - A mapping from bitstring to vector index can be accessed using the method `session.bitstring_index`. Check the docs and python help strings for details.
+- Added ability to use custom Kraus matrices and custom noise model parameters to generate noise model object.
 
 ### Breaking
 

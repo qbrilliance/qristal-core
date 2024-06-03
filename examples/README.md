@@ -253,33 +253,49 @@ This example shows the effects of various noise mitigation strategies available 
 
 `noise_model.py`
 
-_qubits_: 2
-_gate depth_: 6
-_noise_: true
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
 
-A version of `quickstart.py` with noise.
+A version of `quickstart.py` with noise. There are two options of noise models: `default` or `qdk1` (the latter requires the Qristal Emulator. Details about the noise model are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html)).
 
-`noise_model_user_defined.py`
+`noise_model_custom_kraus.py`
 
-_qubits_: 2
-_gate depth_: 6
-_noise_: true
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
 
-A version of `noise_model.py` demonstrating the use of a user-defined noise model.
+A version of `noise_model.py` demonstrating the use of Kraus matrices to generate custom noise channels. Custom noise channels are then used to generate a custom noise model.
 
-`noise_model_user_defined_qb_gateset.py`
+`noise_model_custom_parameterized.py`
 
-_qubits_: 2
-_gate depth_: 6
-_noise_: true
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
 
-A version of `noise_model_user_defined.py` demonstrating the use of a user-defined noise model in a different basis gate set.
+A version of `noise_model.py` demonstrating the use of custom noise model parameters ($t_1$, $t_2$, gate errors, etc) to generate a custom noise model. This noise model consists of common noise channels: amplitude damping, phase damping and depolarization.
+
+`noise_model_custom_channel.py`
+
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
+
+A version of `noise_model.py` demonstrating the use of noise channels to generate a user-defined noise model. The noise model consists of common noise channels: amplitude damping, phase damping and depolarization.
+
+`noise_model_custom_channel_qb_gateset.py`
+
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
+
+A version of `noise_model_custom_channel.py` demonstrating the use of a user-defined noise model in a different basis gate set.
 
 `parametrization_demo.py`
 
-_qubits_: 2
-_gate depth_: 4
-_noise_: false
+_qubits_: 2  
+_gate depth_: 4  
+_noise_: false  
 
 An extremely simple demonstration of how to construct and execute parametrized circuits using Qristal.
 
@@ -364,49 +380,49 @@ A simple example that prints out circuit topology and connectedness.
 
 `vqee_example_1.py`
 
-_qubits_: 4
-_gate depth_: 1 for H2_explicit and 7 for H1_HEA
-_noise_: false
+_qubits_: 4  
+_gate depth_: 1 for H2_explicit and 7 for H1_HEA  
+_noise_: false  
 
 Demonstrates the access and run of predefined examples in Qristal's built-in VQE routines.
 
 `vqee_example_2.py`
 
-_qubits_: 4
-_gate depth_: 8
-_noise_: false
+_qubits_: 4  
+_gate depth_: 8  
+_noise_: false  
 
 Demonstrates manual problem setup and use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
 
 `vqee_example_3.py`
 
-_qubits_: 4
-_gate depth_: 83
-_noise_: false
+_qubits_: 4  
+_gate depth_: 83  
+_noise_: false  
 
 Demonstrates how to inject python code into our c++ libs. Shows inclusion of external python chemistry package pyscf into Qristal's built-in VQE routines.
 
 `vqee_example_4.py`
 
-_qubits_: 4
-_gate depth_: 1
-_noise_: false
+_qubits_: 4  
+_gate depth_: 1  
+_noise_: false  
 
 Demonstrates selection of a different classical optimization algorithm (Nelder-Mead), along with extra options to constrain the parameters and terminate the optimization.
 
 `vqee_example_5.py`
 
-_qubits_: 4
-_gate depth_: 1
-_noise_: false
+_qubits_: 4  
+_gate depth_: 1  
+_noise_: false  
 
 Similar to `vqee_example_4` except the classical algorithm used here is ADAM and L-BFGS.
 
 `vqee_example_6.py`
 
-_qubits_: 4
-_gate depth_: 1
-_noise_: false
+_qubits_: 4  
+_gate depth_: 1  
+_noise_: false  
 
 Similar to `vqee_example_4` except the classical algorithm used here is CMA-ES.
 
@@ -425,12 +441,12 @@ A simple example demonstrating noise-aware circuit placement by setting up a toy
 `noise_aware_placement_aws_rigetti.py`
 
 An example demonstrating integrated noise-aware placement during circuit execution on a hardware backend (e.g., Rigetti devices on AWS).
-Valid AWS credentials are required to run the example. 
+Valid AWS credentials are required to run the example.
 
 `aws_braket_qft.py`
 
-_qubits_: 4
-_noise_: true
+_qubits_: 4  
+_noise_: true  
 
 A simple example demonstrating asynchronous circuit execution on AWS Braket. Note that currently only asynchronous circuit execution (via `run_async`) is supported for AWS Braket. To run on AWS Braket:
 * Set up AWS account (e.g., using CLI) and enable AWS Braket;
@@ -439,8 +455,8 @@ A simple example demonstrating asynchronous circuit execution on AWS Braket. Not
 
 `execute_GST_XY.py`
 
-_qubits_: 1
-_noise_: true/false (depends on setting in C++ runner)
+_qubits_: 1  
+_noise_: true/false (depends on setting in C++ runner)  
 
 A simple example demonstrating the creation of a gate set tomography experiment design for 1-qubit gates Rx(pi/2) and Ry(pi/2) using pyGSTi. An exported circuit list is passed to a provided pyGSTi_runner (using qb::benchmark). The gathered results are loaded back into pyGSTi and used to create an html report.
 
@@ -459,15 +475,15 @@ A C++ implementation of `demo1.py`.
 
 _qubits_: 2  
 _gate depth_: 2  
-_noise_: false 
+_noise_: false  
 
 This example allows you to quickly switch circuit execution between a hardware QPU and a simulator.  See cpp/h1qb/README.md for more information.
 
 `qaoa`
 
-_qubits_: 3
-_qaoa_steps_: 2
-_noise_: false
+_qubits_: 3  
+_qaoa_steps_: 2  
+_noise_: false  
 
 Demonstrates the use of Qristal's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
 
@@ -482,26 +498,42 @@ which will run a random circuit on 2 qubits, with gate depth of 2. Further detai
 
 `noise_model`
 
-_qubits_: 2
-_gate depth_: 6
-_noise_: true
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
 
 A C++ implementation of `noise_model.py`.
 
-`noise_model_user_defined`
+`noise_model_custom_kraus`
 
-_qubits_: 2
-_gate depth_: 6
-_noise_: true
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
 
-A C++ implementation of `noise_model_user_defined.py`.
+A C++ implementation of `noise_model_custom_kraus.py`.
 
-`parametrizatrion`
+`noise_model_custom_parameterized`
 
-_qubits_: 1-2
-_circuits_: 2
-_gate depth_: 1
-_noise_: false
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
+
+A C++ implementation of `noise_model_custom_parameterized.py`.
+
+`noise_model_custom_channel`
+
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
+
+A C++ implementation of `noise_model_custom_channel.py`.
+
+`parametrization`
+
+_qubits_: 1-2  
+_circuits_: 2  
+_gate depth_: 1  
+_noise_: false  
 
 Demonstrates the use of parametrized gates/circuits in Qristal, as well as how to execute parametrized circuits after providing runtime parameters, and calculating jacobians for these parameters. 
 
@@ -532,25 +564,25 @@ A C++ implementation of `noise_aware_placement.py`.
 `noise_aware_placement_aws`
 
 An example demonstrates integrated noise-aware placement during circuit execution on hardware backend (e.g., Rigetti devices on AWS).
-Valid AWS credentials are required to run the example. 
+Valid AWS credentials are required to run the example.
 
 A C++ implementation of `noise_aware_placement_aws_rigetti.py`.
 
 `circuit_optimization/circuit_optimizer.py`
 
-An example demonstrating the pattern-based circuit optimization pass. 
+An example demonstrating the pattern-based circuit optimization pass.
 
 `circuit_optimization/remove_redundant_gates.py`
 
-An example demonstrating the redundant gate removal circuit optimization pass. 
+An example demonstrating the redundant gate removal circuit optimization pass.
 
 `circuit_optimization/two_qubit_squash.py`
 
-An example demonstrating the two-qubit gate synthesis (squash) circuit optimization pass. 
+An example demonstrating the two-qubit gate synthesis (squash) circuit optimization pass.
 
 `circuit_optimization/simplify_initial_conditions.py`
 
-An example demonstrating the contextual circuit optimization pass, which optimizes the circuit based on the knowledge of its initial state. 
+An example demonstrating the contextual circuit optimization pass, which optimizes the circuit based on the knowledge of its initial state.
 
 `circuit_optimization/session_integration.py`
 
@@ -596,9 +628,9 @@ This example shows the execution of a standard quantum process tomography workfl
 
 _qubits_: 1  
 _gate depth_: depends on pyGSTi experiment design  
-_noise_: false/true
+_noise_: false/true  
 
-Example executor for 1-qubit pyGSTi experiments reading in pyGSTi circuits from std::cin and printing pyGSTi compatible results to std::cout. This example is used in the python example execute_GST_XY.py to create a pyGSTi report. 
+Example executor for 1-qubit pyGSTi experiments reading in pyGSTi circuits from std::cin and printing pyGSTi compatible results to std::cout. This example is used in the python example execute_GST_XY.py to create a pyGSTi report.
 
 ## C++ with CUDA Quantum ##
 

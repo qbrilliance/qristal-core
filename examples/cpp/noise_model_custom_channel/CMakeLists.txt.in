@@ -7,17 +7,17 @@
 
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-project(noise_model_user_defined
-  DESCRIPTION "Quantum Brilliance noise_model_user_defined example"
+project(noise_model_custom_channel
+  DESCRIPTION "Quantum Brilliance noise_model_custom_channel example"
   LANGUAGES CXX
 )
 
 set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
 find_package(qbcore)
 
-add_executable(noise_model_user_defined noise_model_user_defined.cpp)
+add_executable(noise_model_custom_channel noise_model_custom_channel.cpp)
 
-target_link_libraries(noise_model_user_defined
+target_link_libraries(noise_model_custom_channel
   PRIVATE
     qb::core
 )

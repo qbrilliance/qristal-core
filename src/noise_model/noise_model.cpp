@@ -2,7 +2,62 @@
 
 #include "qb/core/noise_model/noise_model.hpp"
 #include <dlfcn.h>
+#include <vector>
+#include <algorithm>
+#include <unsupported/Eigen/KroneckerProduct>
 
+
+namespace {
+// Kron combine 2 noise channels
+qb::NoiseChannel noise_channel_expand(const qb::NoiseChannel& noise_channel_1,
+                                      const qb::NoiseChannel& noise_channel_2) {
+  qb::NoiseChannel combined_channel;
+  const auto mat_to_eigen =
+      [](const qb::KrausOperator::Matrix& mat) -> Eigen::MatrixXcd {
+    Eigen::MatrixXcd eigen_mat(mat.size(), mat[0].size());
+    for (int row = 0; row < eigen_mat.rows(); ++row) {
+      for (int col = 0; col < eigen_mat.cols(); ++col) {
+        eigen_mat(row, col) = mat[row][col];
+      }
+    }
+    return eigen_mat;
+  };
+
+  const auto eigen_to_mat =
+      [](const Eigen::MatrixXcd& eigen_mat) -> qb::KrausOperator::Matrix {
+    qb::KrausOperator::Matrix mat(eigen_mat.rows());
+    for (int row = 0; row < eigen_mat.rows(); ++row) {
+      std::vector<std::complex<double>> row_data(eigen_mat.cols());
+      for (int col = 0; col < eigen_mat.cols(); ++col) {
+        row_data[col] = eigen_mat(row, col);
+      }
+      mat[row] = row_data;
+    }
+    return mat;
+  };
+
+  for (const auto& kraus1 : noise_channel_1) {
+    for (const auto& kraus2 : noise_channel_2) {
+      auto qubits = kraus1.qubits;
+      qubits.insert(qubits.end(), kraus2.qubits.begin(), kraus2.qubits.end());
+      // Check that the qubits from the two Kraus operators are different
+      if (std::unique(qubits.begin(), qubits.end()) != qubits.end()) {
+        throw std::runtime_error(
+            "Cannot Kronecker combine two Kraus operators operating on the "
+            "same qubit.");
+      }
+      Eigen::MatrixXcd expanded_mat = Eigen::kroneckerProduct(
+          mat_to_eigen(kraus1.matrix), mat_to_eigen(kraus2.matrix));
+      qb::KrausOperator expanded_kraus_op;
+      expanded_kraus_op.qubits = qubits;
+      expanded_kraus_op.matrix = eigen_to_mat(expanded_mat);
+      combined_channel.emplace_back(expanded_kraus_op);
+    }
+  }
+  return combined_channel;
+}
+
+}
 namespace qb
 {
     NoiseModel::NoiseModel(const nlohmann::json &js) : m_qobj_noise_model(js)
@@ -49,16 +104,31 @@ namespace qb
                     const auto t2 = t2_iter->second;
                     const double amp_damp_rate = 1.0 - std::exp(-gate_duration / t1);
                     const double phase_damp_rate = 1.0 - std::exp(-gate_duration / t2);
+
+                    // 1-qubit gate error
                     auto thermal_relaxation = GeneralizedPhaseAmplitudeDampingChannel::Create(qubit, 0.0, amp_damp_rate, phase_damp_rate);
-                    const double equiv_pauli_rate = decoherence_pauli_error(t1, t2, gate_duration);
-                    // std::cout << "equiv_pauli_rate = " << equiv_pauli_rate << "\n";
                     add_gate_error(thermal_relaxation, gate_name, qubits);
+
                     // Adds depolarizing noise if needed.
+                    const double equiv_pauli_rate = decoherence_pauli_error(t1, t2, gate_duration);
                     if (rb_pauli_rate > equiv_pauli_rate)
                     {
                         const double p_depol = rb_pauli_rate - equiv_pauli_rate;
-                        // std::cout << "Adding depol rate of: " << p_depol << " on top of thermal noises.\n";
                         add_gate_error(DepolarizingChannel::Create(qubit, p_depol), gate_name, {qubit});
+                    }
+
+                    // 2-qubit gate error
+                    if (qubits.size() == 2)
+                    {
+                        const double gate_error = rb_pauli_rate;
+                        auto thermal_relaxation_q1 = GeneralizedPhaseAmplitudeDampingChannel::Create(qubits[0], 0.0, amp_damp_rate, phase_damp_rate);
+                        auto thermal_relaxation_q2 = GeneralizedPhaseAmplitudeDampingChannel::Create(qubits[1], 0.0, amp_damp_rate, phase_damp_rate);
+                        auto expanded_thermal_relax_channel = noise_channel_expand(thermal_relaxation_q1, thermal_relaxation_q2);
+                        add_gate_error(expanded_thermal_relax_channel, gate_name, {qubits[0], qubits[1]});
+                        add_gate_error(DepolarizingChannel::Create(qubits[0], qubits[1], gate_error), gate_name, {qubits[0], qubits[1]});
+                        // Adding symmetric noise for both directions: i.e., cz q1, q2 has the same noise as cz q2, q1
+                        add_gate_error(expanded_thermal_relax_channel, gate_name, {qubits[1], qubits[0]});
+                        add_gate_error(DepolarizingChannel::Create(qubits[0], qubits[1], gate_error), gate_name, {qubits[1], qubits[0]});
                     }
                 }
             }
@@ -243,7 +313,6 @@ namespace qb
         }
         else
         {
-
             std::map<std::vector<size_t>, std::vector<NoiseChannel>> gate_noise_map;
             gate_noise_map[qubits] = {noise_channel};
             // First time seeing this gate

@@ -1,0 +1,23 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to use custom Kraus
+# operator in C++.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(noise_model_custom_kraus
+  DESCRIPTION "Quantum Brilliance noise_model_custom_kraus example"
+  LANGUAGES CXX
+)
+
+set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qbcore)
+
+add_executable(noise_model_custom_kraus noise_model_custom_kraus.cpp)
+
+target_link_libraries(noise_model_custom_kraus
+  PRIVATE
+    qb::core
+)

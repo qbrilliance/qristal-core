@@ -40,6 +40,7 @@ namespace qb
      * @return KrausOperator::Matrix the STL-based Choi matrix representation.
      */
     KrausOperator::Matrix kraus_to_choi(const NoiseChannel& noise_channel);
+
     /**
      * @brief Convert a vector of Eigen-based Kraus operator matrices into their Choi matrix representation.
      * 
@@ -79,6 +80,7 @@ namespace qb
      * implementation.
      */
     KrausOperator::Matrix process_to_choi(const KrausOperator::Matrix& process_matrix);
+
     /**
      * @brief Convert an Eigen-based process matrix to its Eigen-based Choi matrix representation.
      * 
@@ -107,6 +109,7 @@ namespace qb
      * Eigen matrix and delegate the conversion to choi_to_kraus(const Eigen::MatrixXcd&).
      */
     NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix);
+
     /**
      * @brief Convert an Eigen-based Choi matrix to a std::vector of Kraus matrices.
      * 
@@ -135,6 +138,7 @@ namespace qb
      * process_to_kraus(const Eigen::MatrixXcd&), and (iii) calling eigen_to_noisechannel.
      */
     NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix);
+
     /**
      * @brief Convert an Eigen-based process matrix to a std::vector of Kraus matrices.
      * 
@@ -255,6 +259,15 @@ namespace qb
          */
         static NoiseChannel Create(
             size_t q, double excited_state_population, double gamma);
+    };
+
+    /**
+     * @brief Convert input Kraus operator matrix to noise channel
+     * 
+     */
+    struct krausOpToChannel {
+      static constexpr char name[] = "custom_kraus";
+      static NoiseChannel Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen);
     };
 }
 

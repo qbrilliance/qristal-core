@@ -93,6 +93,46 @@ void bind_noise_model(pybind11::module &m) {
     
     )");
 
+  py::class_<qb::krausOpToChannel>(m, "krausOpToChannel", R"(krausOpToChannel channel factory)")
+      .def(py::init<>())
+      .def_readonly_static("name", &qb::krausOpToChannel::name)
+      .def("Create",
+          [](const py::list qubits_list, py::list kraus_ops_list) {
+            std::vector<size_t> qubits_vector;
+            std::vector<Eigen::MatrixXcd> kraus_ops_eigen;
+            for (auto &qubit : qubits_list) {
+              qubits_vector.emplace_back(py::cast<size_t>(qubit));
+            }
+
+            size_t rows = 2;
+            size_t cols = 2;
+            if (qubits_vector.size() == 2) {
+              rows = 4;
+              cols = 4;
+            }
+            for (auto &mat : kraus_ops_list) {
+              Eigen::MatrixXcd kraus_op_eigen(rows, cols);
+              size_t row = 0;
+              for (auto x : mat) {
+                size_t col = 0;
+                for (auto y : x) {
+                  kraus_op_eigen(row, col) = py::cast<std::complex<double>>(y);
+                  col++;
+                }
+                row++;
+              }
+              kraus_ops_eigen.emplace_back(kraus_op_eigen);
+            }
+            return qb::krausOpToChannel::Create(qubits_vector, kraus_ops_eigen);
+          }, R"(
+      Create krausOpToChannel channel (balanced/symmetric)
+
+      Parameters:
+
+      - *qubits_list* List of qubits
+      - *kraus_ops_list* List of Kraus matrices
+      )");
+
   py::class_<qb::NoiseProperties>(m, "NoiseProperties", R"(
 
     Use NoiseProperties to accept user input parameters for custom noise models.  There are 3 types of inputs used for constructing a custom noise model:
