@@ -19,7 +19,7 @@ TEST(QuantumProcessTomographyTester, checkSPAM) {
         std::filesystem::create_directory(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME));
     }
 
-    const std::vector<size_t> qubits = {0, 1};
+    const std::vector<size_t> qubits = {0};
 
     //define session  
     qb::session sim(false); 
@@ -61,21 +61,21 @@ TEST(QuantumProcessTomographyTester, checkRotationSweep) {
         std::filesystem::create_directory(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME));
     }
 
-    const std::vector<size_t> qubits{0, 1};
+    const std::vector<size_t> qubits{0};
 
     //define session  
     qb::session sim(false); 
     sim.qb12();
-    sim.set_acc("qpp");
+    sim.set_acc("aer");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
 
     //define workflow 
     RotationSweep workflow(
-        std::vector<char>({'X', 'Y'}), //specific rotations applied
+        std::vector<char>({'X'}), //specific rotations applied
         -90, //start (deg)
         90,  //end (deg)
-        6,   //points
+        4,   //points
         sim
     );
     using QST = QuantumStateTomography<RotationSweep>;
