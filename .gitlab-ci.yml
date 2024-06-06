@@ -42,7 +42,6 @@ workflow:
 #    - core_artefacts/build/qbcore-config.cmake
 #    - core_artefacts/build/qbcore-config-version.cmake
 #    - core_artefacts/build/CMakeFiles/Export/
-#    - core_artefacts/build/HardwareTests
 #    - core_artefacts/build/lib*
 #    - core_artefacts/build/core.cpython-*-linux-gnu.so
 #    - core_artefacts/build/plugins
@@ -54,7 +53,7 @@ workflow:
 #    - core_artefacts/examples
 #    - core_artefacts/remote_backends.yaml
 #    - core_artefacts/src/backends/aws_braket/aws_python_script.py
-#    - core_artefacts/tests/XaccInitialisedTests.cpp
+#    - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 .paths:
   ci:
     - core_artefacts/build/cmake_install.cmake
@@ -63,7 +62,6 @@ workflow:
     - core_artefacts/build/qbcore-config.cmake
     - core_artefacts/build/qbcore-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
-    - core_artefacts/build/HardwareTests
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
     - core_artefacts/build/plugins
@@ -75,9 +73,12 @@ workflow:
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
     - core_artefacts/src/backends/aws_braket/aws_python_script.py
-    - core_artefacts/tests/XaccInitialisedTests.cpp
+    - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests
+    - core_artefacts/build/TketTests
+    - core_artefacts/build/BraketTests
+    - core_artefacts/build/HardwareTests
   cudaq:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
@@ -85,7 +86,6 @@ workflow:
     - core_artefacts/build/qbcore-config.cmake
     - core_artefacts/build/qbcore-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
-    - core_artefacts/build/HardwareTests
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
     - core_artefacts/build/plugins
@@ -97,7 +97,7 @@ workflow:
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
     - core_artefacts/src/backends/aws_braket/aws_python_script.py
-    - core_artefacts/tests/XaccInitialisedTests.cpp
+    - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CudaqCITests
   deps:
@@ -107,7 +107,6 @@ workflow:
     - core_artefacts/build/qbcore-config.cmake
     - core_artefacts/build/qbcore-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
-    - core_artefacts/build/HardwareTests
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
     - core_artefacts/build/plugins
@@ -119,9 +118,12 @@ workflow:
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
     - core_artefacts/src/backends/aws_braket/aws_python_script.py
-    - core_artefacts/tests/XaccInitialisedTests.cpp
+    - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests
+    - core_artefacts/build/TketTests
+    - core_artefacts/build/BraketTests
+    - core_artefacts/build/HardwareTests
     - core_artefacts/build/_deps
     - core_artefacts/deps
   rhel:
@@ -131,7 +133,6 @@ workflow:
     - core_artefacts/build/qbcore-config.cmake
     - core_artefacts/build/qbcore-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
-    - core_artefacts/build/HardwareTests
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
     - core_artefacts/build/plugins
@@ -143,9 +144,12 @@ workflow:
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
     - core_artefacts/src/backends/aws_braket/aws_python_script.py
-    - core_artefacts/tests/XaccInitialisedTests.cpp
+    - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests
+    - core_artefacts/build/TketTests
+    - core_artefacts/build/BraketTests
+    - core_artefacts/build/HardwareTests
     - core_artefacts/build/CudaqCITests
 
 
@@ -289,11 +293,13 @@ ci-cpp-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
       junit: core_gtests.xml
+      junit: tket_gtests.xml
 
 ci-py-tests:
   stage: test
@@ -479,11 +485,13 @@ rhel-x86-cpp-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
       junit: core_gtests.xml
+      junit: tket_gtests.xml
 
 rhel-x86-cudaq-tests:
   stage: test
@@ -586,11 +594,13 @@ rhel-power-cpp-tests:
     - powerDocker
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
     - rm -rf ${QB_DIR}/core-local
   artifacts:
     when: always
     reports:
       junit: core_gtests.xml
+      junit: tket_gtests.xml
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   # This is temporary -- to be removed once the benchmarks are fixed so that this job can pass

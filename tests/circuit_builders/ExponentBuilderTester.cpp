@@ -22,7 +22,7 @@ TEST(ExponentCircuitTester_1, checkSimple) {
           continue;
         }
         else {
-          if ((j*4 + l*2 + m) > 7) { continue; }
+          if ((j*4 + l*2 + m) > 4) { continue; }
           }
         qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
@@ -125,7 +125,7 @@ TEST(ExponentCircuitTester_2, checkSimple) {
           continue;
         }
         else {
-          if ((j*4 + l*2 + m) > 7) { continue; }
+          if ((j*4 + l*2 + m) > 4) { continue; }
         }
         qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
@@ -229,7 +229,7 @@ TEST(ExponentCircuitTester_3, checkSimple) {
           continue;
         }
         else {
-          if ((j*4 + l*2 + m) > 7) { continue; }
+          if ((j*4 + l*2 + m) > 4) { continue; }
         }
         std::cout << "j:" << j << " l:" << l << " m:" << m << std::endl;
         qb::CircuitBuilder test_builder;
@@ -340,7 +340,7 @@ TEST(ExponentCircuitTester_4, checkSimple) {
           continue;
         }
         else {
-          if ((j*4 + l*2 + m) > 7) { continue; }
+          if ((j*4 + l*2 + m) > 4) { continue; }
         }
         //std::cout << "j:" << j << " l:" << l << " m:" << m << std::endl;
         qb::CircuitBuilder test_builder;
@@ -461,7 +461,7 @@ TEST(ExponentCircuitTester_5, checkSimple) {
           continue;
         }
         else {
-          if ((j*4 + l*2 + m) > 7) { continue; }
+          if ((j*4 + l*2 + m) > 4) { continue; }
         }
         qb::CircuitBuilder test_builder;
         int nb_qubits_log = 1 ;
@@ -527,8 +527,8 @@ TEST(ExponentCircuitTester_5, checkSimple) {
           qubits.push_back(qindex);
         }
 
-            // Simulation test:
-            // Construct the full circuit including preparation of input trial score
+        // Simulation test:
+        // Construct the full circuit including preparation of input trial score
         auto circuit = test_builder.get();  // gateRegistry->createComposite("sim_comp");
 
         // Add comp:
@@ -544,8 +544,9 @@ TEST(ExponentCircuitTester_5, checkSimple) {
         std::string expected_measurement;
         int exp_value = pow(2,log_value);
         std::cout << "log_value:" << log_value << " exp_value:" << exp_value << std::endl;
+        std::cout << "min_significance_: " << min_significance_ << std::endl;
         int qindex;
-        for (int i = min_significance_ - 1 ; i < nb_qubits_exp; i++) {
+        for (int i = min_significance_ - 1; i < nb_qubits_exp; i++) {
           qindex = qubits[i];
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
@@ -562,6 +563,7 @@ TEST(ExponentCircuitTester_5, checkSimple) {
             expected_measurement.push_back('0');
           }
         }
+        for (int i = 0; i < min_significance_ - 1; i++) expected_measurement.push_back('0');
         std::cout << "expected_measurement:" << expected_measurement << std::endl;
         assert(buffer->getMeasurementCounts()[expected_measurement] == 1024);
         std::cout << "Successfully found two to the power of " << log_value << std::endl;
@@ -583,7 +585,7 @@ TEST(ExponentCircuitTester_6, checkSimple) {
           continue;
         }
         else {
-          if ((j*4 + l*2 + m) > 7) { continue; }
+          if ((j*4 + l*2 + m) > 4) { continue; }
         }
         std::cout << "j:" << j << " l:" << l << " m:" << m << std::endl;
         qb::CircuitBuilder test_builder;

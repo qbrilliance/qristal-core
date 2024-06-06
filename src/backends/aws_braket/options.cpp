@@ -9,7 +9,6 @@ const std::unordered_set<std::string> VALID_AWS_DEVICES =
   "SV1",
   "DM1",
   "TN1",
-  "LocalSimulator",
   "Rigetti"
 };
 
@@ -45,16 +44,28 @@ namespace qb
   {                         
     using namespace setting;
 
-    if (run_config.acc_name == "aws_braket")
+    if (run_config.acc_name == "aws-braket")
     {
-
       // Read in the options from the yaml file
       restricted_required("format", y, m, VALID_AWS_FORMATS);
       restricted_required("device", y, m, VALID_AWS_DEVICES);
       required<std::string>("path", y, m);
-      required<std::string>("noise", y, m);
       required<std::string>("s3", y, m);
       optional<bool>("verbatim", false, y, m);
+
+      // Permit noise option only if using a simulator backend
+      if (m.get<std::string>("device").starts_with("Rigetti"))
+      {
+        optional<bool>("noise", false, y, m);
+        if (m.get<bool>("noise")) 
+        {
+          std::ostringstream err;
+          err << "Error in YAML snippet " << std::endl << y << std::endl
+              << "Noise cannot be set to True when using a hardware backend.";
+          throw std::invalid_argument(err.str()); 
+        }
+      }
+      else required<bool>("noise", y, m);
 
       // Check that s3 starts with "amazon-braket"
       if (not m.get<std::string>("s3").starts_with("amazon-braket"))

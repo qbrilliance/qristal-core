@@ -38,7 +38,8 @@ def run_aws_braket_async(aws_device, sn, in_string, in_verbatim, in_format, out_
             print("python3 -m pip install amazon-braket-sdk")
             print("aws configure")
         except client.exceptions.ClientError:
-            print("The S3 bucket you specified in [aws_s3] does not exist.  Please create this bucket from the AWS Console with your credentials.")
+            print("The S3 bucket you specified {} in [aws_s3] does not exist.".format(out_s3) +  
+                  "Please create this bucket from the AWS Console with your credentials.")
 
     # Validate that aws_device is in the list of supported AWS Braket devices
     if aws_device == 'DM1':
@@ -66,6 +67,7 @@ def run_aws_braket_async(aws_device, sn, in_string, in_verbatim, in_format, out_
 
     my_bucket = out_s3
     my_prefix = out_s3_path
+
     s3_folder = (my_bucket, my_prefix)
     task = device.run(program, s3_folder, shots=sn, disable_qubit_rewiring=in_verbatim)
     return task

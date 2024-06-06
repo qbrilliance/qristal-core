@@ -1,6 +1,4 @@
-# Quantum Gates
-
-This section is a quick reference on quantum gates expressed in these formats:
+This section provides a quick reference on common quantum gates.
 
 - I - Identity
     - Unitary Description and Decomposition Rules

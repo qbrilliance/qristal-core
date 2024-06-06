@@ -134,6 +134,8 @@ namespace qb
     {
       required<T>(key, y, m, explanation);
       // Check that the resulting value is one of the valid ones
+      // std::cout << valid_values.find(m.get<T>(key)) << std::endl;
+      // std::cout << valid_values.end() << std::endl;
       if (valid_values.find(m.get<T>(key)) == valid_values.end())
       {
         std::ostringstream err;

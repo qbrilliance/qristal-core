@@ -45,12 +45,22 @@ The Emulator plugin for Qristal `can be obtained in binary form from Quantum Bri
    rst/getting_started
    rst/examples
    rst/cli
-   rst/quantum_computing
+   rst/backends
+   rst/emulator
+
+.. toctree::
+   :caption: Advanced Topics
+
    rst/noise_models
    rst/parametrization
    rst/vqe
    rst/nextflow
-   rst/emulator
+
+.. toctree::
+   :caption: Reference
+
+   rst/quantum_gates
+
 
 .. toctree::
    :maxdepth: 2

@@ -109,14 +109,12 @@ namespace xacc
       
         /// @brief Polling for circuit execution results via HTTP GET
         ///
-        /// @param buffer Output location and storage of intermediate results
         /// @param citargets Input circuit that has been previously submitted, for which the results are being polled for
         /// @param counts Output location for shot outcomes
         /// @param polling_interval Input the time in seconds between polling attempts - used only during recursive execution
         /// @param polling_attempts Input the max number of attempts to poll for the shot outcomes - used only during recursive execution
         ///
         bool resultsReady(
-             std::shared_ptr<AcceleratorBuffer> buffer,
              const std::vector<std::shared_ptr<CompositeInstruction>> citargets,
              std::map<std::string, int> &counts, int polling_interval,
              int polling_attempts);
@@ -149,9 +147,6 @@ namespace xacc
         /// Id number of last submitted circuit
         uint circuit_id;
 
-        /// Number of cycles
-        uint cycles = 1;
-      
         /// Format for results
         std::string results = "normal";
       
@@ -160,20 +155,13 @@ namespace xacc
       
         /// Order of measurements
         std::vector<int> order_of_m = {};
-      
-        /// Over-request factor
-        uint over_request = 0;
-      
+
         /// Enable recursive request to fulfill the shots
-        bool recursive_request = true;
+        bool recursive = false;
       
         /// Enable sample-with-replacement when set to true
         bool resample = false;
         
-        /// % threshold for valid shot results (as a proportion of requested shots) 
-        /// above which we will force the use of sample-with-replacement
-        double resample_above_percentage = 0;
-      
         /// Assume exclusive use of the hardware device. If this flag is set true, the hardware
         /// will be assumed to only accept circuits accompanied by an appropriate token.
         bool exclusive_access;
@@ -188,9 +176,6 @@ namespace xacc
         /// The JSON string sent to the hardware
         std::string qbjson;
 
-        /// To keep history of the HTTP POST path
-        std::string previous_post_path = {};
-      
         /// HTTP POST, returning the HTTP status code
         std::string Post(
             const std::string& url, 

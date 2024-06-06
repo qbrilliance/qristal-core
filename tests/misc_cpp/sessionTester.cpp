@@ -189,3 +189,44 @@ TEST(sessionTester, test_gradients) {
     }
   }
 }
+
+TEST(sessionTester, test_qft4) {
+  std::cout << "* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, "
+               "ExaTN-MPS"
+            << std::endl;
+
+  // Start a QB SDK session.
+  auto s = qb::session(false);
+
+  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
+            // back-end
+
+  // Override defaults
+  s.set_qn(4);      
+  s.set_sn(1024);   
+  s.set_xasm(true);  // Use XASM circuit format to access XACC's qft()
+  s.set_seed(23);
+  // targetCircuit: contains the quantum circuit that will be processed/executed
+  auto targetCircuit = R"(
+    __qpu__ void QBCIRCUIT(qbit q) {
+          qft(q, {{"nq",4}});
+          Measure(q[3]);
+          Measure(q[2]);
+          Measure(q[1]);
+          Measure(q[0]);
+    }
+  )";
+  s.set_instring(targetCircuit);
+  // Run the circuit on the back-end
+  s.run();
+
+  // Get the Z-operator expectation value
+  auto iter = s.get_out_z_op_expects()[0][0].find(0);
+  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
+  double exp_val = iter->second;
+  // Test the value against assertions
+  std::cout << "4-qubit noiseless QFT Z-operator expectation value: " << exp_val
+            << std::endl;
+  assert(std::abs(-0.0390625 - exp_val) < 1e-9);
+
+}

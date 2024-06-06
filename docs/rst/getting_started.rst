@@ -2,14 +2,15 @@
 Getting started
 ===============
 
-Using Qristal
--------------
+Quickstart
+----------
 
 .. include:: ../md/getting_started_bell_state.md
    :parser: myst_parser.sphinx_
 
-Development guide
------------------
+
+Installation
+------------
 
 Qristal can either be run `directly from the provided Docker image <https://github.com/qbrilliance/qristal#docker>`_, or `installed from source <https://github.com/qbrilliance/qristal>`_.  This section provides instructions for working with the source. If using Windows Subsystem for Linux 2, ensure you have Docker Desktop installed **on Windows** and not under your Linux distribution, as it allows Docker to use `WSL2 as a backend <https://docs.docker.com/desktop/windows/wsl/>`_. 
 
@@ -52,8 +53,8 @@ Additional dependencies that can be installed automatically at build time:
 
       It is highly recommended that users let the Qristal build system install the :ref:`additional dependencies mentioned above <auto_install_deps>`, by setting the ``-DINSTALL_MISSING=ON`` CMake option.
 
-Installation
-^^^^^^^^^^^^
+Installing from source
+^^^^^^^^^^^^^^^^^^^^^^
 
 1. For development purposes, it is **recommended** to install Qristal using *automatic dependency installation* mode.
 
@@ -65,7 +66,7 @@ Installation
     cmake .. -DINSTALL_MISSING=ON
     make install
 
--The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
+-The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.  
 
 The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
 
@@ -91,7 +92,7 @@ If you also wish to build this html documentation, pass ``-DBUILD_DOCS=ON``.
 
 .. code-block:: bash
 
-    cmake .. -DXACC_DIR=<YOUR XACC INSTALLATION DIR> -DEXATN_DIR=<YOUR EXATN INSTALLATION DIR> -DTNQVM_DIR=<YOUR TNQVM INSTALLATION DIR>
+  cmake .. -DXACC_DIR=<YOUR XACC INSTALLATION DIR> -DEXATN_DIR=<YOUR EXATN INSTALLATION DIR> -DTNQVM_DIR=<YOUR TNQVM INSTALLATION DIR>
 
 In this manual mode, the build system will check for a **specific** version of XACC, EXATN and TNQVM as provided.
 If not satisfied, it will terminate the build and ask for a reinstallation of the dependency.
@@ -99,15 +100,17 @@ Please follow the error message to install the correct version (specified as a g
 
 Similarly, if building with noise-aware placement routines enabled using ``-DWITH_TKET=ON``, you can pass ``-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>`` to ``cmake`` to tell it to use your own installation of TKET rather than building TKET from source.
 
-Contributing
-^^^^^^^^^^^^
+Contributing 
+------------
+
 
 There are many ways in which you can contribute to Qristal, whether by contributing some code or by engaging in discussions;
 we value contributions in all shapes and sizes!
 
 Here are some ideas for how you can get involved.
 
-1. **Asking Questions**
+Asking Questions
+^^^^^^^^^^^^^^^^
 
 Have a question? Some concepts are hard-to-understand?
 
@@ -115,7 +118,9 @@ Please feel free to file an issue to ask your questions `here <https://github.co
 
 Your question will serve as resource to others searching for help.
 
-2. **Reporting and/or Commenting on Issues**
+
+Reporting and Discussing Issues
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you have feedback about Qristal, please let us know by filing a `new issue <https://github.com/qbrilliance/qristal/issues/new/choose>`_!
 
@@ -148,7 +153,8 @@ When filing a bug report, please follow the below template:
 
 We also encourage you to look at the list of currently `open issues <https://github.com/qbrilliance/qristal/issues>`_ to share your ideas and expertise.
 
-3. **Contributing Code**
+Contributing Code
+^^^^^^^^^^^^^^^^^
 
 Before submitting a `new pull request <https://github.com/qbrilliance/qristal/pulls>`_, please make sure to do the following:
 
@@ -172,3 +178,7 @@ We may ask for changes to a pull request if it requires more documentation or un
 
 Last but not least, **thank you** for taking the time to contribute.
 
+Emulator
+--------
+
+.. include:: emulator.rst

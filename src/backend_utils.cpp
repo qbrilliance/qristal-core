@@ -77,8 +77,12 @@ namespace qb
     if (be_info)
     {     
       // Backend-specific options
-      add_aws_braket_options(m, be_info, run_config);
-      add_qb_hardware_options(m, be_info, run_config);
+      if (run_config.acc_name=="aws-braket") {
+        add_aws_braket_options(m, be_info, run_config);
+      }
+      else {
+        add_qb_hardware_options(m, be_info, run_config);
+      }
     }
     
     return m;

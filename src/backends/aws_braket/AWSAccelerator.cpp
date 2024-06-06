@@ -34,17 +34,14 @@ namespace xacc
     /// Constructor
     AWSAccelerator::AWSAccelerator(bool debug) :
      debug_aws_(debug),
-     m_device("DM1"),
-     m_s3("amazon-braket-QBSDK"),
      m_path("output"),
      m_format("openqasm3"),
      m_noise(false),
-     m_verbatim(false),
-     m_shots(256)
+     m_verbatim(false)
     {}
 
     /// Return the name of the accelerator
-    const std::string AWSAccelerator::name() const { return "aws_acc"; }
+    const std::string AWSAccelerator::name() const { return "aws-braket"; }
 
     /// Return the descriptions of the accelerator
     const std::string AWSAccelerator::description() const

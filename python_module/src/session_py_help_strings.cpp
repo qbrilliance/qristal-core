@@ -498,10 +498,13 @@ const char* session::help_out_jacobians_ = R"(
         After calling session.run() with `calc_jacobian(s)` set to true, the probability jacobians from running sn shots are stored in session.out_prob_jacobian, using a list of 2D list-of-lists format.
         The jacobians calculate the gradients of the probability with respect to the runtime parameters, in the following format (where y is the probability list and x is the parameter list):
 
-        [[dy_0/dx_0, dy_0/dx_1, ... dy_0/dx_n],
-         [dy_1/dx_0, dy_1/dx_1, ... dy_1/dx_n],
-          ...
-         [dy_m/dx_0, dy_m/dx_1, ... dy_m/dx_n]]
+        .. math::
+            \begin{bmatrix}
+            \frac{dy_0}{dx_0} & \frac{dy_0}{dx_1} & ... & \frac{dy_0}{dx_n} \\
+            \frac{dy_1}{dx_0} & \frac{dy_1}{dx_1} & ... & \frac{dy_1}{dx_n} \\
+            ... \\
+            \frac{dy_m}{dx_0} & \frac{dy_m}{dx_1} & ... & \frac{dy_m}{dx_n}
+            \end{bmatrix}
 
         Since the jacobian is returned as a list-of-lists, it can be accessed in row major format, and indexing the above matrix can be done accordingly, i.e. get_out_jacobians()[0][1] corresponds to the dy_0/dx_1 value. 
         x_i correspond to the parameters set in the parameter list (i.e. the parameters ordered by their first appearance in the circuit.)

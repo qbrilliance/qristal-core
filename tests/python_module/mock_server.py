@@ -35,7 +35,7 @@ class SessionRequestHdlr(BaseHTTPRequestHandler):
         self.qbits = len(run_def['init'])
         for gate in run_def['circuit']:
             print(f'    gate={gate}')
-        self.server.results = mock_run(self.qbits, run_def['settings']['cycles'], run_def['settings']['shots'])
+        self.server.results = mock_run(self.qbits, run_def['settings']['shots'])
         return ''
 
     def cmd_circuit(self, run_def):
@@ -43,14 +43,14 @@ class SessionRequestHdlr(BaseHTTPRequestHandler):
         self.qbits = len(run_def['init'])
         for gate in run_def['circuit']:
             print(f'    gate={gate}')
-        self.server.results = mock_run(self.qbits, run_def['settings']['cycles'], run_def['settings']['shots'])
+        self.server.results = mock_run(self.qbits, run_def['settings']['shots'])
         return {"id": 1}
 
     def cmd_get_results(self, run_def):
         return self.server.results
 
 
-def mock_run(qbits, cycles, shots):
+def mock_run(qbits, shots):
     data = []
     for i in range(2**qbits):
         data.append([1,0,i%2])

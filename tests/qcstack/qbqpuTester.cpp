@@ -17,7 +17,7 @@ TEST(qbqpuTester, testInstantiation)
 
 TEST(qbqpuTester, testInstantiationGetDetails)
 {
-  int delay = 15;
+  int delay = 20;
   int shots = 256;
   int n_qubits = 4;
   std::vector<uint> init_qubits(n_qubits, 0);
@@ -33,8 +33,10 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   const std::string url = db["loopback"]["url"].as<std::string>();
   mm.insert("url", url.back() == '/' ? url : url + '/');
   mm.insert("shots", shots);
-  mm.insert("over_request", uint(1));
+  mm.insert("recursive", true); 
+  mm.insert("resample", false); 
   mm.insert("init", init_qubits);
+  mm.insert("exclusive_access", false);
   mm.insert("use_default_contrast_settings", false);
   mm.insert("init_contrast_threshold", double(0));
   std::map<int,double> qubit_contrast_thresholds = {{0,0},{1,0}};
@@ -54,7 +56,7 @@ TEST(qbqpuTester, testInstantiationGetDetails)
 
   // Read the configuration back and check against sent values
   xacc::HeterogeneousMap mm2 = hardware_device->getProperties();
-  ASSERT_EQ(mm.get<int>("shots"),             mm2.get<int>("shots"));
+  ASSERT_EQ(mm.get<int>("shots"), mm2.get<int>("shots"));
   ASSERT_EQ(mm.get<std::vector<uint>>("init"), mm2.get<std::vector<uint>>("init"));
 
   // Create a test quantum circuit
@@ -98,7 +100,6 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   std::map<std::string, int> out_counts;
   int polling_interval_when_recursive = 5;
   int polling_attempts_when_recursive = 10;
-  bool success = hardware_device->resultsReady(buffer, ir->getComposites(), out_counts, polling_interval_when_recursive, polling_attempts_when_recursive);
-  std::cout << "* Poll return: " << (success ? "": "not ") << "ready" << std::endl;
+  bool success = hardware_device->resultsReady(ir->getComposites(), out_counts, polling_interval_when_recursive, polling_attempts_when_recursive);
   ASSERT_EQ(success, true);
 }

@@ -65,12 +65,20 @@ def test_CI_220616_1_aws_dm1_async():
     import qb.core, ast
     import json
     import time
-    #
+    from yaml import safe_load, dump
+
     s = qb.core.session()
     s.qb12()
     s.aws32dm1()
-    s.aws_s3 = 'amazon-braket-qbsdk-2023'
-    s.aws_s3_path = 'dm1-async'
+    # Change the remote_backends.yaml file entry
+    stream = open(s.remote_backend_database_path, 'r')
+    db = safe_load(stream)["aws_braket"]
+    db["device"] = "DM1"
+    db["path"] = "dm1-async"
+    stream = open(s.remote_backend_database_path + ".temp", 'w')
+    dump({'aws-bracket': db}, stream)
+    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
@@ -118,12 +126,20 @@ def test_CI_220616_2_aws_sv1_async():
     import qb.core, ast
     import json
     import time
+    from yaml import safe_load, dump
     #
     s = qb.core.session()
     s.qb12()
     s.aws32sv1()
-    s.aws_s3 = 'amazon-braket-qbsdk-2023'
-    s.aws_s3_path = 'sv1-async'
+    # Change the remote_backends.yaml file entry
+    stream = open(s.remote_backend_database_path, 'r')
+    db = safe_load(stream)["aws-braket"]
+    db["device"] = "SV1"
+    db["path"] = "sv1-async"
+    stream = open(s.remote_backend_database_path + ".temp", 'w')
+    dump({'aws-braket': db}, stream)
+    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
@@ -171,12 +187,20 @@ def test_CI_220616_3_aws_tn1_async():
     import qb.core, ast
     import json
     import time
-    #
+    from yaml import safe_load, dump
+    
     s = qb.core.session()
     s.qb12()
     s.aws8tn1()
-    s.aws_s3 = 'amazon-braket-qbsdk-2023'
-    s.aws_s3_path = 'tn1-async'
+    # Change the remote_backends.yaml file entry
+    stream = open(s.remote_backend_database_path, 'r')
+    db = safe_load(stream)["aws-braket"]
+    db["device"] = "TN1"
+    db["path"] = "tn1-async"
+    stream = open(s.remote_backend_database_path + ".temp", 'w')
+    dump({'aws-braket': db}, stream)
+    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
@@ -218,47 +242,27 @@ def test_CI_220616_3_aws_tn1_async():
     assert (res2[''.join(reversed(bin(0)[2:].zfill(2)))] + res2[''.join(reversed(bin(3)[2:].zfill(2)))]) == 256, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
     assert (res3[''.join(reversed(bin(0)[2:].zfill(2)))] + res3[''.join(reversed(bin(3)[2:].zfill(2)))]) == 512, "[QB SDK] Failed test: CI_220616_3_aws_tn1_async"
 
-def test_CI_220908_1_aws_check_s3_prefix():
-    print("* CI_220908_1_aws_check_s3_prefix:")
-    print("* Ensure prefix for aws_s3 is 'amazon-braket-'")
-    import qb.core
-    import json
-    import time
-    #
-    s = qb.core.session()
-    s.qb12()
-    s.aws8tn1()
-    s.aws_s3 = 'amazon-braket-qbsdk-2023'
-    s.aws_s3_path = 'sv1-async'
-    s.sn[0].clear()
-    s.sn[0].append(64)
-    s.sn[0].append(256)
-    s.sn[0].append(512)
-    s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
-        OPENQASM 2.0;
-        include "qelib1.inc";
-        creg c[2];
-        h q[0];
-        cx q[0],q[1];
-        measure q[1] -> c[1];
-        measure q[0] -> c[0];
-    }'''
-
-    with pytest.raises(ValueError):
-        s.aws_s3 = "mybucket-QBSDK"
-
 def test_CI_220908_2_aws_tn1_async_s3_s3_prefix():
     print("* CI_220908_2_aws_tn1_async_s3_s3_prefix:")
     print("* Asynchronous operation - offload to AWS TN1, 2-qubit Bell state, specify s3_prefix.")
     import qb.core, ast
     import json
     import time
-    #
+    from yaml import safe_load, dump
+
     s = qb.core.session()
     s.qb12()
     s.aws8tn1()
-    #
+    
+    # Change the remote_backends.yaml file entry
+    stream = open(s.remote_backend_database_path, 'r')
+    db = safe_load(stream)["aws-braket"]
+    db["device"] = "TN1"
+    db["path"] = "tn1-async"
+    stream = open(s.remote_backend_database_path + ".temp", 'w')
+    dump({'aws-braket': db}, stream)
+    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+
     s.sn[0].clear()
     s.sn[0].append(64)
     s.sn[0].append(256)
@@ -274,8 +278,7 @@ def test_CI_220908_2_aws_tn1_async_s3_s3_prefix():
         measure q[0] -> c[0];
     }'''
 
-    s.aws_s3 = "amazon-braket-qbsdk-2023"
-    s.aws_s3_path = "tn1-async"
+
     # Launch asynchronous tasks now
     jtask_64 = s.run_async(0, 0)
     jtask_256 = s.run_async(0, 1)

@@ -35,7 +35,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["recursive_request"] = False
+    db["recursive"] = False
     db["use_default_contrast_settings"] = False
     db["init_contrast_threshold"] = init_thresh
     db["qubit_contrast_thresholds"] = { 0: qubit_0_thresh, 1: qubit_1_thresh }
@@ -164,8 +164,7 @@ def test_CI_230106_1_loopback_6s():
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
     db["poll_secs"] = 6
-    db["recursive_request"] = False
-    db["resample_above_percentage"] = 95
+    db["recursive"] = False
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -179,7 +178,6 @@ def test_CI_230106_1_loopback_6s():
     # Run the circuit on the back-end
     eltim = timeit.timeit(lambda: s.run(), number=1)
     assert (eltim < 25.0)
-
 
 def test_CI_220225_1_init_measure_no_gates() :
     print("When a circuit contains no gates, QB hardware expects a JSON with circuit=[] instead of circuit='null'")
@@ -208,9 +206,7 @@ def test_CI_220225_1_init_measure_no_gates() :
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["recursive_request"] = False
-    db["resample_above_percentage"] = 95
-    db["over_request"] = 1
+    db["recursive"] = False
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -231,8 +227,23 @@ def test_CI_220225_1_init_measure_no_gates() :
     res = json.loads(s.out_qbjson[0][0])
     assert(len(res["circuit"]) == 2)
 
-def test_normal_request_with_upsampling():
-    print("Using loopback to test upsampling")
+def test_recursive():
+    print("Using loopback to test recursive request.")
+    import qb.core, ast
+    s = qb.core.session()
+    s.qb12()
+    s.qn=2
+    s.acc='loopback'
+    s.xasm = True
+    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.sn=16
+    s.run()
+    result = s.out_raw[0][0]
+    res = ast.literal_eval(result)
+    assert(sum([jj for jj in (res).values()]) == 16)
+
+def test_resampling():
+    print("Using loopback to test resampling.")
     import qb.core, ast
     from yaml import safe_load, dump
     import os
@@ -245,9 +256,8 @@ def test_normal_request_with_upsampling():
     s.sn=30
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["recursive_request"] = False
+    db["recursive"] = False
     db["resample"] = True
-    db["over_request"] = 1
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
@@ -256,71 +266,8 @@ def test_normal_request_with_upsampling():
     res = ast.literal_eval(result)
     assert(sum([jj for jj in (res).values()]) == 30)
 
-def test_over_request_recursive_with_resampling_above_threshold():
-    print("Using loopback to test recursive 4x-over-requests + forced resampling when 50% or above of requested measurements are successful")
-    import qb.core, ast
-    from yaml import safe_load, dump
-    import os
-    s = qb.core.session()
-    s.qb12()
-    s.qn=2
-    s.acc='loopback'
-    s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    s.sn=16
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    db["over_request"] = 4
-    db["resample_above_percentage"] = 95
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-    s.run()
-    result = s.out_raw[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == 16)
-
-def test_normal_request_recursive_no_resampling():
-    print("Using loopback to test recursive requests + no resampling")
-    import qb.core, ast
-    from yaml import safe_load, dump
-    import os
-    s = qb.core.session()
-    s.qb12()
-    s.qn=2
-    s.acc='loopback'
-    s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    s.sn=16
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    db["over_request"] = 1
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-    s.run()
-    result = s.out_raw[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == 16)
-
-def test_over_request_recursive_no_resampling():
-    print("Using loopback to test recursive 8x over-requests + no resampling")
-    import qb.core, ast
-    s = qb.core.session()
-    s.qb12()
-    s.qn=2
-    s.acc='loopback'
-
-    s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    s.sn=16
-    s.run()
-    result = s.out_raw[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == 16)
-
-def test_over_request_recursive_resampling_qb_safe_limit_shots():
-    print("Using loopback to test QB_SAFE_LIMIT_SHOTS")
+def test_resampling_qb_safe_limit_shots():
+    print("Using loopback to test QB_SAFE_LIMIT_SHOTS with resampling.")
     import qb.core
     from yaml import safe_load, dump
     import os
@@ -335,6 +282,7 @@ def test_over_request_recursive_resampling_qb_safe_limit_shots():
     s.sn=1024
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
+    db["recursive"] = False
     db["resample"] = True
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)

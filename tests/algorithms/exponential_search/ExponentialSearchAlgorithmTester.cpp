@@ -147,6 +147,7 @@ TEST(CanonicalExponentialSearchAlgorithmAltTester, checkSimplefunc) {
     }
   }
   std::cout << "Total success: " << nSuccess/N_TRIALS  << "\n";
+  std::cout << 'total_num_qubits: ' << total_num_qubits << std::endl;
   // Pm >= 1/4 (https://arxiv.org/pdf/quant-ph/9605034.pdf)
   EXPECT_GT(nSuccess/N_TRIALS, 0.25);
 }

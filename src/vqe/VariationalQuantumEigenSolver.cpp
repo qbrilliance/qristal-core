@@ -43,8 +43,8 @@ public:
     return {"ansatz", "accelerator", "observable"};
   }
   void execute(const std::shared_ptr<AcceleratorBuffer> buffer) const override {
-    if (m_accelerator->name() != "qpp") {      
-      throw std::range_error("To use direct expectation, you must use the qpp backend.");
+    if (m_accelerator->name() != "qpp" and m_accelerator->name() != "aer") {
+      throw std::range_error("To use direct expectation, you must use the qpp or aer statevector backend.");
     }
     
     auto ham_sparse = m_observable->name() != "pauli"

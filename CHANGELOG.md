@@ -8,6 +8,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 - Removed the need to include /api/v1 in hardware device URLs. URLs containing this suffix will no longer work.
 - Support new circuit endpoint /api/v1/circuits in qcstack 2024.3.1 and later. Earlier qcstack versions no longer supported.
+- `session` no longer outputs a bitstring-to-counts map through `get_out_bitstrings`. A list (python)/vector(C++) of counts can be accessed through `get_out_counts`.
+- QML: No longer part of the core repository as parametrized functionality has been introduced to CircuitBuilder. QML-specific functions should be fetched from the upcoming QML repo.
 
 ### Added
 
@@ -24,13 +26,10 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Parametrized circuit building now supported using the `CircuitBuilder` (C++)/`Circuit` (Python) objects, with execution using `session`. Optimization examples can be seen in `tests/sessionOptTester.cpp`.
 - `session` now calculates and outputs probability jacobians if the property `set_calc_jacobian(s)` is set to `true`. The jacobians can be accessed using `get_out_jacobians`. If the jacobians are calculated, the vectors of output probabilities can also be accessed using `get_out_probs`.
 - A mapping from bitstring to vector index can be accessed using the method `session.bitstring_index`. Check the docs and python help strings for details.
+- Simplified hardware backend options
+- Completed shift of AWS Braket backends to yaml-based option input
+- Added documentation of all backends
 - Added ability to use custom Kraus matrices and custom noise model parameters to generate noise model object.
-
-### Breaking
-
-- `session` no longer outputs a bitstring-to-counts map through `get_out_bitstrings`. A list (python)/vector(C++) of counts can be caccessed through `get_out_counts`.
-- QML: No longer part of the core repository as parametrized functionality has been introduced to CircuitBuilder. QML-specific functions should be fetched from the upcoming QML repo.
-
 
 ### Fixed
 

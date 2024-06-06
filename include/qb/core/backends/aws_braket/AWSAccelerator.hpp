@@ -99,7 +99,7 @@ namespace xacc
         /// Retrieve properties from Rigetti hardware on AWS
         std::string queryRigettiHardwareProperties(const std::string &backend_arn) const;
 
-        // Retrieve the list of all available backends and their ARN from a provider (e.g., Rigetti, IonQ, Xanadu, etc.)
+        /// Retrieve the list of all available backends and their ARN from a provider (e.g., Rigetti, IonQ, Xanadu, etc.)
         std::unordered_map<std::string, std::string> getAvailableBackends(const std::string &provider_name) const;
 
       private:

@@ -154,12 +154,10 @@ namespace qb
       // Valid strings
       std::unordered_set<std::string> VALID_ACCS = {
           "aer",
-          "aws_acc",
+          "aws-braket",
           "tnqvm",
           "qpp",
           "qsim",
-          "dqc_gen1",
-          "qdk_gen1",
           "loopback",
           "qb-lambda",
           "sparse-sim",
@@ -1231,12 +1229,14 @@ namespace qb
       /// Shortcuts for setting defaults
       /// 12 qubits, 1024 shots, noiseless
       void qb12();
-      /// AWS Braket DM1, 32 async workers, 17 qubits, 256 shots, noiseless
-      void aws32dm1();
-      /// AWS Braket SV1, 32 async workers, 34 qubits, 256 shots, noiseless 
-      void aws32sv1();
-      /// AWS Braket TN1, 8 async workers, 49 qubits, 256 shots, noiseless
-      void aws8tn1();
+      /**
+       * @brief AWS defaults
+       * 
+       * @param qn Number of qubits
+       * @param sn Number of shots
+       * @param wn Number of asynchronous workers
+       */   
+      void aws_setup(uint qn, uint sn, uint wn);
       
       /**
        * @brief Returns the (base-10) integer vector index for the probabilities/

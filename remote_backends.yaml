@@ -1,29 +1,8 @@
-dqc_gen1:
-  url: https://10.10.10.120:8443
-  poll_secs: 6
-  poll_retries: 100
-  over_request: 8
-  recursive_request: true
-  resample: false
-  resample_above_percentage: 50
-  exclusive_access: false
-  
-qdk_gen1:
-  url: https://10.10.10.121:8443
-  poll_secs: 6
-  poll_retries: 100
-  over_request: 8
-  recursive_request: true
-  resample: false
-  resample_above_percentage: 50
-  exclusive_access: false
-
 loopback:
   url: https://localhost:8443
   poll_secs: 2
   poll_retries: 100
-  over_request: 8
-  recursive_request: true
+  recursive: true
   resample: false
   resample_above_percentage: 100
   exclusive_access: false
@@ -34,9 +13,9 @@ loopback:
     0: 0
     1: 0
 
-aws_braket:
-  device_name: "DM1"
-  format: "openqasm3"
-  s3: "amazon-braket-QBSDK"
-  path: "output"
-        
+aws-braket:
+  device: DM1
+  format: openqasm3
+  s3: amazon-braket-qbsdk-2023
+  path: output
+  noise: false      

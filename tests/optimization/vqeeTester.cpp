@@ -3,8 +3,6 @@
 #include "qb/core/optimization/vqee/vqee.hpp"
 
 TEST(vqeeTester, checkH2_UCCSD) {
-    // needs to call xacc::Initialize(); to allow single testing. Must be adapted in all tests. Cannot be called twice without xacc::Finalize(); in between
-    xacc::Initialize(); //xacc::Initialize(argc, argv);
     xacc::external::load_external_language_plugins();
     xacc::set_verbose(false);
     xacc::ScopeTimer timer_for_cpu("Walltime in ms", false);
@@ -18,19 +16,17 @@ TEST(vqeeTester, checkH2_UCCSD) {
     qb::vqee::VQEE vqe{params};
     vqe.optimize();
 
-    const auto 	    nIters = params.energies.size();
-    const double 	cpu_ms = timer_for_cpu.getDurationMs(); 
+    const auto nIters = params.energies.size();
+    const double  cpu_ms = timer_for_cpu.getDurationMs(); 
 
     double exactEnergy{-1.137275943617};
     // Be aware that pyscf Pauli produces exact energy but qiskit pauli does not include core-core interaction and must add 1/1.4 to true energy, i.e. EXPECT_NEAR(params.optimalValue, exactEnergy -1.0/1.4, 1e-3);
     EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3);
     std::cout << "vqee test finished.\n";
-    // this would actually need to call xacc::Finalize(); to allow single testing. Must be adapted in all tests
 }
 
 
 TEST(vqeeTester, checkGeometryToPauli) {
-    // this would actually need to call xacc::Initialize(); to allow single testing. Must be adapted in all tests
     xacc::ScopeTimer timer_for_cpu("Walltime in ms", false);
 
     const bool isRoot = GetRank() == 0;        
@@ -56,13 +52,12 @@ TEST(vqeeTester, checkGeometryToPauli) {
     qb::vqee::VQEE vqe{params};
     vqe.optimize();
 
-    const auto 	    nIters = params.energies.size();
-    const double 	cpu_ms = timer_for_cpu.getDurationMs(); 
+    const auto      nIters = params.energies.size();
+    const double  cpu_ms = timer_for_cpu.getDurationMs(); 
     
     double exactEnergy{-1.137275943617};
     EXPECT_NEAR(params.optimalValue, exactEnergy, 1e-3); // pyscf Pauli produces exact energy
     std::cout << "vqee test finished.\n";
-    // this would actually need to call xacc::Finalize(); to allow single testing. Must be adapted in all tests
 }
 
 TEST(vqeeTester, check_direct_expectation) {

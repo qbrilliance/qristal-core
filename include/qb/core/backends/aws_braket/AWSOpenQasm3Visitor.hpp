@@ -370,76 +370,72 @@ private:
     
     m_openQasm << gateName;
 
- 
-
-
-    if (m_verbatim){
-        
-    if (!params.empty()) {
-      m_openQasm << "(";
-      for (int i = 0; i < params.size() - 1; ++i) {
-        m_openQasm << params[i] << ", ";
+    if (m_verbatim){      
+      if (!params.empty()) {
+        m_openQasm << "(";
+        for (int i = 0; i < params.size() - 1; ++i) {
+          m_openQasm << params[i] << ", ";
+        }
+        m_openQasm << params[params.size() - 1] << ")";
       }
-      m_openQasm << params[params.size() - 1] << ")";
-    }
-    m_openQasm << " ";
-    for (int i = 0; i < operands.size() - 1; ++i) {
-      m_openQasm << m_regName << operands[i] << ", ";
-    }
-    //if (gateName == "measure") m_openQasm << "c[" << operands[operands.size() - 1] << "] = ";
-    m_openQasm << m_regName << operands[operands.size() - 1] << ";\n";
-    // Note: by default, noise channels are applied **AFTER** the gate.
-    //std::cout << "m_noise is" << m_noise << "\n" ;
-    //std::cout << "m_verbatim is" << m_verbatim << "\n" ;
-    if (m_noise){
-    if (gateName != "measure") {
-      for (const auto &qubit : operands) {
-        const auto amplitude_damping_rate =
-            m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
-                                                                   qubit);
-        const auto phase_dammping_rate =
-            m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
-                                                                   qubit);
-        m_openQasm << "#pragma braket noise amplitude_damping("
-                   << amplitude_damping_rate << ") $" << qubit << "\n";
-        m_openQasm << "#pragma braket noise phase_damping("
-                   << amplitude_damping_rate << ") $" << qubit << "\n";
+      m_openQasm << " ";
+      for (int i = 0; i < operands.size() - 1; ++i) {
+        m_openQasm << m_regName << operands[i] << ", ";
       }
-    }
-                        } 
+      //if (gateName == "measure") m_openQasm << "c[" << operands[operands.size() - 1] << "] = ";
+      m_openQasm << m_regName << operands[operands.size() - 1] << ";\n";
+      // Note: by default, noise channels are applied **AFTER** the gate.
+      //std::cout << "m_noise is" << m_noise << "\n" ;
+      //std::cout << "m_verbatim is" << m_verbatim << "\n" ;
+      if (m_noise){
+        if (gateName != "measure") {
+          for (const auto &qubit : operands) {
+            const auto amplitude_damping_rate =
+                m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
+                                                                       qubit);
+            const auto phase_dammping_rate =
+                m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
+                                                                       qubit);
+            m_openQasm << "#pragma braket noise amplitude_damping("
+                       << amplitude_damping_rate << ") $" << qubit << "\n";
+            m_openQasm << "#pragma braket noise phase_damping("
+                       << amplitude_damping_rate << ") $" << qubit << "\n";
+          }
+        }
+      } 
     }
     else {
       if (!params.empty()) {
-      m_openQasm << "(";
-      for (int i = 0; i < params.size() - 1; ++i) {
-        m_openQasm << params[i] << ", ";
+        m_openQasm << "(";
+        for (int i = 0; i < params.size() - 1; ++i) {
+          m_openQasm << params[i] << ", ";
+        }
+        m_openQasm << params[params.size() - 1] << ")";
       }
-      m_openQasm << params[params.size() - 1] << ")";
-    }
-    m_openQasm << " ";
-    for (int i = 0; i < operands.size() - 1; ++i) {
-      m_openQasm << m_regName << "[" << operands[i] << "], ";
-    }
-    m_openQasm << m_regName << "[" << operands[operands.size() - 1] << "];\n";
-    // Note: by default, noise channels are applied **AFTER** the gate.
-    //std::cout << "m_noise is" << m_noise << "\n" ;
-    //std::cout << "m_verbatim is" << m_verbatim << "\n" ;
-    if (m_noise){
-    if (gateName != "measure") {
-      for (const auto &qubit : operands) {
-        const auto amplitude_damping_rate =
-            m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
-                                                                   qubit);
-        const auto phase_dammping_rate =
-            m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
-                                                                   qubit);
-        m_openQasm << "#pragma braket noise amplitude_damping("
-                   << amplitude_damping_rate << ") q[" << qubit << "]\n";
-        m_openQasm << "#pragma braket noise phase_damping("
-                   << amplitude_damping_rate << ") q[" << qubit << "]\n";
+      m_openQasm << " ";
+      for (int i = 0; i < operands.size() - 1; ++i) {
+        m_openQasm << m_regName << "[" << operands[i] << "], ";
       }
-    }
-                        }
+      m_openQasm << m_regName << "[" << operands[operands.size() - 1] << "];\n";
+      // Note: by default, noise channels are applied **AFTER** the gate.
+      //std::cout << "m_noise is" << m_noise << "\n" ;
+      //std::cout << "m_verbatim is" << m_verbatim << "\n" ;
+      if (m_noise){
+        if (gateName != "measure") {
+          for (const auto &qubit : operands) {
+            const auto amplitude_damping_rate =
+                m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
+                                                                       qubit);
+            const auto phase_dammping_rate =
+                m_hardwareModel.noiseModel.computeAmplitudeDampingRate(gateTime,
+                                                                       qubit);
+            m_openQasm << "#pragma braket noise amplitude_damping("
+                       << amplitude_damping_rate << ") q[" << qubit << "]\n";
+            m_openQasm << "#pragma braket noise phase_damping("
+                       << amplitude_damping_rate << ") q[" << qubit << "]\n";
+          }
+        }
+      }
     }
   }
 };

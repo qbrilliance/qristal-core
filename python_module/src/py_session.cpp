@@ -353,12 +353,8 @@ void bind_session(pybind11::module &m) {
            "Calculate Jensen-Shannon divergence")
       .def("qb12", py::overload_cast<>(&qb::session::qb12),
            "Quantum Brilliance 12-qubit defaults")
-      .def("aws32dm1", py::overload_cast<>(&qb::session::aws32dm1),
-           "AWS Braket DM1, 32 async workers")
-      .def("aws32sv1", py::overload_cast<>(&qb::session::aws32sv1),
-           "AWS Braket SV1, 32 async workers")
-      .def("aws8tn1", py::overload_cast<>(&qb::session::aws8tn1),
-           "AWS Braket TN1, 8 async workers")
+      .def("aws_setup", py::overload_cast<uint, uint, uint>(&qb::session::aws_setup),
+           "AWS Braket Setup")
       .def("set_parallel_run_config", &qb::session::set_parallel_run_config,
            "Set the parallel execution configuration")
       .def(

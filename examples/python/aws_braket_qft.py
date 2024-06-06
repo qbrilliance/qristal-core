@@ -1,6 +1,7 @@
 print("Executing qft on AWS braket in Python...")
 import qb.core
 import time
+from yaml import safe_load, dump
 
 # Import the core of the QB SDK
 s = qb.core.session()
@@ -15,17 +16,24 @@ s.aws32dm1()
 # AWS account needs to have Braket enabled and in regions that support Braket (e.g., us-east-1)
 # AWS account needs to have S3 access and can create S3 Buckets with prefix "amazon-braket-*"
 # Set s.aws_s3 to be user's AWS S3 Bucket name, below is an example
-s.aws_s3 = 'amazon-braket-qbsdk-2023'
 # Set s.aws_s3_path to be user's AWS S3 Bucket folder name, below is an example
-s.aws_s3_path = 'dm1'
+
+# Change the remote_backends.yaml file entry or user can call set_remote_backend_database_path 
+# to directly specify backend options
+stream = open(s.remote_backend_database_path, 'r')
+db = safe_load(stream)["aws-braket"]
+db["device"] = "DM1"
+db["path"] = "dm1-async"
+stream = open(s.remote_backend_database_path + ".temp", 'w')
+dump({'aws-braket': db}, stream)
+s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+
 
 # Other session settings
 s.xasm = True
 s.noise = True
 num_qubits = 4
 s.qn = num_qubits
-print("Backend chosen: ", s.acc)
-print("Device from qft.py: ", s.aws_device)
 
 # Set up 2 jobs with the same circuit but different number of shots
 s.sn[0].clear()

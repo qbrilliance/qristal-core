@@ -1530,81 +1530,28 @@ namespace qb
     set_measure_sample_sequential("auto");
   }
 
-  void session::aws32dm1() {
-    if (debug_) {
-      std::cout
-          << "Setting AWS Braket DM1 with 32 asynchronous workers, "
-             "noiseless, 17-qubits, 256 shots"
-          << std::endl;
-    }
-    const int wn = 32; // 32 workers
-    set_qn(17);
-    set_sn(256);
+  void session::aws_setup(uint qn, uint sn, uint wn) {
+    if (debug_) std::cout << "Setting AWS Braket defaults." << std::endl;
+    set_qn(qn);
+    set_sn(sn);
     set_rn(1);
     set_noise(false);
+    set_initial_bond_dimension(1);
+    set_initial_kraus_dimension(1);
     set_max_bond_dimension(256);
+    set_max_kraus_dimension(256);
     ND scut{{0, 1.0e-8}};
     set_svd_cutoff(scut);
+    ND rel_scut{{0, 1.0e-4}};
+    set_rel_svd_cutoff(rel_scut);
     set_output_oqm_enabled(true);
-    set_acc("aws_acc");
+    set_acc("aws-braket");
     std::stringstream async_workers;
     async_workers << "{\"accs\": [";
     for (int iw=0; iw<(wn-1); iw++) {
-        async_workers << "{\"acc\": \"aws_acc\"},";
+        async_workers << "{\"acc\": \"aws-braket\"},";
     }
-    async_workers << "{\"acc\": \"aws_acc\"}]}";
-    set_parallel_run_config(async_workers.str());
-  }
-
-  void session::aws32sv1() {
-    if (debug_) {
-      std::cout
-          << "Setting AWS Braket SV1 with 32 asynchronous workers, "
-             "noiseless, 34-qubits, 256 shots"
-          << std::endl;
-    }
-    const int wn = 32; // 32 workers
-    set_qn(34);
-    set_sn(256);
-    set_rn(1);
-    set_noise(false);
-    set_max_bond_dimension(256);
-    ND scut{{0, 1.0e-8}};
-    set_svd_cutoff(scut);
-    set_output_oqm_enabled(true);
-    set_acc("aws_acc");
-    std::stringstream async_workers;
-    async_workers << "{\"accs\": [";
-    for (int iw=0; iw<(wn-1); iw++) {
-        async_workers << "{\"acc\": \"aws_acc\"},";
-    }
-    async_workers << "{\"acc\": \"aws_acc\"}]}";
-    set_parallel_run_config(async_workers.str());
-  }
-
-  void session::aws8tn1() {
-    if (debug_) {
-      std::cout
-          << "Setting AWS Braket TN1 with 8 asynchronous workers, "
-             "noiseless, 48-qubits, 256 shots"
-          << std::endl;
-    }
-    const int wn = 8; // 8 workers
-    set_qn(48);
-    set_sn(256);
-    set_rn(1);
-    set_noise(false);
-    set_max_bond_dimension(256);
-    ND scut{{0, 1.0e-8}};
-    set_svd_cutoff(scut);
-    set_output_oqm_enabled(true);
-    set_acc("aws_acc");
-    std::stringstream async_workers;
-    async_workers << "{\"accs\": [";
-    for (int iw=0; iw<(wn-1); iw++) {
-        async_workers << "{\"acc\": \"aws_acc\"},";
-    }
-    async_workers << "{\"acc\": \"aws_acc\"}]}";
+    async_workers << "{\"acc\": \"aws-braket\"}]}";
     set_parallel_run_config(async_workers.str());
   }
 
@@ -1799,7 +1746,7 @@ namespace qb
     remote_backend_database_ = YAML::LoadFile(remote_backend_database_path_);
 
     // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS or Lambda.
-    const bool exec_on_hardware = run_config.acc_name != "aws_acc" and 
+    const bool exec_on_hardware = run_config.acc_name != "aws-braket" and 
                                   run_config.acc_name != "qb-lambda" and
                                   remote_backend_database_[run_config.acc_name];
 
@@ -1874,7 +1821,7 @@ namespace qb
                 << "' cannot be located. Please check your installation.\n";
           }
         }
-        if (run_config.acc_name == "aws_acc") {
+        if (run_config.acc_name == "aws-braket") {
           m.merge(qpu->getProperties());
         }
 
@@ -1953,7 +1900,7 @@ namespace qb
                     << debug_msg.str() << std::endl;
           debug_msg.str("");
         }
-        if (qpu->name() == "aws_acc" &&
+        if (qpu->name() == "aws-braket" &&
             std::dynamic_pointer_cast<qb::remote_accelerator>(qpu)) {
           auto as_remote_acc =
               std::dynamic_pointer_cast<qb::remote_accelerator>(qpu);

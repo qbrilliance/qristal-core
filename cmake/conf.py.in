@@ -24,8 +24,8 @@ def setup(app):
 
 # -- Project information -----------------------------------------------------
 
-project = 'Quantum SDK'
-copyright = '2023, Quantum Brilliance Pty Ltd'
+project = 'Qristal'
+copyright = 'Quantum Brilliance Pty Ltd'
 author = 'Quantum Brilliance Pty Ltd'
 
 

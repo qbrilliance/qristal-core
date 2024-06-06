@@ -20,7 +20,7 @@ int main() {
 
   // Choose a AWS backend, set device to "Rigetti" to use its hardware info for
   // noise-aware placement
-  my_sim.set_acc("aws_acc");
+  my_sim.set_acc("aws-braket");
   my_sim.set_remote_backend_database_path(SDK_DIR "/examples/cpp/noise_aware_placement_aws/aws_rigetti.yaml");
   // Don't submit the circuit to AWS for execution.
   // Note: there is no charge when querying backend information (still needs a

@@ -23,7 +23,7 @@ s.placement = "noise-aware"
 # Use AWS Rigetti backend (hardware)
 # !Important!: make sure AWS credentials have been set on the computer,
 # e.g., using AWS CLI tool to cache the API key.
-s.acc = "aws_acc"
+s.acc = "aws-braket"
 s.aws_device = "Rigetti"
 
 # Don't submit the circuit to AWS for execution (via the `nosim` config)

@@ -4,6 +4,8 @@ QB Qristal has built-in noise models that are useful for:
 * Emulating the noise inherent in hardware quantum gates, and
 * Optimizing qubit assignment for a given quantum circuit.
 
+For details on the simulators that support these noise models, please see this [link](https://qristal.readthedocs.io/en/latest/rst/backends.html).
+
 ## Summary of built-in noise models
 
 ### `default`
@@ -23,13 +25,6 @@ This model is applicable to:
 - [X] Open source releases: 2023 onwards
 - [X] Commercial emulator releases: 2023 onwards
 
-Availability on simulators:
-- [x] aer
-- [ ] qsim
-- [ ] tnqvm
-- [ ] sparse-sim
-- [ ] qpp
-
 This model takes the number of qubits specified by the user and generates a fully connected topology between all qubits.  Quantum gate noise is modelled using single-qubit depolarization and 2-qubit depolarization channels.  The channels are uniform across all qubits.  Readout errors are also accounted for in this model.
 
 ### `qb-nm1`
@@ -44,13 +39,6 @@ This model is applicable to:
 - [ ] Open source releases: 2023 onwards
 - [X] Commercial emulator releases: 2023 onwards
 
-Availability on simulators:
-- [x] aer
-- [x] qsim
-- [ ] tnqvm
-- [ ] sparse-sim
-- [ ] qpp
-
 ### `qb-nm2`
 
 | Model name | `qb-nm2` |
@@ -62,13 +50,6 @@ This model is applicable to:
 
 - [ ] Open source releases: 2023 onwards
 - [X] Commercial emulator releases: 2023 onwards
-
-Availability on simulators:
-- [x] aer
-- [x] qsim
-- [ ] tnqvm
-- [ ] sparse-sim
-- [ ] qpp
 
 ### `qb-nm3`
 
@@ -82,13 +63,6 @@ This model is applicable to:
 - [ ] Open source releases: 2023 onwards
 - [X] Commercial emulator releases: 2023 onwards
 
-Availability on simulators:
-- [x] aer
-- [x] qsim
-- [ ] tnqvm
-- [ ] sparse-sim
-- [ ] qpp
-
 ### `qb-qdk1`
 
 | Model name | `qb-qdk1` |
@@ -101,13 +75,6 @@ This model is applicable to:
 - [ ] Open source releases: 2023 onwards
 - [X] Commercial emulator releases: 2023 onwards
 
-Availability on simulators:
-- [x] aer
-- [ ] qsim
-- [ ] tnqvm
-- [ ] sparse-sim
-- [ ] qpp
-
 ### `qb-dqc2`
 
 | Model name | `qb-dqc2` |
@@ -119,13 +86,6 @@ This model is applicable to:
 
 - [ ] Open source releases: 2023 onwards
 - [X] Commercial emulator releases: 2023 onwards
-
-Availability on simulators:
-- [x] aer
-- [ ] qsim
-- [ ] tnqvm
-- [ ] sparse-sim
-- [ ] qpp
 
 ## Examples showing the use of a built-in noise model
 ### C++

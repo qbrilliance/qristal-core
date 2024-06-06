@@ -1,6 +1,6 @@
-aws_braket:
-  device_name: "Rigetti"
-  format: "openqasm3"
-  s3: "amazon-braket-QBSDK"
-  path: "output"
-        
+aws-braket:
+  device: Rigetti
+  format: openqasm3
+  s3: amazon-braket-qbsdk-2023
+  path: output
+  noise: false      

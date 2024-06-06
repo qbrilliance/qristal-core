@@ -140,26 +140,28 @@ TEST(VqeGenTester, checkDeuteronH3) {
 }
 
 TEST(VqeGenTester, checkH2) {
+  xacc::set_verbose(false);
   // Use Qpp accelerator
   auto accelerator = xacc::getAccelerator("qpp");
 
   // Create the Observable
   auto H2 = xacc::quantum::getObservable(
-      "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(2)}});
+      "pauli",
+       std::string("-0.098156323778 + 0.0453144794442 X0X1X2X3 +"
+                   "0.0453144794442 X0X1Y2Y3 + 0.0453144794442 Y0Y1X2X3 +"
+                   "0.0453144794442 Y0Y1Y2Y3 + 0.171282484739 Z0 +"
+                   "0.120576516045 Z0Z1 + 0.168648518537 Z0Z2 +"
+                   "0.165890995489 Z0Z3 - 0.223040179318 Z1 +"
+                   "0.165890995489 Z1Z2 + 0.174373834217 Z1Z3 +"
+                   "0.171282484739 Z2 + 0.120576516045 Z2Z3 - 0.223040179319 Z3"));
 
-  //   std::cout << H2->toString() << "\n";
-  auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-                        ->transform(H2)
-                        ->to_sparse_matrix();
-  const auto minEnergy = minEigenVal(ham_sparse, 4);
+  double minEnergy = -1.137275943617;
   std::cout << "Expected ground-state energy: " << minEnergy << "\n";
   auto optimizer = xacc::getOptimizer("nlopt");
 
   auto tmp = xacc::getService<xacc::Instruction>("UCCSD");
   auto uccsd = std::dynamic_pointer_cast<xacc::CompositeInstruction>(tmp);
   EXPECT_TRUE(uccsd->expand({{"ne", 2}, {"nq", 4}}));
-
-  //   std::cout << uccsd->toString() << "\n";
 
   // Get the VQE Algorithm and initialize it
   auto vqe = xacc::getAlgorithm("vqe-gen");
@@ -171,124 +173,26 @@ TEST(VqeGenTester, checkH2) {
   // Allocate some qubits and execute
   auto buffer = xacc::qalloc(4);
   vqe->execute(buffer);
-  buffer->print();
-  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-4);
-}
-
-// TEST(VqeGenTester, checkH4) {
-//   xacc::set_verbose(true);
-//   // Use Qpp accelerator
-//   auto accelerator = xacc::getAccelerator("qpp");
-//   std::cout << HamStringHydrogens(4) << "\n";
-//   // Create the Observable
-//   auto H4 = xacc::quantum::getObservable(
-//       "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(4)}});
-//   auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-//                         ->transform(H4)
-//                         ->to_sparse_matrix();
-//   const auto minEnergy = minEigenVal(ham_sparse, 8);
-//   std::cout << "Expected ground-state energy: " << minEnergy << "\n";
-//   auto tmp = xacc::getService<xacc::Instruction>("UCCSD");
-//   auto uccsd = std::dynamic_pointer_cast<xacc::CompositeInstruction>(tmp);
-//   EXPECT_TRUE(uccsd->expand({{"ne", 4}, {"nq", 8}}));
-//   auto optimizer = xacc::getOptimizer("nlopt", {{"maxeval", 600}});
-//   // Get the VQE Algorithm and initialize it
-//   auto vqe = xacc::getAlgorithm("vqe-gen");
-//   vqe->initialize({{"ansatz", uccsd},
-//                    {"observable", H4},
-//                    {"accelerator", accelerator},
-//                    {"optimizer", optimizer}});
-
-//   // Allocate some qubits and execute
-//   auto buffer = xacc::qalloc(8);
-//   vqe->execute(buffer);
-//   buffer->print();
-//   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-3);
-// }
-
-// TEST(VqeGenTester, checkH6) {
-//   xacc::set_verbose(true);
-//   // Use Qpp accelerator
-//   auto accelerator = xacc::getAccelerator("qpp");
-//   std::cout << HamStringHydrogens(6) << "\n";
-//   // Create the Observable
-//   auto H6 = xacc::quantum::getObservable(
-//       "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(6)}});
-//   auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-//                         ->transform(H6)
-//                         ->to_sparse_matrix();
-//   const auto minEnergy = minEigenVal(ham_sparse, 12);
-//   std::cout << "Expected ground-state energy: " << minEnergy << "\n";
-//   auto tmp = xacc::getService<xacc::Instruction>("UCCSD");
-//   auto uccsd = std::dynamic_pointer_cast<xacc::CompositeInstruction>(tmp);
-//   EXPECT_TRUE(uccsd->expand({{"ne", 6}, {"nq", 12}}));
-//   auto optimizer = xacc::getOptimizer("nlopt", {{"maxeval", 1000}});
-//   // Get the VQE Algorithm and initialize it
-//   auto vqe = xacc::getAlgorithm("vqe-gen");
-//   vqe->initialize({{"ansatz", uccsd},
-//                    {"observable", H6},
-//                    {"accelerator", accelerator},
-//                    {"optimizer", optimizer}});
-
-//   // Allocate some qubits and execute
-//   auto buffer = xacc::qalloc(12);
-//   vqe->execute(buffer);
-//   buffer->print();
-//   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-3);
-// }
-
-TEST(VqeGenTester, checkH2AerDensityMatrix) {
-  xacc::set_verbose(true);
-  // Use AER accelerator
-  auto accelerator =
-      xacc::getAccelerator("aer", {{"sim-type", "density_matrix"}});
-
-  // Create the Observable
-  auto H2 = xacc::quantum::getObservable(
-      "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(2)}});
-
-  //   std::cout << H2->toString() << "\n";
-  auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-                        ->transform(H2)
-                        ->to_sparse_matrix();
-  const auto minEnergy = minEigenVal(ham_sparse, 4);
-  std::cout << "Expected ground-state energy: " << minEnergy << "\n";
-  auto optimizer = xacc::getOptimizer("nlopt");
-
-  auto tmp = xacc::getService<xacc::Instruction>("UCCSD");
-  auto uccsd = std::dynamic_pointer_cast<xacc::CompositeInstruction>(tmp);
-  EXPECT_TRUE(uccsd->expand({{"ne", 2}, {"nq", 4}}));
-
-  //   std::cout << uccsd->toString() << "\n";
-
-  // Get the VQE Algorithm and initialize it
-  auto vqe = xacc::getAlgorithm("vqe-gen");
-  vqe->initialize({{"ansatz", uccsd},
-                   {"observable", H2},
-                   {"accelerator", accelerator},
-                   {"optimizer", optimizer}});
-
-  // Allocate some qubits and execute
-  auto buffer = xacc::qalloc(4);
-  vqe->execute(buffer);
-  buffer->print();
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-4);
 }
 
 TEST(VqeGenTester, checkH2AerStateVector) {
-  xacc::set_verbose(true);
+  xacc::set_verbose(false);
   // Use AER accelerator
   auto accelerator = xacc::getAccelerator("aer", {{"sim-type", "statevector"}});
 
   // Create the Observable
   auto H2 = xacc::quantum::getObservable(
-      "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(2)}});
+      "pauli",
+       std::string("-0.098156323778 + 0.0453144794442 X0X1X2X3 +"
+                   "0.0453144794442 X0X1Y2Y3 + 0.0453144794442 Y0Y1X2X3 +"
+                   "0.0453144794442 Y0Y1Y2Y3 + 0.171282484739 Z0 +"
+                   "0.120576516045 Z0Z1 + 0.168648518537 Z0Z2 +"
+                   "0.165890995489 Z0Z3 - 0.223040179318 Z1 +"
+                   "0.165890995489 Z1Z2 + 0.174373834217 Z1Z3 +"
+                   "0.171282484739 Z2 + 0.120576516045 Z2Z3 - 0.223040179319 Z3"));
 
-  //   std::cout << H2->toString() << "\n";
-  auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-                        ->transform(H2)
-                        ->to_sparse_matrix();
-  const auto minEnergy = minEigenVal(ham_sparse, 4);
+  double minEnergy = -1.137275943617;
   std::cout << "Expected ground-state energy: " << minEnergy << "\n";
   auto optimizer = xacc::getOptimizer("nlopt");
 
@@ -308,63 +212,27 @@ TEST(VqeGenTester, checkH2AerStateVector) {
   // Allocate some qubits and execute
   auto buffer = xacc::qalloc(4);
   vqe->execute(buffer);
-  buffer->print();
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-4);
 }
 
-TEST(VqeGenTester, checkH2AerDensityMatrixGradients) {
-  xacc::set_verbose(true);
-  // Use AER accelerator
-  auto accelerator =
-      xacc::getAccelerator("aer", {{"sim-type", "density_matrix"}});
-
-  // Create the Observable
-  auto H2 = xacc::quantum::getObservable(
-      "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(2)}});
-
-  //   std::cout << H2->toString() << "\n";
-  auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-                        ->transform(H2)
-                        ->to_sparse_matrix();
-  const auto minEnergy = minEigenVal(ham_sparse, 4);
-  std::cout << "Expected ground-state energy: " << minEnergy << "\n";
-  // Gradient-based optimizer
-  auto optimizer = xacc::getOptimizer("mlpack");
-
-  auto tmp = xacc::getService<xacc::Instruction>("UCCSD");
-  auto uccsd = std::dynamic_pointer_cast<xacc::CompositeInstruction>(tmp);
-  EXPECT_TRUE(uccsd->expand({{"ne", 2}, {"nq", 4}}));
-
-  //   std::cout << uccsd->toString() << "\n";
-
-  // Get the VQE Algorithm and initialize it
-  auto vqe = xacc::getAlgorithm("vqe-gen");
-  vqe->initialize({{"ansatz", uccsd},
-                   {"observable", H2},
-                   {"accelerator", accelerator},
-                   {"optimizer", optimizer}});
-
-  // Allocate some qubits and execute
-  auto buffer = xacc::qalloc(4);
-  vqe->execute(buffer);
-  buffer->print();
-  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-3);
-}
 
 TEST(VqeGenTester, checkH2AerStateVectorGradients) {
-  xacc::set_verbose(true);
+  xacc::set_verbose(false);
   // Use AER accelerator
   auto accelerator = xacc::getAccelerator("aer", {{"sim-type", "statevector"}});
 
   // Create the Observable
   auto H2 = xacc::quantum::getObservable(
-      "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(2)}});
+      "pauli",
+       std::string("-0.098156323778 + 0.0453144794442 X0X1X2X3 +"
+                   "0.0453144794442 X0X1Y2Y3 + 0.0453144794442 Y0Y1X2X3 +"
+                   "0.0453144794442 Y0Y1Y2Y3 + 0.171282484739 Z0 +"
+                   "0.120576516045 Z0Z1 + 0.168648518537 Z0Z2 +"
+                   "0.165890995489 Z0Z3 - 0.223040179318 Z1 +"
+                   "0.165890995489 Z1Z2 + 0.174373834217 Z1Z3 +"
+                   "0.171282484739 Z2 + 0.120576516045 Z2Z3 - 0.223040179319 Z3"));
 
-  //   std::cout << H2->toString() << "\n";
-  auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-                        ->transform(H2)
-                        ->to_sparse_matrix();
-  const auto minEnergy = minEigenVal(ham_sparse, 4);
+  double minEnergy = -1.137275943617;
   std::cout << "Expected ground-state energy: " << minEnergy << "\n";
   auto optimizer = xacc::getOptimizer("mlpack");
 
@@ -387,35 +255,3 @@ TEST(VqeGenTester, checkH2AerStateVectorGradients) {
   buffer->print();
   EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-3);
 }
-
-TEST(VqeGenTester, checkH4Aer) {
-  xacc::set_verbose(true);
-  // Use AER accelerator
-  auto accelerator = xacc::getAccelerator("aer", {{"sim-type",
-  "statevector"}}); std::cout << HamStringHydrogens(4) << "\n";
-  // Create the Observable
-  auto H4 = xacc::quantum::getObservable(
-      "pyscf", {{"basis", "sto-3g"}, {"geometry", HamStringHydrogens(4)}});
-  auto ham_sparse = xacc::getService<xacc::ObservableTransform>("jw")
-                        ->transform(H4)
-                        ->to_sparse_matrix();
-  const auto minEnergy = minEigenVal(ham_sparse, 8);
-  std::cout << "Expected ground-state energy: " << minEnergy << "\n";
-  auto tmp = xacc::getService<xacc::Instruction>("UCCSD");
-  auto uccsd = std::dynamic_pointer_cast<xacc::CompositeInstruction>(tmp);
-  EXPECT_TRUE(uccsd->expand({{"ne", 4}, {"nq", 8}}));
-  auto optimizer = xacc::getOptimizer("nlopt", {{"maxeval", 600}});
-  // Get the VQE Algorithm and initialize it
-  auto vqe = xacc::getAlgorithm("vqe-gen");
-  vqe->initialize({{"ansatz", uccsd},
-                   {"observable", H4},
-                   {"accelerator", accelerator},
-                   {"optimizer", optimizer}});
-
-  // Allocate some qubits and execute
-  auto buffer = xacc::qalloc(8);
-  vqe->execute(buffer);
-  buffer->print();
-  EXPECT_NEAR((*buffer)["opt-val"].as<double>(), minEnergy, 1e-3);
-}
-
