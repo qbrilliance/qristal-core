@@ -350,7 +350,7 @@ ci-hardware-tests:
     # Run C++ tests of qcstack interface
     - ./build/HardwareTests --test --gtest_output='xml:core_hardware_gtests.xml'
     # Run python tests of qcstack interface
-    - cd tests/qcstack && python3 -m pytest --junitxml="report-qcstack.xml" && cd ../../
+    - cd tests/qcstack && python3 -m pytest --junitxml="report-qcstack.xml"
     # Shut down (and auto-remove) qcstack container
     - docker stop qcstack_server
   artifacts:

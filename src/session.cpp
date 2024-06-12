@@ -2071,6 +2071,7 @@ namespace qb
       out_total_init_maxgate_readout_times_.at(ii).at(jj) =
           timing_profile.get_total_initialisation_maxgate_readout_time_ms(xacc_scope_timer_qpu_ms, run_config.num_shots);
     }
+
   }
 
   // Wrap raw OpenQASM string in a QB Kernel:

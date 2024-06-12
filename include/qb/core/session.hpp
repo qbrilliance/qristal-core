@@ -1326,19 +1326,26 @@ namespace qb
       template <typename CountMapT>
       void populate_measure_counts_data(size_t ii, size_t jj,
                                         const CountMapT &measure_counts_map) {
+        // Save results to JSON
+        out_raws_.at(ii).at(jj) = nlohmann::json(measure_counts_map).dump(4);
+
         run_i_j_config run_config = get_run_config(ii, jj);
         // Unless the parameters are defined differently for each
         // experiment, use the global setting
         size_t num_qubits = run_config.num_qubits;
         size_t num_shots = run_config.num_shots;
+
         // Check that the number of qubits is set correctly
-        std::string sample_keystring = measure_counts_map.begin()->first;
-        if (sample_keystring.length() > num_qubits) {
-          std::string err_msg = "Not enough physical qubits! "
-                                 "Set qn to at least " +
-                                 std::to_string(sample_keystring.length());
-          throw std::logic_error(err_msg);
+        if (not measure_counts_map.empty()) {
+          std::string sample_keystring = measure_counts_map.begin()->first;
+          if (sample_keystring.length() > num_qubits) {
+            std::string err_msg = "Not enough physical qubits! "
+                                   "Set qn to at least " +
+                                   std::to_string(sample_keystring.length());
+            throw std::logic_error(err_msg);
+          }
         }
+
         // Also save the counts and probabilities as a vector
         if (num_qubits < 32) {
           const size_t num_entries = std::pow(2, num_qubits);
@@ -1356,9 +1363,6 @@ namespace qb
                             ".out_raw method instead.\n";
             }
         }
-        // Save results to JSON
-        nlohmann::json qpu_counts_js = measure_counts_map;
-        out_raws_.at(ii).at(jj) = qpu_counts_js.dump(4);
       }
   };
 
