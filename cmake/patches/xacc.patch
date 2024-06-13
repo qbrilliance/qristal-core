@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d00884ff..281a76fa 100644
+index d00884ff..b1b27683 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -154,6 +154,12 @@ IF(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "DEBUG")
@@ -15,7 +15,27 @@ index d00884ff..281a76fa 100644
  # Find LAPACK (optional)
  find_package(LAPACK)
  
-@@ -318,4 +324,4 @@ if(XACC_CPACK_RPM_PLATFORM)
+@@ -187,13 +193,12 @@ if (XACC_DEPS_EXTERNAL)
+   endif()
+ endif()
+ 
+-set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/tpls/eigen)
+-if (XACC_DEPS_EXTERNAL) 
+-  find_package(Eigen3) 
+-  if (Eigen3_FOUND) 
+-    message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}.${ColorReset}")
+-    set(EIGEN_INCLUDE_DIR ${EIGEN3_INCLUDE_DIR})
+-  endif()
++# Force XACC to use system Eigen3 instead of outdated tpls version.
++# set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/tpls/eigen)
++find_package(Eigen3 REQUIRED)
++if (Eigen3_FOUND)
++  message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}.${ColorReset}")
++  set(EIGEN_INCLUDE_DIR ${EIGEN3_INCLUDE_DIR})
+ endif()
+ 
+ add_subdirectory(xacc)
+@@ -318,4 +323,4 @@ if(XACC_CPACK_RPM_PLATFORM)
    endif()
  
    include(CPack)

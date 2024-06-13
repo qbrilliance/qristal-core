@@ -34,7 +34,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 ### Fixed
 
 - Fixed Werror problem with clang by updating warning flags passed to dependencies
-
+- Fixed benchmark1_cudaq.cpp example.
 
 ## [1.5.0] - 2024-02-21
 

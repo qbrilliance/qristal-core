@@ -3,7 +3,7 @@ new file mode 100644
 index 00000000..5aa651c3
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,201 @@
+@@ -0,0 +1,193 @@
 +# Copyright (c) Quantum Brilliance Pty Ltd
 +
 +# Set minimum cmake version
@@ -118,19 +118,11 @@ index 00000000..5aa651c3
 +endif()
 +
 +# Eigen
-+# Check if XACC is installed and provides Eigen3. XACC_DIR is the XACC install path,
-+# which is always in place if XACC is added using add_poorly_behaved_dependency.
-+if(NOT TARGET xacc::xacc)
-+    find_package(XACC REQUIRED)
-+    set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen")
-+    if (EXISTS ${XACC_EIGEN_PATH})
-+        message(STATUS "Eigen3 from XACC found at ${XACC_EIGEN_PATH}.")
-+        add_library(Eigen INTERFACE IMPORTED)
-+        target_include_directories(Eigen INTERFACE ${XACC_EIGEN_PATH})
-+        add_library(Eigen3::Eigen ALIAS Eigen)
-+    else()
-+        message(ERROR "Eigen3 not found from XACC.")
-+    endif()
++find_package(Eigen3 REQUIRED)
++if (Eigen3_FOUND)
++  message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
++  add_library(Eigen INTERFACE IMPORTED)
++  target_include_directories(Eigen INTERFACE ${EIGEN3_INCLUDE_DIR})
 +endif()
 +
 +# Disable warnings since older gcc versions (e.g., 9.4) may give false-positive warnings

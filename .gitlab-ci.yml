@@ -1,12 +1,14 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:sdk-5
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu-22.04:emulator-clang-cuda12.4
-  EMULATOR_RHEL_X86_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-x86:emulator-cuda12.4
-  EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel-8-power:emulator-3
+  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_clang-1
+  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_cuda-12.1.1_clang-1
+  EMULATOR_RHEL_X86_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_x86-8:all_dep_cuda-12.1.1_clang-1
+  EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_ppc64le-8:all_dep_cuda-12.1.1_clang-1
   USE_MPI: "ON"
 
- # branch to use for emulator repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
-  EMULATOR_TRIGGER_BRANCH: "main"
+ # branch to use for downstream repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
+  EMULATOR_TRIGGER_BRANCH: main
+  DECODER_TRIGGER_BRANCH: main
+  SDK_TRIGGER_BRANCH: main
 
 stages:
   - build
@@ -28,7 +30,7 @@ workflow:
     - echo $PWD
     - ls *
     - whoami
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
     - mv core_artefacts/build .
     - cmake --install build
 
@@ -162,12 +164,15 @@ ci-lightweight-build-for-emulator:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - rm -rf ${QB_DIR}/core-local
+    - pwd
+    - ls *
+    - whoami
+    - rm -rf ${QB_DIR}/core
     # Build core with SUPPORT_EMULATOR_BUILD_ONLY=ON
     - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
-      -DXACC_DIR=${QB_DIR}/xacc-local
-      -Dautodiff_DIR=${QB_DIR}/autodiff-local/lib/cmake/autodiff
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -Dautodiff_DIR=${QB_DIR}/autodiff/lib/cmake/autodiff
       -DSUPPORT_EMULATOR_BUILD_ONLY=ON
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
@@ -196,14 +201,20 @@ ci-full-build-for-emulator:
     - cutensornet2.0
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
+      allow_failure: false
+    - if: $CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE != "pipeline"
+      when: manual
   script:
-    - rm -rf ${QB_DIR}/core-local
+    - pwd
+    - ls *
+    - whoami
+    - rm -rf ${QB_DIR}/core
     - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
-      -DXACC_DIR=${QB_DIR}/xacc-local
-      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
-      -DTKET_DIR=${QB_DIR}/tket-local
+      -DTKET_DIR=${QB_DIR}/tket
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
@@ -220,14 +231,14 @@ ci-build:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
     - echo "MPI is $USE_MPI"
     - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
-      -DXACC_DIR=${QB_DIR}/xacc-local
-      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
-      -DTKET_DIR=${QB_DIR}/tket-local
+      -DTKET_DIR=${QB_DIR}/tket
       -DENABLE_MPI=$USE_MPI
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
@@ -249,9 +260,9 @@ cudaq-build:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
     - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
@@ -261,6 +272,7 @@ cudaq-build:
     paths: !reference [.paths, cudaq]
 
 # Build with INSTALL_MISSING from a vanilla Ubuntu image
+# TODO: Fix this to use a Docker runner
 ci-build-install-missing:
   stage: build
   tags:
@@ -268,7 +280,7 @@ ci-build-install-missing:
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - apt update && apt install -y build-essential cmake gfortran git libboost-all-dev libcurl4-openssl-dev libeigen3-dev libopenblas-dev libpython3-dev libssl-dev python3 python3-pip
+    #- apt update && apt install -y build-essential cmake gfortran git libboost-all-dev libcurl4-openssl-dev libeigen3-dev libopenblas-dev libpython3-dev libssl-dev python3 python3-pip
     - cmake -B build .
       -DINSTALL_MISSING=ON
       -DWITH_TKET=ON
@@ -294,7 +306,7 @@ ci-cpp-tests:
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -312,7 +324,7 @@ ci-py-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -369,7 +381,7 @@ cudaq-cpp-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -386,7 +398,7 @@ cudaq-py-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest cudaq_integration.py --junitxml="report.xml"
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -401,7 +413,7 @@ trigger-decoder:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/decoder
-    branch: main
+    branch: $DECODER_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
@@ -426,7 +438,7 @@ trigger-sdk:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
     project: qbau/software-and-apps/QBSDK
-    branch: main
+    branch: $SDK_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
@@ -457,13 +469,13 @@ rhel-x86-build:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
     - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
-      -DXACC_DIR=${QB_DIR}/xacc-local
-      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
-      -DTKET_DIR=${QB_DIR}/tket-local
+      -DTKET_DIR=${QB_DIR}/tket
       -DENABLE_MPI=$USE_MPI
     - cmake --build build -- -j`nproc`
     - cmake --install build
@@ -486,7 +498,7 @@ rhel-x86-cpp-tests:
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -504,7 +516,7 @@ rhel-x86-cudaq-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -521,7 +533,7 @@ rhel-x86-py-tests:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -565,13 +577,13 @@ rhel-power-build:
   tags:
     - powerDocker
   script:
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
     - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core-local
-      -DXACC_DIR=${QB_DIR}/xacc-local
-      -DTNQVM_DIR=${QB_DIR}/xacc-local
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
-      -DTKET_DIR=${QB_DIR}/tket-local
+      -DTKET_DIR=${QB_DIR}/tket
       -DENABLE_MPI=$USE_MPI
       -DBUILD_TESTS_WITHOUT_GPU=ON
     - cmake --build build -- -j`nproc`
@@ -595,7 +607,7 @@ rhel-power-cpp-tests:
   script:
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -603,8 +615,6 @@ rhel-power-cpp-tests:
       junit: tket_gtests.xml
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
-  # This is temporary -- to be removed once the benchmarks are fixed so that this job can pass
-  allow_failure: true
 
 rhel-power-cudaq-tests:
   stage: test
@@ -615,7 +625,7 @@ rhel-power-cudaq-tests:
     - powerDocker
   script:
     - ./build/CudaqCITests --test --gtest_output='xml:core_cudaq_gtests.xml'
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
@@ -632,7 +642,7 @@ rhel-power-py-tests:
     - powerDocker
   script:
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
-    - rm -rf ${QB_DIR}/core-local
+    - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:

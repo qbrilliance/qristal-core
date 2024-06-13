@@ -8,7 +8,7 @@
 template<std::size_t N>
 struct ghz {
   auto operator()() __qpu__ {
-    cudaq::qreg<N> q;
+    cudaq::qarray<N> q;
     h(q[0]);
     for (int i = 0; i < N - 1; i++) {
       x<cudaq::ctrl>(q[i], q[i + 1]);
@@ -36,6 +36,9 @@ int main()
   
   // Set up sensible default parameters
   my_sim.qb12();
+
+  // Add more qubits
+  my_sim.set_qn(NB_QUBITS);
 
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);

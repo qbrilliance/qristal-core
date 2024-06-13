@@ -1,0 +1,24 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6b699b1..fc5e7e5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -65,6 +65,19 @@ if (NOT XACC_DIR)
+   set(XACC_DIR "$ENV{HOME}/.xacc")
+ endif()
+ 
++if(NOT WIN32)
++  string(ASCII 27 Esc)
++  set(ColorReset "${Esc}[m")
++  set(BoldGreen "${Esc}[1;32m")
++endif()
++
++# Eigen
++find_package(Eigen3 REQUIRED)
++if (Eigen3_FOUND)
++  message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
++  include_directories(${EIGEN3_INCLUDE_DIR})
++endif()
++
+ # Add DEBUG preprocessor def for debug-only code
+ IF(CMAKE_BUILD_TYPE MATCHES "Debug")
+   add_compile_definitions(_DEBUG)

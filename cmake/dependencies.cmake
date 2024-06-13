@@ -2,6 +2,13 @@ include(add_dependency)
 include(add_poorly_behaved_dependency)
 include(add_python_module)
 
+# Add some colour
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(ColorReset "${Esc}[m")
+  set(BoldGreen "${Esc}[1;32m")
+endif()
+
 # add compatibility for user provided boost
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27.0")
   cmake_policy(SET CMP0144 NEW)
@@ -34,7 +41,36 @@ endif()
 # For XACC, but impacts Qristal too.
 set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
 
-# XACC
+# Eigen
+# Previously used Eigen from XACC, but it is outdated and has issues.
+# Use system installation of Eigen3 instead.
+add_dependency(Eigen3 3.4.1
+  GITLAB_REPOSITORY libeigen/eigen
+  GIT_TAG 15775613
+  PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/eigen.patch
+  DOWNLOAD_ONLY YES
+)
+if(Eigen3_ADDED)
+  # XACC and other poorly behaved deps depend on Eigen, and need it to be detectable already at cmake time via find_package().  CPM's default configuration of Eigen generates
+  # an error when find_package() is called by XACC et al. So, download and manually configure/install it so that dependencies can locate it at cmake time via find_package().
+  message(STATUS "${BoldGreen}Eigen3: adding ${Eigen3_BINARY_DIR} built from ${Eigen3_SOURCE_DIR} and installing to ${CMAKE_CURRENT_LIST_DIR}/_deps/eigen${ColorReset}.")
+  execute_process(COMMAND ${CMAKE_COMMAND} ${Eigen3_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_LIST_DIR}/_deps/eigen WORKING_DIRECTORY ${Eigen3_BINARY_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} --install ${Eigen3_BINARY_DIR})
+  execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${Eigen3_BINARY_DIR})
+
+  set(Eigen3_DIR ${CMAKE_CURRENT_LIST_DIR}/_deps/eigen/share/eigen3/cmake)
+  set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/_deps/eigen/include/eigen3)
+
+  add_library(Eigen INTERFACE IMPORTED)
+  target_include_directories(Eigen INTERFACE ${EIGEN3_INCLUDE_DIR}) 
+else()
+  message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
+endif()
+if(TARGET Eigen)
+  add_library(Eigen3::Eigen ALIAS Eigen)
+endif()
+
+  # XACC
 set(XACC_TAG "05164c13")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
@@ -52,6 +88,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
     "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
     "CMAKE_INSTALL_LIBDIR lib"
+    "Eigen3_DIR ${Eigen3_DIR}"
 )
 
 # Python 3 interpreter and libraries
@@ -109,11 +146,10 @@ set(GTest_VERSION "1.12.1")
 add_dependency(googletest ${GTest_VERSION}
   GITHUB_REPOSITORY google/googletest
   FIND_PACKAGE_NAME GTest
-  FIND_PACKAGE_ADDITIONAL_RESULT_PATH_VAR GTEST_INCLUDE_DIR
   GIT_TAG release-1.12.1
   OPTIONS
     "INSTALL_GTEST ON"
-    "gtest_force_shared_crt"
+    "gtest_force_shared_crt ON"
 )
 if(googletest_ADDED)
   set(GTest_DIR ${CMAKE_INSTALL_PREFIX}/cmake/googletest/GTest CACHE PATH "GTest Installation path." FORCE)
@@ -157,33 +193,10 @@ else()
   message(FATAL_ERROR "System installation of OpenBLAS not found. This is required for installing Eigen and EXATN.")
 endif()
 
-# Eigen
-# Check if XACC is installed and provides Eigen3. XACC_DIR is the XACC install path,
-# which is always in place if XACC is added using add_poorly_behaved_dependency.
-set(XACC_EIGEN_PATH "${XACC_DIR}/include/eigen")
-if (EXISTS ${XACC_EIGEN_PATH})
-  add_eigen_from_xacc()
-else()
-  #Eigen from system or CPM
-  message(STATUS "Eigen3 not found from XACC.")
-  add_dependency(Eigen3 3.3.7
-    GITLAB_REPOSITORY libeigen/eigen
-    GIT_TAG 3.3.7
-    DOWNLOAD_ONLY YES
-  )
-  if(Eigen3_ADDED)
-    add_library(Eigen INTERFACE IMPORTED)
-    target_include_directories(Eigen INTERFACE ${Eigen3_SOURCE_DIR})
-  endif()
-  if(TARGET Eigen)
-    add_library(Eigen3::Eigen ALIAS Eigen)
-  endif()
-endif()
-
 # tket
 set(WITH_TKET OFF CACHE BOOL "Enable TKET for noise-aware circuit placement.")
 set(TKET_VERSION 1.11.1)
-set(TKET_TAG "1cd9fe36c")
+set(TKET_TAG "1cd9fe36")
 if(WITH_TKET)
   add_poorly_behaved_dependency(TKET ${TKET_VERSION}
     FIND_PACKAGE_NAME TKET
@@ -197,6 +210,7 @@ if(WITH_TKET)
       "INSTALL_MISSING_CXX ON"
       "JSON_VERSION ${nlohmann_json_VERSION}"
       "XACC_DIR ${XACC_DIR}"
+      "Eigen3_DIR ${Eigen3_DIR}"
     PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/tket.patch
   )
 endif()
@@ -290,9 +304,12 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # EXATN
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(EXATN_CXX_COMPILER ${CMAKE_CXX_COMPILER})
-    set(EXATN_C_COMPILER ${CMAKE_C_COMPILER})
   else()
     set(EXATN_CXX_COMPILER "g++")
+  endif()
+  if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    set(EXATN_C_COMPILER ${CMAKE_C_COMPILER})
+  else()
     set(EXATN_C_COMPILER "gcc")
   endif()
   add_poorly_behaved_dependency(exatn 1.0.0
@@ -316,8 +333,10 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     OPTIONS
      "XACC_DIR ${XACC_ROOT}"
      "EXATN_DIR ${EXATN_ROOT}"
+     "Eigen3_DIR ${Eigen3_DIR}"
      "TNQVM_BUILD_TESTS OFF"
      "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
+    PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/tnqvm.patch
   )
   # Add symlinks to {XACC_ROOT}/plugins where XACC finds its plugins by default.
   # Delete symlinks to all other versions of the plugin to avoid issues when upgrading to a new version.
