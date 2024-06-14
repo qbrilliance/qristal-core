@@ -19,6 +19,7 @@ s.initial_kraus_dimension = 1
 s.max_kraus_dimension = 256
 s.svd_cutoffs[0][0][0] = 1.0e-6 # Set the absolute SVD cut-off
 s.rel_svd_cutoffs[0][0][0] = 1.0e-3 # Set the relative SVD cut-off
+s.measure_sample_sequential = "auto"
 
 # Uncomment the following lines to introduce noise to the simulation.
 # You will need to have the Qristal emulator installed for this to work.

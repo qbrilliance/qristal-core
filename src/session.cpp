@@ -1276,7 +1276,8 @@ namespace qb
               {"max-kraus-dim", max_kraus_dimension},
               {"abs-truncation-threshold", svd_cutoff},
               {"rel-truncation-threshold", rel_svd_cutoff},
-              {"noise-model", noise_model_name}});
+              {"noise-model", noise_model_name},
+              {"measurement-sampling-sequential", measure_sample_sequential}});
           if (debug_) {
             std::cout << "# Noise model for qb-purification (from emulator package): enabled"
                       << std::endl;
@@ -1289,7 +1290,8 @@ namespace qb
             {"max-bond-dim", max_bond_dimension},
             {"max-kraus-dim", max_kraus_dimension},
             {"abs-truncation-threshold", svd_cutoff},
-            {"rel-truncation-threshold", rel_svd_cutoff}});
+            {"rel-truncation-threshold", rel_svd_cutoff},
+            {"measurement-sampling-sequential", measure_sample_sequential}});
       }
     } else if (acc == "qb-mpdo") {
       if (noises) {

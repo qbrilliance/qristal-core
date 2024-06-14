@@ -32,6 +32,7 @@ int main()
   s.set_svd_cutoff(scut);
   std::map<int, double> rel_scut{{0, 1.0e-10}};
   s.set_rel_svd_cutoff(rel_scut);
+  s.set_measure_sample_sequential("auto");
 
   // Set the noise model
   // Uncomment the following lines to introduce noise to the simulation.

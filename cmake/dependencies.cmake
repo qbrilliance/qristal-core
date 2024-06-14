@@ -7,6 +7,7 @@ if(NOT WIN32)
   string(ASCII 27 Esc)
   set(ColorReset "${Esc}[m")
   set(BoldGreen "${Esc}[1;32m")
+  set(BoldBlue "${Esc}[1;34m")
 endif()
 
 # add compatibility for user provided boost
@@ -53,24 +54,20 @@ add_dependency(Eigen3 3.4.1
 if(Eigen3_ADDED)
   # XACC and other poorly behaved deps depend on Eigen, and need it to be detectable already at cmake time via find_package().  CPM's default configuration of Eigen generates
   # an error when find_package() is called by XACC et al. So, download and manually configure/install it so that dependencies can locate it at cmake time via find_package().
-  message(STATUS "${BoldGreen}Eigen3: adding ${Eigen3_BINARY_DIR} built from ${Eigen3_SOURCE_DIR} and installing to ${CMAKE_CURRENT_LIST_DIR}/_deps/eigen${ColorReset}.")
-  execute_process(COMMAND ${CMAKE_COMMAND} ${Eigen3_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_LIST_DIR}/_deps/eigen WORKING_DIRECTORY ${Eigen3_BINARY_DIR})
-  execute_process(COMMAND ${CMAKE_COMMAND} --install ${Eigen3_BINARY_DIR})
-  execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${Eigen3_BINARY_DIR})
-
-  set(Eigen3_DIR ${CMAKE_CURRENT_LIST_DIR}/_deps/eigen/share/eigen3/cmake)
-  set(EIGEN3_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/_deps/eigen/include/eigen3)
-
-  add_library(Eigen INTERFACE IMPORTED)
-  target_include_directories(Eigen INTERFACE ${EIGEN3_INCLUDE_DIR}) 
-else()
-  message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
+  set(Eigen3_INSTALL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/eigen3)
+  set(EIGEN3_INCLUDE_DIR ${Eigen3_INSTALL_DIR}/include/eigen3)
+  set(Eigen3_DIR ${Eigen3_INSTALL_DIR}/share/eigen3/cmake)
+  if(NOT EXISTS ${Eigen3_DIR}/Eigen3Config.cmake)
+    message(STATUS "${BoldBlue}Eigen3: adding ${Eigen3_BINARY_DIR} built from ${Eigen3_SOURCE_DIR} and installing to ${Eigen3_INSTALL_DIR}${ColorReset}.")
+    execute_process(COMMAND ${CMAKE_COMMAND} ${Eigen3_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${Eigen3_INSTALL_DIR} WORKING_DIRECTORY ${Eigen3_BINARY_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} --install ${Eigen3_BINARY_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${Eigen3_BINARY_DIR})
+  endif()
+  include(${Eigen3_DIR}/Eigen3Config.cmake)
 endif()
-if(TARGET Eigen)
-  add_library(Eigen3::Eigen ALIAS Eigen)
-endif()
+message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
 
-  # XACC
+# XACC
 set(XACC_TAG "05164c13")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
