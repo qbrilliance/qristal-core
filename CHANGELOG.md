@@ -10,6 +10,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Support new circuit endpoint /api/v1/circuits in qcstack 2024.3.1 and later. Earlier qcstack versions no longer supported.
 - `session` no longer outputs a bitstring-to-counts map through `get_out_bitstrings`. A list (python)/vector(C++) of counts can be accessed through `get_out_counts`.
 - QML: No longer part of the core repository as parametrized functionality has been introduced to CircuitBuilder. QML-specific functions should be fetched from the upcoming QML repo.
+- Removed lightweight_core cmake target
 
 ### Added
 

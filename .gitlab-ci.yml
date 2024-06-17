@@ -1,8 +1,9 @@
 variables:
-  CI_IMAGE: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_clang-1
-  EMULATOR_CI_IMAGE_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_cuda-12.1.1_clang-1
-  EMULATOR_RHEL_X86_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_x86-8:all_dep_cuda-12.1.1_clang-1
-  EMULATOR_RHEL_POWER_IMAGE:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_ppc64le-8:all_dep_cuda-12.1.1_clang-1
+  CI_IMAGE_UBUNTU_X86_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_clang-1
+  CI_IMAGE_UBUNTU_X86_CLANG_CUDA: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_cuda-12.1.1_clang-1
+  CI_IMAGE_UBUNTU_X86_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_gcc-1
+  CI_IMAGE_RHEL_X86:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_x86-8:all_dep_cuda-12.1.1_clang-1
+  CI_IMAGE_RHEL_PPC:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_ppc64le-8:all_dep_cuda-12.1.1_clang-1
   USE_MPI: "ON"
 
  # branch to use for downstream repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
@@ -156,76 +157,9 @@ workflow:
 
 
 # - - - - - - - build - - - - - - - #
-ci-lightweight-build-for-emulator:
-  stage: build
-  image: $EMULATOR_CI_IMAGE_CLANG
-  tags:
-    - cutensornet2.0
-  rules:
-    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
-  script:
-    - pwd
-    - ls *
-    - whoami
-    - rm -rf ${QB_DIR}/core
-    # Build core with SUPPORT_EMULATOR_BUILD_ONLY=ON
-    - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
-      -DXACC_DIR=${QB_DIR}/xacc
-      -Dautodiff_DIR=${QB_DIR}/autodiff/lib/cmake/autodiff
-      -DSUPPORT_EMULATOR_BUILD_ONLY=ON
-    - cmake --build build -- -j`nproc`
-    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
-    - mkdir core_artefacts
-    - mv build cmake include core_artefacts/
-  artifacts:
-    when: always
-    paths:
-      # These are all the things required to install the core for supporting the build of the emulator.
-      - core_artefacts/build/cmake_install.cmake
-      - core_artefacts/build/afterCPMAddPackage.cmake
-      - core_artefacts/build/coreDependencies.cmake
-      - core_artefacts/build/qbcore-config.cmake
-      - core_artefacts/build/qbcore-config-version.cmake
-      - core_artefacts/build/CMakeFiles/Export/
-      - core_artefacts/build/lib*
-      - core_artefacts/cmake/py_packages_path.cmake
-      - core_artefacts/cmake/xacc_utilities.cmake
-      - core_artefacts/cmake/manifest.json.in
-      - core_artefacts/include
-
-ci-full-build-for-emulator:
-  stage: build
-  image: $EMULATOR_CI_IMAGE_CLANG
-  tags:
-    - cutensornet2.0
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      allow_failure: false
-    - if: $CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE != "pipeline"
-      when: manual
-  script:
-    - pwd
-    - ls *
-    - whoami
-    - rm -rf ${QB_DIR}/core
-    - cmake -B build .
-      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
-      -DXACC_DIR=${QB_DIR}/xacc
-      -DTNQVM_DIR=${QB_DIR}/xacc
-      -DWITH_TKET=ON
-      -DTKET_DIR=${QB_DIR}/tket
-    - cmake --build build -- -j`nproc`
-    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
-    - mkdir core_artefacts
-    - mv build cmake examples include src tests remote_backends.yaml core_artefacts
-  artifacts:
-    when: always
-    paths: !reference [.paths, ci]
-
 ci-build:
   stage: build
-  image: $CI_IMAGE
+  image: $CI_IMAGE_UBUNTU_X86_CLANG
   tags:
     - cutensornet2.0
   rules:
@@ -241,28 +175,47 @@ ci-build:
       -DTKET_DIR=${QB_DIR}/tket
       -DENABLE_MPI=$USE_MPI
     - cmake --build build -- -j`nproc`
-    # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
     - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
     paths: !reference [.paths, ci]
 
-# Build with CUDA (GPU) and CUDA Quantum support (using emulator image and runner)
-cudaq-build:
+ci-build-gcc:
   stage: build
-  image: ${CUDAQ_CI_IMAGE}
-  parallel:
-    matrix:
-      - CUDAQ_CI_IMAGE: ["$EMULATOR_CI_IMAGE_CLANG"]
+  image: $CI_IMAGE_UBUNTU_X86_GCC
   tags:
     - cutensornet2.0
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core
+    - echo "MPI is $USE_MPI"
     - cmake -B build .
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -DTNQVM_DIR=${QB_DIR}/xacc
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket
+      -DENABLE_MPI=$USE_MPI
+    - cmake --build build -- -j`nproc`
+    - cmake --install build
+
+ci-build-cuda:
+  stage: build
+  image: $CI_IMAGE_UBUNTU_X86_CLANG_CUDA
+  tags:
+    - cutensornet2.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
+  script:
+    - rm -rf ${QB_DIR}/core
+    - cmake -B build .
+      -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
+      -DXACC_DIR=${QB_DIR}/xacc
+      -DTNQVM_DIR=${QB_DIR}/xacc
+      -DWITH_TKET=ON
+      -DTKET_DIR=${QB_DIR}/tket
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
@@ -298,7 +251,7 @@ ci-cpp-tests:
   stage: test
   needs: ["ci-build"]
   extends: .install-core
-  image: $CI_IMAGE
+  image: $CI_IMAGE_UBUNTU_X86_CLANG
   tags:
     - cutensornet2.0
   rules:
@@ -317,7 +270,7 @@ ci-py-tests:
   stage: test
   needs: ["ci-build"]
   extends: .install-core
-  image: $CI_IMAGE
+  image: $CI_IMAGE_UBUNTU_X86_CLANG
   tags:
     - cutensornet2.0
   rules:
@@ -372,8 +325,8 @@ ci-hardware-tests:
 
 cudaq-cpp-tests:
   stage: test
-  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
-  image: $EMULATOR_CI_IMAGE_CLANG
+  needs: [ci-build-cuda]
+  image: $CI_IMAGE_UBUNTU_X86_CLANG_CUDA
   extends: .install-core
   tags:
     - cutensornet2.0
@@ -389,8 +342,8 @@ cudaq-cpp-tests:
 
 cudaq-py-tests:
   stage: test
-  needs: ["cudaq-build: [$EMULATOR_CI_IMAGE_CLANG]"]
-  image: $EMULATOR_CI_IMAGE_CLANG
+  needs: [ci-build-cuda]
+  image: $CI_IMAGE_UBUNTU_X86_CLANG_CUDA
   extends: .install-core
   tags:
     - cutensornet2.0
@@ -420,7 +373,7 @@ trigger-decoder:
 # If this branch is part of a merge request, trigger downstream emulator build and test.
 trigger-emulator:
   stage: downstream
-  needs: ["ci-lightweight-build-for-emulator"]
+  needs: ["ci-build-cuda"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -429,6 +382,19 @@ trigger-emulator:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: trigger-emulator
+
+# Trigger downstream emulator build and run benchmark.
+trigger-emulator-benchmark:
+  stage: downstream
+  needs: ["ci-build-cuda"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  trigger:
+    project: qbau/software-and-apps/emulator
+    branch: $EMULATOR_TRIGGER_BRANCH
+  variables:
+    UPSTREAM_REF: main
+    UPSTREAM_JOB: trigger-emulator-benchmark
 
 # If this branch is part of a merge request, trigger downstream SDK build and test.
 trigger-sdk:
@@ -442,28 +408,13 @@ trigger-sdk:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
-# Trigger downstream emulator build and run benchmark.
-trigger-emulator-benchmark:
-  stage: downstream
-  needs: ["ci-full-build-for-emulator"]
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  trigger:
-    project: qbau/software-and-apps/emulator
-    branch: $EMULATOR_TRIGGER_BRANCH
-  variables:
-    UPSTREAM_REF: main
-    UPSTREAM_JOB: trigger-emulator-benchmark
-
 
 # - - - - - - - - - - - - - - - - - - RHEL - - - - - - - - - - - - - - - - - - #
-# RHEL on powerpc with cuda-quantum uses powerDocker and EMULATOR_RHEL_POWER_IMAGE
-# RHEL on amd64 with cuda-quantum uses cutensornet2.0 and EMULATOR_RHEL_X86_IMAGE
 
 # build
 rhel-x86-build:
   stage: build
-  image: $EMULATOR_RHEL_X86_IMAGE
+  image: $CI_IMAGE_RHEL_X86
   tags:
     - cutensornet2.0
   rules:
@@ -490,7 +441,7 @@ rhel-x86-cpp-tests:
   stage: test
   needs: ["rhel-x86-build"]
   extends: .install-core
-  image: $EMULATOR_RHEL_X86_IMAGE
+  image: $CI_IMAGE_RHEL_X86
   tags:
     - cutensornet2.0
   rules:
@@ -509,7 +460,7 @@ rhel-x86-cudaq-tests:
   stage: test
   needs: ["rhel-x86-build"]
   extends: .install-core
-  image: $EMULATOR_RHEL_X86_IMAGE
+  image: $CI_IMAGE_RHEL_X86
   tags:
     - cutensornet2.0
   rules:
@@ -526,7 +477,7 @@ rhel-x86-py-tests:
   stage: test
   needs: ["rhel-x86-build"]
   extends: .install-core
-  image: $EMULATOR_RHEL_X86_IMAGE
+  image: $CI_IMAGE_RHEL_X86
   tags:
     - cutensornet2.0
   rules:
@@ -564,16 +515,16 @@ ppc_instance_start:
   extends: .ppc_instance_start
   stage: build
   needs: []
-  when: manual
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
       allow_failure: false
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
 
 rhel-power-build:
   stage: build
   needs: [ppc_instance_start]
-  image: $EMULATOR_RHEL_POWER_IMAGE
+  image: $CI_IMAGE_RHEL_PPC
   tags:
     - powerDocker
   script:
@@ -601,7 +552,7 @@ rhel-power-cpp-tests:
   stage: test
   needs: ["rhel-power-build"]
   extends: .install-core
-  image: $EMULATOR_RHEL_POWER_IMAGE
+  image: $CI_IMAGE_RHEL_PPC
   tags:
     - powerDocker
   script:
@@ -620,7 +571,7 @@ rhel-power-cudaq-tests:
   stage: test
   needs: ["rhel-power-build"]
   extends: .install-core
-  image: $EMULATOR_RHEL_POWER_IMAGE
+  image: $CI_IMAGE_RHEL_PPC
   tags:
     - powerDocker
   script:
@@ -637,7 +588,7 @@ rhel-power-py-tests:
   stage: test
   needs: ["rhel-power-build"]
   extends: .install-core
-  image: $EMULATOR_RHEL_POWER_IMAGE
+  image: $CI_IMAGE_RHEL_PPC
   tags:
     - powerDocker
   script:
