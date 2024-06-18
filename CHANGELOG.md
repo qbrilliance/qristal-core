@@ -4,6 +4,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ## [X.X.X] - YYYY-MM-DD
 
+## [1.6.0] - 2024-06-18
+
 ### Breaking
 
 - Removed the need to include /api/v1 in hardware device URLs. URLs containing this suffix will no longer work.
