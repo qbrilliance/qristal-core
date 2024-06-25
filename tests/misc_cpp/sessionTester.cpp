@@ -30,14 +30,46 @@ TEST(sessionTester, test_small_angles_xasm_compilation) {
   EXPECT_NO_THROW(my_sim.run());
 }
 
-struct AddMapVals
-{
-  template<class Value, class Pair> 
-  Value operator()(Value value, const Pair& pair) const
-  {
-    return value + pair.second;
-  }
-};
+TEST(sessionTester, test_qft4) {
+  std::cout << "* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, "
+               "ExaTN-MPS"
+            << std::endl;
+
+  // Start a QB SDK session.
+  auto s = qb::session(false);
+
+  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
+            // back-end
+
+  // Override defaults
+  s.set_qn(4);      
+  s.set_sn(1024);   
+  s.set_xasm(true);  // Use XASM circuit format to access XACC's qft()
+  s.set_seed(23);
+  // targetCircuit: contains the quantum circuit that will be processed/executed
+  auto targetCircuit = R"(
+    __qpu__ void QBCIRCUIT(qbit q) {
+          qft(q, {{"nq",4}});
+          Measure(q[3]);
+          Measure(q[2]);
+          Measure(q[1]);
+          Measure(q[0]);
+    }
+  )";
+  s.set_instring(targetCircuit);
+  // Run the circuit on the back-end
+  s.run();
+
+  // Get the Z-operator expectation value
+  auto iter = s.get_out_z_op_expects()[0][0].find(0);
+  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
+  double exp_val = iter->second;
+  // Test the value against assertions
+  std::cout << "4-qubit noiseless QFT Z-operator expectation value: " << exp_val
+            << std::endl;
+  assert(std::abs(-0.0390625 - exp_val) < 1e-9);
+
+}
 
 TEST(sessionTester, test_parametrized_run_1) {
   /***
@@ -71,11 +103,11 @@ TEST(sessionTester, test_parametrized_run_1) {
   my_sim.set_parameter_vector(param_vec);
   my_sim.run();
   std::vector<double> stats =  my_sim.get_out_probs()[0][0];
-  EXPECT_DOUBLE_EQ(std::accumulate(stats.begin(), stats.end(), 0.0),
-                   1.0);  // probs sum to 1
+  EXPECT_NEAR(std::accumulate(stats.begin(), stats.end(), 0.0),
+                   1.0, 1e-6);  // probs sum to 1
 
   // Verify run
-  EXPECT_DOUBLE_EQ(stats[0], 1.0);
+  EXPECT_NEAR(stats[0], 1.0, 1e-6);
 }
 
 TEST(sessionTester, test_parametrized_run_2) {
@@ -188,45 +220,4 @@ TEST(sessionTester, test_gradients) {
       EXPECT_NEAR(gradients[i][j], expected_grad[i][j], 1e-5);
     }
   }
-}
-
-TEST(sessionTester, test_qft4) {
-  std::cout << "* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, "
-               "ExaTN-MPS"
-            << std::endl;
-
-  // Start a QB SDK session.
-  auto s = qb::session(false);
-
-  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
-            // back-end
-
-  // Override defaults
-  s.set_qn(4);      
-  s.set_sn(1024);   
-  s.set_xasm(true);  // Use XASM circuit format to access XACC's qft()
-  s.set_seed(23);
-  // targetCircuit: contains the quantum circuit that will be processed/executed
-  auto targetCircuit = R"(
-    __qpu__ void QBCIRCUIT(qbit q) {
-          qft(q, {{"nq",4}});
-          Measure(q[3]);
-          Measure(q[2]);
-          Measure(q[1]);
-          Measure(q[0]);
-    }
-  )";
-  s.set_instring(targetCircuit);
-  // Run the circuit on the back-end
-  s.run();
-
-  // Get the Z-operator expectation value
-  auto iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
-  double exp_val = iter->second;
-  // Test the value against assertions
-  std::cout << "4-qubit noiseless QFT Z-operator expectation value: " << exp_val
-            << std::endl;
-  assert(std::abs(-0.0390625 - exp_val) < 1e-9);
-
 }

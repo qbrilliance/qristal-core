@@ -46,3 +46,49 @@ TEST(ParametrizedCircuitTester, test_param_map_to_vec) {
     for (size_t i = 0; i < expected_param_vec.size(); i++)
         EXPECT_NEAR(expected_param_vec[i], actual_param_vec[i], 1e-7);
 }
+
+TEST(ParametrizedCircuitTester, test_circuit_append_to_repeated_param) {
+  /***
+  Tests the append method with parametrized circuits in the CircuitBuilder class
+  Also tests the get_free_params and num_free_params getter functions
+
+  Expected final params: {"alpha", "beta"}
+  ***/
+  qb::CircuitBuilder circ1;
+  circ1.RX(0, "alpha");
+  circ1.RX(0, "beta");
+  circ1.Measure(0);
+
+  auto circ2 = qb::CircuitBuilder(); 
+  circ2.RY(0, "alpha");
+  EXPECT_NO_THROW(circ2.append(circ1));
+  std::vector<std::string> expected_free_params = {(std::string) "alpha", (std::string) "beta"};
+  std::vector<std::string> actual_free_params = circ2.get_free_params();
+  EXPECT_EQ(circ2.num_free_params(), 2);
+  for (size_t i = 0; i < circ2.num_free_params(); i++) {
+    EXPECT_TRUE(expected_free_params[i] == actual_free_params[i]);
+  }
+}
+
+TEST(ParametrizedCircuitTester, test_circuit_append_to_new_param) {
+  /***
+  Tests the append method with parametrized circuits in the CircuitBuilder class
+  Also tests the get_free_params and num_free_params getter functions
+
+  Expected final params: {"alpha", "beta"}
+  ***/
+  qb::CircuitBuilder circ1;
+  circ1.RX(0, "alpha");
+  circ1.RX(0, "beta");
+  circ1.Measure(0);
+
+  auto circ2 = qb::CircuitBuilder(); 
+  circ2.RY(0, "gamma");
+  EXPECT_NO_THROW(circ2.append(circ1));
+  std::vector<std::string> expected_free_params = {(std::string) "gamma", (std::string) "alpha", (std::string) "beta"};
+  std::vector<std::string> actual_free_params = circ2.get_free_params();
+  EXPECT_EQ(circ2.num_free_params(), 3);
+  for (size_t i = 0; i < circ2.num_free_params(); i++) {
+    EXPECT_TRUE(expected_free_params[i] == actual_free_params[i]);
+  }
+}

@@ -442,7 +442,7 @@ static const char *help_execute_;
   /**
   * @overload 
   *
-  * This overloaded method adds a multi-parametrized 1-qubit unitary (U3) gate 
+  * This overloaded method adds a multi-parametrized 1-qubit unitary (U) gate 
   * with 3 free parameters to the circuit.
   * The names of the free parameters must be passed to the method.
   *

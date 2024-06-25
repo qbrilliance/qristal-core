@@ -485,13 +485,31 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "u3",
+          [&](qb::CircuitBuilder &builder, int idx, std::string param_1, std::string param_2,
+              std::string param_3) { builder.U3(idx, param_1, param_2, param_3); },
+          py::arg("idx"), py::arg("param_1"), py::arg("param_2"), py::arg("param_3"),
+          R"(
+     Parameterized U3 gate
+     U3 gate
+
+     This method adds an arbitrary parametrized single qubit gate (U3) to the circuit, shown as U at https://qristal.readthedocs.io/en/latest/rst/quantum_gates.html
+     Parameters:
+
+     - **idx** the index of the qubit being acted on [int]
+     - **param_1** the name of the 1st free parameter (theta) [string] 
+     - **param_2** the name of the 2nd free parameter (phi) [string]
+     - **param_3** the name of the 3rd free parameter (lambda) [string]
+
+      )")
+      .def(
+          "u3",
           [&](qb::CircuitBuilder &builder, int idx, double theta, double phi,
               double lambda) { builder.U3(idx, theta, phi, lambda); },
           py::arg("idx"), py::arg("theta"), py::arg("phi"), py::arg("lambda"),
           R"(
-      U3 gate
-
-     This method adds an arbitrary single qubit gate (U3) to the circuit.
+     U3 gate
+     
+     This method adds an arbitrary single qubit gate (U3) to the circuit, shown as U at https://qristal.readthedocs.io/en/latest/rst/quantum_gates.html
 
      Parameters:
 

@@ -295,7 +295,7 @@ ci-hardware-tests:
     - if: $CI_PIPELINE_SOURCE != "schedule"
       variables:
         QCSTACK_REGISTRY: registry.gitlab.com/qbau/control/qcstack/qcstack_server
-        QCSTACK_TAG: latest
+        QCSTACK_TAG: "2024.4.12"
         QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --max-circuit-depth 1000 --reservation-shared-secret hello --calibration False --benchmark False"
   script:
     - mv core_artefacts/build .
@@ -309,7 +309,7 @@ ci-hardware-tests:
     # Give qcstack time to shut down cleanly
     - sleep 5
     - docker pull $QCSTACK_REGISTRY:$QCSTACK_TAG
-    - docker run -d --rm --name qcstack_server -p=8443:8443 $QCSTACK_REGISTRY $QCSTACK_ARGS
+    - docker run -d --rm --name qcstack_server -p=8443:8443 $QCSTACK_REGISTRY:$QCSTACK_TAG $QCSTACK_ARGS
     # Give qcstack time to spin up properly
     - sleep 20
     # Run C++ tests of qcstack interface

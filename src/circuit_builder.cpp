@@ -31,8 +31,8 @@ void CircuitBuilder::append(CircuitBuilder &other) {
     auto next_inst = it.next();
     if (next_inst->isEnabled() && !next_inst->isComposite()) {
       std::shared_ptr<xacc::Instruction> new_inst = next_inst->clone();
-      circuit_->addInstruction(new_inst);
       add_instruction_params_to_list(new_inst);
+      circuit_->addInstruction(new_inst);
     }
   }
 }
@@ -70,16 +70,16 @@ void CircuitBuilder::add_gate_with_free_parameters(std::string gate_name, std::v
 }
 
 void CircuitBuilder::add_instruction_params_to_list(std::shared_ptr<xacc::Instruction> inst) {
-  if (inst->isParameterized()) {
-    is_parametrized_ = true;
-    std::vector<xacc::InstructionParameter> params = inst->getParameters();
-    for (auto &param: params) {
-      if (param.which() == 2) continue; // Named (string) parameter
-      std::string param_name = param.toString();
-      bool param_in_vector = std::find(free_params_.begin(), free_params_.end(), param_name) != free_params_.end();
-      if (!param_in_vector) {
-        free_params_.emplace_back(param_name);
-      }
+  if (!inst->isParameterized()) return;
+  is_parametrized_ = true;
+  std::vector<xacc::InstructionParameter> params = inst->getParameters();
+  for (auto param: params) {
+    if (!(param.which() == 2)) continue; // Not named (string) parameter
+    std::string param_name = param.toString();
+    bool param_in_vector = std::find(free_params_.begin(), free_params_.end(), param_name) != free_params_.end();
+    if (!param_in_vector) {
+      free_params_.emplace_back(param_name);
+      circuit_->addVariable(param_name);
     }
   }
 }
