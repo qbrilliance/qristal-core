@@ -63,11 +63,11 @@ void bind_circuit_builder(pybind11::module &m) {
 
           )")
       .def(
-          "num_qubits", [&](qb::CircuitBuilder &builder) {builder.num_qubits();}, R"(
+          "num_qubits", [&](qb::CircuitBuilder &builder) { return builder.num_qubits();}, R"(
       Returns the number of (physical) qubits in the circuit.
     )")
       .def(
-          "num_free_params", [&](qb::CircuitBuilder &builder) {builder.num_free_params();}, R"(
+          "num_free_params", [&](qb::CircuitBuilder &builder) {return builder.num_free_params();}, R"(
       Returns the number of free parameters in the (parametrized) circuit.
     )")
       .def(

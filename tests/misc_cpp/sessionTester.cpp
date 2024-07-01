@@ -103,6 +103,7 @@ TEST(sessionTester, test_parametrized_run_1) {
   my_sim.set_parameter_vector(param_vec);
   my_sim.run();
   std::vector<double> stats =  my_sim.get_out_probs()[0][0];
+
   EXPECT_NEAR(std::accumulate(stats.begin(), stats.end(), 0.0),
                    1.0, 1e-6);  // probs sum to 1
 
@@ -180,6 +181,8 @@ TEST(sessionTester, test_gradients) {
     circuit.RX(i, "alpha_" + std::to_string(i));
     circuit.RY(i, "beta_" + std::to_string(i));
   }
+  circuit.RX(0, "gamma");
+  circuit.RX(1, "delta");
   circuit.CNOT(0, 1);
   circuit.MeasureAll(num_qubits);
 
@@ -211,10 +214,12 @@ TEST(sessionTester, test_gradients) {
   }
   // Verify output
   std::vector<std::vector<double>> expected_grad = {
-         {0.196 , -0.0695,  0.0465, -0.173 },
-         {0.159 , -0.0575,  0.043 , -0.1445},
-         {0.1825, -0.1025, -0.1665,  0.0865},
-         {0.1505, -0.0875, -0.1355,  0.0725}};
+            {-0.005, 0.044, -0.0435, 0.0045, },
+            {-0.017, 0.138, -0.1375, 0.0165, },
+            {-0.008, 0.0515, 0.0105, -0.054, },
+            {-0.0265, 0.165, 0.012, -0.1505, },
+            {0.028, -0.236, 0.2375, -0.0295, },
+            {0.0245, -0.177, -0.011, 0.1635, }};
   for (size_t i = 0; i < num_free_params; i++) {
     for (size_t j = 0; j < num_outputs; j++) {
       EXPECT_NEAR(gradients[i][j], expected_grad[i][j], 1e-5);

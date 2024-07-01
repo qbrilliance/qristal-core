@@ -530,7 +530,8 @@ namespace qb
 
     /// Enable gradient calculation for parametrized circuit
     {
-      ValidatorTwoDim<VectorBool, bool> calc_jacobians_valid(calc_jacobians_, false, true);
+      ValidatorTwoDim<VectorBool, bool> calc_jacobians_valid(calc_jacobians_, false, true,
+                                                             "enabled jacobian calculation [calc_jacobian]");
       if (calc_jacobians_valid.is_data_empty())
       {
         throw std::range_error("Cannot determine whether to calculate gradients");
@@ -1489,7 +1490,7 @@ namespace qb
     size_t num_shots = run_config.num_shots;
     size_t num_outputs = ipow(2, num_qubits);
     // Construct the jacobian
-    Table2d<double> jacobian(num_outputs, std::vector<double>(num_outputs));
+    Table2d<double> jacobian(num_params, std::vector<double>(num_outputs));
     std::vector<double> probs_all(num_outputs);
     for (size_t i = 0; i < 2*num_params; i += 2) {
       // Find the bitstring indices that are non-zero in at least one run
@@ -1499,9 +1500,11 @@ namespace qb
                           gradient_sess.get_out_counts().at(i+1).at(0);
       // Only loop over non-zero bitstrings and populate jacobian
       for (size_t j = 0; j < num_outputs; j++) {
-        probs_all.at(j) = out_counts_.at(ii).at(jj).at(j) / (1.0 * num_shots);
-        jacobian.at(i / 2).at(j) = 0.5 * (counts_plus[j] - counts_minus[j]) / (1.0 * num_shots);
+        jacobian[i/2][j] = 0.5 * (counts_plus[j] - counts_minus[j]) / (1.0 * num_shots);
       }
+    }
+    for (size_t i = 0; i < num_outputs; i++) {
+      probs_all.at(i) = out_counts_.at(ii).at(jj).at(i) / (1.0 * num_shots);
     }
     // Populate the correct fields
     out_prob_gradients_.at(ii).at(jj).resize(num_params, std::vector<double>(num_outputs));
@@ -2039,7 +2042,6 @@ namespace qb
     if (!run_config.no_sim) {
       // Save the counts to out_counts_, and raw map data in out_raws
       populate_measure_counts_data(ii, jj, qpu_counts);
-
       // If required to calculate gradients, do it now
       if (run_config.calc_jacobian) {
         run_gradients(ii, jj);
