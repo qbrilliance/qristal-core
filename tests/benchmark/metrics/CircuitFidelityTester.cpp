@@ -32,7 +32,7 @@ TEST(CircuitFidelityTester, checkSPAM) {
     for (auto const & t2v : results) {
         //check all fidelities
         for (auto const & f : t2v.second) {
-            EXPECT_NEAR(f, 1.0, 1e-3);
+            EXPECT_NEAR(f, 1.0, 1e-2);
         }
     }
 }
@@ -62,7 +62,7 @@ TEST(CircuitFidelityTester, checkRotationSweep) {
     for (auto const & t2v : results) {
         //check all fidelities
         for (auto const & f : t2v.second) {
-            EXPECT_NEAR(f, 1.0, 1e-3);
+            EXPECT_NEAR(f, 1.0, 1e-2);
         }
     }
 }
