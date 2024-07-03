@@ -10,7 +10,7 @@
 using namespace qb::benchmark;
 
 int main() {
-    const size_t n_qubits = 1;
+    const size_t n_qubits = 2;
     const size_t n_shots = 1000;
 
     //(1) define session  

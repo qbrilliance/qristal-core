@@ -7,10 +7,10 @@
 
 #To do BEFORE executing this script / intended way of use: 
 # -> Modify this script to the specific model / protocol that you want to use with pyGSTi. Per default, a standard gate set 
-#    tomography protocol with maximum length 1 for the 1-qubit gates Rx(pi/2) and Ry(pi/2) is set. 
+#    tomography protocol with maximum length 1 for the 2-qubit gate model Rx(pi/2), Ry(pi/2), and CZ is set. 
 # -> Set the backend, noise model, number of qubits, number of shots etc. that you want to run the pyGSTi circuits on within 
 #    examples/cpp/pyGSTi_runner/pyGSTi_runner.cpp and compile it to obtain a "pyGSTi_runner" executable. Per default, pyGSTi_runner
-#    is set up to use the "aer" backend with 1 qubit, 1000 shots, and the "default" noise model.
+#    is set up to use the "aer" backend with 2 qubits, 1000 shots, and the "default" noise model.
 # -> Execute this script passing it the path to the pyGSTi_runner executable as the first argument.
 
 #(0) Obtain pyGSTi_runner path from given arguments
@@ -27,9 +27,10 @@ assert os.path.isfile(parsed_args.path_to_pyGSTi_runner) == True, "Path to pyGST
 # (b) creating your own pyGSTi target model.
 # In case of (b), make sure that the all specified gate names are known and set in include/qb/core/benchmark/workflows/PyGSTiBenchmark.hpp 
 from pygsti.modelpacks import smq1Q_XY, smq2Q_XYCNOT
+import sm2Q_XYCZ #custom QDK model for QDK basis gates (Rx(pi/2), Ry(pi/2), and CZ)
 maximum_length = 1
-edesign = smq1Q_XY.create_gst_experiment_design(maximum_length)
-name = "GST_XY"
+edesign = sm2Q_XYCZ.create_gst_experiment_design(maximum_length)
+name = "GST_XYCZ"
 
 #(2) generate and print circuit list to circuit_list_file_name
 from pygsti.io import write_circuit_list
