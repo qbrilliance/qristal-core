@@ -3,12 +3,16 @@
 Qristal is a full-stack SDK for quantum accelerators.
 
 ## [X.X.X] - YYYY-MM-DD
-
+  
 ### Fixed
 
 - Fixed a bug in `CircuitBuilder::append` where the variables in the appeded circuit would not be added to the original circuit.
 - Fixed a bug in `session` where the execution would fail if there were more free parameters than elements in the output probability vector.
 - Added a python binding for the parametrized `U3` gate. 
+
+### Added 
+
+- Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations. 
 
 ## [1.6.0] - 2024-06-18
 

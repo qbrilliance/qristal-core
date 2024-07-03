@@ -32,26 +32,6 @@ namespace qb
     using NoiseChannel = std::vector<KrausOperator>;
 
     /**
-     * @brief Convert a noise channel (list of STL-based Kraus operator matrices) into their Choi matrix representation.
-     * 
-     * Arguments: 
-     * @param noise_channel the noise channel composed of STL-based Kraus matrices.
-     *
-     * @return KrausOperator::Matrix the STL-based Choi matrix representation.
-     */
-    KrausOperator::Matrix kraus_to_choi(const NoiseChannel& noise_channel);
-
-    /**
-     * @brief Convert a vector of Eigen-based Kraus operator matrices into their Choi matrix representation.
-     * 
-     * Arguments: 
-     * @param kraus_mats a std::vector of Eigen-based, complex-valued Kraus matrices.
-     *
-     * @return Eigen::MatrixXcd the Choi representation.
-     */
-    Eigen::MatrixXcd kraus_to_choi(const std::vector<Eigen::MatrixXcd> &kraus_mats);
-
-    /**
      * @brief Obtain basis transformation matrix from the computational to the Pauli basis.
      * 
      * Arguments: 
@@ -65,6 +45,24 @@ namespace qb
      */
     Eigen::MatrixXcd get_computational_to_pauli_transform(const size_t n_qubits);
 
+    //============================================ Quantum Process Matrix Transformations ============================================
+    //---------------------------------------------- Transformations from process matrix ---------------------------------------------
+
+    /**
+     * @brief Convert an Eigen-based process matrix to its Eigen-based Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param process_matrix the Eigen-based (Eigen::MatrixXcd) process matrix in the 
+     * standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z
+     *
+     * @return Choi matrix in the computational basis ordered in ascending bit string order 
+     * (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|)
+     * 
+     * @details This function may be used to convert arbitrary Eigen-based quantum process 
+     * matrices to their Choi representation by applying a basis transformation obtained via
+     * get_computational_to_pauli_transform.
+     */
+    Eigen::MatrixXcd process_to_choi(const Eigen::MatrixXcd& process_matrix);
     /**
      * @brief Convert an STL-based process matrix to its STL-based Choi matrix representation.
      * 
@@ -82,33 +80,91 @@ namespace qb
     KrausOperator::Matrix process_to_choi(const KrausOperator::Matrix& process_matrix);
 
     /**
-     * @brief Convert an Eigen-based process matrix to its Eigen-based Choi matrix representation.
+     * @brief Convert an Eigen-based process matrix to its Eigen-based superoperator matrix representation.
      * 
      * Arguments: 
      * @param process_matrix the Eigen-based (Eigen::MatrixXcd) process matrix in the 
      * standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z
      *
-     * @return Choi matrix in the computational basis ordered in ascending bit string order 
-     * (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|)
+     * @return Eigen::MatrixXcd superoperator matrix representation.
      * 
-     * @details This function may be used to convert arbitrary Eigen-based quantum process 
-     * matrices to their Choi representation by applying a basis transformation obtained via
-     * get_computational_to_pauli_transform.
+     * @details This function transforms arbitrary Eigen-based process matrices to their superoperator 
+     * representation by (i) calling process_to_choi(const Eigen::MatrixXcd&), and (ii) calling 
+     * choi_to_superoperato(const Eigen::MatrixXcd&).
      */
-    Eigen::MatrixXcd process_to_choi(const Eigen::MatrixXcd& process_matrix);
-
+    Eigen::MatrixXcd process_to_superoperator(const Eigen::MatrixXcd& process_matrix);
     /**
-     * @brief Convert an STL-based Choi matrix to a NoiseChannel of Kraus matrices.
+     * @brief Convert an STL-based process matrix to its STL-based superoperator matrix representation.
      * 
      * Arguments: 
-     * @param choi_matrix the STL-based Choi matrix of the quantum process.
+     * @param process_matrix the STL-based (std::vector<std::vector<T>>) process matrix in the 
+     * standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z
      *
-     * @return NoiseChannel the noise channel containing all complex Kraus operator matrices.
+     * @return std::vector<std::vector<T>> superoperator matrix representation.
      * 
-     * @details This function will convert the STL-based Choi matrix to a complex-valued 
-     * Eigen matrix and delegate the conversion to choi_to_kraus(const Eigen::MatrixXcd&).
+     * @details This function transforms arbitrary STL-based process matrices to their superoperator 
+     * representation by delegating the transformation to the Eigen-based implementation.
      */
-    NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix);
+    KrausOperator::Matrix process_to_superoperator(const KrausOperator::Matrix& process_matrix);
+
+    /**
+     * @brief Convert an Eigen-based process matrix to a std::vector of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param process_matrix the Eigen-based process matrix of the quantum process.
+     *
+     * @return std::vector<Eigen::MatrixXcd> a vector containing all complex Kraus operator matrices.
+     * 
+     * @details This function transforms arbitrary Eigen-based process matrices to their Kraus 
+     * representation by (i) transforming the process matrix to its Choi representation and (ii) 
+     * transforming the Choi matrix to individual Kraus operators. 
+     */
+    std::vector<Eigen::MatrixXcd> process_to_kraus(const Eigen::MatrixXcd& process_matrix);
+
+    /**
+     * @brief Convert an STL-based process matrix to a NoiseChannel of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param process_matrix the STL-based process matrix of the quantum process.
+     *
+     * @return NoiseChannel a noise channel containing all complex Kraus operator matrices.
+     * 
+     * @details This function transforms arbitrary STL-based process matrices to a NoiseChannel 
+     * object by (i) converting the STL-based process matrix to an Eigen matrix, (ii) calling 
+     * process_to_kraus(const Eigen::MatrixXcd&), and (iii) calling eigen_to_noisechannel.
+     */
+    NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix);
+
+    //----------------------------------------------- Transformations from Choi matrix -----------------------------------------------
+
+    /**
+     * @brief Convert an Eigen-based Choi matrix to its Eigen-based superoperator matrix representation.
+     * 
+     * Arguments: 
+     * @param choi_matrix the Eigen-based (Eigen::MatrixXcd) Choi matrix in the computational basis 
+     * in ascending bit string order (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|).
+     *
+     * @return Eigen::MatrixXcd superoperator matrix representation.
+     * 
+     * @details This function may be used to convert arbitrary Eigen-based quantum process 
+     * matrices in the Choi representation to their superoperator representation by applying 
+     * a matrix reshuffling.
+     */
+    Eigen::MatrixXcd choi_to_superoperator(const Eigen::MatrixXcd& choi_matrix);
+
+    /**
+     * @brief Convert an STL-based Choi matrix to its STL-based superoperator matrix representation.
+     * 
+     * Arguments: 
+     * @param choi_matrix the STL-based (std::vector<std::vector<T>>) Choi matrix in the computational basis 
+     * in ascending bit string order (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|).
+     *
+     * @return std::vector<std::vector<T>> superoperator matrix representation.
+     * 
+     * @details This function transforms arbitrary STL-based Choi matrices to their superoperator 
+     * representation by delegating the transformation to the Eigen-based implementation.
+     */
+    KrausOperator::Matrix choi_to_superoperator(const KrausOperator::Matrix& choi_matrix);
 
     /**
      * @brief Convert an Eigen-based Choi matrix to a std::vector of Kraus matrices.
@@ -126,32 +182,124 @@ namespace qb
     std::vector<Eigen::MatrixXcd> choi_to_kraus(const Eigen::MatrixXcd& choi_matrix);
 
     /**
-     * @brief Convert an STL-based process matrix to a NoiseChannel of Kraus matrices.
+     * @brief Convert an STL-based Choi matrix to a NoiseChannel of Kraus matrices.
      * 
      * Arguments: 
-     * @param process_matrix the STL-based process matrix of the quantum process.
+     * @param choi_matrix the STL-based Choi matrix of the quantum process.
      *
-     * @return NoiseChannel a noise channel containing all complex Kraus operator matrices.
+     * @return NoiseChannel the noise channel containing all complex Kraus operator matrices.
      * 
-     * @details This function transforms arbitrary STL-based process matrices to a NoiseChannel 
-     * object by (i) converting the STL-based process matrix to an Eigen matrix, (ii) calling 
-     * process_to_kraus(const Eigen::MatrixXcd&), and (iii) calling eigen_to_noisechannel.
+     * @details This function will convert the STL-based Choi matrix to a complex-valued 
+     * Eigen matrix and delegate the conversion to choi_to_kraus(const Eigen::MatrixXcd&).
      */
-    NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix);
+    NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix);
+
+    //------------------------------------------- Transformations from superoperator matrix ------------------------------------------
 
     /**
-     * @brief Convert an Eigen-based process matrix to a std::vector of Kraus matrices.
+     * @brief Convert an Eigen-based superoperator matrix to its Eigen-based Choi representation.
      * 
      * Arguments: 
-     * @param process_matrix the Eigen-based process matrix of the quantum process.
+     * @param superop the Eigen-based (Eigen::MatrixXcd) superoperator matrix representation 
+     * of the quantum process.
+     *
+     * @return Eigen::MatrixXcd Choi matrix representation.
+     * 
+     * @details This function may be used to convert arbitrary Eigen-based quantum process 
+     * matrices in the superoperator representation to their Choi representation by applying 
+     * a matrix reshuffling.
+     */
+    Eigen::MatrixXcd superoperator_to_choi(const Eigen::MatrixXcd& superop);
+
+    /**
+     * @brief Convert an STL-based superoperator matrix to its STL-based Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param superop the STL-based (std::vector<std::vector<T>>) superoperator matrix representation
+     * of the quantum process.
+     *
+     * @return std::vector<std::vector<T>> Choi matrix representation.
+     * 
+     * @details This function transforms arbitrary STL-based superoperator matrices to their Choi 
+     * representation by delegating the transformation to the Eigen-based implementation.
+     */
+    KrausOperator::Matrix superoperator_to_choi(const KrausOperator::Matrix& superop);
+
+    /**
+     * @brief Convert an Eigen-based superoperator matrix to a std::vector of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param superop the Eigen-based (Eigen::MatrixXcd) superoperator matrix representation 
+     * of the quantum process.
      *
      * @return std::vector<Eigen::MatrixXcd> a vector containing all complex Kraus operator matrices.
      * 
-     * @details This function transforms arbitrary Eigen-based process matrices to their Kraus 
-     * representation by (i) transforming the process matrix to its Choi representation and (ii) 
-     * transforming the Choi matrix to individual Kraus operators. 
+     * @details This function will convert arbitrary Eigen-based superoperator matrices to their Kraus 
+     * representation by (i) transforming from superoperator to Choi representation, (ii) obtaining 
+     * eigenvalues and eigenvectors of the Choi matrix, and (iii) building Kraus matrics via 
+     * sqrt(l)*unvec(v) for eigenvalues |l| > 1e-14 and matrix-reshaped eigenvectors v. 
      */
-    std::vector<Eigen::MatrixXcd> process_to_kraus(const Eigen::MatrixXcd& process_matrix);
+    std::vector<Eigen::MatrixXcd> superoperator_to_kraus(const Eigen::MatrixXcd& superop);
+
+    /**
+     * @brief Convert an STL-based superoperator matrix to a NoiseChannel of Kraus matrices.
+     * 
+     * Arguments: 
+     * @param superop the STL-based (std::vector<std::vector<T>>) superoperator matrix representation
+     * of the quantum process.
+     *
+     * @return NoiseChannel the noise channel containing all complex Kraus operator matrices.
+     * 
+     * @details This function will convert the STL-based superoperator matrix to a complex-valued 
+     * Eigen matrix and delegate the conversion to superoperator_to_kraus(const Eigen::MatrixXcd&).
+     */
+    NoiseChannel superoperator_to_kraus(const KrausOperator::Matrix& superop);
+
+    //------------------------------------------- Transformations from Kraus representation ------------------------------------------
+
+    /**
+     * @brief Convert a vector of Eigen-based Kraus operator matrices into their Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param kraus_mats a std::vector of Eigen-based, complex-valued Kraus matrices.
+     *
+     * @return Eigen::MatrixXcd the Choi representation.
+     */
+    Eigen::MatrixXcd kraus_to_choi(const std::vector<Eigen::MatrixXcd> &kraus_mats);
+
+    /**
+     * @brief Convert a noise channel (list of STL-based Kraus operator matrices) into their Choi matrix representation.
+     * 
+     * Arguments: 
+     * @param noise_channel the noise channel composed of STL-based Kraus matrices.
+     *
+     * @return KrausOperator::Matrix the STL-based Choi matrix representation.
+     */
+    KrausOperator::Matrix kraus_to_choi(const NoiseChannel& noise_channel);
+
+    /**
+     * @brief Convert a vector of Eigen-based Kraus operator matrices into their Eigen-based superoperator 
+     * matrix representation.
+     * 
+     * Arguments: 
+     * @param kraus_mats a std::vector of Eigen-based, complex-valued Kraus matrices.
+     *
+     * @return Eigen::MatrixXcd the superoperator representation.
+     */
+    Eigen::MatrixXcd kraus_to_superoperator(const std::vector<Eigen::MatrixXcd> &kraus_mats);
+
+    /**
+     * @brief Convert a noise channel (list of STL-based Kraus operator matrices) into their STL-based superoperator
+     *  matrix representation.
+     * 
+     * Arguments: 
+     * @param noise_channel the noise channel composed of STL-based Kraus matrices.
+     *
+     * @return KrausOperator::Matrix the STL-based superoperator matrix representation.
+     */
+    KrausOperator::Matrix kraus_to_superoperator(const NoiseChannel& noise_channel);
+
+    //================================================================================================================================
 
     /**
      * @brief Convert a std::vector of Eigen-based Kraus matrices to a NoiseChannel object.

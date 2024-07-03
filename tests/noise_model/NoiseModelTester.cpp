@@ -293,6 +293,16 @@ Eigen::MatrixXcd evolve_density_kraus(const std::vector<Eigen::MatrixXcd>& kraus
   return result;
 }
 
+Eigen::MatrixXcd evolve_density_superop(const Eigen::MatrixXcd& superop, const Eigen::MatrixXcd& density) {
+  //(1) vectorize density in column-major order
+  Eigen::VectorXcd result_vec{density.reshaped()};
+  //(2) evolve density by matrix-vector multiplication of superoperator representation
+  result_vec = superop * result_vec;
+  //(3) reshape result vector to density matrix in column major order
+  Eigen::MatrixXcd result{result_vec.reshaped(density.rows(), density.cols())};
+  return result;
+}
+
 TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   const size_t n_qubits = 3; 
   std::uniform_real_distribution<double> gen(-1.0*std::numbers::pi, std::numbers::pi);
@@ -328,6 +338,12 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   //transform to Choi matrix: 
   auto choi_mat = qb::process_to_choi(process_mat);
 
+  //transform to superoperator: 
+  auto superop_1 = qb::choi_to_superoperator(choi_mat);
+  auto superop_2 = qb::process_to_superoperator(process_mat); //also test the direct call
+  auto choi_mat_2 = qb::superoperator_to_choi(superop_1);
+  EXPECT_TRUE(choi_mat.isApprox(choi_mat_2, 1e-14)); //and check back transformation to Choi
+
   //transform to Kraus matrices
   auto kraus_mats_1 = qb::choi_to_kraus(choi_mat);
   auto kraus_mats_2 = qb::process_to_kraus(process_mat); //also test the direct call
@@ -341,12 +357,17 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   auto evolved_density_process = evolve_density_process(process_mat, density);
   //evolve density with choi matrix
   auto evolved_density_choi = evolve_density_choi(choi_mat, density);
+  //evolve density with superoperator matrix 
+  auto evolved_density_superop_1 = evolve_density_superop(superop_1, density);
+  auto evolved_density_superop_2 = evolve_density_superop(superop_2, density);
   //evolve density with kraus matrices 
   auto evolved_density_kraus_1 = evolve_density_kraus(kraus_mats_1, density);
   auto evolved_density_kraus_2 = evolve_density_kraus(kraus_mats_2, density);
 
   //check if they are identical
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_choi, 1e-14));
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_superop_1, 1e-14));
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_superop_2, 1e-14));
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_1, 1e-14));
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_2, 1e-14));
 

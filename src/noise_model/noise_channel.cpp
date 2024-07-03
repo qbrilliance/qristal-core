@@ -186,40 +186,6 @@ namespace qb
         return GeneralizedPhaseAmplitudeDampingChannel::Create(q, excited_state_population, gamma, /*param_phase*/ 0.0);
     }
 
-    /// Internal method to convert noise channel from Kraus -> Choi representation.
-    /// A CPTP noise channel represented by a list of Kraus operators (matrices)
-    /// can be converted into a single Choi matrix representing that map.
-    /// Note: Kraus matrices acting on N qubits have dimension (2^N, 2^N);
-    /// the corresponding Choi matrix has dimension (4^N, 4^N).
-    eigen_cmat kraus_to_choi(const std::vector<eigen_cmat> &kraus_mats) 
-    {
-      const std::size_t input_dim = kraus_mats[0].cols();
-      const std::size_t output_dim = kraus_mats[0].rows();
-
-      // construct the un-normalized maximally entangled state
-      eigen_cmat max_entangled_state =
-          eigen_cmat::Zero(input_dim * input_dim, 1);
-      for (size_t i = 0; i < input_dim; ++i) {
-        max_entangled_state(i * input_dim + i, 0) = 1;
-      }
-      eigen_cmat max_entangled_state_adj = max_entangled_state.adjoint();
-      eigen_cmat Omega = max_entangled_state * max_entangled_state_adj;
-
-      eigen_cmat choi_mat =
-          eigen_cmat::Zero(input_dim * output_dim, input_dim * output_dim);
-
-      for (const auto &kraus_mat : kraus_mats) {
-        choi_mat +=
-            Eigen::kroneckerProduct(eigen_cmat::Identity(input_dim, input_dim),
-                                    kraus_mat) *
-            Omega *
-            ((Eigen::kroneckerProduct(
-                  eigen_cmat::Identity(input_dim, input_dim), kraus_mat))
-                 .adjoint());
-      }
-      return choi_mat;
-    }
-
     /// Helper to convert a noise channel into a list of Kraus ops as Eigen matrices
     static std::vector<eigen_cmat> noise_channel_to_eigen(const NoiseChannel &noise_channel) 
     {
@@ -258,14 +224,7 @@ namespace qb
       };
       return std::pow(compute_nuclear_norm(s1sq * s2sq), 2.0);
     }
-
-    KrausOperator::Matrix kraus_to_choi(const NoiseChannel &noise_channel) {
-      return eigen_to_matrix(kraus_to_choi(noise_channel_to_eigen(noise_channel)));
-    }
-
-    KrausOperator::Matrix process_to_choi(const KrausOperator::Matrix& process_matrix) {
-      return eigen_to_matrix(process_to_choi(matrix_to_eigen(process_matrix)));
-    }
+    
 
     Eigen::MatrixXcd get_computational_to_pauli_transform(const size_t n_qubits) {
       std::vector<qb::Pauli> basis{
@@ -283,6 +242,9 @@ namespace qb
       return conversion_mat;
     }
 
+    //============================================ Quantum Process Matrix Transformations ============================================
+    //---------------------------------------------- Transformations from process matrix ---------------------------------------------
+
     Eigen::MatrixXcd process_to_choi(const Eigen::MatrixXcd& process_matrix) {
       //transform process matrix in Pauli basis (II..I, II..X, ..., ZZ..Z) to computational basis (|0..0><0..0|, ..., |1..1><1..1|)
       const size_t n_qubits = std::log2(process_matrix.rows()) / 2;
@@ -290,15 +252,48 @@ namespace qb
       return T.adjoint() * process_matrix * T; //return transformed process matrix
     }
 
-    NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix) {
-      return eigen_to_noisechannel(choi_to_kraus(matrix_to_eigen(choi_matrix)));
+    KrausOperator::Matrix process_to_choi(const KrausOperator::Matrix& process_matrix) {
+      return eigen_to_matrix(process_to_choi(matrix_to_eigen(process_matrix)));
+    }
+
+    Eigen::MatrixXcd process_to_superoperator(const Eigen::MatrixXcd& process_matrix) {
+      return choi_to_superoperator(process_to_choi(process_matrix));
+    }
+
+    KrausOperator::Matrix process_to_superoperator(const KrausOperator::Matrix& process_matrix) {
+      return eigen_to_matrix(process_to_superoperator(matrix_to_eigen(process_matrix)));
+    }
+
+    std::vector<Eigen::MatrixXcd> process_to_kraus(const Eigen::MatrixXcd& process_matrix) {
+      return choi_to_kraus(process_to_choi(process_matrix));
+    }
+
+    NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix) {
+      return eigen_to_noisechannel(choi_to_kraus(process_to_choi(matrix_to_eigen(process_matrix))));
+    }
+
+    //----------------------------------------------- Transformations from Choi matrix -----------------------------------------------
+
+    Eigen::MatrixXcd choi_to_superoperator(const Eigen::MatrixXcd& choi_matrix) {
+      size_t dim = std::pow(2, log2(choi_matrix.rows())/2); //retrieve density matrix dimensions from choi_matrix
+      Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(choi_matrix.rows(), choi_matrix.cols());
+      for (Eigen::Index row = 0; row < choi_matrix.rows(); ++row) {
+        for (Eigen::Index col = 0; col < choi_matrix.cols(); ++col) {
+          result((col % dim)*dim + (row % dim), (col / dim)*dim + (row / dim)) = choi_matrix(row, col);
+        }
+      }
+      return result;
+    }
+
+    KrausOperator::Matrix choi_to_superoperator(const KrausOperator::Matrix& choi_matrix) {
+      return eigen_to_matrix(choi_to_superoperator(matrix_to_eigen(choi_matrix)));
     }
 
     std::vector<Eigen::MatrixXcd> choi_to_kraus(const Eigen::MatrixXcd& choi_matrix) {
       std::vector<Eigen::MatrixXcd> result;
       const size_t n_qubits = std::log2(choi_matrix.rows()) / 2;
       const size_t dim = std::pow(2, n_qubits);
-      Eigen::ComplexEigenSolver<eigen_cmat> solver(choi_matrix); 
+      Eigen::ComplexEigenSolver<Eigen::MatrixXcd> solver(choi_matrix); 
       for (Eigen::Index i = 0; i < solver.eigenvalues().size(); ++i) {
         if (std::abs(solver.eigenvalues()[i]) > 1e-14) { //only add non-zero channels
           Eigen::MatrixXcd eigenvec = solver.eigenvectors().col(i);
@@ -308,7 +303,86 @@ namespace qb
       }
       return result;
     }
+
+    NoiseChannel choi_to_kraus(const KrausOperator::Matrix& choi_matrix) {
+      return eigen_to_noisechannel(choi_to_kraus(matrix_to_eigen(choi_matrix)));
+    }
+
+    //------------------------------------------- Transformations from superoperator matrix ------------------------------------------
     
+    Eigen::MatrixXcd superoperator_to_choi(const Eigen::MatrixXcd& superop) {
+      size_t dim = std::pow(2, log2(superop.rows())/2); //retrieve density matrix dimensions from superoperator matrix
+      Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(superop.rows(), superop.cols());
+      for (Eigen::Index row = 0; row < superop.rows(); ++row) {
+        for (Eigen::Index col = 0; col < superop.cols(); ++col) {
+          result((row % dim) + dim * (col % dim), (row / dim) + dim * (col / dim)) = superop(row, col);
+        }
+      }
+      return result;
+    }
+
+    KrausOperator::Matrix superoperator_to_choi(const KrausOperator::Matrix& superop) {
+      return eigen_to_matrix(superoperator_to_choi(matrix_to_eigen(superop)));
+    }
+
+    std::vector<Eigen::MatrixXcd> superoperator_to_kraus(const Eigen::MatrixXcd& superop) {
+      return choi_to_kraus(superoperator_to_choi(superop));
+    }
+
+    NoiseChannel superoperator_to_kraus(const KrausOperator::Matrix& superop) {
+      return eigen_to_noisechannel(superoperator_to_kraus(matrix_to_eigen(superop)));
+    }
+
+    //------------------------------------------- Transformations from Kraus representation ------------------------------------------
+
+    /// Internal method to convert noise channel from Kraus -> Choi representation.
+    /// A CPTP noise channel represented by a list of Kraus operators (matrices)
+    /// can be converted into a single Choi matrix representing that map.
+    /// Note: Kraus matrices acting on N qubits have dimension (2^N, 2^N);
+    /// the corresponding Choi matrix has dimension (4^N, 4^N).
+    Eigen::MatrixXcd kraus_to_choi(const std::vector<Eigen::MatrixXcd> &kraus_mats) 
+    {
+      const std::size_t input_dim = kraus_mats[0].cols();
+      const std::size_t output_dim = kraus_mats[0].rows();
+
+      // construct the un-normalized maximally entangled state
+      Eigen::MatrixXcd max_entangled_state =
+          Eigen::MatrixXcd::Zero(input_dim * input_dim, 1);
+      for (size_t i = 0; i < input_dim; ++i) {
+        max_entangled_state(i * input_dim + i, 0) = 1;
+      }
+      Eigen::MatrixXcd max_entangled_state_adj = max_entangled_state.adjoint();
+      Eigen::MatrixXcd Omega = max_entangled_state * max_entangled_state_adj;
+
+      Eigen::MatrixXcd choi_mat =
+          Eigen::MatrixXcd::Zero(input_dim * output_dim, input_dim * output_dim);
+
+      for (const auto &kraus_mat : kraus_mats) {
+        choi_mat +=
+            Eigen::kroneckerProduct(Eigen::MatrixXcd::Identity(input_dim, input_dim),
+                                    kraus_mat) *
+            Omega *
+            ((Eigen::kroneckerProduct(
+                  Eigen::MatrixXcd::Identity(input_dim, input_dim), kraus_mat))
+                 .adjoint());
+      }
+      return choi_mat;
+    }
+
+    KrausOperator::Matrix kraus_to_choi(const NoiseChannel &noise_channel) {
+      return eigen_to_matrix(kraus_to_choi(noise_channel_to_eigen(noise_channel)));
+    }
+
+    Eigen::MatrixXcd kraus_to_superoperator(const std::vector<Eigen::MatrixXcd> &kraus_mats) {
+      return choi_to_superoperator(kraus_to_choi(kraus_mats));
+    }
+
+    KrausOperator::Matrix kraus_to_superoperator(const NoiseChannel& noise_channel) {
+      return eigen_to_matrix(kraus_to_superoperator(noise_channel_to_eigen(noise_channel)));
+    }
+
+    //================================================================================================================================
+
     NoiseChannel eigen_to_noisechannel(const std::vector<Eigen::MatrixXcd>& kraus_mats) {
       NoiseChannel result; 
       for (const auto & kraus_mat : kraus_mats) {
@@ -323,13 +397,6 @@ namespace qb
       return result;
     }
 
-    NoiseChannel process_to_kraus(const KrausOperator::Matrix& process_matrix) {
-      return eigen_to_noisechannel(choi_to_kraus(process_to_choi(matrix_to_eigen(process_matrix))));
-    }
-
-    std::vector<Eigen::MatrixXcd> process_to_kraus(const Eigen::MatrixXcd& process_matrix) {
-      return choi_to_kraus(process_to_choi(process_matrix));
-    }
 
     /// Compute the process fidelity of a noise channel as compared to a no-noise (Identity) channel.
     /// e.g., a value of 0.9 means that this channel is equivalent to a ~10% gate noise (as measured by tomography).
