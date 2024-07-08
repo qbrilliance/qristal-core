@@ -38,7 +38,7 @@ qa.sn      = 10000
 qa.maxeval = 1000
 
 # Construct parameter list and initial angle values. 
-qa.theta[0][0]=qb.core.ND()
+qa.theta[0][0]=qb.core.MapIntDouble()
 
 # Extended flexibility: Per QAOA step, assign one parameter to each term in the driver Hamiltonian
 # and one parameter to each term in the cost Hamiltonian

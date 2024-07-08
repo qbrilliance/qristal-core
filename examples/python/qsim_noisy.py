@@ -4,7 +4,7 @@ import ast
 import timeit
 n_qbits = 3
 s = qb.core.session()
-s.qb12()
+s.init()
 s.sn = 1024
 s.qn = n_qbits
 s.acc = "qsim"
@@ -39,6 +39,6 @@ circ.measure_all()
 s.ir_target = circ
 s.run()
 
-results = s.out_raw[0][0]
+results = s.out_raw_json[0][0]
 res = ast.literal_eval(results)
 print(res)

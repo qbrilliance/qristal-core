@@ -7,8 +7,8 @@ namespace qb {
 namespace op {
 class QaoaWarmStart : public QaoaBase {
 protected:
-  VectorMapND thetas_;  
-  VectorString good_cuts_;
+  Table2d<std::map<int,double>> thetas_;  
+  Table2d<std::string> good_cuts_;
   
 public:
   QaoaWarmStart() : 
@@ -22,14 +22,14 @@ public:
   const std::string get_summary() const override;
 
   // Setters and Getters
-  void set_theta(const ND &in_theta);
-  void set_thetas(const VectorMapND &in_thetas);
-  const VectorMapND &get_thetas() const;
+  void set_theta(const std::map<int,double> &in_theta);
+  void set_thetas(const Table2d<std::map<int,double>> &in_thetas);
+  const Table2d<std::map<int,double>> &get_thetas() const;
   static const char *help_thetas_;
   //
   void set_good_cut(const std::string &in_good_cut);
-  void set_good_cuts(const VectorString &in_good_cuts);
-  const VectorString &get_good_cuts() const;
+  void set_good_cuts(const Table2d<std::string> &in_good_cuts);
+  const Table2d<std::string> &get_good_cuts() const;
   static const char *help_good_cuts_; 
 
   // Misc functions

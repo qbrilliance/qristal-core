@@ -5,7 +5,7 @@ def test_cz_optimization():
     print(" Testing CZ optimization ")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     circ = qb.core.Circuit()
     # Check this circuit is optimized to a single CZ gate
     # Check for this pattern
@@ -34,7 +34,7 @@ def test_cz_placement():
     print(" Testing placement of CZ gate ")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     circ = qb.core.Circuit()
     circ.cz(0, 1)
     s.ir_target = circ
@@ -76,7 +76,7 @@ def test_cphase_simple():
 
     # Get transpiled circuit from qb_visitor
     my_sim = qb.core.session()
-    my_sim.qb12()
+    my_sim.init()
     my_sim.qn = 2
     my_sim.acc = "qpp"
     my_sim.noplacement = True

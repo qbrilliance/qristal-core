@@ -3,18 +3,30 @@
 Qristal is a full-stack SDK for quantum accelerators.
 
 ## [X.X.X] - YYYY-MM-DD
-  
+
+### Breaking
+
+- Renamed out_raws --> out_raws_json
+- Renamed session.qb12() --> session.init()
+
+### Added
+
+- Use a dynamic check against the actual memory capabilities of the machine in use in order to decide when to populate the `out_counts` vector. This replaces the previous hardcoded limit of 32 qubits.
+- Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations. 
+- Added a custom pyGSTi model pack to the pyGSTi python examples for gate set tomography protocols using the QDK's native gate set: Rx(pi/2), Ry(pi/2), and CZ. 
+- Adjusted the pyGSTi_runner.cpp and execute_GST_XYCZ.py examples to use the new custom model pack.
+
 ### Fixed
 
+- Moved the `python_module` sources and includes into the main `src` and `include` paths
+- Sectioned the python help strings off into a header localised to the python module and not associated with the `session` class
+- Moved the session getters and setters exclusively into the `qb::core` library (i.e. so they are no longer built a second time into the python module *and* the core shared library)
+- Rationalised the python STL bindings somewhat
+- Ditched the qaoa-local `ValidationTwoDim` class in favour of central core version
 - Fixed a bug in `CircuitBuilder::append` where the variables in the appeded circuit would not be added to the original circuit.
 - Fixed a bug in `session` where the execution would fail if there were more free parameters than elements in the output probability vector.
 - Added a python binding for the parametrized `U3` gate. 
 
-### Added 
-
-- Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations. 
-- Added a custom pyGSTi model pack to the pyGSTi python examples for gate set tomography protocols using the QDK's native gate set: Rx(pi/2), Ry(pi/2), and CZ. 
-- Adjusted the pyGSTi_runner.cpp and execute_GST_XYCZ.py examples to use the new custom model pack.
 
 ## [1.6.0] - 2024-06-18
 
@@ -51,6 +63,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed Werror problem with clang by updating warning flags passed to dependencies
 - Fixed benchmark1_cudaq.cpp example.
 
+
 ## [1.5.0] - 2024-02-21
 
 ### Breaking
@@ -78,7 +91,6 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added quantum state fidelity metric compatible with workflows that can generate measured bit string results and ideal quantum densities
 - Added quantum process fidelity metric compatible with workflows that can generate measured bit string results and ideal quantum process matrices
 
-### Fixed
 
 ## [1.4.0] - 2023-11-20
 

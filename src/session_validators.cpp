@@ -27,7 +27,7 @@ session::validate_infiles_instrings_randoms_irtarget_ms_nonempty(
               << "]: " << std::endl;
   }
 
-  // Helper to check if a 2-D array (qb::VectorString, qb::VectorN) is empty
+  // Helper to check if a 2-D array is empty
   const auto check_empty_2d_array_at_ii = [ii](const auto &array_2d) -> bool {
     if ((!array_2d.empty()) &&
         (array_2d.size() >= static_cast<size_t>(ii + 1))) {
@@ -314,7 +314,7 @@ int session::validate_thetas_option() {
 
   if (!thetas_.empty()) {
     is_thetas_empty = std::all_of(thetas_.cbegin(), thetas_.cend(),
-                                  [](MapND theta) { return theta.empty(); });
+                                  [](std::vector<std::map<int,double>> theta) { return theta.empty(); });
     if (debug_ && is_thetas_empty) {
       std::cout << "[debug]:"
                 << "thetas_ is empty" << std::endl;

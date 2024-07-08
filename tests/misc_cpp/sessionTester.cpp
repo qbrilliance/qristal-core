@@ -7,7 +7,7 @@
 TEST(sessionTester, test_small_angles_xasm_compilation) {
   auto my_sim = qb::session(false);
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
   my_sim.set_qn(1);
   my_sim.set_acc("aer");
   qb::CircuitBuilder my_circuit;
@@ -38,7 +38,7 @@ TEST(sessionTester, test_qft4) {
   // Start a QB SDK session.
   auto s = qb::session(false);
 
-  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
+  s.init(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
             // back-end
 
   // Override defaults
@@ -93,7 +93,7 @@ TEST(sessionTester, test_parametrized_run_1) {
   std::vector<double> param_vec(circuit.num_free_params());
 
   qb::session my_sim;
-  my_sim.qb12();
+  my_sim.init();
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(1000);
   my_sim.set_acc("qpp");
@@ -140,7 +140,7 @@ TEST(sessionTester, test_parametrized_run_2) {
   }
 
   qb::session my_sim;
-  my_sim.qb12();
+  my_sim.init();
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(1000);
   my_sim.set_acc("qpp");
@@ -194,7 +194,7 @@ TEST(sessionTester, test_gradients) {
   }
 
   qb::session my_sim;
-  my_sim.qb12();
+  my_sim.init();
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(1000);
   my_sim.set_acc("qpp");

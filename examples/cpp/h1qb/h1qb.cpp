@@ -28,7 +28,7 @@ int main(int argc, char **argv)
   auto my_sim = qb::session(false);
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose a simulator backend
   for (int i = 0; i < arguments.size(); i++) {
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
   my_sim.run();
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.get_out_raws()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
   // Print the walltime used to execute the quantum circuit
   std::cout << "\n" << "* Time used for circuit execution, in ms: " << (my_sim.get_out_total_init_maxgate_readout_times()[0][0]).at(4)<< "\n";
 }

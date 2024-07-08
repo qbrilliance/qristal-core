@@ -2,7 +2,6 @@
 #pragma once
 
 #include "qb/core/optimization/qaoa/qaoa_base.hpp"
-//#include "qb/core/noise_model/noise_model.hpp"
 
 namespace qb {
 namespace op {
@@ -10,7 +9,7 @@ namespace op {
 class QaoaSimple : public QaoaBase
 {
   protected:
-    VectorMapND thetas_;  
+    Table2d<std::map<int,double>> thetas_;  
 
   public:
     QaoaSimple() : 
@@ -23,9 +22,9 @@ class QaoaSimple : public QaoaBase
     const std::string get_summary() const override;
 
     //Setters and Getters
-    void set_theta(const ND &in_theta);
-    void set_thetas(const VectorMapND &in_thetas);
-    const VectorMapND &get_thetas() const;
+    void set_theta(const std::map<int,double> &in_theta);
+    void set_thetas(const Table2d<std::map<int,double>> &in_thetas);
+    const Table2d<std::map<int,double>> &get_thetas() const;
     static const char *help_thetas_;
     
     int is_ii_consistent() override;
@@ -44,9 +43,9 @@ class [[deprecated]] QaoaLegacy : public QaoaSimple
     // Constructors
     QaoaLegacy(const bool debug) : QaoaSimple(debug) { warn_python_deprecated(); }
 
-	void warn_python_deprecated(){
-	  std::cerr << "Warning: the qaoa class is deprecated in favor of QaoaSimple" << std::endl;
-	}
+  void warn_python_deprecated(){
+    std::cerr << "Warning: the qaoa class is deprecated in favor of QaoaSimple" << std::endl;
+  }
 };    
 
 } // namespace op

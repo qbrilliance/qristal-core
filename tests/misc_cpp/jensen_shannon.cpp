@@ -4,7 +4,7 @@
 
 TEST(TestJensenShannonDivergence, maximum_divergence) {
   auto s = qb::session(false);
-  s.qb12();
+  s.init();
   s.set_acc("qpp");
   s.set_qn(2);
   s.set_sn(1000);
@@ -39,14 +39,14 @@ TEST(TestJensenShannonDivergence, maximum_divergence) {
   s.get_jensen_shannon();
   std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();  
   double divergence = jsv[0][0][0];
-  std::cout << s.get_out_raws()[0][0] << std::endl;
+  std::cout << s.get_out_raws_json()[0][0] << std::endl;
   std::cout << "divergence: " << divergence << std::endl;
   EXPECT_NEAR(divergence, std::log(2), 1e-3);
 }
 
 TEST(TestJensenShannonDivergence, minimum_divergence) {
   auto s = qb::session(false);
-  s.qb12();
+  s.init();
   s.set_acc("qpp");
   s.set_qn(2);
   s.set_sn(1000);
@@ -81,14 +81,14 @@ TEST(TestJensenShannonDivergence, minimum_divergence) {
   s.get_jensen_shannon();
   std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();  
   double divergence = jsv[0][0][0];
-  std::cout << s.get_out_raws()[0][0] << std::endl;
+  std::cout << s.get_out_raws_json()[0][0] << std::endl;
   std::cout << "divergence: " << divergence << std::endl;
   EXPECT_NEAR(divergence, 0, 1e-3);
 }
 
 TEST(TestJensenShannonDivergence, simple) {
   auto s = qb::session(false);
-  s.qb12();
+  s.init();
   s.set_acc("qpp");
   s.set_qn(2);
   s.set_sn(1000);
@@ -123,7 +123,7 @@ TEST(TestJensenShannonDivergence, simple) {
   s.get_jensen_shannon();
   std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();  
   double divergence = jsv[0][0][0];
-  std::cout << s.get_out_raws()[0][0] << std::endl;
+  std::cout << s.get_out_raws_json()[0][0] << std::endl;
   std::cout << "divergence: " << divergence << std::endl;
   EXPECT_GT(divergence, 0.3);
   EXPECT_LT(divergence, 0.4);

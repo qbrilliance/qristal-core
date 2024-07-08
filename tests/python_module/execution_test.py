@@ -4,10 +4,10 @@ import pytest
 
 def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
-    print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate")
+    print("* With default init settings, check the functionality of QB's custom 5-control Ry(theta) gate")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
@@ -29,16 +29,16 @@ def test_CI_210826_15_qb_c5_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (res[''.join(bin(31)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
-    print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
+    print("* With default init settings, check the functionality of QB's custom 5-control Ry(theta) gate, where 1 control input is |0>")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
@@ -60,16 +60,16 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (res[''.join(bin(61)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
-    print("* With default qb12 settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
+    print("* With default init settings, check the functionality of QB's custom 5-control Ry(theta) gate, where all control inputs are |0>")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
@@ -91,16 +91,16 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (res[''.join(bin(32)[2:].zfill(6))] == 1024)
 
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
-    print("* With default qb12 settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
+    print("* With default init settings, check the functionality of QB's custom 7-control Ry(theta) gate, and it's inverse gate")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
@@ -126,16 +126,16 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (res[''.join(bin(127)[2:].zfill(8))] == 1024)
 
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
-    print("* With default qb12 settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
+    print("* With default init settings, check the functionality of QB's custom Toffoli gate, and it's inverse gate")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
@@ -151,7 +151,7 @@ def test_CI_210826_19_qb_c2_x_x_dag() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (res[''.join(bin(3)[2:].zfill(3))] == 1024)
 
@@ -161,7 +161,7 @@ def test_qft4() :
     # Instantiate an object instance
     import qb.core
     s = qb.core.session()
-    s.qb12()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
+    s.init()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
 
     # Override defaults
     n_qubits = 4
@@ -200,7 +200,7 @@ def test_aer_matrix_product_state_method() :
     import qb.core
     import ast
     s=qb.core.session()
-    s.qb12()
+    s.init()
 
     # Use the aer accelerator
     s.acc = "aer"
@@ -222,7 +222,7 @@ def test_aer_matrix_product_state_method() :
     '''
 
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     print(res)
     # Expect noisy results: majority is bell pairs (00 and 11), but non-zero error states
@@ -235,7 +235,7 @@ def test_aer_matrix_product_state_method_large_circuit() :
     import qb.core
     import ast
     s=qb.core.session()
-    s.qb12()
+    s.init()
     s.nooptimise = True
     s.noplacement = True
     s.output_oqm_enabled = False
@@ -285,7 +285,7 @@ def test_aer_matrix_product_state_method_large_circuit() :
     s.qn = nb_qubits + 1
     s.instring = qbdj(nb_qubits)
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     print(res)
     expected_bitstring = nb_qubits * '1'
@@ -294,10 +294,10 @@ def test_aer_matrix_product_state_method_large_circuit() :
 
 def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
-    print("* With default qb12 settings, check the functionality of QB's custom controlled Ry gate")
+    print("* With default init settings, check the functionality of QB's custom controlled Ry gate")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     import os
     s.include_qb = os.path.dirname(os.path.abspath(__file__)) + "/qblib.inc"
@@ -314,7 +314,7 @@ def test_qblib_custom_gates() :
         measure q[0] -> c[0];
     }'''
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (res[''.join(bin(1)[2:].zfill(2))] == 1024)
 
@@ -324,7 +324,7 @@ def test_async_run_and_wait():
     import json
     import numpy as np
     s = qb.core.session()
-    s.qb12()
+    s.init()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
     s.set_parallel_run_config(json.dumps(qpu_configs))
     nb_jobs = 2
@@ -362,7 +362,7 @@ def test_async_run_and_wait():
     s.xasms[0].clear()
     s.quil1s[0].clear()
     for i in range(nb_jobs):
-        s.instrings.append(qb.core.String())
+        s.instrings.append(qb.core.VectorString())
         s.instrings[i].append(openQASM)
         s.xasms[0].append(False)
         s.quil1s[0].append(False)
@@ -387,8 +387,8 @@ def test_async_run_and_wait():
         if not all_done:
             time.sleep(1)
 
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[1][0]
+    result1 = s.out_raw_json[0][0]
+    result2 = s.out_raw_json[1][0]
     res1 = ast.literal_eval(result1)
     res2 = ast.literal_eval(result2)
     # Bell States
@@ -400,7 +400,7 @@ def test_potential_async_deadlock():
     import qb.core
     import json
     s = qb.core.session()
-    s.qb12()
+    s.init()
     qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
     s.set_parallel_run_config(json.dumps(qpu_configs))
     # Quite a large number of jobs
@@ -434,7 +434,7 @@ def test_potential_async_deadlock():
     s.xasms[0].clear()
     s.quil1s[0].clear()
     for i in range(nb_jobs):
-        s.instrings.append(qb.core.String())
+        s.instrings.append(qb.core.VectorString())
         s.instrings[i].append(openQASM)
         s.xasms[0].append(False)
         s.quil1s[0].append(False)
@@ -464,7 +464,7 @@ def test_potential_async_deadlock():
 
     #print("Result:")
     #for i in range(nb_jobs):
-        #print(s.out_raw[i][0])
+        #print(s.out_raw_json[i][0])
     count_qpp = 0
     count_aer = 0
     for handle in all_handles:
@@ -480,7 +480,7 @@ def test_noise_mitigation():
     import qb.core
     import json
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.noise = True
     s.nooptimise = True
     s.noplacement = True
@@ -496,14 +496,14 @@ def test_noise_mitigation():
     s.instring = circ.openqasm()
     s.run()
     print("Without mitigation:")
-    print(s.out_raw[0][0])
-    no_mitigation = json.loads(s.out_raw[0][0])
+    print(s.out_raw_json[0][0])
+    no_mitigation = json.loads(s.out_raw_json[0][0])
 
     s.noise_mitigation = "assignment-error-kernel"
     s.run()
     print("With mitigation:")
-    print(s.out_raw[0][0])
-    mitigation = json.loads(s.out_raw[0][0])
+    print(s.out_raw_json[0][0])
+    mitigation = json.loads(s.out_raw_json[0][0])
     assert(int(mitigation["01"]) < int(no_mitigation["01"]))
     assert(int(mitigation["10"]) < int(no_mitigation["10"]))
 
@@ -512,7 +512,7 @@ def test_sparse_sim():
     import numpy as np
     import ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.xasm = True
     num_shots = 8192
     s.sn = num_shots
@@ -558,7 +558,7 @@ def test_sparse_sim():
     s.qn = nb_qubits + 1
     s.instring = qbdj(nb_qubits)
     s.run()
-    results = s.out_raw[0][0]
+    results = s.out_raw_json[0][0]
     res = ast.literal_eval(results)
     expected_bitstring = '1'*nb_qubits
     assert(res[expected_bitstring] == num_shots)
@@ -574,7 +574,7 @@ def test_random_seed():
             import xacc
             import qb.core
             s = qb.core.session()
-            s.qb12()
+            s.init()
             # Override defaults
             n_qubits = 4
             n_shots = 1024
@@ -623,7 +623,7 @@ def test_random_seed_tnqvm():
         for seed in seeds:
             import qb.core
             s = qb.core.session()
-            s.qb12()
+            s.init()
             # Override defaults
             n_qubits = 4
             n_shots = 1024
@@ -665,7 +665,7 @@ def test_randomized_stats():
     # https://qbau.atlassian.net/browse/SWA-154
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 2
     s.sn = 1024
     s.instring = '''
@@ -682,10 +682,10 @@ measure q[0] -> c[0];
     for _ in range(nb_runs - 1):
         s.acc[0].append("tnqvm")
     s.run()
-    ref = s.out_raw[0][0]
+    ref = s.out_raw_json[0][0]
     all_equal = True
-    print(s.out_raw[0])
-    for dist in s.out_raw[0]:
+    print(s.out_raw_json[0])
+    for dist in s.out_raw_json[0]:
         if dist != ref:
             all_equal = False
 
@@ -695,7 +695,7 @@ def test_clear_random_seed():
     # https://qbau.atlassian.net/browse/SWA-155
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 2
     s.sn = 1024
     s.seed = 123
@@ -710,13 +710,13 @@ measure q[1] -> c[1];
 measure q[0] -> c[0];
 }'''
     s.run()
-    ref = ast.literal_eval(s.out_raw[0][0])
+    ref = ast.literal_eval(s.out_raw_json[0][0])
     nb_runs = 3
     s.seed.clear()
     see_new_random_results = False
     for _ in range(nb_runs):
         s.run()
-        new_result = ast.literal_eval(s.out_raw[0][0])
+        new_result = ast.literal_eval(s.out_raw_json[0][0])
         if new_result != ref:
             see_new_random_results = True
 

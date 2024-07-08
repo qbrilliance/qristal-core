@@ -34,7 +34,7 @@ def qaoa_helper(
     else:
         nThetas = 2*nQaoaSteps
 
-    qa.theta = qb.core.ND()
+    qa.theta = qb.core.MapIntDouble()
     for ii in range(nThetas) :
         qa.theta[0][0][ii] = initTheta
     

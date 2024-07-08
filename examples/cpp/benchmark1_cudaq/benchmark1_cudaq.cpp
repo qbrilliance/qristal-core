@@ -35,7 +35,7 @@ int main()
   my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
   
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Add more qubits
   my_sim.set_qn(NB_QUBITS);
@@ -47,5 +47,5 @@ int main()
   my_sim.run();
 
   // Print the cumulative results 
-  std::cout << "Results:" << std::endl << my_sim.get_out_raws()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
 }

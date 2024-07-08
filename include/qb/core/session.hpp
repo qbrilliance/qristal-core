@@ -14,6 +14,7 @@
 #endif
 
 // STL
+#include <cmath>
 #include <complex>
 #include <functional>
 #include <map>
@@ -45,76 +46,77 @@ namespace qb
       YAML::Node remote_backend_database_;
 
       // Names
-      VectorString name_m;
+      Table2d<std::string> name_m;
       std::vector<std::vector<std::vector<int>>> number_m;
-      VectorString infiles_;
-      VectorString include_qbs_;
-      VectorString instrings_;
+      Table2d<std::string> infiles_;
+      Table2d<std::string> include_qbs_;
+      Table2d<std::string> instrings_;
       std::vector<std::pair<std::string, std::function<void()>>> cudaq_kernels_;
 
       std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> irtarget_ms_;
 
-      VectorString accs_;
+      Table2d<std::string> accs_;
 
-      VectorString aer_sim_types_;
+      Table2d<std::string> aer_sim_types_;
 
-      VectorN randoms_;
-      VectorString placements_;
+      Table2d<size_t> randoms_;
+      Table2d<std::string> placements_;
       /// Circuit optimization passes to apply
       Table2d<Passes> circuit_opts_;
-      VectorBool xasms_;
-      VectorBool quil1s_;
-      VectorBool noplacements_;
-      VectorBool nooptimises_;
-      VectorBool nosims_;
-      VectorBool noises_;
-      VectorBool output_oqm_enableds_;
-      VectorBool log_enableds_;
-      VectorBool notimings_;
-      VectorBool calc_jacobians_;
+      Table2d<bool> xasms_;
+      Table2d<bool> quil1s_;
+      Table2d<bool> noplacements_;
+      Table2d<bool> nooptimises_;
+      Table2d<bool> nosims_;
+      Table2d<bool> noises_;
+      Table2d<bool> output_oqm_enableds_;
+      Table2d<bool> log_enableds_;
+      Table2d<bool> notimings_;
+      Table2d<bool> calc_jacobians_;
 
-      VectorN qns_;
-      VectorN rns_;
-      VectorN sns_;
-      VectorN seeds_;
+      Table2d<size_t> qns_;
+      Table2d<size_t> rns_;
+      Table2d<size_t> sns_;
+      Table2d<size_t> seeds_;
 
-      VectorMapND betas_;
-      VectorMapND thetas_;
+      Table2d<std::map<int,double>> betas_;
+      Table2d<std::map<int,double>> thetas_;
 
       Table2d<std::vector<double>> parameter_vectors_;
 
       // ExaTN-MPS and QB tensor network settings
-      VectorN max_bond_dimensions_;
-      VectorN initial_bond_dimensions_;
-      VectorN max_kraus_dimensions_;
-      VectorN initial_kraus_dimensions_;
-      VectorMapND svd_cutoffs_;
-      VectorMapND rel_svd_cutoffs_;
-      VectorString measure_sample_sequentials_;
+      Table2d<size_t> max_bond_dimensions_;
+      Table2d<size_t> initial_bond_dimensions_;
+      Table2d<size_t> max_kraus_dimensions_;
+      Table2d<size_t> initial_kraus_dimensions_;
+      Table2d<std::map<int,double>> svd_cutoffs_;
+      Table2d<std::map<int,double>> rel_svd_cutoffs_;
+      Table2d<std::string> measure_sample_sequentials_;
 
       // Noise models
       std::vector<std::vector<NoiseModel>> noise_models_;
 
       // Variables not wrapped to Python
-      VectorN acc_uses_n_bits_;
+      Table2d<size_t> acc_uses_n_bits_;
 
-      std::vector<std::vector<std::map<std::string, std::complex<double>>>> output_amplitudes_;
+      Table2d<std::map<std::string, std::complex<double>>> output_amplitudes_;
 
       // For storing results
-      VectorString out_raws_;
+      Table2d<std::string> out_raws_json_;
+      //Table2d<std::map<std::vector<bool>, int>> out_raws_map_;
       Table2d<std::vector<double>> out_probs_;
       Table2d<std::vector<int>> out_counts_;
-      VectorMapND out_divergences_;
-      VectorString out_transpiled_circuits_;
-      VectorString out_qobjs_;
-      VectorString out_qbjsons_;
+      Table2d<std::map<int,double>> out_divergences_;
+      Table2d<std::string> out_transpiled_circuits_;
+      Table2d<std::string> out_qobjs_;
+      Table2d<std::string> out_qbjsons_;
       Table2d<Table2d<double>> out_prob_gradients_;
-      VectorBool acc_uses_lsbs_;
+      Table2d<bool> acc_uses_lsbs_;
       //
-      VectorMapNN out_single_qubit_gate_qtys_;
-      VectorMapNN out_double_qubit_gate_qtys_;
-      VectorMapND out_total_init_maxgate_readout_times_;
-      VectorMapND out_z_op_expects_;
+      Table2d<std::map<int,int>> out_single_qubit_gate_qtys_;
+      Table2d<std::map<int,int>> out_double_qubit_gate_qtys_;
+      Table2d<std::map<int,double>> out_total_init_maxgate_readout_times_;
+      Table2d<std::map<int,double>> out_z_op_expects_;
 
       // Parallel (async) executor
       std::shared_ptr<Executor> executor_;
@@ -124,7 +126,7 @@ namespace qb
       std::shared_ptr<std::vector<std::complex<double>>> state_vec_;
 
       // Error mitigation
-      VectorString error_mitigations_;
+      Table2d<std::string> error_mitigations_;
 
       // Constants
       const int INVALID = -1;
@@ -197,7 +199,7 @@ namespace qb
        * @brief Construct a new session object
        * 
        * Some parameters are uninitialized, e.g., number of qubits (`qns_`).
-       * These parameters can be set manually (using corresponding setter methods) or via provided presets, e.g., qb12().
+       * These parameters can be set manually (using corresponding setter methods) or via provided presets, e.g., init().
        */
       session();
 
@@ -216,9 +218,6 @@ namespace qb
       session(const bool debug);
 
       // Setters and Getters
-      // Notes:
-      //  - setters and getters implementation should be defined in python_module/core/methods_getter_setter.cpp
-      //  - help strings (Python) should be defined in python_module/core/methods_py_help_strings.cpp
       
       /**
        * @brief Set the input QASM source file
@@ -232,17 +231,14 @@ namespace qb
        * 
        * @param infiles A list of paths to source files
        */
-      void set_infiles(const VectorString &infiles);
+      void set_infiles(const Table2d<std::string> &infiles);
       
       /**
        * @brief Get the list input QASM source files
        * 
        * @return List input QASM source files
        */
-      const VectorString &get_infiles() const;
-      
-      /// @private
-      static const char *help_infiles_;
+      const Table2d<std::string> &get_infiles() const;
       
       //
       /**
@@ -256,16 +252,14 @@ namespace qb
        * 
        * @param instrings Input source strings
        */
-      void set_instrings(const VectorString &instrings);
+      void set_instrings(const Table2d<std::string> &instrings);
       /**
        * @brief Get the input QASM source strings of the session.
        * 
        * @return List of source strings
        */
-      const VectorString &get_instrings() const;
-      /// @private
-      static const char *help_instrings_;
-      //
+      const Table2d<std::string> &get_instrings() const;
+
       /**
        * @brief Set the irtarget (`xacc::CompositeInstruction`) object
        *
@@ -287,8 +281,6 @@ namespace qb
        * @return List of input IR objects
        */
       const std::vector<std::vector<std::shared_ptr<xacc::CompositeInstruction>>> &get_irtarget_ms() const;
-      /// @private
-      static const char *help_irtarget_ms_;
 
 #ifdef WITH_CUDAQ
       /**
@@ -320,16 +312,14 @@ namespace qb
        * 
        * @param include_qbs Paths to the OpenQASM include files
        */
-      void set_include_qbs(const VectorString &include_qbs);
+      void set_include_qbs(const Table2d<std::string> &include_qbs);
       /**
        * @brief Get the list of paths to the OpenQASM include files.
        * 
        * @return Paths to the OpenQASM include files
        */
-      const VectorString &get_include_qbs() const;
-      /// @private
-      static const char *help_include_qbs_;
-      //
+      const Table2d<std::string> &get_include_qbs() const;
+ 
       /**
        * @brief Set the parameter values for execution.
        * 
@@ -348,8 +338,7 @@ namespace qb
        * @return A vector-of-vectors of parameter values
        */
       const Table2d<std::vector<double>> &get_parameter_vectors() const;
-      /// @private
-      static const char *help_parameter_vectors_;
+ 
       /**
        * @brief Determine whether jacobians will be calculated for parametrized circuits.
        * 
@@ -361,16 +350,14 @@ namespace qb
        * 
        * @param calculate_gradients_ms Whether to calculate jacobians for specific parametrized circuits
        */
-      void set_calc_jacobians(VectorBool calculate_gradients_ms);
+      void set_calc_jacobians(Table2d<bool> calculate_gradients_ms);
       /**
        * @brief Get the jacobians calculation flags.
        * 
        * @return A 1-d array of jacobians calculation flags
        */
-      const VectorBool &get_calc_jacobians() const;
-      /// @private
-      static const char *help_calc_jacobians_;
-      //
+      const Table2d<bool> &get_calc_jacobians() const;
+ 
       /**
        * @brief Set the path to the qpu config JSON file.
        * @brief Set the path to the remote backend database yaml file.
@@ -384,9 +371,7 @@ namespace qb
        * @return Path to the remote backend database yaml file.
        */
       const std::string &get_remote_backend_database_path() const;
-      /// @private
-      static const char *help_remote_backend_database_path_;
-      //
+ 
       /**
        * @brief Set the backend accelerator. 
        * 
@@ -398,17 +383,15 @@ namespace qb
        * 
        * @param accs List of backend accelerator names 
        */
-      void set_accs(const VectorString &accs);
+      void set_accs(const Table2d<std::string> &accs);
       
       /**
        * @brief Get the list of backend accelerators. 
        * 
        * @return List of backend accelerator names 
        */
-      const VectorString &get_accs() const;
-      /// @private
-      static const char *help_accs_;
-      //      
+      const Table2d<std::string> &get_accs() const;
+ 
       /**
        * @brief Set the AER backend simulator type
        * 
@@ -420,16 +403,14 @@ namespace qb
        * 
        * @param sim_types Simulator type
        */
-      void set_aer_sim_types(const VectorString &sim_types);
+      void set_aer_sim_types(const Table2d<std::string> &sim_types);
       /**
        * @brief Get the AER backend simulator type
        * 
        * @return Simulator type
        */
-      const VectorString &get_aer_sim_types() const;
-      /// @private
-      static const char *help_aer_sim_types_;
-      //
+      const Table2d<std::string> &get_aer_sim_types() const;
+
       /**
        * @brief Set the depth of the auto-generated random circuit
        * 
@@ -441,16 +422,14 @@ namespace qb
        * 
        * @param in_random Circuit depth values
        */
-      void set_randoms(const VectorN &in_random);
+      void set_randoms(const Table2d<size_t> &in_random);
       /**
        * @brief Set the depths of the auto-generated random circuits
        * 
        * @return Circuit depth values
        */
-      const VectorN &get_randoms() const;
-      /// @private
-      static const char *help_randoms_;
-      //
+      const Table2d<size_t> &get_randoms() const;
+
       /**
        * @brief Set the XASM input flag
        *
@@ -464,16 +443,14 @@ namespace qb
        * 
        * @param in_xasm XASM input flags
        */
-      void set_xasms(const VectorBool &in_xasm);
+      void set_xasms(const Table2d<bool> &in_xasm);
       /**
        * @brief Get the XASM input flag
        * 
        * @return XASM input flags
        */
-      const VectorBool &get_xasms() const;
-      /// @private
-      static const char *help_xasms_;
-      //
+      const Table2d<bool> &get_xasms() const;
+
       /**
        * @brief Set the Quil input flag
        *
@@ -487,16 +464,14 @@ namespace qb
        * 
        * @param in_quil1 Quil input flags
        */
-      void set_quil1s(const VectorBool &in_quil1);
+      void set_quil1s(const Table2d<bool> &in_quil1);
       /**
        * @brief Get the Quil input flags
        * 
        * @return Quil input flags
        */
-      const VectorBool &get_quil1s() const;
-      /// @private
-      static const char *help_quil1s_;
-      //
+      const Table2d<bool> &get_quil1s() const;
+
       /**
        * @brief Set the noplacement flag
        *
@@ -510,16 +485,14 @@ namespace qb
        * 
        * @param in_noplacement noplacement flags 
        */
-      void set_noplacements(const VectorBool &in_noplacement);
+      void set_noplacements(const Table2d<bool> &in_noplacement);
       /**
        * @brief Get the noplacement flag
        * 
        * @return noplacement flags 
        */
-      const VectorBool &get_noplacements() const;
-      /// @private
-      static const char *help_noplacements_;
-      //
+      const Table2d<bool> &get_noplacements() const;
+
       /**
        * @brief Set the circuit placement method
        * 
@@ -531,16 +504,14 @@ namespace qb
        * 
        * @param in_placements Names of the circuit placement modules
        */
-      void set_placements(const VectorString &in_placements);
+      void set_placements(const Table2d<std::string> &in_placements);
       /**
        * @brief Get the circuit placement methods
        * 
        * @return Names of the circuit placement modules
        */
-      const VectorString &get_placements() const;
-      /// @private
-      static const char *help_placements_;
-      //
+      const Table2d<std::string> &get_placements() const;
+
       /**
        * @brief Set the nooptimise flag
        *
@@ -554,17 +525,14 @@ namespace qb
        * 
        * @param in_nooptimise nooptimise flags 
        */
-      void set_nooptimises(const VectorBool &in_nooptimise);
+      void set_nooptimises(const Table2d<bool> &in_nooptimise);
       /**
        * @brief Get the nooptimise flags
        * 
        * @return nooptimise flags 
        */
-      const VectorBool &get_nooptimises() const;
-      /// @private
-      static const char *help_nooptimises_;
+      const Table2d<bool> &get_nooptimises() const;
       
-      //
       /**
        * @brief Set the circuit optimization passes
        * 
@@ -583,11 +551,7 @@ namespace qb
        * @return 2-D table of sequences of optimization passes to apply
        */
       const Table2d<Passes> &get_circuit_opts() const;
-      /// @private
-      static const char *help_circuit_opts_;
-      //
-      
-      //
+
       /**
        * @brief Set the nosim flag
        *
@@ -601,16 +565,14 @@ namespace qb
        * 
        * @param in_nosim nosim flags 
        */
-      void set_nosims(const VectorBool &in_nosim);
+      void set_nosims(const Table2d<bool> &in_nosim);
       /**
        * @brief Get the nosim flags
        * 
        * @return nosim flags  
        */
-      const VectorBool &get_nosims() const;
-      /// @private
-      static const char *help_nosims_;
-      //
+      const Table2d<bool> &get_nosims() const;
+
       /**
        * @brief Set the noise simulation flag
        *
@@ -624,15 +586,14 @@ namespace qb
        * 
        * @param in_noise Noise flags
        */
-      void set_noises(const VectorBool &in_noise);
+      void set_noises(const Table2d<bool> &in_noise);
       /**
        * @brief Get the noise simulation flags
        * 
        * @return Noise flags 
        */
-      const VectorBool &get_noises() const;
-      /// @private
-      static const char *help_noises_;
+      const Table2d<bool> &get_noises() const;
+
       /**
        * @brief Get the full state vector (works with QPP backend only!)
        * 
@@ -645,9 +606,7 @@ namespace qb
        * @param in_get_state_vec Flag to retrieve state vector (works with QPP backend only!)
        */
       void get_state_vec(const bool &in_get_state_vec);
-      /// @private
-      static const char* help_state_vec_;
-      //
+
       /**
        * @brief Set the output transpilation and resource estimation flag
        *
@@ -661,26 +620,22 @@ namespace qb
        * 
        * @param in_output_oqm_enabled Config. values
        */
-      void set_output_oqm_enableds(const VectorBool &in_output_oqm_enabled);
+      void set_output_oqm_enableds(const Table2d<bool> &in_output_oqm_enabled);
       /**
        * @brief Get the output oqm enableds object
        * 
        * @return Config. values 
        */
-      const VectorBool &get_output_oqm_enableds() const;
-      /// @private
-      static const char *help_output_oqm_enableds_;
-      //
+      const Table2d<bool> &get_output_oqm_enableds() const;
+
       /// @private 
       // This function is not being used.
       void set_log_enabled(const bool &in_log_enabled);
       /// @private 
-      void set_log_enableds(const VectorBool &in_log_enabled);
+      void set_log_enableds(const Table2d<bool> &in_log_enabled);
       /// @private 
-      const VectorBool &get_log_enableds() const;
-      /// @private
-      static const char *help_log_enableds_;
-      //
+      const Table2d<bool> &get_log_enableds() const;
+
       /**
        * @brief Set the notiming configuration flag
        * 
@@ -692,16 +647,14 @@ namespace qb
        * 
        * @param in_notiming Config. values
        */
-      void set_notimings(const VectorBool &in_notiming);
+      void set_notimings(const Table2d<bool> &in_notiming);
       /**
        * @brief Get the notiming configuration flags
        * 
        * @return Config. values
        */
-      const VectorBool &get_notimings() const;
-      /// @private
-      static const char *help_notimings_;
-      //
+      const Table2d<bool> &get_notimings() const;
+
       /**
        * @brief Set the number of qubits
        * 
@@ -713,16 +666,14 @@ namespace qb
        * 
        * @param in_qn Numbers of qubits
        */
-      void set_qns(const VectorN &in_qn);
+      void set_qns(const Table2d<size_t> &in_qn);
       /**
        * @brief Get the numbers of qubits
        * 
        * @return Number of qubits 
        */
-      const VectorN &get_qns() const;
-      /// @private
-      static const char *help_qns_;
-      //
+      const Table2d<size_t> &get_qns() const;
+
       /**
        * @brief Set the number of repetitions
        * 
@@ -734,16 +685,14 @@ namespace qb
        * 
        * @param in_rn Numbers of repetitions
        */
-      void set_rns(const VectorN &in_rn);
+      void set_rns(const Table2d<size_t> &in_rn);
       /**
        * @brief Get the numbers of repetitions
        * 
        * @return Numbers of repetitions
        */
-      const VectorN &get_rns() const;
-      /// @private
-      static const char *help_rns_;
-      //
+      const Table2d<size_t> &get_rns() const;
+
       /**
        * @brief Set the number of measurement shots
        * 
@@ -755,49 +704,43 @@ namespace qb
        * 
        * @param in_sn Number of shots
        */
-      void set_sns(const VectorN &in_sn);
+      void set_sns(const Table2d<size_t> &in_sn);
       /**
        * @brief Get the number of measurement shots
        * 
        * @return Number of shots
        */
-      const VectorN &get_sns() const;
-      /// @private
-      static const char *help_sns_;
-      //
+      const Table2d<size_t> &get_sns() const;
+
       /// @private
       // unused
-      void set_beta(const ND &in_beta);
+      void set_beta(const std::map<int,double> &in_beta);
       /// @private
       // unused
-      void set_betas(const VectorMapND &in_beta);
+      void set_betas(const Table2d<std::map<int,double>> &in_beta);
       /// @private
       // unused
-      const VectorMapND &get_betas() const;
-      /// @private
-      static const char *help_betas_;
-      //
+      const Table2d<std::map<int,double>> &get_betas() const;
+
       /**
        * @brief Set the angle variables (theta)
        * 
        * @param in_theta Theta values
        */
-      void set_theta(const ND &in_theta);
+      void set_theta(const std::map<int,double> &in_theta);
       /**
        * @brief Set the angle variables (theta)
        * 
        * @param in_theta Theta values
        */
-      void set_thetas(const VectorMapND &in_theta);
+      void set_thetas(const Table2d<std::map<int,double>> &in_theta);
       /**
        * @brief Get  the angle variables (theta)
        * 
        * @return Theta values
        */
-      const VectorMapND &get_thetas() const;
-      /// @private
-      static const char *help_thetas_;
-      //
+      const Table2d<std::map<int,double>> &get_thetas() const;
+
       /**
        * @brief Set the initial bond dimension (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
@@ -810,16 +753,14 @@ namespace qb
        * 
        * @param in_initial_bond_dimension Initial MPS bond dimension value
        */
-      void set_initial_bond_dimensions(const VectorN &in_initial_bond_dimension);
+      void set_initial_bond_dimensions(const Table2d<size_t> &in_initial_bond_dimension);
       /**
        * @brief Get the initial bond dimension (MPS simulator)
        * 
        * @return Initial MPS bond dimension value
        */
-      const VectorN &get_initial_bond_dimensions() const;
-      /// @private
-      static const char *help_initial_bond_dimensions_;
-      //
+      const Table2d<size_t> &get_initial_bond_dimensions() const;
+
       /**
        * @brief Set the initial kraus dimension (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
@@ -832,16 +773,14 @@ namespace qb
        * 
        * @param in_initial_kraus_dimension Initial MPS kraus dimension value
        */
-      void set_initial_kraus_dimensions(const VectorN &in_initial_kraus_dimension);
+      void set_initial_kraus_dimensions(const Table2d<size_t> &in_initial_kraus_dimension);
       /**
        * @brief Get the initial kraus dimension (MPS simulator)
        * 
        * @return Initial MPS kraus dimension value
        */
-      const VectorN &get_initial_kraus_dimensions() const;
-      /// @private
-      static const char *help_initial_kraus_dimensions_;
-      //
+      const Table2d<size_t> &get_initial_kraus_dimensions() const;
+
       /**
        * @brief Set the maximum bond dimension (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
@@ -854,16 +793,14 @@ namespace qb
        * 
        * @param in_max_bond_dimension Max MPS bond dimension value
        */
-      void set_max_bond_dimensions(const VectorN &in_max_bond_dimension);
+      void set_max_bond_dimensions(const Table2d<size_t> &in_max_bond_dimension);
       /**
        * @brief Get the maximum bond dimension (MPS simulator)
        * 
        * @return Max MPS bond dimension value
        */
-      const VectorN &get_max_bond_dimensions() const;
-      /// @private
-      static const char *help_max_bond_dimensions_;
-      //
+      const Table2d<size_t> &get_max_bond_dimensions() const;
+
       /**
        * @brief Set the maximum kraus dimension (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
@@ -876,60 +813,54 @@ namespace qb
        * 
        * @param in_max_kraus_dimension Max MPS kraus dimension value
        */
-      void set_max_kraus_dimensions(const VectorN &in_max_kraus_dimension);
+      void set_max_kraus_dimensions(const Table2d<size_t> &in_max_kraus_dimension);
       /**
        * @brief Get the maximum kraus dimension (MPS simulator)
        * 
        * @return Max MPS kraus dimension value
        */
-      const VectorN &get_max_kraus_dimensions() const;
-      /// @private
-      static const char *help_max_kraus_dimensions_;
-      //
+      const Table2d<size_t> &get_max_kraus_dimensions() const;
+
       /**
        * @brief Set the SVD cutoff limit (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
        * 
        * @param in_svd_cutoff SVD cutoff value
        */
-      void set_svd_cutoff(const ND &in_svd_cutoff);
+      void set_svd_cutoff(const std::map<int,double> &in_svd_cutoff);
       /**
        * @brief Set the SVD cutoff limit (MPS simulator)
        * 
        * @param in_svd_cutoff SVD cutoff value
        */
-      void set_svd_cutoffs(const VectorMapND &in_svd_cutoff);
+      void set_svd_cutoffs(const Table2d<std::map<int,double>> &in_svd_cutoff);
       /**
        * @brief Get the SVD cutoff limit (MPS simulator)
        * 
        * @return SVD cutoff value
        */
-      const VectorMapND &get_svd_cutoffs() const;
-      /// @private
-      static const char *help_svd_cutoffs_;
-      //
+      const Table2d<std::map<int,double>> &get_svd_cutoffs() const;
+
       /**
        * @brief Set the relative SVD cutoff limit (MPS simulator)
        * @note This is only needed if using the "tnqvm" backend accelerator.
        * 
        * @param in_rel_svd_cutoff SVD cutoff value
        */
-      void set_rel_svd_cutoff(const ND &in_rel_svd_cutoff);
+      void set_rel_svd_cutoff(const std::map<int,double> &in_rel_svd_cutoff);
       /**
        * @brief Set the relative SVD cutoff limit (MPS simulator)
        * 
        * @param in_rel_svd_cutoff SVD cutoff value
        */
-      void set_rel_svd_cutoffs(const VectorMapND &in_rel_svd_cutoff);
+      void set_rel_svd_cutoffs(const Table2d<std::map<int,double>> &in_rel_svd_cutoff);
       /**
        * @brief Get the relative SVD cutoff limit (MPS simulator)
        * 
        * @return Relative SVD cutoff value
        */
-      const VectorMapND &get_rel_svd_cutoffs() const;
-      /// @private
-      static const char *help_rel_svd_cutoffs_;
-      //
+      const Table2d<std::map<int,double>> &get_rel_svd_cutoffs() const;
+
       /**
        * @brief Set the measurement sampling method - "off" uses the cutensorNet
        * contraction method of the entire tensor network state. Program terminates
@@ -948,16 +879,14 @@ namespace qb
        * 
        * @param in_measure_sample_sequential Measure sampling option values
        */
-      void set_measure_sample_sequentials(const VectorString &in_measure_sample_sequential);
+      void set_measure_sample_sequentials(const Table2d<std::string> &in_measure_sample_sequential);
       /**
        * @brief Get the measurement sampling method
        * 
        * @return Measure sampling option values
        */
-      const VectorString &get_measure_sample_sequentials() const;
-      /// @private
-      static const char *help_measure_sample_sequentials_;
-      //
+      const Table2d<std::string> &get_measure_sample_sequentials() const;
+
       /**
        * @brief Set the noise model
        * 
@@ -976,9 +905,7 @@ namespace qb
        * @return The noise models to use
        */
       const std::vector<std::vector<NoiseModel>>& get_noise_models() const;
-      /// @private
-      static const char *help_noise_models_;
-      //
+
       /**
        * @brief Set the amplitudes for Jensen–Shannon divergence calculation
        * 
@@ -998,9 +925,7 @@ namespace qb
        * @return Amplitude values
        */
       const std::vector<std::vector<std::map<std::string, std::complex<double>>>> &get_output_amplitudes() const;
-      /// @private
-      static const char *help_output_amplitudes_;
-      //
+
       /**
        * @brief Set the debug flag (verbose logging)
        * 
@@ -1013,114 +938,98 @@ namespace qb
        * @return Config. value
        */
       const bool &get_debug() const;
-      /// @private
-      static const char *help_debug_;
-      //
       
       /**
        * @brief Get the raw output bitstring results
        * 
        * @return Bitstring results 
        */
-      const VectorString &get_out_raws() const;
-      /// @private
-      static const char *help_out_raws_;
-      //
+      const Table2d<std::string> &get_out_raws_json() const;
+
+      /**
+       * @brief Get the output measurement counts as a map
+       * 
+       * @return Measurement counts map 
+       */
+      //const Table2d<std::map<std::vector<bool>,int>> &get_out_raws_map() const;
+
       /**
        * @brief Get the output measurement counts as a vector
        * 
        * @return Measurement counts vector
        */
       const Table2d<std::vector<int>> &get_out_counts() const;
-      static const char *help_out_counts_;
+
       /**
        * @brief Get the output probabilities
        * 
        * @return Measurement probabilities vector
        */
       const Table2d<std::vector<double>> &get_out_probs() const;
-      static const char *help_out_probs_;
+
       /**
        * @brief Get the output probability gradients
        * 
        * @return Table of probability jacobians w.r.t. runtime parameters
        */
       const Table2d<Table2d<double>> &get_out_prob_jacobians() const;
-      static const char *help_out_jacobians_;
-      //
+
       /**
        * @brief Get the output Jensen–Shannon divergence results
        * 
        * @return Divergence results
        */
-      const VectorMapND &get_out_divergences() const;
-      /// @private
-      static const char *help_out_divergences_;
+      const Table2d<std::map<int,double>> &get_out_divergences() const;
       
       /**
        * @brief Get the output transpiled circuits
        * 
        * @return Output transpiled circuits
        */
-      const VectorString &get_out_transpiled_circuits() const;
-      /// @private
-      static const char *help_out_transpiled_circuits_;
-      //
+      const Table2d<std::string> &get_out_transpiled_circuits() const;
+
       /**
        * @brief Get the output QObj Json strings
        * 
        * @return QObj Json strings
        */
-      const VectorString &get_out_qobjs() const;
-      /// @private
-      static const char *help_out_qobjs_;
-      //
+      const Table2d<std::string> &get_out_qobjs() const;
+
       /**
        * @brief Get the output QB Json strings (hardware execution)
        * 
        * @return QB Json strings
        */
-      const VectorString &get_out_qbjsons() const;
-      /// @private
-      static const char *help_out_qbjsons_;
+      const Table2d<std::string> &get_out_qbjsons() const;
 
-      //
       /**
        * @brief Get the output single-qubit gate counts
        * 
        * @return Single-qubit gate counts 
        */
-      const VectorMapNN & get_out_single_qubit_gate_qtys() const;
-      /// @private
-      static const char* help_out_single_qubit_gate_qtys_;
-      //
+      const Table2d<std::map<int,int>> & get_out_single_qubit_gate_qtys() const;
+
       /**
        * @brief Get the output two-qubit gate counts
        * 
        * @return Two-qubit gate counts 
        */
-      const VectorMapNN & get_out_double_qubit_gate_qtys() const ;
-      /// @private
-      static const char* help_out_double_qubit_gate_qtys_;
-      //
+      const Table2d<std::map<int,int>> & get_out_double_qubit_gate_qtys() const ;
+
       /**
        * @brief Get the output total circuit execution time (hardware runtime estimation)
        * 
        * @return Estimated hardware runtime.
        */
-      const VectorMapND & get_out_total_init_maxgate_readout_times() const;
-      /// @private
-      static const char* help_out_total_init_maxgate_readout_times_;
-      //
+      const Table2d<std::map<int,double>> & get_out_total_init_maxgate_readout_times() const;
+
       /**
        * @brief Get the output expected value in the Z basis
        * 
        * @return expected value in the Z basis
        */
-      const VectorMapND & get_out_z_op_expects() const;
-      /// @private
-      static const char* help_out_z_op_expects_;
-      //
+      const Table2d<std::map<int,double>> & get_out_z_op_expects() const;
+
       /**
        * @brief Set the noise mitigation method
        * 
@@ -1132,17 +1041,15 @@ namespace qb
        * 
        * @param noise_mitigates Noise mitigation methods
        */
-      void set_noise_mitigations(const VectorString &noise_mitigates);
+      void set_noise_mitigations(const Table2d<std::string> &noise_mitigates);
       
       /**
        * @brief Get the noise mitigation methods
        * 
        * @return Noise mitigation methods
        */
-      const VectorString &get_noise_mitigations() const;
-      /// @private
-      static const char *help_noise_mitigations_;
-      //
+      const Table2d<std::string> &get_noise_mitigations() const;
+
       /**
        * @brief Set the random seed value
        * 
@@ -1154,16 +1061,13 @@ namespace qb
        * 
        * @param in_seeds Seed values
        */
-      void set_seeds(const VectorN &in_seeds);
+      void set_seeds(const Table2d<size_t> &in_seeds);
       /**
        * @brief Get random seed values
        * 
        * @return Seed values
        */
-      const VectorN &get_seeds() const;
-      /// @private
-      static const char *help_seeds_;
-      //
+      const Table2d<size_t> &get_seeds() const;
 
       /**
        * @brief Get the summary of all session configurations
@@ -1177,7 +1081,7 @@ namespace qb
        * 
        * @param name_ Task names
        */
-      void setName(const VectorString &name_);
+      void setName(const Table2d<std::string> &name_);
       /**
        * @brief Set the name of task
        * 
@@ -1189,7 +1093,7 @@ namespace qb
        * 
        * @return Task names
        */
-      const VectorString &getName() const;
+      const Table2d<std::string> &getName() const;
 
       /**
        * @brief Compute the Jensen-Shannon divergence result for the (ii, jj) result
@@ -1228,7 +1132,7 @@ namespace qb
       Executor& get_executor();
       /// Shortcuts for setting defaults
       /// 12 qubits, 1024 shots, noiseless
-      void qb12();
+      void init();
       /**
        * @brief AWS defaults
        * 
@@ -1249,8 +1153,6 @@ namespace qb
        */
       inline size_t bitstring_index(std::string in_bitstring, size_t ii,
                                     size_t jj);
-      /// @private
-      static const char *help_bitstring_index_;
           
     private:
       int validate_sns_nonempty();
@@ -1324,10 +1226,11 @@ namespace qb
       /// Populate QPU execution results for task (i, j) to the session data
       /// Templated measure_counts_map to support different type of map-like data.
       template <typename CountMapT>
-      void populate_measure_counts_data(size_t ii, size_t jj,
-                                        const CountMapT &measure_counts_map) {
+      void populate_measure_counts_data(size_t ii, size_t jj, const CountMapT &measure_counts_map) {
+        // Save raw map
+        //out_raws_map_.at(ii).at(jj) = measure_counts_map;
         // Save results to JSON
-        out_raws_.at(ii).at(jj) = nlohmann::json(measure_counts_map).dump(4);
+        out_raws_json_.at(ii).at(jj) = nlohmann::json(measure_counts_map).dump(4);
 
         run_i_j_config run_config = get_run_config(ii, jj);
         // Unless the parameters are defined differently for each
@@ -1347,21 +1250,34 @@ namespace qb
         }
 
         // Also save the counts and probabilities as a vector
-        if (num_qubits < 32) {
-          const size_t num_entries = std::pow(2, num_qubits);
-          std::vector<int> counts_all(num_entries);
-          for (const auto &[bit_string, count] : measure_counts_map) {
-            std::string keystring = bit_string;
-            size_t idx = bitstring_index(keystring, ii, jj);
-            counts_all[idx] = count;
-          }
-          // Store measured counts
-          out_counts_.at(ii).at(jj) = counts_all;
-        } else {
+        const double num_entries = std::pow(2, num_qubits);
+        auto& counts = out_counts_.at(ii).at(jj);
+        counts = std::vector<int>(0);
+        if (counts.max_size() > num_entries)
+        {
+          bool success = false;
+          try { counts.resize((long long int)num_entries); success = true; }
+          catch(std::exception& e) {
             if (debug_) {
-              std::cout << "Cannot represent bitstring(s) as integer(s). Please use "
-                            ".out_raw method instead.\n";
+              std::cout << "Your RAM use is too fragmented to allocate a large enough"
+                        << "std::vector<int> to hold integer bitstring representations. "
+                        << "Please use .out_raw methods instead of out_counts, or free up"
+                        << "more memory (e.g. by shutting other applications)." << std::endl;
             }
+          }
+          if (success) {
+            for (const auto &[bit_string, count] : measure_counts_map) {
+              counts[bitstring_index(bit_string, ii, jj)] = count;
+            }
+          }
+        }
+        else {
+          if (debug_) {
+            std::cout << "There are too many " << num_qubits << "-bit bitstrings to fit in a "
+                      << "std::vector<int> in integer representation on this system. "
+                      << "Maximum qubits that can be fitted in memory: " << (int)std::floor(std::log(counts.max_size())/std::log(2)) << ". "
+                      << "Please use .out_raw methods instead of out_counts." << std::endl;
+          }
         }
       }
   };

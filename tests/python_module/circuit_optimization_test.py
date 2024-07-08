@@ -6,7 +6,7 @@ import random
 # Test optimization setting in session
 def test_opt_pass():
     s = qb.core.session()
-    s.qb12()
+    s.init()
     # A circuit on two qubits that are extremely long!!!
     circ = qb.core.Circuit()
     # Repeat a random circuits...
@@ -24,7 +24,7 @@ def test_opt_pass():
     my_sim = qb.core.session(True)
 
     # Set up meaningful defaults for session parameters
-    my_sim.qb12()
+    my_sim.init()
 
     # Choose a simulator backend
     my_sim.acc = "qpp"

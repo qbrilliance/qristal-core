@@ -9,7 +9,7 @@ TEST(TestErrorMitigation, test_readout_error_mitigation) {
   // Start a session.
   auto s = qb::session(false);
   // Default parameters
-  s.qb12();
+  s.init();
 
   // Override defaults
   int n_shots = 1024;
@@ -49,7 +49,7 @@ TEST(TestErrorMitigation, test_richardson_error_mitigation) {
   std::cout << "* Test Richardson error mitigation *" << std::endl;
   // Start a QB SDK session.
   auto s = qb::session(false);
-  s.qb12();
+  s.init();
   // Fix random seed
   s.set_seed(1);
   // Override defaults
@@ -97,7 +97,7 @@ TEST(TestErrorMitigation, test_assignment_kernel_error_mitigation) {
 
   // Start a QB SDK session.
   auto s = qb::session(false);
-  s.qb12();
+  s.init();
   // Fix random seed
   s.set_seed(1);
 

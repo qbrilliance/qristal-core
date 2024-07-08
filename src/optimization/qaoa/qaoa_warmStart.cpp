@@ -2,6 +2,7 @@
 #include "qb/core/optimization/qaoa/qaoa_warmStart.hpp"
 #include "qb/core/profiler.hpp"
 #include "qb/core/pretranspiler.hpp"
+#include "qb/core/utils.hpp"
 #include <iomanip>
 #include <iostream>
 #include <regex>
@@ -11,22 +12,22 @@ namespace qb {
 namespace op {
 
 // theta
-void QaoaWarmStart::set_theta(const ND &in_theta) {
+void QaoaWarmStart::set_theta(const std::map<int,double> &in_theta) {
   QaoaWarmStart::thetas_.clear();
   QaoaWarmStart::thetas_.push_back({in_theta});
 }
-void QaoaWarmStart::set_thetas(const VectorMapND &in_thetas) { QaoaWarmStart::thetas_ = in_thetas; }
-const VectorMapND & QaoaWarmStart::get_thetas() const { return QaoaWarmStart::thetas_; }
+void QaoaWarmStart::set_thetas(const Table2d<std::map<int,double>> &in_thetas) { QaoaWarmStart::thetas_ = in_thetas; }
+const Table2d<std::map<int,double>> & QaoaWarmStart::get_thetas() const { return QaoaWarmStart::thetas_; }
 
 // good_cuts (good_cut as a string representing recomputed good cut)
 void QaoaWarmStart::set_good_cut(const std::string &good_cut) {
   QaoaWarmStart::good_cuts_.clear();
   QaoaWarmStart::good_cuts_.push_back({good_cut});
 }
-void QaoaWarmStart::set_good_cuts(const VectorString &good_cuts) {
+void QaoaWarmStart::set_good_cuts(const Table2d<std::string> &good_cuts) {
   QaoaWarmStart::good_cuts_ = good_cuts;
 }
-const VectorString & QaoaWarmStart::get_good_cuts() const { return QaoaWarmStart::good_cuts_; }
+const Table2d<std::string> & QaoaWarmStart::get_good_cuts() const { return QaoaWarmStart::good_cuts_; }
 
 // Start of help text
 const char* QaoaWarmStart::help_thetas_ = R"(
@@ -601,18 +602,11 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   using namespace xacc;
 
   // Construct validations
-  ValidatorTwoDimOp<VectorString, std::string> colnames_valid(
-    colnames_,
-    " name of condition in columns [colname] "
-  );
+  ValidatorTwoDim<std::string> colnames_valid(colnames_);
 
-  ValidatorTwoDimOp<VectorString, std::string> rownames_valid(
-    rownames_,
-    " name of experiment in rows [rowname] "
-  );
+  ValidatorTwoDim<std::string> rownames_valid(rownames_);
 
-
-  ValidatorTwoDimOp<VectorN, size_t> qaoa_steps_valid(
+  ValidatorTwoDim<size_t> qaoa_steps_valid(
     qaoa_steps_,
     QaoaWarmStart::QAOA_STEPS_LOWERBOUND,
     QaoaWarmStart::QAOA_STEPS_UPPERBOUND,
@@ -623,7 +617,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of QAOA layers [qaoa_step] cannot be empty");
   }
 
-  ValidatorTwoDimOp<VectorBool, bool> extended_params_valid(
+  ValidatorTwoDim<bool> extended_params_valid(
     extended_params_,
     false,
     true,
@@ -633,25 +627,19 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Enable QAOA extended parameters [extended_param] cannot be empty");
   }   
 
-  ValidatorTwoDimOp<VectorString, std::string> hams_valid(
-      hams_,
-    " Hamiltonian for QAOA [ham] "
-  );
+  ValidatorTwoDim<std::string> hams_valid(hams_);
   if (hams_valid.is_data_empty()) {
     throw std::range_error("A Hamiltonian [ham] must be specified");
   }
 
-  ValidatorTwoDimOp<VectorString, std::string> good_cuts_valid(
-    good_cuts_,
-    " Good cut for the initial state [good_cut] "
-  );
+  ValidatorTwoDim<std::string> good_cuts_valid(good_cuts_);
   if (good_cuts_valid.is_data_empty()) {
     throw std::range_error("A good cut [good_cut] must be specified");
   }
 
-  ND thetas_lowerbound{{0, -1.0e9}}; // This limit is currently ignored
-  ND thetas_upperbound{{0, 1.0e9}};  // This limit is currently ignored
-  ValidatorTwoDimOp<VectorMapND, ND> thetas_valid(
+  std::map<int,double> thetas_lowerbound{{0, -1.0e9}};
+  std::map<int,double> thetas_upperbound{{0, 1.0e9}};
+  ValidatorTwoDim<std::map<int,double>> thetas_valid(
     thetas_,
     thetas_lowerbound,
     thetas_upperbound,
@@ -661,7 +649,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
       throw std::range_error("Initial values for ansatz parameters [theta] must be specified");
   }
 
-  ValidatorTwoDimOp<VectorN, size_t> sns_valid(
+  ValidatorTwoDim<size_t> sns_valid(
     sns_, QaoaWarmStart::SNS_LOWERBOUND,
     QaoaWarmStart::SNS_UPPERBOUND,
     " number of shots [sn] "
@@ -670,7 +658,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of shots [sn] cannot be empty");
   }
 
-  ValidatorTwoDimOp<VectorN, size_t> qns_valid(
+  ValidatorTwoDim<size_t> qns_valid(
     qns_,
     QaoaWarmStart::QNS_LOWERBOUND,
     QaoaWarmStart::QNS_UPPERBOUND,
@@ -680,7 +668,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of qubits [qn] cannot be empty");
   }
 
-  ValidatorTwoDimOp<VectorN, size_t> maxevals_valid(
+  ValidatorTwoDim<size_t> maxevals_valid(
     maxevals_,
     QaoaWarmStart::MAXEVALS_LOWERBOUND,
     QaoaWarmStart::MAXEVALS_UPPERBOUND,
@@ -690,7 +678,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of optimiser evaluation [maxeval] cannot be empty");
   }
 
-  ValidatorTwoDimOp<VectorString, std::string> accs_valid(
+  ValidatorTwoDim<std::string> accs_valid(
     accs_,
     VALID_ACCS,
     " name of back-end simulator [acc] "
@@ -699,7 +687,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("A back-end simulator [acc] must be specified");
   }
 
-  ValidatorTwoDimOp<VectorString, std::string> methods_valid(
+  ValidatorTwoDim<std::string> methods_valid(
     methods_,
     VALID_OPTIMISER_METHODS,
     " optimiser algorithm [method] "
@@ -708,7 +696,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("An optmiser method [method] must be specified");
   }
 
-  ValidatorTwoDimOp<VectorBool, bool> grads_valid(
+  ValidatorTwoDim<bool> grads_valid(
     grads_,
     false,
     true,
@@ -718,7 +706,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Enable gradient calculation at the optimum [grad] cannot be empty");
   }   
   
-  ValidatorTwoDimOp<VectorString, std::string> gradient_strategys_valid(
+  ValidatorTwoDim<std::string> gradient_strategys_valid(
     gradient_strategys_,
     VALID_GRADIENT_STRATEGYS,
     " gradient calculation method [gradient_strategy] "
@@ -727,7 +715,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("A gradient strategy [gradient_strategy] must be specified");
   }
 
-  ValidatorTwoDimOp<VectorBool, bool> noises_valid(
+  ValidatorTwoDim<bool> noises_valid(
     noises_,
     false,
     true,
@@ -947,7 +935,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     stepidx++;
   }
 
-  // Save energy trace to: out_energys_ [VectorMapND]
+  // Save energy trace to: out_energys_ [Table2d<std::map<int,double>>]
   if (out_energys_.size() < (ii + 1)) {
     if (debug_qbos_) {
       std::cout << "Resizing ii: " << (ii + 1) << std::endl;
@@ -961,7 +949,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     (out_energys_.at(ii)).resize(jj + 1);
   }
 
-  ND res_energy;
+  std::map<int,double> res_energy;
   vec_to_map(res_energy, energies);
   (out_energys_.at(ii)).at(jj) = res_energy;
 
@@ -973,7 +961,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   alliters_theta.insert(alliters_theta.end(), opt_params.begin(), opt_params.end());
   
   // theta parameters - store output
-  // Save theta trace to: out_thetas_ [VectorMapND]
+  // Save theta trace to: out_thetas_ [Table2d<std::map<int,double>>]
   int step = (buffer->nChildren()) / nIters;
   stepidx = 0;
   for (auto &childBuff : buffer->getChildren()) {
@@ -986,7 +974,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     }
     stepidx++;
   }
-  ND res_theta;
+  std::map<int,double> res_theta;
   vec_to_map(res_theta, alliters_theta);
   if (out_thetas_.size() < (ii + 1)) {
     if (debug_qbos_) {
@@ -1108,7 +1096,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     accum_quantum_est_ms += quantum_est[profile.KEY_TOTAL_TIME];
   }
 
-  ND res_quantum_energy_calc_time{{0, accum_quantum_est_ms * nIters}};
+  std::map<int,double> res_quantum_energy_calc_time{{0, accum_quantum_est_ms * nIters}};
 
   if (out_quantum_energy_calc_times_.size() < (ii + 1)) {
     if (debug_qbos_) {
@@ -1157,7 +1145,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
       accum_grad_quantum_est_ms += quantum_est[profile.KEY_TOTAL_TIME];
     }
 
-    ND res_quantum_jacobian_calc_time{{0, accum_grad_quantum_est_ms * nIters}};
+    std::map<int,double> res_quantum_jacobian_calc_time{{0, accum_grad_quantum_est_ms * nIters}};
 
     if (out_quantum_jacobian_calc_times_.size() < (ii + 1)) {
       if (debug_qbos_) {

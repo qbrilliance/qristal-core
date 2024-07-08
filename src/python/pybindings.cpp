@@ -1,12 +1,12 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "py_circuit_builder.hpp"
-#include "py_job_handle.hpp"
-#include "py_middleware.hpp"
-#include "py_noise_model.hpp"
-#include "py_optimization.hpp"
-#include "py_session.hpp"
-#include "py_stl_containers.hpp"
+#include "qb/core/python/py_circuit_builder.hpp"
+#include "qb/core/python/py_job_handle.hpp"
+#include "qb/core/python/py_middleware.hpp"
+#include "qb/core/python/py_noise_model.hpp"
+#include "qb/core/python/py_optimization.hpp"
+#include "qb/core/python/py_session.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "xacc.hpp"
 #include <pybind11/iostream.h>
 

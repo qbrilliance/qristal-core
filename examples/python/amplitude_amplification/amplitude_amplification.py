@@ -8,7 +8,7 @@ import timeit
 import ast
 print("Libraries imported successfully!")
 s = qb.core.session()
-s.qb12()
+s.init()
 
 print("In this example we want to use amplitude amplification to search for")
 print("the state |psi> = |101> - |011> within the equal superposition state.")
@@ -64,7 +64,7 @@ print("Running circuit...")
 start = timeit.default_timer()
 s.ir_target = full_circuit
 s.run()
-result = s.out_raw[0][0]
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 end = timeit.default_timer()
 print("Circuit executed!")

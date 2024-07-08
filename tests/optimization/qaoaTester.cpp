@@ -17,7 +17,7 @@ TEST(qaoaTester, check_simple) {
     qaoa.set_functol({{0,1.0e-6}});
     qaoa.set_maxeval(300);
     qaoa.set_qaoa_step(nQaoaSteps);
-    qb::VectorMapND thetas{{{}}};
+    qb::Table2d<std::map<int,double>> thetas{{{}}};
 
     bool extendedParams = false;
     std::size_t nThetas{}; 
@@ -34,10 +34,10 @@ TEST(qaoaTester, check_simple) {
 
     qaoa.run(0,0);
 
-    //const auto 	    nIters = params.energies.size();
-    //const double 	cpu_ms = timer_for_cpu.getDurationMs();
-    const qb::VectorString eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
-    const qb::VectorMapND energies{qaoa.get_out_energys()}; //[0][0][0]
+    //const auto      nIters = params.energies.size();
+    //const double  cpu_ms = timer_for_cpu.getDurationMs();
+    const qb::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
+    const qb::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()}; //[0][0][0]
     const std::map<int,double> cost{energies[0][0]};
 
     EXPECT_TRUE(eigenstates[0][0] == "001");
@@ -69,7 +69,7 @@ TEST(qaoaTester, check_simple_QAP) {
     qaoa.set_functol({{0,1.0e-5}});
     qaoa.set_maxeval(100); // 800
     qaoa.set_qaoa_step(nQaoaSteps);
-    qb::VectorMapND thetas{{{}}};
+    qb::Table2d<std::map<int,double>> thetas{{{}}};
 
     bool extendedParams = false;
     std::size_t nThetas{}; 
@@ -86,10 +86,10 @@ TEST(qaoaTester, check_simple_QAP) {
 
     qaoa.run(0,0);
 
-    //const auto 	    nIters = params.energies.size();
-    //const double 	cpu_ms = timer_for_cpu.getDurationMs();
-    const qb::VectorString eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
-    const qb::VectorMapND energies{qaoa.get_out_energys()}; //[0][0][0]
+    //const auto      nIters = params.energies.size();
+    //const double  cpu_ms = timer_for_cpu.getDurationMs();
+    const qb::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
+    const qb::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()}; //[0][0][0]
     const std::map<int,double> cost{energies[0][0]};
 
     EXPECT_TRUE(eigenstates[0][0] == "100010001");

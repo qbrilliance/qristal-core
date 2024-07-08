@@ -16,7 +16,7 @@ int main()
   auto my_sim = qb::session(false);
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose a CUDAQ simulator backend, e.g., custatevec_fp32 (single-precision)
   my_sim.set_acc("cudaq:custatevec_fp32");
@@ -45,6 +45,6 @@ int main()
   std::cout << "Ran successfully!" << std::endl;
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.get_out_raws()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
 
 }

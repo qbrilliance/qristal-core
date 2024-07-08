@@ -2,7 +2,7 @@ import qb.core
 import numpy as np
 import ast
 s = qb.core.session()
-s.qb12()
+s.init()
 
 ###
 # Testing controlled swap
@@ -50,7 +50,7 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result1 = s.out_raw[0][0]
+result1 = s.out_raw_json[0][0]
 res1 = ast.literal_eval(result1)
 assert(len(list(res1.keys())) == 1)
 output_measurement = list(res1.keys())[0]

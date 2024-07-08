@@ -112,7 +112,7 @@ def main(arguments):
   n = 4
 
   # Set up meaningful defaults
-  my_sim.qb12()
+  my_sim.init()
 
   # Set the number of qubits
   my_sim.qn = n
@@ -144,7 +144,7 @@ def main(arguments):
   my_sim.run()
 
   # Print results
-  print(my_sim.out_raw[0][0])
+  print(my_sim.out_raw_json[0][0])
 
 #Actual program launched on invocation
 main(sys.argv)

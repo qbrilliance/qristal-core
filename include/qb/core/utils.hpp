@@ -3,11 +3,13 @@
 #pragma once
 #include "qb/core/typedefs.hpp"
 
-#include "args.hxx"
-
-#include <bitset> 
+#include <map>
 #include <stdexcept>
 #include <unordered_set>
+
+#include <args.hxx>
+#include <nlohmann/json.hpp>
+
 
 namespace qb {
 /**
@@ -52,7 +54,7 @@ std::string aer_circuit_transpiler(std::string& circuit);
   Input - JSON string with configuration fields
   Output - JSON of SDK options
 **/
-json get_session_cfg(const std::string &config_buf);
+nlohmann::json get_session_cfg(const std::string &config_buf);
 
 /**
   get_arg_or_cfg : this function accepts a variable and a default value, and returns
@@ -62,7 +64,7 @@ json get_session_cfg(const std::string &config_buf);
 **/
 template <typename TT2>
 TT2 get_arg_or_cfg(const TT2 &in_v, args::ValueFlag<TT2> &in_arg,
-                   const json &in_cfg, const char *aname) {
+                   const nlohmann::json &in_cfg, const char *aname) {
   TT2 retval;
   if (in_arg) {
     retval = args::get(in_arg);
@@ -126,9 +128,9 @@ int eqlength(const TT &in_d, const int N_ii) {
 }
 
 // Validator class for 2-D array table: shape consistency, upper/lower bounds for numerical values, etc.
-template <class TCON, class TVAL> class ValidatorTwoDim {
+template <class TVAL> class ValidatorTwoDim {
 private:
-  TCON data_;
+  Table2d<TVAL> data_;
   TVAL lowerbound_;
   TVAL upperbound_;
   std::unordered_set<std::string> validvals_;
@@ -399,11 +401,12 @@ public:
 
 template <>
 template <>
-bool ValidatorTwoDim<VectorMapND, ND>::is_lt_eq_upperbound<ND>(
-    const ND &subj, const std::string &in_desc);
+bool ValidatorTwoDim<std::map<int,double>>::is_lt_eq_upperbound<std::map<int,double>>(
+    const std::map<int,double> &subj, const std::string &in_desc);
 
 template <>
 template <>
-bool ValidatorTwoDim<VectorMapND, ND>::is_gt_eq_lowerbound<ND>(
-    const ND &subj, const std::string &in_desc);
+bool ValidatorTwoDim<std::map<int,double>>::is_gt_eq_lowerbound<std::map<int,double>>(
+    const std::map<int,double> &subj, const std::string &in_desc);
+
 } // namespace qb

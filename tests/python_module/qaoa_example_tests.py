@@ -12,7 +12,7 @@ def test_qaoa_simple() :
     qa.ham = "1.0 + 3.5 Z0 + -5.5 Z1 + -5.9 Z2"
     qa.ham[0].append("1.0 + -3.5 Z0 + -5.5 Z1 + -5.9 Z2")
     qa.maxeval = 300
-    qa.theta = qb.core.ND()
+    qa.theta = qb.core.MapIntDouble()
     for ii in range(qa.qaoa_step[0][0]*2) :
         qa.theta[0][0][ii] = 0.1
 
@@ -39,7 +39,7 @@ def test_qaoa_simple_kite() :
     qa.ham = pauliString
     qa.maxeval = 1000
     qa.functol[0][0][0] = 1e-6
-    qa.theta = qb.core.ND()
+    qa.theta = qb.core.MapIntDouble()
     for ii in range((nQubits+nPaulis)*nQaoaSteps) :
         qa.theta[0][0][ii] = 0.25
 
@@ -97,7 +97,7 @@ def test_qaoa_warm_start_kite() :
     else:
         nThetas = 2*nQaoaSteps
     
-    qa.theta = qb.core.ND()
+    qa.theta = qb.core.MapIntDouble()
     for ii in range(nThetas) :
         qa.theta[0][0][ii] = 0.25
 

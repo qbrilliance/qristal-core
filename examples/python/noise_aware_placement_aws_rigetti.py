@@ -12,7 +12,7 @@ circ.print()
 
 # Create a session object
 s = qb.core.session()
-s.qb12()
+s.init()
 
 # Set the circuit
 s.ir_target = circ

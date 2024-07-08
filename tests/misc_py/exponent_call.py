@@ -39,7 +39,7 @@ def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_
     print("Testing log_value:", log_value)
     #print(circuit->toString(), '\n'
     s.ir_target = circ
-    s.qb12()
+    s.init()
     #s.nooptimise = True
     #s.noplacement = True
     #s.notiming = True
@@ -49,7 +49,7 @@ def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_
     s.rn = 1
     s.qn = nb_qubits
     s.run()
-    result = s.out_raw[0][0][2:-2].strip()
+    result = s.out_raw_json[0][0][2:-2].strip()
 
     expected_measurement = ""
     exp_value = pow(2,log_value)

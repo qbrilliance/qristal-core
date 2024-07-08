@@ -3,7 +3,7 @@ import numpy as np
 import ast
 import timeit
 s = qb.core.session()
-s.qb12()
+s.init()
 s.qn = 7
 
 ###
@@ -45,7 +45,7 @@ start = timeit.default_timer()
 s.run()
 end = timeit.default_timer()
 print("runtime " + str(end-start))
-result1 = s.out_raw[0][0]
+result1 = s.out_raw_json[0][0]
 res1 = ast.literal_eval(result1)
 assert(res1["000"] == 1024)
 
@@ -75,6 +75,6 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result2 = s.out_raw[0][0]
+result2 = s.out_raw_json[0][0]
 res2 = ast.literal_eval(result2)
 assert(res2["100"] == 1024)

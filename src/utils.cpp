@@ -144,11 +144,11 @@ std::string aer_circuit_transpiler(std::string& circuit) {
   return NEWcircuit;
 }
 
-json get_session_cfg(const std::string &config_buf) {
-  json output_to_js;
-  json config;
+nlohmann::json get_session_cfg(const std::string &config_buf) {
+  nlohmann::json output_to_js;
+  nlohmann::json config;
 
-  config = json::parse(config_buf);
+  config = nlohmann::json::parse(config_buf);
   if (config.count("n_qubits")) {
     output_to_js["n_qubits"] = config["n_qubits"];
   }
@@ -229,8 +229,8 @@ json get_session_cfg(const std::string &config_buf) {
 
 template <>
 template <>
-bool ValidatorTwoDim<VectorMapND, ND>::is_lt_eq_upperbound<ND>(
-    const ND &subj, const std::string &in_desc) {
+bool ValidatorTwoDim<std::map<int,double>>::is_lt_eq_upperbound<std::map<int,double>>(
+    const std::map<int,double> &subj, const std::string &in_desc) {
   bool returnval = true;
   for (auto &el_subj : subj) {
     // Assume the map upperbound_ contains a single element only (at key 0)
@@ -250,8 +250,8 @@ bool ValidatorTwoDim<VectorMapND, ND>::is_lt_eq_upperbound<ND>(
 
 template <>
 template <>
-bool ValidatorTwoDim<VectorMapND, ND>::is_gt_eq_lowerbound<ND>(
-    const ND &subj, const std::string &in_desc) {
+bool ValidatorTwoDim<std::map<int,double>>::is_gt_eq_lowerbound<std::map<int,double>>(
+    const std::map<int,double> &subj, const std::string &in_desc) {
   bool returnval = true;
   for (auto &el_subj : subj) {
     // Assume the map lowerbound_ contains a single element only (at key 0)

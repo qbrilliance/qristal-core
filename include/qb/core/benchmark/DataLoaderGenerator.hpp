@@ -153,7 +153,7 @@ namespace qb
                 * @return std::vector<std::vector<std::string>> a vector of bit strings (as std::string) for each stored time stamp.
                 */
                 std::vector<std::vector<std::string>> obtain_measured_counts() const { 
-                    return load_data<BitCounts, qb::String>(workflow_identifier_, "_measured_", timestamps_); 
+                    return load_data<BitCounts, std::vector<std::string>>(workflow_identifier_, "_measured_", timestamps_); 
                 }
                 /**
                 * @brief Deserialize ideal bitstring count data from archived files for all stored time stamps
@@ -163,7 +163,7 @@ namespace qb
                 * @return std::vector<std::vector<std::string>> a vector of bit strings (as std::string) for each stored time stamp.
                 */
                 std::vector<std::vector<std::string>> obtain_ideal_counts() const { 
-                    return load_data<BitCounts, qb::String>(workflow_identifier_, "_ideal_"   , timestamps_);
+                    return load_data<BitCounts, std::vector<std::string>>(workflow_identifier_, "_ideal_"   , timestamps_);
                 }
                 /**
                 * @brief Deserialize ideal density data from archived files for all stored time stamps

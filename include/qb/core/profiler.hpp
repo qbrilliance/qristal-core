@@ -2,6 +2,9 @@
 
 #pragma once
 #include "qb/core/typedefs.hpp"
+#include <memory>
+#include <unordered_map>
+#include <map>
 
 // Forward declares
 namespace xacc {
@@ -86,16 +89,16 @@ public:
   /// @param simulation_total_time 
   /// @param shots 
   /// @return 
-  ND get_total_initialisation_maxgate_readout_time_ms(
+  std::map<int,double> get_total_initialisation_maxgate_readout_time_ms(
       const double simulation_total_time = 0.0, const int shots = 1);
 
   /// @brief Get the count of one-qubit gates for all qubits
   /// @return 
-  NN get_count_1q_gates_on_q();
+  std::map<int,int> get_count_1q_gates_on_q();
 
   /// @brief  Get the count of two-qubit gates for all qubits
   /// @return 
-  NN get_count_2q_gates_on_q();
+  std::map<int,int> get_count_2q_gates_on_q();
 
   /// @brief Get the count of one-qubit gates on a qubit line
   /// @param iq 

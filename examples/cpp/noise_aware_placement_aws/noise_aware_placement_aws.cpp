@@ -16,7 +16,7 @@ int main() {
   auto my_sim = qb::session(false);
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose a AWS backend, set device to "Rigetti" to use its hardware info for
   // noise-aware placement

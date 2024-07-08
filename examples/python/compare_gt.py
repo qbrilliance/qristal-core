@@ -2,7 +2,7 @@ import qb.core
 import ast
 
 s = qb.core.session()
-s.qb12()
+s.init()
 
 for i in range(32):
     for j in range(32):
@@ -38,7 +38,7 @@ for i in range(32):
         s.sn = 1024
         s.acc = "qsim"
         s.run()
-        result1 = s.out_raw[0][0]
+        result1 = s.out_raw_json[0][0]
         res1 = ast.literal_eval(result1)
 
         expected_output = a_bin + b_bin

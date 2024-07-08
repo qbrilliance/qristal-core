@@ -73,12 +73,12 @@ circ.cnot(0, 1)
 circ.measure_all()
 
 s = qb.core.session()
-s.qb12()
+s.init()
 s.qn = nb_qubits
 s.noise = True
 s.noise_model = nm
 s.ir_target = circ
 s.acc = "aer"
 s.run()
-result = s.out_raw[0][0]
+result = s.out_raw_json[0][0]
 print("Output = " + result)

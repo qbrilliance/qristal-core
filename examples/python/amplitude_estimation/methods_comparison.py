@@ -11,7 +11,7 @@ from qb.core import run_canonical_ae_with_oracle
 import ast
 import timeit
 s = qb.core.session()
-s.qb12()
+s.init()
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))
 

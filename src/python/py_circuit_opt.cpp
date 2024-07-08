@@ -1,8 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "py_middleware.hpp"
+
+#include "qb/core/python/py_middleware.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/passes/circuit_opt_passes.hpp"
-#include "py_stl_containers.hpp"
 
 namespace qb {
 void bind_circuit_opt_passes(pybind11::module &m) {

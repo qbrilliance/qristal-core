@@ -81,16 +81,16 @@ namespace qb {
                 * 
                 * @details This is the default implementation of the Task::MeasureCounts task. It will generate all workflow circuits via the get_circuits() member, 
                 * iterate through them, add measurements to all qubits, set the intermediate representation target of the workflow's session object, run the circuit, 
-                * and store the qb::String results in a std::vector container, which is serialized in the final step.
+                * and store the std::vector<std::string> results in a std::vector container, which is serialized in the final step.
                 */
                 void operator()(WORKFLOW& workflow, std::time_t timestamp) const {
-                    qb::String measured_results;
+                    std::vector<std::string> measured_results;
                     std::vector<qb::CircuitBuilder> circuits = workflow.get_circuits();
                     for ( auto& circuit : circuits ) {
                         circuit.MeasureAll(workflow.get_session().get_qns()[0][0]); 
                         workflow.set_session().set_irtarget_m(circuit.get());
                         workflow.set_session().run();
-                        measured_results.push_back(workflow.get_session().get_out_raws()[0][0]);
+                        measured_results.push_back(workflow.get_session().get_out_raws_json()[0][0]);
                     }
                     workflow.serialize_measured_counts(measured_results, timestamp);
                 }

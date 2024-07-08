@@ -9,7 +9,7 @@ import json as json
 import time as time
 
 s = qb.core.session()
-s.qb12()
+s.init()
 
 NW = 32  # number of async workers
 NJ = 200 # number of jobs
@@ -40,7 +40,7 @@ measure q[0] -> c[0];
 '''
 s.instring.clear()
 for i in range(NJ):
-    s.instring.append(qb.core.String([circuit_str]))
+    s.instring.append(qb.core.VectorString([circuit_str]))
 
 handles = []
 for i in range(NJ):

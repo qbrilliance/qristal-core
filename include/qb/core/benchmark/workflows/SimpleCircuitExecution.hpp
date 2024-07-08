@@ -110,8 +110,8 @@ namespace qb
                 * 
                 * @return ---
                 */
-                void serialize_measured_counts(const qb::String& counts, const std::time_t time ) const { 
-                    save_data<BitCounts, qb::String>(identifier_, "_measured_", counts, time); 
+                void serialize_measured_counts(const std::vector<std::string>& counts, const std::time_t time ) const { 
+                    save_data<BitCounts, std::vector<std::string>>(identifier_, "_measured_", counts, time); 
                 }
                 /**
                 * @brief Serialization method for the assigned qb::session

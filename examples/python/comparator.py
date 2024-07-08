@@ -48,7 +48,7 @@ for i in range(0,4):
         # s.run()
 
         # Get results
-        # result = s.out_raw[0][0]
+        # result = s.out_raw_json[0][0]
         result = circ.execute()
         res = ast.literal_eval(result)["AcceleratorBuffer"]["Measurements"]
         if j > i:
@@ -94,7 +94,7 @@ for i in range(0,4):
 
         # Run:
         s = qb.core.session()
-        s.qb12()
+        s.init()
         s.ir_target = circ
         s.nooptimise = True
         s.noplacement = True
@@ -104,7 +104,7 @@ for i in range(0,4):
         s.run()
 
         # Get results
-        result = s.out_raw[0][0]
+        result = s.out_raw_json[0][0]
         res = ast.literal_eval(result)
         if j > i:
             expected_bit_string = "1"

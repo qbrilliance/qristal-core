@@ -1,11 +1,13 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "py_session.hpp"
+#include "qb/core/python/py_job_handle.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
+#include "qb/core/python/py_session.hpp"
+#include "qb/core/python/py_help_strings.hpp"
 #include "qb/core/session.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/thread_pool.hpp"
-#include "py_job_handle.hpp"
-#include "py_stl_containers.hpp"
+
 namespace qb {
 void bind_session(pybind11::module &m) {
   namespace py = pybind11;
@@ -18,15 +20,15 @@ void bind_session(pybind11::module &m) {
           py::overload_cast<const std::string &>(&qb::session::setName))
       .def_property(
           "names_p", &qb::session::getName,
-          py::overload_cast<const VectorString &>(&qb::session::setName))
+          py::overload_cast<const Table2d<std::string> &>(&qb::session::setName))
       .def_property("infile", &qb::session::get_infiles,
-                    &qb::session::set_infile, qb::session::help_infiles_)
+                    &qb::session::set_infile, qb::help::infiles_)
       .def_property("infiles", &qb::session::get_infiles,
-                    &qb::session::set_infiles, qb::session::help_infiles_)
+                    &qb::session::set_infiles, qb::help::infiles_)
       .def_property("instring", &qb::session::get_instrings,
-                    &qb::session::set_instring, qb::session::help_instrings_)
+                    &qb::session::set_instring, qb::help::instrings_)
       .def_property("instrings", &qb::session::get_instrings,
-                    &qb::session::set_instrings, qb::session::help_instrings_)
+                    &qb::session::set_instrings, qb::help::instrings_)
       .def_property(
           "ir_target",
           [&](qb::session &s) {
@@ -46,7 +48,7 @@ void bind_session(pybind11::module &m) {
           [&](qb::session &s, qb::CircuitBuilder &circuit) {
             s.set_irtarget_m(circuit.get());
           },
-          qb::session::help_irtarget_ms_)
+          qb::help::irtarget_ms_)
       .def_property(
           "ir_targets",
           [&](qb::session &s) {
@@ -79,182 +81,182 @@ void bind_session(pybind11::module &m) {
             }
             s.set_irtarget_ms(circuits_get);
           },
-          qb::session::help_irtarget_ms_)
+          qb::help::irtarget_ms_)
       .def_property("include_qb", &qb::session::get_include_qbs,
                     &qb::session::set_include_qb,
-                    qb::session::help_include_qbs_)
+                    qb::help::include_qbs_)
       .def_property("include_qbs", &qb::session::get_include_qbs,
                     &qb::session::set_include_qbs,
-                    qb::session::help_include_qbs_)
+                    qb::help::include_qbs_)
       .def_property("remote_backend_database_path", &qb::session::get_remote_backend_database_path,
                     &qb::session::set_remote_backend_database_path,
-                    qb::session::help_remote_backend_database_path_)
+                    qb::help::remote_backend_database_path_)
       .def_property("acc", &qb::session::get_accs, &qb::session::set_acc,
-                    qb::session::help_accs_)
+                    qb::help::accs_)
       .def_property("accs", &qb::session::get_accs, &qb::session::set_accs,
-                    qb::session::help_accs_)
+                    qb::help::accs_)
       .def_property("aer_sim_type", &qb::session::get_aer_sim_types,
                     &qb::session::set_aer_sim_type,
-                    qb::session::help_aer_sim_types_)
+                    qb::help::aer_sim_types_)
       .def_property("aer_sim_types", &qb::session::get_aer_sim_types,
                     &qb::session::set_aer_sim_types,
-                    qb::session::help_aer_sim_types_)
+                    qb::help::aer_sim_types_)
       .def_property("random", &qb::session::get_randoms,
-                    &qb::session::set_random, qb::session::help_randoms_)
+                    &qb::session::set_random, qb::help::randoms_)
       .def_property("randoms", &qb::session::get_randoms,
-                    &qb::session::set_randoms, qb::session::help_randoms_)
+                    &qb::session::set_randoms, qb::help::randoms_)
       .def_property("xasm", &qb::session::get_xasms, &qb::session::set_xasm,
-                    qb::session::help_xasms_)
+                    qb::help::xasms_)
       .def_property("xasms", &qb::session::get_xasms, &qb::session::set_xasms,
-                    qb::session::help_xasms_)
+                    qb::help::xasms_)
       .def_property("quil1", &qb::session::get_quil1s, &qb::session::set_quil1,
-                    qb::session::help_quil1s_)
+                    qb::help::quil1s_)
       .def_property("quil1s", &qb::session::get_quil1s,
-                    &qb::session::set_quil1s, qb::session::help_quil1s_)
+                    &qb::session::set_quil1s, qb::help::quil1s_)
       .def_property("calc_jacobian", &qb::session::get_calc_jacobians,
                     &qb::session::set_calc_jacobian,
-                    qb::session::help_calc_jacobians_)
+                    qb::help::calc_jacobians_)
       .def_property("calc_jacobians", &qb::session::get_calc_jacobians,
                     &qb::session::set_calc_jacobians,
-                    qb::session::help_calc_jacobians_)
+                    qb::help::calc_jacobians_)
       .def_property("noplacement", &qb::session::get_noplacements,
                     &qb::session::set_noplacement,
-                    qb::session::help_noplacements_)
+                    qb::help::noplacements_)
       .def_property("noplacements", &qb::session::get_noplacements,
                     &qb::session::set_noplacements,
-                    qb::session::help_noplacements_)
+                    qb::help::noplacements_)
       .def_property("placement", &qb::session::get_placements,
-                    &qb::session::set_placement, qb::session::help_placements_)
+                    &qb::session::set_placement, qb::help::placements_)
       .def_property("placements", &qb::session::get_placements,
-                    &qb::session::set_placements, qb::session::help_placements_)
+                    &qb::session::set_placements, qb::help::placements_)
       .def_property("nooptimise", &qb::session::get_nooptimises,
                     &qb::session::set_nooptimise,
-                    qb::session::help_nooptimises_)
+                    qb::help::nooptimises_)
       .def_property("nooptimises", &qb::session::get_nooptimises,
                     &qb::session::set_nooptimises,
-                    qb::session::help_nooptimises_)
+                    qb::help::nooptimises_)
       .def_property("circuit_optimization", &qb::session::get_circuit_opts,
                     &qb::session::set_circuit_opt,
-                    qb::session::help_circuit_opts_)
+                    qb::help::circuit_opts_)
       .def_property("circuit_optimizations", &qb::session::get_circuit_opts,
                     &qb::session::set_circuit_opts,
-                    qb::session::help_circuit_opts_)
+                    qb::help::circuit_opts_)
       .def_property("nosim", &qb::session::get_nosims, &qb::session::set_nosim,
-                    qb::session::help_nosims_)
+                    qb::help::nosims_)
       .def_property("nosims", &qb::session::get_nosims,
-                    &qb::session::set_nosims, qb::session::help_nosims_)
+                    &qb::session::set_nosims, qb::help::nosims_)
       .def_property("noise", &qb::session::get_noises, &qb::session::set_noise,
-                    qb::session::help_noises_)
+                    qb::help::noises_)
       .def_property("noises", &qb::session::get_noises,
-                    &qb::session::set_noises, qb::session::help_noises_)
+                    &qb::session::set_noises, qb::help::noises_)
       .def_property("noise_model", &qb::session::get_noise_models,
                     &qb::session::set_noise_model,
-                    qb::session::help_noise_models_)
+                    qb::help::noise_models_)
       .def_property("noise_models", &qb::session::get_noise_models,
                     &qb::session::set_noise_models,
-                    qb::session::help_noise_models_)
+                    qb::help::noise_models_)
       .def_property("noise_mitigation", &qb::session::get_noise_mitigations,
                     &qb::session::set_noise_mitigation,
-                    qb::session::help_noise_mitigations_)
+                    qb::help::noise_mitigations_)
       .def_property("noise_mitigations", &qb::session::get_noise_mitigations,
                     &qb::session::set_noise_mitigations,
-                    qb::session::help_noise_mitigations_)
+                    qb::help::noise_mitigations_)
       .def_property("notiming", &qb::session::get_notimings,
-                    &qb::session::set_notiming, qb::session::help_notimings_)
+                    &qb::session::set_notiming, qb::help::notimings_)
       .def_property("notimings", &qb::session::get_notimings,
-                    &qb::session::set_notimings, qb::session::help_notimings_)
+                    &qb::session::set_notimings, qb::help::notimings_)
       .def_property("output_oqm_enabled", &qb::session::get_output_oqm_enableds,
                     &qb::session::set_output_oqm_enabled,
-                    qb::session::help_output_oqm_enableds_)
+                    qb::help::output_oqm_enableds_)
       .def_property("output_oqm_enableds",
                     &qb::session::get_output_oqm_enableds,
                     &qb::session::set_output_oqm_enableds,
-                    qb::session::help_output_oqm_enableds_)
+                    qb::help::output_oqm_enableds_)
       .def_property("log_enabled", &qb::session::get_log_enableds,
                     &qb::session::set_log_enabled,
-                    qb::session::help_log_enableds_)
+                    qb::help::log_enableds_)
       .def_property("log_enableds", &qb::session::get_log_enableds,
                     &qb::session::set_log_enableds,
-                    qb::session::help_log_enableds_)
+                    qb::help::log_enableds_)
       .def_property("qn", &qb::session::get_qns, &qb::session::set_qn,
-                    qb::session::help_qns_)
+                    qb::help::qns_)
       .def_property("qns", &qb::session::get_qns, &qb::session::set_qns,
-                    qb::session::help_qns_)
+                    qb::help::qns_)
       .def_property("rn", &qb::session::get_rns, &qb::session::set_rn,
-                    qb::session::help_rns_)
+                    qb::help::rns_)
       .def_property("rns", &qb::session::get_rns, &qb::session::set_rns,
-                    qb::session::help_rns_)
+                    qb::help::rns_)
       .def_property("sn", &qb::session::get_sns, &qb::session::set_sn,
-                    qb::session::help_sns_)
+                    qb::help::sns_)
       .def_property("sns", &qb::session::get_sns, &qb::session::set_sns,
-                    qb::session::help_sns_)
+                    qb::help::sns_)
       .def_property("beta", &qb::session::get_betas, &qb::session::set_beta,
-                    qb::session::help_betas_)
+                    qb::help::betas_)
       .def_property("betas", &qb::session::get_betas, &qb::session::set_betas,
-                    qb::session::help_betas_)
+                    qb::help::betas_)
       .def_property("theta", &qb::session::get_thetas, &qb::session::set_theta,
-                    qb::session::help_thetas_)
+                    qb::help::thetas_)
       .def_property("thetas", &qb::session::get_thetas,
-                    &qb::session::set_thetas, qb::session::help_thetas_)
+                    &qb::session::set_thetas, qb::help::thetas_)
       .def_property("parameter_list", &qb::session::get_parameter_vectors,
                     &qb::session::set_parameter_vector,
-                    qb::session::help_parameter_vectors_)
+                    qb::help::parameter_vectors_)
       .def_property("parameter_lists", &qb::session::get_parameter_vectors,
                     &qb::session::set_parameter_vectors,
-                    qb::session::help_parameter_vectors_)
+                    qb::help::parameter_vectors_)
       .def_property("svd_cutoff", &qb::session::get_svd_cutoffs,
                     &qb::session::set_svd_cutoff,
-                    qb::session::help_svd_cutoffs_)
+                    qb::help::svd_cutoffs_)
       .def_property("svd_cutoffs", &qb::session::get_svd_cutoffs,
                     &qb::session::set_svd_cutoffs,
-                    qb::session::help_svd_cutoffs_)
+                    qb::help::svd_cutoffs_)
       .def_property("rel_svd_cutoff", &qb::session::get_rel_svd_cutoffs,
                     &qb::session::set_rel_svd_cutoff,
-                    qb::session::help_rel_svd_cutoffs_)
+                    qb::help::rel_svd_cutoffs_)
       .def_property("rel_svd_cutoffs", &qb::session::get_rel_svd_cutoffs,
                     &qb::session::set_rel_svd_cutoffs,
-                    qb::session::help_rel_svd_cutoffs_)
+                    qb::help::rel_svd_cutoffs_)
       .def_property("initial_bond_dimension", &qb::session::get_initial_bond_dimensions,
                     &qb::session::set_initial_bond_dimension,
-                    qb::session::help_initial_bond_dimensions_)
+                    qb::help::initial_bond_dimensions_)
       .def_property("initial_bond_dimensions",
                     &qb::session::get_initial_bond_dimensions,
                     &qb::session::set_initial_bond_dimensions,
-                    qb::session::help_initial_bond_dimensions_)
+                    qb::help::initial_bond_dimensions_)
       .def_property("initial_kraus_dimension", &qb::session::get_initial_kraus_dimensions,
                     &qb::session::set_initial_kraus_dimension,
-                    qb::session::help_initial_kraus_dimensions_)
+                    qb::help::initial_kraus_dimensions_)
       .def_property("initial_kraus_dimensions",
                     &qb::session::get_initial_kraus_dimensions,
                     &qb::session::set_initial_kraus_dimensions,
-                    qb::session::help_initial_kraus_dimensions_)
+                    qb::help::initial_kraus_dimensions_)
       .def_property("max_bond_dimension", &qb::session::get_max_bond_dimensions,
                     &qb::session::set_max_bond_dimension,
-                    qb::session::help_max_bond_dimensions_)
+                    qb::help::max_bond_dimensions_)
       .def_property("max_bond_dimensions",
                     &qb::session::get_max_bond_dimensions,
                     &qb::session::set_max_bond_dimensions,
-                    qb::session::help_max_bond_dimensions_)
+                    qb::help::max_bond_dimensions_)
       .def_property("max_kraus_dimension", &qb::session::get_max_kraus_dimensions,
                     &qb::session::set_max_kraus_dimension,
-                    qb::session::help_max_kraus_dimensions_)
+                    qb::help::max_kraus_dimensions_)
       .def_property("max_kraus_dimensions",
                     &qb::session::get_max_kraus_dimensions,
                     &qb::session::set_max_kraus_dimensions,
-                    qb::session::help_max_kraus_dimensions_)
+                    qb::help::max_kraus_dimensions_)
       .def_property("measure_sample_sequential", &qb::session::get_measure_sample_sequentials,
                     &qb::session::set_measure_sample_sequential,
-                    qb::session::help_measure_sample_sequentials_)
+                    qb::help::measure_sample_sequentials_)
       .def_property("measure_sample_sequentials",
                     &qb::session::get_measure_sample_sequentials,
                     &qb::session::set_measure_sample_sequentials,
-                    qb::session::help_measure_sample_sequentials_)
+                    qb::help::measure_sample_sequentials_)
       .def_property("output_amplitude", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitude,
-                    qb::session::help_output_amplitudes_)
+                    qb::help::output_amplitudes_)
       .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitudes,
-                    qb::session::help_output_amplitudes_)
+                    qb::help::output_amplitudes_)
       .def_property("state_vector",
           [&](qb::session &s) {
             std::vector<std::complex<double>> stateVecData;
@@ -265,68 +267,72 @@ void bind_session(pybind11::module &m) {
             return stateVecData;
           },
           &qb::session::get_state_vec,
-          qb::session::help_state_vec_)
-      .def_property_readonly("out_raw", &qb::session::get_out_raws,
-                             qb::session::help_out_raws_)
-      .def_property_readonly("out_raws", &qb::session::get_out_raws,
-                             qb::session::help_out_raws_)
+          qb::help::state_vec_)
+      .def_property_readonly("out_raw_json", &qb::session::get_out_raws_json,
+                             qb::help::out_raws_json_)
+      .def_property_readonly("out_raws_json", &qb::session::get_out_raws_json,
+                             qb::help::out_raws_json_)
+      //.def_property_readonly("out_raw_map", &qb::session::get_out_raws_map,
+      //                       qb::help::out_raws_map_)
+      //.def_property_readonly("out_raws_map", &qb::session::get_out_raws_map,
+      //                       qb::help::out_raws_map_)
       .def_property_readonly("out_probs", &qb::session::get_out_probs,
-                             qb::session::help_out_probs_)
+                             qb::help::out_probs_)
       .def_property_readonly("out_counts", &qb::session::get_out_counts,
-                             qb::session::help_out_counts_)
+                             qb::help::out_counts_)
       .def_property_readonly("out_prob_jacobians", &qb::session::get_out_prob_jacobians,
-                             qb::session::help_out_jacobians_)
+                             qb::help::out_jacobians_)
       .def_property_readonly("out_divergence",
                              &qb::session::get_out_divergences,
-                             qb::session::help_out_divergences_)
+                             qb::help::out_divergences_)
       .def_property_readonly("out_divergences",
                              &qb::session::get_out_divergences,
-                             qb::session::help_out_divergences_)
+                             qb::help::out_divergences_)
       .def_property_readonly("out_transpiled_circuit",
                              &qb::session::get_out_transpiled_circuits,
-                             qb::session::help_out_transpiled_circuits_)
+                             qb::help::out_transpiled_circuits_)
       .def_property_readonly("out_transpiled_circuits",
                              &qb::session::get_out_transpiled_circuits,
-                             qb::session::help_out_transpiled_circuits_)
+                             qb::help::out_transpiled_circuits_)
       .def_property_readonly("out_qobj", &qb::session::get_out_qobjs,
-                             qb::session::help_out_qobjs_)
+                             qb::help::out_qobjs_)
       .def_property_readonly("out_qobjs", &qb::session::get_out_qobjs,
-                             qb::session::help_out_qobjs_)
+                             qb::help::out_qobjs_)
       .def_property_readonly("out_qbjson", &qb::session::get_out_qbjsons,
-                             qb::session::help_out_qbjsons_)
+                             qb::help::out_qbjsons_)
       .def_property_readonly("out_qbjsons", &qb::session::get_out_qbjsons,
-                             qb::session::help_out_qbjsons_)
+                             qb::help::out_qbjsons_)
       .def_property_readonly("out_single_qubit_gate_qty",
                              &qb::session::get_out_single_qubit_gate_qtys,
-                             qb::session::help_out_single_qubit_gate_qtys_)
+                             qb::help::out_single_qubit_gate_qtys_)
       .def_property_readonly("out_single_qubit_gate_qtys",
                              &qb::session::get_out_single_qubit_gate_qtys,
-                             qb::session::help_out_single_qubit_gate_qtys_)
+                             qb::help::out_single_qubit_gate_qtys_)
       .def_property_readonly("out_double_qubit_gate_qty",
                              &qb::session::get_out_double_qubit_gate_qtys,
-                             qb::session::help_out_double_qubit_gate_qtys_)
+                             qb::help::out_double_qubit_gate_qtys_)
       .def_property_readonly("out_double_qubit_gate_qtys",
                              &qb::session::get_out_double_qubit_gate_qtys,
-                             qb::session::help_out_double_qubit_gate_qtys_)
+                             qb::help::out_double_qubit_gate_qtys_)
 
       .def_property_readonly(
           "out_total_init_maxgate_readout_time",
           &qb::session::get_out_total_init_maxgate_readout_times,
-          qb::session::help_out_total_init_maxgate_readout_times_)
+          qb::help::out_total_init_maxgate_readout_times_)
       .def_property_readonly(
           "out_total_init_maxgate_readout_times",
           &qb::session::get_out_total_init_maxgate_readout_times,
-          qb::session::help_out_total_init_maxgate_readout_times_)
+          qb::help::out_total_init_maxgate_readout_times_)
 
       .def_property_readonly("out_z_op_expect",
                              &qb::session::get_out_z_op_expects,
-                             qb::session::help_out_z_op_expects_)
+                             qb::help::out_z_op_expects_)
       .def_property_readonly("out_z_op_expects",
                              &qb::session::get_out_z_op_expects,
-                             qb::session::help_out_z_op_expects_)
+                             qb::help::out_z_op_expects_)
 
       .def_property("debug", &qb::session::get_debug, &qb::session::set_debug,
-                    qb::session::help_debug_)
+                    qb::help::debug_)
 
       .def_property(
           "num_threads",
@@ -335,9 +341,9 @@ void bind_session(pybind11::module &m) {
           "num_threads: The number of threads in the QB SDK thread pool")
 
       .def_property("seed", &qb::session::get_seeds, &qb::session::set_seed,
-                    qb::session::help_seeds_)
+                    qb::help::seeds_)
       .def_property("seeds", &qb::session::get_seeds, &qb::session::set_seeds,
-                    qb::session::help_seeds_)
+                    qb::help::seeds_)
 
       .def("__repr__", &qb::session::get_summary,
            "Print summary of session settings")
@@ -348,10 +354,10 @@ void bind_session(pybind11::module &m) {
            "runit(i,j) : Execute circuit i, condition j")
       .def("bitstring_index",
            py::overload_cast<std::string, size_t, size_t>(&qb::session::bitstring_index),
-           qb::session::help_bitstring_index_)
+           qb::help::bitstring_index_)
       .def("divergence", py::overload_cast<>(&qb::session::get_jensen_shannon),
            "Calculate Jensen-Shannon divergence")
-      .def("qb12", py::overload_cast<>(&qb::session::qb12),
+      .def("init", py::overload_cast<>(&qb::session::init),
            "Quantum Brilliance 12-qubit defaults")
       .def("aws_setup", py::overload_cast<uint, uint, uint>(&qb::session::aws_setup),
            "AWS Braket Setup")

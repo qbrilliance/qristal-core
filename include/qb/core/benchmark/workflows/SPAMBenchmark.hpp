@@ -107,8 +107,8 @@ namespace qb
                 * 
                 * @return ---
                 */
-                void serialize_measured_counts(const qb::String& counts, const std::time_t time ) const { 
-                    save_data<BitCounts, qb::String>(identifier_, "_measured_", counts, time); 
+                void serialize_measured_counts(const std::vector<std::string>& counts, const std::time_t time ) const { 
+                    save_data<BitCounts, std::vector<std::string>>(identifier_, "_measured_", counts, time); 
                 }
                 /**
                 * @brief Serialization method for ideal bit string counts
@@ -119,8 +119,8 @@ namespace qb
                 * 
                 * @return ---
                 */
-                void serialize_ideal_counts(const qb::String& counts, const std::time_t time ) const { 
-                    save_data<BitCounts, qb::String>(identifier_, "_ideal_", counts, time); 
+                void serialize_ideal_counts(const std::vector<std::string>& counts, const std::time_t time ) const { 
+                    save_data<BitCounts, std::vector<std::string>>(identifier_, "_ideal_", counts, time); 
                 }
                 /**
                 * @brief Serialization method for ideal quantum state densities
@@ -181,7 +181,7 @@ namespace qb
                 * @return ---
                 * 
                 * @details The ideal counts of each SPAM circuit include only one specific bit string. This specialization, will generate each bit string,
-                * produce the corresponding bit string counts as a qb::String objects, and serialize them. 
+                * produce the corresponding bit string counts as a std::vector<std::string> object, and serialize them. 
                 */
                 void operator()(SPAMBenchmark& workflow, std::time_t timestamp) const;
         };

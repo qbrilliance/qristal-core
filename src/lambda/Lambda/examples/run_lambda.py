@@ -2,7 +2,7 @@ import qb.core
 import os
 import numpy as np
 s = qb.core.session(True)
-s.qb12()
+s.init()
 s.qpu_config = os.getcwd() + "/lambda_config.json"
 s.xasm = True
 

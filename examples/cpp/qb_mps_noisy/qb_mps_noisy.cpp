@@ -9,7 +9,7 @@ int main()
   auto s = qb::session(false);
 
   // Set up default parameters
-  s.qb12();
+  s.init();
 
   // Set the number of qubits
   const int n_qubits = 2;
@@ -59,5 +59,5 @@ int main()
   s.run();
 
   // Print out results
-  std::cout << "Results:" << std::endl << s.get_out_raws()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << s.get_out_raws_json()[0][0] << std::endl;
 }

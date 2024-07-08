@@ -1,7 +1,7 @@
 import qb.core
 import ast
 s = qb.core.session(True)
-s.qb12()
+s.init()
 
 # Use the aer accelerator, matrix product state method
 s.acc = "aer"
@@ -22,6 +22,6 @@ __qpu__ void QBCIRCUIT(qreg q) {
 '''
 
 s.run()
-results = s.out_raw[0][0]
+results = s.out_raw_json[0][0]
 res = ast.literal_eval(results)
 print(res)

@@ -158,7 +158,7 @@ def qb_pauli_measurement_matrix(label: str, outcome: int) -> np.array:
 
 def get_session_from_qiskit_circuits(circuits, backend, no_shots):
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.sn = no_shots
     s.acc = backend
     s.instring.clear()
@@ -166,10 +166,10 @@ def get_session_from_qiskit_circuits(circuits, backend, no_shots):
     s.qn.clear()
     s.name_p.clear()
     for circuit in circuits:
-        s.qn.append(qb.N([circuit.num_qubits]))
-        s.noise.append(qb.Bool([True]))
-        s.instring.append(qb.String([get_qbqasm_string(circuit)])) # TODO: use Thien's QASM method
-        s.name_p.append(qb.String([circuit.name]))
+        s.qn.append([circuit.num_qubits])
+        s.noise.append([True])
+        s.instring.append([get_qbqasm_string(circuit)]) # TODO: use Thien's QASM method
+        s.name_p.append([circuit.name])
     return s
 
 def get_qbqasm_string(qiskit_circuit):
@@ -185,7 +185,7 @@ def get_qiskit_experiment_result_data(result, num_qubits):
     Input: dict of counts for a QB SDK experiment
     Output: qiskit.result.models.ExperimentResultData containing counts keyed with hex code
 
-    The QB SDK enumeration from out_raw to out_count is reversed compared to Qiskit
+    The QB SDK enumeration from out_raw_json to out_count is reversed compared to Qiskit
     '''
     hex_keyed_data = dict()
     shots = 0
@@ -201,7 +201,7 @@ def get_experiment_result(session):
     Output: qiskit.result.result.Result
     '''
     experiment_result_data = []
-    result = session.out_raw[0][0]
+    result = session.out_raw_json[0][0]
     res = ast.literal_eval(result)
     counts = len(list(res.keys()))
     #print(counts)

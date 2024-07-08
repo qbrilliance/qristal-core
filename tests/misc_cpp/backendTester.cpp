@@ -48,7 +48,7 @@ TEST(backendTester, checkSessionIntegration1) {
     // Make a QB SDK session
   auto my_sim = qb::session(false);
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
   my_sim.set_qn(2);
   my_sim.set_instring(R"(
 OPENQASM 2.0;
@@ -93,7 +93,7 @@ TEST(backendTester, checkSessionIntegration2) {
     // Make a QB SDK session
   auto my_sim = qb::session(false);
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
   my_sim.set_qn(2);
   // More complicated gate: swap -> CX -> CZ transpilation
   my_sim.set_instring(R"(

@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "py_noise_model.hpp"
+#include "qb/core/python/py_noise_model.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
-#include "py_stl_containers.hpp"
 
 namespace qb {
 void bind_noise_model(pybind11::module &m) {
@@ -285,7 +285,14 @@ void bind_noise_model(pybind11::module &m) {
            py::arg("connected_pairs") = std::nullopt)
       .def("to_json", &qb::NoiseModel::to_json,
            R"(Convert noise model to json string)")
-      .def("add_gate_error", &qb::NoiseModel::add_gate_error, R"(
+      .def("add_gate_error",
+          [](qb::NoiseModel *model, const NoiseChannel &noise_channel,
+             const std::string &gate_name, const py::list qubits) {
+            std::vector<size_t> v;
+            for (auto &x : qubits)
+              v.emplace_back(py::cast<size_t>(x));
+            model->add_gate_error(noise_channel, gate_name, v);
+          }, R"(
   
         Add a gate error channel for a gate operation
   
@@ -293,21 +300,9 @@ void bind_noise_model(pybind11::module &m) {
         
         - *noise_channel* Noise channel to be associated with the gate [List(KraussOperator)]
         - *gate_name* Name of the gates [String]
-        - *qubits* Qubit indices of the gate. [qb.core.N]
+        - *qubits* Qubit indices of the gate. [List(Integer)]
   
         )")
-      // Note that this can be removed when the silly aliases in typedefs.hpp
-      // are deleted.
-      .def(
-          "add_gate_error",
-          [](qb::NoiseModel *model, const NoiseChannel &noise_channel,
-             const std::string &gate_name, const py::list qubits) {
-            std::vector<size_t> v;
-            for (auto &x : qubits)
-              v.emplace_back(py::cast<size_t>(x));
-            model->add_gate_error(noise_channel, gate_name, v);
-          },
-          R"(        Overload of add_gate_error that takes *qubits* directly as List(Integer).)")
       .def("set_qubit_readout_error", &qb::NoiseModel::set_qubit_readout_error,
            R"(
   

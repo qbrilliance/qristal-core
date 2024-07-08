@@ -82,7 +82,7 @@ namespace qb
         * @details Any compatible workflow needs to store measured bit string counts (the natively measured bit string results obtained directly from qb::session) through a call to serialize_measured_counts() 
         */
         template <typename T>
-        concept CanStoreMeasuredCounts = requires(const T t, const qb::String& counts, const std::time_t& time) {
+        concept CanStoreMeasuredCounts = requires(const T t, const std::vector<std::string>& counts, const std::time_t& time) {
             t.serialize_measured_counts(counts, time);
         };
         /**
@@ -91,7 +91,7 @@ namespace qb
         * @details Any compatible workflow needs to store ideal bit string counts (ideal counts obtained from either ideal state vector simulators or from analytical expressions) through a call to serialize_ideal_counts() 
         */
         template <typename T>
-        concept CanStoreIdealCounts = requires(const T t, const qb::String&& counts, const std::time_t& time) {
+        concept CanStoreIdealCounts = requires(const T t, const std::vector<std::string>&& counts, const std::time_t& time) {
             t.serialize_ideal_counts(counts, time);
         };
         /**

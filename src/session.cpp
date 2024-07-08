@@ -120,7 +120,8 @@ namespace qb
         initial_bond_dimensions_{{}}, initial_kraus_dimensions_{{}}, max_bond_dimensions_{{}},
         max_kraus_dimensions_{{}}, svd_cutoffs_{{}}, rel_svd_cutoffs_{{}}, noise_models_{{}},
         acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}}, output_amplitudes_{{}},
-        out_raws_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
+        //out_raws_json_{{{}}}, out_raws_map_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
+        out_raws_json_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
         out_divergences_{{{}}}, out_transpiled_circuits_{{{}}}, out_qobjs_{{{}}},
         out_qbjsons_{{{}}}, out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
@@ -311,7 +312,7 @@ namespace qb
                                                 const std::vector<std::complex<double>> amplitudes) {
     // Ensure that both vectors are the same size
     assert(counts.size() == amplitudes.size());
-    
+
     double divergence = 0.0;
     double sum_counts = std::accumulate(counts.begin(), counts.end(), 0);
     double d_pm, d_qm;
@@ -334,6 +335,11 @@ namespace qb
       std::cout << "Invoked get_jensen_shannon on circuit: " << ii
                 << ", setting:" << jj << std::endl;
     }
+
+    if (out_counts_.at(0).at(0).empty()) throw std::logic_error("This circuit has "
+    "too many qubits for the results to be stored in a single vector, so Jensen-Shannon "
+    "divergences cannot be calculated.");
+
     const int INVALID = -1;
     const int SINGLETON = 1;
     int N_ii = SINGLETON;
@@ -385,7 +391,7 @@ namespace qb
 
     double jsdivergence = get_jensen_shannon_divergence(
         out_counts_.at(ii).at(jj), out_amps);
-    ND jsdivergence_nd;
+    std::map<int,double> jsdivergence_nd;
     jsdivergence_nd.insert(std::make_pair(0, jsdivergence));
     out_divergences_.at(ii).at(jj) = jsdivergence_nd;
   }
@@ -496,7 +502,7 @@ namespace qb
     run_i_j_config config;
     /// Number of shots
     {
-      ValidatorTwoDim<VectorN, size_t> sns_valid(sns_, session::SNS_LOWERBOUND, session::SNS_UPPERBOUND,
+      ValidatorTwoDim<size_t> sns_valid(sns_, session::SNS_LOWERBOUND, session::SNS_UPPERBOUND,
                                                  " number of shots [sn] ");
       if (sns_valid.is_data_empty())
       {
@@ -508,7 +514,7 @@ namespace qb
 
     /// Number of qubits
     {
-      ValidatorTwoDim<VectorN, size_t> qns_valid(qns_, session::QNS_LOWERBOUND, session::QNS_UPPERBOUND,
+      ValidatorTwoDim<size_t> qns_valid(qns_, session::QNS_LOWERBOUND, session::QNS_UPPERBOUND,
                                                  " number of qubits [qn] ");
       if (qns_valid.is_data_empty())
       {
@@ -519,7 +525,7 @@ namespace qb
 
     /// Number of repetitions
     {
-      ValidatorTwoDim<VectorN, size_t> rns_valid(rns_, session::RNS_LOWERBOUND, session::RNS_UPPERBOUND,
+      ValidatorTwoDim<size_t> rns_valid(rns_, session::RNS_LOWERBOUND, session::RNS_UPPERBOUND,
                                                  " number of repetitions [rn] ");
       if (rns_valid.is_data_empty())
       {
@@ -530,8 +536,8 @@ namespace qb
 
     /// Enable gradient calculation for parametrized circuit
     {
-      ValidatorTwoDim<VectorBool, bool> calc_jacobians_valid(calc_jacobians_, false, true,
-                                                             "enabled jacobian calculation [calc_jacobian]");
+      ValidatorTwoDim<bool> calc_jacobians_valid(calc_jacobians_, false, true,
+                                                 "enabled jacobian calculation [calc_jacobian]");
       if (calc_jacobians_valid.is_data_empty())
       {
         throw std::range_error("Cannot determine whether to calculate gradients");
@@ -541,7 +547,7 @@ namespace qb
 
     /// Enable output transpilation and resource estimation
     {
-      ValidatorTwoDim<VectorBool, bool> output_oqm_enableds_valid(
+      ValidatorTwoDim<bool> output_oqm_enableds_valid(
           output_oqm_enableds_, false, true, " enable output of transpiled circuit [output_oqm_enabled] ");
       if (output_oqm_enableds_valid.is_data_empty())
       {
@@ -553,7 +559,7 @@ namespace qb
 
     /// Name of the accelerator
     {
-      ValidatorTwoDim<VectorString, std::string> accs_valid(accs_, VALID_ACCS, " name of back-end simulator [acc] ");
+      ValidatorTwoDim<std::string> accs_valid(accs_, VALID_ACCS, " name of back-end simulator [acc] ");
       if (accs_valid.is_data_empty())
       {
         throw std::range_error("A back-end simulator [acc] must be specified");
@@ -563,7 +569,7 @@ namespace qb
 
     /// QB custom OpenQASM include file
     {
-      ValidatorTwoDim<VectorString, std::string> include_qbs_valid(include_qbs_);
+      ValidatorTwoDim<std::string> include_qbs_valid(include_qbs_);
       if (include_qbs_valid.is_data_empty())
       {
         throw std::range_error("A file for custom OpenQASM gates [include_qb] must be specified");
@@ -575,13 +581,13 @@ namespace qb
     {
       // Default is OpenQASM
       config.source_type = source_string_type::OpenQASM;
-      ValidatorTwoDim<VectorBool, bool> xasms_valid(xasms_, false, true, " interpret circuit in XASM format [xasm] ");
+      ValidatorTwoDim<bool> xasms_valid(xasms_, false, true, " interpret circuit in XASM format [xasm] ");
       if (xasms_valid.is_data_empty())
       {
         throw std::range_error("Flag for XASM [xasm] cannot be empty");
       }
 
-      ValidatorTwoDim<VectorBool, bool> quil1s_valid(quil1s_, false, true,
+      ValidatorTwoDim<bool> quil1s_valid(quil1s_, false, true,
                                                      " interpret circuit in Quil v1 format [quil1] ");
       if (quil1s_valid.is_data_empty())
       {
@@ -607,7 +613,7 @@ namespace qb
 
     /// Disable circuit placement flag
     {
-      ValidatorTwoDim<VectorBool, bool> noplacements_valid(noplacements_, false, true,
+      ValidatorTwoDim<bool> noplacements_valid(noplacements_, false, true,
                                                            " disable placement mapping [noplacement] ");
       if (noplacements_valid.is_data_empty())
       {
@@ -618,7 +624,7 @@ namespace qb
 
     /// Disable circuit optimisation flag
     {
-      ValidatorTwoDim<VectorBool, bool> nooptimises_valid(nooptimises_, false, true,
+      ValidatorTwoDim<bool> nooptimises_valid(nooptimises_, false, true,
                                                           " disable circuit optimiser [nooptimise] ");
       if (nooptimises_valid.is_data_empty())
       {
@@ -629,7 +635,7 @@ namespace qb
 
     /// Skip simulation flag
     {
-      ValidatorTwoDim<VectorBool, bool> nosims_valid(nosims_, false, true, " disable circuit simulator [nosim] ");
+      ValidatorTwoDim<bool> nosims_valid(nosims_, false, true, " disable circuit simulator [nosim] ");
       if (nosims_valid.is_data_empty())
       {
         throw std::range_error("Flag for disabling circuit simulator [nosim] cannot be empty");
@@ -639,7 +645,7 @@ namespace qb
 
     /// Enable/disable noise flag
     {
-      ValidatorTwoDim<VectorBool, bool> noises_valid(noises_, false, true, " enable the QB noise model [noise] ");
+      ValidatorTwoDim<bool> noises_valid(noises_, false, true, " enable the QB noise model [noise] ");
       if (noises_valid.is_data_empty())
       {
         throw std::range_error("Enable the QB noise model [noise] cannot be empty");
@@ -649,7 +655,7 @@ namespace qb
 
     /// QB tensor network simulators initial bond dimension
     {
-      ValidatorTwoDim<VectorN, size_t> initial_bond_dimensions_valid(
+      ValidatorTwoDim<size_t> initial_bond_dimensions_valid(
           initial_bond_dimensions_, session::INITIAL_BOND_DIMENSION_LOWERBOUND, session::INITIAL_BOND_DIMENSION_UPPERBOUND,
           " Initial bond dimension [initial-bond-dimension] ");
       if (initial_bond_dimensions_valid.is_data_empty())
@@ -661,7 +667,7 @@ namespace qb
 
     /// QB purification simulator initial kraus dimension
     {
-      ValidatorTwoDim<VectorN, size_t> initial_kraus_dimensions_valid(
+      ValidatorTwoDim<size_t> initial_kraus_dimensions_valid(
           initial_kraus_dimensions_, session::INITIAL_KRAUS_DIMENSION_LOWERBOUND, session::INITIAL_KRAUS_DIMENSION_UPPERBOUND,
           " Initial kraus dimension [initial-kraus-dimension] ");
       if (initial_kraus_dimensions_valid.is_data_empty())
@@ -673,7 +679,7 @@ namespace qb
 
     /// TNQVM-MPS and QB tensor network simulators max bond dimension
     {
-      ValidatorTwoDim<VectorN, size_t> max_bond_dimensions_valid(
+      ValidatorTwoDim<size_t> max_bond_dimensions_valid(
           max_bond_dimensions_, session::MAX_BOND_DIMENSION_LOWERBOUND, session::MAX_BOND_DIMENSION_UPPERBOUND,
           " Maximum bond dimension [max-bond-dimension] ");
       if (max_bond_dimensions_valid.is_data_empty())
@@ -685,7 +691,7 @@ namespace qb
 
     /// QB purification simulator max kraus dimension
     {
-      ValidatorTwoDim<VectorN, size_t> max_kraus_dimensions_valid(
+      ValidatorTwoDim<size_t> max_kraus_dimensions_valid(
           max_kraus_dimensions_, session::MAX_KRAUS_DIMENSION_LOWERBOUND, session::MAX_KRAUS_DIMENSION_UPPERBOUND,
           " Maximum kraus dimension [max-kraus-dimension] ");
       if (max_kraus_dimensions_valid.is_data_empty())
@@ -697,9 +703,9 @@ namespace qb
 
     /// TNQVM-MPS and QB tensor network SVD cutoff limit
     {
-      ND svd_lowerbound{{0, -1.0e9}}; // This limit is currently ignored
-      ND svd_upperbound{{0, 1.0e9}};  // This limit is currently ignored
-      ValidatorTwoDim<VectorMapND, ND> svd_cutoffs_valid(svd_cutoffs_, svd_lowerbound, svd_upperbound,
+      std::map<int,double> svd_lowerbound{{0, -1.0e9}}; // This limit is currently ignored
+      std::map<int,double> svd_upperbound{{0, 1.0e9}};  // This limit is currently ignored
+      ValidatorTwoDim<std::map<int,double>> svd_cutoffs_valid(svd_cutoffs_, svd_lowerbound, svd_upperbound,
                                                          " MPS SVD cutoff [svd-cutoff] ");
 
       if (svd_cutoffs_valid.is_data_empty())
@@ -711,9 +717,9 @@ namespace qb
 
     /// TNQVM-MPS and QB tensor network relative SVD cutoff limit
     {
-      ND rel_svd_lowerbound{{0, -1.0e9}}; // This limit is currently ignored
-      ND rel_svd_upperbound{{0, 1.0e9}};  // This limit is currently ignored
-      ValidatorTwoDim<VectorMapND, ND> rel_svd_cutoffs_valid(rel_svd_cutoffs_, rel_svd_lowerbound, rel_svd_upperbound,
+      std::map<int,double> rel_svd_lowerbound{{0, -1.0e9}}; // This limit is currently ignored
+      std::map<int,double> rel_svd_upperbound{{0, 1.0e9}};  // This limit is currently ignored
+      ValidatorTwoDim<std::map<int,double>> rel_svd_cutoffs_valid(rel_svd_cutoffs_, rel_svd_lowerbound, rel_svd_upperbound,
                                                          " MPS relative SVD cutoff [svd-cutoff] ");
 
       if (rel_svd_cutoffs_valid.is_data_empty())
@@ -725,7 +731,7 @@ namespace qb
 
     /// QB tensor network accelerator measurement sampling method
     {
-      ValidatorTwoDim<VectorString, std::string> measure_sample_sequential_valid(
+      ValidatorTwoDim<std::string> measure_sample_sequential_valid(
           measure_sample_sequentials_, VALID_MEASURE_SAMPLING_OPTIONS, " Measurement sampling method [measure-sample-sequential] ");
       if (measure_sample_sequential_valid.is_data_empty())
       {
@@ -742,7 +748,7 @@ namespace qb
       }
       else
       {
-        ValidatorTwoDim<std::vector<std::vector<NoiseModel>>, NoiseModel> noise_models_valid(noise_models_);
+        ValidatorTwoDim<NoiseModel> noise_models_valid(noise_models_);
         config.noise_model = noise_models_valid.get(ii, jj);
       }
     }
@@ -751,7 +757,7 @@ namespace qb
     {
       // There were error mitigation settings
       if (!error_mitigations_.empty()) {
-        ValidatorTwoDim<VectorString, std::string> error_mitigations_valid(
+        ValidatorTwoDim<std::string> error_mitigations_valid(
             error_mitigations_, VALID_ERROR_MITIGATIONS,
             " name of error mitigation module [error_mitigation] ");
         config.noise_mitigation = error_mitigations_valid.get(ii, jj);
@@ -761,7 +767,7 @@ namespace qb
     /// User-provided random seed
     {
       if (!seeds_.empty()) {
-        ValidatorTwoDim<VectorN, size_t> seeds_valid(
+        ValidatorTwoDim<size_t> seeds_valid(
             seeds_, 0, std::numeric_limits<int>::max(), " random seed [seed] ");
         config.simulator_seed = seeds_valid.get(ii, jj);
       }
@@ -770,7 +776,7 @@ namespace qb
     /// AER simulator type
     {
       if (!aer_sim_types_.empty()) {
-        ValidatorTwoDim<VectorString, std::string> aer_sim_types_valid(
+        ValidatorTwoDim<std::string> aer_sim_types_valid(
             aer_sim_types_, VALID_AER_SIM_TYPES,
             " name of AER simulation method [aer_sim_type] ");
         config.aer_sim_type = aer_sim_types_valid.get(ii, jj);
@@ -808,7 +814,8 @@ namespace qb
     resize_for_i_j(acc_uses_lsbs_, "acc_uses_lsbs_");
     resize_for_i_j(acc_uses_n_bits_, "acc_uses_n_bits_");
     resize_for_i_j(output_amplitudes_, "output_amplitudes_");
-    resize_for_i_j(out_raws_, "out_raws_");
+    resize_for_i_j(out_raws_json_, "out_raws_json_");
+    //resize_for_i_j(out_raws_map_, "out_raws_map_");
     resize_for_i_j(out_probs_, "out_probs_");
     resize_for_i_j(out_counts_, "out_counts_");
     resize_for_i_j(out_prob_gradients_, "out_prob_gradients_");
@@ -931,18 +938,18 @@ namespace qb
       // Replace QBTHETA_n with theta[n]
       // Note: Does not apply to XASM and Quil1 formats
       if (!xasm && !quil1 && (validate_thetas_option() >= 0)) {
-        ND lowerbound{{0, -1.0e9}}; // Currently this limit is ignored
-        ND upperbound{{0, 1.0e9}};  // Currently this limit is ignored
+        std::map<int,double> lowerbound{{0, -1.0e9}}; // Currently this limit is ignored
+        std::map<int,double> upperbound{{0, 1.0e9}};  // Currently this limit is ignored
 
-        ValidatorTwoDim<VectorMapND, ND> thetas_valid(
+        ValidatorTwoDim<std::map<int,double>> thetas_valid(
             thetas_, lowerbound, upperbound,
             " values for circuit parameters QBTHETA_n ");
         Pretranspile tpre =
             Pretranspile("Substituting QBTHETA_n with theta[n]");
-        ND theta = thetas_valid.get(ii, jj);
+        std::map<int,double> theta = thetas_valid.get(ii, jj);
         std::vector<double> qbtheta;
         if (!theta.empty()) {
-          map_to_vec<ND, std::vector<double>>(theta, qbtheta);
+          map_to_vec<std::map<int,double>, std::vector<double>>(theta, qbtheta);
         }
         for (size_t j = 0; j < qbtheta.size(); j++) {
           std::stringstream starget;
@@ -1032,7 +1039,7 @@ namespace qb
           "The simulation of your input circuit failed");
     }
   }
-  
+
   /// Get the simulator based on `run_i_j_config`
   std::shared_ptr<xacc::Accelerator> session::get_sim_qpu(bool execute_on_hardware, const run_i_j_config &run_config)
   {
@@ -1134,7 +1141,7 @@ namespace qb
                                                 // workstation
       //"10.10.8.50:4000"; // internal address
       // TODO add checking for existence of url key
-      if (remote_backend_database_["qb-lambda"]) 
+      if (remote_backend_database_["qb-lambda"])
       {
         lambda_url = remote_backend_database_["qb-lambda"]["url"].as<std::string>();
         if (debug_) std::cout << "Execute on Lambda workstation @ " << lambda_url << std::endl;
@@ -1352,7 +1359,7 @@ namespace qb
     }
     return qpu;
   }
-  
+
   /// Run (execute) task specified by the (ii, jj) index pair
   void session::run(const size_t ii, const size_t jj) {
     run_internal(ii, jj, /*acc = */ nullptr);
@@ -1378,11 +1385,16 @@ namespace qb
     }
 
     // Clear all stored results:
-    out_raws_.clear();
-    out_raws_.resize(N_ii);
-    for (auto el : out_raws_) {
+    out_raws_json_.clear();
+    out_raws_json_.resize(N_ii);
+    for (auto el : out_raws_json_) {
       el.resize(N_jj);
     }
+    //out_raws_map_.clear();
+    //out_raws_map_.resize(N_ii);
+    //for (auto el : out_raws_map_) {
+    //  el.resize(N_jj);
+    //}
     out_probs_.clear();
     out_probs_.resize(N_ii);
     for (auto el : out_probs_) {
@@ -1463,23 +1475,23 @@ namespace qb
     std::vector<double> param_vals = parameter_vectors_.at(ii).at(jj);
     Table2d<std::shared_ptr<xacc::CompositeInstruction>> gradient_circs;
     size_t num_params = param_vals.size();
-    try {
-      assert(target_circuit->nVariables() > 0);
-      assert(num_params == target_circuit->nVariables());
-    }
-    catch (...) {
-      throw std::logic_error("This circuit is not parametrized correctly, so gradients cannot be calculated.");
-    }
+    if (target_circuit->nVariables() <= 0 or num_params != target_circuit->nVariables()) throw
+     std::logic_error("This circuit is not parametrized correctly, so gradients cannot be calculated.");
+    if (out_counts_.at(0).at(0).empty()) throw std::logic_error("This circuit has "
+     "too many qubits for the results to be stored in a single vector, so gradients "
+     "cannot be calculated.");
+
     // Calculate param-shift gradient
     for (size_t i = 0; i < 2*num_params; i+=2) {
       std::vector<double> vals(param_vals);
-      vals[i/2] += M_PI_2; // Increase by pi/2 
+      vals[i/2] += M_PI_2; // Increase by pi/2
       auto evaled_circ_plus = (*target_circuit)(vals);
       vals[i/2] -= M_PI; // Reduce by pi to get -pi/2 overall
       auto evaled_circ_minus = (*target_circuit)(vals);
       gradient_circs.push_back({evaled_circ_plus});
       gradient_circs.push_back({evaled_circ_minus});
     }
+
     // Create new session object to run shifted gradient circuits
     qb::session gradient_sess(*this);
     gradient_sess.set_calc_jacobian(false);
@@ -1489,14 +1501,15 @@ namespace qb
     size_t num_qubits = run_config.num_qubits;
     size_t num_shots = run_config.num_shots;
     size_t num_outputs = ipow(2, num_qubits);
+
     // Construct the jacobian
     Table2d<double> jacobian(num_params, std::vector<double>(num_outputs));
     std::vector<double> probs_all(num_outputs);
     for (size_t i = 0; i < 2*num_params; i += 2) {
       // Find the bitstring indices that are non-zero in at least one run
-      std::vector<int> counts_plus = 
+      std::vector<int> counts_plus =
                           gradient_sess.get_out_counts().at(i).at(0);
-      std::vector<int> counts_minus = 
+      std::vector<int> counts_minus =
                           gradient_sess.get_out_counts().at(i+1).at(0);
       // Only loop over non-zero bitstrings and populate jacobian
       for (size_t j = 0; j < num_outputs; j++) {
@@ -1506,13 +1519,14 @@ namespace qb
     for (size_t i = 0; i < num_outputs; i++) {
       probs_all.at(i) = out_counts_.at(ii).at(jj).at(i) / (1.0 * num_shots);
     }
+
     // Populate the correct fields
     out_prob_gradients_.at(ii).at(jj).resize(num_params, std::vector<double>(num_outputs));
     out_prob_gradients_.at(ii).at(jj) = jacobian;
     out_probs_.at(ii).at(jj) = probs_all;
   }
 
-  void session::qb12() {
+  void session::init() {
     if (debug_) {
       std::cout
           << "Setting defaults for Quantum Brilliance 12 qubit, 1024-shot, "
@@ -1527,9 +1541,9 @@ namespace qb
     set_initial_kraus_dimension(1);
     set_max_bond_dimension(256);
     set_max_kraus_dimension(256);
-    ND scut{{0, 1.0e-8}};
+    std::map<int,double> scut{{0, 1.0e-8}};
     set_svd_cutoff(scut);
-    ND rel_scut{{0, 1.0e-4}};
+    std::map<int,double> rel_scut{{0, 1.0e-4}};
     set_rel_svd_cutoff(rel_scut);
     set_output_oqm_enabled(true);
     set_measure_sample_sequential("auto");
@@ -1545,9 +1559,9 @@ namespace qb
     set_initial_kraus_dimension(1);
     set_max_bond_dimension(256);
     set_max_kraus_dimension(256);
-    ND scut{{0, 1.0e-8}};
+    std::map<int,double> scut{{0, 1.0e-8}};
     set_svd_cutoff(scut);
-    ND rel_scut{{0, 1.0e-4}};
+    std::map<int,double> rel_scut{{0, 1.0e-4}};
     set_rel_svd_cutoff(rel_scut);
     set_output_oqm_enabled(true);
     set_acc("aws-braket");
@@ -1751,7 +1765,7 @@ namespace qb
     remote_backend_database_ = YAML::LoadFile(remote_backend_database_path_);
 
     // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS or Lambda.
-    const bool exec_on_hardware = run_config.acc_name != "aws-braket" and 
+    const bool exec_on_hardware = run_config.acc_name != "aws-braket" and
                                   run_config.acc_name != "qb-lambda" and
                                   remote_backend_database_[run_config.acc_name];
 
@@ -1761,11 +1775,11 @@ namespace qb
     // ==============================================
     // Construct/initialize the Accelerator instance
     // ==============================================
-    // Note: there are two cases here: 
-    // (1) Asynchronous execution: an accelerator instance is explicitly provided 
+    // Note: there are two cases here:
+    // (1) Asynchronous execution: an accelerator instance is explicitly provided
     // i.e., run_async(i, j), whereby an accelerator from a pre-defined pool is provided.
     // (2) Synchronous/sequential execution whereby the accelerator name for this (i, j) job is set in this session object,
-    // hence, we just construct/retrieve it accordingly. 
+    // hence, we just construct/retrieve it accordingly.
     auto qpu = accelerator ? accelerator : get_sim_qpu(exec_on_hardware, run_config);
     auto acc = std::make_shared<qb::backend>();
     qpu->updateConfiguration(mqbacc);
@@ -1810,7 +1824,7 @@ namespace qb
                     << std::endl;
         std::string placement = "swap-shortest-path";
         if (!placements_.empty()) {
-          ValidatorTwoDim<VectorString, std::string> placements_valid(
+          ValidatorTwoDim<std::string> placements_valid(
               placements_, VALID_HARDWARE_PLACEMENTS,
               " name of placement module");
           const std::string placement_opt = placements_valid.get(ii, jj);
@@ -1857,7 +1871,7 @@ namespace qb
                     << std::endl;
         const auto opt_passes = [&]() -> Passes {
           if (!circuit_opts_.empty()) {
-            ValidatorTwoDim<Table2d<Passes>, Passes> opts_valid(circuit_opts_);
+            ValidatorTwoDim<Passes> opts_valid(circuit_opts_);
             return opts_valid.get(ii, jj);
           }
 
@@ -2011,8 +2025,8 @@ namespace qb
           std::cout << "* Z-operator expectation value: " << z_expectation_val
                     << std::endl;
         }
-        // Save Z-operator expectation value to VectorMapND
-        ND res_z{{0, z_expectation_val}};
+        // Save Z-operator expectation value to Table2d<std::map<int,double>>
+        std::map<int,double> res_z{{0, z_expectation_val}};
         out_z_op_expects_.at(ii).at(jj) = res_z;
       } else {
         xacc::warning("No Z operator expectation available");
@@ -2065,13 +2079,13 @@ namespace qb
       // Invoke the Profiler
       Profiler timing_profile(qb_transpiler->getTranspiledResult(), run_config.num_qubits, debug_);
 
-      // Save single qubit gate qtys to VectorMapNN
+      // Save single qubit gate qtys to Table2d<std::map<int,int>>
       out_single_qubit_gate_qtys_.at(ii).at(jj) = timing_profile.get_count_1q_gates_on_q();
 
-      // Save two-qubit gate qtys to VectorMapNN
+      // Save two-qubit gate qtys to Table2d<std::map<int,int>>
       out_double_qubit_gate_qtys_.at(ii).at(jj) = timing_profile.get_count_2q_gates_on_q();
 
-      // Save timing results to VectorMapND
+      // Save timing results to Table2d<std::map<int,double>>
       out_total_init_maxgate_readout_times_.at(ii).at(jj) =
           timing_profile.get_total_initialisation_maxgate_readout_time_ms(xacc_scope_timer_qpu_ms, run_config.num_shots);
     }
@@ -2081,7 +2095,7 @@ namespace qb
   // Wrap raw OpenQASM string in a QB Kernel:
   // - Move qreg to a kernel argument
   // - Denote the kernel name as 'QBCIRCUIT'
-  std::string session::convertRawOpenQasmToQBKernel(const std::string &in_rawQasm) 
+  std::string session::convertRawOpenQasmToQBKernel(const std::string &in_rawQasm)
   {
     // Pattern:
     // - start with qreg
@@ -2120,7 +2134,7 @@ namespace qb
     // MSB/LSB checker implemented for now, qubit->classical register
     // mapping implemented in future iteration
     if (acc_uses_lsbs_.at(ii).at(jj)) {
-      std::reverse(in_bitstring.begin(), 
+      std::reverse(in_bitstring.begin(),
                     in_bitstring.end());
     }
     return (size_t) std::stoi(in_bitstring, 0, 2);

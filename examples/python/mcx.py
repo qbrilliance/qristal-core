@@ -2,7 +2,7 @@ import qb.core
 import numpy as np
 import ast
 s = qb.core.session()
-s.qb12()
+s.init()
 
 n = 3
 
@@ -25,5 +25,5 @@ for i in range(2**n):
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     print("Output = " + result)

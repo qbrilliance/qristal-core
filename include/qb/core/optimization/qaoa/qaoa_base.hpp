@@ -1,12 +1,14 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "qb/core/optimization/qaoa/qaoa_validators.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "PauliOperator.hpp"
-#include "qb/core/optimization/qaoa/autodiff.hpp"
 #include "InstructionIterator.hpp"
+
+#include "qb/core/typedefs.hpp"
+#include "qb/core/utils.hpp"
+#include "qb/core/optimization/qaoa/autodiff.hpp"
 
 #include <sstream>
 
@@ -15,40 +17,40 @@ namespace op {
 
 class QaoaBase {
   protected:
-    VectorString hams_;
-    VectorN qns_;
+    Table2d<std::string> hams_;
+    Table2d<size_t> qns_;
     
-    VectorString accs_;
-    VectorN sns_;
-    VectorBool noises_;
+    Table2d<std::string> accs_;
+    Table2d<size_t> sns_;
+    Table2d<bool> noises_;
     
-    VectorN qaoa_steps_;
-    VectorBool extended_params_;  
+    Table2d<size_t> qaoa_steps_;
+    Table2d<bool> extended_params_;  
     
-    VectorN rns_;
-    VectorString rownames_;
-    VectorString colnames_;
+    Table2d<size_t> rns_;
+    Table2d<std::string> rownames_;
+    Table2d<std::string> colnames_;
     
-    VectorString methods_;
-    VectorN maxevals_;
-    VectorMapND functols_;
-    VectorMapND optimum_energy_abstols_;
-    VectorMapND optimum_energy_lowerbounds_;
-    VectorBool grads_; 
-    VectorString gradient_strategys_; 
+    Table2d<std::string> methods_;
+    Table2d<size_t> maxevals_;
+    Table2d<std::map<int,double>> functols_;
+    Table2d<std::map<int,double>> optimum_energy_abstols_;
+    Table2d<std::map<int,double>> optimum_energy_lowerbounds_;
+    Table2d<bool> grads_; 
+    Table2d<std::string> gradient_strategys_; 
     
     // Variables not wrapped to Python
-    VectorBool acc_uses_lsbs_;
-    VectorN acc_uses_n_bits_;
+    Table2d<bool> acc_uses_lsbs_;
+    Table2d<size_t> acc_uses_n_bits_;
     
     // Storage for quantities of interest
-    VectorString out_eigenstates_;
-    VectorMapND out_energys_;
-    VectorMapND out_jacobians_;
-    VectorMapND out_thetas_;
-    VectorMapND out_quantum_energy_calc_times_;
-    VectorMapND out_quantum_jacobian_calc_times_;
-    VectorMapND out_classical_energy_jacobian_total_calc_times_;
+    Table2d<std::string> out_eigenstates_;
+    Table2d<std::map<int,double>> out_energys_;
+    Table2d<std::map<int,double>> out_jacobians_;
+    Table2d<std::map<int,double>> out_thetas_;
+    Table2d<std::map<int,double>> out_quantum_energy_calc_times_;
+    Table2d<std::map<int,double>> out_quantum_jacobian_calc_times_;
+    Table2d<std::map<int,double>> out_classical_energy_jacobian_total_calc_times_;
     
     // Debugging
     bool debug_qbos_;
@@ -152,126 +154,126 @@ class QaoaBase {
     
     // Setters and Getters
     void set_colname(const std::string & in_colname);  
-    void set_colnames(const VectorString & in_colnames);
-    const VectorString &get_colnames() const;
+    void set_colnames(const Table2d<std::string> & in_colnames);
+    const Table2d<std::string> &get_colnames() const;
     static const char *help_colnames_;
     //
     void set_rowname(const std::string & in_rowname);  
-    void set_rownames(const VectorString & in_rownames);
-    const VectorString &get_rownames() const;
+    void set_rownames(const Table2d<std::string> & in_rownames);
+    const Table2d<std::string> &get_rownames() const;
     static const char *help_rownames_;
     //
     void set_acc(const std::string &in_acc);
-    void set_accs(const VectorString &in_accs);
-    const VectorString &get_accs() const;
+    void set_accs(const Table2d<std::string> &in_accs);
+    const Table2d<std::string> &get_accs() const;
     static const char *help_accs_;
     void validate_acc(const std::string &acc);
     //
     void set_ham(const std::string &in_ham);
-    void set_hams(const VectorString &in_hams);
-    const VectorString &get_hams() const;
+    void set_hams(const Table2d<std::string> &in_hams);
+    const Table2d<std::string> &get_hams() const;
     static const char *help_hams_;  
     //
     void set_qaoa_step(const size_t &in_qaoa_step);
-    void set_qaoa_steps(const VectorN &in_qaoa_steps);
-    const VectorN &get_qaoa_steps() const;
+    void set_qaoa_steps(const Table2d<size_t> &in_qaoa_steps);
+    const Table2d<size_t> &get_qaoa_steps() const;
     static const char *help_qaoa_steps_;
     //
     void set_qn(const size_t &in_qn);
-    void set_qns(const VectorN &in_qns);
-    const VectorN &get_qns() const;
+    void set_qns(const Table2d<size_t> &in_qns);
+    const Table2d<size_t> &get_qns() const;
     static const char *help_qns_;
     //
     void set_rn(const size_t &in_rn);
-    void set_rns(const VectorN &in_rns);
-    const VectorN &get_rns() const;
+    void set_rns(const Table2d<size_t> &in_rns);
+    const Table2d<size_t> &get_rns() const;
     static const char *help_rns_;
     //
     void set_sn(const size_t &in_sn);
-    void set_sns(const VectorN &in_sns);
-    const VectorN &get_sns() const;
+    void set_sns(const Table2d<size_t> &in_sns);
+    const Table2d<size_t> &get_sns() const;
     static const char *help_sns_;
     //
     void set_noise(const bool &in_noise);
-    void set_noises(const VectorBool &in_noises);
-    const VectorBool &get_noises() const;
+    void set_noises(const Table2d<bool> &in_noises);
+    const Table2d<bool> &get_noises() const;
     static const char *help_noises_;
     //
     void set_extended_param(const bool &in_extended_param);
-    void set_extended_params(const VectorBool &in_extended_params);
-    const VectorBool &get_extended_params() const;
+    void set_extended_params(const Table2d<bool> &in_extended_params);
+    const Table2d<bool> &get_extended_params() const;
     static const char *help_extended_params_;
     //
     void validate_method(const std::string &method);
     void set_method(const std::string &in_method);
-    void set_methods(const VectorString &in_methods);
-    const VectorString &get_methods() const;
+    void set_methods(const Table2d<std::string> &in_methods);
+    const Table2d<std::string> &get_methods() const;
     static const char *help_methods_;
     //
     void set_grad(const bool &in_grad);
-    void set_grads(const VectorBool &in_grads);
-    const VectorBool &get_grads() const;
+    void set_grads(const Table2d<bool> &in_grads);
+    const Table2d<bool> &get_grads() const;
     static const char *help_grads_;
     //
     void validate_gradient_strategy(const std::string &gradient_strategy);
     void set_gradient_strategy(const std::string &in_gradient_strategy);
-    void set_gradient_strategys(const VectorString &in_gradient_strategys);
-    const VectorString &get_gradient_strategys() const;
+    void set_gradient_strategys(const Table2d<std::string> &in_gradient_strategys);
+    const Table2d<std::string> &get_gradient_strategys() const;
     static const char *help_gradient_strategys_;
     //
     void set_maxeval(const size_t &in_maxeval);
-    void set_maxevals(const VectorN &in_maxevals);
-    const VectorN &get_maxevals() const;
+    void set_maxevals(const Table2d<size_t> &in_maxevals);
+    const Table2d<size_t> &get_maxevals() const;
     static const char *help_maxevals_;
     //
-    void set_functol(const ND & in_functol);
-    void set_functols(const VectorMapND & in_functols);
-    const VectorMapND & get_functols() const;
+    void set_functol(const std::map<int,double> & in_functol);
+    void set_functols(const Table2d<std::map<int,double>> & in_functols);
+    const Table2d<std::map<int,double>> & get_functols() const;
     static const char* help_functols_;
     //
-    void set_optimum_energy_abstol(const ND & in_optimum_energy_abstol);
-    void set_optimum_energy_abstols(const VectorMapND & in_optimum_energy_abstols);
-    const VectorMapND & get_optimum_energy_abstols() const;
+    void set_optimum_energy_abstol(const std::map<int,double> & in_optimum_energy_abstol);
+    void set_optimum_energy_abstols(const Table2d<std::map<int,double>> & in_optimum_energy_abstols);
+    const Table2d<std::map<int,double>> & get_optimum_energy_abstols() const;
     static const char* help_optimum_energy_abstols_;
     //
-    void set_optimum_energy_lowerbound(const ND & in_optimum_energy_lowerbound);
-    void set_optimum_energy_lowerbounds(const VectorMapND & in_optimum_energy_lowerbounds);
-    const VectorMapND & get_optimum_energy_lowerbounds() const;
+    void set_optimum_energy_lowerbound(const std::map<int,double> & in_optimum_energy_lowerbound);
+    void set_optimum_energy_lowerbounds(const Table2d<std::map<int,double>> & in_optimum_energy_lowerbounds);
+    const Table2d<std::map<int,double>> & get_optimum_energy_lowerbounds() const;
     static const char* help_optimum_energy_lowerbounds_;
     //
     void set_out_eigenstate(const std::string & out_eigenstate);
-    void set_out_eigenstates(const VectorString & out_eigenstates);
-    const VectorString & get_out_eigenstates() const;
+    void set_out_eigenstates(const Table2d<std::string> & out_eigenstates);
+    const Table2d<std::string> & get_out_eigenstates() const;
     static const char* help_out_eigenstates_;
     //
-    void set_out_energy(const ND & out_energy);
-    void set_out_energys(const VectorMapND & out_energys);
-    const VectorMapND & get_out_energys() const;
+    void set_out_energy(const std::map<int,double> & out_energy);
+    void set_out_energys(const Table2d<std::map<int,double>> & out_energys);
+    const Table2d<std::map<int,double>> & get_out_energys() const;
     static const char* help_out_energys_;
     //
-    void set_out_jacobian(const ND & out_jacobian);
-    void set_out_jacobians(const VectorMapND & out_jacobians);
-    const VectorMapND & get_out_jacobians() const;
+    void set_out_jacobian(const std::map<int,double> & out_jacobian);
+    void set_out_jacobians(const Table2d<std::map<int,double>> & out_jacobians);
+    const Table2d<std::map<int,double>> & get_out_jacobians() const;
     static const char* help_out_jacobians_;
     //
-    void set_out_theta(const ND & out_theta);
-    void set_out_thetas(const VectorMapND & out_thetas);
-    const VectorMapND & get_out_thetas() const;
+    void set_out_theta(const std::map<int,double> & out_theta);
+    void set_out_thetas(const Table2d<std::map<int,double>> & out_thetas);
+    const Table2d<std::map<int,double>> & get_out_thetas() const;
     static const char* help_out_thetas_;
     //
-    void set_out_quantum_energy_calc_time(const ND & out_quantum_energy_calc_time);
-    void set_out_quantum_energy_calc_times(const VectorMapND & out_quantum_energy_calc_times);
-    const VectorMapND & get_out_quantum_energy_calc_times() const;
+    void set_out_quantum_energy_calc_time(const std::map<int,double> & out_quantum_energy_calc_time);
+    void set_out_quantum_energy_calc_times(const Table2d<std::map<int,double>> & out_quantum_energy_calc_times);
+    const Table2d<std::map<int,double>> & get_out_quantum_energy_calc_times() const;
     static const char* help_out_quantum_energy_calc_times_;
     //
-    void set_out_quantum_jacobian_calc_time(const ND & out_quantum_jacobian_calc_time);
-    void set_out_quantum_jacobian_calc_times(const VectorMapND & out_quantum_jacobian_calc_times);
-    const VectorMapND & get_out_quantum_jacobian_calc_times() const;
+    void set_out_quantum_jacobian_calc_time(const std::map<int,double> & out_quantum_jacobian_calc_time);
+    void set_out_quantum_jacobian_calc_times(const Table2d<std::map<int,double>> & out_quantum_jacobian_calc_times);
+    const Table2d<std::map<int,double>> & get_out_quantum_jacobian_calc_times() const;
     static const char* help_out_quantum_jacobian_calc_times_;
     //
-    void set_out_classical_energy_jacobian_total_calc_time(const ND & out_classical_energy_jacobian_total_calc_time);
-    void set_out_classical_energy_jacobian_total_calc_times(const VectorMapND & out_classical_energy_jacobian_total_calc_times);
-    const VectorMapND & get_out_classical_energy_jacobian_total_calc_times() const;
+    void set_out_classical_energy_jacobian_total_calc_time(const std::map<int,double> & out_classical_energy_jacobian_total_calc_time);
+    void set_out_classical_energy_jacobian_total_calc_times(const Table2d<std::map<int,double>> & out_classical_energy_jacobian_total_calc_times);
+    const Table2d<std::map<int,double>> & get_out_classical_energy_jacobian_total_calc_times() const;
     static const char* help_out_classical_energy_jacobian_total_calc_times_;
     
     // Misc functions

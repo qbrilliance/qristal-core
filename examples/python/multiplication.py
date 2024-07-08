@@ -4,7 +4,7 @@ import ast
 s = qb.core.session()
 s.acc = "qsim"
 s.sn = 1024
-s.qb12()
+s.init()
 s.qn = 9
 
 ##########################################################################
@@ -42,7 +42,7 @@ s.noplacement = True
 s.notiming = True
 s.output_oqm_enabled = False
 s.run()
-result = s.out_raw[0][0]
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 print(res)
 assert(res["10111100"] == 1024)

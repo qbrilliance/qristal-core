@@ -2,7 +2,7 @@ import qb.core
 import numpy as np
 import ast
 s = qb.core.session()
-s.qb12()
+s.init()
 
 # In this test we use generalised mcx to
 # perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
@@ -57,7 +57,7 @@ for condition in conditions:
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        result = s.out_raw[0][0]
+        result = s.out_raw_json[0][0]
         res = ast.literal_eval(result)
         expected_output = input_bitstring[0:2]
         if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:

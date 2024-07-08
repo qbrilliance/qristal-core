@@ -18,7 +18,7 @@ TEST(CircuitFidelityTester, checkSPAM) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
@@ -42,7 +42,7 @@ TEST(CircuitFidelityTester, checkRotationSweep) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());

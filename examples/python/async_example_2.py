@@ -9,7 +9,7 @@ import json as json
 import time as time
 
 s = qb.core.session()
-s.qb12()
+s.init()
 
 NOL = 50   # number of outer loops
 NW = 32    # number of async workers
@@ -42,7 +42,7 @@ for outerLoop in range(NOL):
 
   s.instring.clear()
   for i in range(NJ):
-    s.instring.append(qb.core.String([circuit_str]))
+    s.instring.append(qb.core.VectorString([circuit_str]))
 
   handles = []
   for i in range(NJ):

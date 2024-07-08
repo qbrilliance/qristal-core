@@ -137,9 +137,9 @@ namespace qb
                     }
                 }
 
-                qb::VectorString accs_, noise_mitigations_; 
+                qb::Table2d<std::string> accs_, noise_mitigations_; 
                 std::vector<std::vector<std::string>> noise_models_; //stored in json format
-                qb::VectorN qns_, sns_;
+                qb::Table2d<size_t> qns_, sns_;
 
                 /**
                 * @brief Dump function to copy SessionInfo object
@@ -202,47 +202,47 @@ namespace qb
         */
         std::map<size_t, size_t> convert_to_counts_map(const std::string& bitstrings, const size_t n_qubits, const bool r2l_ordered); 
         /**
-        * @brief Helper function to convert list of bit string counts from qb::String (aka std::vector<std::string>) to std::vector<std::map<std::string, size_t>>
+        * @brief Helper function to convert list of bit string counts from std::vector<std::string> to std::vector<std::map<std::string, size_t>>
         * 
         * Arguments:
-        * @param list_of_bitstrings collection of bit string counts of type qb::String as returned by qb::session.
+        * @param list_of_bitstrings collection of bit string counts of type std::vector<std::string> as returned by qb::session.
         * @param n_qubits number of qubits.
         * 
         * @return Converted bit string counts in std::vector<std::map<std::string, size_t>> container.
         */
-        std::vector<std::map<std::string, size_t>> convert_to_count_maps(const qb::String& list_of_bitstrings, const size_t n_qubits);
+        std::vector<std::map<std::string, size_t>> convert_to_count_maps(const std::vector<std::string>& list_of_bitstrings, const size_t n_qubits);
         /**
-        * @brief Helper function to convert list of bit string counts from qb::String (aka std::vector<std::string>) to std::vector<std::map<size_t, size_t>>
+        * @brief Helper function to convert list of bit string counts from std::vector<std::string> to std::vector<std::map<size_t, size_t>>
         * 
         * Arguments:
-        * @param list_of_bitstrings collection of bit string counts of type qb::String as returned by qb::session.
+        * @param list_of_bitstrings collection of bit string counts of type std::vector<std::string> as returned by qb::session.
         * @param n_qubits number of qubits.
         * @param r2l_ordered assumed qubit ordering. If true, least significant bit is assumed to be on the very right.
         * 
         * @return Converted bit string counts in std::vector<std::map<size_t, size_t>> container.
         */
-        std::vector<std::map<size_t, size_t>> convert_to_count_maps(const qb::String& list_of_bitstrings, const size_t n_qubits, const bool r2l_ordered);
+        std::vector<std::map<size_t, size_t>> convert_to_count_maps(const std::vector<std::string>& list_of_bitstrings, const size_t n_qubits, const bool r2l_ordered);
 
         /**
-        * @brief Container object for bit string counts from qb::String
+        * @brief Container object for bit string counts from std::vector<std::string>
         * 
-        * @details This class wraps around qb::String and provides save, load, and dump member functions as required by the Serializable concept.
+        * @details This class wraps around std::vector<std::string> and provides save, load, and dump member functions as required by the Serializable concept.
         */
         class BitCounts
         {
             public:
                 BitCounts() {}
-                BitCounts( const qb::String& results ) : results_(results) {}
-                qb::String results_{};
+                BitCounts( const std::vector<std::string>& results ) : results_(results) {}
+                std::vector<std::string> results_{};
 
                 /**
                 * @brief Dump function to copy BitCounts content
                 * 
                 * Arguments: ---
                 * 
-                * @return qb::String copy of stored bit string counts. 
+                * @return std::vector<std::string> copy of stored bit string counts. 
                 */
-                qb::String dump() const { return results_; }
+                std::vector<std::string> dump() const { return results_; }
 
                 /**
                 * @brief Store BitCounts to templated @tparam Archive

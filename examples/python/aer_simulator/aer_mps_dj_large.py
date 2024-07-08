@@ -1,6 +1,6 @@
 import qb.core
 s = qb.core.session(True)
-s.qb12()
+s.init()
 s.xasm = True
 s.acc = "aer"
 s.aer_sim_type = "matrix_product_state"
@@ -49,6 +49,6 @@ print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
 s.qn = nb_qubits + 1
 s.instring = qbdj(nb_qubits)
 s.run()
-print(s.out_raw[0][0])
+print(s.out_raw_json[0][0])
 print("==================================")
 

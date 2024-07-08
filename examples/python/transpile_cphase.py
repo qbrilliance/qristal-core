@@ -22,7 +22,7 @@ transpiled_circ_aer = transpile(circ_aer, basis_gates =["rx","ry","cz"], optimiz
 
 # Get transpiled circuit from qb_visitor
 my_sim = qb.core.session()
-my_sim.qb12()
+my_sim.init()
 my_sim.qn = 2
 my_sim.acc = "qpp"
 my_sim.noplacement = True

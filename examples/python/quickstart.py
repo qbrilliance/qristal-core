@@ -8,7 +8,7 @@ import qb.core
 my_sim = qb.core.session()
 
 # Choose some default session parameters:
-my_sim.qb12()
+my_sim.init()
 
 # Set the number of shots to run through the circuit:
 my_sim.sn = 1024
@@ -38,5 +38,5 @@ my_sim.run()
 
 # Print the cumulative results in each of the classical registers:
 print("Bell state |Phi+>: ")
-print(my_sim.out_raw[0][0])
+print(my_sim.out_raw_json[0][0])
 

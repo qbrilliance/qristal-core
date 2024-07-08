@@ -2,7 +2,7 @@ import qb.core
 import json
 import numpy as np
 s = qb.core.session()
-s.qb12()
+s.init()
 qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qb-lambda"}]}
 s.set_parallel_run_config(json.dumps(qpu_configs))
 

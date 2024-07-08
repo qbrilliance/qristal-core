@@ -70,7 +70,7 @@ namespace qb
         void executeWorkflowTask<RotationSweep, Task::IdealCounts>::operator()(RotationSweep & workflow, std::time_t timestamp) const {
             size_t n_shots = workflow.get_session().get_sns()[0][0];
             size_t n_bitstrings = std::pow(2, workflow.get_rotations_per_qubit().size());
-            qb::String ideal_results;
+            std::vector<std::string> ideal_results;
             //no need to build the circuits at all! Just calculate the probabilities and set exact counts 
             //Rx(theta) |0> = cos(theta/2)|0> - isin(theta/2)|1>  ---> p(0) = cos(theta/2)^2 ; p(1) = sin(theta/2)^2
             //Ry(theta) |0> = cos(theta/2)|0> +  sin(theta/2)|1>  ---> p(0) = cos(theta/2)^2 ; p(1) = sin(theta/2)^2

@@ -1,7 +1,7 @@
 import qb.core
 import numpy as np
 s = qb.core.session()
-s.qb12()
+s.init()
 
 circ = qb.core.Circuit()
 # QFT

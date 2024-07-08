@@ -12,7 +12,7 @@ def main(arguments):
   my_sim = qb.core.session()
 
   # Set up meaningful defaults for session parameters
-  my_sim.qb12()
+  my_sim.init()
 
   # 2 qubits
   my_sim.qn = 2
@@ -65,7 +65,7 @@ def main(arguments):
   my_sim.run()
 
   # Lookee
-  print(my_sim.out_raw[0][0])
+  print(my_sim.out_raw_json[0][0])
 
 #Actual program launched on invocation
 main(sys.argv)

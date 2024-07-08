@@ -6,12 +6,12 @@ namespace qb {
 namespace op {
 
 // theta
-void QaoaSimple::set_theta(const ND &in_theta) {
+void QaoaSimple::set_theta(const std::map<int,double> &in_theta) {
   QaoaSimple::thetas_.clear();
   QaoaSimple::thetas_.push_back({in_theta});
 }
-void QaoaSimple::set_thetas(const VectorMapND &in_thetas) { QaoaSimple::thetas_ = in_thetas; }
-const VectorMapND & QaoaSimple::get_thetas() const { return QaoaSimple::thetas_; }
+void QaoaSimple::set_thetas(const Table2d<std::map<int,double>> &in_thetas) { QaoaSimple::thetas_ = in_thetas; }
+const Table2d<std::map<int,double>> & QaoaSimple::get_thetas() const { return QaoaSimple::thetas_; }
 
 // Start of help text
 const char* QaoaSimple::help_thetas_ = R"(
@@ -489,17 +489,11 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
   using namespace xacc;
 
   // Construct validations
-  ValidatorTwoDimOp<VectorString, std::string> colnames_valid(
-    colnames_,
-    " name of condition in columns [colname] "
-  );
+  ValidatorTwoDim<std::string> colnames_valid(colnames_);
   
-  ValidatorTwoDimOp<VectorString, std::string> rownames_valid(
-    rownames_, 
-    " name of experiment in rows [rowname] "
-  );
+  ValidatorTwoDim<std::string> rownames_valid(rownames_);
   
-  ValidatorTwoDimOp<VectorN, size_t> qaoa_steps_valid(
+  ValidatorTwoDim<size_t> qaoa_steps_valid(
     qaoa_steps_, 
     QaoaBase::QAOA_STEPS_LOWERBOUND,
     QaoaBase::QAOA_STEPS_UPPERBOUND,
@@ -510,7 +504,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of QAOA layers [qaoa_step] cannot be empty");
   }
   
-  ValidatorTwoDimOp<VectorBool, bool> extended_params_valid(
+  ValidatorTwoDim<bool> extended_params_valid(
     extended_params_,
     false,
     true,
@@ -521,18 +515,15 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Enable QAOA extended parameters [extended_param] cannot be empty");
   }   
   
-  ValidatorTwoDimOp<VectorString, std::string> hams_valid(
-    hams_, 
-    " Hamiltonian for QAOA [ham] "
-  );
+  ValidatorTwoDim<std::string> hams_valid(hams_);
 
   if (hams_valid.is_data_empty()) {
     throw std::range_error("A Hamiltonian [ham] must be specified");
   }
   
-  ND thetas_lowerbound{{0, -1.0e9}}; // This limit is currently ignored
-  ND thetas_upperbound{{0, 1.0e9}}; // This limit is currently ignored
-  ValidatorTwoDimOp<VectorMapND, ND> thetas_valid(
+  std::map<int,double> thetas_lowerbound{{0, -1.0e9}};
+  std::map<int,double> thetas_upperbound{{0, 1.0e9}};
+  ValidatorTwoDim<std::map<int,double>> thetas_valid(
     thetas_, 
     thetas_lowerbound, 
     thetas_upperbound, 
@@ -543,7 +534,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Initial values for ansatz parameters [theta] must be specified");
   }
   
-  ValidatorTwoDimOp<VectorN, size_t> sns_valid(
+  ValidatorTwoDim<size_t> sns_valid(
     sns_, 
     QaoaBase::SNS_LOWERBOUND,
     QaoaBase::SNS_UPPERBOUND,
@@ -554,7 +545,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of shots [sn] cannot be empty");
   }
   
-  ValidatorTwoDimOp<VectorN, size_t> qns_valid(
+  ValidatorTwoDim<size_t> qns_valid(
     qns_, 
     QaoaBase::QNS_LOWERBOUND,
     QaoaBase::QNS_UPPERBOUND,
@@ -565,7 +556,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of qubits [qn] cannot be empty");
   }
   
-  ValidatorTwoDimOp<VectorN, size_t> maxevals_valid(
+  ValidatorTwoDim<size_t> maxevals_valid(
     maxevals_, 
     QaoaBase::MAXEVALS_LOWERBOUND,
     QaoaBase::MAXEVALS_UPPERBOUND,
@@ -576,7 +567,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Number of optimiser evaluation [maxeval] cannot be empty");
   }
   
-  ValidatorTwoDimOp<VectorString, std::string> accs_valid(
+  ValidatorTwoDim<std::string> accs_valid(
     accs_, 
     VALID_ACCS, 
     " name of back-end simulator [acc] "
@@ -586,7 +577,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("A back-end simulator [acc] must be specified");
   }
   
-  ValidatorTwoDimOp<VectorString, std::string> methods_valid(
+  ValidatorTwoDim<std::string> methods_valid(
     methods_,
     VALID_OPTIMISER_METHODS,
     " optimiser algorithm [method] "
@@ -596,7 +587,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("An optmiser method [method] must be specified");
   }
   
-  ValidatorTwoDimOp<VectorBool, bool> grads_valid(
+  ValidatorTwoDim<bool> grads_valid(
     grads_,
     false,
     true,
@@ -607,7 +598,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("Enable gradient calculation at the optimum [grad] cannot be empty");
   } 
   
-  ValidatorTwoDimOp<VectorString, std::string> gradient_strategys_valid(
+  ValidatorTwoDim<std::string> gradient_strategys_valid(
     gradient_strategys_,
     VALID_GRADIENT_STRATEGYS,
     " gradient calculation method [gradient_strategy] "
@@ -617,7 +608,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     throw std::range_error("A gradient strategy [gradient_strategy] must be specified");
   }
   
-  ValidatorTwoDimOp<VectorBool, bool> noises_valid(
+  ValidatorTwoDim<bool> noises_valid(
     noises_,
     false,
     true,
@@ -832,7 +823,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     stepidx++;
   }
   
-  // Save energy trace to: out_energys_ [VectorMapND]
+  // Save energy trace to: out_energys_ [Table2d<std::map<int,double>>]
   if (out_energys_.size() < (ii + 1)) {
     if (debug_qbos_) {
       std::cout 
@@ -851,7 +842,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     (out_energys_.at(ii)).resize(jj + 1);
   }
   
-  ND res_energy;
+  std::map<int,double> res_energy;
   vec_to_map(res_energy, energies);
   (out_energys_.at(ii)).at(jj) = res_energy;
   
@@ -871,7 +862,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
   );
   
   // theta parameters - store output
-  // Save theta trace to: out_thetas_ [VectorMapND]
+  // Save theta trace to: out_thetas_ [Table2d<std::map<int,double>>]
   int step = (buffer->nChildren()) / nIters;
   stepidx = 0;
   for (auto &childBuff : buffer->getChildren()) {
@@ -885,7 +876,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     stepidx++;
   }
 
-  ND res_theta;
+  std::map<int,double> res_theta;
   vec_to_map(res_theta, alliters_theta);
   if (out_thetas_.size() < (ii + 1)) {
     if (debug_qbos_) {
@@ -1016,7 +1007,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
     accum_quantum_est_ms += quantum_est[profile.KEY_TOTAL_TIME];
   }
   
-  ND res_quantum_energy_calc_time{{0, accum_quantum_est_ms * nIters}};
+  std::map<int,double> res_quantum_energy_calc_time{{0, accum_quantum_est_ms * nIters}};
   
   if (out_quantum_energy_calc_times_.size() < (ii + 1)) {
     if (debug_qbos_) {
@@ -1071,7 +1062,7 @@ void QaoaSimple::run(const size_t &ii, const size_t &jj) {
       accum_grad_quantum_est_ms += quantum_est[profile.KEY_TOTAL_TIME];
     }
     
-    ND res_quantum_jacobian_calc_time{{0, accum_grad_quantum_est_ms * nIters}};
+    std::map<int,double> res_quantum_jacobian_calc_time{{0, accum_grad_quantum_est_ms * nIters}};
     
     if (out_quantum_jacobian_calc_times_.size() < (ii + 1)) {
       if (debug_qbos_) {

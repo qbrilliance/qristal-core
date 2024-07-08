@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "py_job_handle.hpp"
+#include "qb/core/python/py_job_handle.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "qb/core/remote_async_accelerator.hpp"
 #include "qb/core/session.hpp"
 #include "qb/core/thread_pool.hpp"
-#include "py_stl_containers.hpp"
 
 namespace qb {
 /// Returns true if the job is completed.
@@ -41,7 +41,7 @@ std::string JobHandle::get_async_result() {
   if (m_handle) {
     // If this is a remote job, wait for its completion.
     m_handle->wait_for_completion();
-    return m_qpqe->get_out_raws().at(m_i).at(m_j);
+    return m_qpqe->get_out_raws_json().at(m_i).at(m_j);
   } else {
     /// If this is a local simulation, wait for the simulation (on a thread)
     /// to complete.
@@ -118,7 +118,7 @@ std::string JobHandle::run_async_internal() {
   } else {
     /// If run_async executed synchronously on this thead, the result is
     /// available now.
-    return m_qpqe->get_out_raws()[m_i][m_j];
+    return m_qpqe->get_out_raws_json()[m_i][m_j];
   }
 }
 

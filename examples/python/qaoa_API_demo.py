@@ -71,7 +71,7 @@ qa.acc='qpp'
 qa.functol[0][0][0]=1e-5
 qa.maxeval=100 #800
 qa.qaoa_step = nQaoaSteps
-qa.theta[0][0]=qb.core.ND()
+qa.theta[0][0]=qb.core.MapIntDouble()
 
 extendedParams = True
 if (extendedParams):
@@ -125,7 +125,7 @@ else:
 qa.extended_param = extendedParams
 
 
-qa.theta[0][0]=qb.core.ND()
+qa.theta[0][0]=qb.core.MapIntDouble()
 for ii in range(nThetas): 
     qa.theta[0][0][ii] = 0.25
 

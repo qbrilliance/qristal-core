@@ -36,7 +36,7 @@ void print_quickstart() {
 
 // JSON conversion routines
 namespace std {
-void from_json(const json &js, std::complex<double> &elem) {
+void from_json(const nlohmann::json &js, std::complex<double> &elem) {
   if (js.is_array()) {
     throw std::invalid_argument(std::string("JSON: invalid complex element."));
   } else {
@@ -46,11 +46,11 @@ void from_json(const json &js, std::complex<double> &elem) {
   }
 }
 
-void to_json(json &j, const std::complex<double> &elem) {
-  j = json{{"r", elem.real()}, {"i", elem.imag()}};
+void to_json(nlohmann::json &j, const std::complex<double> &elem) {
+  j = nlohmann::json{{"r", elem.real()}, {"i", elem.imag()}};
 }
 
-void from_json(const json &js, std::vector<std::complex<double>> &vec) {
+void from_json(const nlohmann::json &js, std::vector<std::complex<double>> &vec) {
   std::vector<std::complex<double>> ret;
   if (js.is_array()) {
     for (auto &elt : js)
@@ -64,7 +64,7 @@ void from_json(const json &js, std::vector<std::complex<double>> &vec) {
 
 // Print classical wall-time + distribution of shot counts
 void print_classical(const qb::session &s) {
-  VectorString out_raws = s.get_out_raws();
+  Table2d<std::string> out_raws_json = s.get_out_raws_json();
   std::cout << std::endl << "* Counts:" << std::endl << std::endl;
   std::cout << std::setw(20) << "State"
             << "  " << std::setw(9) << "Counts" << std::endl;
@@ -73,14 +73,14 @@ void print_classical(const qb::session &s) {
   std::cout << std::setw(20) << "-------------------"
             << "  " << std::setw(9) << "---------" << std::endl;
 
-  for (auto &it : out_raws) {
+  for (auto &it : out_raws_json) {
     for (auto &itel : it) {
-      json outj = json::parse(itel);
+      nlohmann::json outj = nlohmann::json::parse(itel);
       for (auto &el : outj.items()) {
         std::string msb_string = el.key();
         int cnt_n = el.value();
-        VectorString u_accs = s.get_accs();
-        String u_accs_0 = u_accs.at(0);
+        Table2d<std::string> u_accs = s.get_accs();
+        std::vector<std::string> u_accs_0 = u_accs.at(0);
         std::string u_accs_0_0 = u_accs_0.at(0);
         if (!u_accs_0_0.compare("aer")) {
           std::reverse(msb_string.begin(), msb_string.end());
@@ -90,12 +90,12 @@ void print_classical(const qb::session &s) {
       }
     }
   }
-  VectorMapND ctimes = s.get_out_total_init_maxgate_readout_times();
+  Table2d<std::map<int,double>> ctimes = s.get_out_total_init_maxgate_readout_times();
   double classical_ms = 0.0;
   qb::Profiler dummypr = qb::Profiler("__qpu__ void QBCIRCUIT(qreg q) {\nOPENQASM 2.0;\ninclude \"qelib1.inc\";\ncreg c0[1];\nmeasure q[0] -> c0[0];\n}\n", 1);
   for (auto &it : ctimes) {
     for (auto &itel : it) {
-      ND::iterator ndelem = itel.find(dummypr.KEY_SIMULATION_TOTAL_TIME);
+      auto ndelem = itel.find(dummypr.KEY_SIMULATION_TOTAL_TIME);
       if (ndelem != itel.end()) {
         classical_ms = ndelem->second;
       }
@@ -114,29 +114,29 @@ void print_quantum(const qb::session &s, const double gate_1q_time_ms,
                    const double q_readout_time_ms,
                    const double pc_send_to_control_time_ms,
                    const bool debug_session = false, const bool verbose = false) {
-  VectorMapND qtimes = s.get_out_total_init_maxgate_readout_times();
+  Table2d<std::map<int,double>> qtimes = s.get_out_total_init_maxgate_readout_times();
   double quantum_ms = 0.0;
 
-  VectorString out_transps = s.get_out_transpiled_circuits();
-  String out_transps_0 = out_transps.at(0);
+  Table2d<std::string> out_transps = s.get_out_transpiled_circuits();
+  std::vector<std::string> out_transps_0 = out_transps.at(0);
   std::string out_transps_0_0 = out_transps_0.at(0);
   if (verbose) {
     std::cout << "* Transpiled circuit: " << std::endl
               << out_transps_0_0 << std::endl;
   }
 
-  VectorN qns = s.get_qns();
-  N qns_0 = qns.at(0);
+  Table2d<size_t> qns = s.get_qns();
+  std::vector<size_t> qns_0 = qns.at(0);
   int qn = qns_0.at(0);
   qb::Profiler tpr = qb::Profiler(out_transps_0_0, qn);
 
   for (auto &it : qtimes) {
     for (auto &itel : it) {
-      ND::iterator ndelem = itel.find(tpr.KEY_TOTAL_TIME);
+      auto ndelem = itel.find(tpr.KEY_TOTAL_TIME);
       if (ndelem != itel.end()) {
         quantum_ms += ndelem->second;
       }
-      ND::iterator ndelem_fixed = itel.find(tpr.KEY_PC_SEND_TO_CONTROL_TIME);
+      auto ndelem_fixed = itel.find(tpr.KEY_PC_SEND_TO_CONTROL_TIME);
       if (ndelem_fixed != itel.end()) {
         quantum_ms += ndelem_fixed->second;
       }
@@ -153,10 +153,10 @@ void print_quantum(const qb::session &s, const double gate_1q_time_ms,
 int test_jensen_shannon(qb::session &s, const double jenshan_threshold) {
   s.get_jensen_shannon();
   double jenshan_value = 0.0;
-  VectorMapND jsv = s.get_out_divergences();
+  Table2d<std::map<int,double>> jsv = s.get_out_divergences();
   for (auto &it : jsv) {
     for (auto &itel : it) {
-      ND::iterator ndelem = itel.find(0);
+      auto ndelem = itel.find(0);
       if (ndelem != itel.end()) {
         jenshan_value += ndelem->second;
       }
@@ -288,7 +288,7 @@ int main(int argc, char **argv) {
   const double pc_send_time_ms = 10000;
 
   xacc::HeterogeneousMap mqbacc; // Used for passing key-value pairs to Accelerators
-  json output_to_js;  // Used for storing the configuration key-value pairs coming from a JSON format file
+  nlohmann::json output_to_js;  // Used for storing the configuration key-value pairs coming from a JSON format file
 
   //
   // Input configuration file (default: sdk_cfg.json)
@@ -322,7 +322,7 @@ int main(int argc, char **argv) {
   // Start a session
   //
   qb::session s;
-  s.qb12(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
+  s.init(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
 
   //
   // targetCircuit: contains the quantum circuit that will be processed/executed
@@ -377,13 +377,13 @@ int main(int argc, char **argv) {
   double svd_cutoff = 1.0e-8;
   svd_cutoff =
       qb::get_arg_or_cfg(svd_cutoff, arg_svd_cutoff, output_to_js, "svd_cutoff");
-  ND u_svd_cutoff{{0, svd_cutoff}};
+  std::map<int,double> u_svd_cutoff{{0, svd_cutoff}};
   s.set_svd_cutoff(u_svd_cutoff);
 
   double rel_svd_cutoff = 1.0e-8;
   rel_svd_cutoff =
       qb::get_arg_or_cfg(rel_svd_cutoff, arg_rel_svd_cutoff, output_to_js, "rel_svd_cutoff");
-  ND u_rel_svd_cutoff{{0, rel_svd_cutoff}};
+  std::map<int,double> u_rel_svd_cutoff{{0, rel_svd_cutoff}};
   s.set_rel_svd_cutoff(u_rel_svd_cutoff);
 
   int max_bond_dimension = 256;

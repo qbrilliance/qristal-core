@@ -1,7 +1,7 @@
 import qb.core
 import numpy as np
 s = qb.core.session()
-s.qb12()
+s.init()
 
 # Quantum Phase Estimation: Oracle(|State>) = exp(i*Phase)*|State>
 # and we need to estimate that Phase value.
@@ -44,6 +44,6 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result = s.out_raw[0][0]
+result = s.out_raw_json[0][0]
 print("Result:\n", result)
 

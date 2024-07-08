@@ -2,7 +2,7 @@ import qb.core
 import numpy as np
 import ast
 s = qb.core.session()
-s.qb12()
+s.init()
 s.qn = 14
 
 # Efficient Encoding: given the input |state>|00...0>
@@ -62,7 +62,7 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result = s.out_raw[0][0]
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 
 
@@ -118,7 +118,7 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result = s.out_raw[0][0]
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 
 

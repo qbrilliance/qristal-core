@@ -7,7 +7,7 @@ from yaml import safe_load, dump
 s = qb.core.session()
 
 # Set up meaningful defaults for session parameters
-s.qb12()
+s.init()
 
 # Choose aws32dm1 backend
 s.aws32dm1()
@@ -59,7 +59,7 @@ while (not handle1.complete()):
 while (not handle2.complete()):
     time.sleep(1)
 
-result1 = s.out_raw[0][0]
+result1 = s.out_raw_json[0][0]
 print("Output for job1: \n", result1)
-result2 = s.out_raw[0][1]
+result2 = s.out_raw_json[0][1]
 print("Output for job2: \n", result2)

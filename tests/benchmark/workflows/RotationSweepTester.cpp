@@ -43,7 +43,7 @@ TEST(RotationSweepTester, check_circuit_construction) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
     sim.set_qn(4);
@@ -67,16 +67,16 @@ TEST(RotationSweepTester, check_serialization) {
     //define serializable objects
     //(1) session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
     sim.set_qn(3);
-    sim.set_noise_mitigations(qb::VectorString{qb::String{"assignment-error-kernel", "rich-extrap"}, qb::String{"ro-error"}});
+    sim.set_noise_mitigations(qb::Table2d<std::string>{std::vector<std::string>{"assignment-error-kernel", "rich-extrap"}, std::vector<std::string>{"ro-error"}});
     qb::NoiseModel nm("default"); 
     sim.set_noise_model(nm);
 
     //(2) bit string counts 
-    qb::String counts{"000", "001", "010", "011", "100", "101", "110", "111"};
+    std::vector<std::string> counts{"000", "001", "010", "011", "100", "101", "110", "111"};
 
     //(3) complex matrices 
     ComplexMatrix mat_zero = ComplexMatrix::Zero(8, 8);

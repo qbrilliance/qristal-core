@@ -47,6 +47,6 @@ TEST(AWSBraketHostedTester, Simple) {
     };
     // Get results
     std::cout << x << " ran successfully!" << std::endl;
-    std::cout << s.get_out_raws()[0][0] << std::endl;
+    std::cout << s.get_out_raws_json()[0][0] << std::endl;
   }
 }

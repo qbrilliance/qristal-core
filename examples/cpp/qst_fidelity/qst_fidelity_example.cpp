@@ -12,7 +12,7 @@ int main() {
 
     //(1) set up session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qpp");
     sim.set_sn(100);
     sim.set_qn(qubits.size());

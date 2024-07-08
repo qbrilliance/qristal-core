@@ -1,9 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "py_circuit_builder.hpp"
-#include "py_stl_containers.hpp"
+#include "qb/core/python/py_circuit_builder.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/circuit_builders/exponent.hpp"
+
 namespace qb {
 void bind_circuit_builder(pybind11::module &m) {
   namespace py = pybind11;

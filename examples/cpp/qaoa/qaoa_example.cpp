@@ -24,7 +24,7 @@ int main () {
     qaoa.set_functol({{0,1.0e-6}});
     qaoa.set_maxeval(300);
     qaoa.set_qaoa_step(nQaoaSteps);
-    qb::VectorMapND thetas{{{}}};
+    qb::Table2d<std::map<int,double>> thetas{{{}}};
 
     bool extendedParams = false;
     std::size_t nThetas{};
@@ -41,8 +41,8 @@ int main () {
 
     qaoa.run(0,0);
 
-    const qb::VectorString eigenstates{qaoa.get_out_eigenstates()};
-    const qb::VectorMapND energies{qaoa.get_out_energys()};
+    const qb::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()};
+    const qb::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()};
     const std::map<int,double> cost{energies[0][0]};
     const std::string eigenstate{eigenstates[0][0]};
 

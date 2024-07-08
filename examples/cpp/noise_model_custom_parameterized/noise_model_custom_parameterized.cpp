@@ -69,7 +69,7 @@ int main(int argc, char * argv[])
   auto nm = qb::NoiseModel(device_properties);
 
   auto s = qb::session(false);
-  s.qb12();
+  s.init();
   s.set_qn(nb_qubits);
   s.set_noise(true);
   s.set_noise_model(nm);
@@ -90,5 +90,5 @@ int main(int argc, char * argv[])
   s.run();
 
   // Print results
-  std::cout << "Results:" << std::endl << s.get_out_raws()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << s.get_out_raws_json()[0][0] << std::endl;
 }

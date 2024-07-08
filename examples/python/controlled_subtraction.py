@@ -2,7 +2,7 @@ import qb.core
 import numpy as np
 import ast
 s = qb.core.session()
-s.qb12()
+s.init()
 
 ###
 # Testing subtraction
@@ -49,7 +49,7 @@ for c in range(4):
             s.output_oqm_enabled = False
             s.acc = "qsim"
             s.run()
-            result1 = s.out_raw[0][0]
+            result1 = s.out_raw_json[0][0]
             res1 = ast.literal_eval(result1)
 
             if c == 2:

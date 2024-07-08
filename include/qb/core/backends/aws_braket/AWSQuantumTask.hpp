@@ -8,6 +8,7 @@
 #include <future>
 #include <pybind11/pybind11.h>
 #include <AcceleratorBuffer.hpp>
+
 namespace qb
 {
   /// An awaitable class for interop with Python AWSQuantumTask

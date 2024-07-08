@@ -49,7 +49,7 @@ params_list = circuit.param_dict_to_list(params_map)
 my_sim = qb.core.session()
 
 #Define settings
-my_sim.qb12()
+my_sim.init()
 my_sim.qn = 2
 my_sim.sn = 1000
 my_sim.parameter_list = params_list

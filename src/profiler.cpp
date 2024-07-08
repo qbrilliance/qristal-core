@@ -63,9 +63,9 @@ Profiler::Profiler(std::shared_ptr<xacc::CompositeInstruction> &f,
   run();
 }
 
-ND Profiler::get_total_initialisation_maxgate_readout_time_ms(
+std::map<int,double> Profiler::get_total_initialisation_maxgate_readout_time_ms(
     const double simulation_total_time, const int shots) {
-  ND ret_nd;
+  std::map<int,double> ret_nd;
 
   // Initialisation time
   double t_init_ms = n_qubits_ * q_initialisation_time_ms_;
@@ -104,16 +104,16 @@ ND Profiler::get_total_initialisation_maxgate_readout_time_ms(
   return ret_nd;
 }
 
-NN Profiler::get_count_1q_gates_on_q() {
-  NN ret_nn;
+std::map<int,int> Profiler::get_count_1q_gates_on_q() {
+  std::map<int,int> ret_nn;
   for (const auto &[qId, count_1q] : count_1q_gates_on_q_) {
     ret_nn.insert(std::make_pair(qId, count_1q));
   }
   return ret_nn;
 }
 
-NN Profiler::get_count_2q_gates_on_q() {
-  NN ret_nn;
+std::map<int,int> Profiler::get_count_2q_gates_on_q() {
+  std::map<int,int> ret_nn;
   for (const auto &[qId, count_2q] : count_2q_gates_on_q_) {
     ret_nn.insert(std::make_pair(qId, count_2q));
   }

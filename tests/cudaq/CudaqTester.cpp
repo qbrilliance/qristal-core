@@ -39,7 +39,7 @@ TEST(CudaqTester, check_kernel_execution) {
   // Use CUDAQ qpp backend
   my_sim.set_acc("cudaq:qpp"); 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);
@@ -49,7 +49,7 @@ TEST(CudaqTester, check_kernel_execution) {
 
   // Print the cumulative results
   std::cout << "Results:" << std::endl
-            << my_sim.get_out_raws()[0][0] << std::endl;
+            << my_sim.get_out_raws_json()[0][0] << std::endl;
   const auto out_counts = my_sim.get_out_counts()[0][0];
   EXPECT_EQ(qb::count_nonzero(out_counts), 2);
   int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
@@ -156,7 +156,7 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
   // Both custatevec_fp32 and custatevec_fp64 are okay,
   // use f32 to speed up the test.
   my_sim.set_acc("cudaq:custatevec_fp32");
@@ -168,7 +168,7 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
 
   // Print the cumulative results
   std::cout << "Results:" << std::endl
-            << my_sim.get_out_raws()[0][0] << std::endl;
+            << my_sim.get_out_raws_json()[0][0] << std::endl;
   const auto out_counts = my_sim.get_out_counts()[0][0];
   EXPECT_EQ(qb::count_nonzero(out_counts), 2);
   int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
@@ -202,7 +202,7 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   my_sim.set_instring(targetCircuit);
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(100);
@@ -213,7 +213,7 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   my_sim.run();
   // Print the cumulative results
   std::cout << "Results:" << std::endl
-            << my_sim.get_out_raws()[0][0] << std::endl;
+            << my_sim.get_out_raws_json()[0][0] << std::endl;
   const auto out_counts = my_sim.get_out_counts()[0][0];
   EXPECT_EQ(qb::count_nonzero(out_counts), 2);
   int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);
@@ -235,7 +235,7 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   my_sim.set_irtarget_m(circ.get());
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(100);
@@ -246,7 +246,7 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   my_sim.run();
   // Print the cumulative results
   std::cout << "Results:" << std::endl
-            << my_sim.get_out_raws()[0][0] << std::endl;
+            << my_sim.get_out_raws_json()[0][0] << std::endl;
   const auto out_counts = my_sim.get_out_counts()[0][0];
   EXPECT_EQ(qb::count_nonzero(out_counts), 2);
   int sum = std::accumulate(out_counts.begin(), out_counts.end(), 0);

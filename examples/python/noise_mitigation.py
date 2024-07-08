@@ -1,6 +1,6 @@
 import qb.core
 s = qb.core.session()
-s.qb12()
+s.init()
 s.noise = True
 s.nooptimise = True
 s.noplacement = True
@@ -16,9 +16,9 @@ s.qn = 2
 s.instring = circ.openqasm()
 s.run()
 print("Without mitigation:")
-print(s.out_raw[0][0])
+print(s.out_raw_json[0][0])
 
 s.noise_mitigation = "assignment-error-kernel"
 s.run()
 print("With mitigation:")
-print(s.out_raw[0][0])
+print(s.out_raw_json[0][0])

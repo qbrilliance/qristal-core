@@ -17,7 +17,7 @@
   //msg << "thread " << std::this_thread::get_id() <<" finished run_async" << std::endl; std::cout << msg.str(); msg.str("");
     s.get_executor().release(std::move(qpu));
   //msg << "thread " << std::this_thread::get_id() <<" released"<< std::endl; std::cout << msg.str(); msg.str("");
-    return s.get_out_raws()[i][j];
+    return s.get_out_raws_json()[i][j];
   };
 
 
@@ -30,7 +30,7 @@ int main()
   //auto s = qb::session(true);
   auto s = qb::session(false);
   // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
-  s.qb12();
+  s.init();
 
   std::size_t nWorkers  = 1;
   std::size_t nJobs   = 200; //nWorkers*20;

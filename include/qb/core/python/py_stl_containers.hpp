@@ -8,32 +8,32 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
 #include <string>
 #include <vector>
 
 PYBIND11_MAKE_OPAQUE(std::vector<std::string>);
 PYBIND11_MAKE_OPAQUE(std::vector<size_t>);
 PYBIND11_MAKE_OPAQUE(std::vector<bool>);
-PYBIND11_MAKE_OPAQUE(std::map<int, double>);
-PYBIND11_MAKE_OPAQUE(std::map<int, std::complex<double>>);
-PYBIND11_MAKE_OPAQUE(std::vector<std::map<int, double>>);
-PYBIND11_MAKE_OPAQUE(std::vector<std::map<int, std::complex<double>>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<size_t>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::string>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<bool>>);
+PYBIND11_MAKE_OPAQUE(std::map<int, double>);
+PYBIND11_MAKE_OPAQUE(std::map<int, std::complex<double>>);
+PYBIND11_MAKE_OPAQUE(std::map<std::vector<bool>, int>);
+PYBIND11_MAKE_OPAQUE(std::vector<std::map<int, double>>);
+PYBIND11_MAKE_OPAQUE(std::vector<std::map<int, std::complex<double>>>);
+PYBIND11_MAKE_OPAQUE(std::vector<std::map<std::vector<bool>, int>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::map<int, std::complex<double>>>>);
 PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::map<int, double>>>);
+PYBIND11_MAKE_OPAQUE(std::vector<std::vector<std::map<std::vector<bool>, int>>>);
+PYBIND11_MAKE_OPAQUE(std::map<std::vector<size_t>, double>);
+PYBIND11_MAKE_OPAQUE(std::unordered_map<std::string, std::map<std::vector<size_t>, double>>);
 PYBIND11_MAKE_OPAQUE(qb::noise_aware_placement_config::device_topology_t);
 PYBIND11_MAKE_OPAQUE(qb::noise_aware_placement_config::single_qubit_gate_errors_t);
 PYBIND11_MAKE_OPAQUE(qb::noise_aware_placement_config::two_qubit_gate_errors_t);
-PYBIND11_MAKE_OPAQUE(std::unordered_map<std::string, std::map<std::vector<size_t>, double>>);
-PYBIND11_MAKE_OPAQUE(std::map<std::vector<size_t>, double>);
 
 namespace qb {
 /// Bind opaque STL containers to the Python API.
-// e.g., to use custom these containers under custom type names,
-// core.N == std::vector<int>
 void bind_opaque_containers(pybind11::module &m);
 
 /// Helper to convert from a Python array to a std::vector

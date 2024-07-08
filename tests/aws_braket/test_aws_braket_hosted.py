@@ -68,7 +68,7 @@ def test_CI_220616_1_aws_dm1_async():
     from yaml import safe_load, dump
 
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.aws32dm1()
     # Change the remote_backends.yaml file entry
     stream = open(s.remote_backend_database_path, 'r')
@@ -110,9 +110,9 @@ def test_CI_220616_1_aws_dm1_async():
         time.sleep(1)
 
     # Now show the finished results
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    result3 = s.out_raw[0][2]
+    result1 = s.out_raw_json[0][0]
+    result2 = s.out_raw_json[0][1]
+    result3 = s.out_raw_json[0][2]
     res1 = ast.literal_eval(result1)
     res2 = ast.literal_eval(result2)
     res3 = ast.literal_eval(result3)
@@ -129,7 +129,7 @@ def test_CI_220616_2_aws_sv1_async():
     from yaml import safe_load, dump
     #
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.aws32sv1()
     # Change the remote_backends.yaml file entry
     stream = open(s.remote_backend_database_path, 'r')
@@ -171,9 +171,9 @@ def test_CI_220616_2_aws_sv1_async():
         time.sleep(1)
 
     # Now show the finished results
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    result3 = s.out_raw[0][2]
+    result1 = s.out_raw_json[0][0]
+    result2 = s.out_raw_json[0][1]
+    result3 = s.out_raw_json[0][2]
     res1 = ast.literal_eval(result1)
     res2 = ast.literal_eval(result2)
     res3 = ast.literal_eval(result3)
@@ -190,7 +190,7 @@ def test_CI_220616_3_aws_tn1_async():
     from yaml import safe_load, dump
     
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.aws8tn1()
     # Change the remote_backends.yaml file entry
     stream = open(s.remote_backend_database_path, 'r')
@@ -232,9 +232,9 @@ def test_CI_220616_3_aws_tn1_async():
         time.sleep(1)
 
     # Now show the finished results
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    result3 = s.out_raw[0][2]
+    result1 = s.out_raw_json[0][0]
+    result2 = s.out_raw_json[0][1]
+    result3 = s.out_raw_json[0][2]
     res1 = ast.literal_eval(result1)
     res2 = ast.literal_eval(result2)
     res3 = ast.literal_eval(result3)
@@ -251,7 +251,7 @@ def test_CI_220908_2_aws_tn1_async_s3_s3_prefix():
     from yaml import safe_load, dump
 
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.aws8tn1()
     
     # Change the remote_backends.yaml file entry
@@ -295,9 +295,9 @@ def test_CI_220908_2_aws_tn1_async_s3_s3_prefix():
         time.sleep(1)
 
     # Now show the finished results
-    result1 = s.out_raw[0][0]
-    result2 = s.out_raw[0][1]
-    result3 = s.out_raw[0][2]
+    result1 = s.out_raw_json[0][0]
+    result2 = s.out_raw_json[0][1]
+    result3 = s.out_raw_json[0][2]
     res1 = ast.literal_eval(result1)
     res2 = ast.literal_eval(result2)
     res3 = ast.literal_eval(result3)

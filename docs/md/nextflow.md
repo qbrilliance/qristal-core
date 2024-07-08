@@ -67,7 +67,7 @@ This is the entrypoint script that drives the Nextflow execution.  Below is an e
         import numpy as np
     
         tqb = qb.core.session()
-        tqb.qb12()
+        tqb.init()
         tqb.qn = 2     # Number of qubits
         tqb.sn = 1024  # Number of shots
         tqb.acc = "tnqvm"
@@ -149,7 +149,7 @@ The pipeline parallelises circuit evaluation across multiple processes, and acro
         import time 
         import qb.core
         tqb = qb.core.session()
-        tqb.qb12()
+        tqb.init()
         
         tqb.qn = $N_PHYSICAL_QUBITS  # Number of qubits
         tqb.infile = "$circuit"

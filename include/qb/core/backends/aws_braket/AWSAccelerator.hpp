@@ -4,18 +4,19 @@
 #ifndef QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
 
-#include "AWSVisitor.hpp"
+#include "qb/core/remote_async_accelerator.hpp"
+#include "qb/core/backends/aws_braket/AWSVisitor.hpp"
+
 #include "Accelerator.hpp"
 #include "InstructionIterator.hpp"
 
 #include <cstdint>
 #include <fstream>
-#include <json.hpp>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "qb/core/remote_async_accelerator.hpp"
+#include <nlohmann/json.hpp>
 
 namespace xacc
 {

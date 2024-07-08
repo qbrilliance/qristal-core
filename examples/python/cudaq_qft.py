@@ -8,7 +8,7 @@ import qb.core
 my_sim = qb.core.session()
 
 # Set up meaningful defaults for session parameters
-my_sim.qb12()
+my_sim.init()
 
 # Choose a simulator backend from CUDA Quantum,
 # e.g., custatevec_fp32 (single-precision)
@@ -34,5 +34,5 @@ my_sim.run()
 print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
-print("Results:\n", my_sim.out_raw[0][0])
+print("Results:\n", my_sim.out_raw_json[0][0])
 

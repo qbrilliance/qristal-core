@@ -1,11 +1,12 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "py_middleware.hpp"
+#include "qb/core/python/py_middleware.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "qb/core/circuit_builder.hpp"
 #include "qb/core/passes/noise_aware_placement_config.hpp"
 #include "qb/core/passes/noise_aware_placement_pass.hpp"
 #include "qb/core/passes/swap_placement_pass.hpp"
 #include "qb/core/noise_model/noise_model.hpp"
-#include "py_stl_containers.hpp"
+#include <pybind11/stl_bind.h>
 
 
 namespace qb {

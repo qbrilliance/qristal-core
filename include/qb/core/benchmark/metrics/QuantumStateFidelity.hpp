@@ -84,7 +84,7 @@ namespace qb
             
             //(2) obtain session info, ideal, and measured bitcounts 
             std::vector<SessionInfo> session_infos = dlg.obtain_session_infos();
-            std::vector<qb::String> measured_bitcounts_collection = dlg.obtain_measured_counts();
+            std::vector<std::vector<std::string>> measured_bitcounts_collection = dlg.obtain_measured_counts();
             std::vector<std::vector<ComplexMatrix>> ideal_densities_collection = dlg.obtain_ideal_densities();
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 

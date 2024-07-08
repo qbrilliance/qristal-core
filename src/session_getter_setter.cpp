@@ -10,15 +10,15 @@ void session::set_infile(const std::string &infile) {
   session::infiles_.clear();
   session::infiles_.push_back({infile});
 }
-void session::set_infiles(const VectorString &infiles) { session::infiles_ = infiles; }
-const VectorString & session::get_infiles() const { return session::infiles_; }
+void session::set_infiles(const Table2d<std::string> &infiles) { session::infiles_ = infiles; }
+const Table2d<std::string> & session::get_infiles() const { return session::infiles_; }
 //
 void session::set_instring(const std::string &instring) {
   session::instrings_.clear();
   session::instrings_.push_back({instring});
 }
-void session::set_instrings(const VectorString &instrings) { session::instrings_ = instrings; }
-const VectorString & session::get_instrings() const { return session::instrings_; }
+void session::set_instrings(const Table2d<std::string> &instrings) { session::instrings_ = instrings; }
+const Table2d<std::string> & session::get_instrings() const { return session::instrings_; }
 //
 void session::set_irtarget_m(const std::shared_ptr<xacc::CompositeInstruction> &irtarget_m) {
     session::irtarget_ms_.clear();
@@ -36,8 +36,8 @@ void session::set_include_qb(const std::string &include_qb) {
   session::include_qbs_.clear();
   session::include_qbs_.push_back({include_qb});
 }
-void session::set_include_qbs(const VectorString &include_qbs) { session::include_qbs_ = include_qbs; }
-const VectorString & session::get_include_qbs() const { return session::include_qbs_; }
+void session::set_include_qbs(const Table2d<std::string> &include_qbs) { session::include_qbs_ = include_qbs; }
+const Table2d<std::string> & session::get_include_qbs() const { return session::include_qbs_; }
 //
 void session::set_parameter_vector(const std::vector<double> &vals) {
   session::parameter_vectors_.clear();
@@ -54,10 +54,10 @@ void session::set_calc_jacobian(bool calc_jacobian) {
   session::calc_jacobians_.clear();
   session::calc_jacobians_.push_back({calc_jacobian});
 }
-void session::set_calc_jacobians(VectorBool calc_jacobians) {
+void session::set_calc_jacobians(Table2d<bool> calc_jacobians) {
 session::calc_jacobians_ = calc_jacobians;
 }
-const VectorBool & session::get_calc_jacobians() const { return session::calc_jacobians_; }
+const Table2d<bool> & session::get_calc_jacobians() const { return session::calc_jacobians_; }
 //
 void session::set_remote_backend_database_path(const std::string &path) {
   session::remote_backend_database_path_ = path;
@@ -69,7 +69,7 @@ void session::set_acc(const std::string &acc) {
   session::accs_.clear();
   session::accs_.push_back({acc});
 }
-void session::set_accs(const VectorString &accs) {
+void session::set_accs(const Table2d<std::string> &accs) {
   for (auto item : accs) {
     for (auto im : item) {
       session::validate_acc(im);
@@ -88,14 +88,14 @@ void session::validate_acc(const std::string &acc) {
       throw std::range_error(listaccs.str());
   }
 }
-const VectorString & session::get_accs() const { return session::accs_; }
+const Table2d<std::string> & session::get_accs() const { return session::accs_; }
 //
 void session::set_aer_sim_type(const std::string &sim_type) {
   validate_aer_sim_type(sim_type);
   aer_sim_types_.clear();
   aer_sim_types_.emplace_back(std::vector<std::string>{sim_type});
 }
-void session::set_aer_sim_types(const VectorString &sim_types) {
+void session::set_aer_sim_types(const Table2d<std::string> &sim_types) {
   for (const auto &item : sim_types) {
     for (const auto &im : item) {
       validate_aer_sim_type(im);
@@ -113,7 +113,7 @@ void session::validate_aer_sim_type(const std::string &sim_type) {
     throw std::range_error(aer_sim_type_error_msg.str());
   }
 }
-const VectorString &session::get_aer_sim_types() const { return aer_sim_types_; }
+const Table2d<std::string> &session::get_aer_sim_types() const { return aer_sim_types_; }
 
 //
 
@@ -121,49 +121,49 @@ void session::set_random(const size_t &in_random) {
   session::randoms_.clear();
   session::randoms_.push_back({in_random});
 }
-void session::set_randoms(const VectorN &in_random) { session::randoms_ = in_random; }
-const VectorN & session::get_randoms() const { return session::randoms_; }
+void session::set_randoms(const Table2d<size_t> &in_random) { session::randoms_ = in_random; }
+const Table2d<size_t> & session::get_randoms() const { return session::randoms_; }
 //
 void session::set_xasm(const bool &in_xasm) {
   session::xasms_.clear();
   session::xasms_.push_back({in_xasm});
 }
-void session::set_xasms(const VectorBool &in_xasm) { session::xasms_ = in_xasm; }
-const VectorBool & session::get_xasms() const { return session::xasms_; }
+void session::set_xasms(const Table2d<bool> &in_xasm) { session::xasms_ = in_xasm; }
+const Table2d<bool> & session::get_xasms() const { return session::xasms_; }
 //
 void session::set_quil1(const bool &in_quil1) {
   session::quil1s_.clear();
   session::quil1s_.push_back({in_quil1});
 }
-void session::set_quil1s(const VectorBool &in_quil1) { session::quil1s_ = in_quil1; }
-const VectorBool & session::get_quil1s() const { return session::quil1s_; }
+void session::set_quil1s(const Table2d<bool> &in_quil1) { session::quil1s_ = in_quil1; }
+const Table2d<bool> & session::get_quil1s() const { return session::quil1s_; }
 //
 void session::set_noplacement(const bool &in_noplacement) {
   session::noplacements_.clear();
   session::noplacements_.push_back({in_noplacement});
 }
-void session::set_noplacements(const VectorBool &in_noplacement) {
+void session::set_noplacements(const Table2d<bool> &in_noplacement) {
   session::noplacements_ = in_noplacement;
 }
-const VectorBool & session::get_noplacements() const { return session::noplacements_; }
+const Table2d<bool> & session::get_noplacements() const { return session::noplacements_; }
 //
 void session::set_placement(const std::string &in_placement) {
   placements_.clear();
   placements_.push_back({in_placement});
 }
-void session::set_placements(const VectorString &in_placements) {
+void session::set_placements(const Table2d<std::string> &in_placements) {
   placements_ = in_placements;
 }
-const VectorString &session::get_placements() const { return placements_; }
+const Table2d<std::string> &session::get_placements() const { return placements_; }
 //
 void session::set_nooptimise(const bool &in_nooptimise) {
   session::nooptimises_.clear();
   session::nooptimises_.push_back({in_nooptimise});
 }
-void session::set_nooptimises(const VectorBool &in_nooptimise) {
+void session::set_nooptimises(const Table2d<bool> &in_nooptimise) {
   session::nooptimises_ = in_nooptimise;
 }
-const VectorBool & session::get_nooptimises() const { return session::nooptimises_; }
+const Table2d<bool> & session::get_nooptimises() const { return session::nooptimises_; }
 
 void session::set_circuit_opt(const Passes &in_passes) {
   circuit_opts_ = {{in_passes}};
@@ -182,8 +182,8 @@ void session::set_nosim(const bool &in_nosim) {
   session::nosims_.clear();
   session::nosims_.push_back({in_nosim});
 }
-void session::set_nosims(const VectorBool &in_nosim) { session::nosims_ = in_nosim; }
-const VectorBool & session::get_nosims() const { return session::nosims_; }
+void session::set_nosims(const Table2d<bool> &in_nosim) { session::nosims_ = in_nosim; }
+const Table2d<bool> & session::get_nosims() const { return session::nosims_; }
 //
 void session::set_noise(const bool &in_noise) {
   session::noises_.clear();
@@ -192,18 +192,18 @@ void session::set_noise(const bool &in_noise) {
 
 
 
-void session::set_noises(const VectorBool &in_noise) { session::noises_ = in_noise; }
-const VectorBool & session::get_noises() const { return session::noises_; }
+void session::set_noises(const Table2d<bool> &in_noise) { session::noises_ = in_noise; }
+const Table2d<bool> & session::get_noises() const { return session::noises_; }
 //
 
 void session::set_output_oqm_enabled(const bool &in_output_oqm_enabled) {
   session::output_oqm_enableds_.clear();
   session::output_oqm_enableds_.push_back({in_output_oqm_enabled});
 }
-void session::set_output_oqm_enableds(const VectorBool &in_output_oqm_enabled) {
+void session::set_output_oqm_enableds(const Table2d<bool> &in_output_oqm_enabled) {
   session::output_oqm_enableds_ = in_output_oqm_enabled;
 }
-const VectorBool & session::get_output_oqm_enableds() const {
+const Table2d<bool> & session::get_output_oqm_enableds() const {
   return session::output_oqm_enableds_;
 }
 //
@@ -211,102 +211,102 @@ void session::set_log_enabled(const bool &in_log_enabled) {
   session::log_enableds_.clear();
   session::log_enableds_.push_back({in_log_enabled});
 }
-void session::set_log_enableds(const VectorBool &in_log_enabled) {
+void session::set_log_enableds(const Table2d<bool> &in_log_enabled) {
   session::log_enableds_ = in_log_enabled;
 }
-const VectorBool & session::get_log_enableds() const { return session::log_enableds_; }
+const Table2d<bool> & session::get_log_enableds() const { return session::log_enableds_; }
 //
 void session::set_notiming(const bool &in_notiming) {
   session::notimings_.clear();
   session::notimings_.push_back({in_notiming});
 }
-void session::set_notimings(const VectorBool &in_notiming) { session::notimings_ = in_notiming; }
-const VectorBool & session::get_notimings() const { return session::notimings_; }
+void session::set_notimings(const Table2d<bool> &in_notiming) { session::notimings_ = in_notiming; }
+const Table2d<bool> & session::get_notimings() const { return session::notimings_; }
 //
 void session::set_qn(const size_t &in_qn) {
   session::qns_.clear();
   session::qns_.push_back({in_qn});
 }
-void session::set_qns(const VectorN &in_qn) { session::qns_ = in_qn; }
-const VectorN & session::get_qns() const { return session::qns_; }
+void session::set_qns(const Table2d<size_t> &in_qn) { session::qns_ = in_qn; }
+const Table2d<size_t> & session::get_qns() const { return session::qns_; }
 //
 void session::set_rn(const size_t &in_rn) {
   session::rns_.clear();
   session::rns_.push_back({in_rn});
 }
-void session::set_rns(const VectorN &in_rn) { session::rns_ = in_rn; }
-const VectorN & session::get_rns() const { return session::rns_; }
+void session::set_rns(const Table2d<size_t> &in_rn) { session::rns_ = in_rn; }
+const Table2d<size_t> & session::get_rns() const { return session::rns_; }
 //
 void session::set_sn(const size_t &in_sn) {
   session::sns_.clear();
   session::sns_.push_back({in_sn});
 }
-void session::set_sns(const VectorN &in_sn) { session::sns_ = in_sn; }
-const VectorN & session::get_sns() const { return session::sns_; }
+void session::set_sns(const Table2d<size_t> &in_sn) { session::sns_ = in_sn; }
+const Table2d<size_t> & session::get_sns() const { return session::sns_; }
 //
-void session::set_beta(const ND &in_beta) {
+void session::set_beta(const std::map<int,double> &in_beta) {
   session::betas_.clear();
   session::betas_.push_back({in_beta});
 }
-void session::set_betas(const VectorMapND &in_beta) { session::betas_ = in_beta; }
-const VectorMapND & session::get_betas() const { return session::betas_; }
+void session::set_betas(const Table2d<std::map<int,double>> &in_beta) { session::betas_ = in_beta; }
+const Table2d<std::map<int,double>> & session::get_betas() const { return session::betas_; }
 //
-void session::set_theta(const ND &in_theta) {
+void session::set_theta(const std::map<int,double> &in_theta) {
   session::thetas_.clear();
   session::thetas_.push_back({in_theta});
 }
-void session::set_thetas(const VectorMapND &in_theta) { session::thetas_ = in_theta; }
-const VectorMapND & session::get_thetas() const { return session::thetas_; }
+void session::set_thetas(const Table2d<std::map<int,double>> &in_theta) { session::thetas_ = in_theta; }
+const Table2d<std::map<int,double>> & session::get_thetas() const { return session::thetas_; }
 //
 
 void session::set_initial_bond_dimension(const size_t &in_initial_bond_dimension) {
   session::initial_bond_dimensions_.clear();
   session::initial_bond_dimensions_.push_back({in_initial_bond_dimension});
 }
-void session::set_initial_bond_dimensions(const VectorN &in_initial_bond_dimension) { session::initial_bond_dimensions_ = in_initial_bond_dimension; }
-const VectorN & session::get_initial_bond_dimensions() const { return session::initial_bond_dimensions_; }
+void session::set_initial_bond_dimensions(const Table2d<size_t> &in_initial_bond_dimension) { session::initial_bond_dimensions_ = in_initial_bond_dimension; }
+const Table2d<size_t> & session::get_initial_bond_dimensions() const { return session::initial_bond_dimensions_; }
 //
 void session::set_initial_kraus_dimension(const size_t &in_initial_kraus_dimension) {
   session::initial_kraus_dimensions_.clear();
   session::initial_kraus_dimensions_.push_back({in_initial_kraus_dimension});
 }
-void session::set_initial_kraus_dimensions(const VectorN &in_initial_kraus_dimension) { session::initial_kraus_dimensions_ = in_initial_kraus_dimension; }
-const VectorN & session::get_initial_kraus_dimensions() const { return session::initial_kraus_dimensions_; }
+void session::set_initial_kraus_dimensions(const Table2d<size_t> &in_initial_kraus_dimension) { session::initial_kraus_dimensions_ = in_initial_kraus_dimension; }
+const Table2d<size_t> & session::get_initial_kraus_dimensions() const { return session::initial_kraus_dimensions_; }
 //
 void session::set_max_bond_dimension(const size_t &in_max_bond_dimension) {
   session::max_bond_dimensions_.clear();
   session::max_bond_dimensions_.push_back({in_max_bond_dimension});
 }
-void session::set_max_bond_dimensions(const VectorN &in_max_bond_dimension) { session::max_bond_dimensions_ = in_max_bond_dimension; }
-const VectorN & session::get_max_bond_dimensions() const { return session::max_bond_dimensions_; }
+void session::set_max_bond_dimensions(const Table2d<size_t> &in_max_bond_dimension) { session::max_bond_dimensions_ = in_max_bond_dimension; }
+const Table2d<size_t> & session::get_max_bond_dimensions() const { return session::max_bond_dimensions_; }
 //
 void session::set_max_kraus_dimension(const size_t &in_max_kraus_dimension) {
   session::max_kraus_dimensions_.clear();
   session::max_kraus_dimensions_.push_back({in_max_kraus_dimension});
 }
-void session::set_max_kraus_dimensions(const VectorN &in_max_kraus_dimension) { session::max_kraus_dimensions_ = in_max_kraus_dimension; }
-const VectorN & session::get_max_kraus_dimensions() const { return session::max_kraus_dimensions_; }
+void session::set_max_kraus_dimensions(const Table2d<size_t> &in_max_kraus_dimension) { session::max_kraus_dimensions_ = in_max_kraus_dimension; }
+const Table2d<size_t> & session::get_max_kraus_dimensions() const { return session::max_kraus_dimensions_; }
 //
-void session::set_svd_cutoff(const ND &in_svd_cutoff) {
+void session::set_svd_cutoff(const std::map<int,double> &in_svd_cutoff) {
   session::svd_cutoffs_.clear();
   session::svd_cutoffs_.push_back({in_svd_cutoff});
 }
-void session::set_svd_cutoffs(const VectorMapND &in_svd_cutoff) { session::svd_cutoffs_ = in_svd_cutoff; }
-const VectorMapND & session::get_svd_cutoffs() const { return session::svd_cutoffs_; }
+void session::set_svd_cutoffs(const Table2d<std::map<int,double>> &in_svd_cutoff) { session::svd_cutoffs_ = in_svd_cutoff; }
+const Table2d<std::map<int,double>> & session::get_svd_cutoffs() const { return session::svd_cutoffs_; }
 //
-void session::set_rel_svd_cutoff(const ND &in_rel_svd_cutoff) {
+void session::set_rel_svd_cutoff(const std::map<int,double> &in_rel_svd_cutoff) {
   session::rel_svd_cutoffs_.clear();
   session::rel_svd_cutoffs_.push_back({in_rel_svd_cutoff});
 }
-void session::set_rel_svd_cutoffs(const VectorMapND &in_rel_svd_cutoff) { session::rel_svd_cutoffs_ = in_rel_svd_cutoff; }
-const VectorMapND & session::get_rel_svd_cutoffs() const { return session::rel_svd_cutoffs_; }
+void session::set_rel_svd_cutoffs(const Table2d<std::map<int,double>> &in_rel_svd_cutoff) { session::rel_svd_cutoffs_ = in_rel_svd_cutoff; }
+const Table2d<std::map<int,double>> & session::get_rel_svd_cutoffs() const { return session::rel_svd_cutoffs_; }
 //
 void session::set_measure_sample_sequential(const std::string &in_measure_sample_sequential) {
   validate_measure_sample_options(in_measure_sample_sequential);
   session::measure_sample_sequentials_.clear();
   session::measure_sample_sequentials_.push_back({in_measure_sample_sequential});
 }
-void session::set_measure_sample_sequentials(const VectorString &in_measure_sample_sequential) {
+void session::set_measure_sample_sequentials(const Table2d<std::string> &in_measure_sample_sequential) {
   for (auto item : in_measure_sample_sequential) {
     for (auto im : item) {
       session::validate_measure_sample_options(im);
@@ -324,7 +324,7 @@ void session::validate_measure_sample_options(const std::string &measure_sample_
     throw std::range_error(measure_sample_options_error_message.str());
   }
 }
-const VectorString & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
+const Table2d<std::string> & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
 
 //
 void session::set_noise_model(const NoiseModel &noise_model) {
@@ -353,11 +353,13 @@ void session::set_debug(const bool & debug) {
 }
 const bool & session::get_debug() const { return session::debug_; }
 //
-void session::setName(const VectorString &name_) { session::name_m = name_; }
+void session::setName(const Table2d<std::string> &name_) { session::name_m = name_; }
 void session::setName(const std::string &name_) { session::name_m.push_back({name_}); }
-const VectorString & session::getName() const { return session::name_m; }
+const Table2d<std::string> & session::getName() const { return session::name_m; }
 
-const VectorString & session::get_out_raws() const { return session::out_raws_ ; }
+const Table2d<std::string>& session::get_out_raws_json() const { return session::out_raws_json_ ; }
+//
+//const Table2d<std::map<std::vector<bool>,int>>& session::get_out_raws_map() const { return session::out_raws_map_ ; }
 //
 const Table2d<std::vector<int>> & session::get_out_counts() const {
   return session::out_counts_;
@@ -371,28 +373,28 @@ const Table2d<Table2d<double>> & session::get_out_prob_jacobians() const {
   return session::out_prob_gradients_;
 }
 //
-const VectorMapND & session::get_out_divergences() const { return session::out_divergences_ ; }
+const Table2d<std::map<int,double>> & session::get_out_divergences() const { return session::out_divergences_ ; }
 //
 
-const VectorString & session::get_out_transpiled_circuits() const { return session::out_transpiled_circuits_ ; }
+const Table2d<std::string> & session::get_out_transpiled_circuits() const { return session::out_transpiled_circuits_ ; }
 //
 
-const VectorString & session::get_out_qobjs() const { return session::out_qobjs_ ; }
+const Table2d<std::string> & session::get_out_qobjs() const { return session::out_qobjs_ ; }
 //
 
-const VectorString & session::get_out_qbjsons() const { return session::out_qbjsons_ ; }
+const Table2d<std::string> & session::get_out_qbjsons() const { return session::out_qbjsons_ ; }
 //
 
-const VectorMapNN & session::get_out_single_qubit_gate_qtys() const { return session::out_single_qubit_gate_qtys_ ; }
+const Table2d<std::map<int,int>> & session::get_out_single_qubit_gate_qtys() const { return session::out_single_qubit_gate_qtys_ ; }
 //
 
-const VectorMapNN & session::get_out_double_qubit_gate_qtys() const { return session::out_double_qubit_gate_qtys_ ; }
+const Table2d<std::map<int,int>> & session::get_out_double_qubit_gate_qtys() const { return session::out_double_qubit_gate_qtys_ ; }
 //
 
-const VectorMapND & session::get_out_total_init_maxgate_readout_times() const { return session::out_total_init_maxgate_readout_times_ ; }
+const Table2d<std::map<int,double>> & session::get_out_total_init_maxgate_readout_times() const { return session::out_total_init_maxgate_readout_times_ ; }
 //
 
-const VectorMapND & session::get_out_z_op_expects() const { return session::out_z_op_expects_ ; }
+const Table2d<std::map<int,double>> & session::get_out_z_op_expects() const { return session::out_z_op_expects_ ; }
 
 //
 
@@ -411,10 +413,10 @@ void session::set_seed(const size_t &in_seed) {
   session::seeds_.clear();
   session::seeds_.push_back({in_seed});
 }
-void session::set_seeds(const VectorN &in_seeds) { session::seeds_ = in_seeds; }
-const VectorN & session::get_seeds() const { return session::seeds_; }
+void session::set_seeds(const Table2d<size_t> &in_seeds) { session::seeds_ = in_seeds; }
+const Table2d<size_t> & session::get_seeds() const { return session::seeds_; }
 //
-void session::set_noise_mitigations(const VectorString &noise_mitigations) {
+void session::set_noise_mitigations(const Table2d<std::string> &noise_mitigations) {
   for (const auto& item : noise_mitigations) {
     for (const auto& im : item) {
       session::validate_noise_mitigation(im);
@@ -433,7 +435,7 @@ void session::validate_noise_mitigation(const std::string &noise_mitigation) {
       throw std::range_error(ss.str());
   }
 }
-const VectorString & session::get_noise_mitigations() const { return session::error_mitigations_; }
+const Table2d<std::string> & session::get_noise_mitigations() const { return session::error_mitigations_; }
 //
 const std::string session::get_summary() const {
   std::ostringstream out;
@@ -787,10 +789,10 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* out_raw:" << std::endl <<
+  out << "* out_raw_json:" << std::endl <<
   "    JSON string of measured counts" << std::endl <<
   "  = ";
-  for (auto item : get_out_raws()) {
+  for (auto item : get_out_raws_json()) {
       for (auto itel : item) {
               out << " " << itel;
       }

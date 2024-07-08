@@ -23,7 +23,7 @@ TEST(QuantumProcessTomographyTester, checkSPAM) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
@@ -65,7 +65,7 @@ TEST(QuantumProcessTomographyTester, checkRotationSweep) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("aer");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
@@ -115,7 +115,7 @@ TEST(QuantumProcessTomographyTester, checkSimpleCircuitExecution) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());

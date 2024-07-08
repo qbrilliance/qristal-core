@@ -27,7 +27,7 @@ circ.print()
 my_sim = qb.core.session(True)
 
 # Set up meaningful defaults for session parameters
-my_sim.qb12()
+my_sim.init()
 
 # Choose a simulator backend
 my_sim.acc = "qpp"
@@ -52,5 +52,5 @@ my_sim.run()
 print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
-print("Results:\n", my_sim.out_raw[0][0])
+print("Results:\n", my_sim.out_raw_json[0][0])
 

@@ -3,6 +3,7 @@
 #include "NoiseModel.hpp"
 #include <sstream>
 #include <unordered_map>
+
 namespace qb {
 template <typename T>
 bool contains(const std::vector<T> &container, const T &val) {

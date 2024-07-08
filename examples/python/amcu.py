@@ -3,7 +3,7 @@ import qb.core
 import ast
 import timeit
 s = qb.core.session()
-s.qb12()
+s.init()
 
 # In this example, we perform an mcx gate on all possible bitstrings
 num_qubits = 5
@@ -37,7 +37,7 @@ for i in range(2**num_qubits):
     s.acc = "qpp"
     s.run()
 
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
 
     if bitstring == "11111":

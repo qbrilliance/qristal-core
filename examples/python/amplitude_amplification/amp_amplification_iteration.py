@@ -3,7 +3,7 @@ import numpy as np
 import ast
 import matplotlib.pyplot as plt
 s = qb.core.session()
-s.qb12()
+s.init()
 
 NB_QUBITS = 1
 
@@ -37,7 +37,7 @@ for i in range(1, 40, 1):
     # Run the full amplitude estimation procedure:
     s.ir_target = full_circuit
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     # Calculate the probability of the marked state
     good_count = int(res["1"])

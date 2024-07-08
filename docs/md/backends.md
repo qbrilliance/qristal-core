@@ -206,7 +206,7 @@ These parameters are currently `qb.core.session` attributes.
 
 **Notes**: 
 
-In a `qb.core.session`, the `qb12()` method sets the following parameters:
+In a `qb.core.session`, the `init()` method sets the following parameters:
 
 * `max_bond_dimension`: 256 
 * `initial_bond_dimension`: 1 
@@ -240,7 +240,7 @@ These parameters are currently `qb.core.session` attributes.
 
 **Notes**: 
 
-In a `qb.core.session`, the `qb12()` method sets the following parameters:
+In a `qb.core.session`, the `init()` method sets the following parameters:
 
 * `max_bond_dimension`: 256 
 * `initial_bond_dimension`: 1 
@@ -276,7 +276,7 @@ These parameters are currently `qb.core.session` attributes.
 
 **Notes**: 
 
-In a `qb.core.session`, the `qb12()` method sets the following parameters:
+In a `qb.core.session`, the `init()` method sets the following parameters:
 
 * `max_bond_dimension`: 256 
 * `initial_bond_dimension`: 1 

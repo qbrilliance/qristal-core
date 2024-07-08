@@ -9,20 +9,20 @@ void QaoaBase::set_colname(const std::string &colname) {
   QaoaBase::colnames_.clear();
   QaoaBase::colnames_.push_back({colname});
 }
-void QaoaBase::set_colnames(const VectorString &colnames) {
+void QaoaBase::set_colnames(const Table2d<std::string> &colnames) {
   QaoaBase::colnames_ = colnames;
 }
-const VectorString & QaoaBase::get_colnames() const { return QaoaBase::colnames_; }
+const Table2d<std::string> & QaoaBase::get_colnames() const { return QaoaBase::colnames_; }
 
 // rownames
 void QaoaBase::set_rowname(const std::string &rowname) {
   QaoaBase::rownames_.clear();
   QaoaBase::rownames_.push_back({rowname});
 }
-void QaoaBase::set_rownames(const VectorString &rownames) {
+void QaoaBase::set_rownames(const Table2d<std::string> &rownames) {
   QaoaBase::rownames_ = rownames;
 }
-const VectorString & QaoaBase::get_rownames() const { return QaoaBase::rownames_; }
+const Table2d<std::string> & QaoaBase::get_rownames() const { return QaoaBase::rownames_; }
 
 // accs
 void QaoaBase::validate_acc(const std::string &acc) {
@@ -41,7 +41,7 @@ void QaoaBase::set_acc(const std::string &acc) {
   QaoaBase::accs_.clear();
   QaoaBase::accs_.push_back({acc});
 }
-void QaoaBase::set_accs(const VectorString &accs) {
+void QaoaBase::set_accs(const Table2d<std::string> &accs) {
   for (auto item : accs) {
     for (auto im : item) {
       QaoaBase::validate_acc(im);
@@ -49,77 +49,77 @@ void QaoaBase::set_accs(const VectorString &accs) {
   }
   QaoaBase::accs_ = accs;
 }
-const VectorString & QaoaBase::get_accs() const { return QaoaBase::accs_; }
+const Table2d<std::string> & QaoaBase::get_accs() const { return QaoaBase::accs_; }
 
 // hams (Hamiltonians as a string consisting of the sum of Pauli terms)
 void QaoaBase::set_ham(const std::string &ham) {
   QaoaBase::hams_.clear();
   QaoaBase::hams_.push_back({ham});
 }
-void QaoaBase::set_hams(const VectorString &hams) {
+void QaoaBase::set_hams(const Table2d<std::string> &hams) {
   QaoaBase::hams_ = hams;
 }
-const VectorString & QaoaBase::get_hams() const { return QaoaBase::hams_; }
+const Table2d<std::string> & QaoaBase::get_hams() const { return QaoaBase::hams_; }
 
 // qaoa_steps (parameter setting the number of layers in QAOA)
 void QaoaBase::set_qaoa_step(const std::size_t &in_qaoa_step) {
   QaoaBase::qaoa_steps_.clear();
   QaoaBase::qaoa_steps_.push_back({in_qaoa_step});
 }
-void QaoaBase::set_qaoa_steps(const VectorN &in_qaoa_steps) {
+void QaoaBase::set_qaoa_steps(const Table2d<size_t> &in_qaoa_steps) {
   QaoaBase::qaoa_steps_ = in_qaoa_steps;
 }
-const VectorN & QaoaBase::get_qaoa_steps() const { return QaoaBase::qaoa_steps_; }
+const Table2d<size_t> & QaoaBase::get_qaoa_steps() const { return QaoaBase::qaoa_steps_; }
 
 // qns (number of physical qubits)
 void QaoaBase::set_qn(const std::size_t &in_qn) {
   QaoaBase::qns_.clear();
   QaoaBase::qns_.push_back({in_qn});
 }
-void QaoaBase::set_qns(const VectorN &in_qns) {
+void QaoaBase::set_qns(const Table2d<size_t> &in_qns) {
   QaoaBase::qns_ = in_qns;
 }
-const VectorN & QaoaBase::get_qns() const { return QaoaBase::qns_; }
+const Table2d<size_t> & QaoaBase::get_qns() const { return QaoaBase::qns_; }
 
 // rns (number of repetitions)
 void QaoaBase::set_rn(const std::size_t &in_rn) {
   QaoaBase::rns_.clear();
   QaoaBase::rns_.push_back({in_rn});
 }
-void QaoaBase::set_rns(const VectorN &in_rns) {
+void QaoaBase::set_rns(const Table2d<size_t> &in_rns) {
   QaoaBase::rns_ = in_rns;
 }
-const VectorN & QaoaBase::get_rns() const { return QaoaBase::rns_; }
+const Table2d<size_t> & QaoaBase::get_rns() const { return QaoaBase::rns_; }
 
 // sns (number of shots)
 void QaoaBase::set_sn(const std::size_t &in_sn) {
   QaoaBase::sns_.clear();
   QaoaBase::sns_.push_back({in_sn});
 }
-void QaoaBase::set_sns(const VectorN &in_sns) {
+void QaoaBase::set_sns(const Table2d<size_t> &in_sns) {
   QaoaBase::sns_ = in_sns;
 }
-const VectorN & QaoaBase::get_sns() const { return QaoaBase::sns_; }
+const Table2d<size_t> & QaoaBase::get_sns() const { return QaoaBase::sns_; }
 
 // noises
 void QaoaBase::set_noise(const bool &in_noise) {
   QaoaBase::noises_.clear();
   QaoaBase::noises_.push_back({in_noise});
 }
-void QaoaBase::set_noises(const VectorBool &in_noises) {
+void QaoaBase::set_noises(const Table2d<bool> &in_noises) {
   QaoaBase::noises_ = in_noises;
 }
-const VectorBool & QaoaBase::get_noises() const { return QaoaBase::noises_; }
+const Table2d<bool> & QaoaBase::get_noises() const { return QaoaBase::noises_; }
 
 // extended_params
 void QaoaBase::set_extended_param(const bool &in_extended_param) {
   QaoaBase::extended_params_.clear();
   QaoaBase::extended_params_.push_back({in_extended_param});
 }
-void QaoaBase::set_extended_params(const VectorBool &in_extended_params) {
+void QaoaBase::set_extended_params(const Table2d<bool> &in_extended_params) {
   QaoaBase::extended_params_ = in_extended_params;
 }
-const VectorBool & QaoaBase::get_extended_params() const { return QaoaBase::extended_params_; }
+const Table2d<bool> & QaoaBase::get_extended_params() const { return QaoaBase::extended_params_; }
 
 // methods (optimiser algorithm)
 void QaoaBase::validate_method(const std::string &method) {
@@ -137,7 +137,7 @@ void QaoaBase::set_method(const std::string &method) {
   QaoaBase::methods_.clear();
   QaoaBase::methods_.push_back({method});
 }
-void QaoaBase::set_methods(const VectorString &methods) {
+void QaoaBase::set_methods(const Table2d<std::string> &methods) {
   for (auto item : methods) {
     for (auto im : item) {
       QaoaBase::validate_method(im);
@@ -145,17 +145,17 @@ void QaoaBase::set_methods(const VectorString &methods) {
   }
   QaoaBase::methods_ = methods;
 }
-const VectorString & QaoaBase::get_methods() const { return QaoaBase::methods_; }
+const Table2d<std::string> & QaoaBase::get_methods() const { return QaoaBase::methods_; }
 
 // grads (enable to return the gradient at the optimum solution)
 void QaoaBase::set_grad(const bool &in_grad) {
   QaoaBase::grads_.clear();
   QaoaBase::grads_.push_back({in_grad});
 }
-void QaoaBase::set_grads(const VectorBool &in_grads) {
+void QaoaBase::set_grads(const Table2d<bool> &in_grads) {
   QaoaBase::grads_ = in_grads;
 }
-const VectorBool & QaoaBase::get_grads() const { return QaoaBase::grads_; }
+const Table2d<bool> & QaoaBase::get_grads() const { return QaoaBase::grads_; }
 
 // gradient_strategys (method used for gradient calculations)
 void QaoaBase::validate_gradient_strategy(const std::string &gradient_strategy) {
@@ -173,7 +173,7 @@ void QaoaBase::set_gradient_strategy(const std::string &gradient_strategy) {
   QaoaBase::gradient_strategys_.clear();
   QaoaBase::gradient_strategys_.push_back({gradient_strategy});
 }
-void QaoaBase::set_gradient_strategys(const VectorString &gradient_strategys) {
+void QaoaBase::set_gradient_strategys(const Table2d<std::string> &gradient_strategys) {
   for (auto item : gradient_strategys) {
     for (auto im : item) {
       QaoaBase::validate_gradient_strategy(im);
@@ -181,47 +181,47 @@ void QaoaBase::set_gradient_strategys(const VectorString &gradient_strategys) {
   }
   QaoaBase::gradient_strategys_ = gradient_strategys;
 }
-const VectorString & QaoaBase::get_gradient_strategys() const { return QaoaBase::gradient_strategys_; }
+const Table2d<std::string> & QaoaBase::get_gradient_strategys() const { return QaoaBase::gradient_strategys_; }
 
 // maxeval (number of iterations for the optimiser)
 void QaoaBase::set_maxeval(const std::size_t &in_maxeval) {
   QaoaBase::maxevals_.clear();
   QaoaBase::maxevals_.push_back({in_maxeval});
 }
-void QaoaBase::set_maxevals(const VectorN &in_maxevals) {
+void QaoaBase::set_maxevals(const Table2d<size_t> &in_maxevals) {
   QaoaBase::maxevals_ = in_maxevals;
 }
-const VectorN & QaoaBase::get_maxevals() const { return QaoaBase::maxevals_; }
+const Table2d<size_t> & QaoaBase::get_maxevals() const { return QaoaBase::maxevals_; }
 
 // functol
-void QaoaBase::set_functol(const ND &in_functol) {
+void QaoaBase::set_functol(const std::map<int,double> &in_functol) {
   QaoaBase::functols_.clear();
   QaoaBase::functols_.push_back({in_functol});
 }
-void QaoaBase::set_functols(const VectorMapND &in_functols) { QaoaBase::functols_ = in_functols; }
-const VectorMapND & QaoaBase::get_functols() const { return QaoaBase::functols_; }
+void QaoaBase::set_functols(const Table2d<std::map<int,double>> &in_functols) { QaoaBase::functols_ = in_functols; }
+const Table2d<std::map<int,double>> & QaoaBase::get_functols() const { return QaoaBase::functols_; }
 
 // optimum_energy_abstol
-void QaoaBase::set_optimum_energy_abstol(const ND &in_optimum_energy_abstol) {
+void QaoaBase::set_optimum_energy_abstol(const std::map<int,double> &in_optimum_energy_abstol) {
   QaoaBase::optimum_energy_abstols_.clear();
   QaoaBase::optimum_energy_abstols_.push_back({in_optimum_energy_abstol});
 }
-void QaoaBase::set_optimum_energy_abstols(const VectorMapND &in_optimum_energy_abstols) { 
+void QaoaBase::set_optimum_energy_abstols(const Table2d<std::map<int,double>> &in_optimum_energy_abstols) { 
   QaoaBase::optimum_energy_abstols_ = in_optimum_energy_abstols; 
 }
-const VectorMapND & QaoaBase::get_optimum_energy_abstols() const { 
+const Table2d<std::map<int,double>> & QaoaBase::get_optimum_energy_abstols() const { 
   return QaoaBase::optimum_energy_abstols_; 
 }
 
 // optimum_energy_lowerbound
-void QaoaBase::set_optimum_energy_lowerbound(const ND &in_optimum_energy_lowerbound) {
+void QaoaBase::set_optimum_energy_lowerbound(const std::map<int,double> &in_optimum_energy_lowerbound) {
   QaoaBase::optimum_energy_lowerbounds_.clear();
   QaoaBase::optimum_energy_lowerbounds_.push_back({in_optimum_energy_lowerbound});
 }
-void QaoaBase::set_optimum_energy_lowerbounds(const VectorMapND &in_optimum_energy_lowerbounds) {
+void QaoaBase::set_optimum_energy_lowerbounds(const Table2d<std::map<int,double>> &in_optimum_energy_lowerbounds) {
   QaoaBase::optimum_energy_lowerbounds_ = in_optimum_energy_lowerbounds; 
 }
-const VectorMapND & QaoaBase::get_optimum_energy_lowerbounds() const { 
+const Table2d<std::map<int,double>> & QaoaBase::get_optimum_energy_lowerbounds() const { 
   return QaoaBase::optimum_energy_lowerbounds_; 
 }
 
@@ -230,67 +230,67 @@ void QaoaBase::set_out_eigenstate(const std::string &out_eigenstate) {
   QaoaBase::out_eigenstates_.clear();
   QaoaBase::out_eigenstates_.push_back({out_eigenstate});
 }
-void QaoaBase::set_out_eigenstates(const VectorString &out_eigenstates) { QaoaBase::out_eigenstates_ = out_eigenstates; }
-const VectorString & QaoaBase::get_out_eigenstates() const { return QaoaBase::out_eigenstates_; }
+void QaoaBase::set_out_eigenstates(const Table2d<std::string> &out_eigenstates) { QaoaBase::out_eigenstates_ = out_eigenstates; }
+const Table2d<std::string> & QaoaBase::get_out_eigenstates() const { return QaoaBase::out_eigenstates_; }
 
 // out_energy
-void QaoaBase::set_out_energy(const ND &out_energy) {
+void QaoaBase::set_out_energy(const std::map<int,double> &out_energy) {
   QaoaBase::out_energys_.clear();
   QaoaBase::out_energys_.push_back({out_energy});
 }
-void QaoaBase::set_out_energys(const VectorMapND &out_energys) { QaoaBase::out_energys_ = out_energys; }
-const VectorMapND & QaoaBase::get_out_energys() const { return QaoaBase::out_energys_; }
+void QaoaBase::set_out_energys(const Table2d<std::map<int,double>> &out_energys) { QaoaBase::out_energys_ = out_energys; }
+const Table2d<std::map<int,double>> & QaoaBase::get_out_energys() const { return QaoaBase::out_energys_; }
 
 
 // out_jacobian
-void QaoaBase::set_out_jacobian(const ND &out_jacobian) {
+void QaoaBase::set_out_jacobian(const std::map<int,double> &out_jacobian) {
   QaoaBase::out_jacobians_.clear();
   QaoaBase::out_jacobians_.push_back({out_jacobian});
 }
-void QaoaBase::set_out_jacobians(const VectorMapND &out_jacobians) { QaoaBase::out_jacobians_ = out_jacobians; }
-const VectorMapND & QaoaBase::get_out_jacobians() const { return QaoaBase::out_jacobians_; }
+void QaoaBase::set_out_jacobians(const Table2d<std::map<int,double>> &out_jacobians) { QaoaBase::out_jacobians_ = out_jacobians; }
+const Table2d<std::map<int,double>> & QaoaBase::get_out_jacobians() const { return QaoaBase::out_jacobians_; }
 
 // out_theta
-void QaoaBase::set_out_theta(const ND &out_theta) {
+void QaoaBase::set_out_theta(const std::map<int,double> &out_theta) {
   QaoaBase::out_thetas_.clear();
   QaoaBase::out_thetas_.push_back({out_theta});
 }
-void QaoaBase::set_out_thetas(const VectorMapND &out_thetas) { QaoaBase::out_thetas_ = out_thetas; }
-const VectorMapND & QaoaBase::get_out_thetas() const { return QaoaBase::out_thetas_; }
+void QaoaBase::set_out_thetas(const Table2d<std::map<int,double>> &out_thetas) { QaoaBase::out_thetas_ = out_thetas; }
+const Table2d<std::map<int,double>> & QaoaBase::get_out_thetas() const { return QaoaBase::out_thetas_; }
 
 // out_quantum_energy_calc_time
-void QaoaBase::set_out_quantum_energy_calc_time(const ND &out_quantum_energy_calc_time) {
+void QaoaBase::set_out_quantum_energy_calc_time(const std::map<int,double> &out_quantum_energy_calc_time) {
   QaoaBase::out_quantum_energy_calc_times_.clear();
   QaoaBase::out_quantum_energy_calc_times_.push_back({out_quantum_energy_calc_time});
 }
-void QaoaBase::set_out_quantum_energy_calc_times(const VectorMapND &out_quantum_energy_calc_times) {
+void QaoaBase::set_out_quantum_energy_calc_times(const Table2d<std::map<int,double>> &out_quantum_energy_calc_times) {
   QaoaBase::out_quantum_energy_calc_times_ = out_quantum_energy_calc_times; 
 }
-const VectorMapND & QaoaBase::get_out_quantum_energy_calc_times() const { 
+const Table2d<std::map<int,double>> & QaoaBase::get_out_quantum_energy_calc_times() const { 
   return QaoaBase::out_quantum_energy_calc_times_; 
 }
 
 // out_quantum_jacobian_calc_time
-void QaoaBase::set_out_quantum_jacobian_calc_time(const ND &out_quantum_jacobian_calc_time) {
+void QaoaBase::set_out_quantum_jacobian_calc_time(const std::map<int,double> &out_quantum_jacobian_calc_time) {
   QaoaBase::out_quantum_jacobian_calc_times_.clear();
   QaoaBase::out_quantum_jacobian_calc_times_.push_back({out_quantum_jacobian_calc_time});
 }
-void QaoaBase::set_out_quantum_jacobian_calc_times(const VectorMapND &out_quantum_jacobian_calc_times) { 
+void QaoaBase::set_out_quantum_jacobian_calc_times(const Table2d<std::map<int,double>> &out_quantum_jacobian_calc_times) { 
   QaoaBase::out_quantum_jacobian_calc_times_ = out_quantum_jacobian_calc_times; 
 }
-const VectorMapND & QaoaBase::get_out_quantum_jacobian_calc_times() const { 
+const Table2d<std::map<int,double>> & QaoaBase::get_out_quantum_jacobian_calc_times() const { 
   return QaoaBase::out_quantum_jacobian_calc_times_; 
 }
 
 // out_classical_energy_jacobian_total_calc_time
-void QaoaBase::set_out_classical_energy_jacobian_total_calc_time(const ND &out_classical_energy_jacobian_total_calc_time) {
+void QaoaBase::set_out_classical_energy_jacobian_total_calc_time(const std::map<int,double> &out_classical_energy_jacobian_total_calc_time) {
   QaoaBase::out_classical_energy_jacobian_total_calc_times_.clear();
   QaoaBase::out_classical_energy_jacobian_total_calc_times_.push_back({out_classical_energy_jacobian_total_calc_time});
 }
-void QaoaBase::set_out_classical_energy_jacobian_total_calc_times(const VectorMapND &out_classical_energy_jacobian_total_calc_times) { 
+void QaoaBase::set_out_classical_energy_jacobian_total_calc_times(const Table2d<std::map<int,double>> &out_classical_energy_jacobian_total_calc_times) { 
   QaoaBase::out_classical_energy_jacobian_total_calc_times_ = out_classical_energy_jacobian_total_calc_times; 
 }
-const VectorMapND & QaoaBase::get_out_classical_energy_jacobian_total_calc_times() const { 
+const Table2d<std::map<int,double>> & QaoaBase::get_out_classical_energy_jacobian_total_calc_times() const { 
   return QaoaBase::out_classical_energy_jacobian_total_calc_times_; 
 }
 

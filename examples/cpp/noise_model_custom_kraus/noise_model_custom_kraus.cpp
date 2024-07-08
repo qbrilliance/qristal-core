@@ -123,7 +123,7 @@ int main(int argc, char * argv[])
   const int n = 4;
 
   // Set up meaningful defaults
-  my_sim.qb12();
+  my_sim.init();
 
   // Set the number of qubits
   my_sim.set_qn(n);
@@ -152,7 +152,7 @@ int main(int argc, char * argv[])
   my_sim.run();
 
   // Print results
-  std::string result = ((my_sim.get_out_raws()).at(0)).at(0);
+  std::string result = ((my_sim.get_out_raws_json()).at(0)).at(0);
   std::cout << result << std::endl;
 
   // Exit

@@ -21,7 +21,7 @@ find_package(qbcore)
 
 add_executable(pyGSTi_runner pyGSTi_runner.cpp)
 
-target_link_libraries(qst
+target_link_libraries(pyGSTi_runner
   PRIVATE
     qb::core
 )

@@ -48,7 +48,7 @@ my_sim = qb.core.session()
 
 Choose some default session parameters:
 ```python
-my_sim.qb12()
+my_sim.init()
 ```
 
 Set the number of shots to run through the circuit:

@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "py_optimization.hpp"
-#include "py_stl_containers.hpp"
+#include "qb/core/python/py_optimization.hpp"
+#include "qb/core/python/py_stl_containers.hpp"
 #include "qb/core/optimization/qaoa/qaoa.hpp"
 
 namespace qb {

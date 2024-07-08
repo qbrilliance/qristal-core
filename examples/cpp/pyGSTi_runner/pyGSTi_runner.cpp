@@ -15,7 +15,7 @@ int main() {
 
     //(1) define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("aer");
     sim.set_noise(true);
     qb::NoiseModel nm("default", n_qubits);

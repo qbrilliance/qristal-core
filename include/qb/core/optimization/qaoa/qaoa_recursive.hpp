@@ -9,7 +9,7 @@ namespace op {
 class QaoaRecursive : public QaoaBase
 {
   protected:
-    VectorN n_cs_;
+    Table2d<size_t> n_cs_;
     
     // Bounds
     const size_t N_CS_LOWERBOUND = 0;
@@ -25,8 +25,8 @@ class QaoaRecursive : public QaoaBase
     
     // Setters and Getters
     void set_n_c(const size_t &in_n_c);
-    void set_n_cs(const VectorN &in_n_cs);
-    const VectorN &get_n_cs() const;
+    void set_n_cs(const Table2d<size_t> &in_n_cs);
+    const Table2d<size_t> &get_n_cs() const;
     static const char *help_n_cs_;
     
     // Misc functions

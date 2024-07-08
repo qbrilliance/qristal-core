@@ -15,7 +15,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     qubit_1_thresh = 0.05
 
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 2
     s.sn = 32
     s.xasm = True
@@ -67,7 +67,7 @@ def test_CI_230131_cz_arbitrary_rotation():
     from yaml import safe_load, dump
     import os
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 2
     s.sn = 128
 
@@ -94,7 +94,7 @@ def test_CI_230131_cz_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert(sum([jj for jj in (res).values()]) == s.sn[0][0])
 
@@ -104,7 +104,7 @@ def test_CI_230131_arbitrary_rotation():
     from yaml import safe_load, dump
     import os
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 2
     s.sn = 64
 
@@ -132,7 +132,7 @@ def test_CI_230131_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert(sum([jj for jj in (res).values()]) == s.sn[0][0])
 
@@ -143,7 +143,7 @@ def test_CI_230106_1_loopback_6s():
     import timeit
     import os
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 1
     s.sn = 32
     s.xasm = True
@@ -188,7 +188,7 @@ def test_CI_220225_1_init_measure_no_gates() :
     import json
 
     s = qb.core.session()
-    s.qb12()
+    s.init()
 
     s.qn = 1
     s.sn = 32
@@ -231,14 +231,14 @@ def test_recursive():
     print("Using loopback to test recursive request.")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert(sum([jj for jj in (res).values()]) == 16)
 
@@ -248,7 +248,7 @@ def test_resampling():
     from yaml import safe_load, dump
     import os
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
@@ -262,7 +262,7 @@ def test_resampling():
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert(sum([jj for jj in (res).values()]) == 30)
 
@@ -274,7 +274,7 @@ def test_resampling_qb_safe_limit_shots():
     import json
     QB_SAFE_LIMIT_SHOTS = 512
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
@@ -300,7 +300,7 @@ def test_reservation():
     from yaml import safe_load, dump
     import os
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
@@ -313,7 +313,7 @@ def test_reservation():
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert(sum([jj for jj in (res).values()]) <= 16)
 

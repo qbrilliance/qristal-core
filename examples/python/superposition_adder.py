@@ -4,7 +4,7 @@ import ast
 s = qb.core.session()
 s.acc = "sparse-sim"
 s.sn = 1024
-s.qb12()
+s.init()
 s.qn = 32
 
 #Inputs
@@ -103,8 +103,8 @@ for i in range(len(qubits_superfluous_flags)):
 #Run
 s.ir_target = circ #s.instring = circ.openqasm()
 s.run()
-print(s.out_raw[0])
-result = s.out_raw[0][0]
+print(s.out_raw_json[0])
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 assert(res["000001111"] > 0)
 assert(res["001101001"] > 0)

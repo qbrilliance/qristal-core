@@ -30,7 +30,7 @@ namespace qb
         }
 
         void executeWorkflowTask<SPAMBenchmark, Task::IdealCounts>::operator()(SPAMBenchmark & workflow, std::time_t timestamp) const {
-            qb::String ideal_results;
+            std::vector<std::string> ideal_results;
             size_t n_bitstrings = std::pow(2, workflow.get_qubits().size());
             for (size_t bitstring = 0; bitstring < n_bitstrings; ++bitstring )
             {

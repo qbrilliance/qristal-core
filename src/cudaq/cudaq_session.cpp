@@ -71,12 +71,11 @@ void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) 
               << std::endl;
   }
 
-  // Save Z-operator expectation value to VectorMapND
-  ND res_z{{0, z_expectation_val}};
+  // Save Z-operator expectation value
+  std::map<int,double> res_z{{0, z_expectation_val}};
   out_z_op_expects_.at(ii).at(jj) = res_z;
 
-  // Save the counts to VectorMapNN in out_counts_ and raw map data in
-  // out_raws
+  // Save the counts
   populate_measure_counts_data(ii, jj, cudaq_counts.to_map());
 }
 } // namespace qb

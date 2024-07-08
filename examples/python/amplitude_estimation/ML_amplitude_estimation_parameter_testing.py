@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib import cm
 s = qb.core.session()
-s.qb12()
+s.init()
 
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))

@@ -252,8 +252,8 @@ namespace qb
                 * 
                 * @return ---
                 */
-                void serialize_measured_counts( const qb::String& counts, const std::time_t time ) const { 
-                    save_data<BitCounts, qb::String>(identifier_, "_measured_", counts, time); 
+                void serialize_measured_counts( const std::vector<std::string>& counts, const std::time_t time ) const { 
+                    save_data<BitCounts, std::vector<std::string>>(identifier_, "_measured_", counts, time); 
                 }
                 /**
                 * @brief Serialization method for the assigned qb::session
@@ -296,7 +296,7 @@ namespace qb
                 * in a std::vector of std::string objects and then serialized.
                 */
                 void operator()(QuantumProcessTomography<QSTWORKFLOW, StateSymbol>& qpt, std::time_t timestamp) const {
-                    qb::String measured_results;
+                    std::vector<std::string> measured_results;
                     auto workflow_circuits = qpt.get_qst().get_wrapped_workflow().get_circuits(); 
                     for (auto & w : workflow_circuits) {
                         for (auto& iw : qpt.prepend_state_initializations(w)) {
@@ -308,7 +308,7 @@ namespace qb
                                 //add target to session and push results 
                                 qpt.get_qst().get_wrapped_workflow().set_session().set_irtarget_m(iwb.get());
                                 qpt.get_qst().get_wrapped_workflow().set_session().run();
-                                measured_results.push_back(qpt.get_qst().get_wrapped_workflow().get_session().get_out_raws()[0][0]);
+                                measured_results.push_back(qpt.get_qst().get_wrapped_workflow().get_session().get_out_raws_json()[0][0]);
                             }
                         }
                     }

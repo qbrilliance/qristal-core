@@ -39,7 +39,7 @@ namespace qb
             return counts_map;
         }
 
-        std::vector<std::map<std::string, size_t>> convert_to_string_count_maps(const qb::String& list_of_bitstrings, const size_t n_qubits) {
+        std::vector<std::map<std::string, size_t>> convert_to_string_count_maps(const std::vector<std::string>& list_of_bitstrings, const size_t n_qubits) {
             std::vector<std::map<std::string, size_t>> count_maps; 
             for (const auto& i : list_of_bitstrings) {
                 count_maps.push_back(convert_to_counts_map(i, n_qubits));
@@ -47,7 +47,7 @@ namespace qb
             return count_maps;
         }
 
-        std::vector<std::map<size_t, size_t>> convert_to_count_maps(const qb::String& list_of_bitstrings, const size_t n_qubits, const bool r2l_ordered) {
+        std::vector<std::map<size_t, size_t>> convert_to_count_maps(const std::vector<std::string>& list_of_bitstrings, const size_t n_qubits, const bool r2l_ordered) {
             std::vector<std::map<size_t, size_t>> count_maps; 
             for (const auto& i : list_of_bitstrings) {
                 count_maps.push_back(convert_to_counts_map(i, n_qubits, r2l_ordered));

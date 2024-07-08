@@ -4,7 +4,7 @@ import ast
 s = qb.core.session()
 s.acc = "qpp"
 s.sn = 1024
-s.qb12()
+s.init()
 s.nooptimise = True
 s.noplacement = True
 
@@ -43,8 +43,8 @@ circ.measure(q2)
 # assert("010" in res["AcceleratorBuffer"]["Measurements"])
 s.ir_target = circ
 s.run()
-print(s.out_raw[0])
-result = s.out_raw[0][0]
+print(s.out_raw_json[0])
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 assert(res["010"] == 1024) #assert("010" in list(res.keys()))
 
@@ -81,7 +81,7 @@ circ.measure(q2)
 # assert("111" in res["AcceleratorBuffer"]["Measurements"])
 s.ir_target = circ
 s.run()
-print(s.out_raw[0])
-result = s.out_raw[0][0]
+print(s.out_raw_json[0])
+result = s.out_raw_json[0][0]
 res = ast.literal_eval(result)
 assert(res["111"] == 1024) #assert("010" in list(res.keys()))

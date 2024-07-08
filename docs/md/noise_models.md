@@ -95,7 +95,7 @@ This example can be found at `examples/cpp/noise_model`, along with a `CMakeList
 int main(int argc, char * argv[])
 {
     auto my_sim = qb::session();
-    my_sim.qb12();          // Set up meaningful defaults
+    my_sim.init();          // Set up meaningful defaults
     my_sim.set_qn(2);       // 2 qubits
     my_sim.set_acc("aer");  // Aer simulator selected
     my_sim.set_noise(true); // Set this to true for noise models to be active
@@ -110,7 +110,7 @@ int main(int argc, char * argv[])
        measure q[0] -> c[0];
        )");
     my_sim.run();
-    std::string result = ((my_sim.get_out_raws()).at(0)).at(0);
+    std::string result = ((my_sim.get_out_raws_json()).at(0)).at(0);
     std::cout << result << std::endl;
     return 0;
 }
@@ -120,7 +120,7 @@ This example can be found at `examples/python/noise_model.py`.
 ```python
 import qb.core
 my_sim = qb.core.session()
-my_sim.qb12()
+my_sim.init()
 my_sim.qn = 2
 my_sim.acc = "aer"
 my_sim.noise = True
@@ -135,7 +135,7 @@ my_sim.instring = '''
     measure q[0] -> c[0];
 '''
 my_sim.run()
-print(my_sim.out_raws[0])
+print(my_sim.out_raws_json[0])
 ```
 
 # User defined noise models

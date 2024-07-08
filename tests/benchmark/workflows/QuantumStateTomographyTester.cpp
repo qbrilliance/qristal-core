@@ -51,7 +51,7 @@ TEST(QuantumStateTomographyTester, checkSPAM) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
@@ -103,7 +103,7 @@ TEST(QuantumStateTomographyTester, checkRotationSweep) {
 
     //define session  
     qb::session sim(false); 
-    sim.qb12();
+    sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());

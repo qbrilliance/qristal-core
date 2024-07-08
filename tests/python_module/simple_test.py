@@ -3,86 +3,86 @@
 import pytest
 
 
-def test_CI_210826_1_qb12_check_qn_equals_12() :
-    print("* CI_210826_1_qb12_check_qn_equals_12:")
-    print("* Imports core.core() and calls qb12(), which should give a default setup for 12 qubits.")
+def test_CI_210826_1_init_check_qn_equals_12() :
+    print("* CI_210826_1_init_check_qn_equals_12:")
+    print("* Imports core.core() and calls init(), which should give a default setup for 12 qubits.")
     import qb.core
     s = qb.core.session()
-    s.qb12()
-    assert (s.qn[0][0]) == 12, "[QB SDK] Failed test: CI_210826_1_qb12_check_qn_equals_12"
+    s.init()
+    assert (s.qn[0][0]) == 12, "[QB SDK] Failed test: CI_210826_1_init_check_qn_equals_12"
 
-def test_CI_210826_2_qb12_check_sn_equals_1024() :
-    print("* CI_210826_2_qb12_check_sn_equals_1024:")
-    print("* Imports qbemulator Python module and calls qb12(), which should give a default setup for 1024 shots")
+def test_CI_210826_2_init_check_sn_equals_1024() :
+    print("* CI_210826_2_init_check_sn_equals_1024:")
+    print("* Imports qbemulator Python module and calls init(), which should give a default setup for 1024 shots")
     import qb.core
     s = qb.core.session()
-    s.qb12()
-    assert (s.sn[0][0]) == 1024, "[QB SDK] Failed test: CI_210826_2_qb12_check_sn_equals_1024"
+    s.init()
+    assert (s.sn[0][0]) == 1024, "[QB SDK] Failed test: CI_210826_2_init_check_sn_equals_1024"
 
-def test_CI_210826_4_qb12_random_5() :
-    print("* CI_210826_4_qb12_random_5:")
-    print("* With default qb12 settings, with the Aer backend, run a depth 5 circuit, check the length of the out_raw dictionary is >0")
+def test_CI_210826_4_init_random_5() :
+    print("* CI_210826_4_init_random_5:")
+    print("* With default init settings, with the Aer backend, run a depth 5 circuit, check the length of the out_raw_json dictionary is >0")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.random = 5
     s.acc = 'aer'
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
-    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_4_qb12_random_5 - Aer"
+    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_4_init_random_5 - Aer"
 
-def test_CI_210826_5_qb12_random_5() :
-    print("* CI_210826_5_qb12_random_5:")
-    print("* With default qb12 settings, with the qpp backend, run a depth 3 circuit, check the length of the out_raw dictionary is >0")
+def test_CI_210826_5_init_random_5() :
+    print("* CI_210826_5_init_random_5:")
+    print("* With default init settings, with the qpp backend, run a depth 3 circuit, check the length of the out_raw_json dictionary is >0")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.random = 3
     s.acc = 'qpp'
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
-    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_5_qb12_random_5 - qpp"
+    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_5_init_random_5 - qpp"
 
-def test_CI_210826_6_qb12_random_0() :
-    print("* CI_210826_4_qb12_random_0:")
+def test_CI_210826_6_init_random_0() :
+    print("* CI_210826_4_init_random_0:")
     print("* [Edge condition] check that a ValueError exception occurs")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.random = 0
     with pytest.raises(ValueError):
         s.run()
 
-def test_CI_210826_7_qb12_random_minus_one() :
-    print("* CI_210826_5_qb12_random_minus_one:")
+def test_CI_210826_7_init_random_minus_one() :
+    print("* CI_210826_5_init_random_minus_one:")
     print("* [Edge condition] check that a TypeError exception occurs")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     with pytest.raises(TypeError):
         s.random = -1
 
-def test_CI_210826_8_qb12_random_256() :
-    print("* CI_210826_8_qb12_random_256:")
-    print("* With default qb12 settings, run a depth 256 circuit, check the length of the out_raw dictionary is >0")
+def test_CI_210826_8_init_random_256() :
+    print("* CI_210826_8_init_random_256:")
+    print("* With default init settings, run a depth 256 circuit, check the length of the out_raw_json dictionary is >0")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.random = 256
     s.run()
-    result = s.out_raw[0][0]
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
-    assert (len(list(res.keys()))) > 0, "[QB SDK] failed test: CI_210826_8_qb12_random_256"
+    assert (len(list(res.keys()))) > 0, "[QB SDK] failed test: CI_210826_8_init_random_256"
 
 def test_CI_210826_9_qn_minus_one() :
     print("* CI_210826_9_qn_minus_one:")
     print("* [Edge condition] check that a TypeError exception occurs")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     with pytest.raises(TypeError):
         s.qn = -1
 
@@ -91,26 +91,26 @@ def test_CI_210826_10_qn_0() :
     print("* [Edge condition] check that a ValueError exception occurs")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.qn = 0
     with pytest.raises(ValueError):
         s.run()
 
-def test_CI_210826_11_qb12_no_infile_no_instring_no_random() :
-    print("* CI_210826_11_qb12_no_infile_no_instring_no_random:")
+def test_CI_210826_11_init_no_infile_no_instring_no_random() :
+    print("* CI_210826_11_init_no_infile_no_instring_no_random:")
     print("* [Edge condition] check that a ValueError exception occurs")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     with pytest.raises(ValueError):
         s.run()
 
-def test_CI_210826_12_qb12_nonexistent_infile() :
-    print("* CI_210826_12_qb12_nonexistent_infile:")
+def test_CI_210826_12_init_nonexistent_infile() :
+    print("* CI_210826_12_init_nonexistent_infile:")
     print("* [Edge condition] check that a ValueError exception occurs")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.infile = "nonexist.inc"
     with pytest.raises(ValueError):
         s.run()
@@ -121,7 +121,7 @@ def test_CI_210826_13_openqasm_index_out_of_range() :
     print("* [XACC exit condition] when an indexing error is detected in OpenQASM")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
         OPENQASM 2.0; include "qelib1.inc";
@@ -134,10 +134,10 @@ def test_CI_210826_13_openqasm_index_out_of_range() :
 
 def test_CI_210826_14_qbtheta_parameters() :
     print("* CI_210826_14_qbtheta_parameters:")
-    print("* With default qb12 settings, check the functionality for qbtheta parameter substitution")
+    print("* With default init settings, check the functionality for qbtheta parameter substitution")
     import qb.core
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.acc = "aer"
     s.instring = '''
     __qpu__ void QBCIRCUIT(qreg q) {
@@ -147,10 +147,10 @@ def test_CI_210826_14_qbtheta_parameters() :
         u3(QBTHETA_0, 1.6, QBTHETA_1) q[0];
         measure q[0] -> c[0];
     }'''
-    mth = qb.core.ND()
+    mth = qb.core.MapIntDouble()
     mth[0] = 0.05
     mth[1] = -0.7
-    s.theta[0] = qb.core.MapND([mth])
+    s.theta[0] = qb.core.VectorMapIntDouble([mth])
     s.run()
    
     # Recompile the transpiled qasm to check
@@ -185,11 +185,11 @@ def test_raw_openqasm_str():
         circ.cnot(i, i + 1)
     circ.measure_all()
 
-    s.qb12()
+    s.init()
     s.instring = circ.openqasm()
     s.run()
-    print(s.out_raw[0])
-    result = s.out_raw[0][0]
+    print(s.out_raw_json[0])
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (len(list(res.keys())) == 2)
 
@@ -201,10 +201,10 @@ def test_raw_openqasm_file():
     s.debug = True
     dir_path = os.path.dirname(os.path.realpath(__file__))
     s.infile = dir_path + "/test_openqasm.qasm"
-    s.qb12()
+    s.init()
     s.run()
-    print(s.out_raw[0])
-    result = s.out_raw[0][0]
+    print(s.out_raw_json[0])
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (len(list(res.keys())) == 2)
 
@@ -212,7 +212,7 @@ def test_raw_openqasm_custom_qreg_names():
     print(" Testing raw OpenQASM input using different qreg variable names")
     import qb.core, ast
     s = qb.core.session()
-    s.qb12()
+    s.init()
     s.instring = '''
     OPENQASM 2.0;
     include "qelib1.inc";
@@ -224,8 +224,8 @@ def test_raw_openqasm_custom_qreg_names():
     measure qa1_bb[1] -> c[1];
     '''
     s.run()
-    print(s.out_raw[0])
-    result = s.out_raw[0][0]
+    print(s.out_raw_json[0])
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (len(list(res.keys())) == 2)
 
@@ -240,8 +240,8 @@ def test_raw_openqasm_custom_qreg_names():
     measure q1[1] -> c[1];
     '''
     s.run()
-    print(s.out_raw[0])
-    result = s.out_raw[0][0]
+    print(s.out_raw_json[0])
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (len(list(res.keys())) == 2)
 
@@ -256,7 +256,7 @@ def test_raw_openqasm_custom_qreg_names():
     measure qb_reg123[1] -> c[1];
     '''
     s.run()
-    print(s.out_raw[0])
-    result = s.out_raw[0][0]
+    print(s.out_raw_json[0])
+    result = s.out_raw_json[0][0]
     res = ast.literal_eval(result)
     assert (len(list(res.keys())) == 2)

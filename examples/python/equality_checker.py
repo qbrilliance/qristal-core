@@ -2,7 +2,7 @@ import qb.core
 import numpy as np
 import ast
 s = qb.core.session()
-s.qb12()
+s.init()
 
 ###
 # Testing equality checker
@@ -42,7 +42,7 @@ for i in range(8):
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        result = s.out_raw[0][0]
+        result = s.out_raw_json[0][0]
         res = ast.literal_eval(result)
         # Check results
         if i == j:
@@ -74,7 +74,7 @@ for i in range(8):
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        result = s.out_raw[0][0]
+        result = s.out_raw_json[0][0]
         res = ast.literal_eval(result)
         # Check results
         if i == j:

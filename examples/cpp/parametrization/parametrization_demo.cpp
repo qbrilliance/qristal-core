@@ -10,7 +10,7 @@ int main() {
   auto my_sim = qb::session(false);
 
   // Set up sensible default parameters
-  my_sim.qb12();
+  my_sim.init();
 
   // Choose a simulator backend
   my_sim.set_acc("sparse-sim");
@@ -62,14 +62,14 @@ int main() {
 
   // Print the raw shot results, probabilities, and jacobians
   size_t num_outputs = qb::ipow(2, circ1.num_qubits());
-  std::cout << "Results 1:" << std::endl << my_sim.get_out_raws()[0][0] << std::endl;
+  std::cout << "Results 1:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
   std::cout << "Circ 1 probabilities: \n";
   for (size_t idx = 0; auto elem: my_sim.get_out_probs()[0][0]) {
     std::cout << "Probability for index " << idx << ": " << elem << "\n"; 
     idx += 1;
   }
   std::cout << "]\n";
-  std::cout << "Results 2:" << std::endl << my_sim.get_out_raws()[1][0] << std::endl;
+  std::cout << "Results 2:" << std::endl << my_sim.get_out_raws_json()[1][0] << std::endl;
   std::cout << "Circ 2 probabilities: \n";
   size_t idx = 0;
   for (size_t idx = 0; auto elem: my_sim.get_out_probs()[1][0]) {
