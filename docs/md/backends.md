@@ -117,7 +117,13 @@ These parameters are currently `qb.core.session` attributes.
 
 **Requires**: CUDA Quantum (`cudaq:qpp` version only)
 
-**Parameters**: None
+**Parameters**:
+
+* `get_state_vec`: *boolean*, optional. Retrieve final state-vector if set as true (default = false).
+* `get_state_vec_raw`: *pointer of vector of complex double*, optional. Holds the final state-vector.
+
+These parameters are currently `qb.core.session` attributes.
+
 
 **Example**: `demo1.py`
 
@@ -149,6 +155,9 @@ These parameters are currently `qb.core.session` attributes.
 
 * `aer_sim_type`: *string*, optional. The type of AER simulator. Can be set as `aer_sim_type = statevector` (default).
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
+* `get_state_vec`: *boolean*, optional. Retrieve final state-vector if set as true (default = false).
+* `get_state_vec_raw`: *pointer of vector of complex double*, optional. Holds the final state-vector.
+
 
 These parameters are currently `qb.core.session` attributes.
 

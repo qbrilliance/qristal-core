@@ -1112,6 +1112,11 @@ namespace qb
       } else if (in_get_state_vec_ == true && run_config.num_shots > 0) {
         std::cout << "Warning: Requesting AER state vector will ignore shot sampling!\n";
       }
+      // If state vector is requested, check that the statevector backend is chosen; 
+      // throw an error otherwise
+      if (in_get_state_vec_ == true && run_config.aer_sim_type.compare("statevector") != 0) {
+        throw std::invalid_argument("Requesting the state vector data requires using the 'statevector' backend.");
+      } 
 
       if (!run_config.aer_sim_type.empty()) {
         aer_options.insert("sim-type", run_config.aer_sim_type);
@@ -1547,6 +1552,7 @@ namespace qb
     set_rel_svd_cutoff(rel_scut);
     set_output_oqm_enabled(true);
     set_measure_sample_sequential("auto");
+    set_aer_sim_type("statevector");
   }
 
   void session::aws_setup(uint qn, uint sn, uint wn) {

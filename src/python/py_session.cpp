@@ -257,7 +257,10 @@ void bind_session(pybind11::module &m) {
       .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
                     &qb::session::set_output_amplitudes,
                     qb::help::output_amplitudes_)
-      .def_property("state_vector",
+      .def_property("get_state_vec", &qb::session::get_state_vec,
+                    &qb::session::get_state_vec,
+                    qb::help::state_vec_)
+      .def_property("get_state_vec_raw",
           [&](qb::session &s) {
             std::vector<std::complex<double>> stateVecData;
             std::shared_ptr<std::vector<std::complex<double>>> stateVec = s.get_state_vec_raw();

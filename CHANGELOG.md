@@ -8,6 +8,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 - Renamed out_raws --> out_raws_json
 - Renamed session.qb12() --> session.init()
+- Renamed python commands to retrieve and print state-vector
 
 ### Added
 
