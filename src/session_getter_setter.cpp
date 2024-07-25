@@ -53,11 +53,22 @@ const Table2d<std::vector<double>> & session::get_parameter_vectors() const {
 void session::set_calc_jacobian(bool calc_jacobian) {
   session::calc_jacobians_.clear();
   session::calc_jacobians_.push_back({calc_jacobian});
+  if (calc_jacobian) set_calc_out_counts(true);
 }
 void session::set_calc_jacobians(Table2d<bool> calc_jacobians) {
-session::calc_jacobians_ = calc_jacobians;
+  session::calc_jacobians_ = calc_jacobians;
 }
 const Table2d<bool> & session::get_calc_jacobians() const { return session::calc_jacobians_; }
+//
+void session::set_calc_out_counts(bool calc_out_counts) {
+  if (calc_jacobians_[0][0] and not calc_out_counts) throw std::logic_error("You cannot set calc_out_counts false whilst calc_jacobian is true.");
+  session::calc_out_counts_.clear();
+  session::calc_out_counts_.push_back({calc_out_counts});
+}
+void session::set_calc_out_countss(Table2d<bool> calc_out_counts) {
+session::calc_out_counts_ = calc_out_counts;
+}
+const Table2d<bool> & session::get_calc_out_counts() const { return session::calc_out_counts_; }
 //
 void session::set_remote_backend_database_path(const std::string &path) {
   session::remote_backend_database_path_ = path;
@@ -336,17 +347,17 @@ void session::set_noise_models(const std::vector<std::vector<NoiseModel>> &noise
 }
 const std::vector<std::vector<NoiseModel>> &session::get_noise_models() const { return noise_models_; }
 //
-void session::set_output_amplitude(const std::map<
-    std::string, std::complex<double>> &in_output_amplitude) {
-  session::output_amplitudes_.clear();
-  session::output_amplitudes_.push_back({in_output_amplitude});
+void session::set_expected_amplitudes(const std::map<
+    std::vector<bool>, std::complex<double>> &amp) {
+  session::expected_amplitudes_.clear();
+  session::expected_amplitudes_.push_back({amp});
 }
-void session::set_output_amplitudes(const std::vector<std::vector<std::map<
-    std::string, std::complex<double>>>> &in_output_amplitude) {
-  session::output_amplitudes_ = in_output_amplitude;
+void session::set_expected_amplitudess(const std::vector<std::vector<std::map<
+    std::vector<bool>, std::complex<double>>>> &amp) {
+  session::expected_amplitudes_ = amp;
 }
-const std::vector<std::vector<std::map<std::string, std::complex<double>>>> &
-    session::get_output_amplitudes() const { return session::output_amplitudes_; }
+const std::vector<std::vector<std::map<std::vector<bool>, std::complex<double>>>> &
+    session::get_expected_amplitudes() const { return session::expected_amplitudes_; }
 //
 void session::set_debug(const bool & debug) {
   session::debug_ = debug;
@@ -357,19 +368,20 @@ void session::setName(const Table2d<std::string> &name_) { session::name_m = nam
 void session::setName(const std::string &name_) { session::name_m.push_back({name_}); }
 const Table2d<std::string> & session::getName() const { return session::name_m; }
 
-const Table2d<std::string>& session::get_out_raws_json() const { return session::out_raws_json_ ; }
-//
-//const Table2d<std::map<std::vector<bool>,int>>& session::get_out_raws_map() const { return session::out_raws_map_ ; }
+const Table2d<std::map<std::vector<bool>,int>>& session::results() const { return session::results_ ; }
 //
 const Table2d<std::vector<int>> & session::get_out_counts() const {
+  //TODO after removing i,j functionality: add a check that calc_out_counts is true
   return session::out_counts_;
 }
 //
 const Table2d<std::vector<double>> & session::get_out_probs() const {
+  //TODO after removing i,j functionality: add a check that calc_jacobian is true
   return session::out_probs_;
 }
 //
 const Table2d<Table2d<double>> & session::get_out_prob_jacobians() const {
+  //TODO after removing i,j functionality: add a check that calc_jacobian is true
   return session::out_prob_gradients_;
 }
 //
@@ -789,19 +801,6 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* out_raw_json:" << std::endl <<
-  "    JSON string of measured counts" << std::endl <<
-  "  = ";
-  for (auto item : get_out_raws_json()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  //
   out << "* out_counts:" << std::endl <<
   "    Measured counts" << std::endl <<
   "      [int] Bitstring indices" << std::endl <<

@@ -49,7 +49,7 @@ def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_
     s.rn = 1
     s.qn = nb_qubits
     s.run()
-    result = s.out_raw_json[0][0][2:-2].strip()
+    res = s.results[0][0]
 
     expected_measurement = ""
     exp_value = pow(2,log_value)
@@ -71,18 +71,16 @@ def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_
       else :
         expected_measurement += '0'
 
-
-
     #print("expected_measurement:", expected_measurement)
-    print(result)
-    measurement = result[1:1+nb_qubits]
-    assert result.find(":") == result.rfind(":"), "Should be single output %i %i "%(result.find(":") == result.rfind(":"))
-    assert result[-4:] == "1024", "Should be a single output"
-    assert measurement == expected_measurement, "Measured %s (length %i), expected %s (length %i)"%(measurement, len(measurement), expected_measurement, len(expected_measurement))
-    output_string = measurement[:nb_qubits_exp]
-    input_string = measurement[nb_qubits_exp : nb_qubits]
-    print("Input value:", input_string)
-    print("Output value:", output_string)
+    print(res)
+    assert len(res) == 1
+    measurement = next(iter(res))
+    assert res[measurement] == 1024
+    assert measurement == [int(x) for x in expected_measurement]
+    output_bits = measurement[:nb_qubits_exp]
+    input_bits = measurement[nb_qubits_exp : nb_qubits]
+    print("Input value:", input_bits)
+    print("Output value:", output_bits)
     print("Expected output:", expected_measurement[:nb_qubits_exp])
     print("Successfully found two to the power of ", log_value, "\n" )
     return True

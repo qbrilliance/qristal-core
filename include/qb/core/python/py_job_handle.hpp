@@ -25,7 +25,7 @@ class async_job_handle;
 class JobHandle : public std::enable_shared_from_this<JobHandle> {
 private:
   /// Results from virtualized local simulator running on a dedicated thread.
-  std::future<std::string> m_threadResult;
+  std::future<std::map<std::vector<bool>, int>> m_threadResult;
   /// Flag to indicate whether the execution thread is still running.
   /// For local simulators, this translates to the completion status of the job.
   bool m_thread_running = false;
@@ -35,10 +35,10 @@ private:
   int m_j;
   /// Name of the QPU that this job is assigned to.
   std::string m_qpuName;
-  /// Non-owning reference to the session
+  /// Non-owning pointer to the session
   // !Important!: Within this JobHandle, only thread-safe methods of the session
   // class should be called.
-  qb::session *m_qpqe;
+  qb::session *m_session;
   /// Instance of the QPU/Accelerator from the pool that this job is assigned
   /// to.
   std::shared_ptr<xacc::Accelerator> m_qpu;
@@ -64,7 +64,7 @@ public:
 
   /// Retrieve the async execution result.
   /// Blocking if the job is not completed yet.
-  std::string get_async_result();
+  std::map<std::vector<bool>, int> get_async_result();
 
   /// Terminate a job.
   void terminate();
@@ -83,7 +83,7 @@ private:
   /// Asynchronously run this job.
   // !IMPORTANT! This method will be called on a different thread (one from the
   // thread pool).
-  std::string run_async_internal();
+  std::map<std::vector<bool>, int> run_async_internal();
 };
 
 /// Bind JobHandle class to the Python API

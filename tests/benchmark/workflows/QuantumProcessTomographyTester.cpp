@@ -19,7 +19,7 @@ TEST(QuantumProcessTomographyTester, checkSPAM) {
         std::filesystem::create_directory(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME));
     }
 
-    const std::vector<size_t> qubits = {0};
+    const std::set<size_t> qubits = {0};
 
     //define session  
     qb::session sim(false); 
@@ -61,7 +61,7 @@ TEST(QuantumProcessTomographyTester, checkRotationSweep) {
         std::filesystem::create_directory(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME));
     }
 
-    const std::vector<size_t> qubits{0};
+    const std::set<size_t> qubits{0};
 
     //define session  
     qb::session sim(false); 
@@ -111,7 +111,7 @@ TEST(QuantumProcessTomographyTester, checkSimpleCircuitExecution) {
         std::filesystem::create_directory(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME));
     }
 
-    const std::vector<size_t> qubits{0, 1};
+    const std::set<size_t> qubits{0, 1};
 
     //define session  
     qb::session sim(false); 

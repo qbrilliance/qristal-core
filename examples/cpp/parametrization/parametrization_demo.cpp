@@ -43,8 +43,8 @@ int main() {
   circ2.RX(1, "beta2");
   circ2.MeasureAll(-1);
 
-  // Can also directly set the parameters as a vector. The parameters will be 
-  // assigned in order of definition in the circuit (i.e. index 0 of vector 
+  // Can also directly set the parameters as a vector. The parameters will be
+  // assigned in order of definition in the circuit (i.e. index 0 of vector
   // mapped to "alpha2", index 1 mapped to "beta2", etc.). If a parameter is
   // used on multiple gates, the index still corresponds to the first definition
   // relative to the other unique parameters.
@@ -62,18 +62,18 @@ int main() {
 
   // Print the raw shot results, probabilities, and jacobians
   size_t num_outputs = qb::ipow(2, circ1.num_qubits());
-  std::cout << "Results 1:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "Results 1:" << std::endl << my_sim.results()[0][0] << std::endl;
   std::cout << "Circ 1 probabilities: \n";
   for (size_t idx = 0; auto elem: my_sim.get_out_probs()[0][0]) {
-    std::cout << "Probability for index " << idx << ": " << elem << "\n"; 
+    std::cout << "Probability for index " << idx << ": " << elem << "\n";
     idx += 1;
   }
   std::cout << "]\n";
-  std::cout << "Results 2:" << std::endl << my_sim.get_out_raws_json()[1][0] << std::endl;
+  std::cout << "Results 2:" << std::endl << my_sim.results()[1][0] << std::endl;
   std::cout << "Circ 2 probabilities: \n";
   size_t idx = 0;
   for (size_t idx = 0; auto elem: my_sim.get_out_probs()[1][0]) {
-    std::cout << "Probability for index " << idx << ": " << elem << "\n"; 
+    std::cout << "Probability for index " << idx << ": " << elem << "\n";
     idx += 1;
   }
 

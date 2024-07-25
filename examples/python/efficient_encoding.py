@@ -1,6 +1,6 @@
 import qb.core
 import numpy as np
-import ast
+
 s = qb.core.session()
 s.init()
 s.qn = 14
@@ -62,9 +62,7 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result = s.out_raw_json[0][0]
-res = ast.literal_eval(result)
-
+res = s.results[0][0]
 
 ###
 # Example 2: use ancilla
@@ -118,8 +116,7 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result = s.out_raw_json[0][0]
-res = ast.literal_eval(result)
+res = s.results[0][0]
 
 
 # ###
@@ -157,6 +154,7 @@ res = ast.literal_eval(result)
 # print("Result:\n", result)
 
 # # get results
+# import ast
 # res = ast.literal_eval(result)
 # measurements = res["AcceleratorBuffer"]["Measurements"]
 # allowed_outputs = ['000000', '111111']

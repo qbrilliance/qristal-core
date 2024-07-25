@@ -24,7 +24,7 @@ def ring_noise_model(nb_qubits):
 
   # Use the "qristal-qobj" generator, which transpiles the circuit into the {rx, ry, cz} basis.
   noise_model.qobj_compiler = "qristal-qobj"
-  
+
   # Print out the QObj basis gate set to confirm
   print("Basis gate set of ", noise_model.qobj_compiler, " generator is:", noise_model.qobj_basis_gates)
 
@@ -51,7 +51,7 @@ def ring_noise_model(nb_qubits):
     # Set the corresponding two-qubit gate fidelities
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cz_error), "cz", [qId, qId2])
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cz_error), "cz", [qId2, qId])
-  
+
   return noise_model
 
 
@@ -93,7 +93,7 @@ def main(arguments):
   my_sim.run()
 
   # Lookee
-  print(my_sim.out_raw_json[0][0])
+  print(my_sim.results[0][0])
 
 #Actual program launched on invocation
 main(sys.argv)

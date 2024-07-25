@@ -64,30 +64,13 @@ void from_json(const nlohmann::json &js, std::vector<std::complex<double>> &vec)
 
 // Print classical wall-time + distribution of shot counts
 void print_classical(const qb::session &s) {
-  Table2d<std::string> out_raws_json = s.get_out_raws_json();
-  std::cout << std::endl << "* Counts:" << std::endl << std::endl;
-  std::cout << std::setw(20) << "State"
-            << "  " << std::setw(9) << "Counts" << std::endl;
-  std::cout << std::setw(20) << "q[n-1]q[n-2]...q[0]"
-            << "  " << std::endl;
-  std::cout << std::setw(20) << "-------------------"
-            << "  " << std::setw(9) << "---------" << std::endl;
-
-  for (auto &it : out_raws_json) {
-    for (auto &itel : it) {
-      nlohmann::json outj = nlohmann::json::parse(itel);
-      for (auto &el : outj.items()) {
-        std::string msb_string = el.key();
-        int cnt_n = el.value();
-        Table2d<std::string> u_accs = s.get_accs();
-        std::vector<std::string> u_accs_0 = u_accs.at(0);
-        std::string u_accs_0_0 = u_accs_0.at(0);
-        if (!u_accs_0_0.compare("aer")) {
-          std::reverse(msb_string.begin(), msb_string.end());
-        }
-        std::cout << std::setw(20) << msb_string << "  "
-                  << std::setw(9) << cnt_n << std::endl;
-      }
+  for (int i = 0; i < s.results().size(); i++) {
+    for (int j = 0; j < s.results().at(i).size(); j++) {
+      std::cout << "Run " << i << ", " << j << std::endl;
+      int qubits = s.results().at(i).at(j).begin()->first.size();
+      std::cout << "State";
+      if (qubits > 1) std::cout << " (bit " << qubits-1 << " .. bit 0)";
+      std::cout << ":  " << "Counts" << std::endl << s.results().at(i).at(j);
     }
   }
   Table2d<std::map<int,double>> ctimes = s.get_out_total_init_maxgate_readout_times();
@@ -205,12 +188,7 @@ int main(int argc, char **argv) {
       {"gtest_output"});
   args::ValueFlag<int> arg_q(
       general, "#qubits",
-      "-q10 accepts up to 10 qubits, default: 12 (the QB SDK can currently support "
-      "up to maximum 48 qubits. All qubits on a QB chip are operationally "
-      "connected. However, the clustered arrangement of the qubits means that "
-      "no more than six may be physically fully connected, while clusters have "
-      "nearest-neighbour connections.)",
-      {'q'});
+      "-q10 accepts up to 10 qubits, default: 12", {'q'});
   args::ValueFlag<int> arg_shots(general, "#shots",
                                  "-s128 gives 128 shots, default: 1024", {'s'});
   args::ValueFlag<double> arg_svd_cutoff(
@@ -338,7 +316,7 @@ int main(int argc, char **argv) {
   shots = qb::get_arg_or_cfg(shots, arg_shots, output_to_js, "shots");
   mqbacc.insert("shots", shots);
   if (shots==0) {
-      std::cout << std::endl << "QB SDK warning: Nothing to do here; no. of shots is set to zero." << std::endl << std::endl;
+      std::cout << std::endl << "Qristal warning: Nothing to do here; no. of shots is set to zero." << std::endl << std::endl;
       return 0;
   }
   s.set_sn(shots);
@@ -359,11 +337,11 @@ int main(int argc, char **argv) {
   mqbacc.insert("noise-model", noiseModel.to_json());
   mqbacc.insert("m_connectivity", noiseModel.get_connectivity());
 
-  // output_amplitude: theoretical output amplitude
-  std::map<std::string, std::complex<double>> output_amplitude;
-  if (!output_to_js["output_amplitude"].empty()) {
-    std::cout << "* output_amplitude has been specified:" << std::endl;
-    s.set_output_amplitude(output_amplitude);
+  // expected_amplitude: theoretical output amplitude after the circuit is run
+  std::map<std::vector<bool>, std::complex<double>> expected_amplitudes;
+  if (!output_to_js["expected_amplitudes"].empty()) {
+    std::cout << "* expected_amplitudes has been specified:" << std::endl;
+    s.set_expected_amplitudes(expected_amplitudes);
   }
 
   /* Accelerator selection:
@@ -421,7 +399,7 @@ int main(int argc, char **argv) {
 
   //
   // Test limits for comparing the sampling distribution against theoretical distribution
-  // Note: requires "output_amplitude" to be specified via JSON config file
+  // Note: requires "expected_amplitudes" to be specified via JSON config file
   //
   double jenshan_threshold = 0.05;
   if (arg_jen_shan_threshold) {
@@ -507,10 +485,10 @@ int main(int argc, char **argv) {
     }
 
     // Test output against provided theoretical amplitudes
-    if ((output_amplitude.size() > 0) && !arg_random_circ) {
-      if (output_amplitude.size() < (1 << n_qubits)) {
+    if ((expected_amplitudes.size() > 0) && !arg_random_circ) {
+      if (expected_amplitudes.size() < (1 << n_qubits)) {
         std::cout << std::endl
-                  << "QB SDK warning: size of output_amplitudes provided in your "
+                  << "Qristal warning: size of expected_amplitudes provided in your "
                      "configuration file does not equal 2^n_qubits"
                   << std::endl;
       }

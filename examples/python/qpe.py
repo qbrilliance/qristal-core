@@ -1,5 +1,6 @@
 import qb.core
 import numpy as np
+
 s = qb.core.session()
 s.init()
 
@@ -44,6 +45,5 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result = s.out_raw_json[0][0]
-print("Result:\n", result)
-
+print("Result:")
+print(s.results[0][0])

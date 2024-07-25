@@ -144,7 +144,7 @@ def main(arguments):
   my_sim.run()
 
   # Print results
-  print(my_sim.out_raw_json[0][0])
+  print(my_sim.results[0][0])
 
 #Actual program launched on invocation
 main(sys.argv)

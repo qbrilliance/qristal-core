@@ -8,7 +8,7 @@ using namespace qb::benchmark;
 
 int main() {
 
-    const std::vector<size_t> qubits{0, 1};
+    const std::set<size_t> qubits{0, 1};
 
     //(1) set up session  
     qb::session sim(false); 

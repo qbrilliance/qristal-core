@@ -19,30 +19,30 @@ class QaoaBase {
   protected:
     Table2d<std::string> hams_;
     Table2d<size_t> qns_;
-    
+
     Table2d<std::string> accs_;
     Table2d<size_t> sns_;
     Table2d<bool> noises_;
-    
+
     Table2d<size_t> qaoa_steps_;
-    Table2d<bool> extended_params_;  
-    
+    Table2d<bool> extended_params_;
+
     Table2d<size_t> rns_;
     Table2d<std::string> rownames_;
     Table2d<std::string> colnames_;
-    
+
     Table2d<std::string> methods_;
     Table2d<size_t> maxevals_;
     Table2d<std::map<int,double>> functols_;
     Table2d<std::map<int,double>> optimum_energy_abstols_;
     Table2d<std::map<int,double>> optimum_energy_lowerbounds_;
-    Table2d<bool> grads_; 
-    Table2d<std::string> gradient_strategys_; 
-    
+    Table2d<bool> grads_;
+    Table2d<std::string> gradient_strategys_;
+
     // Variables not wrapped to Python
-    Table2d<bool> acc_uses_lsbs_;
+    Table2d<bool> acc_outputs_qbit0_left_;
     Table2d<size_t> acc_uses_n_bits_;
-    
+
     // Storage for quantities of interest
     Table2d<std::string> out_eigenstates_;
     Table2d<std::map<int,double>> out_energys_;
@@ -51,26 +51,26 @@ class QaoaBase {
     Table2d<std::map<int,double>> out_quantum_energy_calc_times_;
     Table2d<std::map<int,double>> out_quantum_jacobian_calc_times_;
     Table2d<std::map<int,double>> out_classical_energy_jacobian_total_calc_times_;
-    
+
     // Debugging
     bool debug_qbos_;
-    
+
     // Constants
     const int INVALID = -1;
     const int VALID = 0;
     const int VALID_QAOA_STEPS = 1;
     const int VALID_HAM = 2;
     const int VALID_THETA = 3;
-    
+
     // Valid strings
     const std::unordered_set<std::string> VALID_ACCS = {
-      "aer", 
-      "tnqvm", 
+      "aer",
+      "tnqvm",
       "qpp"
     };
-    
+
     const std::unordered_set<std::string> VALID_OPTIMISER_METHODS = {
-      "nelder-mead",  
+      "nelder-mead",
       "cobyla",
       "l-bfgs",
       "adam",
@@ -80,7 +80,7 @@ class QaoaBase {
       "rms-prop",
       "gd"
     };
-    
+
     const std::unordered_set<std::string> VALID_MLPACK_OPTIMISER_METHODS = {
       "l-bfgs",
       "adam",
@@ -90,15 +90,15 @@ class QaoaBase {
       "rms-prop",
       "gd"
     };
-    
+
     const std::unordered_set<std::string> VALID_GRADIENT_STRATEGYS = {
-      "parameter-shift", 
-      "central", 
+      "parameter-shift",
+      "central",
       "forward",
       "backward",
       "autodiff"
     };
-    
+
     // Bounds
     const size_t SNS_LOWERBOUND = 0;
     const size_t SNS_UPPERBOUND = 1000000;
@@ -110,9 +110,9 @@ class QaoaBase {
     const size_t QAOA_STEPS_UPPERBOUND = 10000;
     const size_t MAXEVALS_LOWERBOUND = 1;
     const size_t MAXEVALS_UPPERBOUND = 1000000;
-  
+
   public:
-    QaoaBase() : 
+    QaoaBase() :
       debug_qbos_(false),
       rownames_{{"-unnamed experiment-"}},
       colnames_{{"-unnamed condition-"}},
@@ -131,7 +131,7 @@ class QaoaBase {
       rns_{{1}},
       sns_{{256}},
       noises_{{false}},
-      acc_uses_lsbs_{{{}}},
+      acc_outputs_qbit0_left_{{{}}},
       acc_uses_n_bits_{{{}}},
       out_eigenstates_{{{}}},
       out_energys_{{{}}},
@@ -139,7 +139,7 @@ class QaoaBase {
       out_thetas_{{{}}},
       out_quantum_energy_calc_times_{{{}}},
       out_quantum_jacobian_calc_times_{{{}}},
-      out_classical_energy_jacobian_total_calc_times_{{{}}} 
+      out_classical_energy_jacobian_total_calc_times_{{{}}}
     {
       xacc::Initialize();
       xacc::setIsPyApi();
@@ -148,17 +148,17 @@ class QaoaBase {
 
     // Constructors
     QaoaBase(const bool debug) : QaoaBase() { debug_qbos_ = debug; }
-    
+
     // Summary printout
     virtual const std::string get_summary() const=0;
-    
+
     // Setters and Getters
-    void set_colname(const std::string & in_colname);  
+    void set_colname(const std::string & in_colname);
     void set_colnames(const Table2d<std::string> & in_colnames);
     const Table2d<std::string> &get_colnames() const;
     static const char *help_colnames_;
     //
-    void set_rowname(const std::string & in_rowname);  
+    void set_rowname(const std::string & in_rowname);
     void set_rownames(const Table2d<std::string> & in_rownames);
     const Table2d<std::string> &get_rownames() const;
     static const char *help_rownames_;
@@ -172,7 +172,7 @@ class QaoaBase {
     void set_ham(const std::string &in_ham);
     void set_hams(const Table2d<std::string> &in_hams);
     const Table2d<std::string> &get_hams() const;
-    static const char *help_hams_;  
+    static const char *help_hams_;
     //
     void set_qaoa_step(const size_t &in_qaoa_step);
     void set_qaoa_steps(const Table2d<size_t> &in_qaoa_steps);
@@ -275,7 +275,7 @@ class QaoaBase {
     void set_out_classical_energy_jacobian_total_calc_times(const Table2d<std::map<int,double>> & out_classical_energy_jacobian_total_calc_times);
     const Table2d<std::map<int,double>> & get_out_classical_energy_jacobian_total_calc_times() const;
     static const char* help_out_classical_energy_jacobian_total_calc_times_;
-    
+
     // Misc functions
     int binomialCoefficient(int n, int k);
     int ipow(int base, int exp);
@@ -286,19 +286,19 @@ class QaoaBase {
       const bool & extended_param,
       const std::vector<double> & params
     );
-    
+
     // Validation methods
     template <class TT> int eqlength(const TT &in_d, const int N_ii);
     template <class TT> int singleton_or_eqlength(const TT &in_d, const int N_ii);
     virtual int is_ii_consistent()=0;
     virtual int is_jj_consistent()=0;
-    
+
     // Methods
     virtual void run(const size_t &ii, const size_t &jj)=0;
     void run();
 };
 
-template <class TT> 
+template <class TT>
 int QaoaBase::eqlength(const TT &in_d, const int N_ii) {
   const int INVALID = -1;
   if (in_d.size() == N_ii) {

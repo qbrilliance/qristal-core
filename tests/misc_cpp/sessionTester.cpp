@@ -42,8 +42,8 @@ TEST(sessionTester, test_qft4) {
             // back-end
 
   // Override defaults
-  s.set_qn(4);      
-  s.set_sn(1024);   
+  s.set_qn(4);
+  s.set_sn(1024);
   s.set_xasm(true);  // Use XASM circuit format to access XACC's qft()
   s.set_seed(23);
   // targetCircuit: contains the quantum circuit that will be processed/executed
@@ -118,12 +118,18 @@ TEST(sessionTester, test_parametrized_run_2) {
   Input state: |++>
   RX Parameter Values: pi/2
   RY Parameter Values: pi/4
-  Expected output distribution: {00 : 10.9% , 01 : 47.5% , 10 : 20% , 11
-  : 21.6%}
   ***/
 
-  size_t num_qubits = 2;
-  size_t num_repetitions = 2;
+  // Expected output distribution: {0,0 : 10.9% , 0,1 : 20% , 1,0 : 47.5% , 1,1 : 21.6%}
+  const std::map<std::vector<bool>,int> expected = { {{0,0}, 109},
+                                                     {{0,1}, 200},
+                                                     {{1,0}, 475},
+                                                     {{1,1}, 216} };
+
+  const size_t num_qubits = 2;
+  const size_t num_repetitions = 2;
+  const uint shots = 1000;
+
   qb::CircuitBuilder circuit;
   for (size_t i = 0; i < num_qubits; i++) {
     circuit.RX(i, "alpha_" + std::to_string(i));
@@ -139,27 +145,38 @@ TEST(sessionTester, test_parametrized_run_2) {
     param_vec[i] = M_PI_4;
   }
 
-  qb::session my_sim;
-  my_sim.init();
-  my_sim.set_qn(num_qubits);
-  my_sim.set_sn(1000);
-  my_sim.set_acc("qpp");
-  my_sim.set_seed(1000);
-  my_sim.set_irtarget_m(circuit.get());
-  my_sim.set_parameter_vector(param_vec);
-  my_sim.run();
-  std::vector<int> counts = my_sim.get_out_counts()[0][0];
+  // Repeat all tests with out_counts et al indexed by both MSB and LSB, to show that it has no effect.
+  for (bool MSB : {true, false}) {
+    qb::session my_sim(false, MSB);
+    my_sim.init();
+    my_sim.set_qn(num_qubits);
+    my_sim.set_sn(shots);
+    my_sim.set_acc("qpp");
+    my_sim.set_seed(1000);
+    my_sim.set_irtarget_m(circuit.get());
+    my_sim.set_parameter_vector(param_vec);
+    my_sim.set_calc_out_counts(true);
+    my_sim.run();
+    std::vector<int> counts = my_sim.get_out_counts()[0][0];
+    std::map<std::vector<bool>,int> results = my_sim.results()[0][0];
 
-  // Verify get_counts
-  EXPECT_EQ(counts.size(), std::pow(2, num_qubits));  // 2^n outcomes
-  EXPECT_DOUBLE_EQ(std::accumulate(counts.begin(), counts.end(), 0.0),
-                   1000);  // counts sum to 1000
+    // Verify that get_counts has an entry for every possible bitstring
+    EXPECT_EQ(counts.size(), std::pow(2, num_qubits));  // 2^n outcomes
 
-  // Verify that the counts_map_to_vec function gives the correct probability vector
-  std::vector<double> expected_counts = {109, 475, 200, 216};
-  for (size_t i = 0; i < counts.size(); i++) {
-    EXPECT_NEAR(counts[i], expected_counts[i], 1e-6);
+    // Verify that both get_counts and results sum to requested number of shots
+    auto summer = [](auto prev_sum, auto& entry) { return prev_sum + entry.second; };
+    EXPECT_EQ(std::accumulate(counts.begin(), counts.end(), 0), shots);
+    EXPECT_EQ(std::accumulate(results.begin(), results.end(), 0, summer), shots);
+
+    // Verify that the counts_map_to_vec function gives the correct probability vector
+    std::vector<double> expected_counts(counts.size());
+    for (const auto& [bits, count] : expected) expected_counts[my_sim.bitstring_index(bits)] = count;
+    for (size_t i = 0; i < counts.size(); i++) EXPECT_NEAR(counts[i], expected_counts[i], 1e-6);
+
+    // Verify that the individual bitstring result counts are as expected
+    for (const auto& [bits, count] : results) EXPECT_NEAR(count, expected.at(bits), 1e-6);
   }
+
 }
 
 TEST(sessionTester, test_gradients) {
@@ -202,7 +219,7 @@ TEST(sessionTester, test_gradients) {
   my_sim.set_seed(1000);
   my_sim.set_irtarget_m(circuit.get());
   my_sim.set_parameter_vector(param_vec);
-  
+
   my_sim.run();
   qb::Table2d<double> gradients = my_sim.get_out_prob_jacobians()[0][0];
 

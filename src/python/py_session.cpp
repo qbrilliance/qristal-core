@@ -14,6 +14,7 @@ void bind_session(pybind11::module &m) {
   py::class_<qb::session>(m, "session")
       .def(py::init<const std::string &>())
       .def(py::init<const bool>())
+      .def(py::init<const bool, const bool>())
       .def(py::init())
       .def_property(
           "name_p", &qb::session::getName,
@@ -119,6 +120,12 @@ void bind_session(pybind11::module &m) {
       .def_property("calc_jacobians", &qb::session::get_calc_jacobians,
                     &qb::session::set_calc_jacobians,
                     qb::help::calc_jacobians_)
+      .def_property("calc_out_counts", &qb::session::get_calc_out_counts,
+                    &qb::session::set_calc_out_counts,
+                    qb::help::calc_out_counts_)
+      .def_property("calc_out_countss", &qb::session::get_calc_out_counts,
+                    &qb::session::set_calc_out_countss,
+                    qb::help::calc_out_counts_)
       .def_property("noplacement", &qb::session::get_noplacements,
                     &qb::session::set_noplacement,
                     qb::help::noplacements_)
@@ -251,12 +258,12 @@ void bind_session(pybind11::module &m) {
                     &qb::session::get_measure_sample_sequentials,
                     &qb::session::set_measure_sample_sequentials,
                     qb::help::measure_sample_sequentials_)
-      .def_property("output_amplitude", &qb::session::get_output_amplitudes,
-                    &qb::session::set_output_amplitude,
-                    qb::help::output_amplitudes_)
-      .def_property("output_amplitudes", &qb::session::get_output_amplitudes,
-                    &qb::session::set_output_amplitudes,
-                    qb::help::output_amplitudes_)
+      .def_property("expected_amplitudes", &qb::session::get_expected_amplitudes,
+                    &qb::session::set_expected_amplitudes,
+                    qb::help::expected_amplitudes_)
+      .def_property("expected_amplitudess", &qb::session::get_expected_amplitudes,
+                    &qb::session::set_expected_amplitudess,
+                    qb::help::expected_amplitudes_)
       .def_property("get_state_vec", &qb::session::get_state_vec,
                     &qb::session::get_state_vec,
                     qb::help::state_vec_)
@@ -271,14 +278,8 @@ void bind_session(pybind11::module &m) {
           },
           &qb::session::get_state_vec,
           qb::help::state_vec_)
-      .def_property_readonly("out_raw_json", &qb::session::get_out_raws_json,
-                             qb::help::out_raws_json_)
-      .def_property_readonly("out_raws_json", &qb::session::get_out_raws_json,
-                             qb::help::out_raws_json_)
-      //.def_property_readonly("out_raw_map", &qb::session::get_out_raws_map,
-      //                       qb::help::out_raws_map_)
-      //.def_property_readonly("out_raws_map", &qb::session::get_out_raws_map,
-      //                       qb::help::out_raws_map_)
+      .def_property_readonly("results", &qb::session::results,
+                             qb::help::results_)
       .def_property_readonly("out_probs", &qb::session::get_out_probs,
                              qb::help::out_probs_)
       .def_property_readonly("out_counts", &qb::session::get_out_counts,
@@ -356,13 +357,18 @@ void bind_session(pybind11::module &m) {
            py::overload_cast<const size_t, const size_t>(&qb::session::run),
            "runit(i,j) : Execute circuit i, condition j")
       .def("bitstring_index",
-           py::overload_cast<std::string, size_t, size_t>(&qb::session::bitstring_index),
+           py::overload_cast<const std::vector<bool>&>(&qb::session::bitstring_index),
+           qb::help::bitstring_index_)
+      .def("bitstring_index",
+           [&](qb::session &s, const py::array_t<bool>& key) {
+             return s.bitstring_index(py_array_to_std_vec(key));
+           },
            qb::help::bitstring_index_)
       .def("divergence", py::overload_cast<>(&qb::session::get_jensen_shannon),
            "Calculate Jensen-Shannon divergence")
       .def("init", py::overload_cast<>(&qb::session::init),
            "Quantum Brilliance 12-qubit defaults")
-      .def("aws_setup", py::overload_cast<uint, uint, uint>(&qb::session::aws_setup),
+      .def("aws_setup", py::overload_cast<uint>(&qb::session::aws_setup),
            "AWS Braket Setup")
       .def("set_parallel_run_config", &qb::session::set_parallel_run_config,
            "Set the parallel execution configuration")

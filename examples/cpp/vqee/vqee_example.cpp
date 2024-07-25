@@ -1,8 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
 #include "qb/core/optimization/vqee/vqee.hpp"
+#include "qb/core/utils.hpp"
 
-using qb::vqee::operator<<; // cout overload for vector<>
+using qb::operator<<;
 
 int main (int argc, char *argv[]) {
     // even if only 1 thread is started in qpp the backend(Eigen is openMP parallized): use " export $OMP_NUM_THREADS=1 " to suppress the Eigen threading

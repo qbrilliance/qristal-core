@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
 #include "qb/core/optimization/vqee/vqee.hpp"
-
+#include "qb/core/utils.hpp"
 
 namespace qb::vqee {
 
@@ -74,24 +74,24 @@ namespace qb::vqee {
       return index;
     }
   }
- 
+
   void VQEE::generateThetaEnergyVis(const std::string in_title, const size_t in_start_elem, const int in_scale, const int in_width, const int in_precision) {
     double scale_factor_theta = in_scale/(2*M_PI);
-    std::stringstream ss;    
+    std::stringstream ss;
     if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
     ss << "\n";
     int iterations = params_.iterationData.size();
-    size_t iteration_optimum_e = getOptimumIterationE();    
+    size_t iteration_optimum_e = getOptimumIterationE();
     double energy_at_optimum = params_.iterationData.at(iteration_optimum_e).energy;
 
     size_t use_last = (params_.tail > 0) ? (iterations-params_.tail) : 0;
     if (params_.blocked) {
       int iteration_i = use_last;
       for (size_t i = use_last; i < params_.iterationData.size(); i++) {
-        iteration_i++; // the first iteration is at index 1    
+        iteration_i++; // the first iteration is at index 1
         if ((params_.iterationData.at(i)).energy == energy_at_optimum) {
           if (!params_.plain) ss << "\033[1;32m"; // Switch text colour to green bold
-        }     
+        }
         if (iteration_i == (iteration_optimum_e + 1)) {
           if (!params_.plain) ss << "\033[1;31m"; // Switch text colour to red bold
         }
@@ -114,7 +114,7 @@ namespace qb::vqee {
         for (size_t j = 0; j < (bar_scale + bar_val); ++j) {
           ss << "#";
         }
-        ss << " " << std::setprecision(in_precision) << (params_.iterationData.at(i)).energy << "\n"; 
+        ss << " " << std::setprecision(in_precision) << (params_.iterationData.at(i)).energy << "\n";
 
         // Output the theta elements for the iteration_i
         if (params_.showTheta) {
@@ -184,7 +184,7 @@ namespace qb::vqee {
             ss << "\033[0m"; // Switch text colour to default
         }
       }
-      if (!params_.plain) ss << "\033[0m"; // Switch text colour to default    
+      if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
       ss << generateEnergyVis(params_.energies, "Energy");
     }
     if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
@@ -197,24 +197,24 @@ namespace qb::vqee {
     std::stringstream ss;
     if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
 
-    int iterations = in_val.size()/in_stride;    
+    int iterations = in_val.size()/in_stride;
     size_t iteration_optimum = getOptimumIterationE();
     double energy_at_optimum = in_val.at(iteration_optimum);
     size_t use_last = (params_.tail > 0) ? (iterations-params_.tail) : 0;
 
-    for (size_t subpl = 0; subpl < in_stride; ++subpl) {        
+    for (size_t subpl = 0; subpl < in_stride; ++subpl) {
       ss << in_title << " element " << subpl << ", " << iterations << " iterations\n";
       size_t iteration_i = use_last;
       for (size_t i = subpl+use_last*in_stride; i < in_val.size(); i += in_stride) {
-        iteration_i++;  // the first iteration is at index 1        
+        iteration_i++;  // the first iteration is at index 1
         int bar_val = std::floor(in_val.at(i)*scale_factor);
         if ((bar_scale + bar_val) < 0) {
           bar_scale*=2;
           ss << "Rescaling bars..." << "\n";
-        }       
+        }
         if (in_val.at(i) == energy_at_optimum) {
           if (!params_.plain) ss << "\033[1;32m"; // Switch text colour to green bold
-        }       
+        }
         if (iteration_i == (iteration_optimum+1)) {
           if (!params_.plain) ss << "\033[1;31m"; // Switch text colour to red bold
         }
@@ -227,18 +227,18 @@ namespace qb::vqee {
         for (size_t j = 0; j < (bar_scale + bar_val); ++j) {
           ss << "#";
         }
-        ss << " " << std::setprecision(in_precision) << in_val.at(i) << "\n"; 
+        ss << " " << std::setprecision(in_precision) << in_val.at(i) << "\n";
         if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
       }
       if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
-    }    
+    }
     if (!params_.plain) ss << "\033[0m"; // Switch text colour to default
     return ss.str();
   }
 
-  void VQEE::optimize(){ 
-  // Here VQE is called with a decorated accelerator. The decorator adds pre- and post-processing around the actual accelerator execution. 
-  // This is used to introduce MPI parallelism, i.e partitioning and distributing the vector of instructions (base curcuit + Pauli terms) 
+  void VQEE::optimize(){
+  // Here VQE is called with a decorated accelerator. The decorator adds pre- and post-processing around the actual accelerator execution.
+  // This is used to introduce MPI parallelism, i.e partitioning and distributing the vector of instructions (base curcuit + Pauli terms)
   // and return reduce of the results. Number of MPI processes and threads can be choosen as needed.
 
     std::shared_ptr<xacc::Accelerator> accelerator{getAccelerator(params_.acceleratorName)};  // 1 of 4: accelerator
@@ -246,11 +246,11 @@ namespace qb::vqee {
 
     if (!params_.partitioned) {
       std::shared_ptr<xacc::Observable> observable{getObservable()};          // 3 of 4: observable from string
-      
+
       // 4 of 4: optimiser
       std::shared_ptr<xacc::Optimizer> optimizer;
       if (params_.algorithm == "nelder-mead") {
-          qb::vqee::NelderMeadNLO opt_nlmd = qb::vqee::NelderMeadNLO(params_.theta, 
+          qb::vqee::NelderMeadNLO opt_nlmd = qb::vqee::NelderMeadNLO(params_.theta,
                                                                params_.maxIters,
                                                                params_.tolerance,
                                                                YAML::Load(params_.extraOptions));
@@ -282,16 +282,16 @@ namespace qb::vqee {
                                                   std::make_pair("nlopt-maxeval",      params_.maxIters),
                                                   std::make_pair("nlopt-ftol",         params_.tolerance)});
       }
- 
+
       // instantiate XACC VQE
       std::shared_ptr<xacc::Algorithm> vqe;
       if ((params_.isDeterministic) && (accelerator->name() != "hpc-virtualization")) {
         // Handle the case where a state-vector simulator is the back-end,
-        // whereby expectation can be calculated from linear algebra    
+        // whereby expectation can be calculated from linear algebra
         vqe = xacc::getAlgorithm("vqe-gen");
       }
-      else {   
-        // Handle the general case where expectation is found from multiple shot outcomes   
+      else {
+        // Handle the general case where expectation is found from multiple shot outcomes
         vqe = xacc::getAlgorithm("vqe");
       }
       vqe->initialize({{"ansatz", ansatz},
@@ -303,11 +303,11 @@ namespace qb::vqee {
       xacc::qbit buffer = xacc::qalloc(params_.nQubits);
       vqe->execute(buffer);
 
-      // read out buffer 
+      // read out buffer
       params_.energies       = (*buffer)["params-energy" ].as<std::vector<double>>();
       params_.theta          = (*buffer)["opt-params"    ].as<std::vector<double>>();
       params_.optimalValue   = (*buffer)["opt-val"       ].as<double>();
-      
+
       const size_t nIters = params_.energies.size();
       const size_t step = (buffer->nChildren()) / nIters;
       size_t stepidx = 0;
@@ -317,7 +317,7 @@ namespace qb::vqee {
       for (auto &childBuff : buffer->getChildren()) {
         if (stepidx % step == 0) {
           if (childBuff->hasExtraInfoKey("parameters")) {
-            std::vector<double> param = (*childBuff)["parameters"].as<std::vector<double>>();            
+            std::vector<double> param = (*childBuff)["parameters"].as<std::vector<double>>();
             vqe_iteration_data vid;
             vid.energy = params_.energies.at(stepidx/step);
             vid.params = param;
@@ -326,7 +326,7 @@ namespace qb::vqee {
         }
         stepidx++;
       }
-    } 
+    }
     else {
       const int nOptVars = ansatz->nVariables();
 
@@ -363,7 +363,7 @@ namespace qb::vqee {
 
           const double total_energy = std::accumulate(subEnergies.begin(), subEnergies.end(), decltype(subEnergies)::value_type(0));
           params_.energies.emplace_back(total_energy);
-          
+
           if (xacc::verbose) {
             std::stringstream ss;
             ss << "[Rank" << GetRank() << "] " << "E(" << x << ") = " << total_energy;

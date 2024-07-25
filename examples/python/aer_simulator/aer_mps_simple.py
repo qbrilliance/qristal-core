@@ -1,5 +1,5 @@
 import qb.core
-import ast
+
 s = qb.core.session(True)
 s.init()
 
@@ -22,6 +22,4 @@ __qpu__ void QBCIRCUIT(qreg q) {
 '''
 
 s.run()
-results = s.out_raw_json[0][0]
-res = ast.literal_eval(results)
-print(res)
+print(s.results[0][0])

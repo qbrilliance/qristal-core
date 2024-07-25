@@ -34,5 +34,6 @@ my_sim.run()
 print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
-print("Results:\n", my_sim.out_raw_json[0][0])
+print("Results:")
+print(my_sim.results[0][0])
 

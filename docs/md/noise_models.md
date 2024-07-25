@@ -110,8 +110,7 @@ int main(int argc, char * argv[])
        measure q[0] -> c[0];
        )");
     my_sim.run();
-    std::string result = ((my_sim.get_out_raws_json()).at(0)).at(0);
-    std::cout << result << std::endl;
+    std::cout << my_sim.results()[0][0] << std::endl;
     return 0;
 }
 ```
@@ -135,7 +134,7 @@ my_sim.instring = '''
     measure q[0] -> c[0];
 '''
 my_sim.run()
-print(my_sim.out_raws_json[0])
+print(my_sim.results[0][0])
 ```
 
 # User defined noise models

@@ -2,7 +2,7 @@ set(source_files
   # C++ library source files in alphabetical order
   src/async_executor.cpp
   src/backend.cpp
-  src/backend_utils.cpp  
+  src/backend_utils.cpp
   src/circuit_builder.cpp
   src/primitives.cpp
   src/pretranspiler.cpp
@@ -17,7 +17,6 @@ set(source_files
   src/backends/qb_hardware/options.cpp
   src/backends/aws_braket/options.cpp
   src/benchmark/DataLoaderGenerator.cpp
-  src/benchmark/Serializer.cpp
   src/benchmark/workflows/PyGSTiBenchmark.cpp
   src/benchmark/workflows/RotationSweep.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
@@ -230,7 +229,7 @@ file(WRITE ${outfile} "# Import all transitive dependencies of qbcore needed whe
                      \nfind_dependency(autodiff ${autodiff_VERSION})\
                      \nset(CURL_NO_CURL_CMAKE ON)\
                      \nfind_dependency(cereal ${cereal_VERSION})\
-                     \nfind_dependency(CURL)") 
+                     \nfind_dependency(CURL)")
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${outfile} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)\
                           \nadd_eigen_from_xacc()")

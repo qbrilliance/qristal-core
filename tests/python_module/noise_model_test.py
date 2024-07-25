@@ -3,7 +3,7 @@
 import ast, pytest
 
 def test_default_qobj_compiler_aer():
-    import qb.core 
+    import qb.core
     import numpy as np
     session = qb.core.session()
     session.init()
@@ -24,15 +24,14 @@ def test_default_qobj_compiler_aer():
     session.noise = True
     session.noise_model = my_nm
     session.run()
-    print(session.out_raw_json[0][0])
-    res = ast.literal_eval(session.out_raw_json[0][0])
+    print(session.results[0][0])
     # The result is "1" if no noise
-    good_count = int(res["1"])
+    good_count = int(session.results[0][0][[1]])
     # Since rx is noisy, there'll be some other values.
     assert (good_count < 1000)
 
 def test_set_qobj_compiler_aer():
-    import qb.core 
+    import qb.core
     import numpy as np
     session = qb.core.session()
     session.init()
@@ -54,9 +53,8 @@ def test_set_qobj_compiler_aer():
     assert("rx" in my_nm.qobj_basis_gates)
     session.noise_model = my_nm
     session.run()
-    print(session.out_raw_json[0][0])
-    res = ast.literal_eval(session.out_raw_json[0][0])
+    print(session.results[0][0])
     # The result is "1" if no noise
-    good_count = int(res["1"])
+    good_count = int(session.results[0][0][[1]])
     # Since rx is noisy, there'll be some other values.
     assert (good_count < 1000)

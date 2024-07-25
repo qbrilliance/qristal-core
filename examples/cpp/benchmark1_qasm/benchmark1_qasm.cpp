@@ -31,7 +31,7 @@ int main()
       OPENQASM 2.0;
       include "qelib1.inc";
       creg c[20];
-      h q[0];   
+      h q[0];
       cx q[0],q[1];
       cx q[1],q[2];
       cx q[2],q[3];
@@ -83,6 +83,6 @@ int main()
   std::cout << "Ran successfully!" << std::endl;
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.results()[0][0] << std::endl;
 
 }

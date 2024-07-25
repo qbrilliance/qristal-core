@@ -1,7 +1,7 @@
 import qb.core
 import numpy as np
-import ast
 import timeit
+
 n_qbits = 3
 s = qb.core.session()
 s.init()
@@ -25,7 +25,7 @@ s.measure_sample_sequential = "auto"
 #s.noise_model = qb.core.NoiseModel("qb-nm1", n_qbits)
 
 # In this test we use cx to perform a standard
-# cx on |111>. Expected outcome: |110>
+# cx on |111>. Expected outcome: |011>
 circ = qb.core.Circuit()
 
 # prepare initial state
@@ -42,7 +42,4 @@ circ.measure_all()
 # run the circuit and check results
 s.ir_target = circ
 s.run()
-
-results = s.out_raw_json[0][0]
-res = ast.literal_eval(results)
-print(res)
+print(s.results[0][0])

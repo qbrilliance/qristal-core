@@ -56,7 +56,7 @@ const std::string QaoaWarmStart::get_summary() const {
   using namespace xacc;
   std::ostringstream out;
 
-  out << "* theta, initial:" << std::endl << 
+  out << "* theta, initial:" << std::endl <<
   "    Initial values of theta parameter" << std::endl <<
   "  = ";
   for (auto item : get_thetas()) {
@@ -74,8 +74,8 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* qaoa_step:" << std::endl << 
-  "    Number of QAOA layers" << std::endl << 
+  out << "* qaoa_step:" << std::endl <<
+  "    Number of QAOA layers" << std::endl <<
   "  = ";
   for (auto item : get_qaoa_steps()) {
     for (auto itel : item) {
@@ -85,8 +85,8 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* ham:" << std::endl << 
-  "    Hamiltonian as sum of Pauli terms" << std::endl << 
+  out << "* ham:" << std::endl <<
+  "    Hamiltonian as sum of Pauli terms" << std::endl <<
   "  = ";
   for (auto item : get_hams()) {
     for (auto itel : item) {
@@ -96,8 +96,8 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* good_cut:" << std::endl << 
-  "    precomputed good_cut" << std::endl << 
+  out << "* good_cut:" << std::endl <<
+  "    precomputed good_cut" << std::endl <<
   "  = ";
   for (auto item : get_good_cuts()) {
     for (auto itel : item) {
@@ -107,8 +107,8 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* sn:" << std::endl << 
-  "    Number of shots" << std::endl << 
+  out << "* sn:" << std::endl <<
+  "    Number of shots" << std::endl <<
   "  = ";
   for (auto item : get_sns()) {
     for (auto itel : item) {
@@ -128,7 +128,7 @@ const std::string QaoaWarmStart::get_summary() const {
     out << std::endl;
   }
   out << std::endl << std::endl;
-  
+
   out << "* acc:" << std::endl <<
   "    Back-end simulator" << std::endl <<
   "  = ";
@@ -211,7 +211,9 @@ const std::string QaoaWarmStart::get_summary() const {
   "  = ";
   for (auto item : get_functols()) {
     for (auto itel : item) {
-      out << " " << itel;
+      for (auto [key, val] : itel) {
+        out << " " << key << ":" << val;
+      }
     }
     out << std::endl;
   }
@@ -222,18 +224,22 @@ const std::string QaoaWarmStart::get_summary() const {
   "  = ";
   for (auto item : get_optimum_energy_abstols()) {
     for (auto itel : item) {
-      out << " " << itel;
+      for (auto [key, val] : itel) {
+        out << " " << key << ":" << val;
+      }
     }
     out << std::endl;
   }
   out << std::endl << std::endl;
-  
+
   out << "* optimum_energy_lowerbound:" << std::endl <<
   "    Expect optimum energy in the interval [optimum_energy_lowerbound, optimum_energy_lowerbound + optimum_energy_abstol]" << std::endl <<
   "  = ";
   for (auto item : get_optimum_energy_lowerbounds()) {
     for (auto itel : item) {
-      out << " " << itel;
+      for (auto [key, val] : itel) {
+        out << " " << key << ":" << val;
+      }
     }
     out << std::endl;
   }
@@ -272,7 +278,7 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* energy:" << std::endl << 
+  out << "* energy:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: energy at optimum theta" << std::endl <<
   "     1,2,...,[maxeval]: energy trace over [maxeval] iterations" << std::endl <<
@@ -292,7 +298,7 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* theta, optimum:" << std::endl << 
+  out << "* theta, optimum:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: optimum theta" << std::endl <<
   "     1,2,...,[maxeval]: theta trace over [maxeval] iterations" << std::endl <<
@@ -312,9 +318,9 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* quantum_energy_calc_time:" << std::endl << 
+  out << "* quantum_energy_calc_time:" << std::endl <<
   "    Keys:" << std::endl <<
-  "                     0: estimated time, in ms, for calculating energy" << std::endl <<  
+  "                     0: estimated time, in ms, for calculating energy" << std::endl <<
   "                        on QB hardware, covering [maxeval] evaluations" << std::endl <<
   "  = ";
   for (auto item : get_out_quantum_energy_calc_times()) {
@@ -332,7 +338,7 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* jacobian:" << std::endl << 
+  out << "* jacobian:" << std::endl <<
   "    Keys:" << std::endl <<
   "       0,...,(size([theta]) - 1): Jacobian at optimum theta (d_energy/d_theta)" << std::endl <<
   "  = ";
@@ -351,7 +357,7 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* quantum_jacobian_calc_time:" << std::endl << 
+  out << "* quantum_jacobian_calc_time:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: estimated time, in ms, for calculating the Jacobian" << std::endl <<
   "                        on QB hardware, covering [maxeval] evaluations" << std::endl <<
@@ -371,7 +377,7 @@ const std::string QaoaWarmStart::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* classical_energy_jacobian_total_calc_time:" << std::endl << 
+  out << "* classical_energy_jacobian_total_calc_time:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: estimated time, in ms, for calculating the energy" << std::endl <<
   "                        as well as the Jacobian classically, covering 1 evaluation only" << std::endl <<
@@ -395,7 +401,7 @@ const std::string QaoaWarmStart::get_summary() const {
 }
 
 // with std::regex
-std::string ScientificStringToFixedString(const std::string& matchStr){ 
+std::string ScientificStringToFixedString(const std::string& matchStr){
     // double match = std::stod(matchStr); // will throw out of range
     double match = boost::lexical_cast<double>(matchStr);
 
@@ -405,7 +411,7 @@ std::string ScientificStringToFixedString(const std::string& matchStr){
 }
 
 // mimic boost::regex_replace with std::regex
-std::string regexReplace(const std::string& str, const std::regex& regex, const std::function<std::string(const std::string&)> replaceFun){    
+std::string regexReplace(const std::string& str, const std::regex& regex, const std::function<std::string(const std::string&)> replaceFun){
     // regex_iterator searches through the string from one match to another
     auto match_begin = std::sregex_iterator(str.begin(), str.end(), regex);
     auto match_end = std::sregex_iterator();
@@ -438,7 +444,7 @@ std::string QaoaWarmStart::ws_measurement_circ(
 
 
   auto qaoa_ansatz = xacc::createComposite(
-    "ws_qaoa", 
+    "ws_qaoa",
     {
       {"nbQubits", n_qubits},
       {"nbSteps", qaoa_steps},
@@ -449,10 +455,10 @@ std::string QaoaWarmStart::ws_measurement_circ(
   );
   if (extended_param) {
     qaoa_ansatz = xacc::createComposite(
-      "ws_qaoa", 
+      "ws_qaoa",
       {
         {"nbQubits", n_qubits},
-        {"nbSteps", qaoa_steps}, 
+        {"nbSteps", qaoa_steps},
         {"good_cut", good_cut},
         {"cost-ham", H},
         {"parameter-scheme", "Extended"}
@@ -539,13 +545,13 @@ int QaoaWarmStart::is_jj_consistent() {
   const int INVALID = -1;
   const int SINGLETON = 1;
   int N_jj = SINGLETON;
-  
+
   for (auto el : qns_) {
     if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
       std::cout << "[qn] shape is invalid" << std::endl;
       return INVALID;
     }
-  }  
+  }
   // The remaining shapes need not be singleton
   for (auto el : thetas_) {
     if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
@@ -625,7 +631,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   );
   if (extended_params_valid.is_data_empty()) {
     throw std::range_error("Enable QAOA extended parameters [extended_param] cannot be empty");
-  }   
+  }
 
   ValidatorTwoDim<std::string> hams_valid(hams_);
   if (hams_valid.is_data_empty()) {
@@ -704,8 +710,8 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   );
   if (grads_valid.is_data_empty()) {
     throw std::range_error("Enable gradient calculation at the optimum [grad] cannot be empty");
-  }   
-  
+  }
+
   ValidatorTwoDim<std::string> gradient_strategys_valid(
     gradient_strategys_,
     VALID_GRADIENT_STRATEGYS,
@@ -723,7 +729,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   );
   if (noises_valid.is_data_empty()) {
     throw std::range_error("Enable the QB noise model [noise] cannot be empty");
-  }  
+  }
   // Shape consistency
   int N_ii = is_ii_consistent();
   int N_jj = is_jj_consistent();
@@ -732,24 +738,24 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   }
 
   if (debug_qbos_) {
-    std::cout 
+    std::cout
       << "Invoked run on Experiment " << ii
-      << ", name: " << rownames_valid.get(ii,jj) 
-      << " ; Condition " << jj 
-      << ", name: " << colnames_valid.get(ii,jj) 
+      << ", name: " << rownames_valid.get(ii,jj)
+      << " ; Condition " << jj
+      << ", name: " << colnames_valid.get(ii,jj)
       << std::endl;
   }
   int sn = sns_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Number of shots [sn]: " << sn << std::endl;      
+    std::cout << "Number of shots [sn]: " << sn << std::endl;
   }
   int qn = qns_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Number of qubits [qn]: " << qn << std::endl;      
-  } 
+    std::cout << "Number of qubits [qn]: " << qn << std::endl;
+  }
   int maxeval = maxevals_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Number of optimiser evaluations [maxeval]: " << maxeval << std::endl;      
+    std::cout << "Number of optimiser evaluations [maxeval]: " << maxeval << std::endl;
   }
   bool is_deterministic = false;
   if (sn == 0) {
@@ -761,20 +767,20 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
           std::cout << "Using deterministic QAOA..." << std::endl;
       }
       else {
-          std::cout << "Using stochastic QAOA..." << std::endl;      
+          std::cout << "Using stochastic QAOA..." << std::endl;
       }
   }
 
   // theta
   std::vector<double> theta;
   qb::Pretranspile tpre = qb::Pretranspile();
-  qb::map_to_vec(thetas_valid.get(ii,jj), theta);  
+  qb::map_to_vec(thetas_valid.get(ii,jj), theta);
   std::reverse(theta.begin(), theta.end());
 
   if (debug_qbos_) {
-    std::cout << "Parameters to optimise [theta]: " << theta << std::endl; 
+    std::cout << "Parameters to optimise [theta]: " << theta << std::endl;
   }
-  
+
   // qaoa_step
   int qaoa_step = qaoa_steps_valid.get(ii,jj);
   if (debug_qbos_) {
@@ -790,13 +796,13 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   // Hamiltonian
   std::string ham = hams_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Hamiltonian [ham]: " << ham << std::endl;       
+    std::cout << "Hamiltonian [ham]: " << ham << std::endl;
   }
 
   // Good cut
   std::string good_cut = good_cuts_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Good cut [good_cut]: " << good_cut << std::endl;       
+    std::cout << "Good cut [good_cut]: " << good_cut << std::endl;
   }
 
   // Observable from Hamiltonian string
@@ -813,7 +819,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   noiseModel->set_m_nbQubits(qn);
   noiseModel->set_qb_connectivity_to_limit(qn);
   */
- 
+
   // Accelerator : "vqe-mode"=true is non-stochastic for qpp back-end
   std::string tacc = accs_valid.get(ii, jj);
   auto acc = xacc::getAccelerator(tacc, {{"vqe-mode", is_deterministic}, {"shots", sn}});
@@ -843,12 +849,12 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   // Use MLPACK if available
   if (VALID_MLPACK_OPTIMISER_METHODS.find(tmethod) == VALID_MLPACK_OPTIMISER_METHODS.end()) {
     if (debug_qbos_) {
-      std::cout << "Assuming an optimiser: " << tmethod << " supported by the nlopt library..." << std::endl;      
+      std::cout << "Assuming an optimiser: " << tmethod << " supported by the nlopt library..." << std::endl;
     }
   } else {
     nlopt_mlpack_select = "mlpack";
     if (debug_qbos_) {
-      std::cout << "Assuming an optimiser: " << tmethod << " supported by the MLPACK library..." << std::endl;      
+      std::cout << "Assuming an optimiser: " << tmethod << " supported by the MLPACK library..." << std::endl;
     }
   }
 
@@ -862,11 +868,11 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
       std::make_pair("mlpack-optimizer", tmethod)
     }
   );
-  
+
   // instantiate XACC QAOA
   std::string tgradient_strategy = gradient_strategys_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Gradient strategy [gradient_strategy]: " << tgradient_strategy << std::endl;      
+    std::cout << "Gradient strategy [gradient_strategy]: " << tgradient_strategy << std::endl;
   }
 
   auto qaoa = xacc::getService<Algorithm>("WS_QAOA");
@@ -909,11 +915,11 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   const double opt_val = (*buffer)["opt-val"].as<double>();
 
   if (debug_qbos_) {
-    std::cout 
+    std::cout
       << "* Trace the number of iterations which should equal nChildren():"
       << std::endl;
-    std::cout 
-      << "* nChildren = " << buffer->nChildren() 
+    std::cout
+      << "* nChildren = " << buffer->nChildren()
       << std::endl;
   }
   const auto nIters = buffer->nChildren();
@@ -926,7 +932,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   if (debug_qbos_) {
     std::cout << "optimal energy value: " << opt_val << std::endl;
   }
-  
+
   for (auto &childBuff : buffer->getChildren()) {
     if (childBuff->hasExtraInfoKey("energy")) {
       double energy = (*childBuff)["energy"].as<double>();
@@ -953,13 +959,13 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   vec_to_map(res_energy, energies);
   (out_energys_.at(ii)).at(jj) = res_energy;
 
-  // Element 0 is where theta at the optimum is saved to 
-  auto opt_params = (*buffer)["opt-params"].as<std::vector<double>>();        
+  // Element 0 is where theta at the optimum is saved to
+  auto opt_params = (*buffer)["opt-params"].as<std::vector<double>>();
   std::reverse(opt_params.begin(), opt_params.end());
 
   std::vector<double> alliters_theta;
   alliters_theta.insert(alliters_theta.end(), opt_params.begin(), opt_params.end());
-  
+
   // theta parameters - store output
   // Save theta trace to: out_thetas_ [Table2d<std::map<int,double>>]
   int step = (buffer->nChildren()) / nIters;
@@ -989,21 +995,21 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
     (out_thetas_.at(ii)).resize(jj + 1);
   }
   (out_thetas_.at(ii)).at(jj) = res_theta;
-  
+
 
   // At the optimal theta, evaluate the QAOA ansatz and measure
   // a few shots - return the state that corresponds to the mode of the distribution
-        
+
   std::string targetCircuit;
   std::reverse(opt_params.begin(), opt_params.end());
 
   targetCircuit = ws_measurement_circ(qn, qaoa_step, ham, good_cut, extended_param, opt_params);
-  // we now may have scientific notation in the string. This is not allowed by xasm and must be converted it to fixed notation. 
+  // we now may have scientific notation in the string. This is not allowed by xasm and must be converted it to fixed notation.
   static const std::regex scientific_regex {"[+-]?([0-9]*[.])([0-9]+)(e|E)[+-]([0-9]+)"};
   targetCircuit = regexReplace(targetCircuit, scientific_regex, ScientificStringToFixedString);
-    
+
   // configure this single experiment run:
-  auto qpu = acc; 
+  auto qpu = acc;
   HeterogeneousMap mqbacc;
   mqbacc.insert("shots", 1024);
   qpu->updateConfiguration(mqbacc);
@@ -1024,9 +1030,9 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   auto qasmCompiler = xacc::getCompiler("staq");
   auto ir2 = irqft3->getComposite("evaled_ws_qaoa");
   if (debug_qbos_) {
-    std::cout 
+    std::cout
       << "* Optimal circuit:" << std::endl
-      << qasmCompiler->translate(ir2) << std::endl; 
+      << qasmCompiler->translate(ir2) << std::endl;
   }
 
   // execute the experiment and get the measurements:
@@ -1045,10 +1051,10 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
       guessedState = bitstringcount.first;
     }
   }
-  if (debug_qbos_) {  
+  if (debug_qbos_) {
     std::cout << "    Predicted eigenstate (assuming a classical Hamiltonian): " << guessedState << std::endl;
   }
-  
+
   if (out_eigenstates_.size() < (ii + 1)) {
     if (debug_qbos_) {
       std::cout << "Resizing ii: " << (ii + 1) << std::endl;
@@ -1063,11 +1069,11 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   }
   (out_eigenstates_.at(ii)).at(jj) = guessedState;
 
-  
+
   // Evaluate QAOA at optimal theta, then observe it and get back a list of
   // kernels - these are then used to estimate the quantum execution
   // time for determining the cost function and the Jacobian of the cost function
-  
+
   std::shared_ptr<xacc::CompositeInstruction> kernel;
   xacc::HeterogeneousMap m;
   kernel = std::dynamic_pointer_cast<xacc::CompositeInstruction>(xacc::getService<Instruction>("ws_qaoa"));
@@ -1087,7 +1093,7 @@ void QaoaWarmStart::run(const size_t &ii, const size_t &jj) {
   std::reverse(tmp_theta.begin(), tmp_theta.end());
   auto evaled = kernel->operator()(tmp_theta);
   auto kernels = observable->observe(evaled);
-  
+
   // Instantiate Profiler - save to out_quantum_energy_calc_times_
   double accum_quantum_est_ms = 0.0;
   for (auto &kel : kernels) {

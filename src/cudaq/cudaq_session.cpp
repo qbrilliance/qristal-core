@@ -47,7 +47,7 @@ void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) 
   // released!
   platform.reset_exec_ctx();
   // Retrieve the measure counts
-  auto cudaq_counts = cudaq_context->result;
+  auto& cudaq_counts = cudaq_context->result;
   if (debug_) {
     std::cout << std::endl;
     // Print out data
@@ -62,7 +62,7 @@ void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) 
     std::cout << std::endl;
   }
   // CUDAQ reports bitstrings in LSB
-  acc_uses_lsbs_.at(ii).at(jj) = true;
+  acc_outputs_qbit0_left_.at(ii).at(jj) = true;
   // Z expectation value
   const double z_expectation_val = cudaq_counts.exp_val_z();
 

@@ -3,7 +3,7 @@ import qb.core
 
 # Create a dummy device using noise parameters.
 # 4 qubits with a line topology:
-# 0 - 1 - 2 - 3 
+# 0 - 1 - 2 - 3
 nb_qubits = 4
 
 # Qubit topology
@@ -80,5 +80,5 @@ s.noise_model = nm
 s.ir_target = circ
 s.acc = "aer"
 s.run()
-result = s.out_raw_json[0][0]
-print("Output = " + result)
+print("Results:")
+print(s.results[0][0])

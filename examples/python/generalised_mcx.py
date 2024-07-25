@@ -1,6 +1,6 @@
 import qb.core
 import numpy as np
-import ast
+
 s = qb.core.session()
 s.init()
 
@@ -11,16 +11,16 @@ s.init()
 # Expected outcomes:
 
 # - When the control qubits are required to be (on,on) then we expect
-# |110> -> |111>, |111> -> |110>, and all other bit strings remain unchanged
+# |011> -> |111>, |111> -> |011>, and all other bit strings remain unchanged
 
 # - When the control qubits are required to be (on,off) then we expect
-# |100> -> |101>, |101> -> |100>, and all other bit strings remain unchanged
+# |001> -> |101>, |101> -> |001>, and all other bit strings remain unchanged
 
 # - When the control qubits are required to be (off,on) then we expect
-# |010> -> |011>, |011> -> |010>, and all other bit strings remain unchanged
+# |010> -> |110>, |110> -> |010>, and all other bit strings remain unchanged
 
 # - When the control qubits are required to be (off,off) then we expect
-# |000> -> |001>, |001> -> |000>, and all other bit strings remain unchanged
+# |000> -> |100>, |100> -> |000>, and all other bit strings remain unchanged
 
 control_qubits = [0, 1]
 target_qubit = 2
@@ -57,15 +57,15 @@ for condition in conditions:
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        result = s.out_raw_json[0][0]
-        res = ast.literal_eval(result)
-        expected_output = input_bitstring[0:2]
+        res = s.results[0][0]
+        expected_output = [int(x) for x in input_bitstring[0:2]]
         if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:
             if input_bitstring[2] == "0":
-                expected_output += "1"
+                expected_output.append(1)
             else:
-                expected_output += "0"
+                expected_output.append(0)
         else:
-            expected_output += input_bitstring[2]
-        assert(list(res.keys())[0] == expected_output)
+            expected_output.append(int(input_bitstring[2]))
+        assert(len(res) == 1)
+        assert(list(next(iter(res))) == expected_output)
         assert(res[expected_output] == 1024)

@@ -1,6 +1,6 @@
 import qb.core
 import numpy as np
-import ast
+
 s = qb.core.session()
 s.init()
 s.qn = 13
@@ -62,10 +62,8 @@ for c in range(4):
             s.output_oqm_enabled = False
             s.acc = "qsim"
             s.run()
-            result1 = s.out_raw_json[0][0]
-            res1 = ast.literal_eval(result1)
-            assert(len(res1) == 1)
-            # print(res1)
+            res = s.results[0][0]
+            assert(len(res) == 1)
 
             if c == 1:
                 if j != 0:
@@ -87,7 +85,7 @@ for c in range(4):
                 for k in range(len(qubits_ancilla)):
                     expected_output += "0"
 
-                assert(res1[expected_output] == 1024)
+                assert(res[[int(x) for x in expected_output]] == 1024)
 
             else:
                 expected_output = bin_i + bin_j
@@ -96,4 +94,4 @@ for c in range(4):
                 for k in range(len(qubits_ancilla)):
                     expected_output += "0"
 
-                assert(res1[expected_output] == 1024)
+                assert(res[[int(x) for x in expected_output]] == 1024)

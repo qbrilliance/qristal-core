@@ -152,8 +152,7 @@ int main(int argc, char * argv[])
   my_sim.run();
 
   // Print results
-  std::string result = ((my_sim.get_out_raws_json()).at(0)).at(0);
-  std::cout << result << std::endl;
+  std::cout << my_sim.results()[0][0] << std::endl;
 
   // Exit
   return 0;

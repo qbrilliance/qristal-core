@@ -52,7 +52,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     assert(res['settings']['readout_contrast_threshold']['qubits'][0] == qubit_0_thresh)
     assert(res['settings']['readout_contrast_threshold']['qubits'][1] == qubit_1_thresh)
 
-    # Change the yaml file to just use default contrasts 
+    # Change the yaml file to just use default contrasts
     db["use_default_contrast_settings"] = True
     stream = open(s.remote_backend_database_path, 'w')
     dump({'loopback': db}, stream)
@@ -94,9 +94,7 @@ def test_CI_230131_cz_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == s.sn[0][0])
+    assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_CI_230131_arbitrary_rotation():
     print("Checks Rx and Ry arbitrary rotation angles.  Verifies that the requested number of shots is actually performed via recursive requests")
@@ -132,9 +130,7 @@ def test_CI_230131_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == s.sn[0][0])
+    assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_CI_230106_1_loopback_6s():
     print("Check 2s and 6s polling interval set from JSON config file")
@@ -174,7 +170,7 @@ def test_CI_230106_1_loopback_6s():
 
     # Reset polling to 2s
     db["poll_secs"] = 2
-    dump({'loopback': db}, stream)    
+    dump({'loopback': db}, stream)
     # Run the circuit on the back-end
     eltim = timeit.timeit(lambda: s.run(), number=1)
     assert (eltim < 25.0)
@@ -238,9 +234,7 @@ def test_recursive():
     s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == 16)
+    assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_resampling():
     print("Using loopback to test resampling.")
@@ -262,9 +256,7 @@ def test_resampling():
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) == 30)
+    assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_resampling_qb_safe_limit_shots():
     print("Using loopback to test QB_SAFE_LIMIT_SHOTS with resampling.")
@@ -291,8 +283,8 @@ def test_resampling_qb_safe_limit_shots():
     tjs = json.loads(s.out_qbjson[0][0])
     assert(tjs['settings']['shots'] == QB_SAFE_LIMIT_SHOTS)
 
-# Note that the reservation is not released after this test, so the qcstack server 
-# remains in exclusive access mode afterwards -- so this test must run after all 
+# Note that the reservation is not released after this test, so the qcstack server
+# remains in exclusive access mode afterwards -- so this test must run after all
 # others that don't use exclusive access mode!
 def test_reservation():
     print("Using json web token to reserve qcstack for exclusive access")
@@ -313,7 +305,5 @@ def test_reservation():
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(sum([jj for jj in (res).values()]) <= 16)
+    assert(s.results[0][0].total_counts() <= s.sn[0][0])
 

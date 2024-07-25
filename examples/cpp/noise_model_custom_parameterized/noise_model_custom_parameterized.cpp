@@ -11,7 +11,7 @@ int main(int argc, char * argv[])
 {
   // Create a dummy device using noise parameters.
   // 4 qubits with a line topology:
-  // 0 - 1 - 2 - 3 
+  // 0 - 1 - 2 - 3
   const int nb_qubits = 4;
 
   // Qubit topology
@@ -90,5 +90,5 @@ int main(int argc, char * argv[])
   s.run();
 
   // Print results
-  std::cout << "Results:" << std::endl << s.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << s.results()[0][0] << std::endl;
 }

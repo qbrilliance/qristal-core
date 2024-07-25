@@ -6,8 +6,6 @@ import numpy as np
 
 qb.core.session()
 
-NB_QUBITS = 3
-
 # Oracle:
 oracle = qb.core.Circuit()
 oracle.h(2)

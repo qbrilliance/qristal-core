@@ -14,19 +14,19 @@ using namespace qb::benchmark;
 
 
 TEST(CircuitFidelityTester, checkSPAM) {
-    const std::vector<size_t> qubits{0, 1};
+    const std::set<size_t> qubits{0, 1};
 
-    //define session  
-    qb::session sim(false); 
+    //define session
+    qb::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
 
-    //define workflow 
+    //define workflow
     SPAMBenchmark workflow(qubits, sim);
 
-    //evaluate metric 
+    //evaluate metric
     CircuitFidelity<SPAMBenchmark> metric(workflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {
@@ -38,25 +38,23 @@ TEST(CircuitFidelityTester, checkSPAM) {
 }
 
 TEST(CircuitFidelityTester, checkRotationSweep) {
-    const std::vector<size_t> qubits{0, 1, 2};
-
-    //define session  
-    qb::session sim(false); 
+    //define session
+    qb::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    sim.set_qn(3);
 
-    //define workflow 
+    //define workflow
     RotationSweep workflow(
-        std::vector<char>{'Z', 'X', 'Y'}, 
+        std::vector<char>{'Z', 'X', 'Y'},
         -90,
         +90,
-        9, 
+        9,
         sim
     );
 
-    //evaluate metric 
+    //evaluate metric
     CircuitFidelity<RotationSweep> metric(workflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {

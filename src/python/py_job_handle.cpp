@@ -25,7 +25,7 @@ std::string JobHandle::qpu_name() const { return m_qpuName; }
 /// Post the (i, j) job asynchronously to be executed on the virtualized QPU
 /// pool.
 void JobHandle::post_async(qb::session &s, int i, int j) {
-  m_qpqe = &s;
+  m_session = &s;
   m_i = i;
   m_j = j;
   m_thread_running = true;
@@ -37,11 +37,11 @@ void JobHandle::post_async(qb::session &s, int i, int j) {
 
 /// Retrieve the async execution result.
 /// Blocking if the job is not completed yet.
-std::string JobHandle::get_async_result() {
+std::map<std::vector<bool>, int> JobHandle::get_async_result() {
   if (m_handle) {
     // If this is a remote job, wait for its completion.
     m_handle->wait_for_completion();
-    return m_qpqe->get_out_raws_json().at(m_i).at(m_j);
+    return m_session->results().at(m_i).at(m_j);
   } else {
     /// If this is a local simulation, wait for the simulation (on a thread)
     /// to complete.
@@ -103,22 +103,22 @@ void JobHandle::removeJobHandle() {
 /// Asynchronously run this job.
 // !IMPORTANT! This method will be called on a different thread (one from the
 // thread pool).
-std::string JobHandle::run_async_internal() {
-  m_qpu = m_qpqe->get_executor().getNextAvailableQpu();
-  auto async_handle = m_qpqe->run_async(m_i, m_j, m_qpu);
+std::map<std::vector<bool>, int> JobHandle::run_async_internal() {
+  m_qpu = m_session->get_executor().getNextAvailableQpu();
+  auto async_handle = m_session->run_async(m_i, m_j, m_qpu);
   m_qpuName = m_qpu->name();
   m_thread_running = false;
-  m_qpqe->get_executor().release(std::move(m_qpu));
+  m_session->get_executor().release(std::move(m_qpu));
   /// If this is a remote accelerator, i.e., run_async returns a valid handle,
   /// cache it to m_handle.
   if (async_handle) {
     m_handle = async_handle;
     /// Returns a dummy result, not yet completed.
-    return "";
+    return std::map<std::vector<bool>, int>();
   } else {
     /// If run_async executed synchronously on this thead, the result is
     /// available now.
-    return m_qpqe->get_out_raws_json()[m_i][m_j];
+    return m_session->results().at(m_i).at(m_j);
   }
 }
 

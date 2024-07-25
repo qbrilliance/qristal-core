@@ -14,29 +14,29 @@ using namespace qb::benchmark;
 
 TEST(SPAMBenchmarkTester, check_circuit_construction) {
     const size_t n_qubits = 10;
-    const std::vector<size_t> qubits{0, 2, 7};
+    const std::set<size_t> qubits{0, 2, 7};
 
     //construct expected circuits
-    std::vector<qb::CircuitBuilder> correct_circuits; 
+    std::vector<qb::CircuitBuilder> correct_circuits;
     for (size_t i = 0; i < 9; ++i) {
-        qb::CircuitBuilder cb; 
+        qb::CircuitBuilder cb;
         correct_circuits.push_back(cb);
     }
-    correct_circuits[1].X(7);
+    correct_circuits[1].X(0);
     correct_circuits[2].X(2);
-    correct_circuits[3].X(7);
+    correct_circuits[3].X(0);
     correct_circuits[3].X(2);
-    correct_circuits[4].X(0);
-    correct_circuits[5].X(7);
+    correct_circuits[4].X(7);
     correct_circuits[5].X(0);
+    correct_circuits[5].X(7);
     correct_circuits[6].X(2);
-    correct_circuits[6].X(0);
-    correct_circuits[7].X(7);
-    correct_circuits[7].X(2);
+    correct_circuits[6].X(7);
     correct_circuits[7].X(0);
+    correct_circuits[7].X(2);
+    correct_circuits[7].X(7);
 
-    //define session  
-    qb::session sim(false); 
+    //define session
+    qb::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
@@ -59,26 +59,33 @@ TEST(SPAMBenchmarkTester, check_serialization) {
     }
 
     //define serializable objects
-    //(1) session  
-    qb::session sim(false); 
+    //(1) session
+    qb::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
     sim.set_qn(3);
     sim.set_noise_mitigations(qb::Table2d<std::string>{std::vector<std::string>{"assignment-error-kernel", "rich-extrap"}, std::vector<std::string>{"ro-error"}});
-    qb::NoiseModel nm("default"); 
+    qb::NoiseModel nm("default");
     sim.set_noise_model(nm);
 
-    //(2) bit string counts 
-    std::vector<std::string> counts{"000", "001", "010", "011", "100", "101", "110", "111"};
+    //(2) bit string counts
+    std::vector<std::map<std::vector<bool>, int>> counts {{{{0,0,0}, 1}},
+                                                          {{{0,0,1}, 2}},
+                                                          {{{0,1,0}, 3}},
+                                                          {{{0,1,1}, 4}},
+                                                          {{{1,0,0}, 5}},
+                                                          {{{1,0,1}, 6}},
+                                                          {{{1,1,0}, 7}},
+                                                          {{{1,1,1}, 8}}};
 
-    //(3) complex matrices 
+    //(3) complex matrices
     ComplexMatrix mat_zero = ComplexMatrix::Zero(8, 8);
     ComplexMatrix mat_ones = ComplexMatrix::Ones(8, 8);
     std::vector<ComplexMatrix> mats{mat_zero, mat_ones};
 
-    //define SPAMBenchmark and call serialization 
-    SPAMBenchmark workflow(std::vector<size_t>{0, 1, 2}, sim); 
+    //define SPAMBenchmark and call serialization
+    SPAMBenchmark workflow(std::set<size_t>{0, 1, 2}, sim);
     std::time_t t = std::time(nullptr);
     workflow.serialize_session_infos(t);
     workflow.serialize_ideal_counts(counts, t);
@@ -88,20 +95,20 @@ TEST(SPAMBenchmarkTester, check_serialization) {
 
     //Load data using DataLoaderGenerator and compare to test
     DataLoaderGenerator dlg(workflow.get_identifier(), std::vector<Task>{Task::MeasureCounts, Task::IdealCounts, Task::Session, Task::IdealDensity, Task::IdealProcess});
-    dlg.set_timestamps(std::vector<std::time_t>{t}); 
-    
-    auto session_info = dlg.obtain_session_infos()[0]; 
-    EXPECT_EQ(session_info.accs_, sim.get_accs()); 
-    EXPECT_EQ(session_info.noise_mitigations_, sim.get_noise_mitigations()); 
+    dlg.set_timestamps(std::vector<std::time_t>{t});
+
+    auto session_info = dlg.obtain_session_infos()[0];
+    EXPECT_EQ(session_info.accs_, sim.get_accs());
+    EXPECT_EQ(session_info.noise_mitigations_, sim.get_noise_mitigations());
     auto nms = sim.get_noise_models()[0][0].to_json();
     EXPECT_EQ(session_info.noise_models_, std::vector<std::vector<std::string>>{std::vector<std::string>{nms}});
-    EXPECT_EQ(session_info.qns_, sim.get_qns()); 
+    EXPECT_EQ(session_info.qns_, sim.get_qns());
     EXPECT_EQ(session_info.sns_, sim.get_sns());
 
-    auto measured_counts = dlg.obtain_measured_counts()[0]; 
+    auto measured_counts = dlg.obtain_measured_counts()[0];
     EXPECT_EQ(measured_counts, counts);
 
-    auto ideal_counts = dlg.obtain_ideal_counts()[0]; 
+    auto ideal_counts = dlg.obtain_ideal_counts()[0];
     EXPECT_EQ(ideal_counts, counts);
 
     auto ideal_densities = dlg.obtain_ideal_densities()[0];

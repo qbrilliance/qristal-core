@@ -89,6 +89,6 @@ my_sim.run()
 
 Print the cumulative results in each of the classical registers:
 ```python
-print(my_sim.out_raw[0][0])
+print(my_sim.results[0][0])
 ```
 

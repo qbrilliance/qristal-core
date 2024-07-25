@@ -32,8 +32,8 @@ const std::string QaoaRecursive::get_summary() const {
   using namespace xacc;
   std::ostringstream out;
 
-  out << "* qaoa_step:" << std::endl << 
-  "    Number of QAOA layers" << std::endl << 
+  out << "* qaoa_step:" << std::endl <<
+  "    Number of QAOA layers" << std::endl <<
   "  = ";
   for (auto item : get_qaoa_steps()) {
     for (auto itel : item) {
@@ -43,8 +43,8 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* ham:" << std::endl << 
-  "    Hamiltonian as sum of Pauli terms" << std::endl << 
+  out << "* ham:" << std::endl <<
+  "    Hamiltonian as sum of Pauli terms" << std::endl <<
   "  = ";
   for (auto item : get_hams()) {
     for (auto itel : item) {
@@ -54,8 +54,8 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* sn:" << std::endl << 
-  "    Number of shots" << std::endl << 
+  out << "* sn:" << std::endl <<
+  "    Number of shots" << std::endl <<
   "  = ";
   for (auto item : get_sns()) {
     for (auto itel : item) {
@@ -65,8 +65,8 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* n_c:" << std::endl << 
-  "    Threshold number of variables" << std::endl << 
+  out << "* n_c:" << std::endl <<
+  "    Threshold number of variables" << std::endl <<
   "  = ";
   for (auto item : get_n_cs()) {
     for (auto itel : item) {
@@ -86,7 +86,7 @@ const std::string QaoaRecursive::get_summary() const {
     out << std::endl;
   }
   out << std::endl << std::endl;
-  
+
   out << "* acc:" << std::endl <<
   "    Back-end simulator" << std::endl <<
   "  = ";
@@ -169,7 +169,9 @@ const std::string QaoaRecursive::get_summary() const {
   "  = ";
   for (auto item : get_functols()) {
     for (auto itel : item) {
-      out << " " << itel;
+      for (auto [key, val] : itel) {
+        out << " " << key << ":" << val;
+      }
     }
     out << std::endl;
   }
@@ -180,18 +182,22 @@ const std::string QaoaRecursive::get_summary() const {
   "  = ";
   for (auto item : get_optimum_energy_abstols()) {
     for (auto itel : item) {
-      out << " " << itel;
+      for (auto [key, val] : itel) {
+        out << " " << key << ":" << val;
+      }
     }
     out << std::endl;
   }
   out << std::endl << std::endl;
-  
+
   out << "* optimum_energy_lowerbound:" << std::endl <<
   "    Expect optimum energy in the interval [optimum_energy_lowerbound, optimum_energy_lowerbound + optimum_energy_abstol]" << std::endl <<
   "  = ";
   for (auto item : get_optimum_energy_lowerbounds()) {
     for (auto itel : item) {
-      out << " " << itel;
+      for (auto [key, val] : itel) {
+        out << " " << key << ":" << val;
+      }
     }
     out << std::endl;
   }
@@ -230,7 +236,7 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* energy:" << std::endl << 
+  out << "* energy:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: energy at optimum theta" << std::endl <<
   "     1,2,...,[maxeval]: energy trace over [maxeval] iterations" << std::endl <<
@@ -250,7 +256,7 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* theta, optimum:" << std::endl << 
+  out << "* theta, optimum:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: optimum theta" << std::endl <<
   "     1,2,...,[maxeval]: theta trace over [maxeval] iterations" << std::endl <<
@@ -270,9 +276,9 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* quantum_energy_calc_time:" << std::endl << 
+  out << "* quantum_energy_calc_time:" << std::endl <<
   "    Keys:" << std::endl <<
-  "                     0: estimated time, in ms, for calculating energy" << std::endl <<  
+  "                     0: estimated time, in ms, for calculating energy" << std::endl <<
   "                        on QB hardware, covering [maxeval] evaluations" << std::endl <<
   "  = ";
   for (auto item : get_out_quantum_energy_calc_times()) {
@@ -290,7 +296,7 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* jacobian:" << std::endl << 
+  out << "* jacobian:" << std::endl <<
   "    Keys:" << std::endl <<
   "       0,...,(size([theta]) - 1): Jacobian at optimum theta (d_energy/d_theta)" << std::endl <<
   "  = ";
@@ -309,7 +315,7 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* quantum_jacobian_calc_time:" << std::endl << 
+  out << "* quantum_jacobian_calc_time:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: estimated time, in ms, for calculating the Jacobian" << std::endl <<
   "                        on QB hardware, covering [maxeval] evaluations" << std::endl <<
@@ -329,7 +335,7 @@ const std::string QaoaRecursive::get_summary() const {
   }
   out << std::endl << std::endl;
 
-  out << "* classical_energy_jacobian_total_calc_time:" << std::endl << 
+  out << "* classical_energy_jacobian_total_calc_time:" << std::endl <<
   "    Keys:" << std::endl <<
   "                     0: estimated time, in ms, for calculating the energy" << std::endl <<
   "                        as well as the Jacobian classically, covering 1 evaluation only" << std::endl <<
@@ -362,13 +368,13 @@ std::string QaoaRecursive::measurement_circ_rqaoa(
   const std::vector<int> &array_of_indices
 ) {
   //auto H = xacc::quantum::getObservable("pauli", H_string);
-  
+
   // Observable from Hamiltonian string
   std::shared_ptr<xacc::Observable> H = std::make_shared<xacc::quantum::PauliOperator>();
   H->fromString(H_string);
 
   auto qaoa_ansatz = xacc::createComposite(
-    "qaoa", 
+    "qaoa",
     {
       {"nbQubits", n_qubits},
       {"nbSteps", qaoa_steps},
@@ -379,7 +385,7 @@ std::string QaoaRecursive::measurement_circ_rqaoa(
 
   if (extended_param) {
       qaoa_ansatz = xacc::createComposite(
-        "qaoa", 
+        "qaoa",
         {
           {"nbQubits", n_qubits},
           {"nbSteps", qaoa_steps},
@@ -463,13 +469,13 @@ int QaoaRecursive::is_jj_consistent() {
   const int INVALID = -1;
   const int SINGLETON = 1;
   int N_jj = SINGLETON;
-  
+
   for (auto el : qns_) {
     if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
       std::cout << "[qn] shape is invalid" << std::endl;
       return INVALID;
     }
-  }  
+  }
   // The remaining shapes need not be singleton
   for (auto el : hams_) {
     if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
@@ -542,7 +548,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   );
   if (extended_params_valid.is_data_empty()) {
     throw std::range_error("Enable rQAOA extended parameters [extended_param] cannot be empty");
-  }   
+  }
 
   ValidatorTwoDim<std::string> hams_valid(hams_);
 
@@ -615,8 +621,8 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   );
   if (grads_valid.is_data_empty()) {
     throw std::range_error("Enable gradient calculation at the optimum [grad] cannot be empty");
-  }   
-  
+  }
+
   ValidatorTwoDim<std::string> gradient_strategys_valid(
     gradient_strategys_,
     VALID_GRADIENT_STRATEGYS,
@@ -634,7 +640,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   );
   if (noises_valid.is_data_empty()) {
     throw std::range_error("Enable the QB noise model [noise] cannot be empty");
-  }  
+  }
   // Shape consistency
   int N_ii = is_ii_consistent();
   int N_jj = is_jj_consistent();
@@ -643,28 +649,28 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   }
 
   if (debug_qbos_) {
-    std::cout 
+    std::cout
       << "Invoked run on Experiment " << ii
-      << ", name: " << rownames_valid.get(ii,jj) 
-      << " ; Condition " << jj 
-      << ", name: " << colnames_valid.get(ii,jj) 
+      << ", name: " << rownames_valid.get(ii,jj)
+      << " ; Condition " << jj
+      << ", name: " << colnames_valid.get(ii,jj)
       << std::endl;
   }
   int sn = sns_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Number of shots [sn]: " << sn << std::endl;      
+    std::cout << "Number of shots [sn]: " << sn << std::endl;
   }
   int n_c = n_cs_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Threshold number of variables [n_c]: " << n_c << std::endl;      
+    std::cout << "Threshold number of variables [n_c]: " << n_c << std::endl;
   }
   int qn = qns_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Number of qubits [qn]: " << qn << std::endl;      
-  } 
+    std::cout << "Number of qubits [qn]: " << qn << std::endl;
+  }
   int maxeval = maxevals_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Number of optimiser evaluations [maxeval]: " << maxeval << std::endl;      
+    std::cout << "Number of optimiser evaluations [maxeval]: " << maxeval << std::endl;
   }
   bool is_deterministic = false;
   if (sn == 0) {
@@ -676,10 +682,10 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
       std::cout << "Using deterministic rQAOA..." << std::endl;
     }
     else {
-      std::cout << "Using stochastic rQAOA..." << std::endl;      
+      std::cout << "Using stochastic rQAOA..." << std::endl;
     }
   }
-  
+
   // qaoa_step
   int qaoa_step = qaoa_steps_valid.get(ii,jj);
   if (debug_qbos_) {
@@ -695,7 +701,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   // Hamiltonian
   std::string ham = hams_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Hamiltonian [ham]: " << ham << std::endl;       
+    std::cout << "Hamiltonian [ham]: " << ham << std::endl;
   }
 
   // Noise
@@ -733,21 +739,21 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   // Use MLPACK if available
   if (VALID_MLPACK_OPTIMISER_METHODS.find(tmethod) == VALID_MLPACK_OPTIMISER_METHODS.end()) {
     if (debug_qbos_) {
-      std::cout << "Assuming an optimiser: " << tmethod << " supported by the nlopt library..." << std::endl;      
+      std::cout << "Assuming an optimiser: " << tmethod << " supported by the nlopt library..." << std::endl;
     }
   } else {
     nlopt_mlpack_select = "mlpack";
     if (debug_qbos_) {
-      std::cout << "Assuming an optimiser: " << tmethod << " supported by the MLPACK library..." << std::endl;      
+      std::cout << "Assuming an optimiser: " << tmethod << " supported by the MLPACK library..." << std::endl;
     }
   }
 
   auto optim = xacc::getOptimizer(nlopt_mlpack_select);
-    
+
   // instantiate XACC rQAOA
   std::string tgradient_strategy = gradient_strategys_valid.get(ii,jj);
   if (debug_qbos_) {
-    std::cout << "Gradient strategy [gradient_strategy]: " << tgradient_strategy << std::endl;      
+    std::cout << "Gradient strategy [gradient_strategy]: " << tgradient_strategy << std::endl;
   }
 
   // count how many recursions we need in accordance with a given threshold number of variables===========================================================================================================================================================
@@ -756,9 +762,9 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   if (debug_qbos_){
     std::cout << "num of iterations " << num_of_iterations << std::endl;
   }
-  
+
   // here a single recursion starts++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  
+
   // Observable from Hamiltonian string
   std::shared_ptr<xacc::Observable> H_counter = std::make_shared<xacc::quantum::PauliOperator>();
   H_counter->fromString(ham);
@@ -789,21 +795,21 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     ham_counter = 0;
 
     for (const auto &term : H_counter->getNonIdentitySubTerms()) {
-      ham_counter++;  
+      ham_counter++;
     }
 
     if (debug_qbos_) {
       std::cout << "Iteration " << j << std::endl;
-      std::cout << "Ham counter " << ham_counter << std::endl; 
+      std::cout << "Ham counter " << ham_counter << std::endl;
     }
 
-    // create new thetas 
+    // create new thetas
     int size_theta;
     if (extended_param) { size_theta = (qn + ham_counter)*qaoa_step; }
     else { size_theta = 2*qaoa_step; }
 
     if (debug_qbos_) {
-      std::cout << "size_theta " << size_theta << std::endl; 
+      std::cout << "size_theta " << size_theta << std::endl;
     }
     std::vector<double> theta(size_theta);
     for(int l=0; l<size_theta; ++l){
@@ -812,9 +818,9 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     std::reverse(theta.begin(), theta.end());
 
     if (debug_qbos_) {
-      std::cout << "Parameters to optimise [theta]: " << theta << std::endl; 
-      std::cout << "Current hamiltonian " << ham << std::endl; 
-      std::cout << "Number of qubits " << qn << std::endl; 
+      std::cout << "Parameters to optimise [theta]: " << theta << std::endl;
+      std::cout << "Current hamiltonian " << ham << std::endl;
+      std::cout << "Number of qubits " << qn << std::endl;
     }
 
     optim->setOptions(
@@ -839,7 +845,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
           {"parameter-scheme", "Extended"},
           {"accelerator", acc},
           {"observable", observable},
-          {"gradient_strategy", tgradient_strategy}, 
+          {"gradient_strategy", tgradient_strategy},
           {"optimizer", optim}
         }
       );
@@ -869,11 +875,11 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     const double opt_val = (*buffer)["opt-val"].as<double>();
 
     if (debug_qbos_) {
-      std::cout 
+      std::cout
         << "* Trace the number of iterations which should equal nChildren():"
         << std::endl;
-      std::cout 
-        << "* nChildren = " << buffer->nChildren() 
+      std::cout
+        << "* nChildren = " << buffer->nChildren()
         << std::endl;
     }
     const auto nIters = buffer->nChildren();
@@ -886,7 +892,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
 
     // Element 0 of the vector is the optimum value
     energies.insert(energies.begin(), opt_val);
-    
+
     for (auto &childBuff : buffer->getChildren()) {
       if (childBuff->hasExtraInfoKey("energy")) {
         double energy = (*childBuff)["energy"].as<double>();
@@ -914,17 +920,17 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     vec_to_map(res_energy, energies);
     (out_energys_.at(ii)).at(jj) = res_energy;
 
-    // Element 0 is where theta at the optimum is saved to 
-    auto opt_params = (*buffer)["opt-params"].as<std::vector<double>>();        
+    // Element 0 is where theta at the optimum is saved to
+    auto opt_params = (*buffer)["opt-params"].as<std::vector<double>>();
     std::reverse(opt_params.begin(), opt_params.end());
 
     if (debug_qbos_){
-      std::cout << "optimal params " << opt_params << std::endl; 
+      std::cout << "optimal params " << opt_params << std::endl;
     }
 
     std::vector<double> alliters_theta;
     alliters_theta.insert(alliters_theta.end(), opt_params.begin(), opt_params.end());
-    
+
     // theta parameters - store output
     // Save theta trace to: out_thetas_ [Table2d<std::map<int,double>>]
     int step = (buffer->nChildren()) / nIters;
@@ -954,14 +960,14 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
       (out_thetas_.at(ii)).resize(jj + 1);
     }
     (out_thetas_.at(ii)).at(jj) = res_theta;
-    
+
 
     // At the optimal theta, evaluate the rQAOA ansatz and measure
     // a few shots - return the state that corresponds to the mode of the distribution
-    
+
     std::shared_ptr<xacc::Observable> H = std::make_shared<xacc::quantum::PauliOperator>();
     H->fromString(ham);
-    
+
     std::vector<float> list_of_expval;
     std::vector<std::string> list_of_terms;
     std::vector<std::string> list_of_coefficients;
@@ -969,7 +975,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
 
     for (const auto &term : H->getNonIdentitySubTerms()) {
       auto H_elem = term->toString();
-      
+
       // create an array of indices
       int index_i = (int) H_elem[H_elem.size()-4]-48;
       int index_j = (int) H_elem[H_elem.size()-1]-48;
@@ -985,7 +991,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
       targetCircuit = measurement_circ_rqaoa(qn, qaoa_step, ham, extended_param, opt_params, array_of_indices);
 
       // configure this single experiment run:
-      auto qpu = acc; 
+      auto qpu = acc;
       HeterogeneousMap mqbacc;
       mqbacc.insert("shots", 1024);
       qpu->updateConfiguration(mqbacc);
@@ -1011,18 +1017,18 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
       std::map<std::string, int> placed_cct_simc;
       qpu->execute(buffer3, placedCircuits[0]);
       auto results = buffer3->getMeasurementCounts();
-      
+
       //convert measurement result to expectation value ZiZj
       float probabilities[4];
 
       int i = 0;
-      for ( auto&[key, value]: results ){   
+      for ( auto&[key, value]: results ){
         probabilities[i] = float(value)/1024.0;
         i++;
       }
 
       float expval_zizj = probabilities[0]-probabilities[1]-probabilities[2]+probabilities[3];
-      
+
       list_of_expval.push_back(expval_zizj);
       list_of_terms.push_back(H_elem.substr(H_elem.size()-5, H_elem.size()-1));
       list_of_coefficients.push_back(H_coefficient);
@@ -1036,7 +1042,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     float max_expval = *std::max_element(std::begin(list_of_abs_expval), std::end(list_of_abs_expval));
     int index_max_expval = std::distance(list_of_abs_expval.begin(), std::max_element(list_of_abs_expval.begin(), list_of_abs_expval.end()));
 
-    if (debug_qbos_) {  
+    if (debug_qbos_) {
       std::cout << "list of expval " << list_of_expval << std::endl;
       std::cout << "index max abs(expval) " << index_max_expval << std::endl;
       std::cout << "list of terms " << list_of_terms << std::endl;
@@ -1062,7 +1068,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     z_index_history[ia][2*j+1] = ia; // ideally here should be something like NULL but c++ does not support this
     z_index_history[ib][2*j+1] = ib*sign_of_expval; // ideally here should be something like NULL but c++ does not support this
 
-    if (debug_qbos_) {  
+    if (debug_qbos_) {
       std::cout << "to be replaced " << op_to_be_replaced << std::endl;
     }
 
@@ -1106,8 +1112,8 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     if (debug_qbos_) {
       std::cout << "boundary_index " << boundary_index << '\n';
     }
-    
-    // analyze new hamiltonian: after getObservable we are sure that XACC optimized new_ham, there are no more elements with double indices etc. 
+
+    // analyze new hamiltonian: after getObservable we are sure that XACC optimized new_ham, there are no more elements with double indices etc.
     H_counter->fromString(new_ham);
 
     ham_counter = 0;
@@ -1115,7 +1121,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     std::vector<std::string> new_list_of_coefficients;
 
     for (const auto &term : H_counter->getNonIdentitySubTerms()) {
-      ham_counter++;  
+      ham_counter++;
       auto H_elem = term->toString();
       new_list_of_terms.push_back(H_elem.substr(H_elem.size()-5, H_elem.size()-1));
 
@@ -1126,7 +1132,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     }
 
     if (debug_qbos_) {
-      std::cout << "Ham counter " << ham_counter << std::endl; 
+      std::cout << "Ham counter " << ham_counter << std::endl;
       std::cout << "new list of terms " << new_list_of_terms << std::endl;
     }
 
@@ -1137,19 +1143,19 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
       ham_indices[2*i] = (int)new_list_of_terms[i][1];
       ham_indices[2*i+1] = (int)new_list_of_terms[i][4];
 
-      if (ham_indices[2*i] > boundary_index+48){ 
+      if (ham_indices[2*i] > boundary_index+48){
         ham_indices[2*i] = ham_indices[2*i] - 1;
-        new_list_of_terms[i][1] = ham_indices[2*i]; 
-      } 
+        new_list_of_terms[i][1] = ham_indices[2*i];
+      }
 
-      if (ham_indices[2*i+1] > boundary_index+48){ 
+      if (ham_indices[2*i+1] > boundary_index+48){
         ham_indices[2*i+1] = ham_indices[2*i+1] - 1;
-        new_list_of_terms[i][4] = ham_indices[2*i+1]; 
+        new_list_of_terms[i][4] = ham_indices[2*i+1];
       }
     }
 
     if (debug_qbos_) {
-      std::cout << "new_list_of_terms " << new_list_of_terms << std::endl; 
+      std::cout << "new_list_of_terms " << new_list_of_terms << std::endl;
     }
 
     std::string new_ham2;
@@ -1161,17 +1167,17 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     qn=qn-1; //reduce number of qubits
 
     // record index shift history
-    for (int w = 0; w < initial_qn; w++) { 
-      if (z_index_history[w][2*j] < boundary_index) { 
-        z_index_history[w][2*(j+1)] = z_index_history[w][2*j]; 
-      } else if (z_index_history[w][2*j] > boundary_index) { 
-        z_index_history[w][2*(j+1)] = z_index_history[w][2*j]-1; 
+    for (int w = 0; w < initial_qn; w++) {
+      if (z_index_history[w][2*j] < boundary_index) {
+        z_index_history[w][2*(j+1)] = z_index_history[w][2*j];
+      } else if (z_index_history[w][2*j] > boundary_index) {
+        z_index_history[w][2*(j+1)] = z_index_history[w][2*j]-1;
       }
     }
-    
+
     //sort ascending
-    for (int w = 0; w < initial_qn-1; w++) { 
-      if (z_index_history[w][2*(j+1)] > z_index_history[w+1][2*(j+1)]) { 
+    for (int w = 0; w < initial_qn-1; w++) {
+      if (z_index_history[w][2*(j+1)] > z_index_history[w+1][2*(j+1)]) {
         int l = z_index_history[w+1][2*(j+1)];
         z_index_history[w+1][2*(j+1)] = z_index_history[w][2*(j+1)];
         z_index_history[w][2*(j+1)] = l;
@@ -1180,17 +1186,17 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
 
     // make new ham
     //-----------------------------------------------------------------------------------------------------------------
-  
+
     ham = new_ham2;
     if (debug_qbos_) {
-      std::cout << "Hamiltonian after qubit reduction " << new_ham2 << std::endl; 
+      std::cout << "Hamiltonian after qubit reduction " << new_ham2 << std::endl;
     }
   }
 
   //end of recursion ==================================================================================================
   if (debug_qbos_) {
-    std::cout 
-      << "-------------------------------------------end of recursion ------------------------------------------------" 
+    std::cout
+      << "-------------------------------------------end of recursion ------------------------------------------------"
       << std::endl;
   }
 
@@ -1205,16 +1211,16 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     ham_counter++;
   }
 
-  // create new thetas 
+  // create new thetas
   int size_theta;
-  if (extended_param) { 
-    size_theta = (qn + ham_counter)*qaoa_step; 
-  } else { 
-    size_theta = 2*qaoa_step; 
+  if (extended_param) {
+    size_theta = (qn + ham_counter)*qaoa_step;
+  } else {
+    size_theta = 2*qaoa_step;
   }
 
   if (debug_qbos_) {
-      std::cout << "size_theta " << size_theta << std::endl; 
+      std::cout << "size_theta " << size_theta << std::endl;
   }
 
   std::vector<double> theta(size_theta);
@@ -1222,7 +1228,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     theta[l] = 0.25;          // set each element's value
   }
   if (debug_qbos_) {
-    std::cout << "Parameters to optimise [theta]: " << theta << std::endl; 
+    std::cout << "Parameters to optimise [theta]: " << theta << std::endl;
   }
   std::reverse(theta.begin(), theta.end());
 
@@ -1230,7 +1236,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   std::shared_ptr<Observable> observable = std::make_shared<xacc::quantum::PauliOperator>();
   observable->fromString(ham);
   if (debug_qbos_) {
-    std::cout << "final Hamiltonian " << ham << std::endl; 
+    std::cout << "final Hamiltonian " << ham << std::endl;
   }
 
   // Noise
@@ -1284,7 +1290,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
         {"parameter-scheme", "Standard"},
         {"accelerator", acc},
         {"observable", observable},
-        {"gradient_strategy", tgradient_strategy}, 
+        {"gradient_strategy", tgradient_strategy},
         {"optimizer", optim}
       }
     );
@@ -1302,11 +1308,11 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   const double opt_val = (*buffer)["opt-val"].as<double>();
 
   if (debug_qbos_) {
-    std::cout 
+    std::cout
       << "* Trace the number of iterations which should equal nChildren():"
       << std::endl;
-    std::cout 
-      << "* nChildren = " << buffer->nChildren() 
+    std::cout
+      << "* nChildren = " << buffer->nChildren()
       << std::endl;
   }
   const auto nIters = buffer->nChildren();
@@ -1320,7 +1326,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
 
   // Element 0 of the vector is the optimum value
   energies.insert(energies.begin(), opt_val);
-  
+
   for (auto &childBuff : buffer->getChildren()) {
     if (childBuff->hasExtraInfoKey("energy")) {
       double energy = (*childBuff)["energy"].as<double>();
@@ -1347,17 +1353,17 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   vec_to_map(res_energy, energies);
   (out_energys_.at(ii)).at(jj) = res_energy;
 
-  // Element 0 is where theta at the optimum is saved to 
-  auto opt_params = (*buffer)["opt-params"].as<std::vector<double>>();        
+  // Element 0 is where theta at the optimum is saved to
+  auto opt_params = (*buffer)["opt-params"].as<std::vector<double>>();
   std::reverse(opt_params.begin(), opt_params.end());
 
   if (debug_qbos_){
-    std::cout << "optimal params " << opt_params << std::endl; 
+    std::cout << "optimal params " << opt_params << std::endl;
   }
 
   std::vector<double> alliters_theta;
   alliters_theta.insert(alliters_theta.end(), opt_params.begin(), opt_params.end());
-    
+
   // theta parameters - store output
   // Save theta trace to: out_thetas_ [Table2d<std::map<int,double>>]
   int step = (buffer->nChildren()) / nIters;
@@ -1390,13 +1396,13 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
 
   // At the optimal theta, evaluate the QAOA ansatz and measure
   // a few shots - return the state that corresponds to the mode of the distribution
-        
+
   std::string targetCircuit;
   std::reverse(opt_params.begin(), opt_params.end());
   targetCircuit = measurement_circ(qn, qaoa_step, ham, extended_param, opt_params);
 
   // configure this single experiment run:
-  auto qpu = acc; 
+  auto qpu = acc;
   HeterogeneousMap mqbacc;
   mqbacc.insert("shots", 1024);
   qpu->updateConfiguration(mqbacc);
@@ -1433,7 +1439,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     }
   }
 
-  if (debug_qbos_) {  
+  if (debug_qbos_) {
     std::cout << "    Predicted eigenstate (assuming a classical Hamiltonian): " << guessedState << std::endl;
   }
 
@@ -1445,11 +1451,11 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   // populate reconstructed state according to the guessedState
 
   for (int s = 0; s < initial_qn; s++ ){
-    if (z_index_history[s][2*num_of_iterations] < 900000) { 
+    if (z_index_history[s][2*num_of_iterations] < 900000) {
       char elem = guessedState[s];
       int ielem = elem - '0';
-      reconstructed_state[z_index_history[s][2*num_of_iterations]] = ielem; 
-    } 
+      reconstructed_state[z_index_history[s][2*num_of_iterations]] = ielem;
+    }
   }
 
   for (int v = num_of_iterations; v > 0; v--){
@@ -1457,38 +1463,38 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     int removed_index;
 
     for (int s = 0; s < initial_qn; s++ ){
-      if (z_index_history[s][2*v-1] < 900000) { 
-        removed_index = z_index_history[s][2*v-1]; 
+      if (z_index_history[s][2*v-1] < 900000) {
+        removed_index = z_index_history[s][2*v-1];
         break;
-      } 
-    } 
+      }
+    }
 
     // shift the indices to the right from boundary
     for (int s = initial_qn - 2 ; s >= 0; s-- ){
-      if (s >= removed_index) { 
+      if (s >= removed_index) {
         reconstructed_state[s+1] = reconstructed_state[s];
-      } 
-    } 
+      }
+    }
 
     // find the second changed index
     int replacing_index;
 
     for (int s = removed_index+1; s < initial_qn; s++ ){
-      if (z_index_history[s][2*v-1] < 900000) { 
-        replacing_index = z_index_history[s][2*v-1]; 
+      if (z_index_history[s][2*v-1] < 900000) {
+        replacing_index = z_index_history[s][2*v-1];
         break;
-      } 
-    } 
+      }
+    }
 
     // add removed qubit in accordance to z_index_history (populate boundary index)
 
-    if (replacing_index > 0) { 
-      reconstructed_state[removed_index] = reconstructed_state[replacing_index]; 
-    } else if (replacing_index < 0) { 
-      if (reconstructed_state[abs(replacing_index)] == 1) { 
-        reconstructed_state[removed_index] = 0; 
+    if (replacing_index > 0) {
+      reconstructed_state[removed_index] = reconstructed_state[replacing_index];
+    } else if (replacing_index < 0) {
+      if (reconstructed_state[abs(replacing_index)] == 1) {
+        reconstructed_state[removed_index] = 0;
       } else if (reconstructed_state[abs(replacing_index)] == 0) {
-        reconstructed_state[removed_index] = 1; 
+        reconstructed_state[removed_index] = 1;
       }
     }
   }
@@ -1508,11 +1514,11 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     for (int i: reconstructed_state) {
         os << i;
     }
- 
+
   std::string reconstructed_state_str(os.str());
 
   //-------------------------------------------------------------------------------------------------------------------
-  
+
   if (out_eigenstates_.size() < (ii + 1)) {
     if (debug_qbos_) {
       std::cout << "Resizing ii: " << (ii + 1) << std::endl;
@@ -1526,11 +1532,11 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     (out_eigenstates_.at(ii)).resize(jj + 1);
   }
   (out_eigenstates_.at(ii)).at(jj) = reconstructed_state_str;
-  
+
   // Evaluate rQAOA at optimal theta, then observe it and get back a list of
   // kernels - these are then used to estimate the quantum execution
   // time for determining the cost function and the Jacobian of the cost function
-  
+
   std::shared_ptr<xacc::CompositeInstruction> kernel;
   xacc::HeterogeneousMap m;
   kernel = std::dynamic_pointer_cast<xacc::CompositeInstruction>(xacc::getService<Instruction>("qaoa"));
@@ -1543,7 +1549,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   else {
     m.insert("parameter-scheme", "Standard");
   }
-  
+
   kernel->expand(m);
 
   auto tmp_theta = opt_params;
@@ -1551,7 +1557,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
   auto evaled = kernel->operator()(tmp_theta);
   auto kernels = observable->observe(evaled);
 
-  
+
   // Instantiate Profiler - save to out_quantum_energy_calc_times_
   double accum_quantum_est_ms = 0.0;
   for (auto &kel : kernels) {
@@ -1626,7 +1632,7 @@ void QaoaRecursive::run(const size_t &ii, const size_t &jj) {
     (out_quantum_jacobian_calc_times_.at(ii)).at(jj) =
         res_quantum_jacobian_calc_time;
   }
-  
+
 }
 
 } // namespace op

@@ -1,6 +1,6 @@
 import qb.core
 import numpy as np
-import ast
+
 s = qb.core.session()
 s.init()
 
@@ -49,17 +49,13 @@ for c in range(4):
             s.output_oqm_enabled = False
             s.acc = "qsim"
             s.run()
-            result1 = s.out_raw_json[0][0]
-            res1 = ast.literal_eval(result1)
+            res = s.results[0][0]
 
             if c == 2:
                 expected_result = i-j
                 expected_result_bin = bin(expected_result)[2:].zfill(4)
-
-                expected_output = expected_result_bin + bin_j
-
-                assert(res1[expected_output] == 1024)
+                expected_output = [int(x) for x in (expected_result_bin + bin_j)]
+                assert(res[expected_output] == 1024)
             else:
-                expected_output = bin_i + bin_j
-
-                assert(res1[expected_output] == 1024)
+                expected_output = [int(x) for x in (bin_i + bin_j)]
+                assert(res[expected_output] == 1024)

@@ -50,5 +50,5 @@ for nb_qubits in qubits_range:
     s.qn = nb_qubits + 1
     s.instring = qbdj(nb_qubits)
     s.run()
-    print(s.out_raw[0][0])
+    print(s.results[0][0])
     print("==================================")

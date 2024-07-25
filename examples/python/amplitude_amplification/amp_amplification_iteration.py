@@ -1,11 +1,8 @@
 import qb.core
 import numpy as np
-import ast
-import matplotlib.pyplot as plt
+
 s = qb.core.session()
 s.init()
-
-NB_QUBITS = 1
 
 # This example demonstrates the concept of amplitude amplification iterations.
 # Here, we want to amplify the amplitude of |1> state (so-called marked state)
@@ -24,9 +21,9 @@ state_prep = qb.core.Circuit()
 state_prep.ry(0, epsilon)
 
 good_state_ampls = []
-print("iteration","\tprobability")
+print("iteration","\t probability","\t prediction")
 # Testing a varying number of iteration
-for i in range(1, 40, 1):
+for i in range(1, 41, 1):
     # Construct full amplitude amplification circuit:
     full_circuit = qb.core.Circuit()
     # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.
@@ -37,21 +34,7 @@ for i in range(1, 40, 1):
     # Run the full amplitude estimation procedure:
     s.ir_target = full_circuit
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
     # Calculate the probability of the marked state
-    good_count = int(res["1"])
+    good_count = int(s.results[0][0][[1]])
     good_state_ampls.append(good_count/1024)
-
-# Plot the results
-iterations = range(1, 40, 1)
-# Get analytical result for comparison
-probs_theory = [np.sin((2*mm+1)*epsilon/2)**2 for mm in iterations]
-
-# Plot the results
-plt.figure(figsize=(7,5))
-plt.plot(iterations, good_state_ampls, 'o')
-plt.plot(iterations, probs_theory)
-plt.xlabel('Number of Iterations')
-plt.ylabel('Probability of measuring flag qubit in |1>')
-plt.savefig('qaa.png')
+    print(i, "\t\t", good_state_ampls[-1], "\t", np.sin((2*i+1)*epsilon/2)**2)

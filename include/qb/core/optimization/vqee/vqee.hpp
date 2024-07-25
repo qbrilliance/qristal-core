@@ -29,21 +29,10 @@
 
 namespace qb::vqee {
 
-/// Overload to allow `std::cout << vector`
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& vec){
-  os<<'[';
-  for(auto& elem : vec) {
-    os<<elem<< ", ";
-  }
-  os << "\b\b]"; // Remove ", " from last element and close vector with "]". One character at the end is still to be overwritten
-  return os;
-}
-
 /// Variational Quantum Eigensolver (VQE) hybrid quantum-classical algorithm
 class VQEE {
 private:
-  const bool  isRoot_ {GetRank() == 0}; // is MPI master process? 
+  const bool  isRoot_ {GetRank() == 0}; // is MPI master process?
   const bool  isParallel_ {GetSize() >1};
   Params&     params_;
 
@@ -53,11 +42,11 @@ public:
   VQEE(Params& params) : params_{params} {}
 
 // - - - - - - member functions - - - - - - //
-private: 
+private:
   // Split a Pauli into multiple sub-Paulis according to a max number of terms constraint.
   std::vector<std::shared_ptr<xacc::quantum::PauliOperator>> splitPauli(std::shared_ptr<xacc::quantum::PauliOperator> &in_pauli, int nTermsPerSplit) const;
 
-  // helper constructors/initializers 
+  // helper constructors/initializers
   std::shared_ptr<xacc::Accelerator> getAccelerator(const std::string& accName) const;
   std::shared_ptr<xacc::CompositeInstruction> getAnsatz() const;
   std::shared_ptr<xacc::Observable> getObservable();
@@ -66,22 +55,22 @@ private:
 
   /**
    * @brief Locate the iteration that produced the optimum theta
-   * 
+   *
    * @return Index that matches the optimum iteration found by XACC
    */
   size_t getOptimumIterationE();
 
-  /** 
+  /**
    * @brief Create a text-art bar graph for energy and each element of theta.
    * The resultant visualisation is stored in params_.vis.
    * The iteration corresponding to the optimum is marked '**'.
-   * 
+   *
    * Colour markings:
    * Red - indicates the optimum iteration identified by XACC
    * Green - indicates an iteration with the same energy of the optimum energy
-   * 
+   *
    * Example output:
-   * 
+   *
    * Iteration 96
    * Energy         |################# -0.95
    * Theta
@@ -103,7 +92,7 @@ private:
    *        Element 1      |##################### 0.14*pi
    *        Element 2      |#################### 0.061*pi
    *        Element 3      |######################### 0.55*pi
-   * 
+   *
    * @param in_title A string to be used as a title before the text-art output
    * @param in_start_elem Index for the starting element within theta for which the next in_elem_n elements will be visualised
    * @param in_scale A scaling factor to adjust the size of the visual bar output
@@ -112,14 +101,14 @@ private:
    */
   void generateThetaEnergyVis(const std::string in_title, const size_t in_start_elem = 0, const int in_scale = 20,  const int in_width = 2, const int in_precision = 2);
 
-  /** 
+  /**
    * @brief Create a text-art bar graph for energy.
    * The resultant visualisation is stored in params_.vis.
    * The iteration corresponding to the optimum is marked '**'.
    * Values are displayed at the right extremity of each bar.
-   * The scaling of bars is based on the energy at the first iteration, and rescales as soon as 
+   * The scaling of bars is based on the energy at the first iteration, and rescales as soon as
    * the size of a bar in any iteration is zero.
-   * 
+   *
    * @param in_val An array with consecutive iterations separated by in_stride elements
    * @param in_title A string to be used as a title before the text-art output
    * @param in_stride The stride separating consecutive iterations

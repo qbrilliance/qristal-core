@@ -19,7 +19,7 @@ const std::unordered_set<std::string> VALID_AWS_FORMATS =
   "openqasm3"
 };
 
-// Valid range of qubits for AWS backends 
+// Valid range of qubits for AWS backends
 const std::unordered_map<std::string, std::pair<int, int>> AWS_QUBIT_LIMITS
 {
   {"DM1", {1, 17}},
@@ -27,7 +27,7 @@ const std::unordered_map<std::string, std::pair<int, int>> AWS_QUBIT_LIMITS
   {"TN1", {1, 48}}
 };
 
-// Valid range of shots for AWS backends 
+// Valid range of shots for AWS backends
 const std::unordered_map<std::string, std::pair<int, int>> AWS_SHOT_LIMITS
 {
   {"DM1", {1, 10000}},
@@ -38,10 +38,10 @@ const std::unordered_map<std::string, std::pair<int, int>> AWS_SHOT_LIMITS
 namespace qb
 {
 
-  void add_aws_braket_options(xacc::HeterogeneousMap& m, 
-                              YAML::Node& y, 
+  void add_aws_braket_options(xacc::HeterogeneousMap& m,
+                              YAML::Node& y,
                               const run_i_j_config& run_config)
-  {                         
+  {
     using namespace setting;
 
     if (run_config.acc_name == "aws-braket")
@@ -57,12 +57,12 @@ namespace qb
       if (m.get<std::string>("device").starts_with("Rigetti"))
       {
         optional<bool>("noise", false, y, m);
-        if (m.get<bool>("noise")) 
+        if (m.get<bool>("noise"))
         {
           std::ostringstream err;
           err << "Error in YAML snippet " << std::endl << y << std::endl
               << "Noise cannot be set to True when using a hardware backend.";
-          throw std::invalid_argument(err.str()); 
+          throw std::invalid_argument(err.str());
         }
       }
       else required<bool>("noise", y, m);
@@ -73,7 +73,7 @@ namespace qb
         std::ostringstream err;
         err << "Error in YAML snippet " << std::endl << y << std::endl
             << "The value of s3 must begin with \"amazon-braket\".";
-        throw std::invalid_argument(err.str()); 
+        throw std::invalid_argument(err.str());
       }
 
       // Check that requested number of qubits and shots is in range for the chosen device

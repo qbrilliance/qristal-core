@@ -6,15 +6,17 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Breaking
 
-- Renamed out_raws --> out_raws_json
+- Changed primary output type. The previous jsonised string outputs `out_raws` have now been superseded by a bit-order-agnostic `results` map of type `std::map<std::vector<bool>, int>`, presented in Python as a `dict`-ish opaquely bound type.  Qubits are now identified programmatically only by their indices in either a `std::vector<bool>` bitvector (in C++) or a `list[bool]` (in Python).  Printing bitvectors directly (via stream overloads or corresponding Python `__str__` methods) displays the highest-index bit to the left.
 - Renamed session.qb12() --> session.init()
 - Renamed python commands to retrieve and print state-vector
+- Removed multiple internal typedefs for STL types, and simplified opaque Python bindings for those types; most opaquely bound STL types' Python type names have changed.
 
 ### Added
 
+- Updated all examples and tests to use new output map format.
 - Use a dynamic check against the actual memory capabilities of the machine in use in order to decide when to populate the `out_counts` vector. This replaces the previous hardcoded limit of 32 qubits.
-- Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations. 
-- Added a custom pyGSTi model pack to the pyGSTi python examples for gate set tomography protocols using the QDK's native gate set: Rx(pi/2), Ry(pi/2), and CZ. 
+- Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations.
+- Added a custom pyGSTi model pack to the pyGSTi python examples for gate set tomography protocols using the QDK's native gate set: Rx(pi/2), Ry(pi/2), and CZ.
 - Adjusted the pyGSTi_runner.cpp and execute_GST_XYCZ.py examples to use the new custom model pack.
 
 ### Fixed
@@ -26,7 +28,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Ditched the qaoa-local `ValidationTwoDim` class in favour of central core version
 - Fixed a bug in `CircuitBuilder::append` where the variables in the appeded circuit would not be added to the original circuit.
 - Fixed a bug in `session` where the execution would fail if there were more free parameters than elements in the output probability vector.
-- Added a python binding for the parametrized `U3` gate. 
+- Added a python binding for the parametrized `U3` gate.
 
 
 ## [1.6.0] - 2024-06-18
@@ -42,10 +44,10 @@ Qristal is a full-stack SDK for quantum accelerators.
 ### Added
 
 - Added functions to transform arbitrary Eigen- and vector-based quantum process matrices to their Choi and Kraus representation.
-- Refactored qb::benchmark::Pauli and qb::benchmark::BlochSphereUnitState to the qb namespace in a standalone qb/core/primitives.hpp header to circumvent noise_channel dependencies to qb::benchmark. 
-- Added pyGSTi wrapper to qb::benchmark including a workflow executor (benchmark/workflows/PyGSTiBenchmark.hpp) and a results evaluator (benchmark/metrics/PyGSTiResults.hpp). Arbitrary pyGSTi experiment designs may now be exported and executed to qb::benchmark through PyGSTiBenchmark and then consecutively evaluated and printed in pyGSTi compatible format using PyGSTiResults. 
+- Refactored qb::benchmark::Pauli and qb::benchmark::BlochSphereUnitState to the qb namespace in a standalone qb/core/primitives.hpp header to circumvent noise_channel dependencies to qb::benchmark.
+- Added pyGSTi wrapper to qb::benchmark including a workflow executor (benchmark/workflows/PyGSTiBenchmark.hpp) and a results evaluator (benchmark/metrics/PyGSTiResults.hpp). Arbitrary pyGSTi experiment designs may now be exported and executed to qb::benchmark through PyGSTiBenchmark and then consecutively evaluated and printed in pyGSTi compatible format using PyGSTiResults.
 - Changed qb::benchmark::QuantumStateTomography to use the total number of shots provided by each measured circuit individually rather than taking the number of shots set in qb::session.
-- Added pyGSTi wrapper to qb::benchmark including a workflow executor (benchmark/workflows/PyGSTiBenchmark.hpp) and a results evaluator (benchmark/metrics/PyGSTiResults.hpp). Arbitrary pyGSTi experiment designs may now be exported and executed to qb::benchmark through PyGSTiBenchmark and then consecutively evaluated and printed in pyGSTi compatible format using PyGSTiResults. 
+- Added pyGSTi wrapper to qb::benchmark including a workflow executor (benchmark/workflows/PyGSTiBenchmark.hpp) and a results evaluator (benchmark/metrics/PyGSTiResults.hpp). Arbitrary pyGSTi experiment designs may now be exported and executed to qb::benchmark through PyGSTiBenchmark and then consecutively evaluated and printed in pyGSTi compatible format using PyGSTiResults.
 - Simplified qb_qpu hardware device class
 - Added sequential contraction method option for qb-mps, qb-purification and qb-mpdo measurement sampling.
 - Updated CUDA Quantum version to latest release (0.7.0) for cutensor2 support.
@@ -78,16 +80,16 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Restructured remote backend interfaces
 - Added HPC scheduler support: reserve QB hardware for exclusive access and send circuits to reserved hardware
 - Added installation of py_packages_path.cmake in order to facilitate relocatable builds
-- Added qb::benchmark namespace with modular, concept-based functionalities to execute arbitrary benchmarks 
+- Added qb::benchmark namespace with modular, concept-based functionalities to execute arbitrary benchmarks
 - Added dependency to serialization library "cereal" and added serialization wrappers for qb::session, measured bit string counts (given as qb::String), and complex dense Eigen matrices
 - Added data loading and generating engine connecting metric evaluation and workflow execution in a separate level of abstraction without introducing dependencies between metrics and workflows
 - Added simple circuit execution workflow wrapper for arbitrary quantum circuits (based on qb::CircuitBuilder)
 - Added standard SPAM benchmark workflow creating circuits that initialize all possible bit string states |0..0> to |1..1>
-- Added rotation sweep benchmark workflow creating circuits that apply single rotation gates Rx, Ry, Rz(, or Ri = I) to an arbitrary amount of qubits from a given start angle to an end angle for a given number of points 
-- Added standard quantum state tomography workflow wrapper for arbitrary (compatible) workflows, and measurement bases 
+- Added rotation sweep benchmark workflow creating circuits that apply single rotation gates Rx, Ry, Rz(, or Ri = I) to an arbitrary amount of qubits from a given start angle to an end angle for a given number of points
+- Added standard quantum state tomography workflow wrapper for arbitrary (compatible) workflows, and measurement bases
 - Added standard quantum process tomography workflow wrapper for arbitrary (compatible) workflows, measurement bases, and initialization state bases
-- Added classical circuit fidelity metric compatible with workflows that can generate measured and ideal bit string counts 
-- Added quantum state density metric compatible with quantum state tomography workflows that can generate measured bit strings and assemble density matrices from them 
+- Added classical circuit fidelity metric compatible with workflows that can generate measured and ideal bit string counts
+- Added quantum state density metric compatible with quantum state tomography workflows that can generate measured bit strings and assemble density matrices from them
 - Added quantum process matrix metric compatible with quantum process tomography workflows that can generate measured bit strings and assemble process matrices from them
 - Added quantum state fidelity metric compatible with workflows that can generate measured bit string results and ideal quantum densities
 - Added quantum process fidelity metric compatible with workflows that can generate measured bit string results and ideal quantum process matrices
@@ -112,7 +114,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Access to emulator tensor network parameters from session object
 - QML: Option to set the number of shots and seed in QMLExecutor python interface
 - QML: Fixed output dimensions for QML Python wrapper
-- Nextflow: ReadtheDocs now describes how to use Nextflow and Qristal together 
+- Nextflow: ReadtheDocs now describes how to use Nextflow and Qristal together
 - Build CUDA Quantum examples automatically
 
 ### Fixed
@@ -141,7 +143,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 ### Added
 
 - Adopted C++20 across the board, not just for CUDA Quantum mains.
-- Added the ability to choose CUDA Quantum backends at runtime rather than compile time. 
+- Added the ability to choose CUDA Quantum backends at runtime rather than compile time.
 - Transpilation: wrapping of gate angles to [-pi,pi] for native gates.
 - Transpilation: out_transpiled_circuit (OpenQASM 2.0) in native gates.
 - Profiler: counting number of gates and timing data after transpilation to the native gate set.
@@ -155,25 +157,25 @@ Qristal is a full-stack SDK for quantum accelerators.
 - swap_placement_pass and noise_aware_placement_pass: C++ and Python classes for circuit placement.
 - Noise models: improved API for user-defined noise models, with C++ and Python examples.
 - circuit_optimizer, redundancy_removal, two_qubit_squash, peephole_optimisation and simplify_initial circuit optimization passes.
-- Ability to set circuit optimization passes using the session's circuit_optimization property. 
+- Ability to set circuit optimization passes using the session's circuit_optimization property.
 - Ability to use CUDA Quantum simulator backends with non-CUDAQ kernels (e.g., OpenQASM or circuit builder).
 - Ability to use NoiseModel instances as input to the noise-aware placement pass.
-- Ability in XACC to compile architecture-independent code (useful for creation of universal Docker images). 
+- Ability in XACC to compile architecture-independent code (useful for creation of universal Docker images).
 
 ### Fixed
 
 - Better detection of system installation of TKET
 - Corner case issue with EXATN when using non-gcc compilers without OpenMP
-- Linking errors with CUDA Quantum C++ examples caused by update of CUDA Quantum version 
+- Linking errors with CUDA Quantum C++ examples caused by update of CUDA Quantum version
 - CMake error when spdlog is system installed but qasm_simulator is not.
 - Minor documentation fixes.
 - CUDA Quantum: upgrade to the latest main (commit hash 603affc).
 - Profiler: measurement operations are double-counted in the timing profile (one as gate and one as readout).
-- AWS accelerator: query backend devices and their Amazon Resource Names (ARNs) for Rigetti provider.  
-- Rename the XACC plugin for noise-aware IR transformation from "tket" to "noise-aware". 
+- AWS accelerator: query backend devices and their Amazon Resource Names (ARNs) for Rigetti provider.
+- Rename the XACC plugin for noise-aware IR transformation from "tket" to "noise-aware".
 - Harmonise install library dir name across different systems and dependencies (fixes lib vs lib64 issue)
 - Improved finding of installed dependencies with cmake.
-- Guarantee fixed-point format for real numbers in the XASM output of the QuantumBrillianceRemoteVisitor.  
+- Guarantee fixed-point format for real numbers in the XASM output of the QuantumBrillianceRemoteVisitor.
 - Harmonise run and run_async methods of the session class.
 - Fixed a bug in XACC - TKET rotation parameter conversion.
 

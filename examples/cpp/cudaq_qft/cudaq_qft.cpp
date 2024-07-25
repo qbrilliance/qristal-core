@@ -45,6 +45,6 @@ int main()
   std::cout << "Ran successfully!" << std::endl;
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.results()[0][0] << std::endl;
 
 }

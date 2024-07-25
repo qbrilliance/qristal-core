@@ -14,20 +14,20 @@
 using namespace qb::benchmark;
 
 TEST(QuantumStateFidelityTester, checkSPAM) {
-    const std::vector<size_t> qubits{0, 1};
+    const std::set<size_t> qubits{0, 1};
 
-    //define session  
-    qb::session sim(false); 
+    //define session
+    qb::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
 
-    //define workflow 
+    //define workflow
     SPAMBenchmark workflow(qubits, sim);
     QuantumStateTomography<SPAMBenchmark> qstworkflow(workflow);
 
-    //evaluate metric 
+    //evaluate metric
     QuantumStateFidelity<QuantumStateTomography<SPAMBenchmark>> metric(qstworkflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {
@@ -39,26 +39,26 @@ TEST(QuantumStateFidelityTester, checkSPAM) {
 }
 
 TEST(QuantumStateFidelityTester, checkRotationSweep) {
-    const std::vector<size_t> qubits{0, 1};
+    const std::set<size_t> qubits{0, 1};
 
-    //define session  
-    qb::session sim(false); 
+    //define session
+    qb::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
     sim.set_qn(qubits.size());
 
-    //define workflow 
+    //define workflow
     RotationSweep workflow(
-        std::vector<char>{'Y', 'Z'}, 
+        std::vector<char>{'Y', 'Z'},
         -90,
         +90,
-        6, 
+        6,
         sim
     );
     QuantumStateTomography<RotationSweep> qstworkflow(workflow, qubits);
 
-    //evaluate metric 
+    //evaluate metric
     QuantumStateFidelity<QuantumStateTomography<RotationSweep>> metric(qstworkflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {

@@ -6,7 +6,7 @@ import pytest
 def test_qpe():
     print(" Testing Quantum Phase Estimation ")
     import qb.core
-    import ast
+
     s = qb.core.session()
     s.init()
 
@@ -35,10 +35,8 @@ def test_qpe():
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    # Expect that the result is "1101" => estimate the phase value of -1.96349540849
-    good_count = int(res["1101"])
+    # Expect that the result is [1,1,0,1] => estimate the phase value of -1.96349540849
+    good_count = s.results[0][0][[1,1,0,1]]
     # Very high count
     assert (good_count > 1000)
 
@@ -46,7 +44,6 @@ def test_amcu():
     print("Testing Multi-Controlled-U With Ancilla")
     import numpy as np
     import qb.core
-    import ast
     s = qb.core.session()
     s.init()
 
@@ -60,9 +57,9 @@ def test_amcu():
         circ = qb.core.Circuit()
 
         # Prepare the input state
-        bitstring = bin(i)[2:].zfill(5)
+        bitstring = [int(bit) for bit in bin(i)[2:].zfill(num_qubits)]
         for j in range(num_qubits):
-            if bitstring[j] == "1":
+            if bitstring[j] == 1:
                 circ.x(j)
 
         # Add the amcu gate
@@ -80,21 +77,20 @@ def test_amcu():
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        result = s.out_raw_json[0][0]
-        res = ast.literal_eval(result)
+        res = s.results[0][0]
 
-        if bitstring == "11111":
-            assert("11110" in list(res.keys()))
-        elif bitstring == "11110":
-            assert("11111" in list(res.keys()))
+        if bitstring == [1,1,1,1,1]:
+            assert([1,1,1,1,0] in res)
+        elif bitstring == [1,1,1,1,0]:
+            assert([1,1,1,1,1] in res)
         else:
-            assert(bitstring in list(res.keys()))
+            assert(bitstring in res)
 
 def test_equality_checker():
     print(" Testing Equality Checker Circuit")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
 
@@ -132,13 +128,13 @@ def test_equality_checker():
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            result = s.out_raw_json[0][0]
-            res = ast.literal_eval(result)
+            res = s.results[0][0]
             # Check results
+            assert(len(res) == 1)
             if i == j:
-                assert("1" in list(res.keys()))
+                assert([1] in res)
             else:
-                assert("0" in list(res.keys()))
+                assert([0] in res)
 
 def test_canonical_ae():
     print(" Testing Canonical Quantum Amplitude Estimation ")
@@ -172,7 +168,7 @@ def test_controlled_swap():
     print("Testing controlled swap")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
 
@@ -221,17 +217,9 @@ def test_controlled_swap():
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(len(list(res.keys())) == 1)
-    output_measurement = list(res.keys())[0]
-
-    output_string = ""
-    for i in range(len(output_measurement)):
-        if output_measurement[i] == "0":
-            output_string += "a"
-        else:
-            output_string += "b"
+    res = s.results[0][0]
+    assert(len(res) == 1)
+    output_measurement = list(next(iter(res)))
 
     expected_string = ""
     num_b = 0
@@ -243,12 +231,12 @@ def test_controlled_swap():
     for i in range(num_b):
         expected_string += "b"
 
-    expected_measurement = ""
+    expected_measurement = []
     for i in range(len(expected_string)):
         if expected_string[i] == "a":
-            expected_measurement += "0"
+            expected_measurement.append(0)
         else:
-            expected_measurement += "1"
+            expected_measurement.append(1)
 
     assert(output_measurement == expected_measurement)
 
@@ -256,7 +244,7 @@ def test_controlled_addition():
     print("Testing controlled ripple carry adder")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
 
@@ -296,12 +284,11 @@ def test_controlled_addition():
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result1 = s.out_raw_json[0][0]
-    res1 = ast.literal_eval(result1)
-    assert(res1["000"] == 1024)
+    res = s.results[0][0]
+    assert(res[[0,0,0]] == 1024)
 
     ###
-    # Test 1: flag off
+    # Test 1: flag on
     ###
 
     circ2 = qb.core.Circuit()
@@ -326,15 +313,14 @@ def test_controlled_addition():
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result2 = s.out_raw_json[0][0]
-    res2 = ast.literal_eval(result2)
-    assert(res2["100"] == 1024)
+    res = s.results[0][0]
+    assert(res[[1,0,0]] == 1024)
 
 def test_generalised_mcx():
     print("Testing generalised MCX")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     s.sn = 1024
@@ -346,16 +332,16 @@ def test_generalised_mcx():
     # Expected outcomes:
 
     # - When the control qubits are required to be (on,on) then we expect
-    # |110> -> |111>, |111> -> |110>, and all other bit strings remain unchanged
+    # |011> -> |111>, |111> -> |011>, and all other bit strings remain unchanged
 
     # - When the control qubits are required to be (on,off) then we expect
-    # |100> -> |101>, |101> -> |100>, and all other bit strings remain unchanged
+    # |001> -> |101>, |101> -> |001>, and all other bit strings remain unchanged
 
     # - When the control qubits are required to be (off,on) then we expect
-    # |010> -> |011>, |011> -> |010>, and all other bit strings remain unchanged
+    # |010> -> |110>, |110> -> |010>, and all other bit strings remain unchanged
 
     # - When the control qubits are required to be (off,off) then we expect
-    # |000> -> |001>, |001> -> |000>, and all other bit strings remain unchanged
+    # |000> -> |100>, |100> -> |000>, and all other bit strings remain unchanged
 
     control_qubits = [0, 1]
     target_qubit = 2
@@ -392,17 +378,17 @@ def test_generalised_mcx():
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            result = s.out_raw_json[0][0]
-            res = ast.literal_eval(result)
-            expected_output = input_bitstring[0:2]
+            res = s.results[0][0]
+            expected_output = [int(x) for x in input_bitstring[0:2]]
             if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:
                 if input_bitstring[2] == "0":
-                    expected_output += "1"
+                    expected_output.append(1)
                 else:
-                    expected_output += "0"
+                    expected_output.append(0)
             else:
-                expected_output += input_bitstring[2]
-            assert(list(res.keys())[0] == expected_output)
+                expected_output.append(int(input_bitstring[2]))
+            assert(len(res) == 1)
+            assert(list(next(iter(res))) == expected_output)
             assert(res[expected_output] == 1024)
 
 def test_MLQAE():
@@ -415,6 +401,7 @@ def test_MLQAE():
     import qb.core
     from qb.core import run_MLQAE
     import ast
+
     s = qb.core.session()
     s.init()
     p = 0.24
@@ -449,7 +436,7 @@ def test_qaa():
     print(" Testing Quantum Amplitude Amplification (Grover's algorithm) ")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     oracle = qb.core.Circuit()
@@ -481,16 +468,14 @@ def test_qaa():
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        result = s.out_raw_json[0][0]
-        res = ast.literal_eval(result)
+        res = s.results[0][0]
         # Calculate the probability of the marked state
         good_count = 0
         # Must check if "1" is present
         # (with a small number of amplification rounds,
         # the amplitude of |1> may still be very small)
-        if "1" in list(res.keys()):
-            good_count = int(res["1"])
-
+        if [1] in res:
+            good_count = res[[1]]
         good_state_ampls.append(good_count/1024)
 
     # Check the result
@@ -503,7 +488,7 @@ def test_ripple_adder():
     print(" Testing Ripple Carry Adder Circuit ")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     # Testing a simple integer adding, checking the full truth table.
@@ -545,20 +530,18 @@ def test_ripple_adder():
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            result = s.out_raw_json[0][0]
-            res = ast.literal_eval(result)
+            res = s.results[0][0]
             # Expected sum result
             expected = i + j
-            expected_bit_string = f'{expected:0{3}b}'[::-1]
-            assert(expected_bit_string in list(res.keys()))
-            count = int(res[expected_bit_string])
-            assert(count == 1024)
+            expected_bit_string = [int(x) for x in f'{expected:0{3}b}'[::-1]]
+            assert(len(res) == 1)
+            assert(expected_bit_string == list(next(iter(res))))
+            assert(res[expected_bit_string] == 1024)
 
 def test_ripple_adder_superposition():
     print(" Testing Ripple Carry Adder Circuit for superposition ")
     import qb.core
     import numpy as np
-    import ast
     s = qb.core.session()
     s.init()
     # Let's do a 2-qubit adder
@@ -590,16 +573,14 @@ def test_ripple_adder_superposition():
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
     # Expected sum result to be a superposition of 4 values:
-    assert(len(list(res.keys())) == 4)
+    assert(len(s.results[0][0]) == 4)
 
 def test_comparator():
     print("Testing quantum bit string comparator")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
 
@@ -649,24 +630,21 @@ def test_comparator():
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            result = s.out_raw_json[0][0]
-            res = ast.literal_eval(result)
-            #print("Result:\n", result)
 
-            # Get results
+            res = s.results[0][0]
             if j > i:
-                expected_bit_string = "1"
+                expected_bit_string = [1]
             if j <= i:
-                expected_bit_string = "0"
-            assert(expected_bit_string in list(res.keys()))
-            count = int(res[expected_bit_string])
-            assert(count == 1024)
+                expected_bit_string = [0]
+            assert(len(res) == 1)
+            assert(expected_bit_string == list(next(iter(res))))
+            assert(res[expected_bit_string] == 1024)
 
 def test_efficient_encoding():
     print("Testing Efficient Encoding")
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
 
@@ -709,20 +687,17 @@ def test_efficient_encoding():
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    #print("Result:\n", result)
 
-    # get results
-    measurements = list(res.keys())
-    allowed_outputs = ['000000', '111111']
-    for measurement in measurements:
-        assert(measurement in allowed_outputs)
+    # Get results
+    res = s.results[0][0]
+    allowed_outputs = [[0,0,0,0,0,0], [1,1,1,1,1,1]]
+    for measurement in res:
+        assert(list(measurement) in allowed_outputs)
 
 def test_compare_beam_oracle():
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.acc = "aer"
     s.sn = 1024
@@ -753,19 +728,12 @@ def test_compare_beam_oracle():
     circ.measure(q0)
     circ.measure(q1)
     circ.measure(q2)
-    #circ.print()
 
     #Run
-    #result = circ.execute()
-    #res = ast.literal_eval(result)
-    #print(res)
-    #assert("010" in res["AcceleratorBuffer"]["Measurements"])
     s.instring = circ.openqasm()
     s.run()
-    #print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(res["010"] == 1024)
+    res = s.results[0][0]
+    assert(res[[0,1,0]] == 1024)
 
     ##########################################################################
     #Test 2: SA = |1111>, FA = |01>, FB = |01>
@@ -796,15 +764,13 @@ def test_compare_beam_oracle():
     #Run
     s.instring = circ.openqasm()
     s.run()
-    #print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(res["111"] == 1024)
+    res = s.results[0][0]
+    assert(res[[1,1,1]] == 1024)
 
 def test_multiplication():
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.acc = "qsim"
     s.sn = 1024
@@ -837,8 +803,6 @@ def test_multiplication():
     for i in range(len(qubits_result)):
         circ.measure(qubits_result[i])
 
-    #circ.print()
-
     # Run circuit
     s.ir_target = circ
     s.nooptimise = True
@@ -846,15 +810,12 @@ def test_multiplication():
     s.notiming = True
     s.output_oqm_enabled = False
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    # print(res)
-    assert(res["10111100"] == 1024)
+    res = s.results[0][0]
+    assert(res[[1,0,1,1,1,1,0,0]] == 1024)
 
 def test_controlled_multiplication():
     import qb.core
     import numpy as np
-    import ast
     s = qb.core.session()
     s.acc = "qsim"
     s.sn = 1024
@@ -890,8 +851,6 @@ def test_controlled_multiplication():
     for i in range(len(qubits_result)):
         circ.measure(qubits_result[i])
 
-    #circ.print()
-
     # Run circuit
     s.ir_target = circ
     s.nooptimise = True
@@ -899,14 +858,11 @@ def test_controlled_multiplication():
     s.notiming = True
     s.output_oqm_enabled = False
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    #print(res)
-    assert(res["10111100"] == 1024)
+    res = s.results[0][0]
+    assert(res[[1,0,1,1,1,1,0,0]] == 1024)
 
 def test_inverse_circuit():
     import qb.core
-    import ast
 
     s = qb.core.session()
     s.init()
@@ -930,14 +886,13 @@ def test_inverse_circuit():
 
     s.ir_target = circ
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert(res["0000"] == 1024)
+    res = s.results[0][0]
+    assert(res[[0,0,0,0]] == 1024)
 
 def test_subtraction():
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     s.qn = 7
@@ -981,21 +936,17 @@ def test_subtraction():
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    result1 = s.out_raw_json[0][0]
-    res1 = ast.literal_eval(result1)
-    # print(res1)
+    res = s.results[0][0]
 
     expected_result = i-j
     expected_result_bin = bin(expected_result)[2:].zfill(3)
-
-    expected_output = expected_result_bin + bin_j
-
-    assert(res1[expected_output] == 1024)
+    expected_output = [int(x) for x in (expected_result_bin + bin_j)]
+    assert(res[expected_output] == 1024)
 
 def test_controlled_subtraction():
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     s.qn = 8
@@ -1042,21 +993,17 @@ def test_controlled_subtraction():
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    result1 = s.out_raw_json[0][0]
-    res1 = ast.literal_eval(result1)
-    # print(res1)
+    res = s.results[0][0]
 
     expected_result = i-j
     expected_result_bin = bin(expected_result)[2:].zfill(3)
-
-    expected_output = expected_result_bin + bin_j
-
-    assert(res1[expected_output] == 1024)
+    expected_output = [int(x) for x in (expected_result_bin + bin_j)]
+    assert(res[expected_output] == 1024)
 
 def test_proper_fraction_division():
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     s.qn = 11
@@ -1079,7 +1026,6 @@ def test_proper_fraction_division():
     # Prepare initial state
     bin_i = bin(i)[2:].zfill(2)
     bin_j = bin(j)[2:].zfill(2)
-
 
     for k in range(2):
         if bin_i[k] == '1':
@@ -1105,17 +1051,10 @@ def test_proper_fraction_division():
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
-    # s.debug = True
     s.acc = "qsim"
     s.run()
-    result1 = s.out_raw_json[0][0]
-    res1 = ast.literal_eval(result1)
-
-    # res = circ.execute("sparse-sim", 1024, 34)
-    # res1 = ast.literal_eval(res)["AcceleratorBuffer"]["Measurements"]
-
-    print(res1)
-    assert(len(res1) == 1)
+    res = s.results[0][0]
+    assert(len(res) == 1)
 
     if j != 0:
         expected_result = i/j
@@ -1135,12 +1074,12 @@ def test_proper_fraction_division():
     for bit in qubits_ancilla:
         expected_output += "0"
 
-    assert(res1[expected_output] == 1024)
+    assert(res[[int(x) for x in expected_output]] == 1024)
 
 def test_controlled_proper_fraction_division():
     import qb.core
     import numpy as np
-    import ast
+
     s = qb.core.session()
     s.init()
     s.qn = 12
@@ -1166,7 +1105,6 @@ def test_controlled_proper_fraction_division():
     bin_j = bin(j)[2:].zfill(2)
 
     circ.x(controls_on[0])
-
 
     for k in range(2):
         if bin_i[k] == '1':
@@ -1194,10 +1132,8 @@ def test_controlled_proper_fraction_division():
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    result1 = s.out_raw_json[0][0]
-    res1 = ast.literal_eval(result1)
-    assert(len(res1) == 1)
-    # print(res1)
+    res = s.results[0][0]
+    assert(len(res) == 1)
 
     if j != 0:
         expected_result = i/j
@@ -1217,11 +1153,10 @@ def test_controlled_proper_fraction_division():
     for k in range(len(qubits_ancilla)):
         expected_output += "0"
 
-    assert(res1[expected_output] == 1024)
+    assert(res[[int(x) for x in expected_output]] == 1024)
 
 def test_compare_gt():
     import qb.core
-    import ast
 
     s = qb.core.session()
     s.init()
@@ -1260,8 +1195,7 @@ def test_compare_gt():
     s.sn = 1024
     s.acc = "qsim"
     s.run()
-    result1 = s.out_raw_json[0][0]
-    res1 = ast.literal_eval(result1)
+    res = s.results[0][0]
 
     expected_output = a_bin + b_bin
     if i > j:
@@ -1270,5 +1204,5 @@ def test_compare_gt():
         expected_output += "0"
     expected_output += "0"
 
-    assert(res1[expected_output] == 1024)
+    assert(res[[int(x) for x in expected_output]] == 1024)
 

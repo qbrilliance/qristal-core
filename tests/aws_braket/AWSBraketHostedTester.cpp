@@ -20,7 +20,7 @@ std::shared_ptr<qb::async_job_handle> run_async_internal(qb::session& s, const s
 };
 
 TEST(AWSBraketHostedTester, Simple) {
-  std::cout << "Executing AWSBraketHosted SimpleSV1 test" << std::endl;
+  std::cout << "Executing AWSBraketHosted C++ test" << std::endl;
   // Create a simple Bell state circuit.
   qb::CircuitBuilder my_circuit;
   my_circuit.H(0);
@@ -28,14 +28,17 @@ TEST(AWSBraketHostedTester, Simple) {
   my_circuit.MeasureAll(2);
   pybind11::scoped_interpreter guard{};
   // Start a QB SDK session
-  auto s = qb::session(true);
+  auto s = qb::session(false);
+  // 2 qubits, 100 shots
+  s.set_qn(2);
+  s.set_sn(100);
   // Set the input circuit
   s.set_irtarget_m(my_circuit.get());
-  // Set up AWS defaults with 2 qubits, 100 shots, 32 workers)
-  s.aws_setup(2, 100, 32);
+  // Set up AWS defaults with 32 workers
+  s.aws_setup(32);
   // Load the AWS settings from the remote backends file, make a copy for each accelerator, run and print results
   auto db = YAML::LoadFile("remote_backends.yaml");
-  for (const std::string x : {"SV1", "DM1", "TN1"}) //"Rigetti"}) // Rigetti commented out as devices are not available on Braket at the time of writing. 
+  for (const std::string x : {"SV1", "DM1", "TN1"}) //"Rigetti"}) // Rigetti commented out as devices are not available on Braket at the time of writing.
   {
     db["aws-braket"]["device"] = x;
     std::ofstream fout("remote_backends_"+x+".yaml");
@@ -47,6 +50,6 @@ TEST(AWSBraketHostedTester, Simple) {
     };
     // Get results
     std::cout << x << " ran successfully!" << std::endl;
-    std::cout << s.get_out_raws_json()[0][0] << std::endl;
+    std::cout << s.results()[0][0] << std::endl;
   }
 }

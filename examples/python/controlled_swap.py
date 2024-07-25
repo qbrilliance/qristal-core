@@ -1,6 +1,6 @@
 import qb.core
 import numpy as np
-import ast
+
 s = qb.core.session()
 s.init()
 
@@ -50,14 +50,13 @@ s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-result1 = s.out_raw_json[0][0]
-res1 = ast.literal_eval(result1)
-assert(len(list(res1.keys())) == 1)
-output_measurement = list(res1.keys())[0]
+res = s.results[0][0]
+assert(len(res) == 1)
+output_measurement = list(next(iter(res)))
 
 output_string = ""
-for i in range(len(output_measurement)):
-    if output_measurement[i] == "0":
+for x in output_measurement:
+    if x == 0:
         output_string += "a"
     else:
         output_string += "b"
@@ -72,12 +71,12 @@ for i in range(len(input_string) - num_b):
 for i in range(num_b):
     expected_string += "b"
 
-expected_measurement = ""
+expected_measurement = []
 for i in range(len(expected_string)):
     if expected_string[i] == "a":
-        expected_measurement += "0"
+        expected_measurement.append(0)
     else:
-        expected_measurement += "1"
+        expected_measurement.append(1)
 
 assert(output_measurement == expected_measurement)
 

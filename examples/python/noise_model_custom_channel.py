@@ -45,7 +45,7 @@ def ring_noise_model(nb_qubits):
     # Set the corresponding two-qubit gate fidelities
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cx_error), "cx", [qId, qId2])
     noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cx_error), "cx", [qId2, qId])
-  
+
   return noise_model
 
 
@@ -87,7 +87,7 @@ def main(arguments):
   my_sim.run()
 
   # Lookee
-  print(my_sim.out_raw_json[0][0])
+  print(my_sim.results[0][0])
 
 #Actual program launched on invocation
 main(sys.argv)

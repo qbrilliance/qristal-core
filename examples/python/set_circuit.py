@@ -1,6 +1,6 @@
 import qb.core
 import numpy as np
-import ast
+
 import timeit
 s = qb.core.session()
 s.init()
@@ -33,7 +33,5 @@ circ.measure_all()
 s.ir_target = circ
 s.run()
 
-results = s.out_raw_json[0][0]
-res = ast.literal_eval(results)
-assert(res["110"] == 1024)
-print("success")
+assert(s.results[0][0][[1,1,0]] == 1024)
+print("Success")

@@ -48,7 +48,6 @@ for i in range(0,4):
         # s.run()
 
         # Get results
-        # result = s.out_raw_json[0][0]
         result = circ.execute()
         res = ast.literal_eval(result)["AcceleratorBuffer"]["Measurements"]
         if j > i:
@@ -104,12 +103,8 @@ for i in range(0,4):
         s.run()
 
         # Get results
-        result = s.out_raw_json[0][0]
-        res = ast.literal_eval(result)
         if j > i:
-            expected_bit_string = "1"
+            expected_bit_string = [1]
         if j <= i:
-            expected_bit_string = "0"
-        assert(expected_bit_string in list(res.keys()))
-        count = int(res[expected_bit_string])
-        assert(count == 1024)
+            expected_bit_string = [0]
+        assert(s.results[0][0][expected_bit_string] == 1024)

@@ -1,6 +1,5 @@
 import qb.core
 import numpy as np
-import ast
 s = qb.core.session()
 s.acc = "qpp"
 s.sn = 1024
@@ -37,16 +36,10 @@ circ.measure(q2)
 # circ.print()
 
 #Run
-# result = circ.execute()
-# res = ast.literal_eval(result)
-# print(res)
-# assert("010" in res["AcceleratorBuffer"]["Measurements"])
 s.ir_target = circ
 s.run()
-print(s.out_raw_json[0])
-result = s.out_raw_json[0][0]
-res = ast.literal_eval(result)
-assert(res["010"] == 1024) #assert("010" in list(res.keys()))
+print(s.results[0][0])
+assert(s.results[0][0][(0,1,0)] == 1024)
 
 ##########################################################################
 #Test 2: SA = |1111>, FA = |01>, FB = |01>
@@ -75,13 +68,7 @@ circ.measure(q1)
 circ.measure(q2)
 
 #Run
-# result = circ.execute()
-# res = ast.literal_eval(result)
-# print(res)
-# assert("111" in res["AcceleratorBuffer"]["Measurements"])
 s.ir_target = circ
 s.run()
-print(s.out_raw_json[0])
-result = s.out_raw_json[0][0]
-res = ast.literal_eval(result)
-assert(res["111"] == 1024) #assert("010" in list(res.keys()))
+print(s.results[0][0])
+assert(s.results[0][0][[1,1,1]] == 1024)

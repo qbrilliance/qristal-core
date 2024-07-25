@@ -9,7 +9,7 @@ def test_CI_210826_1_init_check_qn_equals_12() :
     import qb.core
     s = qb.core.session()
     s.init()
-    assert (s.qn[0][0]) == 12, "[QB SDK] Failed test: CI_210826_1_init_check_qn_equals_12"
+    assert (s.qn[0][0] == 12)
 
 def test_CI_210826_2_init_check_sn_equals_1024() :
     print("* CI_210826_2_init_check_sn_equals_1024:")
@@ -17,33 +17,31 @@ def test_CI_210826_2_init_check_sn_equals_1024() :
     import qb.core
     s = qb.core.session()
     s.init()
-    assert (s.sn[0][0]) == 1024, "[QB SDK] Failed test: CI_210826_2_init_check_sn_equals_1024"
+    assert (s.sn[0][0] == 1024)
 
 def test_CI_210826_4_init_random_5() :
     print("* CI_210826_4_init_random_5:")
-    print("* With default init settings, with the Aer backend, run a depth 5 circuit, check the length of the out_raw_json dictionary is >0")
+    print("* With default init settings, with the Aer backend, run a depth 5 circuit, check the length of the results map is >0")
     import qb.core, ast
     s = qb.core.session()
     s.init()
     s.random = 5
     s.acc = 'aer'
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_4_init_random_5 - Aer"
+    res = s.results[0][0]
+    assert (len(res) > 0)
 
 def test_CI_210826_5_init_random_5() :
     print("* CI_210826_5_init_random_5:")
-    print("* With default init settings, with the qpp backend, run a depth 3 circuit, check the length of the out_raw_json dictionary is >0")
+    print("* With default init settings, with the qpp backend, run a depth 3 circuit, check the length of the results map is >0")
     import qb.core, ast
     s = qb.core.session()
     s.init()
     s.random = 3
     s.acc = 'qpp'
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys()))) > 0, "[QB SDK] Failed test: CI_210826_5_init_random_5 - qpp"
+    res = s.results[0][0]
+    assert (len(res) > 0)
 
 def test_CI_210826_6_init_random_0() :
     print("* CI_210826_4_init_random_0:")
@@ -66,16 +64,15 @@ def test_CI_210826_7_init_random_minus_one() :
 
 def test_CI_210826_8_init_random_256() :
     print("* CI_210826_8_init_random_256:")
-    print("* With default init settings, run a depth 256 circuit, check the length of the out_raw_json dictionary is >0")
+    print("* With default init settings, run a depth 256 circuit, check the length of the results map is >0")
     import qb.core, ast
     s = qb.core.session()
     s.init()
     s.acc = "aer"
     s.random = 256
     s.run()
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys()))) > 0, "[QB SDK] failed test: CI_210826_8_init_random_256"
+    res = s.results[0][0]
+    assert (len(res) > 0)
 
 def test_CI_210826_9_qn_minus_one() :
     print("* CI_210826_9_qn_minus_one:")
@@ -152,7 +149,7 @@ def test_CI_210826_14_qbtheta_parameters() :
     mth[1] = -0.7
     s.theta[0] = qb.core.VectorMapIntDouble([mth])
     s.run()
-   
+
     # Recompile the transpiled qasm to check
     import xacc, math
     compiler = xacc.getCompiler("staq")
@@ -188,10 +185,9 @@ def test_raw_openqasm_str():
     s.init()
     s.instring = circ.openqasm()
     s.run()
-    print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys())) == 2)
+    res = s.results[0][0]
+    print(res)
+    assert (len(res) == 2)
 
 def test_raw_openqasm_file():
     print(" Testing raw OpenQASM file input ")
@@ -203,10 +199,9 @@ def test_raw_openqasm_file():
     s.infile = dir_path + "/test_openqasm.qasm"
     s.init()
     s.run()
-    print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys())) == 2)
+    res = s.results[0][0]
+    print(res)
+    assert (len(res) == 2)
 
 def test_raw_openqasm_custom_qreg_names():
     print(" Testing raw OpenQASM input using different qreg variable names")
@@ -224,10 +219,9 @@ def test_raw_openqasm_custom_qreg_names():
     measure qa1_bb[1] -> c[1];
     '''
     s.run()
-    print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys())) == 2)
+    res = s.results[0][0]
+    print(res)
+    assert (len(res) == 2)
 
     s.instring = '''
     OPENQASM 2.0;
@@ -240,10 +234,9 @@ def test_raw_openqasm_custom_qreg_names():
     measure q1[1] -> c[1];
     '''
     s.run()
-    print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys())) == 2)
+    res = s.results[0][0]
+    print(res)
+    assert (len(res) == 2)
 
     s.instring = '''
     OPENQASM 2.0;
@@ -256,7 +249,6 @@ def test_raw_openqasm_custom_qreg_names():
     measure qb_reg123[1] -> c[1];
     '''
     s.run()
-    print(s.out_raw_json[0])
-    result = s.out_raw_json[0][0]
-    res = ast.literal_eval(result)
-    assert (len(list(res.keys())) == 2)
+    res = s.results[0][0]
+    print(res)
+    assert (len(res) == 2)

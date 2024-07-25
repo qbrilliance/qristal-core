@@ -1,5 +1,4 @@
 import qb.core
-import ast
 
 s = qb.core.session()
 s.init()
@@ -38,8 +37,7 @@ for i in range(32):
         s.sn = 1024
         s.acc = "qsim"
         s.run()
-        result1 = s.out_raw_json[0][0]
-        res1 = ast.literal_eval(result1)
+        res = s.results[0][0]
 
         expected_output = a_bin + b_bin
         if i > j:
@@ -48,4 +46,4 @@ for i in range(32):
             expected_output += "0"
         expected_output += "0"
 
-        assert(res1[expected_output] == 1024)
+        assert(res[[int(x) for x in expected_output]] == 1024)

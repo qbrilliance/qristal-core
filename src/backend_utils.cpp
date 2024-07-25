@@ -22,7 +22,7 @@ namespace qb
     std::string substitute_environment_vars(std::string s)
     {
       // Keep looping until there are no more environment variables left
-      while (s.find("$") != std::string::npos) 
+      while (s.find("$") != std::string::npos)
       {
         // Extract the environment variable.  If the $ is followed by opening curly braces, read only to their close
         const std::regex rgx1("\\$\\{([^\\s\\$]+?)\\}"), rgx2("\\$(\\S+)");
@@ -53,7 +53,7 @@ namespace qb
   // Note: this dict is a 'kitchen sink' of all configurations.
   // The xacc::Accelerator may or may not use these configurations.
   xacc::HeterogeneousMap backend_config(const YAML::Node& rbdb, const run_i_j_config& run_config)
-  { 
+  {
     xacc::HeterogeneousMap m;
 
     // Generic options
@@ -75,7 +75,7 @@ namespace qb
 
     // If successful, use it to populate the remote backend settings
     if (be_info)
-    {     
+    {
       // Backend-specific options
       if (run_config.acc_name=="aws-braket") {
         add_aws_braket_options(m, be_info, run_config);
@@ -84,7 +84,7 @@ namespace qb
         add_qb_hardware_options(m, be_info, run_config);
       }
     }
-    
+
     return m;
   }
 

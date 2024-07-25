@@ -206,11 +206,11 @@ void QaoaBase::set_optimum_energy_abstol(const std::map<int,double> &in_optimum_
   QaoaBase::optimum_energy_abstols_.clear();
   QaoaBase::optimum_energy_abstols_.push_back({in_optimum_energy_abstol});
 }
-void QaoaBase::set_optimum_energy_abstols(const Table2d<std::map<int,double>> &in_optimum_energy_abstols) { 
-  QaoaBase::optimum_energy_abstols_ = in_optimum_energy_abstols; 
+void QaoaBase::set_optimum_energy_abstols(const Table2d<std::map<int,double>> &in_optimum_energy_abstols) {
+  QaoaBase::optimum_energy_abstols_ = in_optimum_energy_abstols;
 }
-const Table2d<std::map<int,double>> & QaoaBase::get_optimum_energy_abstols() const { 
-  return QaoaBase::optimum_energy_abstols_; 
+const Table2d<std::map<int,double>> & QaoaBase::get_optimum_energy_abstols() const {
+  return QaoaBase::optimum_energy_abstols_;
 }
 
 // optimum_energy_lowerbound
@@ -219,10 +219,10 @@ void QaoaBase::set_optimum_energy_lowerbound(const std::map<int,double> &in_opti
   QaoaBase::optimum_energy_lowerbounds_.push_back({in_optimum_energy_lowerbound});
 }
 void QaoaBase::set_optimum_energy_lowerbounds(const Table2d<std::map<int,double>> &in_optimum_energy_lowerbounds) {
-  QaoaBase::optimum_energy_lowerbounds_ = in_optimum_energy_lowerbounds; 
+  QaoaBase::optimum_energy_lowerbounds_ = in_optimum_energy_lowerbounds;
 }
-const Table2d<std::map<int,double>> & QaoaBase::get_optimum_energy_lowerbounds() const { 
-  return QaoaBase::optimum_energy_lowerbounds_; 
+const Table2d<std::map<int,double>> & QaoaBase::get_optimum_energy_lowerbounds() const {
+  return QaoaBase::optimum_energy_lowerbounds_;
 }
 
 // out_eigenstate
@@ -264,10 +264,10 @@ void QaoaBase::set_out_quantum_energy_calc_time(const std::map<int,double> &out_
   QaoaBase::out_quantum_energy_calc_times_.push_back({out_quantum_energy_calc_time});
 }
 void QaoaBase::set_out_quantum_energy_calc_times(const Table2d<std::map<int,double>> &out_quantum_energy_calc_times) {
-  QaoaBase::out_quantum_energy_calc_times_ = out_quantum_energy_calc_times; 
+  QaoaBase::out_quantum_energy_calc_times_ = out_quantum_energy_calc_times;
 }
-const Table2d<std::map<int,double>> & QaoaBase::get_out_quantum_energy_calc_times() const { 
-  return QaoaBase::out_quantum_energy_calc_times_; 
+const Table2d<std::map<int,double>> & QaoaBase::get_out_quantum_energy_calc_times() const {
+  return QaoaBase::out_quantum_energy_calc_times_;
 }
 
 // out_quantum_jacobian_calc_time
@@ -275,11 +275,11 @@ void QaoaBase::set_out_quantum_jacobian_calc_time(const std::map<int,double> &ou
   QaoaBase::out_quantum_jacobian_calc_times_.clear();
   QaoaBase::out_quantum_jacobian_calc_times_.push_back({out_quantum_jacobian_calc_time});
 }
-void QaoaBase::set_out_quantum_jacobian_calc_times(const Table2d<std::map<int,double>> &out_quantum_jacobian_calc_times) { 
-  QaoaBase::out_quantum_jacobian_calc_times_ = out_quantum_jacobian_calc_times; 
+void QaoaBase::set_out_quantum_jacobian_calc_times(const Table2d<std::map<int,double>> &out_quantum_jacobian_calc_times) {
+  QaoaBase::out_quantum_jacobian_calc_times_ = out_quantum_jacobian_calc_times;
 }
-const Table2d<std::map<int,double>> & QaoaBase::get_out_quantum_jacobian_calc_times() const { 
-  return QaoaBase::out_quantum_jacobian_calc_times_; 
+const Table2d<std::map<int,double>> & QaoaBase::get_out_quantum_jacobian_calc_times() const {
+  return QaoaBase::out_quantum_jacobian_calc_times_;
 }
 
 // out_classical_energy_jacobian_total_calc_time
@@ -287,11 +287,11 @@ void QaoaBase::set_out_classical_energy_jacobian_total_calc_time(const std::map<
   QaoaBase::out_classical_energy_jacobian_total_calc_times_.clear();
   QaoaBase::out_classical_energy_jacobian_total_calc_times_.push_back({out_classical_energy_jacobian_total_calc_time});
 }
-void QaoaBase::set_out_classical_energy_jacobian_total_calc_times(const Table2d<std::map<int,double>> &out_classical_energy_jacobian_total_calc_times) { 
-  QaoaBase::out_classical_energy_jacobian_total_calc_times_ = out_classical_energy_jacobian_total_calc_times; 
+void QaoaBase::set_out_classical_energy_jacobian_total_calc_times(const Table2d<std::map<int,double>> &out_classical_energy_jacobian_total_calc_times) {
+  QaoaBase::out_classical_energy_jacobian_total_calc_times_ = out_classical_energy_jacobian_total_calc_times;
 }
-const Table2d<std::map<int,double>> & QaoaBase::get_out_classical_energy_jacobian_total_calc_times() const { 
-  return QaoaBase::out_classical_energy_jacobian_total_calc_times_; 
+const Table2d<std::map<int,double>> & QaoaBase::get_out_classical_energy_jacobian_total_calc_times() const {
+  return QaoaBase::out_classical_energy_jacobian_total_calc_times_;
 }
 
 // Start of help text
@@ -364,8 +364,8 @@ const char* QaoaBase::help_qaoa_steps_ = R"(
 )";
 
 const char* QaoaBase::help_accs_ = R"(
-        acc: 
-        
+        acc:
+
         Valid settings: "aer" | "tnqvm" | "qpp"
 
         Select a back-end simulator.
@@ -630,7 +630,7 @@ std::string QaoaBase::measurement_circ(
 
 
   auto qaoa_ansatz = xacc::createComposite(
-    "qaoa", 
+    "qaoa",
     {
       {"nbQubits", n_qubits},
       {"nbSteps", qaoa_steps},
@@ -641,7 +641,7 @@ std::string QaoaBase::measurement_circ(
 
   if (extended_param) {
     qaoa_ansatz = xacc::createComposite(
-      "qaoa", 
+      "qaoa",
       {
         {"nbQubits", n_qubits},
         {"nbSteps", qaoa_steps},
@@ -653,19 +653,19 @@ std::string QaoaBase::measurement_circ(
 
   std::vector<double> param_rv = params;
   std::reverse(param_rv.begin(), param_rv.end());
-  
+
   qaoa_ansatz = qaoa_ansatz->operator()(param_rv);
-  
+
   // building the circuit:
   std::stringstream circuit;
-  
+
   // qaoa_ansatz = qaoa_ansatz->operator()(params);
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto xasm_str = xasmCompiler->translate(qaoa_ansatz);
-  
+
   // Removes '}' at the end of the ansatz
   circuit << xasm_str.substr(0, xasm_str.length() - 2) << std::endl;
-  
+
   // Add measurement lines to ansatz circuit
   for (int i = (n_qubits - 1); i >= 0; i--) {
     circuit << "Measure(q[" << i << "]);" << std::endl;
@@ -736,9 +736,9 @@ void QaoaBase::run() {
     el.resize(N_jj);
   }
 
-  acc_uses_lsbs_.clear();
-  acc_uses_lsbs_.resize(N_ii);
-  for (auto el : acc_uses_lsbs_) {
+  acc_outputs_qbit0_left_.clear();
+  acc_outputs_qbit0_left_.resize(N_ii);
+  for (auto el : acc_outputs_qbit0_left_) {
     el.resize(N_jj);
   }
 

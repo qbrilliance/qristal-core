@@ -12,7 +12,7 @@
 #include "qb/core/typedefs.hpp"
 #include "qb/core/session.hpp"
 
-#include <string> 
+#include <string>
 #include <ctime>
 #include <concepts>
 #include <fstream>
@@ -36,8 +36,8 @@ namespace qb
         using ArchiveOut = cereal::BinaryOutputArchive;
 
         /**
-        * @brief Concept for serializable container @tparam Container into archives @tparam Archives 
-        * 
+        * @brief Concept for serializable container @tparam Container into archives @tparam Archives
+        *
         * @details Each serializable data object needs to be able to load from and save to a serialized archive. This concept enforces the corresponding member functions load, save, and dump
         */
         template <typename Container, typename Archive>
@@ -49,34 +49,34 @@ namespace qb
 
         /**
         * @brief Templated function to load data from a serialized container into a payload data structure
-        * 
-        * Arguments: 
-        * @param identifier the unique string identifier of the executed workflow 
-        * @param specifier the unique string specifier of the serialized data 
+        *
+        * Arguments:
+        * @param identifier the unique string identifier of the executed workflow
+        * @param specifier the unique string specifier of the serialized data
         * @param timestamps a std::vector of time stamps std::time_t to load.
 
         * @return std::vector<Payload> a std::vector of the loaded data structures in the form of Payload objects.
-        * 
-        * @details This member function will assemble filenames for each requested timestamp and read in the stored and serialized data from std::ifstream using the templated load function. 
+        *
+        * @details This member function will assemble filenames for each requested timestamp and read in the stored and serialized data from std::ifstream using the templated load function.
         */
         template< typename Container, typename Payload >
         requires Serializable<Container, ArchiveIn>
-        inline std::vector<Payload> load_data( const std::string& identifier, const std::string& specifier, const std::vector<std::time_t>& timestamps) { 
+        inline std::vector<Payload> load_data( const std::string& identifier, const std::string& specifier, const std::vector<std::time_t>& timestamps) {
             std::vector<Payload> data;
             for ( const auto& ts : timestamps ) { //for each timestamp
-                //(1) assemble filename from identifier and timestamp 
+                //(1) assemble filename from identifier and timestamp
                 std::stringstream ss;
                 ss << SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME << "/" << identifier << specifier << ts << ".bin";
 
                 //(2) read in data
-                std::ifstream in; 
+                std::ifstream in;
                 in.open(ss.str());
-                ArchiveIn input(in); 
+                ArchiveIn input(in);
                 Container dataPoint{};
                 dataPoint.template load< ArchiveIn >(input);
-                in.close(); 
+                in.close();
 
-                //(3) store 
+                //(3) store
                 data.push_back(dataPoint.dump());
             }
             return data;
@@ -84,28 +84,28 @@ namespace qb
 
         /**
         * @brief Templated function to save data (in the form of a Payload) to a serialized container
-        * 
-        * Arguments: 
-        * @param identifier the unique string identifier of the executed workflow 
+        *
+        * Arguments:
+        * @param identifier the unique string identifier of the executed workflow
         * @param specifier the unique string specifier of the serialized data+
-        * @param payload the data to be stored 
+        * @param payload the data to be stored
         * @param time the std::time_t time stampe associated with the creation of the payload.
 
         * @return ---
-        * 
-        * @details This member function will assemble a filename based on the provided identifier, specifier, and timestamp, and write the stored data, i.e., the payload, to a serialized archive via std::ofstream. 
+        *
+        * @details This member function will assemble a filename based on the provided identifier, specifier, and timestamp, and write the stored data, i.e., the payload, to a serialized archive via std::ofstream.
         */
         template< typename Container, typename Payload >
         requires Serializable<Container, ArchiveOut>
-        inline void save_data( const std::string& identifier, const std::string& specifier, const Payload& payload, const std::time_t time ) { 
+        inline void save_data( const std::string& identifier, const std::string& specifier, const Payload& payload, const std::time_t time ) {
             std::stringstream ss;
             ss << SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME << "/" << identifier << specifier << time << ".bin";
-            std::ofstream file; 
+            std::ofstream file;
             file.open(ss.str());
-            ArchiveOut output(file); 
+            ArchiveOut output(file);
             Container data(payload);
             data.template save< ArchiveOut >(output);
-            file.close(); 
+            file.close();
         }
 
 
@@ -114,17 +114,17 @@ namespace qb
         // - - - SessionInfo - - - //
         /**
         * @brief Container object for qb::session
-        * 
+        *
         * @details This class wraps around qb::session and stores the relevant information, i.e., accelerator names, noise mitigation models, number of qubits, and number of shots. It provides save, load, and dump member functions as required by the Serializable concept.
         */
         class SessionInfo
         {
-            public: 
+            public:
                 SessionInfo() {}
-                SessionInfo(const qb::session& session) : 
+                SessionInfo(const qb::session& session) :
                     accs_(session.get_accs()),
-                    noise_mitigations_(session.get_noise_mitigations()), 
-                    qns_(session.get_qns()), 
+                    noise_mitigations_(session.get_noise_mitigations()),
+                    qns_(session.get_qns()),
                     sns_(session.get_sns())
                 {
                     //store noise model info as json string
@@ -137,22 +137,22 @@ namespace qb
                     }
                 }
 
-                qb::Table2d<std::string> accs_, noise_mitigations_; 
+                qb::Table2d<std::string> accs_, noise_mitigations_;
                 std::vector<std::vector<std::string>> noise_models_; //stored in json format
                 qb::Table2d<size_t> qns_, sns_;
 
                 /**
                 * @brief Dump function to copy SessionInfo object
-                * 
+                *
                 * Arguments: ---
-                * 
-                * @return SessionInfo copy of *this 
+                *
+                * @return SessionInfo copy of *this
                 */
                 SessionInfo dump() const { return *this; }
 
                 /**
                 * @brief Store SessionInfo to templated @tparam Archive
-                * 
+                *
                 * Arguments:
                 * @param ar cereal archive where information is stored.
                 */
@@ -164,7 +164,7 @@ namespace qb
 
                 /**
                 * @brief Load SessionInfo from templated @tparam Archive
-                * 
+                *
                 * Arguments:
                 * @param ar cereal archive from which information is read in.
                 */
@@ -180,73 +180,30 @@ namespace qb
 
 
         // - - - BitCounts - - - //
-        /**
-        * @brief Helper function to convert from bit string counts from std::string to std::map<std::string, size_t>
-        * 
-        * Arguments:
-        * @param bitstrings bit string counts of type std::string
-        * @param n_qubits number of qubits.
-        * 
-        * @return Converted bit string counts in std::map<std::string, size_t> container.
-        */
-        std::map<std::string, size_t> convert_to_counts_map(const std::string& bitstrings, const size_t n_qubits); 
-        /**
-        * @brief Helper function to convert from bit string counts from std::string to std::map<size_t, size_t>
-        * 
-        * Arguments:
-        * @param bitstrings bit string counts of type std::string.
-        * @param n_qubits number of qubits.
-        * @param r2l_ordered assumed qubit ordering. If true, least significant bit is assumed to be on the very right.
-        * 
-        * @return Converted bit string counts in std::map<size_t, size_t> container.
-        */
-        std::map<size_t, size_t> convert_to_counts_map(const std::string& bitstrings, const size_t n_qubits, const bool r2l_ordered); 
-        /**
-        * @brief Helper function to convert list of bit string counts from std::vector<std::string> to std::vector<std::map<std::string, size_t>>
-        * 
-        * Arguments:
-        * @param list_of_bitstrings collection of bit string counts of type std::vector<std::string> as returned by qb::session.
-        * @param n_qubits number of qubits.
-        * 
-        * @return Converted bit string counts in std::vector<std::map<std::string, size_t>> container.
-        */
-        std::vector<std::map<std::string, size_t>> convert_to_count_maps(const std::vector<std::string>& list_of_bitstrings, const size_t n_qubits);
-        /**
-        * @brief Helper function to convert list of bit string counts from std::vector<std::string> to std::vector<std::map<size_t, size_t>>
-        * 
-        * Arguments:
-        * @param list_of_bitstrings collection of bit string counts of type std::vector<std::string> as returned by qb::session.
-        * @param n_qubits number of qubits.
-        * @param r2l_ordered assumed qubit ordering. If true, least significant bit is assumed to be on the very right.
-        * 
-        * @return Converted bit string counts in std::vector<std::map<size_t, size_t>> container.
-        */
-        std::vector<std::map<size_t, size_t>> convert_to_count_maps(const std::vector<std::string>& list_of_bitstrings, const size_t n_qubits, const bool r2l_ordered);
-
-        /**
+         /**
         * @brief Container object for bit string counts from std::vector<std::string>
-        * 
+        *
         * @details This class wraps around std::vector<std::string> and provides save, load, and dump member functions as required by the Serializable concept.
         */
         class BitCounts
         {
             public:
                 BitCounts() {}
-                BitCounts( const std::vector<std::string>& results ) : results_(results) {}
-                std::vector<std::string> results_{};
+                BitCounts( const std::vector<std::map<std::vector<bool>, int>>& results ) : results_(results) {}
+                std::vector<std::map<std::vector<bool>, int>> results_{};
 
                 /**
                 * @brief Dump function to copy BitCounts content
-                * 
+                *
                 * Arguments: ---
-                * 
-                * @return std::vector<std::string> copy of stored bit string counts. 
+                *
+                * @return std::vector<std::string> copy of stored bit string counts.
                 */
-                std::vector<std::string> dump() const { return results_; }
+                std::vector<std::map<std::vector<bool>, int>> dump() const { return results_; }
 
                 /**
                 * @brief Store BitCounts to templated @tparam Archive
-                * 
+                *
                 * Arguments:
                 * @param ar cereal archive where information is stored.
                 */
@@ -257,7 +214,7 @@ namespace qb
 
                 /**
                 * @brief Load BitCounts from templated @tparam Archive
-                * 
+                *
                 * Arguments:
                 * @param ar cereal archive from which information is read in.
                 */
@@ -270,38 +227,38 @@ namespace qb
         template void BitCounts::save<ArchiveOut>( ArchiveOut& ) const; //explicitly instantiate
         template void BitCounts::load<ArchiveIn >( ArchiveIn& );
 
-        // - - - Density matrices - - - // 
-        using ComplexMatrix = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>;
+        // - - - Density matrices - - - //
+        using ComplexMatrix = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
         /**
         * @brief Container object for complex matrices.
-        * 
+        *
         * @details This class wraps around Eigen::Matrix<std::complex<double, Eigen::Dynamic, Eigen::Dynamic>> used for density and process matrices and provides save, load, and dump member functions as required by the Serializable concept.
         */
-        class ComplexMatrices 
+        class ComplexMatrices
         {
-            public: 
+            public:
                 ComplexMatrices() {}
                 ComplexMatrices(const std::vector<ComplexMatrix>& densities) : densities_(densities) {}
-                std::vector<ComplexMatrix> densities_; 
+                std::vector<ComplexMatrix> densities_;
 
                 /**
                 * @brief Dump function to copy ComplexMatrices content
-                * 
+                *
                 * Arguments: ---
-                * 
-                * @return std::vector<ComplexMatrix> copy of stored complex matrices. 
+                *
+                * @return std::vector<ComplexMatrix> copy of stored complex matrices.
                 */
                 std::vector<ComplexMatrix> dump() const { return densities_; }
 
                 /**
                 * @brief Store ComplexMatrices to templated @tparam Archive
-                * 
+                *
                 * Arguments:
                 * @param ar cereal archive where information is stored.
-                * 
+                *
                 * @details The stored Eigen matrices are serialized in the following format: Number of matrices, for each matrix: number of rows, number of columns, matrix elements in row-major indexing
                 */
-                template <typename Archive> 
+                template <typename Archive>
                 void save( Archive& ar ) const {
                     ar(densities_.size());
                     for ( auto const & d : densities_ ) {
@@ -315,16 +272,16 @@ namespace qb
 
                 /**
                 * @brief Load ComplexMatrices from templated @tparam Archive
-                * 
+                *
                 * Arguments:
                 * @param ar cereal archive from which information is read in.
-                * 
+                *
                 * @details Starts by reading in the total number of matrices, then the number of rows and columns for each matrix, initializes an Eigen::Matrix object and fills its content by reading in matrix elements in row-major ordering.
                 */
-                template <typename Archive> 
+                template <typename Archive>
                 void load( Archive& ar ) {
-                    size_t n_matrices; 
-                    ar(n_matrices); //read in number of stored density matrices 
+                    size_t n_matrices;
+                    ar(n_matrices); //read in number of stored density matrices
                     for (size_t i = 0; i < n_matrices; ++i) {
                         size_t rows, cols; //read in dimensions of the matrix to initialize
                         ar(rows);
@@ -332,20 +289,20 @@ namespace qb
                         ComplexMatrix mat(rows, cols);
                         for (size_t row = 0; row < rows; ++row)
                             for (size_t col = 0; col < cols; ++col) {
-                                std::complex<double> temp; 
+                                std::complex<double> temp;
                                 ar(temp);
                                 mat(row, col) = temp;
                             }
                         densities_.push_back(mat);
                     }
 
-                    
+
                 }
         };
 
         template void ComplexMatrices::save<ArchiveOut>( ArchiveOut& ) const; //explicitly instantiate
         template void ComplexMatrices::load<ArchiveIn >( ArchiveIn& );
-  
+
 
         // - - - New wrappers go here - - - //
         // ...

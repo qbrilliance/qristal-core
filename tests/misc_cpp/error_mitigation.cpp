@@ -34,8 +34,8 @@ TEST(TestErrorMitigation, test_readout_error_mitigation) {
   auto iter = s.get_out_z_op_expects()[0][0].find(0);
   EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
   const double exp_val = iter->second;
-  std::vector<int> out_counts = s.get_out_counts()[0][0];
-  double raw_exp_val = (out_counts[0] - out_counts[1]) / (1.0 * n_shots);
+  const auto& res = s.results()[0][0];
+  double raw_exp_val = (res.at({0}) - res.at({1})) / (1.0 * n_shots);
   std::cout << "Error mitigated exp-val = " << exp_val
             << " vs. raw exp-val = " << raw_exp_val << "\n";
   // Ideal result is -1.0 (|1> state)

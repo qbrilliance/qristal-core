@@ -5,20 +5,19 @@ print("First, import libraries...")
 import qb.core
 import numpy as np
 import timeit
-import ast
 print("Libraries imported successfully!")
 s = qb.core.session()
 s.init()
 
 print("In this example we want to use amplitude amplification to search for")
-print("the state |psi> = |101> - |011> within the equal superposition state.")
+print("the state |psi> = |101> - |110> within the equal superposition state.")
 
 print("Begin demonstration!")
 # Target search state:
-# |psi> = |101> - |011>
+# |psi> = |101> - |110>
 # Hence, the oracle is f = CZ q0, q2; CZ q1, q2,
 # because:
-# f |psi> = -|101> + |011> = -|psi>
+# f |psi> = -|101> + |110> = -|psi>
 NB_QUBITS = 3
 
 print("First define the oracle. In this case the oracle is:\n")
@@ -64,16 +63,15 @@ print("Running circuit...")
 start = timeit.default_timer()
 s.ir_target = full_circuit
 s.run()
-result = s.out_raw_json[0][0]
-res = ast.literal_eval(result)
 end = timeit.default_timer()
 print("Circuit executed!")
 
 
 print("Now let's see the results. We want to measure the state |psi>,")
-print("so we expect measurements of '101' and '011' to dominate.")
+print("so we expect measurements of '101' and '110' to dominate.")
 
-print("Result:\n", res)
+print("Result:")
+print(s.results[0][0])
 
 print("Success!")
 

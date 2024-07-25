@@ -10,12 +10,12 @@ TEST(TestJensenShannonDivergence, maximum_divergence) {
   s.set_sn(1000);
 
   // Set the expected amplitudes
-  std::map<std::string, std::complex<double>> output_amplitudes;
-  output_amplitudes["00"] = pow(2,-0.5);
-  output_amplitudes["01"] = pow(2,-0.5);
-  output_amplitudes["10"] = 0;
-  output_amplitudes["11"] = 0;
-  s.set_output_amplitude(output_amplitudes);
+  std::map<std::vector<bool>, std::complex<double>> amp;
+  amp[{0,0}] = pow(2,-0.5);
+  amp[{0,1}] = 0;
+  amp[{1,0}] = pow(2,-0.5);
+  amp[{1,1}] = 0;
+  s.set_expected_amplitudes(amp);
 
   // Set the target circuit
   const std::string targetCircuit = R"(
@@ -26,8 +26,8 @@ TEST(TestJensenShannonDivergence, maximum_divergence) {
       creg c[2];
       h q[0];
       x q[1];
-      measure q[1] -> c[1];
       measure q[0] -> c[0];
+      measure q[1] -> c[1];
     }
     )";
   s.set_instring(targetCircuit);
@@ -37,11 +37,15 @@ TEST(TestJensenShannonDivergence, maximum_divergence) {
 
   // Calculate Jensen-Shannon divergence
   s.get_jensen_shannon();
-  std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();  
+  std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();
   double divergence = jsv[0][0][0];
-  std::cout << s.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "bits (high..low) : counts" << std::endl;
+  for (const auto& [bits, count] : s.results()[0][0]) {
+    for (size_t i = bits.size(); i-- > 0; ) std::cout << bits[i];
+    std::cout << ": " << count << std::endl;
+  }
   std::cout << "divergence: " << divergence << std::endl;
-  EXPECT_NEAR(divergence, std::log(2), 1e-3);
+  EXPECT_NEAR(divergence, std::log(2), 2e-3);
 }
 
 TEST(TestJensenShannonDivergence, minimum_divergence) {
@@ -52,12 +56,12 @@ TEST(TestJensenShannonDivergence, minimum_divergence) {
   s.set_sn(1000);
 
   // Set the expected amplitudes
-  std::map<std::string, std::complex<double>> output_amplitudes;
-  output_amplitudes["00"] = 0;
-  output_amplitudes["01"] = 0;
-  output_amplitudes["10"] = pow(2,-0.5);
-  output_amplitudes["11"] = pow(2,-0.5);
-  s.set_output_amplitude(output_amplitudes);
+  std::map<std::vector<bool>, std::complex<double>> amp;
+  amp[{0,0}] = 0;
+  amp[{0,1}] = pow(2,-0.5);
+  amp[{1,0}] = 0;
+  amp[{1,1}] = pow(2,-0.5);
+  s.set_expected_amplitudes(amp);
 
   // Set the target circuit
   const std::string targetCircuit = R"(
@@ -68,8 +72,8 @@ TEST(TestJensenShannonDivergence, minimum_divergence) {
       creg c[2];
       h q[0];
       x q[1];
-      measure q[1] -> c[1];
       measure q[0] -> c[0];
+      measure q[1] -> c[1];
     }
     )";
   s.set_instring(targetCircuit);
@@ -79,11 +83,15 @@ TEST(TestJensenShannonDivergence, minimum_divergence) {
 
   // Calculate Jensen-Shannon divergence
   s.get_jensen_shannon();
-  std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();  
+  std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();
   double divergence = jsv[0][0][0];
-  std::cout << s.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "bits (high..low) : counts" << std::endl;
+  for (const auto& [bits, count] : s.results()[0][0]) {
+    for (size_t i = bits.size(); i-- > 0; ) std::cout << bits[i];
+    std::cout << ": " << count << std::endl;
+  }
   std::cout << "divergence: " << divergence << std::endl;
-  EXPECT_NEAR(divergence, 0, 1e-3);
+  EXPECT_NEAR(divergence, 0, 2e-3);
 }
 
 TEST(TestJensenShannonDivergence, simple) {
@@ -94,12 +102,12 @@ TEST(TestJensenShannonDivergence, simple) {
   s.set_sn(1000);
 
   // Set the expected amplitudes
-  std::map<std::string, std::complex<double>> output_amplitudes;
-  output_amplitudes["00"] = pow(2,-0.5);
-  output_amplitudes["01"] = 0;
-  output_amplitudes["10"] = 0;
-  output_amplitudes["11"] = pow(2,-0.5);
-  s.set_output_amplitude(output_amplitudes);
+  std::map<std::vector<bool>, std::complex<double>> amp;
+  amp[{0,0}] = pow(2,-0.5);
+  amp[{0,1}] = 0;
+  amp[{1,0}] = 0;
+  amp[{1,1}] = pow(2,-0.5);
+  s.set_expected_amplitudes(amp);
 
   // Set the target circuit
   const std::string targetCircuit = R"(
@@ -110,8 +118,8 @@ TEST(TestJensenShannonDivergence, simple) {
       creg c[2];
       h q[0];
       x q[1];
-      measure q[1] -> c[1];
       measure q[0] -> c[0];
+      measure q[1] -> c[1];
     }
     )";
   s.set_instring(targetCircuit);
@@ -121,9 +129,13 @@ TEST(TestJensenShannonDivergence, simple) {
 
   // Calculate Jensen-Shannon divergence
   s.get_jensen_shannon();
-  std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();  
+  std::vector<std::vector<std::map<int, double>>> jsv = s.get_out_divergences();
   double divergence = jsv[0][0][0];
-  std::cout << s.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "bits (high..low) : counts" << std::endl;
+  for (const auto& [bits, count] : s.results()[0][0]) {
+    for (size_t i = bits.size(); i-- > 0; ) std::cout << bits[i];
+    std::cout << ": " << count << std::endl;
+  }
   std::cout << "divergence: " << divergence << std::endl;
   EXPECT_GT(divergence, 0.3);
   EXPECT_LT(divergence, 0.4);

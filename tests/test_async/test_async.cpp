@@ -17,7 +17,13 @@
   //msg << "thread " << std::this_thread::get_id() <<" finished run_async" << std::endl; std::cout << msg.str(); msg.str("");
     s.get_executor().release(std::move(qpu));
   //msg << "thread " << std::this_thread::get_id() <<" released"<< std::endl; std::cout << msg.str(); msg.str("");
-    return s.get_out_raws_json()[i][j];
+    std::ostringstream out;
+    for (const auto& [bits, count] : s.results()[i][j])
+    {
+      for (size_t i = bits.size(); i-- > 0; ) out << bits[i];
+      out << ": " << count << std::endl;
+    }
+    return out.str();
   };
 
 
@@ -32,9 +38,9 @@ int main()
   // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
   s.init();
 
-  std::size_t nWorkers  = 1;
-  std::size_t nJobs   = 200; //nWorkers*20;
-  std::size_t nOuterLoops = 1;//50;
+  std::size_t nWorkers  = 2;
+  std::size_t nJobs   = nWorkers*5;
+  std::size_t nOuterLoops = 2;
 
   std::size_t nThreads = 1;
   qb::thread_pool::set_num_threads(nThreads);
@@ -170,7 +176,7 @@ int main()
     std::vector<std::string> results{};
     for (std::size_t i = 0; i<nJobs; ++i){
       results.push_back(futures[i].get());
-      //std::cout << "\tresults[" << i << "]:\n" << results[i] << std::endl;
+      std::cout << "\tresults[" << i << "]:\n" << results[i] << std::endl;
       if (results[i].empty()){
         std::cout << "\tresults[" << i << "] is empty!" << std::endl;
       }

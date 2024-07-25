@@ -28,8 +28,9 @@ def test_simple():
     my_sim.run()
 
     # Print the cumulative results in each of the classical registers
-    print("Results:\n", my_sim.out_raw_json[0][0])
-    res = ast.literal_eval(my_sim.out_raw_json[0][0])
+    res = my_sim.results[0][0]
+    print("Results:")
+    print(res)
     # only 00 and 11 are expected
     assert (len(res) == 2)
-    assert (res["00"] + res["11"] == 1024)
+    assert (res[[0,0]] + res[[1,1]] == 1024)

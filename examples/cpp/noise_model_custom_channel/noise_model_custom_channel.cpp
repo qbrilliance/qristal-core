@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 /**
  * This example shows how to make your own noise model.
- */ 
+ */
 
 
 #include "qb/core/session.hpp"
@@ -12,7 +12,7 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits)
 {
     // Make an empty noise model
     qb::NoiseModel noise_model;
-  
+
     // Name the model whatever you like
     noise_model.name = "ring_noise_model";
 
@@ -46,12 +46,12 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits)
         noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx", {qId, qId2});
         noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx", {qId2, qId});
     }
-    
+
     return noise_model;
 }
 
 
-int main(int argc, char * argv[]) 
+int main(int argc, char * argv[])
 {
     qb::session my_sim;
 
@@ -62,16 +62,16 @@ int main(int argc, char * argv[])
     my_sim.init();
 
     // Set the number of qubits
-    my_sim.set_qn(n);               
+    my_sim.set_qn(n);
 
     // Aer simulator selected
-    my_sim.set_acc("aer");          
+    my_sim.set_acc("aer");
 
     // Set this to true to include noise
-    my_sim.set_noise(true);  
-    
+    my_sim.set_noise(true);
+
     // Hand over the noise model to the session.
-    my_sim.set_noise_model(ring_noise_model(n));  
+    my_sim.set_noise_model(ring_noise_model(n));
 
     // Define the kernel
     my_sim.set_instring(R"(
@@ -88,8 +88,7 @@ int main(int argc, char * argv[])
     my_sim.run();
 
     // Lookee.
-    std::string result = ((my_sim.get_out_raws_json()).at(0)).at(0);
-    std::cout << result << std::endl;
+    std::cout << my_sim.results()[0][0] << std::endl;
 
     // Bye.
     return 0;

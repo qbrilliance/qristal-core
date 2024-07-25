@@ -107,7 +107,7 @@ namespace qb
 {
   /// Default session constructor
   session::session()
-      : debug_(false), name_m{{}}, number_m{{}}, infiles_{{}},
+      : name_m{{}}, number_m{{}}, infiles_{{}},
         include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
         remote_backend_database_path_{SDK_DIR "/remote_backends.yaml"},
         instrings_{{}}, irtarget_ms_{{}}, accs_{{"qpp"}},
@@ -116,12 +116,11 @@ namespace qb
         nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
         output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
         notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-        calc_jacobians_{{{false}}}, thetas_{{}}, parameter_vectors_{{{}}},
+        calc_out_counts_{{{false}}}, calc_jacobians_{{{false}}}, thetas_{{}}, parameter_vectors_{{{}}},
         initial_bond_dimensions_{{}}, initial_kraus_dimensions_{{}}, max_bond_dimensions_{{}},
         max_kraus_dimensions_{{}}, svd_cutoffs_{{}}, rel_svd_cutoffs_{{}}, noise_models_{{}},
-        acc_uses_lsbs_{{{}}}, acc_uses_n_bits_{{{}}}, output_amplitudes_{{}},
-        //out_raws_json_{{{}}}, out_raws_map_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
-        out_raws_json_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
+        acc_outputs_qbit0_left_{{{}}}, acc_uses_n_bits_{{{}}}, expected_amplitudes_{{}},
+        results_{{{}}}, out_probs_{{{}}}, out_counts_{{{}}},
         out_divergences_{{{}}}, out_transpiled_circuits_{{{}}}, out_qobjs_{{{}}},
         out_qbjsons_{{{}}}, out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
@@ -143,6 +142,7 @@ namespace qb
     name_m.push_back({name});
   }
   session::session(const bool debug) : session() { debug_ = debug; }
+  session::session(const bool debug, const bool msb) : session() { debug_ = debug; out_counts_ordered_by_MSB_ = msb; }
 
   /**
     Desc:
@@ -308,18 +308,16 @@ namespace qb
    *elements of X or Y that are zero
    **/
 
-  double session::get_jensen_shannon_divergence(const std::vector<int> counts,
-                                                const std::vector<std::complex<double>> amplitudes) {
-    // Ensure that both vectors are the same size
-    assert(counts.size() == amplitudes.size());
-
+  double session::get_jensen_shannon_divergence(const std::map<std::vector<bool>, int>& counts,
+                                                const std::map<std::vector<bool>, std::complex<double>>& amplitudes) {
     double divergence = 0.0;
-    double sum_counts = std::accumulate(counts.begin(), counts.end(), 0);
+    double sum_counts = std::accumulate(counts.begin(), counts.end(), 0,
+                         [](auto prev_sum, auto &entry) { return prev_sum + entry.second; });
     double d_pm, d_qm;
-    for (size_t i = 0; i < counts.size(); i++) {
-      // Calculate the mixture vector element m(i) = 0.5*(in_p(i) + in_q(i))
-      double p_i = counts.at(i) / (1.0 * sum_counts);
-      double q_i = std::norm(amplitudes.at(i));
+    for (const auto& [bits, amp] : amplitudes) {
+      // Calculate the mixture vector element m(i) = 0.5*(p(i) + q(i))
+      double p_i = counts.find(bits) == counts.end() ? 0 : counts.at(bits) / sum_counts;
+      double q_i = std::norm(amp);
       double m_i = 0.5 * (p_i + q_i);
       // get the Kullback-Leibler divergence of probs p and q wrt m
       if (m_i > 0 && p_i > 0) d_pm += p_i * std::log(p_i/m_i);
@@ -336,10 +334,6 @@ namespace qb
                 << ", setting:" << jj << std::endl;
     }
 
-    if (out_counts_.at(0).at(0).empty()) throw std::logic_error("This circuit has "
-    "too many qubits for the results to be stored in a single vector, so Jensen-Shannon "
-    "divergences cannot be calculated.");
-
     const int INVALID = -1;
     const int SINGLETON = 1;
     int N_ii = SINGLETON;
@@ -348,25 +342,25 @@ namespace qb
     if ((N_ii = singleton_or_eqlength(out_counts_, N_ii)) == INVALID) {
       throw std::range_error("[out_counts_] shape is invalid");
     }
-    if ((N_ii = singleton_or_eqlength(output_amplitudes_, N_ii)) == INVALID) {
-      throw std::range_error("[output_amplitudes] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(expected_amplitudes_, N_ii)) == INVALID) {
+      throw std::range_error("[expected_amplitudes] shape is invalid");
     }
-    if ((N_ii = singleton_or_eqlength(acc_uses_lsbs_, N_ii)) == INVALID) {
-      throw std::range_error("[acc_uses_lsbs] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(acc_outputs_qbit0_left_, N_ii)) == INVALID) {
+      throw std::range_error("[acc_outputs_qbit0_left] shape is invalid");
     }
     for (auto el : out_counts_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
         throw std::range_error("[out_counts_] shape is invalid");
       }
     }
-    for (auto el : output_amplitudes_) {
+    for (auto el : expected_amplitudes_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[output_amplitudes] shape is invalid");
+        throw std::range_error("[expected_amplitudes] shape is invalid");
       }
     }
-    for (auto el : acc_uses_lsbs_) {
+    for (auto el : acc_outputs_qbit0_left_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[acc_uses_lsbs] shape is invalid");
+        throw std::range_error("[acc_outputs_qbit0_left] shape is invalid");
       }
     }
 
@@ -383,14 +377,7 @@ namespace qb
       out_divergences_.at(ii).resize(jj + 1);
     }
 
-    std::vector<std::complex<double>> out_amps(out_counts_.at(ii).at(jj).size());
-    for (auto el: output_amplitudes_.at(ii).at(jj)) {
-      std::string bitstring = el.first;
-      out_amps[bitstring_index(bitstring, ii, jj)] = el.second;
-    }
-
-    double jsdivergence = get_jensen_shannon_divergence(
-        out_counts_.at(ii).at(jj), out_amps);
+    double jsdivergence = get_jensen_shannon_divergence(results_.at(ii).at(jj), expected_amplitudes_.at(ii).at(jj));
     std::map<int,double> jsdivergence_nd;
     jsdivergence_nd.insert(std::make_pair(0, jsdivergence));
     out_divergences_.at(ii).at(jj) = jsdivergence_nd;
@@ -407,17 +394,17 @@ namespace qb
     if ((N_ii = singleton_or_eqlength(out_counts_, N_ii)) == INVALID) {
       throw std::range_error("[out_counts_] shape is invalid");
     }
-    if ((N_ii = singleton_or_eqlength(output_amplitudes_, N_ii)) == INVALID) {
-      throw std::range_error("[output_amplitudes] shape is invalid");
+    if ((N_ii = singleton_or_eqlength(expected_amplitudes_, N_ii)) == INVALID) {
+      throw std::range_error("[expected_amplitudes] shape is invalid");
     }
     for (auto el : out_counts_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
         throw std::range_error("[out_counts_] shape is invalid");
       }
     }
-    for (auto el : output_amplitudes_) {
+    for (auto el : expected_amplitudes_) {
       if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-        throw std::range_error("[output_amplitudes] shape is invalid");
+        throw std::range_error("[expected_amplitudes] shape is invalid");
       }
     }
 
@@ -532,6 +519,17 @@ namespace qb
         throw std::range_error("Number of repetitions [rn] cannot be empty");
       }
       config.num_repetitions = rns_valid.get(ii, jj);
+    }
+
+    /// Enable out_counts calculation
+    {
+      ValidatorTwoDim<bool> calc_out_counts_valid(calc_out_counts_, false, true,
+                                                 "enabled out_counts calculation [calc_out_counts]");
+      if (calc_out_counts_valid.is_data_empty())
+      {
+        throw std::range_error("Cannot determine whether to calculate out_counts");
+      }
+      config.calc_out_counts = calc_out_counts_valid.get(ii, jj);
     }
 
     /// Enable gradient calculation for parametrized circuit
@@ -811,11 +809,10 @@ namespace qb
     };
 
     // Resize all tables:
-    resize_for_i_j(acc_uses_lsbs_, "acc_uses_lsbs_");
+    resize_for_i_j(acc_outputs_qbit0_left_, "acc_outputs_qbit0_left_");
     resize_for_i_j(acc_uses_n_bits_, "acc_uses_n_bits_");
-    resize_for_i_j(output_amplitudes_, "output_amplitudes_");
-    resize_for_i_j(out_raws_json_, "out_raws_json_");
-    //resize_for_i_j(out_raws_map_, "out_raws_map_");
+    resize_for_i_j(results_, "results_");
+    resize_for_i_j(expected_amplitudes_, "expected_amplitudes_");
     resize_for_i_j(out_probs_, "out_probs_");
     resize_for_i_j(out_counts_, "out_counts_");
     resize_for_i_j(out_prob_gradients_, "out_prob_gradients_");
@@ -899,14 +896,14 @@ namespace qb
       const std::string acc_pre = run_config.acc_name;
       const bool xasm     = (run_config.source_type == source_string_type::XASM);
       const bool quil1    = (run_config.source_type == source_string_type::Quil);
-      if (!xasm && !quil1 && (acc_pre.compare("tnqvm") == 0)) {
+      if (!xasm && !quil1 && acc_pre == "tnqvm") {
         // target_circuit = exatn_circuit_transpiler(target_circuit);
         if (debug_) {
           std::cout << "[debug]: No pre-transpiling will be performed:"
                     << std::endl
                     << target_circuit << std::endl;
         }
-      } else if (!xasm && !quil1 && (acc_pre.compare("aer") == 0)) {
+      } else if (!xasm && !quil1 && acc_pre == "aer") {
         target_circuit = aer_circuit_transpiler(target_circuit);
         if (debug_) {
           std::cout << "[debug]: Circuit after aer pre-transpile:" << std::endl
@@ -1093,7 +1090,7 @@ namespace qb
     }
 
     auto qpu = xacc::getAccelerator(acc, {{"seed", random_seed}});
-    if (acc.compare("tnqvm") == 0) {
+    if (acc == "tnqvm") {
       xacc::set_verbose(false);
       qpu = xacc::getAccelerator(
           "tnqvm", {
@@ -1101,7 +1098,7 @@ namespace qb
                        std::make_pair("max-bond-dim", max_bond_dimension),
                        std::make_pair("svd-cutoff", svd_cutoff)
                    });
-    } else if (acc.compare("aer") == 0) {
+    } else if (acc == "aer") {
       xacc::HeterogeneousMap aer_options{{"seed", random_seed}};
 
       // Omit shots if the state vector is requested. This triggers Xacc AER to use
@@ -1112,11 +1109,11 @@ namespace qb
       } else if (in_get_state_vec_ == true && run_config.num_shots > 0) {
         std::cout << "Warning: Requesting AER state vector will ignore shot sampling!\n";
       }
-      // If state vector is requested, check that the statevector backend is chosen; 
+      // If state vector is requested, check that the statevector backend is chosen;
       // throw an error otherwise
-      if (in_get_state_vec_ == true && run_config.aer_sim_type.compare("statevector") != 0) {
+      if (in_get_state_vec_ and run_config.aer_sim_type != "statevector") {
         throw std::invalid_argument("Requesting the state vector data requires using the 'statevector' backend.");
-      } 
+      }
 
       if (!run_config.aer_sim_type.empty()) {
         aer_options.insert("sim-type", run_config.aer_sim_type);
@@ -1139,7 +1136,7 @@ namespace qb
       }
       // Get AER and initialize it with proper settings.
       qpu = xacc::getAccelerator(acc, aer_options);
-    } else if (acc.compare("qb-lambda") == 0) {
+    } else if (acc == "qb-lambda") {
       std::string lambda_url = "ec2-3-26-79-252.ap-southeast-2.compute."
                                "amazonaws.com"; // Default AWS reverse proxy
                                                 // server for the QB Lambda
@@ -1390,16 +1387,11 @@ namespace qb
     }
 
     // Clear all stored results:
-    out_raws_json_.clear();
-    out_raws_json_.resize(N_ii);
-    for (auto el : out_raws_json_) {
+    results_.clear();
+    results_.resize(N_ii);
+    for (auto el : results_) {
       el.resize(N_jj);
     }
-    //out_raws_map_.clear();
-    //out_raws_map_.resize(N_ii);
-    //for (auto el : out_raws_map_) {
-    //  el.resize(N_jj);
-    //}
     out_probs_.clear();
     out_probs_.resize(N_ii);
     for (auto el : out_probs_) {
@@ -1450,9 +1442,9 @@ namespace qb
     for (auto el : out_total_init_maxgate_readout_times_) {
       el.resize(N_jj);
     }
-    acc_uses_lsbs_.clear();
-    acc_uses_lsbs_.resize(N_ii);
-    for (auto el : acc_uses_lsbs_) {
+    acc_outputs_qbit0_left_.clear();
+    acc_outputs_qbit0_left_.resize(N_ii);
+    for (auto el : acc_outputs_qbit0_left_) {
       el.resize(N_jj);
     }
     acc_uses_n_bits_.clear();
@@ -1475,6 +1467,8 @@ namespace qb
   }
 
   void session::run_gradients(const size_t ii, const size_t jj) {
+    // Skip gradients if no counts have been returned by the backend
+    if (out_counts_.at(ii).at(jj).empty()) return;
     // Initialize
     std::shared_ptr<xacc::CompositeInstruction> target_circuit = irtarget_ms_.at(ii).at(jj);
     std::vector<double> param_vals = parameter_vectors_.at(ii).at(jj);
@@ -1482,9 +1476,6 @@ namespace qb
     size_t num_params = param_vals.size();
     if (target_circuit->nVariables() <= 0 or num_params != target_circuit->nVariables()) throw
      std::logic_error("This circuit is not parametrized correctly, so gradients cannot be calculated.");
-    if (out_counts_.at(0).at(0).empty()) throw std::logic_error("This circuit has "
-     "too many qubits for the results to be stored in a single vector, so gradients "
-     "cannot be calculated.");
 
     // Calculate param-shift gradient
     for (size_t i = 0; i < 2*num_params; i+=2) {
@@ -1499,8 +1490,9 @@ namespace qb
 
     // Create new session object to run shifted gradient circuits
     qb::session gradient_sess(*this);
-    gradient_sess.set_calc_jacobian(false);
     gradient_sess.set_irtarget_ms(gradient_circs);
+    gradient_sess.set_calc_jacobian(false);
+    gradient_sess.set_calc_out_counts(true);
     gradient_sess.run();
     run_i_j_config run_config = get_run_config(ii, jj);
     size_t num_qubits = run_config.num_qubits;
@@ -1508,8 +1500,16 @@ namespace qb
     size_t num_outputs = ipow(2, num_qubits);
 
     // Construct the jacobian
-    Table2d<double> jacobian(num_params, std::vector<double>(num_outputs));
-    std::vector<double> probs_all(num_outputs);
+    Table2d<double>& jacobian = out_prob_gradients_.at(ii).at(jj);
+    std::vector<double>& probs_all = out_probs_.at(ii).at(jj);
+    try {
+      jacobian.resize(num_params,std::vector<double>(num_outputs));
+      probs_all.resize(num_outputs);
+    }
+    catch (std::exception& e) {
+      throw std::logic_error("Your RAM use is too fragmented to allocate a large enough std::vector<double> to hold all relevant gradients.\n"
+                             "Please use less circuit parameters, free up more memory, or use set_calc_jacobian(false).");
+    }
     for (size_t i = 0; i < 2*num_params; i += 2) {
       // Find the bitstring indices that are non-zero in at least one run
       std::vector<int> counts_plus =
@@ -1524,11 +1524,6 @@ namespace qb
     for (size_t i = 0; i < num_outputs; i++) {
       probs_all.at(i) = out_counts_.at(ii).at(jj).at(i) / (1.0 * num_shots);
     }
-
-    // Populate the correct fields
-    out_prob_gradients_.at(ii).at(jj).resize(num_params, std::vector<double>(num_outputs));
-    out_prob_gradients_.at(ii).at(jj) = jacobian;
-    out_probs_.at(ii).at(jj) = probs_all;
   }
 
   void session::init() {
@@ -1555,10 +1550,8 @@ namespace qb
     set_aer_sim_type("statevector");
   }
 
-  void session::aws_setup(uint qn, uint sn, uint wn) {
+  void session::aws_setup(uint wn) {
     if (debug_) std::cout << "Setting AWS Braket defaults." << std::endl;
-    set_qn(qn);
-    set_sn(sn);
     set_rn(1);
     set_noise(false);
     set_initial_bond_dimension(1);
@@ -1925,15 +1918,12 @@ namespace qb
                     << debug_msg.str() << std::endl;
           debug_msg.str("");
         }
-        if (qpu->name() == "aws-braket" &&
-            std::dynamic_pointer_cast<qb::remote_accelerator>(qpu)) {
-          auto as_remote_acc =
-              std::dynamic_pointer_cast<qb::remote_accelerator>(qpu);
-          // Asynchronous offload the circuit.
+        if (qpu->name() == "aws-braket" && std::dynamic_pointer_cast<qb::remote_accelerator>(qpu)) {
+          // Asynchronously offload the circuit to AWS Braket
+          auto as_remote_acc = std::dynamic_pointer_cast<qb::remote_accelerator>(qpu);
           auto aws_job_handle = as_remote_acc->async_execute(citargets.at(0));
           aws_job_handle->add_done_callback([=](auto &handle) {
-            auto buffer_temp =
-                std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
+            auto buffer_temp = std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
             handle.load_result(buffer_temp);
             auto qb_transpiler = std::make_shared<qb::backend>();
             this->process_run_result(
@@ -1942,7 +1932,7 @@ namespace qb
           });
           return aws_job_handle;
         } else {
-          // Blocking execution of a local simulator instance
+          // Blocking (synchronous) execution of a local simulator instance
           execute_on_simulator(qpu, buffer_b, citargets, run_config);
         }
       } catch (...) {
@@ -1997,29 +1987,17 @@ namespace qb
                    "requested number of shots of the quantum circuit, in ms: "
                 << xacc_scope_timer_qpu_ms << std::endl;
       std::cout << std::endl;
-      std::cout << "Bit order [0=>LSB, 1=>MSB]: " << sim_qpu->getBitOrder()
-                << " : Important note : TNQVM reports incorrect bit order - it "
-                   "uses LSB"
-                << std::endl;
+      std::cout << "Reported sim native bit order: [0=>qbit 0 left, 1=>qbit 0 right]: " << sim_qpu->getBitOrder() << std::endl;
+      if (sim_qpu->name() == "tnqvm") std::cout << "Note that you are using TNQVM, and it reports the wrong native bit order." << std::endl;
     }
 
-    // Store indicator of LSB pattern
-    // 0 => LSB
-    acc_uses_lsbs_.at(ii).at(jj) = (sim_qpu->getBitOrder() == 0);
-    // Workaround for incorrect TNQVM reporting of LSB/MSB ordering
-    if (sim_qpu->name().compare("tnqvm") == 0) {
-      acc_uses_lsbs_.at(ii).at(jj) = false;
-    }
-    // Workaround for aer reverse ordering
-    // Also for aer, keep the qobj so that a user can call Aer standalone
-    // later
-    if (sim_qpu->name().compare("aer") == 0) {
-      acc_uses_lsbs_.at(ii).at(jj) = true;
+    // Store indicator of native bitstring pattern, correcting erroneous TNQVM value
+    acc_outputs_qbit0_left_.at(ii).at(jj) = (sim_qpu->getBitOrder() == 0) or sim_qpu->name() == "tnqvm";
+
+    // Keep the qobj so that a user can call Aer standalone later.
+    if (sim_qpu->name() == "aer") {
       out_qobjs_.at(ii).at(jj) = sim_qpu->getNativeCode(ir_target, sim_qpu_configs);
     }
-
-    // Get counts
-    std::map<std::string, int> qpu_counts = buffer_b->getMeasurementCounts();
 
     // Get Z operator expectation:
     if (!run_config.no_sim) {
@@ -2040,32 +2018,19 @@ namespace qb
     }
 
     // Get the state vector from qpp or AER
-    if ((sim_qpu->name().compare("qpp") == 0 ||
-        (sim_qpu->name().compare("aer") == 0 && run_config.aer_sim_type == "statevector"))
-        && in_get_state_vec_ == true) {
+    if (in_get_state_vec_ and
+       (sim_qpu->name() == "qpp" || (sim_qpu->name() == "aer" && run_config.aer_sim_type == "statevector"))) {
       state_vec_ = sim_qpu->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
                         xacc::ExecutionInfo::WaveFuncKey);
     }
 
-    // Flip the bit string (key in map qpu_counts) if AER backend is used. This is
-    // to ensure that the printed bit string in out_raw has the same order as other
-    // backends.
-    if (sim_qpu->name().compare("aer") == 0) {
-      std::map<std::string, int> qpu_counts_aer;
-      for (const auto &[bit_string, count] : qpu_counts) {
-        std::string bit_string_reverse = bit_string;
-        std::reverse(bit_string_reverse.begin(), bit_string_reverse.end());
-        qpu_counts_aer.insert(std::make_pair(bit_string_reverse, count));
-      }
-      qpu_counts = qpu_counts_aer;
-    }
+    // Get counts
+    const auto& counts_map = buffer_b->getMeasurementCounts();
     if (!run_config.no_sim) {
-      // Save the counts to out_counts_, and raw map data in out_raws
-      populate_measure_counts_data(ii, jj, qpu_counts);
+      // Save the counts to results_
+      populate_measure_counts_data(ii, jj, counts_map);
       // If required to calculate gradients, do it now
-      if (run_config.calc_jacobian) {
-        run_gradients(ii, jj);
-      }
+      if (run_config.calc_jacobian) run_gradients(ii, jj);
     }
 
     // Transpile to QB native gates (acc)
@@ -2135,14 +2100,15 @@ namespace qb
     }
   }
 
-  size_t session::bitstring_index(std::string in_bitstring, size_t ii,
-                                    size_t jj) {
-    // MSB/LSB checker implemented for now, qubit->classical register
-    // mapping implemented in future iteration
-    if (acc_uses_lsbs_.at(ii).at(jj)) {
-      std::reverse(in_bitstring.begin(),
-                    in_bitstring.end());
+  // Convert a bit vector to an integer assuming either LSB or MSB encoding
+  size_t session::bitstring_index(const std::vector<bool>& bitvec) {
+    size_t result = 0;
+    if (out_counts_ordered_by_MSB_) {
+      for (uint i = 0; i < bitvec.size(); i++) if (bitvec[i]) result += 1<<(bitvec.size()-i-1);
+    } else {
+      for (uint i = 0; i < bitvec.size(); i++) if (bitvec[i]) result += 1<<i;
     }
-    return (size_t) std::stoi(in_bitstring, 0, 2);
+    return result;
   }
+
 } // namespace qb

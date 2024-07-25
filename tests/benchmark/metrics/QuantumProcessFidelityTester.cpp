@@ -13,7 +13,7 @@
 using namespace qb::benchmark;
 
 TEST(QuantumProcessFidelityTester, checkSPAM) {
-    const std::vector<size_t> qubits{0};
+    const std::set<size_t> qubits{0};
 
     //define session  
     qb::session sim(false); 
@@ -41,7 +41,7 @@ TEST(QuantumProcessFidelityTester, checkSPAM) {
 }
 
 TEST(QuantumProcessFidelityTester, checkRotationSweep) {
-    const std::vector<size_t> qubits{0};
+    const std::set<size_t> qubits{0, 1};
 
     //define session  
     qb::session sim(false); 
@@ -52,10 +52,10 @@ TEST(QuantumProcessFidelityTester, checkRotationSweep) {
 
     //define workflow 
     RotationSweep workflow(
-        std::vector<char>{'Y'}, 
+        std::vector<char>{'Y', 'X'}, 
         -90,
         +90,
-        4, 
+        2, 
         sim
     );
     using QST = QuantumStateTomography<RotationSweep>;

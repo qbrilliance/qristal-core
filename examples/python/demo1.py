@@ -27,8 +27,8 @@ __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
   creg c[2];
   h q[0];
   x q[1];
-  measure q[1] -> c[1];
   measure q[0] -> c[0];
+  measure q[1] -> c[1];
 }
 '''
 
@@ -38,5 +38,6 @@ my_sim.run()
 print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
-print("Results:\n", my_sim.out_raw_json[0][0])
+print("Results:")
+print(my_sim.results[0][0])
 

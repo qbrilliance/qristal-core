@@ -61,5 +61,5 @@ int main()
   s.run();
 
   // Print out results
-  std::cout << "Results:" << std::endl << s.get_out_raws_json()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << s.results()[0][0] << std::endl;
 }

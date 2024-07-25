@@ -7,10 +7,7 @@ from yaml import safe_load, dump
 s = qb.core.session()
 
 # Set up meaningful defaults for session parameters
-s.init()
-
-# Choose aws32dm1 backend
-s.aws32dm1()
+s.aws_setup(2)
 
 # Running on aws braket requires user to have AWS account set up (e.g., via CLI)
 # AWS account needs to have Braket enabled and in regions that support Braket (e.g., us-east-1)
@@ -18,7 +15,7 @@ s.aws32dm1()
 # Set s.aws_s3 to be user's AWS S3 Bucket name, below is an example
 # Set s.aws_s3_path to be user's AWS S3 Bucket folder name, below is an example
 
-# Change the remote_backends.yaml file entry or user can call set_remote_backend_database_path 
+# Change the remote_backends.yaml file entry or user can call set_remote_backend_database_path
 # to directly specify backend options
 stream = open(s.remote_backend_database_path, 'r')
 db = safe_load(stream)["aws-braket"]
@@ -27,7 +24,6 @@ db["path"] = "dm1-async"
 stream = open(s.remote_backend_database_path + ".temp", 'w')
 dump({'aws-braket': db}, stream)
 s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-
 
 # Other session settings
 s.xasm = True
@@ -49,17 +45,14 @@ s.ir_target = circ
 
 # run_async(0, 0) submits the job with 64 shots asynchronously
 # run_async(0, 1) submits the job with 256 shots asynchronously
-handle1 = s.run_async(0, 0)
-handle2 = s.run_async(0, 1)
+handles = [s.run_async(0, 0), s.run_async(0, 1)]
 
 # Check if jobs are completed
-while (not handle1.complete()):
-    time.sleep(1)
+for h in handles:
+  while (not h.complete()):
+      time.sleep(1)
 
-while (not handle2.complete()):
-    time.sleep(1)
-
-result1 = s.out_raw_json[0][0]
-print("Output for job1: \n", result1)
-result2 = s.out_raw_json[0][1]
-print("Output for job2: \n", result2)
+print("Output for job 1:")
+print(s.results[0][0])
+print("Output for job 2:")
+print(s.results[0][1])

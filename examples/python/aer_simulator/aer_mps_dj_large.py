@@ -49,6 +49,6 @@ print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
 s.qn = nb_qubits + 1
 s.instring = qbdj(nb_qubits)
 s.run()
-print(s.out_raw_json[0][0])
+print(s.results[0][0])
 print("==================================")
 

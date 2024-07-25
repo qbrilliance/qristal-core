@@ -38,5 +38,5 @@ my_sim.run()
 
 # Print the cumulative results in each of the classical registers:
 print("Bell state |Phi+>: ")
-print(my_sim.out_raw_json[0][0])
+print(my_sim.results[0][0])
 
