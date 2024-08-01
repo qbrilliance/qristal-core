@@ -1,8 +1,8 @@
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # A circuit on two qubits that are extremely long!!!
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 # Repeat a random circuits...
 # there are 5 x 3 = 15 CNOT gates
 for i in range(5):
@@ -24,12 +24,12 @@ print("Original circuit:")
 circ.print()
 
 # Get the two-qubit squash pass
-opt_pass = qb.core. two_qubit_squash()
+opt_pass = qristal.core. two_qubit_squash()
 # Apply it on the input circuit
 opt_pass.apply(circ)
 
-# Print it out 
+# Print it out
 print("Optimized circuit:")
 # There should only be a couple of CNOT gates remain (e.g., 3)
 circ.print()
-# Check that the total unitary is equivalent. I dare you!!! 
+# Check that the total unitary is equivalent. I dare you!!!

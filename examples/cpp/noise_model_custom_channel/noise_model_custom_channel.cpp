@@ -4,14 +4,14 @@
  */
 
 
-#include "qb/core/session.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 
 // Build and return a noise model for an n-qubit ring
-qb::NoiseModel ring_noise_model(size_t nb_qubits)
+qristal::NoiseModel ring_noise_model(size_t nb_qubits)
 {
     // Make an empty noise model
-    qb::NoiseModel noise_model;
+    qristal::NoiseModel noise_model;
 
     // Name the model whatever you like
     noise_model.name = "ring_noise_model";
@@ -23,7 +23,7 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits)
     constexpr double cx_error = 1e-2;
 
     // Define the readout errors
-    qb::ReadoutError ro_error;
+    qristal::ReadoutError ro_error;
     ro_error.p_01 = 1e-2;
     ro_error.p_10 = 5e-3;
 
@@ -34,17 +34,17 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits)
         noise_model.set_qubit_readout_error(qId, ro_error);
 
         // Set the single-qubit gate fidelities
-        noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, u1_error), "u1", {qId});
-        noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, u2_error), "u2", {qId});
-        noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, u3_error), "u3", {qId});
+        noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, u1_error), "u1", {qId});
+        noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, u2_error), "u2", {qId});
+        noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, u3_error), "u3", {qId});
 
         // Set the qubit connections to form a ring
         const size_t qId2 = (qId != nb_qubits - 1 ? qId + 1 : 0);
         noise_model.add_qubit_connectivity(qId, qId2);
 
         // Set the corresponding two-qubit gate fidelities
-        noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx", {qId, qId2});
-        noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx", {qId2, qId});
+        noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, qId2, cx_error), "cx", {qId, qId2});
+        noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, qId2, cx_error), "cx", {qId2, qId});
     }
 
     return noise_model;
@@ -53,7 +53,7 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits)
 
 int main(int argc, char * argv[])
 {
-    qb::session my_sim;
+    qristal::session my_sim;
 
     // 2 qubits
     const int n = 2;

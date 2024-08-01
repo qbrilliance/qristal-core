@@ -1,8 +1,8 @@
-import qb.core
+import qristal.core
 import numpy as np
 import timeit
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.qn = 7
 
@@ -23,7 +23,7 @@ flag = [6]
 # Test 1: flag off
 ###
 
-circ1 = qb.core.Circuit()
+circ1 = qristal.core.Circuit()
 
 # Prepare initial state
 circ1.x(qubits_adder[0])
@@ -52,7 +52,7 @@ assert(res[[0,0,0]] == 1024)
 # Test 2: flag off
 ###
 
-circ2 = qb.core.Circuit()
+circ2 = qristal.core.Circuit()
 
 # Prepare initial state
 circ2.x(qubits_adder[0])

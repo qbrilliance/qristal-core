@@ -1,6 +1,6 @@
-#include "qb/core/benchmark/DataLoaderGenerator.hpp"
+#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
 
-namespace qb {
+namespace qristal {
     namespace benchmark {
 
         std::unordered_map<std::time_t, std::vector<std::string>> DataLoaderGenerator::loadAvailableTimestamps() const {

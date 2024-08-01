@@ -4,7 +4,7 @@
 
  ***/
 
-#include "qb/core/circuits/inverse_circuit.hpp"
+#include "qristal/core/circuits/inverse_circuit.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc.hpp"
@@ -15,7 +15,7 @@
 #include <optional>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 
 bool InverseCircuit::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
@@ -142,4 +142,4 @@ bool InverseCircuit::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
 const std::vector<std::string> InverseCircuit::requiredKeys() { return {}; }
 
-} // namespace qb
+}

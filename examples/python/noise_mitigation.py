@@ -1,5 +1,5 @@
-import qb.core
-s = qb.core.session()
+import qristal.core
+s = qristal.core.session()
 s.init()
 s.noise = True
 s.nooptimise = True
@@ -7,7 +7,7 @@ s.noplacement = True
 s.sn = 8192
 s.acc = "aer"
 # Simple Bell circuit
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.h(0)
 circ.cnot(0, 1)
 circ.measure_all()

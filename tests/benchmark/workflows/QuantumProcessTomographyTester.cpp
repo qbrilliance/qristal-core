@@ -2,15 +2,15 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "qb/core/session.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qb/core/benchmark/workflows/RotationSweep.hpp"
-#include "qb/core/benchmark/workflows/QuantumProcessTomography.hpp"
-#include "qb/core/benchmark/workflows/SimpleCircuitExecution.hpp"
-#include "qb/core/benchmark/DataLoaderGenerator.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+#include "qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp"
+#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 TEST(QuantumProcessTomographyTester, checkSPAM) {
 
@@ -22,7 +22,7 @@ TEST(QuantumProcessTomographyTester, checkSPAM) {
     const std::set<size_t> qubits = {0};
 
     //define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);
@@ -36,7 +36,7 @@ TEST(QuantumProcessTomographyTester, checkSPAM) {
     QPT qptworkflow(qstworkflow);
     std::time_t t = qptworkflow.execute(std::vector<Task>{Task::MeasureCounts, Task::IdealProcess}); //let QPT store all measurement results and all ideal processes
 
-    //since data generation and loading are completely separated in qb::benchmark, 
+    //since data generation and loading are completely separated in qristal::benchmark, 
     //a DataLoaderGenerator is required to load in the measured counts
     DataLoaderGenerator dlg(qptworkflow.get_identifier(), std::vector<Task>{Task::MeasureCounts, Task::IdealProcess});
     dlg.set_timestamps(std::vector<std::time_t>{t}); //manually load in correct timestamp
@@ -64,7 +64,7 @@ TEST(QuantumProcessTomographyTester, checkRotationSweep) {
     const std::set<size_t> qubits{0};
 
     //define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("aer");
     sim.set_sn(1000000);
@@ -84,7 +84,7 @@ TEST(QuantumProcessTomographyTester, checkRotationSweep) {
     QPT qptworkflow(qstworkflow);
     std::time_t t = qptworkflow.execute(std::vector<Task>{Task::MeasureCounts, Task::IdealProcess}); //let QPT store all measurement results and all ideal processes
 
-    //since data generation and loading are completely separated in qb::benchmark, 
+    //since data generation and loading are completely separated in qristal::benchmark, 
     //a DataLoaderGenerator is required to load in the measured counts
     DataLoaderGenerator dlg(qptworkflow.get_identifier(), std::vector<Task>{Task::MeasureCounts, Task::IdealProcess});
     dlg.set_timestamps(std::vector<std::time_t>{t}); //manually load in correct timestamp
@@ -114,7 +114,7 @@ TEST(QuantumProcessTomographyTester, checkSimpleCircuitExecution) {
     const std::set<size_t> qubits{0, 1};
 
     //define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);
@@ -122,7 +122,7 @@ TEST(QuantumProcessTomographyTester, checkSimpleCircuitExecution) {
 
     //define circuits 
     const double angle = std::numbers::pi;
-    qb::CircuitBuilder circuit_native_CP, circuit_transpiled_CP; 
+    qristal::CircuitBuilder circuit_native_CP, circuit_transpiled_CP; 
     //(1) build native CP circuit
     circuit_native_CP.CPhase(0, 1, angle);
     //(2) build transpiled CP circuit (to native gate set)
@@ -140,7 +140,7 @@ TEST(QuantumProcessTomographyTester, checkSimpleCircuitExecution) {
 
     //define workflow (wrap circuit in SimpleCircuitExecution object) 
     SimpleCircuitExecution workflow(
-        std::vector<qb::CircuitBuilder>{circuit_native_CP, circuit_transpiled_CP},
+        std::vector<qristal::CircuitBuilder>{circuit_native_CP, circuit_transpiled_CP},
         sim
     );
     using QST = QuantumStateTomography<SimpleCircuitExecution>;
@@ -149,7 +149,7 @@ TEST(QuantumProcessTomographyTester, checkSimpleCircuitExecution) {
     QPT qptworkflow(qstworkflow);
     std::time_t t = qptworkflow.execute(std::vector<Task>{Task::MeasureCounts}); //let QPT store all measurement results and all ideal processes
 
-    //since data generation and loading are completely separated in qb::benchmark, 
+    //since data generation and loading are completely separated in qristal::benchmark, 
     //a DataLoaderGenerator is required to load in the measured counts
     DataLoaderGenerator dlg(qptworkflow.get_identifier(), std::vector<Task>{Task::MeasureCounts});
     dlg.set_timestamps(std::vector<std::time_t>{t}); //manually load in correct timestamp

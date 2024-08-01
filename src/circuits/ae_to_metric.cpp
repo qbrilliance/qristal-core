@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/ae_to_metric.hpp"
+#include "qristal/core/circuits/ae_to_metric.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool AEtoMetric::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
 
@@ -151,4 +151,4 @@ bool AEtoMetric::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 }
 
 const std::vector<std::string> AEtoMetric::requiredKeys() { return {}; }
-} // namespace qb
+}

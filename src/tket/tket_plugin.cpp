@@ -5,8 +5,8 @@
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
 
-#include "qb/core/tket/tket_circuit_opt.hpp"
-#include "qb/core/tket/tket_placement.hpp"
+#include "qristal/core/tket/tket_circuit_opt.hpp"
+#include "qristal/core/tket/tket_placement.hpp"
 
 using namespace cppmicroservices;
 
@@ -16,15 +16,15 @@ public:
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::IRTransformation>(
-        std::make_shared<qb::TketPlacement>());
+        std::make_shared<qristal::TketPlacement>());
     context.RegisterService<xacc::IRTransformation>(
-        std::make_shared<qb::tket_redundancy_removal_plugin>());
+        std::make_shared<qristal::tket_redundancy_removal_plugin>());
     context.RegisterService<xacc::IRTransformation>(
-        std::make_shared<qb::tket_two_qubit_squash_plugin>());
+        std::make_shared<qristal::tket_two_qubit_squash_plugin>());
     context.RegisterService<xacc::IRTransformation>(
-        std::make_shared<qb::tket_full_peephole_plugin>());
+        std::make_shared<qristal::tket_full_peephole_plugin>());
     context.RegisterService<xacc::IRTransformation>(
-        std::make_shared<qb::tket_simplify_initial_plugin>());
+        std::make_shared<qristal::tket_simplify_initial_plugin>());
   }
 
   void Stop(BundleContext context) {}

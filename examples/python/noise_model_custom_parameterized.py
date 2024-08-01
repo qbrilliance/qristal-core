@@ -1,5 +1,5 @@
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # Create a dummy device using noise parameters.
 # 4 qubits with a line topology:
@@ -28,11 +28,11 @@ u3_error = 1e-3
 cx_error = 5e-2
 
 # Read-out errors
-read_out_error = qb.core.ReadoutError()
+read_out_error = qristal.core.ReadoutError()
 read_out_error.p_01 = 1e-2
 read_out_error.p_10 = 1e-2
 
-device_properties = qb.core.NoiseProperties()
+device_properties = qristal.core.NoiseProperties()
 device_properties.gate_time_us["u1"] = {}
 device_properties.gate_time_us["u2"] = {}
 device_properties.gate_time_us["u3"] = {}
@@ -64,15 +64,15 @@ for i in range(nb_qubits - 1):
 device_properties.qubit_topology = qubit_topology_list
 
 # Create noise model using device noise properties
-nm = qb.core.NoiseModel(device_properties)
+nm = qristal.core.NoiseModel(device_properties)
 
 # Simple Bell circuit
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.h(0)
 circ.cnot(0, 1)
 circ.measure_all()
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.qn = nb_qubits
 s.noise = True

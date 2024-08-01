@@ -63,22 +63,22 @@ This is the entrypoint script that drives the Nextflow execution.  Below is an e
 
         """
         #!/usr/bin/python3
-        import qb.core
+        import qristal.core
         import numpy as np
 
-        tqb = qb.core.session()
-        tqb.init()
-        tqb.qn = 2     # Number of qubits
-        tqb.sn = 1024  # Number of shots
-        tqb.acc = "tnqvm"
-        tqb.noplacement = True
-        tqb.nooptimise = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
-        tqb.svd_cutoff[0][0][0] = ${svdcutoff}
-        tqb.instring = '''
+        my_sim = qristal.core.session()
+        my_sim.init()
+        my_sim.qn = 2     # Number of qubits
+        my_sim.sn = 1024  # Number of shots
+        my_sim.acc = "tnqvm"
+        my_sim.noplacement = True
+        my_sim.nooptimise = True
+        my_sim.notiming = True
+        my_sim.output_oqm_enabled = False
+        my_sim.svd_cutoff[0][0][0] = ${svdcutoff}
+        my_sim.instring = '''
 
-        __qpu__ void QBCIRCUIT(qreg q) {
+        __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
         creg c[2];
@@ -89,9 +89,9 @@ This is the entrypoint script that drives the Nextflow execution.  Below is an e
         }
 
         '''
-        tqb.run()
-        print("SVD cutoff: ", tqb.svd_cutoff[0][0][0])
-        print(tqb.results[0][0])
+        my_sim.run()
+        print("SVD cutoff: ", my_sim.svd_cutoff[0][0][0])
+        print(my_sim.results[0][0])
         """
     }
 
@@ -147,17 +147,17 @@ The pipeline parallelises circuit evaluation across multiple processes, and acro
         import json
         import numpy as np
         import time
-        import qb.core
-        tqb = qb.core.session()
-        tqb.init()
+        import qristal.core
+        my_sim = qristal.core.session()
+        my_sim.init()
 
-        tqb.qn = $N_PHYSICAL_QUBITS  # Number of qubits
-        tqb.infile = "$circuit"
+        my_sim.qn = $N_PHYSICAL_QUBITS  # Number of qubits
+        my_sim.infile = "$circuit"
 
-        tqb.noplacement = True
-        tqb.nooptimise = True
-        tqb.notiming = True
-        tqb.output_oqm_enabled = False
+        my_sim.noplacement = True
+        my_sim.nooptimise = True
+        my_sim.notiming = True
+        my_sim.output_oqm_enabled = False
 
         NW = $N_ASYNC_THREADS  # number of async workers
         SLEEP_SECONDS = 0.1 # seconds to sleep between progress
@@ -166,19 +166,19 @@ The pipeline parallelises circuit evaluation across multiple processes, and acro
         # Set up workers
         # Set up the pool of backends for parallel task distribution
         qpu_config = {"accs": NW*[{"acc": "$QRISTAL_ACC"}]}
-        tqb.set_parallel_run_config(json.dumps(qpu_config))
+        my_sim.set_parallel_run_config(json.dumps(qpu_config))
 
         # Set the number of threads to use in the thread pool
-        tqb.num_threads = NW
+        my_sim.num_threads = NW
 
         # Set up jobs that partition the requested number of shots
-        tqb.sn[ALG_UNDER_TEST].clear()
+        my_sim.sn[ALG_UNDER_TEST].clear()
         for jj in range(NW):
-            tqb.sn[ALG_UNDER_TEST].append($shots_N // NW)
+            my_sim.sn[ALG_UNDER_TEST].append($shots_N // NW)
 
         handles = []
         for i in range(NW):
-            handles.append(tqb.run_async(ALG_UNDER_TEST, i))
+            handles.append(my_sim.run_async(ALG_UNDER_TEST, i))
             time.sleep(0.001)
 
         # Gather the results

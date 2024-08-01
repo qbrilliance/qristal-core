@@ -1,15 +1,15 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/python/py_middleware.hpp"
-#include "qb/core/python/py_stl_containers.hpp"
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/passes/noise_aware_placement_config.hpp"
-#include "qb/core/passes/noise_aware_placement_pass.hpp"
-#include "qb/core/passes/swap_placement_pass.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/python/py_middleware.hpp"
+#include "qristal/core/python/py_stl_containers.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/passes/noise_aware_placement_config.hpp"
+#include "qristal/core/passes/noise_aware_placement_pass.hpp"
+#include "qristal/core/passes/swap_placement_pass.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 #include <pybind11/stl_bind.h>
 
 
-namespace qb {
+namespace qristal {
 void bind_placement_passes(pybind11::module &m) {
   pybind11::bind_vector<noise_aware_placement_config::device_topology_t>(
       m, "device_topology");
@@ -72,4 +72,4 @@ void bind_placement_passes(pybind11::module &m) {
            "gates as necessary)",
            pybind11::arg("circuit"));
 }
-} // namespace qb
+}

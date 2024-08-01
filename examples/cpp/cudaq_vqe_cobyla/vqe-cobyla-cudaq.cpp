@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/cudaq/ir_converter.hpp"
-#include "qb/core/cudaq/sim_pool.hpp"
+#include "qristal/core/cudaq/ir_converter.hpp"
+#include "qristal/core/cudaq/sim_pool.hpp"
 #include "cudaq/algorithm.h"
 #include "cudaq/optimizers.h"
 #include "cudaq/spin_op.h"
@@ -26,7 +26,7 @@ int main() {
   auto ansatz = xacc::getCompiled("deuteron_ansatz");
   std::cout << "QB IR:\n" << ansatz->toString() << "\n";
 
-  qb::cudaq_ir_converter converter(ansatz);
+  qristal::cudaq_ir_converter converter(ansatz);
   std::cout << "Converted ansatz to CUDAQ (Quake IR) ..." << std::endl;
   auto &cudaq_builder = converter.get_cudaq_builder();
   std::cout << "CUDAQ QUAKE: \n" << cudaq_builder.to_quake();
@@ -40,7 +40,7 @@ int main() {
   // Load the cudaq version of qpp
   std::string be = "qpp";
   std::cout << "Connecting CUDA Quantum backend " << be << std::endl;
-  qb::load_cudaq_backend(be);
+  qristal::load_cudaq_backend(be);
 
   // Run VQE with the builder
   cudaq::optimizers::cobyla c_opt;

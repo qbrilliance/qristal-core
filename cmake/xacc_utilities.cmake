@@ -54,10 +54,10 @@ macro(add_xacc_plugin LIBRARY_NAME)
 
   # Process the path to the core library in the calling project
   if(NOT core_SOURCE_DIR)
-    if(NOT qbcore_DIR)
+    if(NOT qristal_core_DIR)
       set(core_SOURCE_DIR ${PROJECT_SOURCE_DIR})
     else()
-      set(core_SOURCE_DIR ${qbcore_DIR})
+      set(core_SOURCE_DIR ${qristal_core_DIR})
     endif()
   endif()
 
@@ -128,10 +128,10 @@ macro(add_xacc_plugin LIBRARY_NAME)
       manifest.json
   )
 
-  # Install the library. Headers are automatically copied when installing libqbcore.so.
+  # Install the library. Headers are automatically copied when installing libcore.so.
   install(
     TARGETS ${LIBRARY_NAME}
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
   )
 
   # Add a symlink to {XACC_ROOT}/plugins where XACC finds its plugins by default.
@@ -142,14 +142,14 @@ macro(add_xacc_plugin LIBRARY_NAME)
   # (2) Modify plugin gtest files which currently assume vanilla xacc::Initialize()
   file(GLOB OLD_SYMLINKS ${XACC_ROOT}/plugins/*${LIBRARY_NAME}.*)
   foreach(link ${OLD_SYMLINKS})
-    # Now instead of just deleting ${link}, which may accidentally match other plugins, we just get each of 
+    # Now instead of just deleting ${link}, which may accidentally match other plugins, we just get each of
     # the extensions and append it to the actual library name that we know our plugin has.
-    # We can't use a wildcard for this, as there is no shell expansion performed inside execute_process. 
-    cmake_path(GET link EXTENSION extension)    
+    # We can't use a wildcard for this, as there is no shell expansion performed inside execute_process.
+    cmake_path(GET link EXTENSION extension)
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -f ${XACC_ROOT}/plugins/$<TARGET_FILE_PREFIX:${LIBRARY_NAME}>$<TARGET_FILE_BASE_NAME:${LIBRARY_NAME}>${extension})")
   endforeach()
   install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink \
-     ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
+     ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/$<TARGET_FILE_NAME:${LIBRARY_NAME}> \
      ${XACC_ROOT}/plugins/$<TARGET_FILE_NAME:${LIBRARY_NAME}>)"
   )
 

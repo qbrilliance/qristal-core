@@ -5,8 +5,8 @@
 
 #%%
 import numpy as np
-import qb.core.optimization as qbOpt
-import qb as qb
+import qristal.core
+import qristal.core.optimization as qbOpt
 
 # We try qap problem. The primary input are flow and distance matrix and a list of constraints with a constant penalty value
 flow = np.array([[0,5,2], [5,0,3], [2,3,0]])
@@ -21,7 +21,7 @@ solRef = [1,0,0,0,1,0,0,0,1]
 # quboMatrix = qbOpt.qubo.constructQAPQUBO(flow, distance, constraints, penalty)
 
 # we can enter any valid qubo matrix here
-quboMatrix = np.array( 
+quboMatrix = np.array(
 [   [-400,  200,  200,  200,   40,   75,  200,   16,   30],
     [ 200, -400,  200,   40,  200,   65,   16,  200,   26],
     [ 200,  200, -400,   75,   65,  200,   30,   26,  200],
@@ -52,7 +52,7 @@ pauliString = """
  + 400 Z6 Z7 + 400 Z6 Z8
  + 400 Z7 Z8
  - 2400"""
-# " - 2400" or " + 4800 - 800 Z0 - 800 Z1 - 800 Z2 - 800 Z3 - 800 Z4 - 800 Z5 - 800 Z6 - 800 Z7 - 800 Z8" 
+# " - 2400" or " + 4800 - 800 Z0 - 800 Z1 - 800 Z2 - 800 Z3 - 800 Z4 - 800 Z5 - 800 Z6 - 800 Z7 - 800 Z8"
 
 
 nPaulis = pauliString.count('+') + pauliString.count('-') - 1
@@ -61,7 +61,7 @@ print("\nPauli string: ", pauliString)
 nOptVars = 9
 nQaoaSteps = 1
 
-#%% qaoa simple 
+#%% qaoa simple
 print("\n*************** running simple qaoa... ***************\n")
 
 qa = qbOpt.qaoa_QaoaSimple()
@@ -71,7 +71,7 @@ qa.acc='qpp'
 qa.functol[0][0][0]=1e-5
 qa.maxeval=100 #800
 qa.qaoa_step = nQaoaSteps
-qa.theta[0][0]=qb.core.MapIntDouble()
+qa.theta[0][0]=qristal.core.MapIntDouble()
 
 extendedParams = True
 if (extendedParams):
@@ -80,7 +80,7 @@ else:
     nThetas =                  2*nQaoaSteps
 
 qa.extended_param = extendedParams
-for ii in range(nThetas): 
+for ii in range(nThetas):
     qa.theta[0][0][ii] = 0.25
 
 qa.run()
@@ -125,8 +125,8 @@ else:
 qa.extended_param = extendedParams
 
 
-qa.theta[0][0]=qb.core.MapIntDouble()
-for ii in range(nThetas): 
+qa.theta[0][0]=qristal.core.MapIntDouble()
+for ii in range(nThetas):
     qa.theta[0][0][ii] = 0.25
 
 qa.qn = nOptVars

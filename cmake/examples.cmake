@@ -16,9 +16,9 @@ macro(add_example NAME)
 
   if(TARGET ${NAME})
     set_property(TARGET ${NAME} PROPERTY BUILD_RPATH "${CMAKE_BUILD_DIR};${XACC_ROOT}/lib")
-    target_link_libraries(${NAME} PRIVATE qb::core)
+    target_link_libraries(${NAME} PRIVATE qristal::core)
   endif()
-  
+
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/${NAME}/CMakeLists.txt.in
                   ${CMAKE_BINARY_DIR}/configured_example_files/${NAME}/CMakeLists.txt
                   @ONLY)
@@ -37,11 +37,11 @@ endmacro()
 set(WITH_EXAMPLES ON CACHE BOOL "Enable examples")
 if(WITH_EXAMPLES)
   add_example(demo1 SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/demo1/demo1.cpp)
-  add_example(h1qb SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/h1qb/h1qb.cpp)
+  add_example(h1 SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/h1/h1.cpp)
   add_example(noise_model SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model/noise_model.cpp)
   add_example(noise_model_custom_channel SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model_custom_channel/noise_model_custom_channel.cpp)
   add_example(qaoa SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qaoa/qaoa_example.cpp)
-  add_example(qbsdkcli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/qbsdkcli.cpp)
+  add_example(qristal_cli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qristal_cli/qristal_cli.cpp)
   add_example(vqee SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqee/vqee_example.cpp)
   add_example(vqeeCalculator SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqeeCalculator/vqee_calculator.cpp)
   add_example(qb_mpdo_noisy SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qb_mpdo_noisy/qb_mpdo_noisy.cpp)
@@ -68,7 +68,7 @@ if(WITH_EXAMPLES)
     add_example(noise_aware_placement_simple SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_simple/noise_aware_placement.cpp)
     add_example(noise_aware_placement_aws SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/noise_aware_placement_aws.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/aws_rigetti.yaml)
   endif()
-  
+
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples
@@ -80,8 +80,8 @@ if(WITH_EXAMPLES)
   )
 
   install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qbsdkcli/README.md
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/examples/cpp/qbsdkcli
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qristal_cli/README.md
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/examples/cpp/qristal_cli
   )
 
 endif()

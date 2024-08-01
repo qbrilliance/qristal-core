@@ -6,24 +6,24 @@ import pytest
 def test_CI_210826_1_init_check_qn_equals_12() :
     print("* CI_210826_1_init_check_qn_equals_12:")
     print("* Imports core.core() and calls init(), which should give a default setup for 12 qubits.")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     assert (s.qn[0][0] == 12)
 
 def test_CI_210826_2_init_check_sn_equals_1024() :
     print("* CI_210826_2_init_check_sn_equals_1024:")
-    print("* Imports qbemulator Python module and calls init(), which should give a default setup for 1024 shots")
-    import qb.core
-    s = qb.core.session()
+    print("* Imports qristal.core Python module, creates and initialises a session that should receive the default number of shots (1024).")
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     assert (s.sn[0][0] == 1024)
 
 def test_CI_210826_4_init_random_5() :
     print("* CI_210826_4_init_random_5:")
     print("* With default init settings, with the Aer backend, run a depth 5 circuit, check the length of the results map is >0")
-    import qb.core, ast
-    s = qb.core.session()
+    import qristal.core, ast
+    s = qristal.core.session()
     s.init()
     s.random = 5
     s.acc = 'aer'
@@ -34,8 +34,8 @@ def test_CI_210826_4_init_random_5() :
 def test_CI_210826_5_init_random_5() :
     print("* CI_210826_5_init_random_5:")
     print("* With default init settings, with the qpp backend, run a depth 3 circuit, check the length of the results map is >0")
-    import qb.core, ast
-    s = qb.core.session()
+    import qristal.core, ast
+    s = qristal.core.session()
     s.init()
     s.random = 3
     s.acc = 'qpp'
@@ -46,8 +46,8 @@ def test_CI_210826_5_init_random_5() :
 def test_CI_210826_6_init_random_0() :
     print("* CI_210826_4_init_random_0:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     s.random = 0
     with pytest.raises(ValueError):
@@ -56,8 +56,8 @@ def test_CI_210826_6_init_random_0() :
 def test_CI_210826_7_init_random_minus_one() :
     print("* CI_210826_5_init_random_minus_one:")
     print("* [Edge condition] check that a TypeError exception occurs")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     with pytest.raises(TypeError):
         s.random = -1
@@ -65,8 +65,8 @@ def test_CI_210826_7_init_random_minus_one() :
 def test_CI_210826_8_init_random_256() :
     print("* CI_210826_8_init_random_256:")
     print("* With default init settings, run a depth 256 circuit, check the length of the results map is >0")
-    import qb.core, ast
-    s = qb.core.session()
+    import qristal.core, ast
+    s = qristal.core.session()
     s.init()
     s.acc = "aer"
     s.random = 256
@@ -77,8 +77,8 @@ def test_CI_210826_8_init_random_256() :
 def test_CI_210826_9_qn_minus_one() :
     print("* CI_210826_9_qn_minus_one:")
     print("* [Edge condition] check that a TypeError exception occurs")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     with pytest.raises(TypeError):
         s.qn = -1
@@ -86,8 +86,8 @@ def test_CI_210826_9_qn_minus_one() :
 def test_CI_210826_10_qn_0() :
     print("* CI_210826_10_qn_0:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     s.qn = 0
     with pytest.raises(ValueError):
@@ -96,8 +96,8 @@ def test_CI_210826_10_qn_0() :
 def test_CI_210826_11_init_no_infile_no_instring_no_random() :
     print("* CI_210826_11_init_no_infile_no_instring_no_random:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     with pytest.raises(ValueError):
         s.run()
@@ -105,8 +105,8 @@ def test_CI_210826_11_init_no_infile_no_instring_no_random() :
 def test_CI_210826_12_init_nonexistent_infile() :
     print("* CI_210826_12_init_nonexistent_infile:")
     print("* [Edge condition] check that a ValueError exception occurs")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     s.infile = "nonexist.inc"
     with pytest.raises(ValueError):
@@ -116,11 +116,11 @@ def test_CI_210826_12_init_nonexistent_infile() :
 def test_CI_210826_13_openqasm_index_out_of_range() :
     print("* CI_210826_13_openqasm_index_out_of_range:")
     print("* [XACC exit condition] when an indexing error is detected in OpenQASM")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
+    __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0; include "qelib1.inc";
         //
         creg c[4];
@@ -132,22 +132,22 @@ def test_CI_210826_13_openqasm_index_out_of_range() :
 def test_CI_210826_14_qbtheta_parameters() :
     print("* CI_210826_14_qbtheta_parameters:")
     print("* With default init settings, check the functionality for qbtheta parameter substitution")
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     s.acc = "aer"
     s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
+    __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0;
         include "qelib1.inc";
         creg c[1];
         u3(QBTHETA_0, 1.6, QBTHETA_1) q[0];
         measure q[0] -> c[0];
     }'''
-    mth = qb.core.MapIntDouble()
+    mth = qristal.core.MapIntDouble()
     mth[0] = 0.05
     mth[1] = -0.7
-    s.theta[0] = qb.core.VectorMapIntDouble([mth])
+    s.theta[0] = qristal.core.VectorMapIntDouble([mth])
     s.run()
 
     # Recompile the transpiled qasm to check
@@ -171,11 +171,11 @@ def test_CI_210826_14_qbtheta_parameters() :
 
 def test_raw_openqasm_str():
     print(" Testing raw OpenQASM string input ")
-    import qb.core, ast
-    s = qb.core.session()
+    import qristal.core, ast
+    s = qristal.core.session()
     s.debug = True
     nb_qubits = 12
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     circ.h(0)
     # Entangle all qubits
     for i in range(nb_qubits - 1):
@@ -191,9 +191,9 @@ def test_raw_openqasm_str():
 
 def test_raw_openqasm_file():
     print(" Testing raw OpenQASM file input ")
-    import qb.core, ast
+    import qristal.core, ast
     import os
-    s = qb.core.session()
+    s = qristal.core.session()
     s.debug = True
     dir_path = os.path.dirname(os.path.realpath(__file__))
     s.infile = dir_path + "/test_openqasm.qasm"
@@ -205,8 +205,8 @@ def test_raw_openqasm_file():
 
 def test_raw_openqasm_custom_qreg_names():
     print(" Testing raw OpenQASM input using different qreg variable names")
-    import qb.core, ast
-    s = qb.core.session()
+    import qristal.core, ast
+    s = qristal.core.session()
     s.init()
     s.instring = '''
     OPENQASM 2.0;

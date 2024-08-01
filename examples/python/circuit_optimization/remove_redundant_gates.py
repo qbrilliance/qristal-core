@@ -1,8 +1,8 @@
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # A circuit with lots of redundancies
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.h(0)
 circ.x(1)
 circ.h(0)
@@ -13,7 +13,7 @@ print("Original circuit:")
 circ.print()
 
 # Get the redundancy removal pass
-opt_pass = qb.core.redundancy_removal()
+opt_pass = qristal.core.redundancy_removal()
 # Apply it on the input circuit
 opt_pass.apply(circ)
 

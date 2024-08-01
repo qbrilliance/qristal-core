@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/passes/noise_aware_placement_pass.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/passes/noise_aware_placement_pass.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "xacc.hpp"
 
-namespace qb {
+namespace qristal {
 // Constructor
 noise_aware_placement_pass::noise_aware_placement_pass(
     const noise_aware_placement_config &device_info)
@@ -34,4 +34,4 @@ void noise_aware_placement_pass::apply(CircuitBuilder &circuit) {
                        {{"noise_aware_placement_config", *m_device_info}});
   }
 }
-} // namespace qb
+}

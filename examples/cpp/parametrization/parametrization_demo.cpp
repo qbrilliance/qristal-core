@@ -1,13 +1,14 @@
-#include <qb/core/circuit_builder.hpp>
-#include <qb/core/session.hpp>
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/session.hpp"
+
 #include <iomanip>
 
 int main() {
   // And we're off!
   std::cout << "Executing parametrized circuit C++ demo..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Set up sensible default parameters
   my_sim.init();
@@ -25,7 +26,7 @@ int main() {
   my_sim.set_calc_jacobian(true);
 
   // Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit')
-  auto circ1 = qb::CircuitBuilder();
+  auto circ1 = qristal::CircuitBuilder();
   circ1.RX(0, "alpha");
   circ1.RX(0, "beta");
   circ1.Measure(0);
@@ -38,7 +39,7 @@ int main() {
   std::vector<double> circ1_param_vec = circ1.param_map_to_vec(circ1_param_map);
 
   // Define another quantum program, with different parameters and a different number of qubits
-  auto circ2 = qb::CircuitBuilder();
+  auto circ2 = qristal::CircuitBuilder();
   circ2.RX(0, "alpha2");
   circ2.RX(1, "beta2");
   circ2.MeasureAll(-1);
@@ -58,10 +59,10 @@ int main() {
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
   std::cout << "Ran successfully!" << std::endl;
-  qb::Table2d<qb::Table2d<double>> out_prob_gradients = my_sim.get_out_prob_jacobians();
+  qristal::Table2d<qristal::Table2d<double>> out_prob_gradients = my_sim.get_out_prob_jacobians();
 
   // Print the raw shot results, probabilities, and jacobians
-  size_t num_outputs = qb::ipow(2, circ1.num_qubits());
+  size_t num_outputs = qristal::ipow(2, circ1.num_qubits());
   std::cout << "Results 1:" << std::endl << my_sim.results()[0][0] << std::endl;
   std::cout << "Circ 1 probabilities: \n";
   for (size_t idx = 0; auto elem: my_sim.get_out_probs()[0][0]) {
@@ -85,7 +86,7 @@ int main() {
     }
     std::cout << "],\n";
   }
-  size_t num_outputs2 = qb::ipow(2, circ2.num_qubits());
+  size_t num_outputs2 = qristal::ipow(2, circ2.num_qubits());
   std::cout << "Circ 2 jacobian: \n[";
   for (size_t i = 0; i < circ2.num_free_params(); i++) {
     std::cout << "[";

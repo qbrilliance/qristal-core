@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #include <gtest/gtest.h>
-#include "qb/core/optimization/qaoa/qaoa.hpp"
+#include "qristal/core/optimization/qaoa/qaoa.hpp"
 
 TEST(qaoaTester, check_simple) {
     std::string pauliString {"+ 1.0 + 3.5 Z0 - 5.5 Z1 - 5.9 Z2"};
@@ -10,14 +10,14 @@ TEST(qaoaTester, check_simple) {
 
     std::size_t nOptVars = 3;
     std::size_t nQaoaSteps = 2; 
-    qb::op::QaoaSimple qaoa{false};
+    qristal::op::QaoaSimple qaoa{false};
     qaoa.set_ham(pauliString);
     qaoa.set_qn(nOptVars);
     qaoa.set_acc("qpp");
     qaoa.set_functol({{0,1.0e-6}});
     qaoa.set_maxeval(300);
     qaoa.set_qaoa_step(nQaoaSteps);
-    qb::Table2d<std::map<int,double>> thetas{{{}}};
+    qristal::Table2d<std::map<int,double>> thetas{{{}}};
 
     bool extendedParams = false;
     std::size_t nThetas{}; 
@@ -36,8 +36,8 @@ TEST(qaoaTester, check_simple) {
 
     //const auto      nIters = params.energies.size();
     //const double  cpu_ms = timer_for_cpu.getDurationMs();
-    const qb::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
-    const qb::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()}; //[0][0][0]
+    const qristal::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
+    const qristal::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()}; //[0][0][0]
     const std::map<int,double> cost{energies[0][0]};
 
     EXPECT_TRUE(eigenstates[0][0] == "001");
@@ -62,14 +62,14 @@ TEST(qaoaTester, check_simple_QAP) {
 
     std::size_t nOptVars = 9; // matrixSize^2
     std::size_t nQaoaSteps = 10; 
-    qb::op::QaoaSimple qaoa{false};
+    qristal::op::QaoaSimple qaoa{false};
     qaoa.set_ham(pauliString);
     qaoa.set_qn(nOptVars);
     qaoa.set_acc("qpp");
     qaoa.set_functol({{0,1.0e-5}});
     qaoa.set_maxeval(100); // 800
     qaoa.set_qaoa_step(nQaoaSteps);
-    qb::Table2d<std::map<int,double>> thetas{{{}}};
+    qristal::Table2d<std::map<int,double>> thetas{{{}}};
 
     bool extendedParams = false;
     std::size_t nThetas{}; 
@@ -88,8 +88,8 @@ TEST(qaoaTester, check_simple_QAP) {
 
     //const auto      nIters = params.energies.size();
     //const double  cpu_ms = timer_for_cpu.getDurationMs();
-    const qb::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
-    const qb::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()}; //[0][0][0]
+    const qristal::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()}; //[0][0]
+    const qristal::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()}; //[0][0][0]
     const std::map<int,double> cost{energies[0][0]};
 
     EXPECT_TRUE(eigenstates[0][0] == "100010001");

@@ -4,8 +4,8 @@
  * parameters to generate a noise model object.
  */
 
-#include "qb/core/session.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 
 int main(int argc, char * argv[])
 {
@@ -37,11 +37,11 @@ int main(int argc, char * argv[])
   const double cx_error = 5e-2;
 
   // Read-out error
-  qb::ReadoutError read_out_error;
+  qristal::ReadoutError read_out_error;
   read_out_error.p_01 = 1e-2;
   read_out_error.p_10 = 1e-2;
 
-  qb::NoiseProperties device_properties;
+  qristal::NoiseProperties device_properties;
 
   // 1-qubit properties
   for (size_t i = 0; i < nb_qubits; i++) {
@@ -66,9 +66,9 @@ int main(int argc, char * argv[])
   device_properties.qubit_topology = qubit_topology_list;
 
   // Create noise model using device properties
-  auto nm = qb::NoiseModel(device_properties);
+  auto nm = qristal::NoiseModel(device_properties);
 
-  auto s = qb::session(false);
+  auto s = qristal::session(false);
   s.init();
   s.set_qn(nb_qubits);
   s.set_noise(true);

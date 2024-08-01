@@ -2,11 +2,11 @@
 print("Example demonstrating Grover-based amplitude amplification.")
 
 print("First, import libraries...")
-import qb.core
+import qristal.core
 import numpy as np
 import timeit
 print("Libraries imported successfully!")
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 print("In this example we want to use amplitude amplification to search for")
@@ -25,7 +25,7 @@ print("CZ q0, q2")
 print("CZ q1, q2\n")
 print("since this maps |psi> to -|psi>.")
 # Oracle: CZ q0, q2; CZ q1, q2 (see above)
-oracle = qb.core.Circuit()
+oracle = qristal.core.Circuit()
 oracle.cz(0, 2)
 oracle.cz(1, 2)
 print("Oracle defined! Printing oracle...\n")
@@ -35,7 +35,7 @@ print("Now to create the state preparation circuit that will produce")
 print("an equal superposition.")
 # State preparation:
 # Use a standard all Hadamards (equal superposition)
-state_prep = qb.core.Circuit()
+state_prep = qristal.core.Circuit()
 for i in range(NB_QUBITS):
   state_prep.h(i)
 print("State prep defined! Printing state prep...\n")
@@ -43,7 +43,7 @@ print("OpenQASM:\n", state_prep.openqasm())
 
 # Construct full amplitude amplification circuit:
 print("Now we construct the circuit that we will run to solve the problem.")
-full_circuit = qb.core.Circuit()
+full_circuit = qristal.core.Circuit()
 print("Circuit initialised!")
 
 # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.

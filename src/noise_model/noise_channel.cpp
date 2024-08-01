@@ -1,12 +1,12 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-#include "qb/core/noise_model/noise_channel.hpp"
+#include "qristal/core/noise_model/noise_channel.hpp"
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qb/core/tools/zip_tool.hpp"
+#include "qristal/core/tools/zip_tool.hpp"
 
 #include <numeric>
 #include <unsupported/Eigen/KroneckerProduct>
-#include "qb/core/primitives.hpp"
+#include "qristal/core/primitives.hpp"
 
 namespace 
 {
@@ -14,7 +14,7 @@ namespace
     using eigen_cvec = Eigen::Vector<std::complex<double>, Eigen::Dynamic>;
 
     /// Convert an STL-based matrix to an eigen matrix
-    eigen_cmat matrix_to_eigen(const qb::KrausOperator::Matrix &mat) {
+    eigen_cmat matrix_to_eigen(const qristal::KrausOperator::Matrix &mat) {
       assert(!mat.empty());
       const size_t rows = mat.size();
       const size_t cols = mat.at(0).size();
@@ -26,8 +26,8 @@ namespace
     }
 
     /// Convert an eigen matrix to an STL-based matrix 
-    qb::KrausOperator::Matrix eigen_to_matrix(const eigen_cmat &eigen_mat) {
-      qb::KrausOperator::Matrix mat;
+    qristal::KrausOperator::Matrix eigen_to_matrix(const eigen_cmat &eigen_mat) {
+      qristal::KrausOperator::Matrix mat;
       for (Eigen::Index i = 0; i < eigen_mat.rows(); ++i) {
         eigen_cvec eigen_row = eigen_mat.row(i);
         std::vector<std::complex<double>> row(
@@ -38,7 +38,7 @@ namespace
     }
 }
 
-namespace qb
+namespace qristal
 {
 
     NoiseChannel AmplitudeDampingChannel::Create(size_t q, double gamma)
@@ -86,7 +86,7 @@ namespace qb
             return std::unordered_map<char, Eigen::MatrixXcd>{{'I', Id2}, {'X', X}, {'Y', Y}, {'Z', Z}};
         }();
 
-        const auto build_kraus_op = [q1, q2](const std::string &pauli_str, double coeff) -> qb::KrausOperator
+        const auto build_kraus_op = [q1, q2](const std::string &pauli_str, double coeff) -> qristal::KrausOperator
         {
             assert(pauli_str.size() == 2);
             const auto first_mat = pauli_op_map.find(pauli_str[0])->second;
@@ -105,7 +105,7 @@ namespace qb
                 mat[row] = row_vec;
             }
 
-            qb::KrausOperator kraus_op;
+            qristal::KrausOperator kraus_op;
             kraus_op.matrix = mat;
             kraus_op.qubits = {q1, q2};
             return kraus_op;
@@ -227,16 +227,16 @@ namespace qb
     
 
     Eigen::MatrixXcd get_computational_to_pauli_transform(const size_t n_qubits) {
-      std::vector<qb::Pauli> basis{
-        qb::Pauli::Symbol::I,
-        qb::Pauli::Symbol::X,
-        qb::Pauli::Symbol::Y,
-        qb::Pauli::Symbol::Z 
+      std::vector<qristal::Pauli> basis{
+        qristal::Pauli::Symbol::I,
+        qristal::Pauli::Symbol::X,
+        qristal::Pauli::Symbol::Y,
+        qristal::Pauli::Symbol::Z 
       };
       const size_t dim = std::pow(basis.size(), n_qubits);
       Eigen::MatrixXcd conversion_mat = Eigen::MatrixXcd::Zero(dim, dim);
       for (size_t i = 0; i < dim; ++i) {
-        Eigen::VectorXcd pauli = Eigen::VectorXcd{qb::build_up_matrix_by_Kronecker_product(i, basis, n_qubits).transpose().reshaped()};
+        Eigen::VectorXcd pauli = Eigen::VectorXcd{qristal::build_up_matrix_by_Kronecker_product(i, basis, n_qubits).transpose().reshaped()};
         conversion_mat.row(i) = pauli; //set row-wise
       }
       return conversion_mat;
@@ -423,7 +423,7 @@ namespace qb
           assert(kraus_op_mat.cols() == 4);
         }
 
-        qb::KrausOperator kraus_op;
+        qristal::KrausOperator kraus_op;
         kraus_op.matrix = eigen_to_matrix(kraus_op_mat);
         kraus_op.qubits = qubits;
         kraus_ops.emplace_back(kraus_op);
@@ -431,5 +431,5 @@ namespace qb
 
       return kraus_ops;
     }
-} // namespace qb
+}
    

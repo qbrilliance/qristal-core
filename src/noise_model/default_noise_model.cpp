@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 
-namespace qb
+namespace qristal
 {
    
     // Build and return an instance of the default noise model

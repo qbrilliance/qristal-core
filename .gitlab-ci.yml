@@ -42,8 +42,8 @@ workflow:
 #    - core_artefacts/build/cmake_install.cmake
 #    - core_artefacts/build/afterCPMAddPackage.cmake
 #    - core_artefacts/build/coreDependencies.cmake
-#    - core_artefacts/build/qbcore-config.cmake
-#    - core_artefacts/build/qbcore-config-version.cmake
+#    - core_artefacts/build/qristal_core-config.cmake
+#    - core_artefacts/build/qristal_core-config-version.cmake
 #    - core_artefacts/build/CMakeFiles/Export/
 #    - core_artefacts/build/lib*
 #    - core_artefacts/build/core.cpython-*-linux-gnu.so
@@ -62,8 +62,8 @@ workflow:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
     - core_artefacts/build/coreDependencies.cmake
-    - core_artefacts/build/qbcore-config.cmake
-    - core_artefacts/build/qbcore-config-version.cmake
+    - core_artefacts/build/qristal_core-config.cmake
+    - core_artefacts/build/qristal_core-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
@@ -86,8 +86,8 @@ workflow:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
     - core_artefacts/build/coreDependencies.cmake
-    - core_artefacts/build/qbcore-config.cmake
-    - core_artefacts/build/qbcore-config-version.cmake
+    - core_artefacts/build/qristal_core-config.cmake
+    - core_artefacts/build/qristal_core-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
@@ -107,8 +107,8 @@ workflow:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
     - core_artefacts/build/coreDependencies.cmake
-    - core_artefacts/build/qbcore-config.cmake
-    - core_artefacts/build/qbcore-config-version.cmake
+    - core_artefacts/build/qristal_core-config.cmake
+    - core_artefacts/build/qristal_core-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
@@ -133,8 +133,8 @@ workflow:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
     - core_artefacts/build/coreDependencies.cmake
-    - core_artefacts/build/qbcore-config.cmake
-    - core_artefacts/build/qbcore-config-version.cmake
+    - core_artefacts/build/qristal_core-config.cmake
+    - core_artefacts/build/qristal_core-config-version.cmake
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
@@ -283,8 +283,8 @@ ci-py-tests:
     reports:
       junit: tests/python_module/report.xml
 
-#Note: it may be that in future this could be done a little more neatly using the Docker executor  
-#      instead of the shell executor, with the qcstack container specified with the "service" keyword. 
+#Note: it may be that in future this could be done a little more neatly using the Docker executor
+#      instead of the shell executor, with the qcstack container specified with the "service" keyword.
 ci-hardware-tests:
   stage: test
   needs: ["ci-build-install-missing"]

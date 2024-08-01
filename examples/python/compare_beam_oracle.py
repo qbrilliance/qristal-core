@@ -1,6 +1,6 @@
-import qb.core
+import qristal.core
 import numpy as np
-s = qb.core.session()
+s = qristal.core.session()
 s.acc = "qpp"
 s.sn = 1024
 s.init()
@@ -19,7 +19,7 @@ FA = [3,4]
 FB = [5,6]
 SA = [7,8,9,10]
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 circ.x(FA[1])
 circ.x(FB[1])
@@ -52,7 +52,7 @@ FA = [3,4]
 FB = [5,6]
 SA = [7,8,9,10]
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 circ.x(FA[1])
 circ.x(FB[1])

@@ -1,14 +1,14 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-// QB
-#include "qb/core/backend_utils.hpp"
+// Qristal
+#include "qristal/core/backend_utils.hpp"
 
 // STL
 #include <cstdlib>
 #include <regex>
 
 
-namespace qb
+namespace qristal
 {
 
   // Forward declarations of all backend option-setting functions

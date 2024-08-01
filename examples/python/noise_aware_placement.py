@@ -1,8 +1,8 @@
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # Simple Bell circuit
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.h(0)
 circ.cnot(0, 1)
 circ.measure_all()
@@ -11,9 +11,9 @@ circ.print()
 
 # Create a dummy device with simple characteristics for noise-aware placement testing:
 # 4 qubits with a line topology:
-# 0 - 1 - 2 - 3 
+# 0 - 1 - 2 - 3
 nb_qubits = 4
-dummy_device = qb.core.noise_aware_placement_config()
+dummy_device = qristal.core.noise_aware_placement_config()
 for i in range(nb_qubits - 1):
     # (i) and (i + 1) qubits are connected
     dummy_device.connectivity.append((i, i + 1))
@@ -29,8 +29,8 @@ for i in range(nb_qubits):
 # This will make these two qubits preferable during the noise-aware mapping.
 dummy_device.two_qubit_gate_errors[(2, 3)] = 0.02
 
-# Get the qb noise-aware placement pass
-placement = qb.core.noise_aware_placement_pass(dummy_device)
+# Get the qristal noise-aware placement pass
+placement = qristal.core.noise_aware_placement_pass(dummy_device)
 # Apply the pass over the input circuit
 placement.apply(circ)
 print("After noise-aware placement:")

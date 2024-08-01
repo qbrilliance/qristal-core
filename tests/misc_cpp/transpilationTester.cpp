@@ -1,15 +1,15 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/backends/qb_hardware/qb_visitor.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/backends/qb_hardware/qb_visitor.hpp"
 
 TEST(transpilationTester, checkCZOptimization) {
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
   // Set up sensible default parameters
   my_sim.init();
   my_sim.set_qn(2);
@@ -42,8 +42,8 @@ h q[1];
 }
 
 TEST(transpilationTester, checkCZPlacement) {
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
   // Set up sensible default parameters
   my_sim.init();
   my_sim.set_qn(2);
@@ -53,7 +53,7 @@ include "qelib1.inc";
 qreg q[2];
 cz q[0], q[1];
 )");
-  // Enable only placement 
+  // Enable only placement
   my_sim.set_nooptimise(true);
   my_sim.set_noplacement(false);
   my_sim.set_nosim(true);

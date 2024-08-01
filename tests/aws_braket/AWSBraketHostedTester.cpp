@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/session.hpp"
-#include "qb/core/cmake_variables.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/cmake_variables.hpp"
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -13,7 +13,7 @@
 
 
 // add job handler
-std::shared_ptr<qb::async_job_handle> run_async_internal(qb::session& s, const std::size_t i, const std::size_t j) {
+std::shared_ptr<qristal::async_job_handle> run_async_internal(qristal::session& s, const std::size_t i, const std::size_t j) {
   std::shared_ptr<xacc::Accelerator> qpu(s.get_executor().getNextAvailableQpu());
   auto handler = s.run_async(i, j, qpu);
   return handler;
@@ -22,13 +22,13 @@ std::shared_ptr<qb::async_job_handle> run_async_internal(qb::session& s, const s
 TEST(AWSBraketHostedTester, Simple) {
   std::cout << "Executing AWSBraketHosted C++ test" << std::endl;
   // Create a simple Bell state circuit.
-  qb::CircuitBuilder my_circuit;
+  qristal::CircuitBuilder my_circuit;
   my_circuit.H(0);
   my_circuit.CNOT(0, 1);
   my_circuit.MeasureAll(2);
   pybind11::scoped_interpreter guard{};
-  // Start a QB SDK session
-  auto s = qb::session(false);
+  // Start a Qristal session
+  auto s = qristal::session(false);
   // 2 qubits, 100 shots
   s.set_qn(2);
   s.set_sn(100);

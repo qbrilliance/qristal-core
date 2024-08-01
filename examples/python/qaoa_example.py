@@ -1,6 +1,6 @@
 import numpy as np
-import qb.core.optimization as qbOpt
-import qb as qb
+import qristal.core
+import qristal.core.optimization as qbOpt
 
 # Consider a max-cut problem for a 5-node
 #                *
@@ -37,8 +37,8 @@ qa.ham = pauli_string
 qa.sn      = 10000
 qa.maxeval = 1000
 
-# Construct parameter list and initial angle values. 
-qa.theta[0][0]=qb.core.MapIntDouble()
+# Construct parameter list and initial angle values.
+qa.theta[0][0]=qristal.core.MapIntDouble()
 
 # Extended flexibility: Per QAOA step, assign one parameter to each term in the driver Hamiltonian
 # and one parameter to each term in the cost Hamiltonian
@@ -56,7 +56,7 @@ print ("Employ", nThetas,"optimization parameters.")
 qa.extended_param = extendedParams
 
 # Set initial angles.
-for ii in range(nThetas): 
+for ii in range(nThetas):
     qa.theta[0][0][ii] = 0.25
 
 # Run the QAOA algorithm

@@ -6,14 +6,14 @@ The central part of all variational quantum algorithms are parametrized quantum 
 
 ### Defining a parametrized circuit
 
-Qristal can be used to define both parametrized and non-parametrized quantum gates using the `qb.core.Circuit()` object in Python. Here is a sample circuit definition:
+Qristal can be used to define both parametrized and non-parametrized quantum gates using the `qristal.core.Circuit()` object in Python. Here is a sample circuit definition:
 
 ```python
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # Define a circuit
-circuit = qb.core.Circuit()
+circuit = qristal.core.Circuit()
 
 # Add some gates
 circuit.rx(0, "alpha")
@@ -46,7 +46,7 @@ Now that the circuit is defined, we must define runtime values and an executor f
 params_map = {"alpha": 1.0, "beta": 1.5, "gamma": 2.0}
 params_list = circuit.param_dict_to_list(params_map)
 # Create the executor object
-my_sim = qb.core.session()
+my_sim = qristal.core.session()
 
 #Define settings
 my_sim.init()
@@ -61,11 +61,11 @@ my_sim.run()
 print("Ran successfully!")
 ```
 
-In the above example, we assign the runtime values of `params` to the `parameter_list` property of the executor, and tell it to calculate gradients as well by setting the `calc_jacobian` property to `True`. 
+In the above example, we assign the runtime values of `params` to the `parameter_list` property of the executor, and tell it to calculate gradients as well by setting the `calc_jacobian` property to `True`.
 
-**NB**: This will set the properties for all circuits being simulated with this `session` object, so when setting the parameters and enabling/disabling gradient calculations for multiple circuits in C++, ensure it is passed in the correct format using the properties `parameter_vectors` and `calc_jacobians`. 
+**NB**: This will set the properties for all circuits being simulated with this `session` object, so when setting the parameters and enabling/disabling gradient calculations for multiple circuits in C++, ensure it is passed in the correct format using the properties `parameter_vectors` and `calc_jacobians`.
 
-Finally, we execute the circuit by invoking `my_sim.run()`. This populates the output fields of the executor; the ones we are interested in for now are the `out_counts` and `out_prob_jacobians`, which contain the output counts for each bitstring and the output probability jacobian (with respect to the runtime parameters) respectively. 
+Finally, we execute the circuit by invoking `my_sim.run()`. This populates the output fields of the executor; the ones we are interested in for now are the `out_counts` and `out_prob_jacobians`, which contain the output counts for each bitstring and the output probability jacobian (with respect to the runtime parameters) respectively.
 
 ### Obtaining results
 

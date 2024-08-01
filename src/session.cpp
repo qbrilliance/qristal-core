@@ -11,15 +11,15 @@
 // Boost
 #include <boost/dynamic_bitset.hpp>
 
-// QB
-#include "qb/core/backend.hpp"
-#include "qb/core/backend_utils.hpp"
-#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
-#include "qb/core/pretranspiler.hpp"
-#include "qb/core/profiler.hpp"
-#include "qb/core/session.hpp"
-#include "qb/core/passes/circuit_opt_passes.hpp"
-#include "qb/core/circuit_builder.hpp"
+// Qristal
+#include "qristal/core/backend.hpp"
+#include "qristal/core/backend_utils.hpp"
+#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qristal/core/pretranspiler.hpp"
+#include "qristal/core/profiler.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/passes/circuit_opt_passes.hpp"
+#include "qristal/core/circuit_builder.hpp"
 
 // XACC
 #include "CompositeInstruction.hpp"
@@ -28,8 +28,8 @@
 
 // CUDAQ support
 #ifdef WITH_CUDAQ
-  #include "qb/core/cudaq/sim_pool.hpp"
-  #include "qb/core/cudaq/cudaq_acc.hpp"
+  #include "qristal/core/cudaq/sim_pool.hpp"
+  #include "qristal/core/cudaq/cudaq_acc.hpp"
 #endif
 
 // dlopen
@@ -103,7 +103,7 @@ namespace
 } // namespace
 
 
-namespace qb
+namespace qristal
 {
   /// Default session constructor
   session::session()
@@ -194,7 +194,7 @@ namespace qb
 
     // initialising the quantum circuit
     std::stringstream RandomQcircuit;
-    RandomQcircuit << "__qpu__ void QBCIRCUIT(qreg q) {" << std::endl
+    RandomQcircuit << "__qpu__ void qristal_circuit(qreg q) {" << std::endl
                    << "  OPENQASM 2.0;" << std::endl
                    << "  include \"qelib1.inc\";" << std::endl;
 
@@ -565,7 +565,7 @@ namespace qb
       config.acc_name = accs_valid.get(ii, jj);
     }
 
-    /// QB custom OpenQASM include file
+    /// Qristal custom OpenQASM include file
     {
       ValidatorTwoDim<std::string> include_qbs_valid(include_qbs_);
       if (include_qbs_valid.is_data_empty())
@@ -643,10 +643,10 @@ namespace qb
 
     /// Enable/disable noise flag
     {
-      ValidatorTwoDim<bool> noises_valid(noises_, false, true, " enable the QB noise model [noise] ");
+      ValidatorTwoDim<bool> noises_valid(noises_, false, true, " enable noise modelling [noise] ");
       if (noises_valid.is_data_empty())
       {
-        throw std::range_error("Enable the QB noise model [noise] cannot be empty");
+        throw std::range_error("Enable noise modelling [noise] cannot be empty");
       }
       config.noise = noises_valid.get(ii, jj);
     }
@@ -916,7 +916,7 @@ namespace qb
         }
       }
 
-      // QB multi-control gates
+      // Qristal multi-control gates
       // Note: Does not apply to XASM and Quil1 formats
       if (!xasm && !quil1) {
         if (debug_) {
@@ -1075,13 +1075,13 @@ namespace qb
         std::cout << "# Using CUDA Quantum Simulator backend: " << acc
                   << std::endl;
       }
-      return std::make_shared<qb::cudaq_acc>(acc);
+      return std::make_shared<qristal::cudaq_acc>(acc);
     }
 #endif
 
     // Load emulator if emulator tensor network backends are selected.
     if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo") {
-      static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
+      static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
       void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
 
       if (handle == NULL) {
@@ -1177,7 +1177,7 @@ namespace qb
             << "# The 'qsim' accelerator doesn't support noise configuration '"
             << run_config.noise_model.name << "'." << std::endl;
         std::cout << "# If you wish to use qsim with noise, please install the "
-                     "emulator package and select one of the QB noise models "
+                     "emulator package and select a noise model "
                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                   << std::endl;
         std::cout << "# Disabling noise." << std::endl;
@@ -1205,15 +1205,15 @@ namespace qb
               << "# The 'qb-mps' accelerator doesn't support noise configuration '"
               << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qb-mps with noise, please install the "
-                      "emulator package and select one of the QB noise models "
+                      "emulator package and select a noise model "
                       "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                     << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {
           // Switch to "qb-mps" from emulator package
-          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
+          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
           void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-          using func_type = qb::NoiseModel *(const char *);
+          using func_type = qristal::NoiseModel *(const char *);
           auto *get_emulator_noise_model =
               reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
 
@@ -1260,15 +1260,15 @@ namespace qb
               << "# The 'qb-purification' accelerator doesn't support noise configuration '"
               << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qb-purification with noise, please install the "
-                      "emulator package and select one of the QB noise models "
+                      "emulator package and select a noise model "
                       "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                     << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {
           // Switch to "qb-purification" from emulator package
-          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
+          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
           void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-          using func_type = qb::NoiseModel *(const char *);
+          using func_type = qristal::NoiseModel *(const char *);
           auto *get_emulator_noise_model =
               reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
 
@@ -1319,15 +1319,15 @@ namespace qb
               << "# The 'qb-mpdo' accelerator doesn't support noise configuration '"
               << run_config.noise_model.name << "'." << std::endl;
           std::cout << "# If you wish to use qb-mpdo with noise, please install the "
-                      "emulator package and select one of the QB noise models "
+                      "emulator package and select a noise model "
                       "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
                     << std::endl;
           std::cout << "# Disabling noise." << std::endl;
         } else {
           // Switch to "qb-mpdo" from emulator package
-          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
+          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
           void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-          using func_type = qb::NoiseModel *(const char *);
+          using func_type = qristal::NoiseModel *(const char *);
           auto *get_emulator_noise_model =
               reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
 
@@ -1489,7 +1489,7 @@ namespace qb
     }
 
     // Create new session object to run shifted gradient circuits
-    qb::session gradient_sess(*this);
+    qristal::session gradient_sess(*this);
     gradient_sess.set_irtarget_ms(gradient_circs);
     gradient_sess.set_calc_jacobian(false);
     gradient_sess.set_calc_out_counts(true);
@@ -1512,10 +1512,8 @@ namespace qb
     }
     for (size_t i = 0; i < 2*num_params; i += 2) {
       // Find the bitstring indices that are non-zero in at least one run
-      std::vector<int> counts_plus =
-                          gradient_sess.get_out_counts().at(i).at(0);
-      std::vector<int> counts_minus =
-                          gradient_sess.get_out_counts().at(i+1).at(0);
+      std::vector<int> counts_plus = gradient_sess.get_out_counts().at(i).at(0);
+      std::vector<int> counts_minus = gradient_sess.get_out_counts().at(i+1).at(0);
       // Only loop over non-zero bitstrings and populate jacobian
       for (size_t j = 0; j < num_outputs; j++) {
         jacobian[i/2][j] = 0.5 * (counts_plus[j] - counts_minus[j]) / (1.0 * num_shots);
@@ -1597,7 +1595,7 @@ namespace qb
     // Get buffer name from the kernel signature
     const std::string buffer_name = [](const std::string& kernel_src)
     {
-      const std::regex kernelSignatureRegex(R"(__qpu__[ \t]void[ \t]QBCIRCUIT\(qreg[ \t]([a-zA-Z_$][a-zA-Z_$0-9]*)\))");
+      const std::regex kernelSignatureRegex(R"(__qpu__[ \t]void[ \t]qristal_circuit\(qreg[ \t]([a-zA-Z_$][a-zA-Z_$0-9]*)\))");
       std::smatch matches;
       std::string qRegName = "q";
       if (std::regex_search(kernel_src, matches, kernelSignatureRegex))
@@ -1715,7 +1713,7 @@ namespace qb
       return nullptr;
 #else
       throw std::runtime_error(
-          "CUDAQ is not supported. Please build qb::core with CUDAQ.");
+          "CUDAQ is not supported. Please build qristal::core with CUDAQ.");
 #endif
     }
 
@@ -1780,7 +1778,7 @@ namespace qb
     // (2) Synchronous/sequential execution whereby the accelerator name for this (i, j) job is set in this session object,
     // hence, we just construct/retrieve it accordingly.
     auto qpu = accelerator ? accelerator : get_sim_qpu(exec_on_hardware, run_config);
-    auto acc = std::make_shared<qb::backend>();
+    auto acc = std::make_shared<qristal::backend>();
     qpu->updateConfiguration(mqbacc);
     acc->updateConfiguration(mqbacc);
 
@@ -1918,14 +1916,14 @@ namespace qb
                     << debug_msg.str() << std::endl;
           debug_msg.str("");
         }
-        if (qpu->name() == "aws-braket" && std::dynamic_pointer_cast<qb::remote_accelerator>(qpu)) {
+        if (qpu->name() == "aws-braket" && std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu)) {
           // Asynchronously offload the circuit to AWS Braket
-          auto as_remote_acc = std::dynamic_pointer_cast<qb::remote_accelerator>(qpu);
+          auto as_remote_acc = std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu);
           auto aws_job_handle = as_remote_acc->async_execute(citargets.at(0));
           aws_job_handle->add_done_callback([=](auto &handle) {
             auto buffer_temp = std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
             handle.load_result(buffer_temp);
-            auto qb_transpiler = std::make_shared<qb::backend>();
+            auto qb_transpiler = std::make_shared<qristal::backend>();
             this->process_run_result(
                 ii, jj, run_config, citargets.at(0), qpu, mqbacc, buffer_temp,
                 timer_for_qpu.getDurationMs(), qb_transpiler);
@@ -1978,7 +1976,7 @@ namespace qb
       const xacc::HeterogeneousMap &sim_qpu_configs,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
       double xacc_scope_timer_qpu_ms,
-      std::shared_ptr<qb::backend> qb_transpiler) {
+      std::shared_ptr<qristal::backend> qb_transpiler) {
     if (debug_) {
       std::cout << std::endl;
       buffer_b->print();
@@ -2065,7 +2063,7 @@ namespace qb
 
   // Wrap raw OpenQASM string in a QB Kernel:
   // - Move qreg to a kernel argument
-  // - Denote the kernel name as 'QBCIRCUIT'
+  // - Denote the kernel name as 'qristal_circuit'
   std::string session::convertRawOpenQasmToQBKernel(const std::string &in_rawQasm)
   {
     // Pattern:
@@ -2087,7 +2085,7 @@ namespace qb
       std::string q2oqm = in_rawQasm;
       q2oqm.erase(q2oqm.find(qRegDeclararion), qRegDeclararion.length());
       const std::string qbstr =
-          "__qpu__ void QBCIRCUIT(qreg " + qRegName + ") {\n" + q2oqm + '}';
+          "__qpu__ void qristal_circuit(qreg " + qRegName + ") {\n" + q2oqm + '}';
       return qbstr;
     }
     else
@@ -2095,7 +2093,7 @@ namespace qb
       // There is no qreg declaration, e.g., an empty OpenQASM source with no
       // body. Just handle it graciously.
       const std::string qbstr =
-          "__qpu__ void QBCIRCUIT(qreg q) {\n" + in_rawQasm + '}';
+          "__qpu__ void qristal_circuit(qreg q) {\n" + in_rawQasm + '}';
       return qbstr;
     }
   }
@@ -2111,4 +2109,4 @@ namespace qb
     return result;
   }
 
-} // namespace qb
+}

@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-#include "qb/core/optimization/qaoa/qaoa.hpp"
+#include "qristal/core/optimization/qaoa/qaoa.hpp"
 
 int main () {
     xacc::Initialize();;
@@ -17,14 +17,14 @@ int main () {
 
     std::size_t nOptVars = 3;
     std::size_t nQaoaSteps = 2;
-    qb::op::QaoaSimple qaoa{false};
+    qristal::op::QaoaSimple qaoa{false};
     qaoa.set_ham(pauliString);
     qaoa.set_qn(nOptVars);
     qaoa.set_acc("qpp");
     qaoa.set_functol({{0,1.0e-6}});
     qaoa.set_maxeval(300);
     qaoa.set_qaoa_step(nQaoaSteps);
-    qb::Table2d<std::map<int,double>> thetas{{{}}};
+    qristal::Table2d<std::map<int,double>> thetas{{{}}};
 
     bool extendedParams = false;
     std::size_t nThetas{};
@@ -41,8 +41,8 @@ int main () {
 
     qaoa.run(0,0);
 
-    const qb::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()};
-    const qb::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()};
+    const qristal::Table2d<std::string> eigenstates{qaoa.get_out_eigenstates()};
+    const qristal::Table2d<std::map<int,double>> energies{qaoa.get_out_energys()};
     const std::map<int,double> cost{energies[0][0]};
     const std::string eigenstate{eigenstates[0][0]};
 

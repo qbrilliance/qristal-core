@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
-#include "qb/core/thread_pool.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/thread_pool.hpp"
 
 #include <string>
 #include <future>
@@ -8,7 +8,7 @@
 #include <thread>
 
 // add job handler
-  std::string run_async_internal(qb::session& s, const std::size_t i, const std::size_t j) {
+  std::string run_async_internal(qristal::session& s, const std::size_t i, const std::size_t j) {
   //std::stringstream msg;
   //msg << "I am thread " << std::this_thread::get_id() << " running on (i,j): (" << i << ","<< j<<")"<< std::endl; std::cout << msg.str(); msg.str("");
     std::shared_ptr<xacc::Accelerator> qpu(s.get_executor().getNextAvailableQpu());
@@ -32,9 +32,9 @@ int main()
 
   std::cout << "execute async test" << std::endl;
 
-  // Start a QB SDK session.
-  //auto s = qb::session(true);
-  auto s = qb::session(false);
+  // Start a Qristal session.
+  //auto s = qristal::session(true);
+  auto s = qristal::session(false);
   // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
   s.init();
 
@@ -43,8 +43,8 @@ int main()
   std::size_t nOuterLoops = 2;
 
   std::size_t nThreads = 1;
-  qb::thread_pool::set_num_threads(nThreads);
-  std::cout << "number of threads: " << qb::thread_pool::get_num_threads() << std::endl;
+  qristal::thread_pool::set_num_threads(nThreads);
+  std::cout << "number of threads: " << qristal::thread_pool::get_num_threads() << std::endl;
 
   // configure parallel workers
   s.set_acc("aer");
@@ -60,7 +60,7 @@ int main()
 
   // targetCircuit: contains the quantum circuit that will be processed/executed
 /*  const std::string targetCircuit = R"(
-    __qpu__ void QBCIRCUIT(qreg q) {
+    __qpu__ void qristal_circuit(qreg q) {
     OPENQASM 2.0;
     include "qelib1.inc";
     creg c[2];
@@ -136,7 +136,7 @@ int main()
     std::vector<std::future<std::string>> futures{};
     for (std::size_t i = 0; i<nJobs; ++i){
       //futures.push_back(std::async(std::launch::async, run_async_internal, std::ref(s), i, j));
-      futures.push_back(qb::thread_pool::submit(run_async_internal, std::ref(s), i, j));
+      futures.push_back(qristal::thread_pool::submit(run_async_internal, std::ref(s), i, j));
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 

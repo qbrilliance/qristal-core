@@ -1,9 +1,9 @@
-import qb.core
+import qristal.core
 import numpy as np
 import timeit
 
 n_qbits = 3
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.sn = 1024
 s.qn = n_qbits
@@ -22,11 +22,11 @@ s.measure_sample_sequential = "auto"
 # Uncomment the following lines to introduce noise to the simulation.
 # You will need to have the Qristal emulator installed for this to work.
 #s.noise = True
-#s.noise_model = qb.core.NoiseModel("qb-nm1", n_qbits)
+#s.noise_model = qristal.core.NoiseModel("qb-nm1", n_qbits)
 
 # In this test we use cx to perform a standard
 # cx on |111>. Expected outcome: |011>
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # prepare initial state
 circ.x(0)

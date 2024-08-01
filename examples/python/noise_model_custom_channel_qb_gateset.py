@@ -4,14 +4,14 @@
 # and how to modify the default noise model used.
 
 import sys
-import qb.core
+import qristal.core
 
 
 # Build and return a noise model for an n-qubit ring
 def ring_noise_model(nb_qubits):
 
   # Make an empty noise model
-  noise_model = qb.core.NoiseModel()
+  noise_model = qristal.core.NoiseModel()
 
   # Name the model whatever you like
   noise_model.name = "qb_ring_noise_model"
@@ -30,7 +30,7 @@ def ring_noise_model(nb_qubits):
 
   # Define the readout errors
   # assume no readout errors (0.0)
-  ro_error = qb.core.ReadoutError()
+  ro_error = qristal.core.ReadoutError()
   ro_error.p_01 = 0.0
   ro_error.p_10 = 0.0
 
@@ -41,24 +41,24 @@ def ring_noise_model(nb_qubits):
     noise_model.set_qubit_readout_error(qId, ro_error)
 
     # Set the single-qubit gate fidelities
-    noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, rx_error), "rx", [qId])
-    noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, ry_error), "ry", [qId])
+    noise_model.add_gate_error(qristal.core.DepolarizingChannel.Create(qId, rx_error), "rx", [qId])
+    noise_model.add_gate_error(qristal.core.DepolarizingChannel.Create(qId, ry_error), "ry", [qId])
 
     # Set the qubit connections to form a ring
     qId2 = 0 if qId == nb_qubits - 1 else qId + 1
     noise_model.add_qubit_connectivity(qId, qId2)
 
     # Set the corresponding two-qubit gate fidelities
-    noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cz_error), "cz", [qId, qId2])
-    noise_model.add_gate_error(qb.core.DepolarizingChannel.Create(qId, qId2, cz_error), "cz", [qId2, qId])
+    noise_model.add_gate_error(qristal.core.DepolarizingChannel.Create(qId, qId2, cz_error), "cz", [qId, qId2])
+    noise_model.add_gate_error(qristal.core.DepolarizingChannel.Create(qId, qId2, cz_error), "cz", [qId2, qId])
 
   return noise_model
 
 
 def main(arguments):
 
-  # Create a quantum computing session using the QB SDK
-  my_sim = qb.core.session()
+  # Create a quantum computing session using Qristal
+  my_sim = qristal.core.session()
 
   # Set up meaningful defaults for session parameters
   my_sim.init()

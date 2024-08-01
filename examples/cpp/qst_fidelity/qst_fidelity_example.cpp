@@ -1,17 +1,17 @@
-#include "qb/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qb/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qb/core/benchmark/metrics/QuantumStateFidelity.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+#include "qristal/core/benchmark/metrics/QuantumStateFidelity.hpp"
 
 #include <time.h>
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 int main() {
 
     const std::set<size_t> qubits{0, 1};
 
     //(1) set up session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(100);

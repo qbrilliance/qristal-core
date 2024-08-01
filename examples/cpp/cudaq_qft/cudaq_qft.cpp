@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/session.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/circuit_builder.hpp"
 
 #include <string>
 #include <iostream>
@@ -12,8 +12,8 @@ int main()
   // And we're off!
   std::cout << "Executing C++ demo..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Set up sensible default parameters
   my_sim.init();
@@ -28,7 +28,7 @@ int main()
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(1024);
 
-  qb::CircuitBuilder circ;
+  qristal::CircuitBuilder circ;
   std::vector<int> qft_qubits(num_qubits);
   // Fill the qubit list with 0, 1, ..., n-1
   // i.e., the qubits that we want to apply the QFT circuit to.

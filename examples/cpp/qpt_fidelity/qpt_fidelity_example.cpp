@@ -1,18 +1,18 @@
-#include "qb/core/benchmark/workflows/RotationSweep.hpp"
-#include "qb/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qb/core/benchmark/workflows/QuantumProcessTomography.hpp"
-#include "qb/core/benchmark/metrics/QuantumProcessFidelity.hpp"
+#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+#include "qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp"
 
 #include <time.h>
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 int main() {
 
     const size_t n_qubits = 2;
 
     //(1) set up session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);

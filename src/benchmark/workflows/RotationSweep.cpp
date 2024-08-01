@@ -6,11 +6,11 @@
 #include <unsupported/Eigen/KroneckerProduct>
 
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qb/core/tools/zip_tool.hpp"
-#include "qb/core/benchmark/workflows/RotationSweep.hpp"
+#include "qristal/core/tools/zip_tool.hpp"
+#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
 
 
-namespace qb
+namespace qristal
 {
     namespace benchmark
     {
@@ -19,7 +19,7 @@ namespace qb
                                       const int& start_degree,
                                       const int& end_degree,
                                       const size_t& n_points, //number of data points to collect for each sweep
-                                      qb::session& session ) :
+                                      qristal::session& session ) :
         rotations_per_qubit_(rotations_per_qubit),
         start_degree_(start_degree),
         end_degree_(end_degree),
@@ -31,16 +31,16 @@ namespace qb
             session_.set_qn(rotations_per_qubit_.size());
         }
 
-        std::vector<qb::CircuitBuilder> RotationSweep::get_circuits() const
+        std::vector<qristal::CircuitBuilder> RotationSweep::get_circuits() const
         {
-            std::vector<qb::CircuitBuilder> circuits;
+            std::vector<qristal::CircuitBuilder> circuits;
             for (double current_rad = start_rad(); current_rad <= end_rad(); current_rad += step())
             {
                 //hotfix for xacc error for very small rotation angles
                 if (fabs(current_rad) <= 1e-6)
                     current_rad = 0.0;
 
-                qb::CircuitBuilder cb;
+                qristal::CircuitBuilder cb;
                 for (size_t q = 0; q < rotations_per_qubit_.size(); ++q)
                 {
                     switch (rotations_per_qubit_[q])
@@ -197,5 +197,5 @@ namespace qb
             workflow.serialize_ideal_processes(ideal_processes, timestamp);
         }
 
-    } // namespace qb::benchmark
-} // namespace qb
+    }
+}

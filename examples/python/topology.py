@@ -10,7 +10,7 @@
 import sys
 import os
 import numpy as np
-import qb.core
+import qristal.core
 
 def connections(circuit_string) :
     gates = circuit_string.splitlines()

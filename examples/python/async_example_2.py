@@ -4,11 +4,11 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 """
 
-import qb.core
+import qristal.core
 import json as json
 import time as time
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 NOL = 50   # number of outer loops
@@ -26,7 +26,7 @@ s.acc = "aer"
 
 #%% set up jobs
 circuit_str='''
-__qpu__ void QBCIRCUIT(qreg q) {
+__qpu__ void qristal_circuit(qreg q) {
 OPENQASM 2.0;
 include "qelib1.inc";
 creg c[2];
@@ -42,7 +42,7 @@ for outerLoop in range(NOL):
 
   s.instring.clear()
   for i in range(NJ):
-    s.instring.append(qb.core.VectorString([circuit_str]))
+    s.instring.append(qristal.core.VectorString([circuit_str]))
 
   handles = []
   for i in range(NJ):

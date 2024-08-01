@@ -43,49 +43,49 @@ endif()
 
 set(headers
   # C++ library header files in alphabetical order
-  include/qb/core/qblib.inc
-  include/qb/core/async_executor.hpp
-  include/qb/core/backend.hpp
-  include/qb/core/backend_utils.hpp
-  include/qb/core/cmake_variables.hpp
-  include/qb/core/circuit_builder.hpp
-  include/qb/core/circuit_builders/exponent.hpp
-  include/qb/core/circuit_builders/ry_encoding.hpp
-  include/qb/core/pretranspiler.hpp
-  include/qb/core/primitives.hpp
-  include/qb/core/profiler.hpp
-  include/qb/core/remote_async_accelerator.hpp
-  include/qb/core/session.hpp
-  include/qb/core/session_utils.hpp
-  include/qb/core/thread_pool.hpp
-  include/qb/core/typedefs.hpp
-  include/qb/core/utils.hpp
-  include/qb/core/backends/qb_hardware/qb_qpu.hpp
-  include/qb/core/backends/qb_hardware/qb_visitor.hpp
-  include/qb/core/benchmark/Concepts.hpp
-  include/qb/core/benchmark/DataLoaderGenerator.hpp
-  include/qb/core/benchmark/Serializer.hpp
-  include/qb/core/benchmark/Task.hpp
-  include/qb/core/benchmark/metrics/CircuitFidelity.hpp
-  include/qb/core/benchmark/metrics/PyGSTiResults.hpp
-  include/qb/core/benchmark/metrics/QuantumProcessFidelity.hpp
-  include/qb/core/benchmark/metrics/QuantumProcessMatrix.hpp
-  include/qb/core/benchmark/metrics/QuantumStateDensity.hpp
-  include/qb/core/benchmark/metrics/QuantumStateFidelity.hpp
-  include/qb/core/benchmark/workflows/PyGSTiBenchmark.hpp
-  include/qb/core/benchmark/workflows/QuantumProcessTomography.hpp
-  include/qb/core/benchmark/workflows/QuantumStateTomography.hpp
-  include/qb/core/benchmark/workflows/RotationSweep.hpp
-  include/qb/core/benchmark/workflows/SimpleCircuitExecution.hpp
-  include/qb/core/benchmark/workflows/SPAMBenchmark.hpp
-  include/qb/core/optimization/qaoa/qaoa.hpp
-  include/qb/core/optimization/vqee/vqee.hpp
-  include/qb/core/passes/base_pass.hpp
-  include/qb/core/passes/circuit_opt_passes.hpp
-  include/qb/core/passes/noise_aware_placement_config.hpp
-  include/qb/core/passes/noise_aware_placement_pass.hpp
-  include/qb/core/passes/swap_placement_pass.hpp
-  include/qb/core/tools/zip_tool.hpp
+  include/qristal/core/qristal.inc
+  include/qristal/core/async_executor.hpp
+  include/qristal/core/backend.hpp
+  include/qristal/core/backend_utils.hpp
+  include/qristal/core/cmake_variables.hpp
+  include/qristal/core/circuit_builder.hpp
+  include/qristal/core/circuit_builders/exponent.hpp
+  include/qristal/core/circuit_builders/ry_encoding.hpp
+  include/qristal/core/pretranspiler.hpp
+  include/qristal/core/primitives.hpp
+  include/qristal/core/profiler.hpp
+  include/qristal/core/remote_async_accelerator.hpp
+  include/qristal/core/session.hpp
+  include/qristal/core/session_utils.hpp
+  include/qristal/core/thread_pool.hpp
+  include/qristal/core/typedefs.hpp
+  include/qristal/core/utils.hpp
+  include/qristal/core/backends/qb_hardware/qb_qpu.hpp
+  include/qristal/core/backends/qb_hardware/qb_visitor.hpp
+  include/qristal/core/benchmark/Concepts.hpp
+  include/qristal/core/benchmark/DataLoaderGenerator.hpp
+  include/qristal/core/benchmark/Serializer.hpp
+  include/qristal/core/benchmark/Task.hpp
+  include/qristal/core/benchmark/metrics/CircuitFidelity.hpp
+  include/qristal/core/benchmark/metrics/PyGSTiResults.hpp
+  include/qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp
+  include/qristal/core/benchmark/metrics/QuantumProcessMatrix.hpp
+  include/qristal/core/benchmark/metrics/QuantumStateDensity.hpp
+  include/qristal/core/benchmark/metrics/QuantumStateFidelity.hpp
+  include/qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp
+  include/qristal/core/benchmark/workflows/QuantumProcessTomography.hpp
+  include/qristal/core/benchmark/workflows/QuantumStateTomography.hpp
+  include/qristal/core/benchmark/workflows/RotationSweep.hpp
+  include/qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp
+  include/qristal/core/benchmark/workflows/SPAMBenchmark.hpp
+  include/qristal/core/optimization/qaoa/qaoa.hpp
+  include/qristal/core/optimization/vqee/vqee.hpp
+  include/qristal/core/passes/base_pass.hpp
+  include/qristal/core/passes/circuit_opt_passes.hpp
+  include/qristal/core/passes/noise_aware_placement_config.hpp
+  include/qristal/core/passes/noise_aware_placement_pass.hpp
+  include/qristal/core/passes/swap_placement_pass.hpp
+  include/qristal/core/tools/zip_tool.hpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${source_files} ${headers})
@@ -108,7 +108,7 @@ target_include_directories(${PROJECT_NAME}
 # Link dependencies
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
-    qb::core::noise
+    qristal::core::noise
     xacc::xacc
     xacc::quantum_gate
     xacc::pauli
@@ -173,7 +173,7 @@ endif()
 # Install the library
 install(
   TARGETS ${PROJECT_NAME}
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
   EXPORT ${PROJECT_NAME}Targets
 )
 
@@ -201,19 +201,19 @@ install(
 # Generate the afterCPMAddPackage.cmake file.
 set(afterCPMAddPackageFile "afterCPMAddPackage.cmake")
 set(outfile "${CMAKE_CURRENT_BINARY_DIR}/${afterCPMAddPackageFile}")
-file(WRITE ${outfile} "# Set all cmake variables needed when using CPMAddPackage or find_package to import qbcore.\
+file(WRITE ${outfile} "# Set all cmake variables needed when using CPMAddPackage or find_package to import qristal::core.\
                      \n# Auto-generated by cmake.\
                      \nset(XACC_DIR ${XACC_DIR})\
                      \ncache_install_path()\
                      \n  find_dependency(XACC)\
                      \nreset_install_path()\
-                     \nset(qbcore_LIBDIR ${qbcore_LIBDIR})\
+                     \nset(qristal_core_LIBDIR ${qristal_core_LIBDIR})\
                      ")
 
 # Generate the coreDependencies.cmake file.
 set(dependenciesFile "coreDependencies.cmake")
 set(outfile "${CMAKE_CURRENT_BINARY_DIR}/${dependenciesFile}")
-file(WRITE ${outfile} "# Import all transitive dependencies of qbcore needed when using find_package.\
+file(WRITE ${outfile} "# Import all transitive dependencies of qristal::core needed when using find_package.\
                      \n# Auto-generated by cmake.\
                      \nset(nlohmann_json_DIR ${nlohmann_json_DIR})\
                      \nfind_dependency(nlohmann_json ${nlohmann_json_VERSION})\

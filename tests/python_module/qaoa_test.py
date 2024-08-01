@@ -1,7 +1,7 @@
 # Test cases for qaoa
 
-import qb as qb
-import qb.core.optimization as qbOpt
+import qristal.core
+import qristal.core.optimization as qbOpt
 import pytest
 
 def qaoa_helper(
@@ -22,10 +22,10 @@ def qaoa_helper(
 
     qa.ham = pauliString
     qa.qn = nOptVars
-    qa.qaoa_step = nQaoaSteps 
+    qa.qaoa_step = nQaoaSteps
     qa.sn = nShots
     qa.maxeval = nOptEvalsMax
-    qa.functol[0][0][0] = optTol 
+    qa.functol[0][0][0] = optTol
     qa.acc = accelerator
     qa.extended_param = extParams
 
@@ -34,10 +34,10 @@ def qaoa_helper(
     else:
         nThetas = 2*nQaoaSteps
 
-    qa.theta = qb.core.MapIntDouble()
+    qa.theta = qristal.core.MapIntDouble()
     for ii in range(nThetas) :
         qa.theta[0][0][ii] = initTheta
-    
+
     qa.run()
 
     return qa.out_eigenstate[0][0]

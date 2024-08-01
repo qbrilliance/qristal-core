@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-// QB
-#include "qb/core/backend_utils.hpp"
+// Qristal
+#include "qristal/core/backend_utils.hpp"
 
 // Valid AWS backend strings
 const std::unordered_set<std::string> VALID_AWS_DEVICES =
@@ -35,7 +35,7 @@ const std::unordered_map<std::string, std::pair<int, int>> AWS_SHOT_LIMITS
   {"TN1", {1, 999}}
 };
 
-namespace qb
+namespace qristal
 {
 
   void add_aws_braket_options(xacc::HeterogeneousMap& m,

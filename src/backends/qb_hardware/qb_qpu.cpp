@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
 
 // STL
 #include <sstream>
@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 // CPR
-#include <cpr/cpr.h>
+#include "cpr/cpr.h"
 
 // JSON
 #include <nlohmann/json.hpp>
@@ -20,7 +20,7 @@ const std::string circuitEndpoint = "api/v1/circuits";
 const std::string nativeGateEndpoint = "api/v1/native-gates";
 const std::string reservationEndpoint = "api/v1/reservations";
 
-namespace qb
+namespace qristal
 {
 
   // Hardware polling loop
@@ -40,7 +40,7 @@ namespace qb
       if (debug) std::cout << "# Poll return: " << (success ? "": "not ") << "ready" << std::endl;
       if (success) break;
     }
-  }    
+  }
 
   // Send a circuit for execution on QB hardware
   void execute_on_qb_hardware(
@@ -49,7 +49,7 @@ namespace qb
       std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
       const run_i_j_config &run_config,
       bool debug)
-  {   
+  {
     // Send circuit for execution to QB hardware
     hardware_device->setup_hardware();
     hardware_device->execute(buffer, circuits);
@@ -60,7 +60,7 @@ namespace qb
     int polling_attempts = hardware_settings.get<uint>("poll_retries");
     std::map<std::string, int> counts;
     polling_loop(polling_interval, polling_attempts, hardware_device, counts, circuits, debug);
-    
+
     // Store the counts in the buffer
     for (auto &kv : counts)
     {
@@ -84,29 +84,29 @@ namespace xacc
       return qbjson;
     }
 
-    const std::string qb_qpu::getSignature() 
+    const std::string qb_qpu::getSignature()
     {
       return name() + ":";
     }
 
-    const std::string qb_qpu::name() const 
+    const std::string qb_qpu::name() const
     {
       return "QB hardware";
     }
 
-    const std::string qb_qpu::description() const 
+    const std::string qb_qpu::description() const
     {
       return "The QB QPU backend interacts with QB hardware.";
     }
-       
+
     // Indicate that this is indeed a remote XACC accelerator
-    bool qb_qpu::isRemote() 
+    bool qb_qpu::isRemote()
     {
       return true;
     }
-    
+
     // Retrieve the properties of the backend
-    HeterogeneousMap qb_qpu::getProperties() 
+    HeterogeneousMap qb_qpu::getProperties()
     {
       HeterogeneousMap m;
       m.insert("command", command);
@@ -126,9 +126,9 @@ namespace xacc
       m.insert("exclusive_access_token", exclusive_access_token);
       return m;
     }
-        
+
     // Get the available configuration settings
-    const std::vector<std::string> qb_qpu::configurationKeys() 
+    const std::vector<std::string> qb_qpu::configurationKeys()
     {
       return
       {
@@ -151,7 +151,7 @@ namespace xacc
     }
 
     // Change the configuration of QB hardware
-    void qb_qpu::updateConfiguration(const HeterogeneousMap &config) 
+    void qb_qpu::updateConfiguration(const HeterogeneousMap &config)
     {
       auto update = [&]<typename T>(const std::string& key, T& var)
       {
@@ -175,7 +175,7 @@ namespace xacc
     }
 
     // Initialize the configuration of QB hardware
-    void qb_qpu::initialize(const HeterogeneousMap &params) 
+    void qb_qpu::initialize(const HeterogeneousMap &params)
     {
       updateConfiguration(params);
     }
@@ -192,7 +192,7 @@ namespace xacc
     {
       std::string Response;
       bool succeeded = false;
-    
+
       // Execute HTTP operation
       try
       {
@@ -201,10 +201,10 @@ namespace xacc
         if (headers.find("Content-type") == headers.end()) headers.insert(std::make_pair("Content-type", "application/json"));
         if (headers.find("Connection") == headers.end()) headers.insert(std::make_pair("Connection", "keep-alive"));
         if (headers.find("Accept") == headers.end()) headers.insert(std::make_pair("Accept", "*/*"));
-      
+
         cpr::Header cprHeaders;
         for (auto &kv : headers) cprHeaders.insert({kv.first, kv.second});
-      
+
         auto r = f(cpr::Url{remoteUrl + path}, cprHeaders);
 
         // Lambda for rolling status code into response
@@ -241,7 +241,7 @@ namespace xacc
             break;
           default:
             qpu.cancel();
-            throw std::runtime_error("Device " + qpu.name() + " failed HTTP " + 
+            throw std::runtime_error("Device " + qpu.name() + " failed HTTP " +
              operation + ". Return code: " + std::to_string(r.status_code));
             break;
         }
@@ -253,13 +253,13 @@ namespace xacc
           qpu.cancel();
           throw std::runtime_error(std::string(e.what()));
         }
-        throw std::runtime_error(qpu.name() + " raised exception in " + 
-         operation + ": " + std::string(e.what()));    
+        throw std::runtime_error(qpu.name() + " raised exception in " +
+         operation + ": " + std::string(e.what()));
       }
       return Response;
     }
 
-    // HTTP POST specialisation 
+    // HTTP POST specialisation
     std::string qb_qpu::Post(
         const std::string &remoteUrl, const std::string &path,
         const std::string &postStr, std::map<std::string, std::string> headers)
@@ -268,7 +268,7 @@ namespace xacc
       return HTTP("POST", f, remoteUrl, path, headers, *this, debug);
     }
 
-    // HTTP GET specialisation 
+    // HTTP GET specialisation
     std::string qb_qpu::Get(
         const std::string &remoteUrl, const std::string &path,
         std::map<std::string, std::string> headers,
@@ -280,7 +280,7 @@ namespace xacc
       return HTTP("GET", f, remoteUrl, path, headers, *this, debug);
     }
 
-    // HTTP PUT specialisation 
+    // HTTP PUT specialisation
     std::string qb_qpu::Put(
         const std::string &remoteUrl, const std::string &path,
         const std::string &putStr, std::map<std::string, std::string> headers)
@@ -294,14 +294,14 @@ namespace xacc
     void qb_qpu::setup_hardware()
     {
       try
-      {     
+      {
         // Set up any headers needed for exclusive access
         if (exclusive_access)
-        {          
+        {
           http_header = {{"Authorization", "Bearer " + exclusive_access_token}};
           Put(remoteUrl, reservationEndpoint, "", http_header);
         }
-        
+
         // Get native gateset
         json fromqdk = json::parse(Get(remoteUrl, nativeGateEndpoint));
         if (debug) std::cout << "* Native gates query returned: " << fromqdk.dump() << "\n";
@@ -343,11 +343,11 @@ namespace xacc
       }
       return;
     }
-    
+
     // Convert a circuit to a representation that QB hardware accepts.
     //
-    // Sets up QB specific metadata, visits XACC IR to construct JSON strings 
-    // for the circuit +  required measurements, then combines both into the 
+    // Sets up QB specific metadata, visits XACC IR to construct JSON strings
+    // for the circuit +  required measurements, then combines both into the
     // HTTP POST request body.
     const std::string qb_qpu::processInput(
         std::shared_ptr<AcceleratorBuffer> buffer,
@@ -356,7 +356,7 @@ namespace xacc
       // QB metadata
       json jsel;
       jsel["command"] = command;
-    
+
       // Safe operating limit enforced here
       if (shots <= QB_SAFE_LIMIT_SHOTS)
       {
@@ -368,7 +368,7 @@ namespace xacc
                     << "] - only QB_SAFE_LIMIT_SHOTS will be requested" << std::endl;
           jsel["settings"]["shots"] = QB_SAFE_LIMIT_SHOTS;
       }
-    
+
       jsel["settings"]["results"] = results; // default: "normal"
       if (!use_default_contrast_settings)
       {
@@ -380,7 +380,7 @@ namespace xacc
         jsel["settings"]["readout_contrast_threshold"]["qubits"] = qctjs;
       }
       jsel["init"] = init;
-    
+
       // Circuit
       // jsel["circuit"] is built from a visitor
       // Create the Instruction Visitor that is going to map the IR.
@@ -405,7 +405,7 @@ namespace xacc
       }
       jsel["circuit"] = json::parse(visitor_no_meas->getXasmString());
       if (jsel["circuit"].is_null()) jsel["circuit"] = json::array({});
-    
+
       // Measurements
       // jsel["measure"] is built from iterating the IR
       json measjs;
@@ -430,21 +430,21 @@ namespace xacc
       }
       return;
     }
-    
-    
+
+
     // Polling for circuit execution results via HTTP GET
     bool qb_qpu::resultsReady(
         const std::vector<std::shared_ptr<CompositeInstruction>> citargets,
         std::map<std::string, int> &counts, int polling_interval,
         int polling_attempts)
-    {         
+    {
       int acc_valid = 0;
       std::string path = circuitEndpoint + "/" + std::to_string(circuit_id);
       if (debug) std::cout << "* Poll for results at path: " << remoteUrl << path << std::endl;
       json fromqdk = json::parse(Get(remoteUrl, path, http_header));
-      auto data = fromqdk["data"];                 
+      auto data = fromqdk["data"];
       if (data == nullptr) return false;
-  
+
       if (not resample)
       // Tally up the results
       {
@@ -492,7 +492,7 @@ namespace xacc
         }
       }
 
-  
+
       // Start of recursive calls
       if (recursive and acc_valid != shots)
       {
@@ -512,11 +512,11 @@ namespace xacc
         }
         auto buffer = xacc::qalloc(n_qubits);
         hardware_device->execute(buffer, citargets);
-        qb::polling_loop(polling_interval, polling_attempts, hardware_device, counts, citargets, debug);
+        qristal::polling_loop(polling_interval, polling_attempts, hardware_device, counts, citargets, debug);
       }
-        
+
       return true;
     }
-  
+
   }
 }

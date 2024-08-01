@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/passes/circuit_opt_passes.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/passes/circuit_opt_passes.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "xacc.hpp"
 
-namespace qb {
+namespace qristal {
 
 /// Constructor
 optimization_pass::optimization_pass(const std::string &name)
@@ -26,4 +26,4 @@ std::string optimization_pass::get_description() const {
 void optimization_pass::apply(CircuitBuilder &circuit) {
   xacc::getIRTransformation(m_plugin_name)->apply(circuit.get(), nullptr);
 }
-} // namespace qb
+}

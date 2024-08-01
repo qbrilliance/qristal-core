@@ -4,19 +4,19 @@
 #include <filesystem>
 #include <sstream>
 
-#include "qb/core/session.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qb/core/benchmark/workflows/RotationSweep.hpp"
-#include "qb/core/benchmark/metrics/QuantumProcessFidelity.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+#include "qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp"
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 TEST(QuantumProcessFidelityTester, checkSPAM) {
     const std::set<size_t> qubits{0};
 
     //define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);
@@ -44,7 +44,7 @@ TEST(QuantumProcessFidelityTester, checkRotationSweep) {
     const std::set<size_t> qubits{0, 1};
 
     //define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000000);

@@ -113,8 +113,8 @@ endif()
 # -Dyaml-cpp_DIR (which will take precedent)
 if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "")
   if (DEFINED ENV{YAML_CPP_DIR} AND EXISTS "$ENV{YAML_CPP_DIR}")
-    message(STATUS "Setting CMake var yaml-cpp_DIR to: $ENV{YAML_CPP_DIR}/${qbcore_LIBDIR}/cmake/yaml-cpp")
-    set(yaml-cpp_DIR $ENV{YAML_CPP_DIR}/${qbcore_LIBDIR}/cmake/yaml-cpp)
+    message(STATUS "Setting CMake var yaml-cpp_DIR to: $ENV{YAML_CPP_DIR}/${qristal_core_LIBDIR}/cmake/yaml-cpp")
+    set(yaml-cpp_DIR $ENV{YAML_CPP_DIR}/${qristal_core_LIBDIR}/cmake/yaml-cpp)
   endif()
 endif()
 set(yamlcpp_VERSION "0.7.0")
@@ -129,7 +129,7 @@ add_dependency(yamlcpp ${yamlcpp_VERSION}
     "YAML_CPP_INSTALL ON"
     "CMAKE_INSTALL_CONFIG_NAME None"
     "CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include"
-    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}"
   )
 if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "yaml-cpp_DIR-NOTFOUND")
   set(yaml-cpp_DIR "${CMAKE_INSTALL_PREFIX}/cmake/yaml-cpp/yaml-cpp")
@@ -151,10 +151,10 @@ add_dependency(googletest ${GTest_VERSION}
 if(googletest_ADDED)
   set(GTest_DIR ${CMAKE_INSTALL_PREFIX}/cmake/googletest/GTest CACHE PATH "GTest Installation path." FORCE)
   install(
-    DIRECTORY ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/cmake/GTest
+    DIRECTORY ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/cmake/GTest
     DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/googletest
   )
-  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/cmake/GTest)")
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/cmake/GTest)")
 endif()
 
 # json library
@@ -405,10 +405,10 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
         FILE cpr-config.cmake
         NAMESPACE cpr::
         DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
-    if (NOT qbcore_LIBDIR STREQUAL "lib")
+    if (NOT qristal_core_LIBDIR STREQUAL "lib")
       install(
           FILES ${CPR_LIBRARIES}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
       )
     endif()
   endif()
@@ -472,9 +472,9 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 endif() # (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 # Get rid of other cmake paths
-install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/cmake)")
+install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/cmake)")
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/share)")
-if (NOT qbcore_LIBDIR STREQUAL "lib")
+if (NOT qristal_core_LIBDIR STREQUAL "lib")
   install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib)")
 endif()
 

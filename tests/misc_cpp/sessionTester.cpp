@@ -1,16 +1,16 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <gtest/gtest.h>
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include <random>
 
 TEST(sessionTester, test_small_angles_xasm_compilation) {
-  auto my_sim = qb::session(false);
+  auto my_sim = qristal::session(false);
   // Set up sensible default parameters
   my_sim.init();
   my_sim.set_qn(1);
   my_sim.set_acc("aer");
-  qb::CircuitBuilder my_circuit;
+  qristal::CircuitBuilder my_circuit;
   std::random_device rd;
   std::mt19937 gen(rd());
   // Small angles only
@@ -35,8 +35,8 @@ TEST(sessionTester, test_qft4) {
                "ExaTN-MPS"
             << std::endl;
 
-  // Start a QB SDK session.
-  auto s = qb::session(false);
+  // Start a Qristal session.
+  auto s = qristal::session(false);
 
   s.init(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
             // back-end
@@ -48,7 +48,7 @@ TEST(sessionTester, test_qft4) {
   s.set_seed(23);
   // targetCircuit: contains the quantum circuit that will be processed/executed
   auto targetCircuit = R"(
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
           qft(q, {{"nq",4}});
           Measure(q[3]);
           Measure(q[2]);
@@ -83,7 +83,7 @@ TEST(sessionTester, test_parametrized_run_1) {
   ***/
 
   size_t num_qubits = 2;
-  qb::CircuitBuilder circuit;
+  qristal::CircuitBuilder circuit;
 
   for (size_t i = 0; i < num_qubits; i++) {
     circuit.RX(i, "theta_" + std::to_string(i));
@@ -92,7 +92,7 @@ TEST(sessionTester, test_parametrized_run_1) {
 
   std::vector<double> param_vec(circuit.num_free_params());
 
-  qb::session my_sim;
+  qristal::session my_sim;
   my_sim.init();
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(1000);
@@ -130,7 +130,7 @@ TEST(sessionTester, test_parametrized_run_2) {
   const size_t num_repetitions = 2;
   const uint shots = 1000;
 
-  qb::CircuitBuilder circuit;
+  qristal::CircuitBuilder circuit;
   for (size_t i = 0; i < num_qubits; i++) {
     circuit.RX(i, "alpha_" + std::to_string(i));
     circuit.RY(i, "beta_" + std::to_string(i));
@@ -147,7 +147,7 @@ TEST(sessionTester, test_parametrized_run_2) {
 
   // Repeat all tests with out_counts et al indexed by both MSB and LSB, to show that it has no effect.
   for (bool MSB : {true, false}) {
-    qb::session my_sim(false, MSB);
+    qristal::session my_sim(false, MSB);
     my_sim.init();
     my_sim.set_qn(num_qubits);
     my_sim.set_sn(shots);
@@ -192,7 +192,7 @@ TEST(sessionTester, test_gradients) {
   Expected output shown below
   ***/
   size_t num_qubits = 2;
-  qb::CircuitBuilder circuit;
+  qristal::CircuitBuilder circuit;
 
   for (size_t i = 0; i < num_qubits; i++) {
     circuit.RX(i, "alpha_" + std::to_string(i));
@@ -210,7 +210,7 @@ TEST(sessionTester, test_gradients) {
     param_vec[i] += 0.1 * i;
   }
 
-  qb::session my_sim;
+  qristal::session my_sim;
   my_sim.init();
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(1000);
@@ -221,7 +221,7 @@ TEST(sessionTester, test_gradients) {
   my_sim.set_parameter_vector(param_vec);
 
   my_sim.run();
-  qb::Table2d<double> gradients = my_sim.get_out_prob_jacobians()[0][0];
+  qristal::Table2d<double> gradients = my_sim.get_out_prob_jacobians()[0][0];
 
   // Verify get_out_prob_jacobians
   size_t num_outputs = std::pow(2, num_qubits);

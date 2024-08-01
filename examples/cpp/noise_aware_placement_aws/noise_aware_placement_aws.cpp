@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/session.hpp"
-#include "qb/core/cmake_variables.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/cmake_variables.hpp"
 #include <iostream>
 #include <string>
 #include <pybind11/embed.h>
@@ -12,8 +12,8 @@ int main() {
   // And we're off!
   std::cout << "Executing C++ placement demo..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Set up sensible default parameters
   my_sim.init();
@@ -37,7 +37,7 @@ int main() {
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(100);
 
-  qb::CircuitBuilder my_circuit;
+  qristal::CircuitBuilder my_circuit;
   // Create a simple Bell state circuit.
   my_circuit.H(0);
   my_circuit.CNOT(0, 1);

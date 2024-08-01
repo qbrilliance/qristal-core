@@ -1,16 +1,18 @@
 // Copyright Quantum Brilliance Pty Ltd
+
+// STL
 #include <algorithm>
 #include <cassert>
 #include <memory>
 #include <nlohmann/json.hpp>
 
-// XACC include
+// XACC
 #include "IRTransformation.hpp"
 #include "NoiseModel.hpp"
 #include "xacc_plugin.hpp"
 #include "xacc_service.hpp"
 
-// tket includes
+// TKET
 #include "Mapping/MappingManager.hpp"
 #include "Mapping/RoutingMethod.hpp"
 #include "Placement/Placement.hpp"
@@ -18,12 +20,12 @@
 #include "Predicates/PassGenerators.hpp"
 #include "Predicates/PassLibrary.hpp"
 
-// QB
-#include "qb/core/passes/noise_aware_placement_config.hpp"
-#include "qb/core/tket/tket_ir_converter.hpp"
-#include "qb/core/tket/tket_placement.hpp"
+// Qristal
+#include "qristal/core/passes/noise_aware_placement_config.hpp"
+#include "qristal/core/tket/tket_ir_converter.hpp"
+#include "qristal/core/tket/tket_placement.hpp"
 
-namespace qb {
+namespace qristal {
 
 /**
  * @brief Return the type of this IRTransformation plugin
@@ -73,12 +75,12 @@ std::shared_ptr<xacc::IRTransformation> TketPlacement::clone() {
 void TketPlacement::apply(std::shared_ptr<xacc::CompositeInstruction> program,
                           const std::shared_ptr<xacc::Accelerator> acc,
                           const xacc::HeterogeneousMap &options) {
-  auto tket_circ = *qb::tket_ir_converter::to_tket(program);
+  auto tket_circ = *qristal::tket_ir_converter::to_tket(program);
 
-  auto device_info = [&]() -> std::optional<qb::noise_aware_placement_config> {
-    if (options.keyExists<qb::noise_aware_placement_config>(
+  auto device_info = [&]() -> std::optional<qristal::noise_aware_placement_config> {
+    if (options.keyExists<qristal::noise_aware_placement_config>(
             "noise_aware_placement_config")) {
-      return options.get<qb::noise_aware_placement_config>(
+      return options.get<qristal::noise_aware_placement_config>(
           "noise_aware_placement_config");
     } else {
       return std::nullopt;
@@ -252,7 +254,7 @@ void TketPlacement::apply(std::shared_ptr<xacc::CompositeInstruction> program,
   auto tket_circ_ptr = xacc::as_shared_ptr(&routed_circuit);
   program->clear();
   program->addInstructions(
-      qb::tket_ir_converter::to_xacc(tket_circ_ptr)->getInstructions());
+      qristal::tket_ir_converter::to_xacc(tket_circ_ptr)->getInstructions());
 }
 
 /// Helper method to parse qubit connectivity from AWS device JSON
@@ -325,4 +327,4 @@ TketPlacement::parseAwsDeviceCharacteristics(
   return std::make_tuple(single_qubit_gate_errors, two_qubit_gate_errors,
                          measure_errors);
 }
-} // namespace qb
+}

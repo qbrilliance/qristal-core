@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/passes/swap_placement_pass.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/passes/swap_placement_pass.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "xacc.hpp"
 
 namespace {
@@ -35,7 +35,7 @@ public:
 };
 } // namespace
 
-namespace qb {
+namespace qristal {
 // Constructor
 swap_placement_pass::swap_placement_pass(
     const std::vector<std::pair<int, int>> &connectivity)
@@ -58,4 +58,4 @@ void swap_placement_pass::apply(CircuitBuilder &circuit) {
   swap_shortest_path->apply(circuit.get(), connectivity_provider,
                             {{"no-inline", true}});
 }
-} // namespace qb
+}

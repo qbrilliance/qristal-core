@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
 #include "xacc_plugin.hpp"
 
-namespace qb {
+namespace qristal {
 /**
  * @brief QuantumBrillianceGateSetTransformation transform the input IR using 
  * qb_qpu
@@ -72,6 +72,6 @@ public:
     return "Convert IR to Quantum Brilliance gateset.";
   }
 };
-} // namespace qb
+}
 
-REGISTER_IRTRANSFORMATION(qb::QuantumBrillianceGateSetTransformation)
+REGISTER_IRTRANSFORMATION(qristal::QuantumBrillianceGateSetTransformation)

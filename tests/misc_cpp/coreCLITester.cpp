@@ -1,4 +1,4 @@
-#include "qb/core/async_executor.hpp"
+#include "qristal/core/async_executor.hpp"
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include <fstream>
@@ -17,7 +17,7 @@ TEST(coreCLITester, checkSimple) {
     ]
 }
  )";
-  qb::Executor executor;
+  qristal::Executor executor;
   executor.initialize(qpu_config);
   auto compiler = xacc::getCompiler("staq");
   auto program = compiler
@@ -45,10 +45,10 @@ measure q -> c;
                      ->getComposites()[0];
 
     const int nTests = 1000;
-    std::vector<qb::Handle> jobHandles;
+    std::vector<qristal::Handle> jobHandles;
     for (int i = 0; i < nTests; ++i) {
       std::cout << "Posting quantum job " << i << " for execution\n";
-      auto handle = qb::post(executor, program, 1024);
+      auto handle = qristal::post(executor, program, 1024);
       jobHandles.emplace_back(std::move(handle));
     }
     std::cout << "Complete posting all " << nTests << " jobs\n";
@@ -73,7 +73,7 @@ measure q -> c;
     }
     std::cout << "All jobs have been completed.\n";
     // for (auto &handle : jobHandles) {
-    //   std::cout << qb::sync(handle) << "\n";
+    //   std::cout << qristal::sync(handle) << "\n";
     // }
 }
 

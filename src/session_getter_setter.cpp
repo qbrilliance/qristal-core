@@ -1,10 +1,10 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 
-namespace qb {
+namespace qristal {
 //
-// Getter/Setter methods for qb::session
+// Getter/Setter methods for qristal::session
 //
 void session::set_infile(const std::string &infile) {
   session::infiles_.clear();
@@ -92,7 +92,7 @@ void session::set_accs(const Table2d<std::string> &accs) {
 void session::validate_acc(const std::string &acc) {
   if (VALID_ACCS.find(acc) == VALID_ACCS.end()) {
       std::stringstream listaccs;
-      listaccs << "QB SDK: valid settings for acc: " << std::endl;
+      listaccs << "Qristal: valid settings for acc: " << std::endl;
       for (auto it : VALID_ACCS) {
           listaccs << "* \"" << it << "\"" << std::endl;
       }
@@ -117,7 +117,7 @@ void session::set_aer_sim_types(const Table2d<std::string> &sim_types) {
 void session::validate_aer_sim_type(const std::string &sim_type) {
   if (VALID_AER_SIM_TYPES.find(sim_type) == VALID_AER_SIM_TYPES.end()) {
     std::stringstream aer_sim_type_error_msg;
-    aer_sim_type_error_msg << "QB SDK: valid settings for aer_sim_type: " << std::endl;
+    aer_sim_type_error_msg << "Qristal: valid settings for aer_sim_type: " << std::endl;
     for (auto it : VALID_AER_SIM_TYPES) {
       aer_sim_type_error_msg << "* \"" << it << "\"" << std::endl;
     }
@@ -440,7 +440,7 @@ void session::set_noise_mitigations(const Table2d<std::string> &noise_mitigation
 void session::validate_noise_mitigation(const std::string &noise_mitigation) {
   if (VALID_ERROR_MITIGATIONS.find(noise_mitigation) == VALID_ERROR_MITIGATIONS.end()) {
       std::stringstream ss;
-      ss << "QB SDK: valid settings for error mitigation: " << std::endl;
+      ss << "Qristal: valid settings for error mitigation: " << std::endl;
       for (auto it : VALID_ERROR_MITIGATIONS) {
           ss << "* \"" << it << "\"" << std::endl;
       }
@@ -978,4 +978,4 @@ const std::string session::get_summary() const {
   //
   return out.str();
 }
-} // namespace qb
+}

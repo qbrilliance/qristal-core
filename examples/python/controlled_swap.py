@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 ###
@@ -20,7 +20,7 @@ input_string = "babba"
 assert(len(input_string) == len(qubits_string))
 
 # Prepare input state
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 for i in range(len(input_string)):
     if input_string[i] == "b":
         circ.x(qubits_string[i])

@@ -1,27 +1,27 @@
-#include "qb/core/benchmark/workflows/SimpleCircuitExecution.hpp"
-#include "qb/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qb/core/benchmark/workflows/QuantumProcessTomography.hpp"
-#include "qb/core/benchmark/metrics/QuantumProcessMatrix.hpp"
-#include "qb/core/benchmark/DataLoaderGenerator.hpp"
+#include "qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp"
+#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+#include "qristal/core/benchmark/metrics/QuantumProcessMatrix.hpp"
+#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 int main() {
     const size_t n_qubits = 1;
     const size_t n_shots = 1000;
 
     //(1) define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(n_shots);
     sim.set_qn(n_qubits);
 
     //(2) define workflow
-    qb::CircuitBuilder circuit; 
+    qristal::CircuitBuilder circuit; 
     circuit.RX(0, std::numbers::pi / 2.0);
     SimpleCircuitExecution workflow(
-        std::vector<qb::CircuitBuilder>{circuit},
+        std::vector<qristal::CircuitBuilder>{circuit},
         sim
     );
     using QST = QuantumStateTomography<SimpleCircuitExecution>;

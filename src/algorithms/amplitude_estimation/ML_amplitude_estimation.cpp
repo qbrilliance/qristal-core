@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp"
+#include "qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp"
 #include <algorithm>
 #include <cmath>
 #include <functional>
 #include <numeric>
 
-namespace qb {
+namespace qristal {
 // Define the likelihood function for post-processing
 long double likelihood(std::vector<int> iterations, std::vector<int> shots,
                        std::vector<int> good_counts, long double theta) {
@@ -153,4 +153,4 @@ void MLAmplitudeEstimation::execute(
   // Add the result to the buffer
   buffer->addExtraInfo("amplitude-estimation", amplitude_estimate);
 }
-} // namespace qb
+}

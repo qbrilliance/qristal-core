@@ -1,10 +1,10 @@
 print("Executing parametrized circuit demo...")
 
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # Define a circuit. Add some gates and measurements.
-circuit = qb.core.Circuit()
+circuit = qristal.core.Circuit()
 circuit.rx(0, "alpha")
 circuit.ry(0, "beta")
 circuit.ry(1, "gamma")
@@ -18,7 +18,7 @@ params_map = {"alpha": 1.0, "beta": 1.5, "gamma": 2.0}
 params_list = circuit.param_dict_to_list(params_map)
 
 # Create the executor object
-my_sim = qb.core.session()
+my_sim = qristal.core.session()
 my_sim.init()
 my_sim.qn = circuit.num_qubits()
 my_sim.sn = 1000

@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Quantum Brilliance Pty Ltd
 import os
 import pytest
-import qb.core
+import qristal.core
 import numpy as np
 import qiskit
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
@@ -157,7 +157,7 @@ def qb_pauli_measurement_matrix(label: str, outcome: int) -> np.array:
     return res
 
 def get_session_from_qiskit_circuits(circuits, backend, no_shots):
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.sn = no_shots
     s.acc = backend
@@ -175,14 +175,14 @@ def get_session_from_qiskit_circuits(circuits, backend, no_shots):
 def get_qbqasm_string(qiskit_circuit):
     '''
     Input: Qiskit circuit object
-    Output: QBCIRCUIT string
+    Output: qristal_circuit string
     '''
     import re
-    return '__qpu__ void QBCIRCUIT(qreg q) {\n' + re.sub(r"\nqreg [A-Za-z]+[_\dA-za-z]*\[\d+\];", "", qiskit_circuit.qasm()) + '}'
+    return '__qpu__ void qristal_circuit(qreg q) {\n' + re.sub(r"\nqreg [A-Za-z]+[_\dA-za-z]*\[\d+\];", "", qiskit_circuit.qasm()) + '}'
 
 def get_qiskit_experiment_result_data(result, num_qubits):
     '''
-    Input: dict of counts for a QB SDK experiment
+    Input: dict of counts for a Qristal experiment
     Output: qiskit.result.models.ExperimentResultData containing counts keyed with hex code
     '''
     hex_keyed_data = dict()
@@ -195,7 +195,7 @@ def get_qiskit_experiment_result_data(result, num_qubits):
 
 def get_experiment_result(session):
     '''
-    Input: qb.core.session
+    Input: qristal.core.session
     Output: qiskit.result.result.Result
     '''
     experiment_result_data = []

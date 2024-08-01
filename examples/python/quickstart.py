@@ -1,11 +1,11 @@
 # Quickstart
 # To learn how to use the SDK, let's run a simple Python example to create a Bell state.
 
-# Import the QB SDK core:
-import qb.core
+# Import the Qristal core:
+import qristal.core
 
-# Create a quantum computing session using the QB SDK:
-my_sim = qb.core.session()
+# Create a quantum computing session using Qristal:
+my_sim = qristal.core.session()
 
 # Choose some default session parameters:
 my_sim.init()

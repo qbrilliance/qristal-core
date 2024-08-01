@@ -3,9 +3,9 @@
 #include "cudaq/gradients/central_difference.h"
 #include "cudaq/optimizers.h"
 #include "cudaq/spin_op.h"
-#include "qb/core/cudaq/ir_converter.hpp"
-#include "qb/core/session.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/cudaq/ir_converter.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/circuit_builder.hpp"
 
 #include "xacc.hpp"
 #include "xacc_service.hpp"
@@ -28,8 +28,8 @@ TEST(CudaqTester, check_kernel_execution) {
   // And we're off!
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Number of qubits we want to run
   constexpr int NB_QUBITS = 20;
@@ -76,7 +76,7 @@ TEST(CudaqTester, check_vqe_cobyla) {
   auto ansatz = xacc::getCompiled("deuteron_ansatz");
   std::cout << "QB IR:\n" << ansatz->toString() << "\n";
 
-  qb::cudaq_ir_converter converter(ansatz);
+  qristal::cudaq_ir_converter converter(ansatz);
   std::cout << "Converted ansatz to CUDAQ (Quake IR) ..." << std::endl;
   auto &cudaq_builder = converter.get_cudaq_builder();
   std::cout << "CUDAQ QUAKE: \n" << cudaq_builder.to_quake();
@@ -115,7 +115,7 @@ TEST(CudaqTester, check_vqe_lbfgs) {
 
   auto ansatz = xacc::getCompiled("deuteron_ansatz");
   std::cout << "QB IR:\n" << ansatz->toString() << "\n";
-  qb::cudaq_ir_converter converter(ansatz);
+  qristal::cudaq_ir_converter converter(ansatz);
   std::cout << "Converted ansatz to CUDAQ (Quake IR) ..." << std::endl;
 
   auto &cudaq_builder = converter.get_cudaq_builder();
@@ -146,8 +146,8 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   // And we're off!
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(true);
+  // Make a Qristal session
+  auto my_sim = qristal::session(true);
 
   // Number of qubits we want to run
   // Large number of qubits, since we are using GPUs!
@@ -181,8 +181,8 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   // And we're off!
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Define the quantum program to run (aka 'quantum kernel' aka 'quantum
   // circuit')
@@ -225,10 +225,10 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   // And we're off!
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
-  qb::CircuitBuilder circ;
+  qristal::CircuitBuilder circ;
   circ.H(0);
   circ.CNOT(0, 1);
   circ.MeasureAll(2);

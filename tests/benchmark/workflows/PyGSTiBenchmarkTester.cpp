@@ -2,16 +2,16 @@
 #include <gtest/gtest.h>
 
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qb/core/tools/zip_tool.hpp"
-#include "qb/core/benchmark/workflows/PyGSTiBenchmark.hpp"
+#include "qristal/core/tools/zip_tool.hpp"
+#include "qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp"
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 TEST(PyGSTiBenchmarkTester, check_circuit_readin) {
     const size_t n_qubits = 11;
 
     //define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
@@ -36,56 +36,56 @@ TEST(PyGSTiBenchmarkTester, check_circuit_readin) {
     };
 
     //List of correctly assembled circuits (to compare to)
-    std::vector<qb::CircuitBuilder> correct_circuits; 
+    std::vector<qristal::CircuitBuilder> correct_circuits; 
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RX(0, std::numbers::pi / 2.0);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RY(0, std::numbers::pi / 2.0);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RZ(0, std::numbers::pi / 2.0);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RX(0, std::numbers::pi / 4.0);
         cb.RY(0, std::numbers::pi / 4.0);
         cb.RZ(0, std::numbers::pi / 4.0);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RX(0, std::numbers::pi / 2.0);
         cb.RY(0, sqrt(3.0) / 2.0);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.CNOT(0, 1);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.CZ(0, 1);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.CPhase(0, 1, std::numbers::pi);
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RY(0, std::numbers::pi / 2.0); 
         cb.X(0);
         cb.CZ(0, 1); 
@@ -96,7 +96,7 @@ TEST(PyGSTiBenchmarkTester, check_circuit_readin) {
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RX(0, std::numbers::pi / 2.0); 
         cb.RX(1, -1.0 * std::numbers::pi / 2.0); 
         cb.RY(1, -1.0 * std::numbers::pi / 2.0);
@@ -109,7 +109,7 @@ TEST(PyGSTiBenchmarkTester, check_circuit_readin) {
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RY(1, std::numbers::pi / 2.0); 
         cb.X(1);
         cb.CZ(0, 1); 
@@ -120,7 +120,7 @@ TEST(PyGSTiBenchmarkTester, check_circuit_readin) {
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RY(0, std::numbers::pi / 2.0); 
         cb.X(0);
         cb.CZ(0, 1); 
@@ -149,7 +149,7 @@ TEST(PyGSTiBenchmarkTester, check_circuit_readin) {
         correct_circuits.push_back(cb);
     }
     {
-        qb::CircuitBuilder cb; 
+        qristal::CircuitBuilder cb; 
         cb.RY(9, std::numbers::pi / 2.0); 
         cb.X(9);
         cb.CZ(9, 10); 

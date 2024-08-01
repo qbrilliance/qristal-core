@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.acc = "sparse-sim"
 s.sn = 1024
 s.init()
@@ -23,7 +23,7 @@ for i in range(12,32):
 # |string>|metric>|flags> = |00>|11>|11> + |10>|10>|01> + |10>|11>|01> + |11>|01>|01>
 
 # Strings
-ae_state_prep_circ = qb.core.Circuit()
+ae_state_prep_circ = qristal.core.Circuit()
 for i in range(len(qubits_string)):
   ae_state_prep_circ.h(qubits_string[i])
 
@@ -86,7 +86,7 @@ swap_flags_on.append(qubits_superfluous_flags[1])
 swap_flags_off.append(qubits_superfluous_flags[0])
 ae_state_prep_circ.controlled_swap(qubits_a, qubits_b, swap_flags_on, swap_flags_off)
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.superposition_adder(q0, q1, q2, qubits_superfluous_flags, qubits_string, qubits_metric, ae_state_prep_circ, qubits_ancilla, qubits_beam_metric)
 
 # Measure

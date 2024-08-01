@@ -7,10 +7,10 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREF
 endif()
 
 # Set the library dir to the value of CMAKE_INSTALL_LIBDIR
-set(qbcore_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+set(qristal_core_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
 # Set default RPATH to the lib dir of the installation dir.  Must be done after default installation dir is set.
-set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR} CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR} CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
 
 # Work out build type.  Must be done before calling add_dependency.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -46,7 +46,7 @@ else()
 endif()
 
 # Project output target namespace
-set(NAMESPACE qb)
+set(NAMESPACE qristal)
 
 # Set Compiler Support
 set(CMAKE_CXX_STANDARD 20)
@@ -102,7 +102,7 @@ else()
 endif()
 
 # Save the version numbers for use in the code.
-configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qb/core/cmake_variables.hpp)
+configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qristal/core/cmake_variables.hpp)
 
 # Always prefer config mode of find_package to module mode
 set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)

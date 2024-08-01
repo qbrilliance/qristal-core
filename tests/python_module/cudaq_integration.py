@@ -3,10 +3,10 @@
 import ast
 
 def test_simple():
-    # Import the core of the QB SDK
-    import qb.core
-    # Create a quantum computing session using the QB SDK
-    my_sim = qb.core.session()
+    # Import the core of Qristal
+    import qristal.core
+    # Create a quantum computing session using Qristal
+    my_sim = qristal.core.session()
 
     # Set up meaningful defaults for session parameters
     my_sim.init()
@@ -19,7 +19,7 @@ def test_simple():
     # Choose how many 'shots' to run through the circuit
     my_sim.sn = 1024
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     circ.h(0)
     circ.cnot(0, 1)
     circ.measure_all()

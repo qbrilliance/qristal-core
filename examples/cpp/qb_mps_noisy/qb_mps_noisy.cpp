@@ -1,12 +1,12 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <string>
 #include <iostream>
 
 int main()
 {
-  // Make a QB SDK session
-  auto s = qb::session(false);
+  // Make a Qristal session
+  auto s = qristal::session(false);
 
   // Set up default parameters
   s.init();
@@ -36,7 +36,7 @@ int main()
   // Uncomment the following lines to introduce noise to the simulation.
   // You will need to have the Qristal emulator installed for this to work.
   // s.set_noise(true);
-  // qb::NoiseModel nm("qb-nm1", n_qubits);
+  // qristal::NoiseModel nm("qb-nm1", n_qubits);
   // s.set_noise_model(nm);
 
   // Define the circuit

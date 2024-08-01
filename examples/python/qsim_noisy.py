@@ -1,9 +1,9 @@
-import qb.core
+import qristal.core
 import numpy as np
 import timeit
 
 n_qbits = 3
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.sn = 1024
 s.qn = n_qbits
@@ -12,7 +12,7 @@ s.acc = "qsim"
 # Uncomment the following lines to introduce noise to the simulation.
 # You will need to have the Qristal emulator installed for this to work.
 #s.noise = True
-#s.noise_model = qb.core.NoiseModel("qb-nm1", n_qbits)
+#s.noise_model = qristal.core.NoiseModel("qb-nm1", n_qbits)
 
 # In this test we use generalised mcx to
 # perform a standard mcx on |111>
@@ -22,7 +22,7 @@ s.acc = "qsim"
 control_qubits = [0, 1]
 target_qubit = 2
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # prepare initial state
 circ.x(0)

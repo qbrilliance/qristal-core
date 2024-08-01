@@ -1,5 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/circuits/w_prime_unitary.hpp"
+#include "qristal/core/circuits/w_prime_unitary.hpp"
 #include "Circuit.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"

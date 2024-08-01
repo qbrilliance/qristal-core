@@ -1,5 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <string>
 #include <iostream>
 #include <cudaq.h>
@@ -22,8 +22,8 @@ int main()
   // And we're off!
   std::cout << "Executing C++ demo..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Number of qubits we want to run
   constexpr int NB_QUBITS = 20;

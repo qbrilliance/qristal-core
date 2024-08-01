@@ -11,13 +11,13 @@ project(benchmark1_qasm
   LANGUAGES CXX
 )
 
-set(qbcore_DIR @CMAKE_INSTALL_PREFIX@)
-find_package(qbcore)
+set(qristal_core_DIR @CMAKE_INSTALL_PREFIX@)
+find_package(qristal_core)
 
 add_executable(benchmark1_qasm benchmark1_qasm.cpp)
 
 target_link_libraries(benchmark1_qasm
   PRIVATE
-    qb::core
+    qristal::core
 )
 

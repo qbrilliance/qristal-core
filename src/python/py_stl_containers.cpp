@@ -1,5 +1,5 @@
-#include "qb/core/python/py_stl_containers.hpp"
-#include "qb/core/typedefs.hpp"
+#include "qristal/core/python/py_stl_containers.hpp"
+#include "qristal/core/typedefs.hpp"
 #include <pybind11/stl_bind.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
@@ -37,7 +37,7 @@ namespace std {
 
 } // namespace std
 
-namespace qb {
+namespace qristal {
 
   void bind_opaque_containers(pybind11::module &m) {
 
@@ -201,4 +201,4 @@ namespace qb {
     return vec;
   }
 
-} // namespace qb
+}

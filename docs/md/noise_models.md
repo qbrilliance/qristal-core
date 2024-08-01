@@ -91,10 +91,10 @@ This model is applicable to:
 ### C++
 This example can be found at `examples/cpp/noise_model`, along with a `CMakeLists.txt` file for building it.
 ```C++
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 int main(int argc, char * argv[])
 {
-    auto my_sim = qb::session();
+    auto my_sim = qristal::session();
     my_sim.init();          // Set up meaningful defaults
     my_sim.set_qn(2);       // 2 qubits
     my_sim.set_acc("aer");  // Aer simulator selected
@@ -117,8 +117,8 @@ int main(int argc, char * argv[])
 ### Python
 This example can be found at `examples/python/noise_model.py`.
 ```python
-import qb.core
-my_sim = qb.core.session()
+import qristal.core
+my_sim = qristal.core.session()
 my_sim.init()
 my_sim.qn = 2
 my_sim.acc = "aer"
@@ -139,7 +139,7 @@ print(my_sim.results[0][0])
 
 # User defined noise models
 
-QB Qristal allows an end-user to implement noise models. First use  <a href="../_cpp_api/structqb_1_1NoiseProperties.html">NoiseProperties</a> to set up noise model parameters.  Then pass the parameters to the constructor of `qb::NoiseModel`.
+QB Qristal allows an end-user to implement noise models. First use  <a href="../_cpp_api/structqb_1_1NoiseProperties.html">NoiseProperties</a> to set up noise model parameters.  Then pass the parameters to the constructor of `qristal::NoiseModel`.
 
 ## Modifying the `default` noise model
 
@@ -162,4 +162,4 @@ See the constructor [`NoiseModel::NoiseModel(const NoiseProperties &noise_props)
 
 See the header code in:
 
-`core/include/qb/core/noise_model/noise_model.hpp`
+`core/include/qristal/core/noise_model/noise_model.hpp`

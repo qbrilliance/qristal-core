@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/cudaq/cudaq_acc.hpp"
+#include "qristal/core/cudaq/cudaq_acc.hpp"
 #include "cudaq/algorithms/sample.h"
-#include "qb/core/cudaq/ir_converter.hpp"
-#include "qb/core/cudaq/sim_pool.hpp"
+#include "qristal/core/cudaq/ir_converter.hpp"
+#include "qristal/core/cudaq/sim_pool.hpp"
 
-namespace qb {
+namespace qristal {
 cudaq_acc::cudaq_acc(const std::string &backend_name)
     : m_backend(backend_name) {}
 const std::string cudaq_acc::name() const { return "cudaq"; }
@@ -29,7 +29,7 @@ const std::vector<std::string> cudaq_acc::configurationKeys() {
 void cudaq_acc::execute(
     std::shared_ptr<xacc::AcceleratorBuffer> buffer,
     const std::shared_ptr<xacc::CompositeInstruction> program) {
-  qb::cudaq_ir_converter converter(program);
+  qristal::cudaq_ir_converter converter(program);
   auto &cudaq_builder = converter.get_cudaq_builder();
   assert(xacc::container::contains(
       cudaq_sim_pool::get_instance().available_simulators(), m_backend));
@@ -53,4 +53,4 @@ void cudaq_acc::execute(
     buffer->appendChild(f->name(), tmpBuffer);
   }
 }
-} // namespace qb
+}

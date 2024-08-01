@@ -5,7 +5,7 @@ import pytest
 
 def test_CI_230208_simple_setters_for_contrast_thresholds():
     print("This test checks the ability to set contrast thresholds.")
-    import qb.core
+    import qristal.core
     import os
     import json
     from yaml import safe_load, dump
@@ -14,7 +14,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     qubit_0_thresh = 0.03
     qubit_1_thresh = 0.05
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 2
     s.sn = 32
@@ -22,7 +22,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         CZ(q[0], q[1]);
         Ry(q[1], -1.8*pi);
         Measure(q[1]);
@@ -63,10 +63,10 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
 
 def test_CI_230131_cz_arbitrary_rotation():
     print("Checks CZ and Ry at arbitrary rotation angle.  Verifies that the requested number of shots is actually performed via recursive requests")
-    import qb.core, ast
+    import qristal.core
     from yaml import safe_load, dump
     import os
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 2
     s.sn = 128
@@ -75,7 +75,7 @@ def test_CI_230131_cz_arbitrary_rotation():
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         CZ(q[0], q[1]);
         Ry(q[1], -1.8*pi);
         Measure(q[1]);
@@ -98,10 +98,10 @@ def test_CI_230131_cz_arbitrary_rotation():
 
 def test_CI_230131_arbitrary_rotation():
     print("Checks Rx and Ry arbitrary rotation angles.  Verifies that the requested number of shots is actually performed via recursive requests")
-    import qb.core, ast
+    import qristal.core
     from yaml import safe_load, dump
     import os
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 2
     s.sn = 64
@@ -110,7 +110,7 @@ def test_CI_230131_arbitrary_rotation():
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         Rx(q[0], 0.0625*pi);
         Rz(q[0], -0.33*pi);
         Ry(q[1], -1.8*pi);
@@ -134,11 +134,11 @@ def test_CI_230131_arbitrary_rotation():
 
 def test_CI_230106_1_loopback_6s():
     print("Check 2s and 6s polling interval set from JSON config file")
-    import qb.core
+    import qristal.core
     from yaml import safe_load, dump
     import timeit
     import os
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 1
     s.sn = 32
@@ -146,7 +146,7 @@ def test_CI_230106_1_loopback_6s():
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         Rx(q[0], 0.125*pi);
         Ry(q[0], 0.25*pi);
         Rz(q[0], 0.5*pi);
@@ -177,13 +177,13 @@ def test_CI_230106_1_loopback_6s():
 
 def test_CI_220225_1_init_measure_no_gates() :
     print("When a circuit contains no gates, QB hardware expects a JSON with circuit=[] instead of circuit='null'")
-    import qb.core
+    import qristal.core
     from yaml import safe_load, dump
     import timeit
     import os
     import json
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     s.qn = 1
@@ -192,7 +192,7 @@ def test_CI_220225_1_init_measure_no_gates() :
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         Measure(q[0]);
     }
     '''
@@ -212,7 +212,7 @@ def test_CI_220225_1_init_measure_no_gates() :
     res = json.loads(s.out_qbjson[0][0])
     assert(len(res["circuit"]) == 0)
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         H(q[0]);
         Measure(q[0]);
     }
@@ -225,28 +225,28 @@ def test_CI_220225_1_init_measure_no_gates() :
 
 def test_recursive():
     print("Using loopback to test recursive request.")
-    import qb.core, ast
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
     s.run()
     assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_resampling():
     print("Using loopback to test resampling.")
-    import qb.core, ast
+    import qristal.core
     from yaml import safe_load, dump
     import os
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=30
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
@@ -260,17 +260,17 @@ def test_resampling():
 
 def test_resampling_qb_safe_limit_shots():
     print("Using loopback to test QB_SAFE_LIMIT_SHOTS with resampling.")
-    import qb.core
+    import qristal.core
     from yaml import safe_load, dump
     import os
     import json
     QB_SAFE_LIMIT_SHOTS = 512
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=1024
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
@@ -288,15 +288,15 @@ def test_resampling_qb_safe_limit_shots():
 # others that don't use exclusive access mode!
 def test_reservation():
     print("Using json web token to reserve qcstack for exclusive access")
-    import qb.core, ast
+    import qristal.core
     from yaml import safe_load, dump
     import os
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn=2
     s.acc='loopback'
     s.xasm = True
-    s.instring = '''__qpu__ void QBCIRCUIT(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]

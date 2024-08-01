@@ -2,15 +2,15 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/circuits/mean_value_finder.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/circuits/mean_value_finder.hpp"
 #include "IRProvider.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <assert.h>
 #include <memory>
 
-namespace qb {
+namespace qristal {
 bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     std::shared_ptr<xacc::CompositeInstruction> ae_state_prep_circ_clone0 =
         xacc::ir::asComposite(qubit_indicator_state_prep->clone());
 
-    auto trial_qubits_set0 = qb::uniqueBitsQD(ae_state_prep_circ_clone0);
+    auto trial_qubits_set0 = qristal::uniqueBitsQD(ae_state_prep_circ_clone0);
     std::vector<int> trial_qubits0;
     for (int bit : trial_qubits_set0) {
       trial_qubits0.push_back(bit);
@@ -142,7 +142,7 @@ bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
           }
       }
 
-      auto trial_qubits_set = qb::uniqueBitsQD(ae_state_prep_circ_clone);
+      auto trial_qubits_set = qristal::uniqueBitsQD(ae_state_prep_circ_clone);
       std::vector<int> trial_qubits;
       for (int bit : trial_qubits_set) {
         trial_qubits.push_back(bit);
@@ -373,4 +373,4 @@ bool MeanValueFinder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 }
 
 const std::vector<std::string> MeanValueFinder::requiredKeys() { return {}; }
-} // namespace qb
+}

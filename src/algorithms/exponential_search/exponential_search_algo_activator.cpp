@@ -5,7 +5,7 @@
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
-#include "qb/core/algorithms/exponential_search/exponential_search.hpp"
+#include "qristal/core/algorithms/exponential_search/exponential_search.hpp"
 
 using namespace cppmicroservices;
 
@@ -15,7 +15,7 @@ public:
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::Algorithm>(
-        std::make_shared<qb::ExponentialSearch>());
+        std::make_shared<qristal::ExponentialSearch>());
   }
 
   void Stop(BundleContext context) {}

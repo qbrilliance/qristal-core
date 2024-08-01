@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/controlled_swap.hpp"
+#include "qristal/core/circuits/controlled_swap.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool ControlledSwap::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -121,4 +121,4 @@ const std::vector<std::string> ControlledSwap::requiredKeys() {
   return {"qubits_a", "qubits_b"};
 }
 
-} // namespace qb
+}

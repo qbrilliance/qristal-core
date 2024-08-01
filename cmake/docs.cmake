@@ -24,7 +24,7 @@ if(SPHINX_VERSION MATCHES "__main__.py ([0-9]+\\.[0-9]+\\.[0-9]+)")
   list(GET _SPHINX_VERSION 0 SPHINX_VERSION_MAJOR)
   list(GET _SPHINX_VERSION 1 SPHINX_VERSION_MINOR)
   list(GET _SPHINX_VERSION 2 SPHINX_VERSION_PATCH)
-  if (NOT SPHINX_VERSION_MAJOR EQUAL 4) 
+  if (NOT SPHINX_VERSION_MAJOR EQUAL 4)
     message(FATAL_ERROR "This version of sphinx is likely to cause conflicts with other dependencies. Please install version 4.5.0 by running python3 -m pip install sphinx==4.5.0 --force-reinstall.")
   endif()
 else()
@@ -83,24 +83,24 @@ endif()
 # TODO: refactor to use all cpplib headers once all the headers are doxygen-ready.
 # We use strict Doxygen build mode (see below) hence gradually adding more files to this list once they're ready.
 set(PUBLIC_HEADERS
-  include/qb/core/circuit_builder.hpp
-  include/qb/core/profiler.hpp
-  include/qb/core/session.hpp
-  include/qb/core/thread_pool.hpp
-  include/qb/core/backends/qb_hardware/qb_qpu.hpp
-  include/qb/core/backends/qb_hardware/qb_visitor.hpp
-  include/qb/core/cudaq/ir_converter.hpp
-  include/qb/core/cudaq/sim_pool.hpp
-  include/qb/core/noise_model/noise_model.hpp
-  include/qb/core/noise_model/noise_properties.hpp
-  include/qb/core/noise_model/readout_error.hpp
-  include/qb/core/optimization/vqee/case_generator.hpp
-  include/qb/core/optimization/vqee/vqee.hpp
-  include/qb/core/passes/base_pass.hpp
-  include/qb/core/passes/noise_aware_placement_config.hpp
-  include/qb/core/passes/noise_aware_placement_pass.hpp
-  include/qb/core/passes/swap_placement_pass.hpp
-  include/qb/core/passes/circuit_opt_passes.hpp
+  include/qristal/core/circuit_builder.hpp
+  include/qristal/core/profiler.hpp
+  include/qristal/core/session.hpp
+  include/qristal/core/thread_pool.hpp
+  include/qristal/core/backends/qb_hardware/qb_qpu.hpp
+  include/qristal/core/backends/qb_hardware/qb_visitor.hpp
+  include/qristal/core/cudaq/ir_converter.hpp
+  include/qristal/core/cudaq/sim_pool.hpp
+  include/qristal/core/noise_model/noise_model.hpp
+  include/qristal/core/noise_model/noise_properties.hpp
+  include/qristal/core/noise_model/readout_error.hpp
+  include/qristal/core/optimization/vqee/case_generator.hpp
+  include/qristal/core/optimization/vqee/vqee.hpp
+  include/qristal/core/passes/base_pass.hpp
+  include/qristal/core/passes/noise_aware_placement_config.hpp
+  include/qristal/core/passes/noise_aware_placement_pass.hpp
+  include/qristal/core/passes/swap_placement_pass.hpp
+  include/qristal/core/passes/circuit_opt_passes.hpp
 )
 # Convert to absolute paths and use space as delimiters (to configure Shpinx's conf.py file)
 list(TRANSFORM PUBLIC_HEADERS PREPEND ${PROJECT_SOURCE_DIR}/)
@@ -113,7 +113,7 @@ if (EMULATOR_DIR)
   include(${EMULATOR_DOXYGEN_CONFIG_FILE})
   string(REPLACE ";" " " EMULATOR_HEADERS_LIST "${EMULATOR_PUBLIC_HEADERS}")
   # Add them to the list of headers to be processed.
-  string(APPEND  DOXYGEN_PUBLIC_HEADERS " ${EMULATOR_HEADERS_LIST}") 
+  string(APPEND  DOXYGEN_PUBLIC_HEADERS " ${EMULATOR_HEADERS_LIST}")
   # Write an emulator.rst file and symlink README.md from the emulator
   file(COPY_FILE ${PROJECT_SOURCE_DIR}/docs/rst/emulator.rst.enabled ${PROJECT_SOURCE_DIR}/docs/rst/emulator.rst)
   file(CREATE_LINK ${EMULATOR_DIR}/README.md ${PROJECT_SOURCE_DIR}/docs/md/emulator.md SYMBOLIC)
@@ -139,7 +139,7 @@ set(GOOGLE_ANALTYICS_CONFIG_OUT ${SPHINX_SOURCE_DIR}/static/js/qb_ga.js)
 file(GLOB EXTRA_RST_FILES ${SPHINX_SOURCE_DIR}/rst/*.rst)
 file(GLOB EXTRA_MARKDOWN_FILES ${SPHINX_SOURCE_DIR}/md/*.md)
 list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/README.md)
-list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/cpp/qbsdkcli/README.md)
+list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/cpp/qristal_cli/README.md)
 list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/cpp/vqeeCalculator/README.md)
 
 #Replace variables inside @@ with the current values

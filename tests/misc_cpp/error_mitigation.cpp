@@ -1,13 +1,13 @@
 // (c) 2023 Quantum Brilliance Pty Ltd
 #include <ostream>
 #include <gtest/gtest.h>
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 
 TEST(TestErrorMitigation, test_readout_error_mitigation) {
   std::cout << "* Test readout error mitigation *" << std::endl;
 
   // Start a session.
-  auto s = qb::session(false);
+  auto s = qristal::session(false);
   // Default parameters
   s.init();
 
@@ -22,7 +22,7 @@ TEST(TestErrorMitigation, test_readout_error_mitigation) {
   s.set_noise_mitigation("ro-error");
   s.set_acc("aer");
   auto targetCircuit = R"(
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         X(q[0]);
         Measure(q[0]);
     }
@@ -47,21 +47,21 @@ TEST(TestErrorMitigation, test_readout_error_mitigation) {
 
 TEST(TestErrorMitigation, test_richardson_error_mitigation) {
   std::cout << "* Test Richardson error mitigation *" << std::endl;
-  // Start a QB SDK session.
-  auto s = qb::session(false);
+  // Start a Qristal session.
+  auto s = qristal::session(false);
   s.init();
   // Fix random seed
   s.set_seed(1);
   // Override defaults
   s.set_qn(2);
-  s.set_sn(1024); 
+  s.set_sn(1024);
   s.set_xasm(true);
   s.set_noise(true);
   s.set_nooptimise(true);
   s.set_noplacement(true);
   s.set_acc("aer");
   auto targetCircuit = R"(
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         H(q[0]);
         CNOT(q[0],q[1]);
         Measure(q[0]);
@@ -83,7 +83,7 @@ TEST(TestErrorMitigation, test_richardson_error_mitigation) {
   double exp_val = iter->second;
   std::cout << "Richardson extrapolation error mitigated exp-val-z = " << exp_val << "\n";
 
-  // Ideal result is 1.0 
+  // Ideal result is 1.0
   double delta_mitigated = 1.0 - exp_val;
   double delta_raw = 1.0 - raw_exp_val;
   // Check if readout error mitigation improved accuracy
@@ -95,8 +95,8 @@ TEST(TestErrorMitigation, test_assignment_kernel_error_mitigation) {
   std::cout << "* Test readout assignment kernel error mitigation *"
             << std::endl;
 
-  // Start a QB SDK session.
-  auto s = qb::session(false);
+  // Start a Qristal session.
+  auto s = qristal::session(false);
   s.init();
   // Fix random seed
   s.set_seed(1);
@@ -110,7 +110,7 @@ TEST(TestErrorMitigation, test_assignment_kernel_error_mitigation) {
   s.set_noplacement(true);
   s.set_acc("aer");
   auto targetCircuit = R"(
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         X(q[0]);
         Measure(q[0]);
     }
@@ -131,7 +131,7 @@ TEST(TestErrorMitigation, test_assignment_kernel_error_mitigation) {
   double exp_val = iter->second;
   std::cout << "Assignment-error-kernel mitigation exp-val-z = " << exp_val << "\n";
 
-  // Ideal result is -1.0 
+  // Ideal result is -1.0
   double delta_mitigated = -1.0 - exp_val;
   double delta_raw = -1.0 - raw_exp_val;
   // Check if readout error mitigation improved accuracy

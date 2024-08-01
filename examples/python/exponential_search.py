@@ -1,4 +1,4 @@
-import qb.core
+import qristal.core
 import numpy as np
 import math
 import timeit
@@ -41,7 +41,7 @@ num_evaluation_qubits = 10
 
 # State prep - encoding the dataset in a quantum register.
 def state_prep(trial_qubits, trial_score_qubits, a, b, c):
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     for i in range(0,len(trial_qubits)):
         circ.h(trial_qubits[i])
 
@@ -63,7 +63,7 @@ def state_prep(trial_qubits, trial_score_qubits, a, b, c):
 def oracle(bestScore):
     qubit_flag = ancilla_qubits[0]
     c_in = ancilla_qubits[1]
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     bestScore_binary_n = bin(bestScore)[2:].zfill(len(best_score_qubits))
     for i in range(0,len(best_score_qubits)):
@@ -91,7 +91,7 @@ print("Start canonical exponential search!\n")
 max_run = 4 *  math.ceil(math.log2(N))
 count = 0
 while count < max_run:
-    result = qb.core.Circuit().exponential_search("canonical", state_prep, oracle, bestScore, get_score, total_num_qubits, trial_qubits, trial_score_qubits, qpu="qsim")
+    result = qristal.core.Circuit().exponential_search("canonical", state_prep, oracle, bestScore, get_score, total_num_qubits, trial_qubits, trial_score_qubits, qpu="qsim")
     if result > bestScore:
         bestScore = result
         print("New best score found:", bestScore)
@@ -114,7 +114,7 @@ print("Canonical exponential search finished in " + str(end_canonical_exp_search
 # max_run = 4 *  math.ceil(math.log2(N))
 # count = 0
 # while count < max_run:
-#     result = qb.core.Circuit().exponential_search("MLQAE",oracle, state_prep, get_score, bestScore, trial_qubits, trial_score_qubits, [],[],flag_qubit, best_score_qubits, ancilla_qubits, MLQAE_is_in_good_subspace=is_in_good_subspace, MLQAE_num_runs=num_runs, MLQAE_num_shots=num_shots, qpu = "qsim")
+#     result = qristal.core.Circuit().exponential_search("MLQAE",oracle, state_prep, get_score, bestScore, trial_qubits, trial_score_qubits, [],[],flag_qubit, best_score_qubits, ancilla_qubits, MLQAE_is_in_good_subspace=is_in_good_subspace, MLQAE_num_runs=num_runs, MLQAE_num_shots=num_shots, qpu = "qsim")
 #     if result > bestScore:
 #         bestScore = result
 #         print("New best score:", bestScore)
@@ -135,7 +135,7 @@ print("Canonical exponential search finished in " + str(end_canonical_exp_search
 # max_run = 4 *  math.ceil(math.log2(N))
 # count = 0
 # while count < max_run:
-#     result = qb.core.Circuit().exponential_search("CQAE",oracle, state_prep, get_score, bestScore,trial_qubits, trial_score_qubits,[],[], flag_qubit, best_score_qubits, ancilla_qubits,CQAE_num_evaluation_qubits= num_evaluation_qubits, qpu = "qsim")
+#     result = qristal.core.Circuit().exponential_search("CQAE",oracle, state_prep, get_score, bestScore,trial_qubits, trial_score_qubits,[],[], flag_qubit, best_score_qubits, ancilla_qubits,CQAE_num_evaluation_qubits= num_evaluation_qubits, qpu = "qsim")
 #     if result > bestScore:
 #         bestScore = result
 #         print("New best score:", bestScore)

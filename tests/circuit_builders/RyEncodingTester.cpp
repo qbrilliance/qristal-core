@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 #include "Circuit.hpp"
-#include "qb/core/circuit_builders/ry_encoding.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/circuit_builders/ry_encoding.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <cassert>
@@ -20,14 +20,14 @@
 std::map<std::string, int> check_encoding(std::vector<std::vector<float>> prob_table,
                            std::vector<int> qubits_string) {
 
-    qb::CircuitBuilder circ;
+    qristal::CircuitBuilder circ;
 
     const xacc::HeterogeneousMap &map = {
         {"probability_table", prob_table},
         {"qubits_string", qubits_string}};
 
 
-    qb::RyEncoding build;
+    qristal::RyEncoding build;
     const bool expand_ok = build.expand(map);
     circ.append(build);
 

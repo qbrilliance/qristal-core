@@ -16,7 +16,7 @@ add_xacc_plugin(qb_qobj_compiler
     src/qobj/QuantumBrillianceQobjCompiler.cpp
     src/qobj/QobjCompilersActivator.cpp
   HEADERS
-    include/qb/core/qobj/QuantumBrillianceQobjCompiler.hpp
+    include/qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp
   DEPENDENCIES
     nlohmann::json
 )
@@ -30,8 +30,8 @@ add_xacc_plugin(optimizationModules
     src/optimization/qaoa/qaoa_warmStart_algorithm.cpp
     src/optimization/qaoa/qaoa_warmStart_circuit.cpp
   HEADERS
-    include/qb/core/optimization/qaoa/qaoa_warmStart_algorithm.hpp
-    include/qb/core/optimization/qaoa/qaoa_warmStart_circuit.hpp
+    include/qristal/core/optimization/qaoa/qaoa_warmStart_algorithm.hpp
+    include/qristal/core/optimization/qaoa/qaoa_warmStart_circuit.hpp
 )
 
 # Amplitude estimation
@@ -41,8 +41,8 @@ add_xacc_plugin(algorithm_ae
     src/algorithms/amplitude_estimation/canonical_amplitude_estimation.cpp
     src/algorithms/amplitude_estimation/ML_amplitude_estimation.cpp
   HEADERS
-    include/qb/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp
-    include/qb/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp
+    include/qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp
+    include/qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp
 )
 
 # Exponential search
@@ -51,7 +51,7 @@ add_xacc_plugin(algorithm_es
     src/algorithms/exponential_search/exponential_search_algo_activator.cpp
     src/algorithms/exponential_search/exponential_search.cpp
   HEADERS
-    include/qb/core/algorithms/exponential_search/exponential_search.hpp
+    include/qristal/core/algorithms/exponential_search/exponential_search.hpp
 )
 
 # Offload to AWS Braket
@@ -61,19 +61,19 @@ add_xacc_plugin(aws_braket
     src/backends/aws_braket/aws_python_script.py
     src/backends/aws_braket/AWSQuantumTask.cpp
   HEADERS
-    include/qb/core/backends/aws_braket/AWSAccelerator.hpp
-    include/qb/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp
-    include/qb/core/backends/aws_braket/AWSQuantumTask.hpp
-    include/qb/core/backends/aws_braket/AWSVisitor.hpp
+    include/qristal/core/backends/aws_braket/AWSAccelerator.hpp
+    include/qristal/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp
+    include/qristal/core/backends/aws_braket/AWSQuantumTask.hpp
+    include/qristal/core/backends/aws_braket/AWSVisitor.hpp
   DEPENDENCIES
     Python::Python
     pybind11::pybind11
-    qb::core
+    qristal::core
 )
 # Install additional runtime assets
 install(
   FILES src/backends/aws_braket/aws_python_script.py
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
 )
 
 # Circuit library
@@ -111,36 +111,36 @@ add_xacc_plugin(circuits
     src/circuits/uq_prime_unitary.cpp
     src/circuits/w_prime_unitary.cpp
   HEADERS
-    include/qb/core/circuits/ae_to_metric.hpp
-    include/qb/core/circuits/amplitude_amplification.hpp
-    include/qb/core/circuits/canonical_amplitude_estimation.hpp
-    include/qb/core/circuits/comparator.hpp
-    include/qb/core/circuits/compare_beam_oracle.hpp
-    include/qb/core/circuits/compare_gt.hpp
-    include/qb/core/circuits/controlled_addition.hpp
-    include/qb/core/circuits/controlled_multiplication.hpp
-    include/qb/core/circuits/controlled_proper_fraction_division.hpp
-    include/qb/core/circuits/controlled_subtraction.hpp
-    include/qb/core/circuits/controlled_swap.hpp
-    include/qb/core/circuits/efficient_encoding.hpp
-    include/qb/core/circuits/equality_checker.hpp
-    include/qb/core/circuits/generalised_mcx.hpp
-    include/qb/core/circuits/init_rep_flag.hpp
-    include/qb/core/circuits/inverse_circuit.hpp
-    include/qb/core/circuits/mcu_with_ancilla.hpp
-    include/qb/core/circuits/mean_value_finder.hpp
-    include/qb/core/circuits/multiplication.hpp
-    include/qb/core/circuits/phase_estimation.hpp
-    include/qb/core/circuits/proper_fraction_division.hpp
-    include/qb/core/circuits/pseudo_trace_amplitude_estimation.hpp
-    include/qb/core/circuits/qd_beam_state_prep.hpp
-    include/qb/core/circuits/q_prime_unitary.hpp
-    include/qb/core/circuits/ripple_adder.hpp
-    include/qb/core/circuits/subtraction.hpp
-    include/qb/core/circuits/superposition_adder.hpp
-    include/qb/core/circuits/u_prime_unitary.hpp
-    include/qb/core/circuits/uq_prime_unitary.hpp
-    include/qb/core/circuits/w_prime_unitary.hpp
+    include/qristal/core/circuits/ae_to_metric.hpp
+    include/qristal/core/circuits/amplitude_amplification.hpp
+    include/qristal/core/circuits/canonical_amplitude_estimation.hpp
+    include/qristal/core/circuits/comparator.hpp
+    include/qristal/core/circuits/compare_beam_oracle.hpp
+    include/qristal/core/circuits/compare_gt.hpp
+    include/qristal/core/circuits/controlled_addition.hpp
+    include/qristal/core/circuits/controlled_multiplication.hpp
+    include/qristal/core/circuits/controlled_proper_fraction_division.hpp
+    include/qristal/core/circuits/controlled_subtraction.hpp
+    include/qristal/core/circuits/controlled_swap.hpp
+    include/qristal/core/circuits/efficient_encoding.hpp
+    include/qristal/core/circuits/equality_checker.hpp
+    include/qristal/core/circuits/generalised_mcx.hpp
+    include/qristal/core/circuits/init_rep_flag.hpp
+    include/qristal/core/circuits/inverse_circuit.hpp
+    include/qristal/core/circuits/mcu_with_ancilla.hpp
+    include/qristal/core/circuits/mean_value_finder.hpp
+    include/qristal/core/circuits/multiplication.hpp
+    include/qristal/core/circuits/phase_estimation.hpp
+    include/qristal/core/circuits/proper_fraction_division.hpp
+    include/qristal/core/circuits/pseudo_trace_amplitude_estimation.hpp
+    include/qristal/core/circuits/qd_beam_state_prep.hpp
+    include/qristal/core/circuits/q_prime_unitary.hpp
+    include/qristal/core/circuits/ripple_adder.hpp
+    include/qristal/core/circuits/subtraction.hpp
+    include/qristal/core/circuits/superposition_adder.hpp
+    include/qristal/core/circuits/u_prime_unitary.hpp
+    include/qristal/core/circuits/uq_prime_unitary.hpp
+    include/qristal/core/circuits/w_prime_unitary.hpp
 )
 
 # Offload to QB Lambda server
@@ -157,11 +157,11 @@ add_xacc_plugin(sparse_simulator
   SOURCES
     src/backends/sparse_simulator/SparseStateVecAccelerator.cpp
   HEADERS
-    include/qb/core/backends/sparse_simulator/basic_quantum_state.hpp
-    include/qb/core/backends/sparse_simulator/gates.h
-    include/qb/core/backends/sparse_simulator/quantum_state.hpp
-    include/qb/core/backends/sparse_simulator/SparseSimulator.h
-    include/qb/core/backends/sparse_simulator/types.h
+    include/qristal/core/backends/sparse_simulator/basic_quantum_state.hpp
+    include/qristal/core/backends/sparse_simulator/gates.h
+    include/qristal/core/backends/sparse_simulator/quantum_state.hpp
+    include/qristal/core/backends/sparse_simulator/SparseSimulator.h
+    include/qristal/core/backends/sparse_simulator/types.h
 )
 
 # UCSSD quantum chemistry
@@ -169,7 +169,7 @@ add_xacc_plugin(uccsd
   SOURCES
     src/uccsd/uccsd.cpp
   HEADERS
-    include/qb/core/uccsd/fermionic_excitation_generator.hpp
+    include/qristal/core/uccsd/fermionic_excitation_generator.hpp
   DEPENDENCIES
     cppitertools::cppitertools
     Eigen3::Eigen

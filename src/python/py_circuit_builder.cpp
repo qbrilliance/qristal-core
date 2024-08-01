@@ -1,24 +1,24 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/python/py_circuit_builder.hpp"
-#include "qb/core/python/py_stl_containers.hpp"
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/circuit_builders/exponent.hpp"
+#include "qristal/core/python/py_circuit_builder.hpp"
+#include "qristal/core/python/py_stl_containers.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/circuit_builders/exponent.hpp"
 
-namespace qb {
+namespace qristal {
 void bind_circuit_builder(pybind11::module &m) {
   namespace py = pybind11;
-  using OracleFuncPyType = std::function<qb::CircuitBuilder(int)>;
-  using StatePrepFuncPyType = std::function<qb::CircuitBuilder(
+  using OracleFuncPyType = std::function<qristal::CircuitBuilder(int)>;
+  using StatePrepFuncPyType = std::function<qristal::CircuitBuilder(
       py::array_t<int>, py::array_t<int>, py::array_t<int>, py::array_t<int>,
       py::array_t<int>)>;
-  py::class_<qb::CircuitBuilder>(m, "Circuit")
+  py::class_<qristal::CircuitBuilder>(m, "Circuit")
       .def(py::init())
-      .def("print", &qb::CircuitBuilder::print,
+      .def("print", &qristal::CircuitBuilder::print,
            "Print the quantum circuit that has been built")
       .def(
           "openqasm",
-          [&](qb::CircuitBuilder &this_) {
+          [&](qristal::CircuitBuilder &this_) {
             if (this_.is_parametrized()) 
             {
               throw std::runtime_error("Cannot convert parametrized circuit to OpenQASM!");
@@ -30,7 +30,7 @@ void bind_circuit_builder(pybind11::module &m) {
           "Get the OpenQASM representation of the (non-parametrized) circuit.")
       .def(
           "append",
-          [&](qb::CircuitBuilder &this_, qb::CircuitBuilder other) {
+          [&](qristal::CircuitBuilder &this_, qristal::CircuitBuilder other) {
             this_.append(other);
           },
           py::arg("other"),
@@ -39,7 +39,7 @@ void bind_circuit_builder(pybind11::module &m) {
       // TODO: using s `run` once the QE-382 is implemented
       .def(
           "execute",
-          [&](qb::CircuitBuilder &this_, const std::string &QPU, int NUM_SHOTS,
+          [&](qristal::CircuitBuilder &this_, const std::string &QPU, int NUM_SHOTS,
               int NUM_QUBITS) {
             auto acc = xacc::getAccelerator(QPU, {{"shots", NUM_SHOTS}});
             if (NUM_QUBITS < 0) {
@@ -64,16 +64,16 @@ void bind_circuit_builder(pybind11::module &m) {
 
           )")
       .def(
-          "num_qubits", [&](qb::CircuitBuilder &builder) { return builder.num_qubits();}, R"(
+          "num_qubits", [&](qristal::CircuitBuilder &builder) { return builder.num_qubits();}, R"(
       Returns the number of (physical) qubits in the circuit.
     )")
       .def(
-          "num_free_params", [&](qb::CircuitBuilder &builder) {return builder.num_free_params();}, R"(
+          "num_free_params", [&](qristal::CircuitBuilder &builder) {return builder.num_free_params();}, R"(
       Returns the number of free parameters in the (parametrized) circuit.
     )")
       .def(
           "param_dict_to_list", 
-          [&](qb::CircuitBuilder &builder, std::map<std::string, double> param_dict) {
+          [&](qristal::CircuitBuilder &builder, std::map<std::string, double> param_dict) {
             return builder.param_map_to_vec(param_dict);
           }, R"(
       Convert a dictionary that defines parameter assignments to a vector for 
@@ -94,7 +94,7 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
-          "h", [&](qb::CircuitBuilder &builder, int idx) { builder.H(idx); },
+          "h", [&](qristal::CircuitBuilder &builder, int idx) { builder.H(idx); },
           py::arg("idx"), R"(
     Hadamard gate
   
@@ -106,7 +106,7 @@ void bind_circuit_builder(pybind11::module &m) {
 
   )")
       .def(
-          "x", [&](qb::CircuitBuilder &builder, int idx) { builder.X(idx); },
+          "x", [&](qristal::CircuitBuilder &builder, int idx) { builder.X(idx); },
           py::arg("idx"), R"(
       Pauli-X gate
 
@@ -120,7 +120,7 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
-          "y", [&](qb::CircuitBuilder &builder, int idx) { builder.Y(idx); },
+          "y", [&](qristal::CircuitBuilder &builder, int idx) { builder.Y(idx); },
           py::arg("idx"), R"(
       Pauli-Y gate
 
@@ -132,7 +132,7 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
-          "z", [&](qb::CircuitBuilder &builder, int idx) { builder.Z(idx); },
+          "z", [&](qristal::CircuitBuilder &builder, int idx) { builder.Z(idx); },
           py::arg("idx"), R"(
       Pauli-Z gate
 
@@ -144,7 +144,7 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
-          "t", [&](qb::CircuitBuilder &builder, int idx) { builder.T(idx); },
+          "t", [&](qristal::CircuitBuilder &builder, int idx) { builder.T(idx); },
           py::arg("idx"), R"(
       T gate
 
@@ -157,7 +157,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "tdg",
-          [&](qb::CircuitBuilder &builder, int idx) { builder.Tdg(idx); },
+          [&](qristal::CircuitBuilder &builder, int idx) { builder.Tdg(idx); },
           py::arg("idx"), R"(
       Tdg gate
 
@@ -171,7 +171,7 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
-          "s", [&](qb::CircuitBuilder &builder, int idx) { builder.S(idx); },
+          "s", [&](qristal::CircuitBuilder &builder, int idx) { builder.S(idx); },
           py::arg("idx"), R"(
       S gate
 
@@ -186,7 +186,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "sdg",
-          [&](qb::CircuitBuilder &builder, int idx) { builder.Sdg(idx); },
+          [&](qristal::CircuitBuilder &builder, int idx) { builder.Sdg(idx); },
           py::arg("idx"), R"(
       Sdg gate
 
@@ -199,7 +199,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "rx",
-          [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          [&](qristal::CircuitBuilder &builder, int idx, double theta) {
             builder.RX(idx, theta);
           },
           py::arg("idx"), py::arg("theta"), R"(
@@ -215,7 +215,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "rx",
-          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+          [&](qristal::CircuitBuilder &builder, int idx, std::string param_name) {
             builder.RX(idx, param_name);
           },
           py::arg("idx"), py::arg("name"), R"(
@@ -232,7 +232,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "ry",
-          [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          [&](qristal::CircuitBuilder &builder, int idx, double theta) {
             builder.RY(idx, theta);
           },
           py::arg("idx"), py::arg("theta"), R"(
@@ -248,7 +248,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "ry",
-          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+          [&](qristal::CircuitBuilder &builder, int idx, std::string param_name) {
             builder.RY(idx, param_name);
           },
           py::arg("idx"), py::arg("param_name"), R"(
@@ -265,7 +265,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "rz",
-          [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          [&](qristal::CircuitBuilder &builder, int idx, double theta) {
             builder.RZ(idx, theta);
           },
           py::arg("idx"), py::arg("theta"), R"(
@@ -281,7 +281,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "rz",
-          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+          [&](qristal::CircuitBuilder &builder, int idx, std::string param_name) {
             builder.RZ(idx, param_name);
           },
           py::arg("idx"), py::arg("param_name"), R"(
@@ -298,7 +298,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "cnot",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
             builder.CNOT(ctrl_idx, target_idx);
           },
           py::arg("ctrl_idx"), py::arg("target_idx"), R"(
@@ -317,7 +317,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "mcx",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> ctrl_inds,
               int target_idx) {
             builder.MCX(py_array_to_std_vec(ctrl_inds), target_idx);
           },
@@ -338,7 +338,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "ccx",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx1, int ctrl_idx2,
               int target_idx) {
             builder.MCX({ctrl_idx1, ctrl_idx2}, target_idx);
           },
@@ -360,7 +360,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "swap",
-          [&](qb::CircuitBuilder &builder, int q1, int q2) {
+          [&](qristal::CircuitBuilder &builder, int q1, int q2) {
             builder.SWAP(q1, q2);
           },
           py::arg("q1"), py::arg("q2"), R"(
@@ -376,7 +376,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "cphase",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx,
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
               double theta) { builder.CPhase(ctrl_idx, target_idx, theta); },
           py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("theta"),
           R"(
@@ -396,7 +396,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "cphase",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx,
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
               std::string param_name) { builder.CPhase(ctrl_idx, target_idx, param_name); },
           py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("param_name"),
           R"(
@@ -417,7 +417,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "cz",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
             builder.CZ(ctrl_idx, target_idx);
           },
           py::arg("ctrl_idx"), py::arg("target_idx"), R"(
@@ -436,7 +436,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "ch",
-          [&](qb::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
             builder.CH(ctrl_idx, target_idx);
           },
           py::arg("ctrl_idx"), py::arg("target_idx"), R"(
@@ -453,7 +453,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "u1",
-          [&](qb::CircuitBuilder &builder, int idx, double theta) {
+          [&](qristal::CircuitBuilder &builder, int idx, double theta) {
             builder.U1(idx, theta);
           },
           py::arg("idx"), py::arg("theta"), R"(
@@ -469,7 +469,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "u1",
-          [&](qb::CircuitBuilder &builder, int idx, std::string param_name) {
+          [&](qristal::CircuitBuilder &builder, int idx, std::string param_name) {
             builder.U1(idx, param_name);
           },
           py::arg("idx"), py::arg("param_name"), R"(
@@ -486,7 +486,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "u3",
-          [&](qb::CircuitBuilder &builder, int idx, std::string param_1, std::string param_2,
+          [&](qristal::CircuitBuilder &builder, int idx, std::string param_1, std::string param_2,
               std::string param_3) { builder.U3(idx, param_1, param_2, param_3); },
           py::arg("idx"), py::arg("param_1"), py::arg("param_2"), py::arg("param_3"),
           R"(
@@ -504,7 +504,7 @@ void bind_circuit_builder(pybind11::module &m) {
       )")
       .def(
           "u3",
-          [&](qb::CircuitBuilder &builder, int idx, double theta, double phi,
+          [&](qristal::CircuitBuilder &builder, int idx, double theta, double phi,
               double lambda) { builder.U3(idx, theta, phi, lambda); },
           py::arg("idx"), py::arg("theta"), py::arg("phi"), py::arg("lambda"),
           R"(
@@ -522,7 +522,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "measure",
-          [&](qb::CircuitBuilder &builder, int idx) { builder.Measure(idx); },
+          [&](qristal::CircuitBuilder &builder, int idx) { builder.Measure(idx); },
           py::arg("idx"), R"(
       Measurement
 
@@ -536,7 +536,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "measure_all",
-          [&](qb::CircuitBuilder &builder, int NUM_QUBITS) {
+          [&](qristal::CircuitBuilder &builder, int NUM_QUBITS) {
             builder.MeasureAll(NUM_QUBITS);
           },
           py::arg("NUM_QUBITS") = -1,
@@ -552,7 +552,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "qft",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> inds) {
             builder.QFT(py_array_to_std_vec(inds));
           },
           py::arg("qubits"), R"(
@@ -568,7 +568,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "iqft",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> inds) {
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> inds) {
             builder.IQFT(py_array_to_std_vec(inds));
           },
           py::arg("qubits"), R"(
@@ -584,10 +584,10 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "exponent",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_log,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_log,
               py::array_t<int> qubits_exponent, py::array_t<int> qubits_ancilla,
               int min_significance, bool is_LSB) {
-            qb::Exponent build_exp;
+            qristal::Exponent build_exp;
             xacc::HeterogeneousMap map = {
                 {"qubits_log", py_array_to_std_vec(qubits_log)},
                 {"min_significance", min_significance},
@@ -623,10 +623,10 @@ void bind_circuit_builder(pybind11::module &m) {
             )")
       .def(
           "qpe",
-          [&](qb::CircuitBuilder &builder, py::object &oracle, int precision,
+          [&](qristal::CircuitBuilder &builder, py::object &oracle, int precision,
               py::array_t<int> trial_qubits,
               py::array_t<int> evaluation_qubits) {
-            qb::CircuitBuilder *casted = oracle.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted = oracle.cast<qristal::CircuitBuilder *>();
             assert(casted);
             builder.QPE(*casted, precision, py_array_to_std_vec(trial_qubits),
                         py_array_to_std_vec(evaluation_qubits));
@@ -654,16 +654,16 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "canonical_ae",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
+          [&](qristal::CircuitBuilder &builder, py::object &state_prep,
               py::object &grover_op, int precision, int num_state_prep_qubits,
               int num_trial_qubits, py::array_t<int> precision_qubits,
               py::array_t<int> trial_qubits, bool no_state_prep) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qristal::CircuitBuilder *>();
             assert(state_prep);
 
-            qb::CircuitBuilder *casted_grover_op =
-                grover_op.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_grover_op =
+                grover_op.cast<qristal::CircuitBuilder *>();
             assert(casted_grover_op);
             builder.CanonicalAmplitudeEstimation(
                 *casted_state_prep, *casted_grover_op, precision,
@@ -703,16 +703,16 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "run_canonical_ae",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
+          [&](qristal::CircuitBuilder &builder, py::object &state_prep,
               py::object &grover_op, int precision, int num_state_prep_qubits,
               int num_trial_qubits, py::array_t<int> precision_qubits,
               py::array_t<int> trial_qubits, py::str acc_name) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qristal::CircuitBuilder *>();
             assert(state_prep);
 
-            qb::CircuitBuilder *casted_grover_op =
-                grover_op.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_grover_op =
+                grover_op.cast<qristal::CircuitBuilder *>();
             assert(casted_grover_op);
             return builder.RunCanonicalAmplitudeEstimation(
                 *casted_state_prep, *casted_grover_op, precision,
@@ -745,10 +745,10 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "amcu",
-          [&](qb::CircuitBuilder &builder, py::object &U,
+          [&](qristal::CircuitBuilder &builder, py::object &U,
               py::array_t<int> qubits_control,
               py::array_t<int> qubits_ancilla) {
-            qb::CircuitBuilder *casted_U = U.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_U = U.cast<qristal::CircuitBuilder *>();
 
             return builder.MultiControlledUWithAncilla(
                 *casted_U, py_array_to_std_vec(qubits_control),
@@ -772,16 +772,16 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "run_canonical_ae_with_oracle",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
+          [&](qristal::CircuitBuilder &builder, py::object &state_prep,
               py::object &oracle, int precision, int num_state_prep_qubits,
               int num_trial_qubits, py::array_t<int> precision_qubits,
               py::array_t<int> trial_qubits, py::str acc_name) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qristal::CircuitBuilder *>();
             assert(state_prep);
 
-            qb::CircuitBuilder *casted_oracle =
-                oracle.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_oracle =
+                oracle.cast<qristal::CircuitBuilder *>();
             assert(casted_oracle);
             return builder.RunCanonicalAmplitudeEstimationWithOracle(
                 *casted_state_prep, *casted_oracle, precision,
@@ -818,17 +818,17 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "run_MLQAE",
-          [&](qb::CircuitBuilder &builder, py::object &state_prep,
+          [&](qristal::CircuitBuilder &builder, py::object &state_prep,
               py::object &oracle,
               std::function<int(std::string, int)> is_in_good_subspace,
               py::array_t<int> score_qubits, int total_num_qubits, int num_runs,
               int shots, py::str acc_name) {
-            qb::CircuitBuilder *casted_state_prep =
-                state_prep.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_state_prep =
+                state_prep.cast<qristal::CircuitBuilder *>();
             assert(state_prep);
 
-            qb::CircuitBuilder *casted_oracle =
-                oracle.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_oracle =
+                oracle.cast<qristal::CircuitBuilder *>();
             assert(casted_oracle);
             return builder.RunMLAmplitudeEstimation(
                 *casted_state_prep, *casted_oracle, is_in_good_subspace,
@@ -866,13 +866,13 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "amplitude_amplification",
-          [&](qb::CircuitBuilder &builder, py::object &oracle,
+          [&](qristal::CircuitBuilder &builder, py::object &oracle,
               py::object &state_prep, int power) {
-            qb::CircuitBuilder *oracle_casted =
-                oracle.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *oracle_casted =
+                oracle.cast<qristal::CircuitBuilder *>();
             assert(oracle_casted);
-            qb::CircuitBuilder *state_prep_casted =
-                state_prep.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *state_prep_casted =
+                state_prep.cast<qristal::CircuitBuilder *>();
             assert(state_prep_casted);
             builder.AmplitudeAmplification(*oracle_casted, *state_prep_casted,
                                            power);
@@ -895,7 +895,7 @@ void bind_circuit_builder(pybind11::module &m) {
      )")
       .def(
           "ripple_add",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> a,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> a,
               py::array_t<int> b, int c_in) {
             builder.RippleAdd(py_array_to_std_vec(a), py_array_to_std_vec(b),
                               c_in);
@@ -917,7 +917,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "comparator",
-          [&](qb::CircuitBuilder &builder, int BestScore,
+          [&](qristal::CircuitBuilder &builder, int BestScore,
               int num_scoring_qubits, py::array_t<int> trial_score_qubits,
               int flag_qubit, py::array_t<int> best_score_qubits,
               py::array_t<int> ancilla_qubits, bool is_LSB,
@@ -961,7 +961,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "efficient_encoding",
-          [&](qb::CircuitBuilder &builder,
+          [&](qristal::CircuitBuilder &builder,
               std::function<int(int)> scoring_function, int num_state_qubits,
               int num_scoring_qubits, py::array_t<int> state_qubits,
               py::array_t<int> scoring_qubits, bool is_LSB, bool use_ancilla,
@@ -1006,7 +1006,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "equality_checker",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, int flag, bool use_ancilla,
               py::array_t<int> qubits_ancilla, py::array_t<int> controls_on,
               py::array_t<int> controls_off) {
@@ -1042,7 +1042,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "controlled_swap",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, py::array_t<int> flags_on,
               py::array_t<int> flags_off) {
             builder.ControlledSwap(
@@ -1070,7 +1070,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "controlled_ripple_carry_adder",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_adder,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_adder,
               py::array_t<int> qubits_sum, int c_in, py::array_t<int> flags_on,
               py::array_t<int> flags_off, bool no_overflow) {
             builder.ControlledAddition(py_array_to_std_vec(qubits_adder),
@@ -1102,7 +1102,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "generalised_mcx",
-          [&](qb::CircuitBuilder &builder, int target,
+          [&](qristal::CircuitBuilder &builder, int target,
               py::array_t<int> controls_on, py::array_t<int> controls_off) {
             builder.GeneralisedMCX(target, py_array_to_std_vec(controls_on),
                                    py_array_to_std_vec(controls_off));
@@ -1126,7 +1126,7 @@ void bind_circuit_builder(pybind11::module &m) {
   )")
       .def(
           "compare_beam_oracle",
-          [&](qb::CircuitBuilder &builder, int q0, int q1, int q2,
+          [&](qristal::CircuitBuilder &builder, int q0, int q1, int q2,
               py::array_t<int> FA, py::array_t<int> FB, py::array_t<int> SA,
               py::array_t<int> SB, bool simplified) {
             builder.CompareBeamOracle(
@@ -1145,8 +1145,8 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "inverse_circuit",
-          [&](qb::CircuitBuilder &builder, py::object &circ) {
-            qb::CircuitBuilder *casted_circ = circ.cast<qb::CircuitBuilder *>();
+          [&](qristal::CircuitBuilder &builder, py::object &circ) {
+            qristal::CircuitBuilder *casted_circ = circ.cast<qristal::CircuitBuilder *>();
             builder.InverseCircuit(*casted_circ);
           },
           py::arg("circ"),
@@ -1173,7 +1173,7 @@ void bind_circuit_builder(pybind11::module &m) {
   )")
       .def(
           "comparator_as_oracle",
-          [&](qb::CircuitBuilder &builder, int BestScore,
+          [&](qristal::CircuitBuilder &builder, int BestScore,
               int num_scoring_qubits, py::array_t<int> trial_score_qubits,
               int flag_qubit, py::array_t<int> best_score_qubits,
               py::array_t<int> ancilla_qubits, bool is_LSB,
@@ -1219,7 +1219,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "multiplication",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, py::array_t<int> qubits_result,
               int qubit_ancilla, bool is_LSB) {
             builder.Multiplication(
@@ -1246,7 +1246,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "controlled_multiplication",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, py::array_t<int> qubits_result,
               int qubit_ancilla, bool is_LSB, py::array_t<int> controls_on,
               py::array_t<int> controls_off) {
@@ -1280,13 +1280,13 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "superposition_adder",
-          [&](qb::CircuitBuilder &builder, int q0, int q1, int q2,
+          [&](qristal::CircuitBuilder &builder, int q0, int q1, int q2,
               py::array_t<int> qubits_flags, py::array_t<int> qubits_string,
               py::array_t<int> qubits_metric, py::object &ae_state_prep_circ,
               py::array_t<int> qubits_ancilla,
               py::array_t<int> qubits_beam_metric) {
-            qb::CircuitBuilder *casted_ae_state_prep_circ =
-                ae_state_prep_circ.cast<qb::CircuitBuilder *>();
+            qristal::CircuitBuilder *casted_ae_state_prep_circ =
+                ae_state_prep_circ.cast<qristal::CircuitBuilder *>();
             assert(casted_ae_state_prep_circ);
 
             builder.SuperpositionAdder(
@@ -1324,12 +1324,12 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "exponential_search",
-          [&](qb::CircuitBuilder &builder, py::str method,
+          [&](qristal::CircuitBuilder &builder, py::str method,
               py::object state_prep, OracleFuncPyType oracle_func,
               int best_score, const std::function<int(int)> f_score,
               int total_num_qubits, py::array_t<int> qubits_string,
               py::array_t<int> total_metric, py::str acc_name) {
-            qb::OracleFuncCType oracle_converted = [&](int best_score) {
+            qristal::OracleFuncCType oracle_converted = [&](int best_score) {
               // Do conversion
               auto conv = oracle_func(best_score);
               return conv.get();
@@ -1337,10 +1337,10 @@ void bind_circuit_builder(pybind11::module &m) {
 
             std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
             StatePrepFuncPyType state_prep_casted;
-            qb::StatePrepFuncCType state_prep_func;
+            qristal::StatePrepFuncCType state_prep_func;
             try {
-              qb::CircuitBuilder state_prep_casted =
-                  state_prep.cast<qb::CircuitBuilder>();
+              qristal::CircuitBuilder state_prep_casted =
+                  state_prep.cast<qristal::CircuitBuilder>();
               static_state_prep_circ = state_prep_casted.get();
               state_prep_func = [&](std::vector<int> a, std::vector<int> b,
                                     std::vector<int> c, std::vector<int> d,
@@ -1405,7 +1405,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "q_prime_unitary",
-          [&](qb::CircuitBuilder &builder, int nb_qubits_ancilla_metric,
+          [&](qristal::CircuitBuilder &builder, int nb_qubits_ancilla_metric,
               int nb_qubits_ancilla_letter,
               int nb_qubits_next_letter_probabilities,
               int nb_qubits_next_letter) {
@@ -1425,7 +1425,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "subtraction",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_larger,
               py::array_t<int> qubits_smaller, bool is_LSB, int qubit_ancilla) {
             builder.Subtraction(py_array_to_std_vec(qubits_larger),
                                 py_array_to_std_vec(qubits_smaller), is_LSB,
@@ -1450,7 +1450,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "controlled_subtraction",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_larger,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_larger,
               py::array_t<int> qubits_smaller, py::array_t<int> controls_on,
               py::array_t<int> controls_off, bool is_LSB, int qubit_ancilla) {
             builder.ControlledSubtraction(py_array_to_std_vec(qubits_larger),
@@ -1483,7 +1483,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "proper_fraction_division",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
               py::array_t<int> qubits_denominator,
               py::array_t<int> qubits_fraction, py::array_t<int> qubits_ancilla,
               bool is_LSB) {
@@ -1514,7 +1514,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "controlled_proper_fraction_division",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_numerator,
               py::array_t<int> qubits_denominator,
               py::array_t<int> qubits_fraction, py::array_t<int> qubits_ancilla,
               py::array_t<int> controls_on, py::array_t<int> controls_off,
@@ -1553,7 +1553,7 @@ void bind_circuit_builder(pybind11::module &m) {
     )")
       .def(
           "compare_gt",
-          [&](qb::CircuitBuilder &builder, py::array_t<int> qubits_a,
+          [&](qristal::CircuitBuilder &builder, py::array_t<int> qubits_a,
               py::array_t<int> qubits_b, int qubit_flag, int qubit_ancilla,
               bool is_LSB) {
             builder.CompareGT(py_array_to_std_vec(qubits_a),
@@ -1585,14 +1585,14 @@ void bind_circuit_builder(pybind11::module &m) {
           int num_state_prep_qubits, int num_trial_qubits,
           py::array_t<int> precision_qubits, py::array_t<int> trial_qubits,
           py::str acc_name) {
-        qb::CircuitBuilder builder;
+        qristal::CircuitBuilder builder;
 
-        qb::CircuitBuilder *casted_state_prep =
-            state_prep.cast<qb::CircuitBuilder *>();
+        qristal::CircuitBuilder *casted_state_prep =
+            state_prep.cast<qristal::CircuitBuilder *>();
         assert(state_prep);
 
-        qb::CircuitBuilder *casted_grover_op =
-            grover_op.cast<qb::CircuitBuilder *>();
+        qristal::CircuitBuilder *casted_grover_op =
+            grover_op.cast<qristal::CircuitBuilder *>();
         assert(casted_grover_op);
 
         return builder.RunCanonicalAmplitudeEstimation(
@@ -1614,12 +1614,12 @@ void bind_circuit_builder(pybind11::module &m) {
           int num_state_prep_qubits, int num_trial_qubits,
           py::array_t<int> precision_qubits, py::array_t<int> trial_qubits,
           py::str acc_name) {
-        qb::CircuitBuilder builder;
-        qb::CircuitBuilder *casted_state_prep =
-            state_prep.cast<qb::CircuitBuilder *>();
+        qristal::CircuitBuilder builder;
+        qristal::CircuitBuilder *casted_state_prep =
+            state_prep.cast<qristal::CircuitBuilder *>();
         assert(state_prep);
 
-        qb::CircuitBuilder *casted_oracle = oracle.cast<qb::CircuitBuilder *>();
+        qristal::CircuitBuilder *casted_oracle = oracle.cast<qristal::CircuitBuilder *>();
         assert(casted_oracle);
         return builder.RunCanonicalAmplitudeEstimationWithOracle(
             *casted_state_prep, *casted_oracle, precision,
@@ -1641,12 +1641,12 @@ void bind_circuit_builder(pybind11::module &m) {
           std::function<int(std::string, int)> is_in_good_subspace,
           py::array_t<int> score_qubits, int total_num_qubits, int num_runs,
           int shots, py::str acc_name) {
-        qb::CircuitBuilder builder;
-        qb::CircuitBuilder *casted_state_prep =
-            state_prep.cast<qb::CircuitBuilder *>();
+        qristal::CircuitBuilder builder;
+        qristal::CircuitBuilder *casted_state_prep =
+            state_prep.cast<qristal::CircuitBuilder *>();
         assert(state_prep);
 
-        qb::CircuitBuilder *casted_oracle = oracle.cast<qb::CircuitBuilder *>();
+        qristal::CircuitBuilder *casted_oracle = oracle.cast<qristal::CircuitBuilder *>();
         assert(casted_oracle);
         return builder.RunMLAmplitudeEstimation(
             *casted_state_prep, *casted_oracle, is_in_good_subspace,
@@ -1663,8 +1663,8 @@ void bind_circuit_builder(pybind11::module &m) {
           int best_score, const std::function<int(int)> f_score,
           int total_num_qubits, py::array_t<int> qubits_string,
           py::array_t<int> total_metric, py::str acc_name) {
-        qb::CircuitBuilder builder;
-        qb::OracleFuncCType oracle_converted = [&](int best_score) {
+        qristal::CircuitBuilder builder;
+        qristal::OracleFuncCType oracle_converted = [&](int best_score) {
           // Do conversion
           auto conv = oracle_func(best_score);
           return conv.get();
@@ -1672,10 +1672,10 @@ void bind_circuit_builder(pybind11::module &m) {
 
         std::shared_ptr<xacc::CompositeInstruction> static_state_prep_circ;
         StatePrepFuncPyType state_prep_casted;
-        qb::StatePrepFuncCType state_prep_func;
+        qristal::StatePrepFuncCType state_prep_func;
         try {
-          qb::CircuitBuilder state_prep_casted =
-              state_prep.cast<qb::CircuitBuilder>();
+          qristal::CircuitBuilder state_prep_casted =
+              state_prep.cast<qristal::CircuitBuilder>();
           static_state_prep_circ = state_prep_casted.get();
           state_prep_func = [&](std::vector<int> a, std::vector<int> b,
                                 std::vector<int> c, std::vector<int> d,
@@ -1709,4 +1709,4 @@ void bind_circuit_builder(pybind11::module &m) {
       py::arg("qubits_string"), py::arg("total_metric"), py::arg("qpu") = "qpp",
       "Exp Search");
 }
-} // namespace qb
+}

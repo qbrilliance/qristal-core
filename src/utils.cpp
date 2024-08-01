@@ -1,12 +1,12 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
-#include "qb/core/utils.hpp"
+#include "qristal/core/utils.hpp"
 #include <ranges>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/math/constants/constants.hpp>
 
 std::ostream& operator<<(std::ostream& s, const std::map<std::vector<bool>, int>& m) {
-  using qb::operator<<;
+  using qristal::operator<<;
   std::string newline;
   for (const auto& [key, val] : m) {
     s << newline << key << ":  " << val;
@@ -15,7 +15,7 @@ std::ostream& operator<<(std::ostream& s, const std::map<std::vector<bool>, int>
   return s;
 }
 
-namespace qb {
+namespace qristal {
 
   template<>
   std::ostream& operator<<(std::ostream& s, const std::vector<bool>& v) {
@@ -287,4 +287,4 @@ namespace qb {
     return returnval;
   }
 
-} // namespace qb
+}

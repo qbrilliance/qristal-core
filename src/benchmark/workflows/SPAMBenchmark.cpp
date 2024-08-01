@@ -2,22 +2,22 @@
 
 #include <cmath>
 #include <boost/dynamic_bitset.hpp>
-#include "qb/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/circuit_builder.hpp"
 
-namespace qb
+namespace qristal
 {
     namespace benchmark
     {
 
-        std::vector<qb::CircuitBuilder> SPAMBenchmark::get_circuits() const
+        std::vector<qristal::CircuitBuilder> SPAMBenchmark::get_circuits() const
         {
-            std::vector<qb::CircuitBuilder> circuits;
+            std::vector<qristal::CircuitBuilder> circuits;
             const size_t N = std::pow(2, qubits_.size());
             for ( std::size_t bitstring = 0; bitstring < N; ++bitstring )
             {
                 boost::dynamic_bitset<> current(qubits_.size(), bitstring);
-                qb::CircuitBuilder cb;
+                qristal::CircuitBuilder cb;
                 auto it = qubits_.begin();
                 for ( std::size_t i = 0; i < current.size(); ++i ) {
                     if ( current[i] ) {
@@ -54,7 +54,7 @@ namespace qb
             for (size_t bitstring = 0; bitstring < n_bitstrings; ++bitstring ) {
                 ComplexMatrix ideal_density = ComplexMatrix::Zero(n_bitstrings, n_bitstrings);
                 ideal_density(bitstring, bitstring) = std::complex<double>(1.0, 0.0);
-                ideal_densities.push_back(ideal_density); 
+                ideal_densities.push_back(ideal_density);
             }
             workflow.serialize_ideal_densities(ideal_densities, timestamp);
         }
@@ -83,5 +83,5 @@ namespace qb
             workflow.serialize_ideal_processes(ideal_processes, timestamp);
         }
 
-    } // namespace qb::benchmark
-} // namespace qb
+    }
+}

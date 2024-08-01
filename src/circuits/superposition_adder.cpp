@@ -2,14 +2,14 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/superposition_adder.hpp"
+#include "qristal/core/circuits/superposition_adder.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
 #include <assert.h>
 #include <memory>
 #include "xacc.hpp"
 
-namespace qb {
+namespace qristal {
 bool SuperpositionAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   ////////////////////////////////////////////////////////
   // Define helper functions
@@ -302,4 +302,4 @@ const std::vector<std::string> SuperpositionAdder::requiredKeys() {
   return {"q0", "q1", "q2", "qubits_falgs", "qubits_string", "qubits_metric",
   "ae_state_prep_circ", "qubits_ancilla", "qubits_beam_metric"};
 }
-} //namespace qb
+} //namespace qristal

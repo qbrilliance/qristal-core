@@ -1,5 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "Circuit.hpp"

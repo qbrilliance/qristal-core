@@ -5,19 +5,19 @@ import pytest
 
 def test_qpe():
     print(" Testing Quantum Phase Estimation ")
-    import qb.core
+    import qristal.core
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     # Oracle
-    oracle = qb.core.Circuit()
+    oracle = qristal.core.Circuit()
     oracle.u1(0, -1.96349540849)
 
     # 4-bit precision
     nb_bits_precision = 4
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     # State prep: eigen state of the oracle |1>
     circ.x(0)
 
@@ -43,8 +43,8 @@ def test_qpe():
 def test_amcu():
     print("Testing Multi-Controlled-U With Ancilla")
     import numpy as np
-    import qb.core
-    s = qb.core.session()
+    import qristal.core
+    s = qristal.core.session()
     s.init()
 
     # In this example, we perform an mcx gate on all possible bitstrings
@@ -54,7 +54,7 @@ def test_amcu():
     ancilla_bits = range(num_qubits, num_qubits + num_qubits - 2)
 
     for i in range(2**num_qubits):
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         # Prepare the input state
         bitstring = [int(bit) for bit in bin(i)[2:].zfill(num_qubits)]
@@ -63,7 +63,7 @@ def test_amcu():
                 circ.x(j)
 
         # Add the amcu gate
-        U = qb.core.Circuit()
+        U = qristal.core.Circuit()
         U.x(target_bit)
         circ.amcu(U,control_bits,ancilla_bits)
 
@@ -88,10 +88,10 @@ def test_amcu():
 
 def test_equality_checker():
     print(" Testing Equality Checker Circuit")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     ###
@@ -107,7 +107,7 @@ def test_equality_checker():
     # First do the no ancilla version
     for i in range(8):
         for j in range(8):
-            circ = qb.core.Circuit()
+            circ = qristal.core.Circuit()
             # Prepare input strings
             bin_i = bin(i)[2:].zfill(3)
             bin_j = bin(j)[2:].zfill(3)
@@ -138,22 +138,22 @@ def test_equality_checker():
 
 def test_canonical_ae():
     print(" Testing Canonical Quantum Amplitude Estimation ")
-    import qb.core
+    import qristal.core
     import numpy as np
-    from qb.core import run_canonical_ae_with_oracle
+    from qristal.core import run_canonical_ae_with_oracle
     import json
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
     # State prep circuit: (preparing the state that we want to estimate the amplitude)
-    state_prep = qb.core.Circuit()
+    state_prep = qristal.core.Circuit()
     state_prep.ry(8, theta_p)
 
     # In this case, we don't construct the Grover operator by ourselves,
     # instead, just provide the oracle to detect the marked state (|1>)
-    oracle = qb.core.Circuit()
+    oracle = qristal.core.Circuit()
     oracle.z(8)
     bits_precision = 8
 
@@ -166,10 +166,10 @@ def test_canonical_ae():
 
 def test_controlled_swap():
     print("Testing controlled swap")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     ###
@@ -188,7 +188,7 @@ def test_controlled_swap():
     assert(len(input_string) == len(qubits_string))
 
     # Prepare input state
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     for i in range(len(input_string)):
         if input_string[i] == "b":
             circ.x(qubits_string[i])
@@ -242,10 +242,10 @@ def test_controlled_swap():
 
 def test_controlled_addition():
     print("Testing controlled ripple carry adder")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     ###
@@ -265,7 +265,7 @@ def test_controlled_addition():
     # Test 1: flag off
     ###
 
-    circ1 = qb.core.Circuit()
+    circ1 = qristal.core.Circuit()
 
     # Prepare initial state
     circ1.x(qubits_adder[0])
@@ -291,7 +291,7 @@ def test_controlled_addition():
     # Test 1: flag on
     ###
 
-    circ2 = qb.core.Circuit()
+    circ2 = qristal.core.Circuit()
 
     # Prepare initial state
     circ2.x(qubits_adder[0])
@@ -318,10 +318,10 @@ def test_controlled_addition():
 
 def test_generalised_mcx():
     print("Testing generalised MCX")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.sn = 1024
 
@@ -350,7 +350,7 @@ def test_generalised_mcx():
     input_bitstrings = ["000", "001", "010", "011", "100", "101", "110", "111"]
     for condition in conditions:
         for input_bitstring in input_bitstrings:
-            circ = qb.core.Circuit()
+            circ = qristal.core.Circuit()
 
             # Prepare the input bitstring
             for i in range(len(input_bitstring)):
@@ -398,22 +398,22 @@ def test_MLQAE():
     # i.e., estimate the amplitude of the state:
     # sqrt(1-p)|0> + sqrt(p)|1>
     import numpy as np
-    import qb.core
-    from qb.core import run_MLQAE
+    import qristal.core
+    from qristal.core import run_MLQAE
     import ast
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
     # State prep circuit: (preparing the state that we want to estimate the amplitude)
-    state_prep = qb.core.Circuit()
+    state_prep = qristal.core.Circuit()
     state_prep.ry(0, theta_p)
 
     # In this case, we don't construct the Grover operator by ourselves,
     # instead, just provide the oracle to detect the marked state (|1>)
-    oracle = qb.core.Circuit()
+    oracle = qristal.core.Circuit()
     oracle.z(0)
     num_runs = 6
     shots = 100
@@ -434,12 +434,12 @@ def test_MLQAE():
 
 def test_qaa():
     print(" Testing Quantum Amplitude Amplification (Grover's algorithm) ")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
-    oracle = qb.core.Circuit()
+    oracle = qristal.core.Circuit()
     oracle.z(0)
 
     # For demonstration purposes, we start with a very low population of |1> state:
@@ -447,14 +447,14 @@ def test_qaa():
     # Ry(epsilon) |0> ~ epsilon |1> + sqrt(1 - epsilon^2) |1>
     # i.e., the initial population of the marked state is small (~ epsilon)
     epsilon = 0.05
-    state_prep = qb.core.Circuit()
+    state_prep = qristal.core.Circuit()
     state_prep.ry(0, epsilon)
 
     good_state_ampls = []
     # Testing a varying number of iteration
     for i in range(1, 40, 1):
         # Construct full amplitude amplification circuit:
-        full_circuit = qb.core.Circuit()
+        full_circuit = qristal.core.Circuit()
         # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.
         full_circuit.amplitude_amplification(oracle, state_prep, i)
         # Add measurement:
@@ -486,10 +486,10 @@ def test_qaa():
 
 def test_ripple_adder():
     print(" Testing Ripple Carry Adder Circuit ")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     # Testing a simple integer adding, checking the full truth table.
 
@@ -516,7 +516,7 @@ def test_ripple_adder():
     # Testing all the case: 0, 1, 2, 3 (2-qubit)
     for i in range(4):
         for j in range (4):
-            circ = qb.core.Circuit()
+            circ = qristal.core.Circuit()
             set_integer(circ, a, i)
             set_integer(circ, b, j)
             circ.ripple_add(a, b, c_in)
@@ -540,9 +540,9 @@ def test_ripple_adder():
 
 def test_ripple_adder_superposition():
     print(" Testing Ripple Carry Adder Circuit for superposition ")
-    import qb.core
+    import qristal.core
     import numpy as np
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     # Let's do a 2-qubit adder
     nb_qubits = 2
@@ -557,7 +557,7 @@ def test_ripple_adder_superposition():
     # Test adding superposition:
     # (|0> + |1>) + (|0> + |2>)
     # ==> |0> + |1> + |2> + |3>
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     circ.h(a[0])
     circ.h(b[1])
     circ.ripple_add(a, b, c_in)
@@ -578,10 +578,10 @@ def test_ripple_adder_superposition():
 
 def test_comparator():
     print("Testing quantum bit string comparator")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     # Comparator: compare two bitstrings |BestScore> and |TrialScore>
@@ -604,7 +604,7 @@ def test_comparator():
             ancilla_qubits = [5,6,7,8]
 
             # create circuit
-            circ = qb.core.Circuit()
+            circ = qristal.core.Circuit()
 
             # State prep
             TestScore = j
@@ -642,10 +642,10 @@ def test_comparator():
 
 def test_efficient_encoding():
     print("Testing Efficient Encoding")
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     # Efficient Encoding: given the input |state>|00...0>
@@ -663,7 +663,7 @@ def test_efficient_encoding():
     num_scoring_qubits = 3
 
     # create circuit
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     # State prep: |000>|000> + |111>|0000>
     circ.h(0)
@@ -695,10 +695,10 @@ def test_efficient_encoding():
         assert(list(measurement) in allowed_outputs)
 
 def test_compare_beam_oracle():
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.acc = "aer"
     s.sn = 1024
     s.init()
@@ -714,7 +714,7 @@ def test_compare_beam_oracle():
     FB = [5,6]
     SA = [7,8,9,10]
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     circ.x(FA[1])
     circ.x(FB[1])
@@ -746,7 +746,7 @@ def test_compare_beam_oracle():
     FB = [5,6]
     SA = [7,8,9,10]
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     circ.x(FA[1])
     circ.x(FB[1])
@@ -768,10 +768,10 @@ def test_compare_beam_oracle():
     assert(res[[1,1,1]] == 1024)
 
 def test_multiplication():
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.acc = "qsim"
     s.sn = 1024
     s.init()
@@ -786,7 +786,7 @@ def test_multiplication():
     qubits_result = [4,5,6,7]
     qubit_ancilla = 8
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     # Prepare inputs
     circ.x(qubits_a[0])
@@ -814,9 +814,9 @@ def test_multiplication():
     assert(res[[1,0,1,1,1,1,0,0]] == 1024)
 
 def test_controlled_multiplication():
-    import qb.core
+    import qristal.core
     import numpy as np
-    s = qb.core.session()
+    s = qristal.core.session()
     s.acc = "qsim"
     s.sn = 1024
     s.init()
@@ -832,7 +832,7 @@ def test_controlled_multiplication():
     qubit_ancilla = 8
     controls_on = [9]
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     # Prepare inputs
     circ.x(qubits_a[0])
@@ -862,9 +862,9 @@ def test_controlled_multiplication():
     assert(res[[1,0,1,1,1,1,0,0]] == 1024)
 
 def test_inverse_circuit():
-    import qb.core
+    import qristal.core
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.nooptimise = True
     s.noplacement = True
@@ -874,9 +874,9 @@ def test_inverse_circuit():
     s.sn = 1024
 
     qubits = [0,1,2,3]
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
-    qft = qb.core.Circuit()
+    qft = qristal.core.Circuit()
     qft.qft(qubits)
 
     circ.qft(qubits)
@@ -890,10 +890,10 @@ def test_inverse_circuit():
     assert(res[[0,0,0,0]] == 1024)
 
 def test_subtraction():
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 7
 
@@ -907,7 +907,7 @@ def test_subtraction():
     qubits_smaller = [3,4,5]
     qubit_ancilla = 6
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     i = 6
     j = 4
@@ -944,10 +944,10 @@ def test_subtraction():
     assert(res[expected_output] == 1024)
 
 def test_controlled_subtraction():
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 8
 
@@ -962,7 +962,7 @@ def test_controlled_subtraction():
     control_on = [6]
     ancilla = 7
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     i = 6
     j = 4
@@ -1001,10 +1001,10 @@ def test_controlled_subtraction():
     assert(res[expected_output] == 1024)
 
 def test_proper_fraction_division():
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 11
 
@@ -1021,7 +1021,7 @@ def test_proper_fraction_division():
     qubits_fraction = [4,5]
     qubits_ancilla = list(range(6,11))
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     # Prepare initial state
     bin_i = bin(i)[2:].zfill(2)
@@ -1077,10 +1077,10 @@ def test_proper_fraction_division():
     assert(res[[int(x) for x in expected_output]] == 1024)
 
 def test_controlled_proper_fraction_division():
-    import qb.core
+    import qristal.core
     import numpy as np
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 12
 
@@ -1098,7 +1098,7 @@ def test_controlled_proper_fraction_division():
     qubits_ancilla = list(range(6,11)) # = 2k + 1
     controls_on = [11]
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     # Prepare initial state
     bin_i = bin(i)[2:].zfill(2)
@@ -1156,9 +1156,9 @@ def test_controlled_proper_fraction_division():
     assert(res[[int(x) for x in expected_output]] == 1024)
 
 def test_compare_gt():
-    import qb.core
+    import qristal.core
 
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
 
     i = 3
@@ -1169,7 +1169,7 @@ def test_compare_gt():
     qubit_flag = 4
     qubit_ancilla = 5
 
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
 
     a_bin = bin(i)[2:].zfill(2)
     b_bin = bin(j)[2:].zfill(2)

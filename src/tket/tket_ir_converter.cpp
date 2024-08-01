@@ -1,6 +1,6 @@
 // Copyright Quantum Brilliance Pty Ltd
 
-#include "qb/core/tket/tket_ir_converter.hpp"
+#include "qristal/core/tket/tket_ir_converter.hpp"
 #include "AllGateVisitor.hpp"
 #include "Circuit/Circuit.hpp"
 
@@ -256,9 +256,9 @@ xacc::InstPtr tket_command_to_xacc_inst(const tket::Command &command) {
 }
 } // namespace
 
-using namespace qb;
-qb::tket_ir_converter::tket_ir_ptr_t
-qb::tket_ir_converter::to_tket(qb::tket_ir_converter::xacc_ir_ptr_t xacc_ir) {
+using namespace qristal;
+qristal::tket_ir_converter::tket_ir_ptr_t
+qristal::tket_ir_converter::to_tket(qristal::tket_ir_converter::xacc_ir_ptr_t xacc_ir) {
   TketCircuitVisitor visitor(xacc_ir->nPhysicalBits());
   // Walk the IR tree, and visit each node
   xacc::InstructionIterator it(xacc_ir);
@@ -268,12 +268,12 @@ qb::tket_ir_converter::to_tket(qb::tket_ir_converter::xacc_ir_ptr_t xacc_ir) {
       nextInst->accept(&visitor);
     }
   }
-  return std::make_shared<qb::tket_ir_converter::tket_ir_ptr_t::element_type>(
+  return std::make_shared<qristal::tket_ir_converter::tket_ir_ptr_t::element_type>(
       visitor.getTketCircuit());
 }
 
-qb::tket_ir_converter::xacc_ir_ptr_t
-qb::tket_ir_converter::to_xacc(qb::tket_ir_converter::tket_ir_ptr_t tket_ir) {
+qristal::tket_ir_converter::xacc_ir_ptr_t
+qristal::tket_ir_converter::to_xacc(qristal::tket_ir_converter::tket_ir_ptr_t tket_ir) {
   auto program = std::make_shared<xacc::quantum::Circuit>("__qb_circuit_from_tket");
 
   std::map<unsigned, xacc::InstPtr> measure_gates;

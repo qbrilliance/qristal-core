@@ -6,6 +6,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Breaking
 
+- Changed "qb" namespace and Python module name to "qristal".
 - Changed primary output type. The previous jsonised string outputs `out_raws` have now been superseded by a bit-order-agnostic `results` map of type `std::map<std::vector<bool>, int>`, presented in Python as a `dict`-ish opaquely bound type.  Qubits are now identified programmatically only by their indices in either a `std::vector<bool>` bitvector (in C++) or a `list[bool]` (in Python).  Printing bitvectors directly (via stream overloads or corresponding Python `__str__` methods) displays the highest-index bit to the left.
 - Renamed session.qb12() --> session.init()
 - Renamed python commands to retrieve and print state-vector

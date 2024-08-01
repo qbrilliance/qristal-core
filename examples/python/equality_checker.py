@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 ###
@@ -21,7 +21,7 @@ qubits_ancilla = [7,8]
 # First do the no ancilla version
 for i in range(8):
     for j in range(8):
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
         # Prepare input strings
         bin_i = bin(i)[2:].zfill(3)
         bin_j = bin(j)[2:].zfill(3)
@@ -52,7 +52,7 @@ for i in range(8):
 # Now the ancilla version
 for i in range(8):
     for j in range(8):
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
         # Prepare input strings
         bin_i = bin(i)[2:].zfill(3)
         bin_j = bin(j)[2:].zfill(3)

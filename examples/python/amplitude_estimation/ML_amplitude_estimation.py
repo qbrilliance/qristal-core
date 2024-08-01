@@ -6,8 +6,8 @@ print("Example demonstrating maximum likelihood amplitude estimation (MLQAE).")
 # i.e., estimate the amplitude of the state:
 # sqrt(1-p)|0> + sqrt(p)|1>
 print("First, import libraries...")
-import qb.core
-from qb.core import run_MLQAE
+import qristal.core
+from qristal.core import run_MLQAE
 import numpy as np
 import ast
 import timeit
@@ -27,7 +27,7 @@ print("First step is to create the state preparation circuit.")
 print("We use a y-rotation gate to prepare the state |psi>.")
 theta_p = 2 * np.arcsin(np.sqrt(p))
 # State prep circuit: (preparing the state that we want to estimate the amplitude)
-state_prep = qb.core.Circuit()
+state_prep = qristal.core.Circuit()
 state_prep.ry(0, theta_p)
 print("State prep defined! Printing state prep...\n")
 print("OpenQASM:\n", state_prep.openqasm())
@@ -37,7 +37,7 @@ print("OpenQASM:\n", state_prep.openqasm())
 # instead, just provide the oracle to detect the marked state (|1>)
 print("We now need to define the oracle circuit that marks the desired state (|1>).")
 
-oracle = qb.core.Circuit()
+oracle = qristal.core.Circuit()
 oracle.z(0)
 print("OpenQASM:\n", oracle.openqasm())
 

@@ -73,4 +73,4 @@ else()
 
 endif()
 
-file(WRITE ${PYTHON_PACKAGES_PATH}/qb${PROJECT_NAME}.pth "${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}\n${XACC_ROOT}")
+file(WRITE ${PYTHON_PACKAGES_PATH}/qristal_${PROJECT_NAME}.pth "${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}\n${XACC_ROOT}")

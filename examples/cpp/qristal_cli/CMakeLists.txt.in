@@ -1,0 +1,22 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Commandline interface to Qristal
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(qristal_cli
+  DESCRIPTION "Quantum Brilliance Qristal Command Line Interface."
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+add_executable(qristal_cli qristal_cli.cpp)
+
+target_link_libraries(qristal_cli
+  PRIVATE
+    qristal::core
+)

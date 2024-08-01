@@ -6,18 +6,18 @@
 #include "Accelerator.hpp"
 #include "Eigen/Dense"
 
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/primitives.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/primitives.hpp"
 
 TEST(NoiseModelTester, checkReadoutErrors)
 {
-  qb::NoiseProperties noise_props;
+  qristal::NoiseProperties noise_props;
   // Use very different values to check:
-  const qb::ReadoutError ro_1{0.1, 0.2};
-  const qb::ReadoutError ro_2{0.3, 0.4};
+  const qristal::ReadoutError ro_1{0.1, 0.2};
+  const qristal::ReadoutError ro_2{0.3, 0.4};
   noise_props.readout_errors = {{0, ro_1},
                                 {1, ro_2}};
-  qb::NoiseModel noise_model(noise_props);
+  qristal::NoiseModel noise_model(noise_props);
   // std::cout << "HOWDY:\n"
   //           << noise_model.to_json() << "\n";
   auto accelerator = xacc::getAccelerator(
@@ -87,8 +87,8 @@ TEST(NoiseModelTester, checkReadoutErrors)
 
 TEST(NoiseModelTester, checkKrausNoise)
 {
-  qb::NoiseModel noise_model;
-  noise_model.add_gate_error(qb::GeneralizedAmplitudeDampingChannel::Create(0, 0.25, 0.75), "id", {0});
+  qristal::NoiseModel noise_model;
+  noise_model.add_gate_error(qristal::GeneralizedAmplitudeDampingChannel::Create(0, 0.25, 0.75), "id", {0});
   // The equilibrium state after infinitely many applications of the
   //  channel is:
   //  rho_eq = [[1 - p1, 0]], [0, p1]]
@@ -123,7 +123,7 @@ TEST(NoiseModelTester, checkKrausNoise)
 TEST(NoiseModelTester, checkDefaultNoiseModel)
 {
   // Get the 'default' noise model, simple uniform Pauli depolarizing noise.
-  auto noise_model = qb::NoiseModel("default",2);
+  auto noise_model = qristal::NoiseModel("default",2);
   // std::cout << "HOWDY:\n"
   //           << noise_model.to_json() << "\n";
 
@@ -160,7 +160,7 @@ TEST(NoiseModelTester, checkDefaultNoiseModel)
 
 TEST(NoiseModelTester, checkNoiseModelFromDeviceProps)
 {
-  qb::NoiseProperties noise_props;
+  qristal::NoiseProperties noise_props;
   noise_props.t1_us = {{0, 1e6}};
   noise_props.t2_us = {{0, 1e3}};
   std::map<std::vector<size_t>, double> gate_time;
@@ -169,7 +169,7 @@ TEST(NoiseModelTester, checkNoiseModelFromDeviceProps)
   std::map<std::vector<size_t>, double> rb_gate_error;
   rb_gate_error[std::vector<size_t>{0}] = 0.01;
   noise_props.gate_pauli_errors["u3"] = rb_gate_error;
-  qb::NoiseModel noise_model(noise_props);
+  qristal::NoiseModel noise_model(noise_props);
   auto provider = xacc::getIRProvider("quantum");
   auto test_circ = provider->createComposite("testCircuit");
   test_circ->addInstruction(
@@ -212,8 +212,8 @@ TEST(NoiseModelTester, checkKrausToChoiConversion)
       (1 - p * 4 / 3) * choiI +
       p * 4 / 3 * Eigen::Matrix<std::complex<double>, 4, 4>::Identity() / 2;
 
-  auto depol_channel = qb::DepolarizingChannel::Create(0, p);
-  const auto choi_mat = qb::kraus_to_choi(depol_channel);
+  auto depol_channel = qristal::DepolarizingChannel::Create(0, p);
+  const auto choi_mat = qristal::kraus_to_choi(depol_channel);
   EXPECT_EQ(choi_mat.size(), 4);
   for (const auto &row : choi_mat) {
     EXPECT_EQ(row.size(), 4);
@@ -245,8 +245,8 @@ TEST(NoiseModelTester, checkFidelityCalc)
     return dist(e);
   }();
   std::cout << "Depolarizing with p = " << p << "\n";
-  auto depol_channel = qb::DepolarizingChannel::Create(0, p);
-  const double fid = qb::process_fidelity(depol_channel);
+  auto depol_channel = qristal::DepolarizingChannel::Create(0, p);
+  const double fid = qristal::process_fidelity(depol_channel);
   std::cout << "Fidelity = " << fid << "\n";
   EXPECT_NEAR(fid, 1.0 - p, 1e-6);
 }
@@ -255,16 +255,16 @@ TEST(NoiseModelTester, checkFidelityCalc)
 Eigen::MatrixXcd evolve_density_process(const Eigen::MatrixXcd& process_matrix, const Eigen::MatrixXcd& density) {
   size_t n_qubits = std::log2(density.rows());
   Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> result = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>::Zero(density.rows(), density.cols());
-  std::vector<qb::Pauli> basis{
-    qb::Pauli::Symbol::I,
-    qb::Pauli::Symbol::X,
-    qb::Pauli::Symbol::Y,
-    qb::Pauli::Symbol::Z 
+  std::vector<qristal::Pauli> basis{
+    qristal::Pauli::Symbol::I,
+    qristal::Pauli::Symbol::X,
+    qristal::Pauli::Symbol::Y,
+    qristal::Pauli::Symbol::Z 
   };
   for (Eigen::Index i = 0; i < process_matrix.rows(); ++i) {
-    auto left = qb::build_up_matrix_by_Kronecker_product(i, basis, n_qubits);
+    auto left = qristal::build_up_matrix_by_Kronecker_product(i, basis, n_qubits);
     for (Eigen::Index j = 0; j < process_matrix.cols(); ++j) {
-      auto right = qb::build_up_matrix_by_Kronecker_product(j, basis, n_qubits);
+      auto right = qristal::build_up_matrix_by_Kronecker_product(j, basis, n_qubits);
       result += process_matrix(i,j) * left * density * right.adjoint(); //evolve density
     } 
   }
@@ -336,17 +336,17 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   process_mat = Eigen::kroneckerProduct(process_mat, Ry).eval();
 
   //transform to Choi matrix: 
-  auto choi_mat = qb::process_to_choi(process_mat);
+  auto choi_mat = qristal::process_to_choi(process_mat);
 
   //transform to superoperator: 
-  auto superop_1 = qb::choi_to_superoperator(choi_mat);
-  auto superop_2 = qb::process_to_superoperator(process_mat); //also test the direct call
-  auto choi_mat_2 = qb::superoperator_to_choi(superop_1);
+  auto superop_1 = qristal::choi_to_superoperator(choi_mat);
+  auto superop_2 = qristal::process_to_superoperator(process_mat); //also test the direct call
+  auto choi_mat_2 = qristal::superoperator_to_choi(superop_1);
   EXPECT_TRUE(choi_mat.isApprox(choi_mat_2, 1e-14)); //and check back transformation to Choi
 
   //transform to Kraus matrices
-  auto kraus_mats_1 = qb::choi_to_kraus(choi_mat);
-  auto kraus_mats_2 = qb::process_to_kraus(process_mat); //also test the direct call
+  auto kraus_mats_1 = qristal::choi_to_kraus(choi_mat);
+  auto kraus_mats_2 = qristal::process_to_kraus(process_mat); //also test the direct call
 
   //initialize random density 
   Eigen::Vector<std::complex<double>, Eigen::Dynamic> state = Eigen::Vector<std::complex<double>, Eigen::Dynamic>::Random(std::pow(2, n_qubits));
@@ -372,7 +372,7 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_2, 1e-14));
 
   //final check: transform to kraus matrices to NoiseChannel and back to Choi matrix 
-  auto choi_mat2 = qb::kraus_to_choi(kraus_mats_1);
+  auto choi_mat2 = qristal::kraus_to_choi(kraus_mats_1);
 
   EXPECT_TRUE(choi_mat.isApprox(choi_mat2, 1e-14));
 }

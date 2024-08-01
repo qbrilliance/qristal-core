@@ -1,5 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/circuits/init_rep_flag.hpp"
+#include "qristal/core/circuits/init_rep_flag.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "Circuit.hpp"

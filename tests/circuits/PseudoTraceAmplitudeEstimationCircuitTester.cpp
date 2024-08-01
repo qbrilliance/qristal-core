@@ -1,4 +1,4 @@
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include "Circuit.hpp"
@@ -107,7 +107,7 @@ TEST(PseudoTraceAmplitudeEstimationTester, checksimple) {
 
 //   circuit->addInstructions(ae_state_prep_circ->getInstructions());
 
-  auto ae_state_qubits_set = qb::uniqueBitsQD(ae_state_prep_circ);
+  auto ae_state_qubits_set = qristal::uniqueBitsQD(ae_state_prep_circ);
   for (auto bit : ae_state_qubits_set) {
       ae_state_qubits.push_back(bit);
   }
@@ -286,7 +286,7 @@ TEST(PseudoTraceAmplitudeEstimationTester, checksimple) {
 //   ae_state_prep_circ->addInstructions(mcx5->getInstructions());
 //   ae_state_prep_circ->addInstructions(mcx6->getInstructions());
 
-//   auto ae_state_qubits_set = qb::uniqueBitsQD(ae_state_prep_circ);
+//   auto ae_state_qubits_set = qristal::uniqueBitsQD(ae_state_prep_circ);
 //   for (auto bit : ae_state_qubits_set) {
 //       ae_state_qubits.push_back(bit);
 //   }

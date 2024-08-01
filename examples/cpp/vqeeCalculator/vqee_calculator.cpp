@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/optimization/vqee/vqee.hpp"
-#include "qb/core/utils.hpp"
+#include "qristal/core/optimization/vqee/vqee.hpp"
+#include "qristal/core/utils.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -11,7 +11,7 @@
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
-using qb::operator<<;
+using qristal::operator<<;
 
 namespace jsonExamples {
     json H2example1 = json::parse(R"({
@@ -168,7 +168,7 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    // std::string HEA_string = qb::vqee::HEA_String(4, 2);
+    // std::string HEA_string = qristal::vqee::HEA_String(4, 2);
     // std::cout << "\nHEA(4,2): \n" << escapeString(HEA_string) << '\n'<< std::endl;
 
 // - - - - - - - - - - - - - - - parse options - - - - - - - - - - - - - - - //
@@ -228,14 +228,14 @@ int main (int argc, char *argv[]) {
 
 // - - - - - - - - - - - - - set params with read out options - - - - - - - - - - - - - - //
     // default is deterministic, 1 shot, 50 maxIters, 1E-6 tolerance and not partitioned
-    qb::vqee::Params params{};
+    qristal::vqee::Params params{};
 
     // the defaults will be overwritten if provided by CLI
     params.nWorker = GetSize(); // get number of MPI processes
     params.nThreadsPerWorker = 1; // set default number of threads to 1
-    std::string geometry = qb::vqee::hydrogenChainGeometry(2);
-    params.pauliString = qb::vqee::pauliStringFromGeometry(geometry, "sto-3g");
-    qb::vqee::AnsatzID ansatzID = qb::vqee::AnsatzID::UCCSD;
+    std::string geometry = qristal::vqee::hydrogenChainGeometry(2);
+    params.pauliString = qristal::vqee::pauliStringFromGeometry(geometry, "sto-3g");
+    qristal::vqee::AnsatzID ansatzID = qristal::vqee::AnsatzID::UCCSD;
     params.nQubits = 4;
     params.enableVis = false;  // disable convergence trace by default
     params.showTheta = false;  // disable theta elements from being shown in the convergence trace by default
@@ -312,7 +312,7 @@ int main (int argc, char *argv[]) {
             geometry = jsonObj["geometry"].get<std::string>();
             if (isRoot) { std::cout << "setting geometry = " << geometry << std::endl; }
 
-            params.pauliString = qb::vqee::pauliStringFromGeometry(geometry, "sto-3g");
+            params.pauliString = qristal::vqee::pauliStringFromGeometry(geometry, "sto-3g");
             if (isRoot) { std::cout << "setting Pauli = "<< params.pauliString << std::endl; }
         }
         else {
@@ -328,14 +328,14 @@ int main (int argc, char *argv[]) {
             nOptParams = params.ansatz->getVariables().size();
         }
         else if ( contains_ansatz && contains_nQubits && contains_nElectrons ){
-            ansatzID = qb::vqee::getEnumFromName(jsonObj["ansatz"]);
+            ansatzID = qristal::vqee::getEnumFromName(jsonObj["ansatz"]);
             nElectrons = jsonObj["nElectrons"].get<int>();
             if (isRoot) {
-                std::cout << "\nsetting ansatz = " << qb::vqee::getEnumName(ansatzID)
+                std::cout << "\nsetting ansatz = " << qristal::vqee::getEnumName(ansatzID)
                         << "with nQubits = " << params.nQubits
                         << " and nElectrons = " << nElectrons << std::endl;
             }
-            nOptParams = qb::vqee::setAnsatz(params, ansatzID, params.nQubits, nElectrons);
+            nOptParams = qristal::vqee::setAnsatz(params, ansatzID, params.nQubits, nElectrons);
             if (isRoot) { std::cout << "\nsetting circuitString = "<< params.circuitString << std::endl; }
         }
         else {
@@ -376,7 +376,7 @@ int main (int argc, char *argv[]) {
         // no options except initial parameters given: using H2 default case
         if (  !( CLInQubits || CLIgeometry || CLIpauli || CLIansatz || CLIcircuit || CLInElectrons ) ) {
             if (isRoot) { std::cout << "using default values: H_2 molecule with 1.4 Bohr distance, UCCSD ansatz, 4 qubits and 2 electrons " << std::endl; }
-            nOptParams = qb::vqee::setAnsatz(params, ansatzID, params.nQubits, nElectrons);
+            nOptParams = qristal::vqee::setAnsatz(params, ansatzID, params.nQubits, nElectrons);
         }
         else { // checking for allowed combinations
             if ( !( CLInQubits
@@ -396,7 +396,7 @@ int main (int argc, char *argv[]) {
                 geometry = args::get(CLIgeometry);
                 if (isRoot) { std::cout << "setting geometry = " << geometry << std::endl; }
 
-                params.pauliString = qb::vqee::pauliStringFromGeometry(geometry, "sto-3g");
+                params.pauliString = qristal::vqee::pauliStringFromGeometry(geometry, "sto-3g");
                 if (isRoot) { std::cout << "setting Pauli = "<< params.pauliString << std::endl; }
             }
             else {
@@ -413,14 +413,14 @@ int main (int argc, char *argv[]) {
                 nOptParams = params.ansatz->getVariables().size();
             }
             else if ( CLIansatz && CLInQubits && CLInElectrons ){
-                ansatzID = qb::vqee::getEnumFromName(args::get(CLIansatz));
+                ansatzID = qristal::vqee::getEnumFromName(args::get(CLIansatz));
                 nElectrons = args::get(CLInElectrons);
                 if (isRoot) {
-                    std::cout << "\nsetting ansatz = " << qb::vqee::getEnumName(ansatzID)
+                    std::cout << "\nsetting ansatz = " << qristal::vqee::getEnumName(ansatzID)
                             << "with nQubits = " << params.nQubits
                             << " and nElectrons = " << nElectrons << std::endl;
                 }
-                nOptParams = qb::vqee::setAnsatz(params, ansatzID, params.nQubits, nElectrons);
+                nOptParams = qristal::vqee::setAnsatz(params, ansatzID, params.nQubits, nElectrons);
                 if (isRoot) { std::cout << "\nsetting circuitString = "<< params.circuitString << std::endl; }
             }
             else {
@@ -468,7 +468,7 @@ int main (int argc, char *argv[]) {
 
     xacc::ScopeTimer timer_for_cpu("Walltime in ms", false);
 
-    qb::vqee::VQEE vqe{params};
+    qristal::vqee::VQEE vqe{params};
     vqe.optimize();
 
     const auto      nIters = params.energies.size();

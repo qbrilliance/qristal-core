@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 ###
@@ -17,7 +17,7 @@ for c in range(4):
             control_on = [8]
             control_off = [9]
 
-            circ = qb.core.Circuit()
+            circ = qristal.core.Circuit()
 
             # Prepare initial state
             bin_i = bin(i)[2:].zfill(4)

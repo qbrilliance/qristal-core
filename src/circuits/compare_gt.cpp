@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/compare_gt.hpp"
+#include "qristal/core/circuits/compare_gt.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qb {
+namespace qristal {
 bool CompareGT::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   std::vector<int> qubits_a;
@@ -149,4 +149,4 @@ bool CompareGT::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> CompareGT::requiredKeys() {
   return {"qubits_a", "qubits_b", "qubit_flag", "qubit_ancilla"};
 }
-} // namespace qb
+}

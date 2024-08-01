@@ -1,9 +1,9 @@
-import qb.core
+import qristal.core
 import numpy as np
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 # QFT
 circ.qft(range(5))
 #IQFT

@@ -1,10 +1,10 @@
 print("Executing qft on AWS braket in Python...")
-import qb.core
+import qristal.core
 import time
 from yaml import safe_load, dump
 
-# Import the core of the QB SDK
-s = qb.core.session()
+# Import the core of Qristal
+s = qristal.core.session()
 
 # Set up meaningful defaults for session parameters
 s.aws_setup(2)
@@ -38,7 +38,7 @@ s.sn[0].append(256)
 
 # Define the quantum program to run
 # Use Qristal circuit builder to construct a QFT circuit
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.qft(range(num_qubits))
 circ.measure_all()
 s.ir_target = circ

@@ -12,12 +12,12 @@ project(placement_demo
   LANGUAGES CXX
 )
 
-set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
-find_package(qbcore)
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
 
 add_executable(placement_demo noise_aware_placement_aws.cpp)
 
 target_link_libraries(placement_demo
   PRIVATE
-    qb::core
+    qristal::core
 )

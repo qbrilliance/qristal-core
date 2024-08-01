@@ -1,6 +1,6 @@
 /// Modifications Copyright (c) Quantum Brilliance.
 ///
-/// This file is adapted from one that is part of XACC: 
+/// This file is adapted from one that is part of XACC:
 /// https://github.com/eclipse/xacc/blob/master/quantum/plugins/algorithms/qaoa/qaoa.cpp
 
 /*******************************************************************************
@@ -15,8 +15,8 @@
  * Contributors:
  *   Thien Nguyen - initial API and implementation
  *******************************************************************************/
-#include "qb/core/optimization/qaoa/qaoa_warmStart_algorithm.hpp"
-#include "qb/core/optimization/qaoa/qaoa_warmStart_circuit.hpp"
+#include "qristal/core/optimization/qaoa/qaoa_warmStart_algorithm.hpp"
+#include "qristal/core/optimization/qaoa/qaoa_warmStart_circuit.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -29,25 +29,25 @@ using namespace cppmicroservices;
 
 namespace {
 
-/**
- */
-class US_ABI_LOCAL WSQAOAActivator : public BundleActivator {
-
-public:
-  WSQAOAActivator() {}
-
   /**
    */
-  void Start(BundleContext context) {
-    context.RegisterService<xacc::Algorithm>(std::make_shared<xacc::algorithm::WS_QAOA>());
-    context.RegisterService<xacc::Instruction>(std::make_shared<xacc::circuits::WS_QAOA>());
-  }
+  class US_ABI_LOCAL WSQAOAActivator : public BundleActivator {
 
-  /**
-   */
-  void Stop(BundleContext /*context*/) {}
-};
+  public:
+    WSQAOAActivator() {}
 
-} // namespace
+    /**
+     */
+    void Start(BundleContext context) {
+      context.RegisterService<xacc::Algorithm>(std::make_shared<xacc::algorithm::WS_QAOA>());
+      context.RegisterService<xacc::Instruction>(std::make_shared<xacc::circuits::WS_QAOA>());
+    }
+
+    /**
+     */
+    void Stop(BundleContext /*context*/) {}
+  };
+
+}
 
 CPPMICROSERVICES_EXPORT_BUNDLE_ACTIVATOR(WSQAOAActivator)

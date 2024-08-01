@@ -1,13 +1,13 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <gtest/gtest.h>
-#include "qb/core/backend.hpp"
-#include "qb/core/session.hpp"
+#include "qristal/core/backend.hpp"
+#include "qristal/core/session.hpp"
 #include "xacc.hpp"
 
 TEST(backendTester, checkOutputQASM) {
-  
-  qb::backend acc;
+
+  qristal::backend acc;
 
   auto xasmCompiler = xacc::getCompiler("xasm");
   auto program = xasmCompiler
@@ -45,8 +45,8 @@ TEST(backendTester, checkOutputQASM) {
 }
 
 TEST(backendTester, checkSessionIntegration1) {
-    // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
   // Set up sensible default parameters
   my_sim.init();
   my_sim.set_qn(2);
@@ -74,7 +74,7 @@ CX q[0], q[1];
   // cz q[0], q[1];
   // ry(1.5708000000000000) q[1];
   // rx(3.1415899999999999) q[1];
-  
+
   // Check single qubit gate counts
   EXPECT_EQ(my_sim.get_out_single_qubit_gate_qtys()[0][0].size(), 2);
   // 2 single qubit gates on Q0
@@ -90,8 +90,8 @@ CX q[0], q[1];
 }
 
 TEST(backendTester, checkSessionIntegration2) {
-    // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
   // Set up sensible default parameters
   my_sim.init();
   my_sim.set_qn(2);
@@ -127,7 +127,7 @@ swap q[0], q[1];
   // cz q[0], q[1];
   // ry(1.5708000000000000) q[1];
   // rx(3.1415899999999999) q[1];
-  
+
   // Check single qubit gate counts
   EXPECT_EQ(my_sim.get_out_single_qubit_gate_qtys()[0][0].size(), 2);
   // 4 single qubit gates on Q0

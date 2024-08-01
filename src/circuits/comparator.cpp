@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/comparator.hpp"
+#include "qristal/core/circuits/comparator.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool Comparator::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   // BestScore: the current best score that we want to compare to
@@ -399,4 +399,4 @@ const std::vector<std::string> Comparator::requiredKeys() {
   return {"BestScore", "num_scoring_qubits"};
 }
 
-} // namespace qb
+}

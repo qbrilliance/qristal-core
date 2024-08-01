@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qb/core/backends/sparse_simulator/SparseSimulator.h"
-#include "qb/core/backends/sparse_simulator/types.h"
+#include "qristal/core/backends/sparse_simulator/SparseSimulator.h"
+#include "qristal/core/backends/sparse_simulator/types.h"
 
 // XACC
 #include "Accelerator.hpp"

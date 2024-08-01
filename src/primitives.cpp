@@ -1,11 +1,11 @@
 #include <numbers>
 
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/primitives.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/primitives.hpp"
 
-namespace qb {    
+namespace qristal {    
 
-    qb::CircuitBuilder& Pauli::append_circuit(qb::CircuitBuilder& cb, const size_t q) const
+    qristal::CircuitBuilder& Pauli::append_circuit(qristal::CircuitBuilder& cb, const size_t q) const
     {
         switch (symbol_) {
             case Pauli::Symbol::X: {
@@ -57,7 +57,7 @@ namespace qb {
         return os;
     }    
 
-    qb::CircuitBuilder& BlochSphereUnitState::append_circuit(qb::CircuitBuilder& cb, const size_t q) const
+    qristal::CircuitBuilder& BlochSphereUnitState::append_circuit(qristal::CircuitBuilder& cb, const size_t q) const
     {
         switch (symbol_) {
             case BlochSphereUnitState::Symbol::Zm: {

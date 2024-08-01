@@ -3,20 +3,20 @@
  * This example shows how to use your own Kraus operators.
  */
 
-#include "qb/core/session.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 #include <unsupported/Eigen/KroneckerProduct>
 
 // Build and return a noise model for an n-qubit ring
-qb::NoiseModel ring_noise_model(size_t nb_qubits) {
+qristal::NoiseModel ring_noise_model(size_t nb_qubits) {
   // Make an empty noise model
-  qb::NoiseModel noise_model;
+  qristal::NoiseModel noise_model;
 
   // Name the model whatever you like
   noise_model.name = "ring_noise_model";
 
   // Define the readout errors
-  qb::ReadoutError ro_error;
+  qristal::ReadoutError ro_error;
   ro_error.p_01 = 1e-2;
   ro_error.p_10 = 5e-3;
 
@@ -98,17 +98,17 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits) {
     // Note: To use the emulator backends, Kraus operators for native gate set {rx, ry, cz} must be supplied.
     // Set the single-qubit gate fidelities.
     // Kraus operators for 1-qubit gate depolarizing channel
-    noise_model.add_gate_error(qb::krausOpToChannel::Create({qId}, single_qubit_kraus_u1), "u1", {qId});
-    noise_model.add_gate_error(qb::krausOpToChannel::Create({qId}, single_qubit_kraus_u2), "u2", {qId});
-    noise_model.add_gate_error(qb::krausOpToChannel::Create({qId}, single_qubit_kraus_u3), "u3", {qId});
+    noise_model.add_gate_error(qristal::krausOpToChannel::Create({qId}, single_qubit_kraus_u1), "u1", {qId});
+    noise_model.add_gate_error(qristal::krausOpToChannel::Create({qId}, single_qubit_kraus_u2), "u2", {qId});
+    noise_model.add_gate_error(qristal::krausOpToChannel::Create({qId}, single_qubit_kraus_u3), "u3", {qId});
 
     // Set the qubit connections to form a ring
     const size_t qId2 = (qId != nb_qubits - 1 ? qId + 1 : 0);
     noise_model.add_qubit_connectivity(qId, qId2);
 
     // Set the corresponding two-qubit gate fidelities.
-    noise_model.add_gate_error(qb::krausOpToChannel::Create({qId, qId2}, two_qubit_kraus), "cx", {qId, qId2});
-    noise_model.add_gate_error(qb::krausOpToChannel::Create({qId, qId2}, two_qubit_kraus), "cx", {qId2, qId});
+    noise_model.add_gate_error(qristal::krausOpToChannel::Create({qId, qId2}, two_qubit_kraus), "cx", {qId, qId2});
+    noise_model.add_gate_error(qristal::krausOpToChannel::Create({qId, qId2}, two_qubit_kraus), "cx", {qId2, qId});
   }
 
   return noise_model;
@@ -117,7 +117,7 @@ qb::NoiseModel ring_noise_model(size_t nb_qubits) {
 
 int main(int argc, char * argv[])
 {
-  qb::session my_sim;
+  qristal::session my_sim;
 
   // 4 qubits
   const int n = 4;

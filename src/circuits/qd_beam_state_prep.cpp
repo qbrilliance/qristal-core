@@ -1,7 +1,7 @@
-#include "qb/core/circuits/qd_beam_state_prep.hpp"
+#include "qristal/core/circuits/qd_beam_state_prep.hpp"
 #include <memory>
 
-namespace qb {
+namespace qristal {
 bool BeamStatePrep::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -704,4 +704,4 @@ bool BeamStatePrep::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
 const std::vector<std::string> BeamStatePrep::requiredKeys() { return {}; }
 
-} // namespace qb
+}

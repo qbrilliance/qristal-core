@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 # This example demonstrates the concept of amplitude amplification iterations.
@@ -9,7 +9,7 @@ s.init()
 
 # To mark such state, the oracle is a simple Z gate, since Z|1> = -|1>
 # Oracle:
-oracle = qb.core.Circuit()
+oracle = qristal.core.Circuit()
 oracle.z(0)
 
 # For demonstration purposes, we start with a very low population of |1> state:
@@ -17,7 +17,7 @@ oracle.z(0)
 # Ry(epsilon) |0> ~ epsilon |1> + sqrt(1 - epsilon^2) |1>
 # i.e., the initial population of the marked state is small (~ epsilon)
 epsilon = 0.05
-state_prep = qb.core.Circuit()
+state_prep = qristal.core.Circuit()
 state_prep.ry(0, epsilon)
 
 good_state_ampls = []
@@ -25,7 +25,7 @@ print("iteration","\t probability","\t prediction")
 # Testing a varying number of iteration
 for i in range(1, 41, 1):
     # Construct full amplitude amplification circuit:
-    full_circuit = qb.core.Circuit()
+    full_circuit = qristal.core.Circuit()
     # Add amplitude amplification circuit for the above oracle and state preparation sub-circuits.
     full_circuit.amplitude_amplification(oracle, state_prep, i)
     # Add measurement:

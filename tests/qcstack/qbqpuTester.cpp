@@ -1,7 +1,7 @@
 // Copyright Quantum Brilliance
 
-#include "qb/core/session.hpp"
-#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>

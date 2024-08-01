@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/subtraction.hpp"
+#include "qristal/core/circuits/subtraction.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qb {
+namespace qristal {
 bool Subtraction::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   std::vector<int> larger;
@@ -153,4 +153,4 @@ bool Subtraction::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> Subtraction::requiredKeys() {
   return {"qubits_larger", "qubits_smaller"};
 }
-} // namespace qb
+}

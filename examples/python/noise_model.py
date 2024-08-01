@@ -4,12 +4,12 @@
 # and how to modify the default noise model used.
 
 import sys
-import qb.core
+import qristal.core
 
 def main(arguments):
 
-  # Create a quantum computing session using the QB SDK
-  my_sim = qb.core.session()
+  # Create a quantum computing session using Qristal
+  my_sim = qristal.core.session()
 
   # Set up meaningful defaults for session parameters
   my_sim.init()
@@ -46,12 +46,12 @@ def main(arguments):
     nm_name = "qb-qdk1" if "--qdk" in arguments else "default"
 
     # Create a noise model with 2 qubits.
-    nm = qb.core.NoiseModel(nm_name, my_sim.qn[0][0])
+    nm = qristal.core.NoiseModel(nm_name, my_sim.qn[0][0])
 
     # If the option "--noisier" is passed, overwrite the readout errors
     # on the first bit of the model with some very large values (for the sake of example).
     if "--noisier" in arguments:
-      ro_error = qb.core.ReadoutError()
+      ro_error = qristal.core.ReadoutError()
       ro_error.p_01 = 0.20
       ro_error.p_10 = 0.30
       nm.set_qubit_readout_error(0, ro_error)

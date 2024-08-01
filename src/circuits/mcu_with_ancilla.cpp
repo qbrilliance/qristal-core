@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/mcu_with_ancilla.hpp"
+#include "qristal/core/circuits/mcu_with_ancilla.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qb {
+namespace qristal {
 bool MultiControlledUWithAncilla::expand(
     const xacc::HeterogeneousMap &runtimeOptions) {
   if (!runtimeOptions.keyExists<std::vector<int>>("qubits_control")) {
@@ -100,4 +100,4 @@ bool MultiControlledUWithAncilla::expand(
 const std::vector<std::string> MultiControlledUWithAncilla::requiredKeys() {
   return {};
 }
-} // namespace qb
+}

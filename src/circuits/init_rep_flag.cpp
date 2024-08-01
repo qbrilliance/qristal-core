@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/init_rep_flag.hpp"
+#include "qristal/core/circuits/init_rep_flag.hpp"
 #include "CommonGates.hpp"
 #include "xacc_service.hpp"
 //#include <array>
@@ -16,7 +16,7 @@
 //#include <ostream>
 #include "IRProvider.hpp"
 
-namespace qb{
+namespace qristal{
 bool InitRepeatFlag::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   // iteration: which letter are we up to
@@ -73,4 +73,4 @@ bool InitRepeatFlag::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> InitRepeatFlag::requiredKeys() {
     return {"iteration","qubits_string", "qubits_next_letter", "qubits_init_repeat"};
 }
-}// namespace qb
+}// namespace qristal

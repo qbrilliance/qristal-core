@@ -5,22 +5,22 @@
 # i.e., estimate the probability p  of the state:
 # sqrt(1-p)|0> + sqrt(p)|1>
 import numpy as np
-import qb.core
-from qb.core import run_MLQAE
-from qb.core import run_canonical_ae_with_oracle
+import qristal.core
+from qristal.core import run_MLQAE
+from qristal.core import run_canonical_ae_with_oracle
 import ast
 import timeit
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))
 
 # State prep circuit: (preparing the state that we want to estimate the amplitude)
-state_prep = qb.core.Circuit()
+state_prep = qristal.core.Circuit()
 state_prep.ry(0, theta_p)
 
 #Set up the inputs
-oracle = qb.core.Circuit()
+oracle = qristal.core.Circuit()
 oracle.z(0)
 num_runs = 6
 shots = 100

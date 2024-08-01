@@ -1,11 +1,11 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/session.hpp"
-#include "qb/core/cudaq/sim_pool.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/cudaq/sim_pool.hpp"
 // CUDAQ
 #include "cudaq/algorithms/sample.h"
 
-namespace qb {
+namespace qristal {
 void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) {
   auto [cudaq_kernel_name, cudaq_kernel_functor] = cudaq_kernels_.at(ii);
   std::string requested_sim = run_config.acc_name;
@@ -78,4 +78,4 @@ void session::run_cudaq(size_t ii, size_t jj, const run_i_j_config &run_config) 
   // Save the counts
   populate_measure_counts_data(ii, jj, cudaq_counts.to_map());
 }
-} // namespace qb
+}

@@ -2,14 +2,14 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "qb/core/session.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qb/core/benchmark/workflows/RotationSweep.hpp"
-#include "qb/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qb/core/benchmark/DataLoaderGenerator.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 TEST(QuantumStateTomographyTester, checkSPAM) {
     //create folder for intermediate benchmark results (required because DataLoaderGenerator is not used here!)
@@ -20,7 +20,7 @@ TEST(QuantumStateTomographyTester, checkSPAM) {
     const std::set<size_t> qubits = {0, 1, 2};
 
     //define session
-    qb::session sim(false);
+    qristal::session sim(false);
     sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);
@@ -34,7 +34,7 @@ TEST(QuantumStateTomographyTester, checkSPAM) {
     QuantumStateTomography<SPAMBenchmark> qst(workflow, measure_QST_qubits);
     std::time_t t = qst.execute(std::vector<Task>{Task::MeasureCounts});
 
-    //since data generation and loading are completely separated in qb::benchmark,
+    //since data generation and loading are completely separated in qristal::benchmark,
     //a DataLoaderGenerator is required to load in the measured counts
     DataLoaderGenerator dlg(qst.get_identifier(), std::vector<Task>{Task::MeasureCounts});
     dlg.set_timestamps(std::vector<std::time_t>{t}); //manually load in correct timestamp
@@ -72,7 +72,7 @@ TEST(QuantumStateTomographyTester, checkRotationSweep) {
     const std::set<size_t> qubits = {0, 1, 2};
 
     //define session
-    qb::session sim(false);
+    qristal::session sim(false);
     sim.init();
     sim.set_acc("qsim");
     sim.set_sn(1000000);

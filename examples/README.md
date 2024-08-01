@@ -25,193 +25,193 @@ A description of the available gates and the syntax used to implement them in Py
 
 `demo1.py`
 
-_qubits_: 2  
-_gate depth_: 3  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 3
+_noise_: false
 
 A simple example showing a 2 qubit circuit consisting of just a Hadamard and a regular 1-qubit NOT gate.
 
 `quickstart.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 6
+_noise_: false
 
 The 2-qubit Bell state quickstart example given in the README of the main project.
 
-`aer_simulator/aer_mps_simple.py`  
+`aer_simulator/aer_mps_simple.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 Example usage of the aer matrix-product-state-based simulator for computing a 2-qubit Bell state circuit.
 
-`aer_simulator/aer_mps_dj_large.py`  
+`aer_simulator/aer_mps_dj_large.py`
 
-_qubits_: 41  
-_gate depth_: 204  
-_noise_: true  
+_qubits_: 41
+_gate depth_: 204
+_noise_: true
 
 Example usage of the aer matrix-product-state-based simulator for computing a larger Deutsch-Jozsa circuit.  This example may take some time to run.
 
 `amcu.py`
 
-_qubits_: 5  
-_gate depth_: 3392  
-_noise_: false  
+_qubits_: 5
+_gate depth_: 3392
+_noise_: false
 
 Stands for "ancilla multi-controlled unitary" and is a Python binding of `MultiControlledUWithAncilla`. Performs a multi-controlled unitary operator U on the target qubit conditioned on the controlled qubits. In this example, the unitary U is defined to be the x gate. The control qubits are first encoded with the bitstring[j] = 1. Ancilla qubits act as scratch qubits used to check whether the desired condition is met, i.e. the jth control qubit is equal to 1. Once the condition is met, the target qubit is flipped by U.
 
-`amplitude_amplification/amp_amplification.py`  
+`amplitude_amplification/amp_amplification.py`
 
-_qubits_: 3  
-_gate depth_: 111  
-_noise_: false  
+_qubits_: 3
+_gate depth_: 111
+_noise_: false
 
 A simple amplitude amplification example using Grover's algorithm, targeting the state $\ket{111}$.
 
-`amplitude_amplification/amplitude_amplification.py`  
+`amplitude_amplification/amplitude_amplification.py`
 
-_qubits_: 3  
-_gate depth_: 371  
-_noise_: false  
+_qubits_: 3
+_gate depth_: 371
+_noise_: false
 
 A slightly more complex example of amplitude amplification using Grover's algorithm, targeting the $\ket{101} - \ket{011}$ state. This example may take some time to run.
 
-`amplitude_amplification/amp_amplification_iteration.py`  
+`amplitude_amplification/amp_amplification_iteration.py`
 
-_qubits_: 1  
-_gate depth_: 6318  
-_noise_: false  
+_qubits_: 1
+_gate depth_: 6318
+_noise_: false
 
 A demonstration of iterative amplitude amplification of the $\ket{1}$ state.  Requires `matplotlib` and outputs a plot of the results named `qaa.png`.
 
-`amplitude_estimation/canonical_amplitude_estimation.py`  
+`amplitude_estimation/canonical_amplitude_estimation.py`
 
-_qubits_: 1 + number of precision qubits (user defined)  
-_noise_: false  
+_qubits_: 1 + number of precision qubits (user defined)
+_noise_: false
 
 An implementation of the canonical amplitude estimation example described [here](https://qiskit.org/documentation/finance/tutorials/00_amplitude_estimation.html), implemented by constructing the required Grover operator.
 
-`amplitude_estimation/canonical_amplitude_estimation_oracle.py`  
+`amplitude_estimation/canonical_amplitude_estimation_oracle.py`
 
-_qubits_: 9  
-_noise_: false  
+_qubits_: 9
+_noise_: false
 
 An implementation of the canonical amplitude estimation example described [here](https://qiskit.org/documentation/finance/tutorials/00_amplitude_estimation.html), implemented by passing the desired oracle. This example may take some time to run.
 
-`amplitude_estimation/methods_comparison.py`  
+`amplitude_estimation/methods_comparison.py`
 
-_qubits_: 11  
-_noise_: false  
+_qubits_: 11
+_noise_: false
 
 Compares the results and runtimes of canonical and maximum likelihood amplitude estimation.
 
-`amplitude_estimation/ML_amplitude_estimation.py`  
+`amplitude_estimation/ML_amplitude_estimation.py`
 
-_qubits_: 1  
-_noise_: false  
+_qubits_: 1
+_noise_: false
 
 Example demonstrating maximum likelihood amplitude estimation (MLQAE) as described [here](https://qiskit.org/documentation/finance/tutorials/00_amplitude_estimation.html).
 
-`amplitude_estimation/ML_amplitude_estimation_parameter_testing.py`  
+`amplitude_estimation/ML_amplitude_estimation_parameter_testing.py`
 
-_qubits_: 1  
-_noise_: false  
+_qubits_: 1
+_noise_: false
 
 As per `ML_amplitude_estimation.py`, but repeated for different numbers of runs and shots.  Requires `matplotlib` and outputs a plot of the results named `MLQAE_parameter_test.png`.
 
-`amplitude_estimation/MLQAE_parameter_scaling.py`  
+`amplitude_estimation/MLQAE_parameter_scaling.py`
 
-_qubits_: 15  
-_noise_: false  
+_qubits_: 15
+_noise_: false
 
 As per `ML_amplitude_estimation_parameter_testing.py`, but repeated for different numbers of qubits.  Also offers an internal option to perform the same parameter scan for canonical amplitude estimation. This example requires matplotlib and produces a series of plots named `MLQAE_parameter_test_*_qubits.png`.  It may take some time to run.
 
 `async_example_1.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 6
+_noise_: false
 
 An example of asynchronous circuit execution, using 32 workers to perform 200 circuit executions.
 
 `async_example_2.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 6
+_noise_: false
 
 An example of asynchronous circuit execution, using 32 workers to perform 3200 circuit executions.
 
 `comparator.py`
 
-_qubits_: 9 (comparator), 2 (comparator_as_oracle)  
-_gate depth_: 226 (comparator), 113 (comparator_as_oracle)  
-_noise_: false  
+_qubits_: 9 (comparator), 2 (comparator_as_oracle)
+_gate depth_: 226 (comparator), 113 (comparator_as_oracle)
+_noise_: false
 
 Example comparing whether two bitstrings/registers are equivalent.
 
 `compare_beam_oracle.py`
 
-_qubits_: 11  
-_gate depth_: 238  
-_noise_: false  
+_qubits_: 11
+_gate depth_: 238
+_noise_: false
 
 This calls a quantum decoder-specific module. Example to check whether a string ($S_A$) is equal to a string of ones $\ket{11 \ldots 1}$. This module is used in the quantum decoder kernel algorithm. The registers of flags, $F_A$ and $F_B$ are initialised as $\ket{1}$. Then they are turned off if the symbol is neither null or repetition flagged. Therefore the symbols in $S_{A}$ will be flagged in $F_{A/B}$ if and only if they are null or repeated or both. Once this flagging is done, the oracle flag $q_0$ returns 1 true if and only if 1. corresponding symbols are either both flagged or both unflagged, and 2. if both unflagged then the symbols must match.
 
 `compare_gt.py`
 
-_qubits_: 12  
-_gate depth_: 244  
-_noise_: false  
+_qubits_: 12
+_gate depth_: 244
+_noise_: false
 
 Example comparing whether the value of bitstring/register $A$ is greater than the value of bitstring/register $B$.
 
 `controlled_addition.py`
 
-_qubits_: 7  
-_gate depth_: 343  
-_noise_: false  
+_qubits_: 7
+_gate depth_: 343
+_noise_: false
 
-Example demonstrating adding two numbers condition on the the flag qubit being on or off. If the flag qubit is on (off), the the addition is (is not) performed. 
+Example demonstrating adding two numbers condition on the the flag qubit being on or off. If the flag qubit is on (off), the the addition is (is not) performed.
 
 `controlled_subtraction.py`
 
-_qubits_: 10  
-_noise_: false  
+_qubits_: 10
+_noise_: false
 
-Example demonstrating subtracting two numbers condition on the the flag qubit being on or off. If the flag qubit is on (off), the the subtraction is (is not) performed. This example takes a very long time to complete. 
+Example demonstrating subtracting two numbers condition on the the flag qubit being on or off. If the flag qubit is on (off), the the subtraction is (is not) performed. This example takes a very long time to complete.
 
 `controlled_swap.py`
 
-_qubits_: 10  
-_gate depth_: 685  
-_noise_: false  
+_qubits_: 10
+_gate depth_: 685
+_noise_: false
 
-Example performing a swap operation conditioned on the alphabet is "b". If the given alphabet is "b", then a swap operation is performed to move the given alphabet to the end of the string. This example starts with a string "babba" and returns "aabbb". 
+Example performing a swap operation conditioned on the alphabet is "b". If the given alphabet is "b", then a swap operation is performed to move the given alphabet to the end of the string. This example starts with a string "babba" and returns "aabbb".
 
 `cpfd.py`
 
-_qubits_: 13  
-_noise_: false  
+_qubits_: 13
+_noise_: false
 
-Stands for "controlled proper fraction division". Given two registers A and B, this module performs the division between the value of A and the value of B. The example performs every 3-qubit proper fraction division with 3 precision bits. This example takes a very long time to complete. 
+Stands for "controlled proper fraction division". Given two registers A and B, this module performs the division between the value of A and the value of B. The example performs every 3-qubit proper fraction division with 3 precision bits. This example takes a very long time to complete.
 
 `efficient_encoding.py`
 
-_qubits_: 14  
-_gate depth_: 3392 (with ancilla), 10245 (without ancilla)  
-_noise_: false  
+_qubits_: 14
+_gate depth_: 3392 (with ancilla), 10245 (without ancilla)
+_noise_: false
 
 This calls the EfficientEncoding module to perform a simple encoding using Gray code flips. This example takes the input $\ket{i}\ket{i}$ with three qubits in each register and returns all possible configurations of the two three-qubit registers $\ket{000}\ket{000} + \ldots + \ket{111}\ket{111}$.
 
 `equality_checker.py`
 
-_qubits_: 9 (with ancilla), 7 (without ancilla)  
-_gate depth_: 106 (with ancilla), 92 (without ancilla)  
-_noise_: false  
+_qubits_: 9 (with ancilla), 7 (without ancilla)
+_gate depth_: 106 (with ancilla), 92 (without ancilla)
+_noise_: false
 
 Example checking for equality between the values of two registers. The flag qubit returns 1 (0) if the values are equal (unequal).
 
@@ -221,158 +221,158 @@ Example demonstrating the use of the exponential search algorithm to find the la
 
 `generalised_mcx.py`
 
-_qubits_: 3  
-_gate depth_: 46  
-_noise_: false  
+_qubits_: 3
+_gate depth_: 46
+_noise_: false
 
 Example performing a generalized MCX gate on all possible 3-qubit bit strings ($\ket{000}, \ldots, \ket{111}$) with all combinations of control qubit conditions ((on,on), $\ldots$ , (off,off)).
 
 `mcx.py`
 
-_qubits_: 3  
-_gate depth_: 46  
-_noise_: false  
+_qubits_: 3
+_gate depth_: 46
+_noise_: false
 
 Example of performing an MCX operation on all possible 3-qubit strings ($\ket{000}, \ldots, \ket{111}$). The target qubit is flipped if the $i$th bitstring/control qubit is equal to 1.
 
 `multiplication.py`
 
-_qubits_: 9  
-_gate depth_: 686  
-_noise_: false  
+_qubits_: 9
+_gate depth_: 686
+_noise_: false
 
-Example of a multiplication of values encoded in registers $\ket{a}$ and $\ket{b}$. 
+Example of a multiplication of values encoded in registers $\ket{a}$ and $\ket{b}$.
 
 `noise_mitigation.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 This example shows the effects of various noise mitigation strategies available in Qristal, using a noisy 2-qubit Bell state.
 
 `noise_model.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A version of `quickstart.py` with noise. There are two options of noise models: `default` or `qdk1` (the latter requires the Qristal Emulator. Details about the noise model are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html)).
 
 `noise_model_custom_kraus.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A version of `noise_model.py` demonstrating the use of Kraus matrices to generate custom noise channels. Custom noise channels are then used to generate a custom noise model.
 
 `noise_model_custom_parameterized.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A version of `noise_model.py` demonstrating the use of custom noise model parameters ($t_1$, $t_2$, gate errors, etc) to generate a custom noise model. This noise model consists of common noise channels: amplitude damping, phase damping and depolarization.
 
 `noise_model_custom_channel.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A version of `noise_model.py` demonstrating the use of noise channels to generate a user-defined noise model. The noise model consists of common noise channels: amplitude damping, phase damping and depolarization.
 
 `noise_model_custom_channel_qb_gateset.py`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A version of `noise_model_custom_channel.py` demonstrating the use of a user-defined noise model in a different basis gate set.
 
 `parametrization_demo.py`
 
-_qubits_: 2  
-_gate depth_: 4  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 4
+_noise_: false
 
 An extremely simple demonstration of how to construct and execute parametrized circuits using Qristal.
 
 `pfd.py`
 
-_qubits_: 12  
-_gate depth_: 4690  
-_noise_: false  
+_qubits_: 12
+_gate depth_: 4690
+_noise_: false
 
 Example of proper fraction division. This example performs every 3-qubit proper fraction division with 3 precision bits.
 
 `qaoa_example.py`
 
-_qubits_: 5  
-_noise_: false  
+_qubits_: 5
+_noise_: false
 
 Demonstrates the use of Qristal's built-in implementation of the QAOA algorithm. This example may take some time to run.
 
 `qaoa_API_demo.py`
 
-_qubits_: 9  
-_noise_: false  
+_qubits_: 9
+_noise_: false
 
 Demonstrates the use of the QAOA and QUBO APIs at a QAP problem. This example may take some time to run.
 
 `qft.py`
 
-_qubits_: 5  
-_noise_: false  
+_qubits_: 5
+_noise_: false
 
 Example of a quantum Fourier transform.
 
 `qpe.py`
 
-_qubits_: 5  
-_gate depth_: 16  
-_noise_: false  
+_qubits_: 5
+_gate depth_: 16
+_noise_: false
 
 Example of a quantum phase estimation, $\hat{O}\ket{\psi} = e^{i\phi}\ket{\psi}$, where the goal is to estimate the phase $\phi$. The oracle operator $\hat{O}$ in this case is a general $U1$ rotation, i.e. $U1(\theta) \ket{1} = e^{i\theta}\ket{1}$. Test value: $-5\pi/8$.
 
 `qsim_noisy.py`
 
-_qubits_: 3  
-_gate depth_: 46  
-_noise_: true  
+_qubits_: 3
+_gate depth_: 46
+_noise_: true
 
 A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.  The basic version of the example does not include noise. If you have the Qristal Emulator installed, two lines in the example file can be uncommented to convert it into an example of a simulation in a noisy environment, using noise models provided by the emulator. Details about the noise model are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
 
 `remote_workstation_example.py`
 
-_qubits_: 18  
-_noise_: false  
+_qubits_: 18
+_noise_: false
 
 An example of a random circuit, offloaded to the dual-GPU QB Lambda server in Canberra.
 
 `set_circuit.py`
 
-_qubits_: 3  
-_gate depth_: 46  
-_noise_: false  
+_qubits_: 3
+_gate depth_: 46
+_noise_: false
 
-Example of performing an MCX operation on a target qubit initially in the $\ket{0}$ state conditional on 2 control qubits in the $\ket{11}$ state. The expected result is that the target qubit is flipped to the $\ket{1}$ state. 
+Example of performing an MCX operation on a target qubit initially in the $\ket{0}$ state conditional on 2 control qubits in the $\ket{11}$ state. The expected result is that the target qubit is flipped to the $\ket{1}$ state.
 
 `subtraction.py`
 
-_qubits_: 10  
-_gate depth_: 13834  
-_noise_: false  
+_qubits_: 10
+_gate depth_: 13834
+_noise_: false
 
-Example demonstrating subtraction between two registers, each containing 5 qubits each. Subtraction of all possible values of the 5-qubit configuration is performed. 
+Example demonstrating subtraction between two registers, each containing 5 qubits each. Subtraction of all possible values of the 5-qubit configuration is performed.
 
 `superposition_adder.py`
 
-_qubits_: 33  
-_noise_: false  
+_qubits_: 33
+_noise_: false
 
-Example using amplitude estimation to find the mean amplitude of a superposition state. Takes a really long time to complete execution. 
+Example using amplitude estimation to find the mean amplitude of a superposition state. Takes a really long time to complete execution.
 
 `topology.py`
 
@@ -380,49 +380,49 @@ A simple example that prints out circuit topology and connectedness.
 
 `vqee_example_1.py`
 
-_qubits_: 4  
-_gate depth_: 1 for H2_explicit and 7 for H1_HEA  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 1 for H2_explicit and 7 for H1_HEA
+_noise_: false
 
 Demonstrates the access and run of predefined examples in Qristal's built-in VQE routines.
 
 `vqee_example_2.py`
 
-_qubits_: 4  
-_gate depth_: 8  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 8
+_noise_: false
 
 Demonstrates manual problem setup and use and performance of different backends for Qristal's built-in VQE routines. This example may take some time to run.
 
 `vqee_example_3.py`
 
-_qubits_: 4  
-_gate depth_: 83  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 83
+_noise_: false
 
 Demonstrates how to inject python code into our c++ libs. Shows inclusion of external python chemistry package pyscf into Qristal's built-in VQE routines.
 
 `vqee_example_4.py`
 
-_qubits_: 4  
-_gate depth_: 1  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 1
+_noise_: false
 
 Demonstrates selection of a different classical optimization algorithm (Nelder-Mead), along with extra options to constrain the parameters and terminate the optimization.
 
 `vqee_example_5.py`
 
-_qubits_: 4  
-_gate depth_: 1  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 1
+_noise_: false
 
 Similar to `vqee_example_4` except the classical algorithm used here is ADAM and L-BFGS.
 
 `vqee_example_6.py`
 
-_qubits_: 4  
-_gate depth_: 1  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 1
+_noise_: false
 
 Similar to `vqee_example_4` except the classical algorithm used here is CMA-ES.
 
@@ -445,8 +445,8 @@ Valid AWS credentials are required to run the example.
 
 `aws_braket_qft.py`
 
-_qubits_: 4  
-_noise_: true  
+_qubits_: 4
+_noise_: true
 
 A simple example demonstrating asynchronous circuit execution on AWS Braket. Note that currently only asynchronous circuit execution (via `run_async`) is supported for AWS Braket. To run on AWS Braket:
 * Set up AWS account (e.g., using CLI) and enable AWS Braket;
@@ -455,8 +455,8 @@ A simple example demonstrating asynchronous circuit execution on AWS Braket. Not
 
 `execute_GST_XYCZ.py`
 
-_qubits_: 2  
-_noise_: true/false (depends on setting in C++ runner)  
+_qubits_: 2
+_noise_: true/false (depends on setting in C++ runner)
 
 A simple example demonstrating the creation of a gate set tomography experiment design for 2-qubit gates Rx(pi/2), Ry(pi/2), and CZ using pyGSTi. An exported circuit list is passed to a provided pyGSTi_runner (using qb::benchmark). The gathered results are loaded back into pyGSTi and used to create an html report.
 
@@ -465,83 +465,83 @@ A simple example demonstrating the creation of a gate set tomography experiment 
 
 `demo1`
 
-_qubits_: 2  
-_gate depth_: 3  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 3
+_noise_: false
 
 A C++ implementation of `demo1.py`.
 
-`h1qb`
+`h1`
 
-_qubits_: 2  
-_gate depth_: 2  
-_noise_: false  
+_qubits_: 2
+_gate depth_: 2
+_noise_: false
 
-This example allows you to quickly switch circuit execution between a hardware QPU and a simulator.  See cpp/h1qb/README.md for more information.
+This example allows you to quickly switch circuit execution between a hardware QPU and a simulator.  See cpp/h1/README.md for more information.
 
 `qaoa`
 
-_qubits_: 3  
-_qaoa_steps_: 2  
-_noise_: false  
+_qubits_: 3
+_qaoa_steps_: 2
+_noise_: false
 
 Demonstrates the use of Qristal's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
 
-`qbsdkcli`
+`qristal_cli`
 
 A command-line interface to Qristal.  A simple invocation after compiling the CLI is:
 ```
-./qbsdkcli -q2 --random=2
+./qristal_cli -q2 --random=2
 ```
-which will run a random circuit on 2 qubits, with gate depth of 2. Further details can be found <a href="cli.html">here</a>.  
-%Special note only for markdown readers: see <a href="cpp/qbsdkcli/README.md">examples/cpp/qbsdkcli/README.md</a> instead for further details.
+which will run a random circuit on 2 qubits, with gate depth of 2. Further details can be found <a href="cli.html">here</a>.
+%Special note only for markdown readers: see <a href="cpp/qristal_cli/README.md">examples/cpp/qristal_cli/README.md</a> instead for further details.
 
 `noise_model`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A C++ implementation of `noise_model.py`.
 
 `noise_model_custom_kraus`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A C++ implementation of `noise_model_custom_kraus.py`.
 
 `noise_model_custom_parameterized`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A C++ implementation of `noise_model_custom_parameterized.py`.
 
 `noise_model_custom_channel`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A C++ implementation of `noise_model_custom_channel.py`.
 
 `parametrization`
 
-_qubits_: 1-2  
-_circuits_: 2  
-_gate depth_: 1  
-_noise_: false  
+_qubits_: 1-2
+_circuits_: 2
+_gate depth_: 1
+_noise_: false
 
-Demonstrates the use of parametrized gates/circuits in Qristal, as well as how to execute parametrized circuits after providing runtime parameters, and calculating jacobians for these parameters. 
+Demonstrates the use of parametrized gates/circuits in Qristal, as well as how to execute parametrized circuits after providing runtime parameters, and calculating jacobians for these parameters.
 
 `vqee`
 
-_qubits_: 4  
-_gate depth_: 83  
-_noise_: false  
+_qubits_: 4
+_gate depth_: 83
+_noise_: false
 
 Demonstrates the use of Qristal's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
 
@@ -594,41 +594,41 @@ Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum
 
 `qst`
 
-_qubits_: 2  
-_gate depth_: 2  
-_noise_: false 
+_qubits_: 2
+_gate depth_: 2
+_noise_: false
 
 This example shows the execution of a standard quantum state tomography workflow for a two qubit Bell state, evaluating and printing the quantum state density.
 
 `qst_fidelity`
 
-_qubits_: 2  
-_gate depth_: 1  
-_noise_: false 
+_qubits_: 2
+_gate depth_: 1
+_noise_: false
 
 This example shows the execution of a standard quantum state tomography workflow wrapped around a SPAM benchmark. For each circuit, the quantum state fidelity metric is evaluated and printed.
 
 `qpt`
 
-_qubits_: 1  
-_gate depth_: 1  
-_noise_: false 
+_qubits_: 1
+_gate depth_: 1
+_noise_: false
 
 This example shows the execution of a standard quantum process tomography workflow for a single Rx(pi/2) gate, evaluating and printing the quantum process matrix.
 
 `qpt_fidelity`
 
-_qubits_: 2  
-_gate depth_: 1  
-_noise_: false 
+_qubits_: 2
+_gate depth_: 1
+_noise_: false
 
 This example shows the execution of a standard quantum process tomography workflow wrapped around a rotation sweep benchmark rotating qubit 0 from -pi to +pi applying Rx gates in 5 steps. For each circuit, the quantum process fidelity metric is evaluated and printed.
 
 `pyGSTi_runner`
 
-_qubits_: 2  
-_gate depth_: depends on pyGSTi experiment design  
-_noise_: false/true  
+_qubits_: 2
+_gate depth_: depends on pyGSTi experiment design
+_noise_: false/true
 
 Example executor for 2-qubit pyGSTi experiments reading in pyGSTi circuits from std::cin and printing pyGSTi compatible results to std::cout. This example is used in the python example execute_GST_XYCZ.py to create a pyGSTi report.
 

@@ -2,8 +2,8 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/phase_estimation.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/circuits/phase_estimation.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include "CommonGates.hpp"
 #include "xacc_service.hpp"
 #include <assert.h>
@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-namespace qb {
+namespace qristal {
 
 bool PhaseEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
@@ -32,7 +32,7 @@ bool PhaseEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   assert(unitary->nInstructions() > 0);
   assert(num_evaluation_qubits > 0);
   // If a qubit ordering is not provided, assume the state qubits: 0 -> (n - 1), where n is the number of qubits of the unitary
-  const auto qubits_state_reg = qb::uniqueBitsQD(unitary);
+  const auto qubits_state_reg = qristal::uniqueBitsQD(unitary);
   assert(qubits_state_reg.size() > 0);
 
   std::vector<int> trial_qubits = {};
@@ -110,4 +110,4 @@ bool PhaseEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> PhaseEstimation::requiredKeys() {
   return {"num_evaluation_qubits", "unitary"};
 }
-} // namespace qb
+}

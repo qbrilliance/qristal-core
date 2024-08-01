@@ -7,9 +7,9 @@
 #include <gtest/gtest.h>
 #include <utility>
 #include <random>
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/passes/noise_aware_placement_pass.hpp"
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/passes/noise_aware_placement_pass.hpp"
+#include "qristal/core/circuit_builder.hpp"
 
 TEST(QBTketTester, checkSimple) {
   auto xasmCompiler = xacc::getCompiler("xasm");
@@ -363,7 +363,7 @@ TEST(QBTketTester, checkGateConversion) {
 
 TEST(QBTketTester, checkNoiseAwarePlacementFromNoiseModel) {
   // Make an empty noise model
-  qb::NoiseModel ring_noise_model;
+  qristal::NoiseModel ring_noise_model;
 
   // Name the model whatever you like
   ring_noise_model.name = "ring_noise_model";
@@ -375,7 +375,7 @@ TEST(QBTketTester, checkNoiseAwarePlacementFromNoiseModel) {
   constexpr double cx_error = 1e-2;
 
   // Define the readout errors
-  qb::ReadoutError ro_error;
+  qristal::ReadoutError ro_error;
   ro_error.p_01 = 1e-2;
   ro_error.p_10 = 5e-3;
   constexpr int nb_qubits = 3;
@@ -389,18 +389,18 @@ TEST(QBTketTester, checkNoiseAwarePlacementFromNoiseModel) {
     if (qId == bad_qubit) {
       // Amplify the noise channels on bad qubits
       ring_noise_model.add_gate_error(
-          qb::DepolarizingChannel::Create(qId, 10 * u1_error), "u1", {qId});
+          qristal::DepolarizingChannel::Create(qId, 10 * u1_error), "u1", {qId});
       ring_noise_model.add_gate_error(
-          qb::DepolarizingChannel::Create(qId, 10 * u2_error), "u2", {qId});
+          qristal::DepolarizingChannel::Create(qId, 10 * u2_error), "u2", {qId});
       ring_noise_model.add_gate_error(
-          qb::DepolarizingChannel::Create(qId, 10 * u3_error), "u3", {qId});
+          qristal::DepolarizingChannel::Create(qId, 10 * u3_error), "u3", {qId});
     } else {
       ring_noise_model.add_gate_error(
-          qb::DepolarizingChannel::Create(qId, u1_error), "u1", {qId});
+          qristal::DepolarizingChannel::Create(qId, u1_error), "u1", {qId});
       ring_noise_model.add_gate_error(
-          qb::DepolarizingChannel::Create(qId, u2_error), "u2", {qId});
+          qristal::DepolarizingChannel::Create(qId, u2_error), "u2", {qId});
       ring_noise_model.add_gate_error(
-          qb::DepolarizingChannel::Create(qId, u3_error), "u3", {qId});
+          qristal::DepolarizingChannel::Create(qId, u3_error), "u3", {qId});
     }
 
     // Set the qubit connections to form a ring
@@ -409,16 +409,16 @@ TEST(QBTketTester, checkNoiseAwarePlacementFromNoiseModel) {
 
     // Set the corresponding two-qubit gate fidelities
     ring_noise_model.add_gate_error(
-        qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx",
+        qristal::DepolarizingChannel::Create(qId, qId2, cx_error), "cx",
         {qId, qId2});
     ring_noise_model.add_gate_error(
-        qb::DepolarizingChannel::Create(qId, qId2, cx_error), "cx",
+        qristal::DepolarizingChannel::Create(qId, qId2, cx_error), "cx",
         {qId2, qId});
   }
 
   auto noise_aware_placement =
-      qb::create_noise_aware_placement_pass(ring_noise_model);
-  qb::CircuitBuilder my_circuit;
+      qristal::create_noise_aware_placement_pass(ring_noise_model);
+  qristal::CircuitBuilder my_circuit;
   my_circuit.H(0);
   my_circuit.H(1);
   my_circuit.CNOT(0, 1);

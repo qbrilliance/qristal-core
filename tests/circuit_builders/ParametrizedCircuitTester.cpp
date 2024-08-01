@@ -1,5 +1,5 @@
 // Copyright (c) 2024 Quantum Brilliance Pty Ltd
-#include "qb/core/circuit_builder.hpp"
+#include "qristal/core/circuit_builder.hpp"
 #include <gtest/gtest.h>
 
 TEST(ParametrizedCircuitTester, test_builder_api) {
@@ -8,7 +8,7 @@ TEST(ParametrizedCircuitTester, test_builder_api) {
   class.
   ***/
   size_t num_qubits = 2;
-  qb::CircuitBuilder circuit = qb::CircuitBuilder();
+  qristal::CircuitBuilder circuit = qristal::CircuitBuilder();
   circuit.RX(0, "alpha");
   circuit.RY(0, "beta");
   circuit.RZ(1, "gamma");
@@ -29,7 +29,7 @@ TEST(ParametrizedCircuitTester, test_builder_api) {
 
 TEST(ParametrizedCircuitTester, test_param_map_to_vec) {
     size_t num_qubits = 2;
-    qb::CircuitBuilder circuit = qb::CircuitBuilder();
+    qristal::CircuitBuilder circuit = qristal::CircuitBuilder();
     circuit.RX(0, "alpha");
     circuit.RY(0, "beta");
     circuit.RZ(1, "alpha");
@@ -54,12 +54,12 @@ TEST(ParametrizedCircuitTester, test_circuit_append_to_repeated_param) {
 
   Expected final params: {"alpha", "beta"}
   ***/
-  qb::CircuitBuilder circ1;
+  qristal::CircuitBuilder circ1;
   circ1.RX(0, "alpha");
   circ1.RX(0, "beta");
   circ1.Measure(0);
 
-  auto circ2 = qb::CircuitBuilder(); 
+  auto circ2 = qristal::CircuitBuilder(); 
   circ2.RY(0, "alpha");
   EXPECT_NO_THROW(circ2.append(circ1));
   std::vector<std::string> expected_free_params = {(std::string) "alpha", (std::string) "beta"};
@@ -77,12 +77,12 @@ TEST(ParametrizedCircuitTester, test_circuit_append_to_new_param) {
 
   Expected final params: {"alpha", "beta"}
   ***/
-  qb::CircuitBuilder circ1;
+  qristal::CircuitBuilder circ1;
   circ1.RX(0, "alpha");
   circ1.RX(0, "beta");
   circ1.Measure(0);
 
-  auto circ2 = qb::CircuitBuilder(); 
+  auto circ2 = qristal::CircuitBuilder(); 
   circ2.RY(0, "gamma");
   EXPECT_NO_THROW(circ2.append(circ1));
   std::vector<std::string> expected_free_params = {(std::string) "gamma", (std::string) "alpha", (std::string) "beta"};

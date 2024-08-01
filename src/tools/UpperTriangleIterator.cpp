@@ -1,6 +1,6 @@
-#include "qb/core/tools/UpperTriangleIterator.hpp"
+#include "qristal/core/tools/UpperTriangleIterator.hpp"
 
-namespace qb {
+namespace qristal {
     namespace tools {
 
 

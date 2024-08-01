@@ -8,11 +8,11 @@
 #include "xacc.hpp"
 #include "xacc_plugin.hpp"
 #include "xacc_service.hpp"
-#include "qb/core/circuits/w_prime_unitary.hpp"
+#include "qristal/core/circuits/w_prime_unitary.hpp"
 #include "IRProvider.hpp"
 #include <iostream>
 
-namespace qb{
+namespace qristal{
 bool WPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
     //std::cout << "WPrime.expand()\n";
 
@@ -122,4 +122,4 @@ const std::vector<std::string> WPrime::requiredKeys() {
     return {"iteration","qubits_next_metric", "qubits_next_letter", "qubits_init_null"};    // state_prep
 }
 
-} // namespace qb
+}

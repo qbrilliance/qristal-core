@@ -1,0 +1,32 @@
+// Copyright (c) Quantum Brilliance Pty Ltd
+
+#pragma once
+#include <memory>
+#include <string>
+#include <vector>
+namespace qristal {
+// Forward declare qristal::CircuitBuilder
+class CircuitBuilder;
+/// A base class for a `Pass` (implementing some form of transformation on the
+/// input IR tree)
+template <typename IrType> class Pass {
+public:
+  /// Destructor
+  virtual ~Pass() = default;
+
+  /// Returns the derived pass name.
+  virtual std::string get_name() const = 0;
+
+  /// Returns the pass description for this pass.
+  /// (derived class to add if wanted to)
+  virtual std::string get_description() const { return ""; }
+
+  /// Polymorphic API that runs the pass over the circuit IR node.
+  virtual void apply(IrType &circuit) = 0;
+};
+
+/// Alias the pass that work on CircuitBuilder (i.e., XACC IR)
+using CircuitPass = Pass<CircuitBuilder>;
+/// Alias for a pipeline of passes
+using Passes = std::vector<std::shared_ptr<CircuitPass>>;
+}

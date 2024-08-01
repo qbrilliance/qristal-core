@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/equality_checker.hpp"
+#include "qristal/core/circuits/equality_checker.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -14,7 +14,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace qb {
+namespace qristal {
 bool EqualityChecker::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   // Inputs:
@@ -138,4 +138,4 @@ const std::vector<std::string> EqualityChecker::requiredKeys() {
   return {"qubits_a", "qubits_b", "flag"};
 }
 
-} // namespace qb
+}

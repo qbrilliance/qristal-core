@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
-#include "qb/core/cudaq/sim_pool.hpp"
+#include "qristal/core/cudaq/sim_pool.hpp"
 #include "common/PluginUtils.h"
 #include "nvqir/CircuitSimulator.h"
 #include <filesystem>
@@ -23,7 +23,7 @@ void __nvqir__setCircuitSimulator(nvqir::CircuitSimulator *);
 // from XACC
 const std::string SIM_NAME_PREFIX = "cudaq:";
 } // namespace
-namespace qb {
+namespace qristal {
 
 /// Easy loader for cudaq backends
 void load_cudaq_backend(std::string name)
@@ -161,4 +161,4 @@ void cudaq_sim_pool::set_simulator(const std::string &name) {
 
 /// Destructor
 cudaq_sim_pool::~cudaq_sim_pool() { sim_name_to_sim_ptr.clear(); }
-} // namespace qb
+}

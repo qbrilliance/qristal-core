@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp"
+#include "qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp"
 
-namespace qb {
+namespace qristal {
 
 // Define a function to assist with post-processing
 std::pair<std::unordered_map<std::string, double>,
@@ -203,4 +203,4 @@ void CanonicalAmplitudeEstimation::execute(
   buffer->addExtraInfo("amplitudes", sorted_amplitudes);
   buffer->addExtraInfo("amplitude-probs", sorted_probabilities);
 }
-} // namespace qb
+}

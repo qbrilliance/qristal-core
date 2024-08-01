@@ -1,9 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-#include "qb/core/optimization/vqee/vqee.hpp"
-#include "qb/core/utils.hpp"
+#include "qristal/core/optimization/vqee/vqee.hpp"
+#include "qristal/core/utils.hpp"
 
-using qb::operator<<;
+using qristal::operator<<;
 
 int main (int argc, char *argv[]) {
     // even if only 1 thread is started in qpp the backend(Eigen is openMP parallized): use " export $OMP_NUM_THREADS=1 " to suppress the Eigen threading
@@ -46,7 +46,7 @@ int main (int argc, char *argv[]) {
         // Not printing the number of threads per worker, as that isn't properly passed down to the simulator (yet).
     }
 
-    qb::vqee::Params params{qb::vqee::makeJob(qb::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
+    qristal::vqee::Params params{qristal::vqee::makeJob(qristal::vqee::JobID::H2_UCCSD)}; // has all inputs for VQE
 
     // options may be modified
     // default is deterministic and 1 shot
@@ -61,7 +61,7 @@ int main (int argc, char *argv[]) {
     params.nThreadsPerWorker = nThreadsPerWorker;
     //params.partitioned = true; // enable for cases with many Pauli-terms
 
-    qb::vqee::VQEE vqe{params};
+    qristal::vqee::VQEE vqe{params};
     vqe.optimize();
 
     const auto      nIters = params.energies.size();

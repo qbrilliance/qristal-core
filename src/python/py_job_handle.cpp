@@ -1,12 +1,12 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/python/py_job_handle.hpp"
-#include "qb/core/python/py_stl_containers.hpp"
-#include "qb/core/remote_async_accelerator.hpp"
-#include "qb/core/session.hpp"
-#include "qb/core/thread_pool.hpp"
+#include "qristal/core/python/py_job_handle.hpp"
+#include "qristal/core/python/py_stl_containers.hpp"
+#include "qristal/core/remote_async_accelerator.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/thread_pool.hpp"
 
-namespace qb {
+namespace qristal {
 /// Returns true if the job is completed.
 bool JobHandle::complete() const {
   if (m_handle) {
@@ -24,7 +24,7 @@ std::string JobHandle::qpu_name() const { return m_qpuName; }
 
 /// Post the (i, j) job asynchronously to be executed on the virtualized QPU
 /// pool.
-void JobHandle::post_async(qb::session &s, int i, int j) {
+void JobHandle::post_async(qristal::session &s, int i, int j) {
   m_session = &s;
   m_i = i;
   m_j = j;
@@ -124,15 +124,15 @@ std::map<std::vector<bool>, int> JobHandle::run_async_internal() {
 
 void bind_job_handle(pybind11::module &m) {
   namespace py = pybind11;
-  py::class_<qb::JobHandle, std::shared_ptr<qb::JobHandle>>(m, "Handle")
+  py::class_<qristal::JobHandle, std::shared_ptr<qristal::JobHandle>>(m, "Handle")
       .def(py::init<>())
-      .def("complete", &qb::JobHandle::complete,
+      .def("complete", &qristal::JobHandle::complete,
            "Check if the job execution is complete.")
-      .def("qpu_name", &qb::JobHandle::qpu_name,
+      .def("qpu_name", &qristal::JobHandle::qpu_name,
            "Get the name of the QPU accelerator that executed this job.")
-      .def("get", &qb::JobHandle::get_async_result, "Get the job result.")
-      .def("terminate", &qb::JobHandle::terminate,
+      .def("get", &qristal::JobHandle::get_async_result, "Get the job result.")
+      .def("terminate", &qristal::JobHandle::terminate,
            "Terminate the running job.");
 }
 
-} // namespace qb
+}

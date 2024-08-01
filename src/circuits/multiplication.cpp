@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/multiplication.hpp"
+#include "qristal/core/circuits/multiplication.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -11,7 +11,7 @@
 #include <memory>
 #include <algorithm>
 
-namespace qb {
+namespace qristal {
 bool Multiplication::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   ////////////////////////////////////////////////////////
   // Get expected inputs or define any required variables
@@ -93,4 +93,4 @@ bool Multiplication::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> Multiplication::requiredKeys() {
   return {"qubits_a", "qubits_b", "qubits_result", "qubit_ancilla"};
 }
-}//namespace qb
+}//namespace qristal

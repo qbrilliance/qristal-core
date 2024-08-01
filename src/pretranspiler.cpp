@@ -1,11 +1,11 @@
 // Copyright (c) 2021 Quantum Brilliance Pty Ltd
 
-#include "qb/core/pretranspiler.hpp"
+#include "qristal/core/pretranspiler.hpp"
 #include <regex>
 
-namespace qb {
+namespace qristal {
 //
-// Methods for qb::Pretranspile
+// Methods for qristal::Pretranspile
 //
 
 int Pretranspile::qb_cn_max_n(const std::string & sorig, const std::string & inregex) {
@@ -288,4 +288,4 @@ void Pretranspile::run(std::string &input_circuit, std::string anchor) {
     }
   }
 }
-} // namespace qb
+}

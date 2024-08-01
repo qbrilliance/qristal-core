@@ -3,18 +3,18 @@
 # This example shows how to use your own Kraus operators.
 
 import sys
-import qb.core
+import qristal.core
 import numpy as np
 
 def ring_noise_model(nb_qubits):
   # Make an empty noise model
-  noise_model = qb.core.NoiseModel()
+  noise_model = qristal.core.NoiseModel()
 
   # Name the model whatever you like
   noise_model.name = "ring_noise_model"
 
   # Define the readout errors
-  ro_error = qb.core.ReadoutError()
+  ro_error = qristal.core.ReadoutError()
   ro_error.p_01 = 1e-2
   ro_error.p_10 = 5e-3
 
@@ -88,9 +88,9 @@ def ring_noise_model(nb_qubits):
     # Note: To use the emulator backends, Kraus operators for native gate set {rx, ry, cz} must be supplied.
     # Set the single-qubit gate fidelities.
     # Kraus operators for 1-qubit gate depolarizing channel
-    noise_model.add_gate_error(qb.core.krausOpToChannel.Create([qId], single_qubit_kraus_u1), "u1", [qId])
-    noise_model.add_gate_error(qb.core.krausOpToChannel.Create([qId], single_qubit_kraus_u2), "u2", [qId])
-    noise_model.add_gate_error(qb.core.krausOpToChannel.Create([qId], single_qubit_kraus_u3), "u3", [qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u1), "u1", [qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u2), "u2", [qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u3), "u3", [qId])
 
     # Set the qubit connections to form a ring
     qId2 = 0 if qId == nb_qubits - 1 else qId + 1
@@ -98,15 +98,15 @@ def ring_noise_model(nb_qubits):
 
     # Set the corresponding two-qubit gate fidelities
     # Create 2-qubit Kraus matrices
-    noise_model.add_gate_error(qb.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus), "cx", [qId, qId2])
-    noise_model.add_gate_error(qb.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus), "cx", [qId2, qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus), "cx", [qId, qId2])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus), "cx", [qId2, qId])
 
   return noise_model
 
 
 def main(arguments):
-  # Create a quantum computing session using the QB SDK
-  my_sim = qb.core.session()
+  # Create a quantum computing session using Qristal
+  my_sim = qristal.core.session()
 
   # 4 qubits
   n = 4

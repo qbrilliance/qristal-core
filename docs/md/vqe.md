@@ -12,7 +12,7 @@ In general, you will need to provide these inputs:
 
 ```python
 import numpy as np
-import qb.core.optimization.vqee as qbOpt
+import qristal.core.optimization.vqee as qbOpt
 
 params = qbOpt.Params()
 
@@ -52,8 +52,8 @@ params.nShots = 400000
 # Max iterations for the optimizer
 params.maxIters = 100
 
-# When isDeterministic is set to False, 
-# then expectations are calculated 
+# When isDeterministic is set to False,
+# then expectations are calculated
 # from params.nShots samples.
 params.isDeterministic = True
 
@@ -61,7 +61,7 @@ params.isDeterministic = True
 params.tolerance = 1e-6
 
 # theta initial values. These will
-# be overwritten with the 
+# be overwritten with the
 # optimized solution by vqee.run()
 params.optimalParameters = 24*[0]
 
@@ -82,11 +82,11 @@ Example output:
 ```
 ***  sparse-sim ***
 Accelerator: sparse-sim
-Parameters: [theta22, theta21, theta18, theta17, theta20, theta19, theta16, theta15, theta14, theta13, theta11, theta12, theta10, theta9, theta7, theta6, theta4, theta8, theta3, theta5, theta2, theta1, theta23, theta0] 
+Parameters: [theta22, theta21, theta18, theta17, theta20, theta19, theta16, theta15, theta14, theta13, theta11, theta12, theta10, theta9, theta7, theta6, theta4, theta8, theta3, theta5, theta2, theta1, theta23, theta0]
 Ansatz depth: 8
 
 Min energy = -0.983724
-Optimal parameters = [0, 0, 0, 0, 0, 0, 1.5708, 0, 0, 0, 1.5708, 0, 1.5708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+Optimal parameters = [0, 0, 0, 0, 0, 0, 1.5708, 0, 0, 0, 1.5708, 0, 1.5708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 optVal, optVec:  -0.9837244625602556 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5707963, 0.0, 0.0, 0.0, 1.5707963, 0.0, 1.5707963, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
@@ -94,11 +94,11 @@ optVal, optVec:  -0.9837244625602556 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5707963, 0
 
 ***  qpp ***
 Accelerator: qpp
-Parameters: [theta22, theta21, theta18, theta17, theta20, theta19, theta16, theta15, theta14, theta13, theta11, theta12, theta10, theta9, theta7, theta6, theta4, theta8, theta3, theta5, theta2, theta1, theta23, theta0] 
+Parameters: [theta22, theta21, theta18, theta17, theta20, theta19, theta16, theta15, theta14, theta13, theta11, theta12, theta10, theta9, theta7, theta6, theta4, theta8, theta3, theta5, theta2, theta1, theta23, theta0]
 Ansatz depth: 8
 
 Min energy = -0.983724
-Optimal parameters = [0, 0, 0, 0, 0, 0, 1.5708, 0, 0, 0, 1.5708, 0, 1.5708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+Optimal parameters = [0, 0, 0, 0, 0, 0, 1.5708, 0, 0, 0, 1.5708, 0, 1.5708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 optVal, optVec:  -0.9837244625602556 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5707963, 0.0, 0.0, 0.0, 1.5707963, 0.0, 1.5707963, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
@@ -106,11 +106,11 @@ optVal, optVec:  -0.9837244625602556 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5707963, 0
 
 ***  aer ***
 Accelerator: aer
-Parameters: [theta22, theta21, theta18, theta17, theta20, theta19, theta16, theta15, theta14, theta13, theta11, theta12, theta10, theta9, theta7, theta6, theta4, theta8, theta3, theta5, theta2, theta1, theta23, theta0] 
+Parameters: [theta22, theta21, theta18, theta17, theta20, theta19, theta16, theta15, theta14, theta13, theta11, theta12, theta10, theta9, theta7, theta6, theta4, theta8, theta3, theta5, theta2, theta1, theta23, theta0]
 Ansatz depth: 8
 
 Min energy = -0.983724
-Optimal parameters = [0, 0, 0, 0, 0, 0, 1.5708, 0, 0, 0, 1.5708, 0, 1.5708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+Optimal parameters = [0, 0, 0, 0, 0, 0, 1.5708, 0, 0, 0, 1.5708, 0, 1.5708, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 optVal, optVec:  -0.9837244625602556 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5707963, 0.0, 0.0, 0.0, 1.5707963, 0.0, 1.5707963, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
@@ -118,7 +118,7 @@ optVal, optVec:  -0.9837244625602556 [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5707963, 0
 ## Python API
 ### Importing the module
 ```python
-import qb.core.optimization.vqee as qbOpt
+import qristal.core.optimization.vqee as qbOpt
 
 ```
 
@@ -133,7 +133,7 @@ The following VQE attributes are accepted:
 | `circuitString` | `tvqep.circuitString = '''`<br />`.compiler xasm`<br />`.circuit ansatz`<br />`.parameters theta`<br />`.qbit q`<br />`Ry(q[0], theta);'''` | Defines the [**ansatz**](#ansätze) circuit that<br /> has an associated parameter<br /> [**theta**](#theta). |
 | `pauliString` | `tvqep.pauliString = `<br />`'-1.04235464570829 `<br />`+ 0.18125791479311 X0 `<br />`+ -0.78864539363997 Z0'` | Sets the [Hamiltonian](#hamiltonian). |
 | `nQubits` | `tvqep.nQubits = `<br />`1` | Sets the number of qubits.  <br />This must be consistent <br />with both the `circuitString` and <br />the `pauliString` attributes. |
-| `optimalParameters` | `tvqep.optimalParameters = `<br />`24*[0.11]` | A vector of initial values for <br />ansatz parameters. <br />The length must match the <br />number of ansatz parameters. | 
+| `optimalParameters` | `tvqep.optimalParameters = `<br />`24*[0.11]` | A vector of initial values for <br />ansatz parameters. <br />The length must match the <br />number of ansatz parameters. |
 | `nShots` | `tvqep.nShots = `<br />`128` | Set the number of shots <br />in a single VQE iteration. |
 | `maxIters` | `tvqep.maxIters = `<br />`256` | Sets the upper limit <br />on the number of VQE <br />iterations to run. |
 | `isDeterministic` | `tvqep.isDeterministic = `<br />`True` | When <br />`acceleratorName = 'qpp'` <br />and <br />`isDeterministic = True`,<br /> the expectation values are <br />calculated using linear <br />algebra operations.  <br /><br />When <br />`isDeterministic = False` <br />the expectation values are <br />calculated from stochastic <br />samples of size `nShots`. |
@@ -224,7 +224,7 @@ Color codes:
 * Red - indicates the optimum iteration
 * Green - indicates an iteration with the same energy as the optimum iteration
 
-**Example output** 
+**Example output**
 ```text
 Iteration 96
 Energy         |################# -0.95
@@ -272,7 +272,7 @@ Use these attributes to set the amount of information that appears in the conver
 | `limitThetaN` | `tvqep.limitThetaN = 0` | Limits the number of <br />elements of `theta` appearing <br />in the trace to this value. <br />If set to 0, this <br />option is ignored.|
 | `tail` | `tvqep.tail = 0` | Output only the last <br />n=tail iterations. <br />If set to 0, this <br />option is ignored.|
 | `plain` | `tvqep.plain = False`| Setting this to `True` removes <br />color coding from the output. |
-| `blocked` | `tvqep.blocked = False`| Setting this to `True` outputs <br />the trace with all elements <br />of `theta` for any given iteration <br />contained in a single block. | 
+| `blocked` | `tvqep.blocked = False`| Setting this to `True` outputs <br />the trace with all elements <br />of `theta` for any given iteration <br />contained in a single block. |
 
 
 ## C++ API
@@ -330,7 +330,7 @@ Input parameters of an ansatz, usually rotation angles (in radians).
 
 This functionality requires using the XASM format.  An example of this is shown below:
 
-❗ **Important:** 
+❗ **Important:**
 Do **not** change the first two lines:
 ```
  .compiler xasm
@@ -362,37 +362,37 @@ You can use the parameter (declared here as `theta`) as a 0-indexed array, ie `t
   CNOT(q[1], q[2]);
   CNOT(q[2], q[3]);
 ```
-Use gates that are in [XASM gate format](https://qristal.readthedocs.io/en/latest/rst/quantum_computing.html) to build the ansatz circuit. 
+Use gates that are in [XASM gate format](https://qristal.readthedocs.io/en/latest/rst/quantum_computing.html) to build the ansatz circuit.
 
 #### Built in ansätze
 
 See the examples folder: `examples/python/vqee_example1.py` for the syntax to call the ansätze described below.
 
 - Default ansatz:  the [Hardware Efficient Ansatz](https://www.nature.com/articles/nature23879) (HEA)
-    
+
     ⚙ For the default ansatz in Qristal, it is required that:
      `len(theta) == 3*nQubits*ansatz_depth`
-    
-    HEA provides a framework for general Hamiltonians where the problem substructure is less well defined.   HEA is often parameterized by **depth**: the number of base circuit repetitions.  
-    
-    A larger depth allows for modelling more complexity at the cost of increasing training difficulty.  
-    
-    One instance of HEA ansatz is demonstrated in [Pennylane's VQE tutorial](https://pennylane.ai/qml/demos/tutorial_vqe.html). 
-    
+
+    HEA provides a framework for general Hamiltonians where the problem substructure is less well defined.   HEA is often parameterized by **depth**: the number of base circuit repetitions.
+
+    A larger depth allows for modelling more complexity at the cost of increasing training difficulty.
+
+    One instance of HEA ansatz is demonstrated in [Pennylane's VQE tutorial](https://pennylane.ai/qml/demos/tutorial_vqe.html).
+
 - [ASWAP](https://arxiv.org/abs/1904.10910) ansatz that is useful for quantum chemistry
-    
-     ASWAP is well-suited to the types of Hamiltonians generated by quantum chemistry problems and is parameterized by the **number of particles** to use. 
-    
+
+     ASWAP is well-suited to the types of Hamiltonians generated by quantum chemistry problems and is parameterized by the **number of particles** to use.
+
 - [UCCSD](https://onlinelibrary.wiley.com/doi/full/10.1002/qua.21198) ansatz that is useful for quantum chemistry
-    
+
      *Unitary coupled-cluster singles and doubles* (UCCSD) ansatz is based on the unitary coupled cluster (UCC) theory.
-    
+
      UCCSD ansatz is parameterized by the number of particles (e.g., electrons) and the number of spin orbitals.
-    
+
      (the number of spin orbitals is equal to the number of qubits required)
-    
+
 ### Convention of mapping spin orbitals onto qubits
-❗ **Important:** 
+❗ **Important:**
 
 The built-in ASWAP and UCCSD ansätze in Qristal map all alpha (up) spins **then** all beta (down) spins. Thus, care must be taken to make sure that the input Pauli Hamiltonian follows the same mapping convention.  Note that e.g. Pennylane, on the other hand, alternates alpha and beta (up and down) spins.
 
@@ -411,7 +411,7 @@ For example, an $H_2$ molecule with an atomic distance of 0.735 angstroms (Å) c
 
 `H 0.0 0.0 0.0; H 0.0 0.0 0.735`
 
-❗ **Important:** the default unit for coordinates is **angstroms**. 
+❗ **Important:** the default unit for coordinates is **angstroms**.
 
 By default, Qristal uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis_sets) basis set and the Jordan-Wigner fermion-to-qubit mapping.
 
@@ -420,10 +420,10 @@ By default, Qristal uses the [sto-3g](https://en.wikipedia.org/wiki/STO-nG_basis
 In order to use the optimization algorithms in `scipy.optimize` or `skquant.opt`  for VQE, it is necessary to provide a function that accepts the parameter values at the current iteration and returns the energy.  The function below provides this.  Note: it accepts an input (`theta`) that is a NumPy array:
 
 ```python
-import qb.core.optimization.vqee as qbOpt
+import qristal.core.optimization.vqee as qbOpt
 
 #
-# Wrapper that accepts a parameter, 
+# Wrapper that accepts a parameter,
 # theta (type is NumPy ndarray)
 # and calls vqee for 1 iteration.  The energy is returned.
 #
@@ -443,7 +443,7 @@ def qbvqe(theta):
         params.optimalParameters = theta
     else :
         params.optimalParameters = list(theta)
-            
+
     qv = qbOpt.VQEE(params)
     qv.run()
     return params.optimalValue
@@ -452,5 +452,5 @@ def qbvqe(theta):
 
 With small modifications, the function shown above can be adapted to return other quantities (eg. Jacobian) needed by the optimization algorithm.
 
-    
+
 

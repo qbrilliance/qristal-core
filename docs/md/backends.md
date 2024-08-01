@@ -37,7 +37,7 @@ Qristal can execute circuits on a wide variety of hardware and simulator backend
   * `qubit_contrast_thresholds`: *{ integer keys $\rightarrow$ floating-point values }*.  The contrast threshold to apply on a per-qubit basis during final readout. Shots are only accepted if readout using pulsed ODMR results in a photoluminescence contrast exceeding this value. The best realistic case is about 0.3. Hardware is unusable when this is less than about 0.05. Indexing of this list matches the indices of qubits in circuits. Hardware default is 0.1.
 
 
-These parameters are set in the `remote_backends.yaml` configuration file, under the top-level heading corresponding to the named QB hardware resource to which they should be applied. To use an alternative file, assign its path to the `qb.session.remote_backend_database_path` attribute.
+These parameters are set in the `remote_backends.yaml` configuration file, under the top-level heading corresponding to the named QB hardware resource to which they should be applied. To use an alternative file, assign its path to the `qristal.session.remote_backend_database_path` attribute.
 
 **Example**: `tests/qcstack`.
 
@@ -69,11 +69,11 @@ where `$QTIL_qpus_1_IP` and `$QTIL_qpus_1_TOKEN` are the device IP and JWT provi
 * `path`: *string*, required. The path to the folder within the AWS S3 bucket where the results of running the circuit should be saved.
 * `verbatim`: *boolean*, optional, default `false`. Execute circuits verbatim as provided on AWS Braket. Setting `verbatim = true` causes the circuit submitted to Braket to be executed directly, without any optimisation, placement, transpilation or other IR transformations.
 
-These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qb.session.remote_backend_database_path` attribute.
+These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qristal.session.remote_backend_database_path` attribute.
 
 **Example**: tests/AWSBraketHostedTester.Simple
 
-**Notes**: The example in tests/AWSBraketHostedTester.Simple has the call to the Rigetti backend commented out at present, as no Rigetti devices were available on AWS Braket at the time of writing. 
+**Notes**: The example in tests/AWSBraketHostedTester.Simple has the call to the Rigetti backend commented out at present, as no Rigetti devices were available on AWS Braket at the time of writing.
 
 ## State-vector simulators
 
@@ -83,13 +83,13 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 **Provided by**: Open-source Qristal SDK (CPU version), Qristal Emulator (GPU version)
 
-**Executes on**: CPU or GPU 
+**Executes on**: CPU or GPU
 
 **Parameters**:
 
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qsim_noisy.py`
 
@@ -122,7 +122,7 @@ These parameters are currently `qb.core.session` attributes.
 * `get_state_vec`: *boolean*, optional. Retrieve final state-vector if set as true (default = false).
 * `get_state_vec_raw`: *pointer of vector of complex double*, optional. Holds the final state-vector.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 
 **Example**: `demo1.py`
@@ -159,7 +159,7 @@ These parameters are currently `qb.core.session` attributes.
 * `get_state_vec_raw`: *pointer of vector of complex double*, optional. Holds the final state-vector.
 
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `noise_model.py`
 
@@ -177,10 +177,10 @@ These parameters are currently `qb.core.session` attributes.
 * `format`: *string*, required. The format of the circuit to be sent for execution.  Must be either `braket` or `openqasm3`.
 * `s3`: *string*, required. The name of the AWS S3 bucket where the results of running the circuit should be saved.  Must begin with `"amazon-braket"`.
 * `path`: *string*, required. The path to the folder within the AWS S3 bucket where the results of running the circuit should be saved.
-* `noise`: *boolean*, required. Include noise in the circuit simulation. 
+* `noise`: *boolean*, required. Include noise in the circuit simulation.
 * `verbatim`: *boolean*, optional, default `false`. Execute circuits verbatim as provided on AWS Braket. Setting `verbatim = true` causes the circuit submitted to Braket to be executed directly, without any optimisation, placement, transpilation or other IR transformations.
 
-These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qb.session.remote_backend_database_path` attribute.
+These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qristal.session.remote_backend_database_path` attribute.
 
 **Example**: tests/AWSBraketHostedTester.Simple
 
@@ -209,16 +209,16 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_sequential`: *string*, optional. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` (default) for cutensornet-based sampling with cutensor-based sampling as fallback.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qb_mps_noisy.py`
 
-**Notes**: 
+**Notes**:
 
-In a `qb.core.session`, the `init()` method sets the following parameters:
+In a `qristal.core.session`, the `init()` method sets the following parameters:
 
-* `max_bond_dimension`: 256 
-* `initial_bond_dimension`: 1 
+* `max_bond_dimension`: 256
+* `initial_bond_dimension`: 1
 * `svd_cutoff`: 1.0e-6
 * `rel_svd_cutoff`: 1.0e-3
 * `noise`: `false`
@@ -243,16 +243,16 @@ In a `qb.core.session`, the `init()` method sets the following parameters:
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_sequential`: *string*, optional. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` (default) for cutensornet-based sampling with cutensor-based sampling as fallback.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qb_mpdo_noisy.py`
 
-**Notes**: 
+**Notes**:
 
-In a `qb.core.session`, the `init()` method sets the following parameters:
+In a `qristal.core.session`, the `init()` method sets the following parameters:
 
-* `max_bond_dimension`: 256 
-* `initial_bond_dimension`: 1 
+* `max_bond_dimension`: 256
+* `initial_bond_dimension`: 1
 * `svd_cutoff`: 1.0e-6
 * `rel_svd_cutoff`: 1.0e-3
 * `noise`: `false`
@@ -279,16 +279,16 @@ In a `qb.core.session`, the `init()` method sets the following parameters:
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_sequential`: *string*, optional. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` (default) for cutensornet-based sampling with cutensor-based sampling as fallback.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qb_purification_noisy.py`
 
-**Notes**: 
+**Notes**:
 
-In a `qb.core.session`, the `init()` method sets the following parameters:
+In a `qristal.core.session`, the `init()` method sets the following parameters:
 
-* `max_bond_dimension`: 256 
-* `initial_bond_dimension`: 1 
+* `max_bond_dimension`: 256
+* `initial_bond_dimension`: 1
 * `max_kraus_dimension`: 256
 * `initial_kraus_dimension`: 1
 * `svd_cutoff`: 1.0e-6
@@ -307,10 +307,10 @@ In a `qb.core.session`, the `init()` method sets the following parameters:
 
 **Parameters**
 
-* `max_bond_dimension`: 
+* `max_bond_dimension`:
 * `svd_cutoff`
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `test_random_seed_tnqvm()` in `tests/python_module/execution_test.py`
 
@@ -328,7 +328,7 @@ These parameters are currently `qb.core.session` attributes.
 * `aer_sim_type`: *string*, required. The type of AER simulator. Must be set as `aer_sim_type = matrix_product_state`.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `aer_simulator/aer_mps_simple.py`
 
@@ -347,10 +347,10 @@ These parameters are currently `qb.core.session` attributes.
 * `format`: *string*, required. The format of the circuit to be sent for execution.  Must be either `braket` or `openqasm3`.
 * `s3`: *string*, required. The name of the AWS S3 bucket where the results of running the circuit should be saved.  Must begin with `"amazon-braket"`.
 * `path`: *string*, required. The path to the folder within the AWS S3 bucket where the results of running the circuit should be saved.
-* `noise`: *boolean*, required. Include noise in the circuit simulation. 
+* `noise`: *boolean*, required. Include noise in the circuit simulation.
 * `verbatim`: *boolean*, optional, default `false`. Execute circuits verbatim as provided on AWS Braket. Setting `verbatim = true` causes the circuit submitted to Braket to be executed directly, without any optimisation, placement, transpilation or other IR transformations.
 
-These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qb.session.remote_backend_database_path` attribute.
+These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qristal.session.remote_backend_database_path` attribute.
 
 **Example**: tests/AWSBraketHostedTester.Simple
 
@@ -390,16 +390,16 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `format`: *string*, required. The format of the circuit to be sent for execution.  Must be either `braket` or `openqasm3`.
 * `s3`: *string*, required. The name of the AWS S3 bucket where the results of running the circuit should be saved.  Must begin with `"amazon-braket"`.
 * `path`: *string*, required. The path to the folder within the AWS S3 bucket where the results of running the circuit should be saved.
-* `noise`: *boolean*, required. Include noise in the circuit simulation. 
+* `noise`: *boolean*, required. Include noise in the circuit simulation.
 * `verbatim`: *boolean*, optional, default `false`. Execute circuits verbatim as provided on AWS Braket. Setting `verbatim = true` causes the circuit submitted to Braket to be executed directly, without any optimisation, placement, transpilation or other IR transformations.
 
-These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qb.session.remote_backend_database_path` attribute.
+These parameters are set under the `aws-braket` heading in the `remote_backends.yaml` configuration file. To use an alternative file, assign its path to the `qristal.session.remote_backend_database_path` attribute.
 
 **Example**: tests/AWSBraketHostedTester.Simple
 
-**Notes**: 
+**Notes**:
 - Up to 17 qubits and 10,000 shots supported.
-- Noise must be enabled in order to use this simulator.  This is done by setting the `qb.core.session` attribute `noise = True`.
+- Noise must be enabled in order to use this simulator.  This is done by setting the `qristal.core.session` attribute `noise = True`.
 
 
 ### Aer density matrix: `aer` (`density_matrix`)
@@ -415,8 +415,8 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `aer_sim_type`: *string*, required. The type of AER simulator. Must be set as `aer_sim_type = density_matrix`.
 * `noise`: *boolean*, required. Include noise in the circuit simulation.
 
-These parameters are currently `qb.core.session` attributes.
+These parameters are currently `qristal.core.session` attributes.
 
 **Example**:
 
-**Notes**: Noise must be enabled in order to use this simulator.  This is done by setting the `qb.core.session` attribute `noise = True`.
+**Notes**: Noise must be enabled in order to use this simulator.  This is done by setting the `qristal.core.session` attribute `noise = True`.

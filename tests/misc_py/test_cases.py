@@ -8,18 +8,18 @@ import pytest
 # def test_CI_210826_3_init_random_5() :
 #     print("* CI_210826_3_init_random_5:")
 #     print("* With default init settings, with the default (TNQVM-ExaTN-MPS) backend, run a depth 5 circuit, check the length of the results set is >0")
-#     import qb.core, ast
-#     s = qb.core.session()
+#     import qristal.core, ast
+#     s = qristal.core.session()
 #     s.init()
 #     s.random = 5
 #     s.run()
-#     assert (len(s.results[0][0]) > 0, "[QB SDK] Failed test: CI_210826_3_init_random_5 - TNQVM-ExaTN-MPS"
+#     assert (len(s.results[0][0]) > 0, "Failed test: CI_210826_3_init_random_5 - TNQVM-ExaTN-MPS"
 
 def test_loopback_rx_ry_rz() :
     print(" Loopback QCStack check transpiling into discrete angles")
-    import qb.core
+    import qristal.core
     import json
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     s.qn = 1
     s.sn = 2
@@ -27,7 +27,7 @@ def test_loopback_rx_ry_rz() :
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
-    __qpu__ void QBCIRCUIT(qbit q) {
+    __qpu__ void qristal_circuit(qbit q) {
         Rx(q[0], 0.125*pi);
         Ry(q[0], 0.25*pi);
         Rz(q[0], 0.5*pi);

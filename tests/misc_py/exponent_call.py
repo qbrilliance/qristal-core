@@ -2,12 +2,12 @@
 import os
 import pytest
 import random as rand
-import qb.core
+import qristal.core
 
 
 def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_significance_=1,is_LSB=True) :
-    s = qb.core.session()
-    circ = qb.Circuit()
+    s = qristal.core.session()
+    circ = qristal.Circuit()
     for qindex in range(len(qubits_log)) :
       if log_value & pow(2,qindex) :
         circ.x(qubits_log[qindex])

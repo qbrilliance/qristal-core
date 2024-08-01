@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.qn = 10
 
@@ -16,7 +16,7 @@ for i in range(32):
         qubits_larger = [0,1,2,3,4]
         qubits_smaller = [5,6,7,8,9]
 
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         # Prepare initial state
         bin_i = bin(i)[2:].zfill(5)

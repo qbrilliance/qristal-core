@@ -1,10 +1,10 @@
 print("Executing Python demo...")
 
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
-# Create a quantum computing session using the QB SDK
-my_sim = qb.core.session()
+# Create a quantum computing session using Qristal
+my_sim = qristal.core.session()
 
 # Set up meaningful defaults for session parameters
 my_sim.init()

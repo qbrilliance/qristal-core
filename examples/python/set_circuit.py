@@ -1,8 +1,8 @@
-import qb.core
+import qristal.core
 import numpy as np
 
 import timeit
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.sn = 1024
 s.qn = 3
@@ -16,7 +16,7 @@ s.acc = "qpp"
 control_qubits = [0, 1]
 target_qubit = 2
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # prepare initial state
 circ.x(0)

@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.qn = 14
 
@@ -27,7 +27,7 @@ state_qubits = [5,6,7,8,9]
 scoring_qubits = [0,1,2,3,4]
 
 # create circuit
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # State prep
 for k in range(num_state_qubits):
@@ -78,7 +78,7 @@ state_qubits = [5,6,7,8,9]
 scoring_qubits = [0,1,2,3,4]
 
 # create circuit
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # State prep
 for k in range(num_state_qubits):
@@ -133,7 +133,7 @@ res = s.results[0][0]
 # num_scoring_qubits = 3
 
 # # create circuit
-# circ = qb.core.Circuit()
+# circ = qristal.core.Circuit()
 
 # # State prep: |000>|000> + |111>|0000>
 # circ.h(0)

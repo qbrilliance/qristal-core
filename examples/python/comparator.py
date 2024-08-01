@@ -1,4 +1,4 @@
-import qb.core
+import qristal.core
 import numpy as np
 import ast
 
@@ -17,7 +17,7 @@ for i in range(0,4):
         BestScore_bin = bin(BestScore)[2:].zfill(num_scoring_qubits)
 
         # create circuit
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         # State prep
         TestScore = j
@@ -73,7 +73,7 @@ for i in range(0,4):
         ancilla_qubits = [5,6,7,8]
 
         # create circuit
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         # State prep
         TestScore = j
@@ -92,7 +92,7 @@ for i in range(0,4):
         #print("OpenQASM:\n", circ.openqasm())
 
         # Run:
-        s = qb.core.session()
+        s = qristal.core.session()
         s.init()
         s.ir_target = circ
         s.nooptimise = True

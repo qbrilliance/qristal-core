@@ -1,24 +1,24 @@
-#include "qb/core/benchmark/workflows/PyGSTiBenchmark.hpp"
-#include "qb/core/benchmark/metrics/PyGSTiResults.hpp"
+#include "qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp"
+#include "qristal/core/benchmark/metrics/PyGSTiResults.hpp"
 
-#include "qb/core/session.hpp"
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 
 #include <iostream>
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 int main() {
     const size_t n_qubits = 2;
     const size_t n_shots = 1000;
 
     //(1) define session  
-    qb::session sim(false); 
+    qristal::session sim(false); 
     sim.init();
     sim.set_acc("aer");
     sim.set_noise(true);
-    qb::NoiseModel nm("default", n_qubits);
+    qristal::NoiseModel nm("default", n_qubits);
     sim.set_noise_model(nm);
     sim.set_sn(n_shots);
     sim.set_qn(n_qubits);

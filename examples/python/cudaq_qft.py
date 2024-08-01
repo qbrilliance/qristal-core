@@ -1,11 +1,11 @@
 # Using CUDA Quantum simulator backend to run a Qristal circuit
 print("Executing Python demo...")
 
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
-# Create a quantum computing session using the QB SDK
-my_sim = qb.core.session()
+# Create a quantum computing session using Qristal
+my_sim = qristal.core.session()
 
 # Set up meaningful defaults for session parameters
 my_sim.init()
@@ -23,7 +23,7 @@ my_sim.sn = 1024
 
 # Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit')
 # Use Qristal circuit builder to construct a QFT circuit.
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.qft(range(num_qubits))
 circ.measure_all()
 # Set the circuit

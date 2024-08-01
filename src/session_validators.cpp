@@ -1,5 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <fstream>
 
 namespace {
@@ -11,7 +11,7 @@ inline std::string ltrim(const std::string &in_str,
   return s;
 }
 } // namespace
-namespace qb {
+namespace qristal {
 
 /// Core session methods: run/run_async executions and helpers for
 /// compilation/post-processing...
@@ -469,4 +469,4 @@ int session::is_jj_consistent() {
   return N_jj;
 }
 
-} // namespace qb
+}

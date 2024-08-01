@@ -2,8 +2,8 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp"
-#include "qb/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp"
+#include "qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp"
+#include "qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp"
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
 #include "cppmicroservices/ServiceProperties.h"
@@ -16,9 +16,9 @@ public:
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::Algorithm>(
-        std::make_shared<qb::CanonicalAmplitudeEstimation>());
+        std::make_shared<qristal::CanonicalAmplitudeEstimation>());
     context.RegisterService<xacc::Algorithm>(
-        std::make_shared<qb::MLAmplitudeEstimation>());
+        std::make_shared<qristal::MLAmplitudeEstimation>());
   }
 
   void Stop(BundleContext context) {}

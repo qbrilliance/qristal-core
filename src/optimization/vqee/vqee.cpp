@@ -1,9 +1,9 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qb/core/optimization/vqee/vqee.hpp"
-#include "qb/core/utils.hpp"
+#include "qristal/core/optimization/vqee/vqee.hpp"
+#include "qristal/core/utils.hpp"
 
-namespace qb::vqee {
+namespace qristal::vqee {
 
   // Split a Pauli into multiple sub-Paulis according to a max number of terms constraint.
   std::vector<std::shared_ptr<xacc::quantum::PauliOperator>> VQEE::splitPauli(std::shared_ptr<xacc::quantum::PauliOperator> &in_pauli, int nTermsPerSplit) const {
@@ -250,25 +250,25 @@ namespace qb::vqee {
       // 4 of 4: optimiser
       std::shared_ptr<xacc::Optimizer> optimizer;
       if (params_.algorithm == "nelder-mead") {
-          qb::vqee::NelderMeadNLO opt_nlmd = qb::vqee::NelderMeadNLO(params_.theta,
+          qristal::vqee::NelderMeadNLO opt_nlmd = qristal::vqee::NelderMeadNLO(params_.theta,
                                                                params_.maxIters,
                                                                params_.tolerance,
                                                                YAML::Load(params_.extraOptions));
           optimizer = opt_nlmd.get();
       } else if (params_.algorithm =="l-bfgs"){
-          qb::vqee::LbfgsMLP opt_lbfgs = qb::vqee::LbfgsMLP(params_.theta,
+          qristal::vqee::LbfgsMLP opt_lbfgs = qristal::vqee::LbfgsMLP(params_.theta,
                                                        params_.maxIters,
                                                        params_.tolerance,
                                                        YAML::Load(params_.extraOptions));
           optimizer = opt_lbfgs.get();
       } else if (params_.algorithm =="adam"){
-          qb::vqee::AdamMLP opt_adam = qb::vqee::AdamMLP(params_.theta,
+          qristal::vqee::AdamMLP opt_adam = qristal::vqee::AdamMLP(params_.theta,
                                                        params_.maxIters,
                                                        params_.tolerance,
                                                        YAML::Load(params_.extraOptions));
           optimizer = opt_adam.get();
       } else if (params_.algorithm =="cmaes"){
-          qb::vqee::CmaesMLP opt_cmaes = qb::vqee::CmaesMLP(params_.theta,
+          qristal::vqee::CmaesMLP opt_cmaes = qristal::vqee::CmaesMLP(params_.theta,
                                                        params_.maxIters,
                                                        params_.tolerance,
                                                        YAML::Load(params_.extraOptions));
@@ -386,6 +386,7 @@ namespace qb::vqee {
       std::cout << "\nMin energy = "       << params_.optimalValue << "\n"
                 << "Optimal parameters = " << params_.theta        << std::endl;
     }
-  } // end of optimize()
 
-} // end of namespace qb::vqee
+  }
+
+}

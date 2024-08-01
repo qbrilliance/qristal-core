@@ -5,7 +5,7 @@
 #include "OperatorPool.hpp"
 #include "PauliOperator.hpp"
 #include "Utils.hpp"
-#include "qb/core/uccsd/fermionic_excitation_generator.hpp"
+#include "qristal/core/uccsd/fermionic_excitation_generator.hpp"
 #include "xacc.hpp"
 #include "xacc_plugin.hpp"
 #include "xacc_service.hpp"
@@ -15,7 +15,7 @@
 using namespace xacc::quantum;
 using namespace xacc;
 
-namespace qb {
+namespace qristal {
 namespace circuits {
 class UCCSD : public xacc::quantum::Circuit {
 public:
@@ -195,5 +195,5 @@ public:
   }
 };
 } // namespace circuits
-} // namespace qb
-REGISTER_PLUGIN(qb::circuits::UCCSD, xacc::Instruction)
+}
+REGISTER_PLUGIN(qristal::circuits::UCCSD, xacc::Instruction)

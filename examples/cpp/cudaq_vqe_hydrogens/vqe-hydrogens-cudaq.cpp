@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/cudaq/ir_converter.hpp"
-#include "qb/core/cudaq/sim_pool.hpp"
+#include "qristal/core/cudaq/ir_converter.hpp"
+#include "qristal/core/cudaq/sim_pool.hpp"
 #include "cudaq/algorithm.h"
 #include "cudaq/gradients/central_difference.h"
 #include "cudaq/optimizers.h"
@@ -31,14 +31,14 @@ int main() {
   std::cout << "QB UCCSD IR:\n" << uccsd->toString() << "\n";
 
   std::cout << "Converting to CUDAQ QUAKE IR ..." << std::endl;
-  qb::cudaq_ir_converter converter(uccsd);
+  qristal::cudaq_ir_converter converter(uccsd);
   auto &cudaq_builder = converter.get_cudaq_builder();
   std::cout << "CUDAQ QUAKE: \n" << cudaq_builder.to_quake();
 
   // Load the cudaq version of qpp
   std::string be = "qpp";
   std::cout << "Connecting CUDA Quantum backend " << be << std::endl;
-  qb::load_cudaq_backend(be);
+  qristal::load_cudaq_backend(be);
 
   cudaq::optimizers::lbfgs l_opt;
   cudaq::gradients::central_difference gradient(cudaq_builder);

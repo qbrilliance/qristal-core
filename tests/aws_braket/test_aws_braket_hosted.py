@@ -24,19 +24,19 @@ def test_AWS_Braket_hosted():
 
 def test_AWS_Braket_qristal():
     print("* test_AWS_braket_qristal: Calling AWS Braket asynchronously from Qristal with a 2-qubit Bell state.")
-    import qb.core
+    import qristal.core
     import time
     from yaml import safe_load, dump
 
-    # Start a QB SDK session
-    s = qb.core.session()
+    # Start a Qristal session
+    s = qristal.core.session()
     s.qn = 2
     shots = (64, 256, 512)
-    s.sn[0] = qb.core.VectorSize_t(shots)
+    s.sn[0] = qristal.core.VectorSize_t(shots)
     s.aws_setup(32)
     # Set the input circuit
     s.instring = '''
-    __qpu__ void QBCIRCUIT(qreg q) {
+    __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 3.0;
         include "qelib1.inc";
         creg c[2];

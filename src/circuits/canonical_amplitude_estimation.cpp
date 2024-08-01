@@ -2,8 +2,8 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/circuits/canonical_amplitude_estimation.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/circuits/canonical_amplitude_estimation.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
 #include "xacc.hpp"
@@ -12,7 +12,7 @@
 #include "Circuit.hpp"
 #include "GateModifier.hpp"
 
-namespace qb {
+namespace qristal {
 bool CanonicalAmplitudeEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   // - num_evaluation_qubits: number of evaluation qubits (control the
@@ -54,7 +54,7 @@ bool CanonicalAmplitudeEstimation::expand(const xacc::HeterogeneousMap &runtimeO
 
   std::vector<int> reflection_qubits;
   if (!runtimeOptions.keyExists<std::vector<int>>("reflection_qubits")) {
-      auto sp_qubits_set = qb::uniqueBitsQD(A_circ);
+      auto sp_qubits_set = qristal::uniqueBitsQD(A_circ);
       std::vector<int> sp_qubits;
       for (int bit : sp_qubits_set) {
         sp_qubits.push_back(bit);
@@ -125,7 +125,7 @@ bool CanonicalAmplitudeEstimation::expand(const xacc::HeterogeneousMap &runtimeO
     // S0 => zero reflection circuit
     // Sf => phase oracle (multiplies the good states by -1)
     // A => state-prep
-    auto sp_qubits_set = qb::uniqueBitsQD(state_prep_circuit);
+    auto sp_qubits_set = qristal::uniqueBitsQD(state_prep_circuit);
     std::vector<int> sp_qubits;
     for (int bit : sp_qubits_set) {
         sp_qubits.push_back(bit);
@@ -207,4 +207,4 @@ const std::vector<std::string> CanonicalAmplitudeEstimation::requiredKeys() {
   return {"num_evaluation_qubits", "num_state_qubits", "num_trial_qubits", "state_preparation_circuit",
           "grover_op_circuit"};
 }
-} // namespace qb
+}

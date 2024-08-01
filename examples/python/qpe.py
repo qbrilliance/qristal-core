@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 # Quantum Phase Estimation: Oracle(|State>) = exp(i*Phase)*|State>
@@ -16,11 +16,11 @@ trial_qubits = [2]
 evaluation_qubits = [0,1,3,4]
 
 # Oracle
-oracle = qb.core.Circuit()
+oracle = qristal.core.Circuit()
 #oracle.u1(0, -1.96349540849)
 oracle.u1(trial_qubits[0], -1.96349540849)
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # State prep: eigen state of the oracle |1>
 circ.x(trial_qubits[0])

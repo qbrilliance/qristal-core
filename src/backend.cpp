@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-// QB
-#include "qb/core/backend.hpp"
+// Qristal
+#include "qristal/core/backend.hpp"
 
 // XACC
 #include "InstructionIterator.hpp"
@@ -10,14 +10,14 @@
 // STL
 #include <fstream>
 
-namespace qb
+namespace qristal
 {
 
   const std::string backend::name() const
-  { 
+  {
     return "qbacc";
   }
-  
+
   const std::string backend::description() const
   {
     return "Qristal backend XACC Accelerator";
@@ -28,8 +28,8 @@ namespace qb
     return
     {
       "output_oqm",
-      "shots", 
-      "n_qubits", 
+      "shots",
+      "n_qubits",
       "m_connectivity",
       "output_oqm_enabled"
     };
@@ -55,13 +55,13 @@ namespace qb
       output_oqm_enabled_ = config.get<bool>("output_oqm_enabled");
     }
   }
-  
+
   void backend::initialize(
       const xacc::HeterogeneousMap& params)
   {
     updateConfiguration(params);
   }
-  
+
   xacc::HeterogeneousMap backend::getProperties()
   {
     xacc::HeterogeneousMap m;
@@ -72,7 +72,7 @@ namespace qb
     m.insert("output_oqm_enabled", output_oqm_enabled_);
     return m;
   }
-  
+
   // Retrieve hardware connectivity
   std::vector<std::pair<int, int>> backend::getConnectivity()
   {
@@ -85,7 +85,7 @@ namespace qb
   {
     execute(buf, std::vector<std::shared_ptr<xacc::CompositeInstruction>>{f});
   }
-  
+
   void backend::execute(
       std::shared_ptr<xacc::AcceleratorBuffer> buffer,
       const std::vector<std::shared_ptr<xacc::CompositeInstruction>> functions)
@@ -97,7 +97,7 @@ namespace qb
       auto transpiled_ir = xacc::ir::asComposite(kernel->clone());
       qb_transpiler->apply(transpiled_ir, xacc::as_shared_ptr(this));
       qpuQasmStr_ = staq->translate(transpiled_ir);
-  
+
       if (output_oqm_enabled_)
       {
         std::ofstream of(output_oqm);
@@ -117,7 +117,7 @@ namespace qb
       }
     }
   }
-  
+
   const std::string& backend::getTranspiledResult() const
   {
     return qpuQasmStr_;

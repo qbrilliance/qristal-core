@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 s.qn = 11
 
@@ -18,7 +18,7 @@ for i in range(4):
         qubits_fraction = [4,5]
         qubits_ancilla = list(range(6,11))
 
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         # Prepare initial state
         bin_i = bin(i)[2:].zfill(2)

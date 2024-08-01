@@ -1,5 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <string>
 #include <iostream>
 
@@ -9,8 +9,8 @@ int main()
   // And we're off!
   std::cout << "Executing C++ demo..." << std::endl;
 
-  // Make a QB SDK session
-  auto my_sim = qb::session(false);
+  // Make a Qristal session
+  auto my_sim = qristal::session(false);
 
   // Set up sensible default parameters
   my_sim.init();

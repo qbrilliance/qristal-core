@@ -17,7 +17,7 @@ endif()
 # Project
 project(core
   VERSION ${PROJECT_VERSION}
-  DESCRIPTION "Quantum Brilliance SDK Core"
+  DESCRIPTION "Quantum Brilliance Qristal Core"
   LANGUAGES CXX
 )
 
@@ -30,10 +30,10 @@ include(base_config)
 # Locate / set up retrieval of dependencies
 include(dependencies)
 
-# Noise modeling library (used by qbcore)
+# Noise modeling library (used by qristal::core)
 include(noise_model_lib)
 
-# core headers and libqbcore.so shared library
+# core headers and libqristal_core.so shared library
 include(cpp_lib)
 
 # XACC plugin shared libraries
@@ -49,7 +49,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # Tket middleware module (placement/circuit optimizer)
   include(add_tket)
 
-  # Python core module (Python bindings for libqbcore.so)
+  # Python core module (Python bindings for libqristal_core.so)
   include(py_lib)
 
   # Examples
@@ -78,25 +78,25 @@ install(
 
 # Ensure that all installed python modules are picked up by Python without needing to modify the PYTHONPATH env variable.
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} \
-                                                       -Dqbcore_LIBDIR=${qbcore_LIBDIR} \
+                                                       -Dqristal_core_LIBDIR=${qristal_core_LIBDIR} \
                                                        -DXACC_ROOT=${XACC_ROOT} \
                                                        -DPYTHON_PACKAGES_PATH=${PYTHON_PACKAGES_PATH} \
                                                        -DPROJECT_NAME=${PROJECT_NAME} \
                                                        -P${CMAKE_INSTALL_PREFIX}/cmake/py_packages_path.cmake)")
 
-# Generate and install the qbcore-config.cmake and qbcore-config-version.cmake files
+# Generate and install the qristal_core-config.cmake and qristal_core-config-version.cmake files
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-    cmake/${NAMESPACE}${PROJECT_NAME}-config.cmake.in
-    "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config.cmake"
+    cmake/${NAMESPACE}_${PROJECT_NAME}-config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}_${PROJECT_NAME}-config.cmake"
     INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config-version.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}_${PROJECT_NAME}-config-version.cmake"
   COMPATIBILITY SameMinorVersion
 )
 install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}${PROJECT_NAME}-config-version.cmake"
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}_${PROJECT_NAME}-config.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/${NAMESPACE}_${PROJECT_NAME}-config-version.cmake"
     DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )

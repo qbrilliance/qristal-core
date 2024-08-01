@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/efficient_encoding.hpp"
+#include "qristal/core/circuits/efficient_encoding.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool EfficientEncoding::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   // Inputs:
@@ -278,4 +278,4 @@ const std::vector<std::string> EfficientEncoding::requiredKeys() {
   return {"scoring_function", "num_state_qubits", "num_scoring_qubits"};
 }
 
-} // namespace qb
+}

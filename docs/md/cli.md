@@ -1,1 +1,1 @@
-../../examples/cpp/qbsdkcli/README.md
+../../examples/cpp/qristal_cli/README.md

@@ -1,5 +1,5 @@
 import numpy as np
-import qb.core.optimization.vqee as qbOpt
+import qristal.core.optimization.vqee as qbOpt
 
 # build default params with empty circuit and pauli strings. 
 params = qbOpt.Params()

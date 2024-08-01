@@ -1,9 +1,9 @@
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
-# In this example, we demonstrate how noise-aware placement will be 
+# In this example, we demonstrate how noise-aware placement will be
 # applied on circuits to be submitted to hardware backend (e.g., Rigetti) on AWS Braket.
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 circ.h(0)
 circ.cnot(0, 1)
 circ.measure_all()
@@ -11,12 +11,12 @@ print("Original circuit:")
 circ.print()
 
 # Create a session object
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 # Set the circuit
 s.ir_target = circ
-# Use qb "noise-aware" placement 
+# Use qristal noise-aware placement
 s.noplacement = False
 s.placement = "noise-aware"
 
@@ -32,4 +32,4 @@ s.aws_device = "Rigetti"
 s.nosim = True
 s.run()
 print("Placed circuit (for Rigetti device):")
-circ.print() 
+circ.print()

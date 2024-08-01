@@ -38,12 +38,12 @@ Now let's code up the circuit to generate $\ket{\Phi^+}$.
 
 Import the Qristal core:
 ```python
-import qb.core
+import qristal.core
 ```
 
 Create a quantum computing session using Qristal:
 ```python
-my_sim = qb.core.session()
+my_sim = qristal.core.session()
 ```
 
 Choose some default session parameters:

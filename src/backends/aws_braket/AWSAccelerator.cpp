@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qb/core/cmake_variables.hpp"
-#include "qb/core/backends/aws_braket/AWSAccelerator.hpp"
-#include "qb/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp"
-#include "qb/core/backends/aws_braket/AWSQuantumTask.hpp"
+#include "qristal/core/cmake_variables.hpp"
+#include "qristal/core/backends/aws_braket/AWSAccelerator.hpp"
+#include "qristal/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp"
+#include "qristal/core/backends/aws_braket/AWSQuantumTask.hpp"
 
 // XACC
 #include "xacc_plugin.hpp"
@@ -84,7 +84,7 @@ namespace xacc
       };
       if (m_format == "openqasm3")
       {
-        qb::AWSOpenQASM3Visitor visitor(CompositeInstruction->nPhysicalBits(), m_noise, m_verbatim);
+        qristal::AWSOpenQASM3Visitor visitor(CompositeInstruction->nPhysicalBits(), m_noise, m_verbatim);
         make_measurements(visitor);
         aws_str = visitor.getOpenQasm();
       }
@@ -187,7 +187,7 @@ namespace xacc
 
     /// Asynchronous offload a circuit to AWS Braket.
     /// Returns a handle to check job status and retrieve the result.
-    std::shared_ptr<qb::async_job_handle> AWSAccelerator::async_execute(
+    std::shared_ptr<qristal::async_job_handle> AWSAccelerator::async_execute(
         const std::shared_ptr<CompositeInstruction> CompositeInstruction) {
       // Process the IR to generate AWS string and list of measure qubits
       const auto [aws_str, measure_bits] = generate_aws_string(CompositeInstruction);
@@ -221,7 +221,7 @@ namespace xacc
           /// Post the job to AWS Braket and retrieve the task handle.
           auto py_aws_quantum_task = qb_aws_mod_run_aws_braket_async(
               m_device, m_shots, aws_str, m_verbatim, m_format, m_s3, m_path);
-          auto aws_task_handle = std::make_shared<qb::aws_async_job_handle>(
+          auto aws_task_handle = std::make_shared<qristal::aws_async_job_handle>(
               py_aws_quantum_task, measure_bits);
           if (debug_aws_)
             std::cout << "# Done submitting an asynchronous task to AWS Braket!"

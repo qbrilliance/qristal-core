@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 # In this test we use generalised mcx to
@@ -29,7 +29,7 @@ conditions = [[0, 0], [0, 1], [1, 0], [1, 1]]
 input_bitstrings = ["000", "001", "010", "011", "100", "101", "110", "111"]
 for condition in conditions:
     for input_bitstring in input_bitstrings:
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         # Prepare the input bitstring
         for i in range(len(input_bitstring)):

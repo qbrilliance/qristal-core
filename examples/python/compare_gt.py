@@ -1,6 +1,6 @@
-import qb.core
+import qristal.core
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 for i in range(32):
@@ -11,7 +11,7 @@ for i in range(32):
         qubit_flag = 10
         qubit_ancilla = 11
 
-        circ = qb.core.Circuit()
+        circ = qristal.core.Circuit()
 
         a_bin = bin(i)[2:].zfill(5)
         b_bin = bin(j)[2:].zfill(5)

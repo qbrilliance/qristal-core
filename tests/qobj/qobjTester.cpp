@@ -1,10 +1,10 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 #include <gtest/gtest.h>
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/backends/qb_hardware/qb_visitor.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/backends/qb_hardware/qb_visitor.hpp"
 #include <nlohmann/json.hpp>
 namespace {
 std::shared_ptr<xacc::Compiler> get_qb_qobj_compiler() {
@@ -83,14 +83,14 @@ TEST(transpilationTester, checkAerSim) {
 }
 
 TEST(transpilationTester, checkAerNoiseSim1) {
-  qb::NoiseModel noise_model;
+  qristal::NoiseModel noise_model;
   const size_t nb_qubits = 2;
 
   // Create a test noise model with supper-strong depolarizing error on all
   // single qubit gates "u1", "u2", "u3", and no error on two qubit gates.
   for (const auto &gate_name : {"u1", "u2", "u3"}) {
     for (size_t qId = 0; qId < nb_qubits; ++qId) {
-      noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, 0.25),
+      noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, 0.25),
                                  gate_name, {qId});
     }
   }
@@ -152,14 +152,14 @@ TEST(transpilationTester, checkAerNoiseSim1) {
 
 
 TEST(transpilationTester, checkAerNoiseSim2) {
-  qb::NoiseModel noise_model;
+  qristal::NoiseModel noise_model;
   const size_t nb_qubits = 2;
 
   // Create a test noise model with supper-strong depolarizing error on all
   // single qubit gates "rx", "ry" and no error on two qubit gates.
   for (const auto &gate_name : {"rx", "ry"}) {
     for (size_t qId = 0; qId < nb_qubits; ++qId) {
-      noise_model.add_gate_error(qb::DepolarizingChannel::Create(qId, 0.25),
+      noise_model.add_gate_error(qristal::DepolarizingChannel::Create(qId, 0.25),
                                  gate_name, {qId});
     }
   }

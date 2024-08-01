@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/controlled_multiplication.hpp"
+#include "qristal/core/circuits/controlled_multiplication.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <memory>
 
-namespace qb {
+namespace qristal {
 bool ControlledMultiplication::expand(
     const xacc::HeterogeneousMap &runtimeOptions) {
   ////////////////////////////////////////////////////////
@@ -131,4 +131,4 @@ bool ControlledMultiplication::expand(
 const std::vector<std::string> ControlledMultiplication::requiredKeys() {
   return {"qubits_a", "qubits_b", "qubits_result", "qubit_ancilla"};
 }
-} // namespace qb
+}

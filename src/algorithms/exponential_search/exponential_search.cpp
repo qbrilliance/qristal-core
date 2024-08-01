@@ -1,5 +1,5 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/algorithms/exponential_search/exponential_search.hpp"
+#include "qristal/core/algorithms/exponential_search/exponential_search.hpp"
 #include <chrono>
 #include <ctime>
 //#include <memory>
@@ -24,7 +24,7 @@ bool is_msb_func(xacc::Accelerator *qpu_) {
 }
 } // namespace
 
-namespace qb {
+namespace qristal {
 bool ExponentialSearch::initialize(const xacc::HeterogeneousMap &parameters) {
   std::cout << "Intiialise ExponentialSearch" << std::endl;
   // Get the method
@@ -202,7 +202,7 @@ void ExponentialSearch::execute(
     assert(expand_ok_inv_sp);
 
     std::vector<int> qubits_state_prep;
-    auto qubits_state_prep_set = qb::uniqueBitsQD(state_prep);
+    auto qubits_state_prep_set = qristal::uniqueBitsQD(state_prep);
     for (auto bit : qubits_state_prep_set) {
       qubits_state_prep.push_back(bit);
     }
@@ -331,4 +331,4 @@ void ExponentialSearch::execute(
     }
   }
 }
-} // namespace qb
+}

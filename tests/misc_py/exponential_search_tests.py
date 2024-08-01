@@ -3,11 +3,11 @@ import os
 import pytest
 def test_CI_220307_1_exponential_search() :
     print("Testing exponential search algorithm with comparator oracle")
-    import qb.core
+    import qristal.core
     import numpy as np
     import math
     import timeit
-    s = qb.core.session()
+    s = qristal.core.session()
 
     # This is an example of using quantum exponential search to find the
     # max value of a data set.
@@ -42,7 +42,7 @@ def test_CI_220307_1_exponential_search() :
 
     #state prep
     def state_prep(trial_qubits, trial_score_qubits, a,b,c):
-        circ = qb.Circuit()
+        circ = qristal.Circuit()
         for i in range(0,len(trial_qubits)):
             circ.h(trial_qubits[i])
         for i in range(0,len(dataset)):
@@ -61,7 +61,7 @@ def test_CI_220307_1_exponential_search() :
 
     # Oracle
     def oracle(bestScore, num_scoring_qubits, trial_score_qubits, flag_qubit, best_score_qubits, ancilla_qubits):
-        circ = qb.Circuit()
+        circ = qristal.Circuit()
         num_scoring_qubits = len(best_score_qubits)
         circ.comparator_as_oracle(bestScore,num_scoring_qubits,trial_score_qubits,flag_qubit,best_score_qubits,ancilla_qubits,False)
         return circ
@@ -79,7 +79,7 @@ def test_CI_220307_1_exponential_search() :
     max_run = 4 *  math.ceil(math.log2(N))
     count = 0
     while count < max_run:
-        result = qb.Circuit().exponential_search("canonical",oracle, state_prep, get_score,bestScore, trial_qubits, trial_score_qubits, [], [],flag_qubit, best_score_qubits, ancilla_qubits, qpu = "qsim")
+        result = qristal.Circuit().exponential_search("canonical",oracle, state_prep, get_score,bestScore, trial_qubits, trial_score_qubits, [], [],flag_qubit, best_score_qubits, ancilla_qubits, qpu = "qsim")
         if result > bestScore:
             bestScore = result
             print("New best score:", bestScore)

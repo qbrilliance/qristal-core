@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.acc = "qsim"
 s.sn = 1024
 s.init()
@@ -16,7 +16,7 @@ qubits_b = [2,3]
 qubits_result = [4,5,6,7]
 qubit_ancilla = 8
 
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 
 # Prepare inputs
 circ.x(qubits_a[0])

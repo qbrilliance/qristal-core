@@ -11,7 +11,7 @@
 #include "CommonGates.hpp"
 
 // CPR
-#include <cpr/cpr.h>
+#include "cpr/cpr.h"
 
 // STL
 #include <thread>
@@ -29,7 +29,7 @@ std::string integral_to_binary_string(T byte, IS_INTEGRAL(T)) {
   return bs.to_string();
 }
 } // namespace
-namespace qb {
+namespace qristal {
 class LambdaRemoteAccelerator : public xacc::Accelerator, public xacc::Cloneable<xacc::Accelerator> {
 private:
   std::string m_ipAddress = "127.0.0.1:5000";
@@ -209,8 +209,8 @@ public:
   }
 
   virtual std::shared_ptr<xacc::Accelerator> clone() override {
-    return std::make_shared<qb::LambdaRemoteAccelerator>();
+    return std::make_shared<qristal::LambdaRemoteAccelerator>();
   }
 };
-} // namespace qb
-REGISTER_ACCELERATOR(qb::LambdaRemoteAccelerator)
+}
+REGISTER_ACCELERATOR(qristal::LambdaRemoteAccelerator)

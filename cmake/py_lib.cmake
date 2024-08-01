@@ -16,10 +16,10 @@ pybind11_add_module (py${PROJECT_NAME}
 
 target_link_libraries(py${PROJECT_NAME}
   PRIVATE
-    qb::core
+    qristal::core
 )
 
-target_include_directories(py${PROJECT_NAME} 
+target_include_directories(py${PROJECT_NAME}
   PRIVATE
     include
 )
@@ -33,7 +33,7 @@ set_target_properties(py${PROJECT_NAME}
 install(
   TARGETS py${PROJECT_NAME}
   EXPORT py${PROJECT_NAME}Targets
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}/qb
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/qristal
 )
 
 set(pyTargetsFile "py${PROJECT_NAME}Targets.cmake")

@@ -2,8 +2,8 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/controlled_proper_fraction_division.hpp"
-#include "qb/core/circuits/subtraction.hpp"
+#include "qristal/core/circuits/controlled_proper_fraction_division.hpp"
+#include "qristal/core/circuits/subtraction.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-namespace qb {
+namespace qristal {
 bool ControlledProperFractionDivision::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   std::vector<int> denominator;
@@ -257,4 +257,4 @@ bool ControlledProperFractionDivision::expand(const xacc::HeterogeneousMap &runt
 const std::vector<std::string> ControlledProperFractionDivision::requiredKeys() {
   return {"qubits_numerator", "qubits_denominator", "qubits_fraction", "qubits_ancilla"};
 }
-} // namespace qb
+}

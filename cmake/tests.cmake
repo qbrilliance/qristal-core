@@ -75,11 +75,11 @@ add_executable(CITests
 
 add_executable(HardwareTests
   tests/misc_cpp/XaccInitialisedTests.cpp
-  tests/qcstack/qbqpuTester.cpp 
+  tests/qcstack/qbqpuTester.cpp
 )
 
 # This needs to be a separate test due to problems caused by restarting the python interpreter after it completes.
-# See "Interpreter lifetime" at https://pybind11.readthedocs.io/en/stable/advanced/embedding.html for more info.  
+# See "Interpreter lifetime" at https://pybind11.readthedocs.io/en/stable/advanced/embedding.html for more info.
 add_executable(BraketTests
   tests/misc_cpp/XaccInitialisedTests.cpp
   tests/aws_braket/AWSBraketHostedTester.cpp
@@ -91,23 +91,23 @@ add_test(NAME ci_braket_tester COMMAND BraketTests)
 
 target_link_libraries(CITests
   PRIVATE
-    qb::core
+    qristal::core
     cppitertools::cppitertools
 )
 target_link_libraries(HardwareTests
   PRIVATE
-    qb::core
+    qristal::core
     cppitertools::cppitertools
 )
 target_link_libraries(BraketTests
   PRIVATE
-    qb::core
+    qristal::core
     cppitertools::cppitertools
 )
 
 set_target_properties(CITests HardwareTests BraketTests
   PROPERTIES
-    BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR};${XACC_ROOT}/lib"
+    BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR};${XACC_ROOT}/lib"
 )
 add_dependencies(CITests qasm_simulator)
 
@@ -126,12 +126,12 @@ if (WITH_TKET)
   add_test(NAME ci_tket_tester COMMAND TketTests)
   target_link_libraries(TketTests
     PRIVATE
-      qb::core
+      qristal::core
       cppitertools::cppitertools
   )
   set_target_properties(TketTests
     PROPERTIES
-      BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR};${XACC_ROOT}/lib"
+      BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR};${XACC_ROOT}/lib"
       COMPILE_DEFINITIONS TKET_TEST_RESOURCE_DIR="${PROJECT_SOURCE_DIR}/tests/tket/resources"
   )
 endif()
@@ -145,7 +145,7 @@ if (WITH_CUDAQ)
   add_executable(CudaqCITests tests/cudaq/CudaqTester.cpp)
   set_property(TARGET CudaqCITests PROPERTY CXX_STANDARD 20)
   target_link_options(CudaqCITests PRIVATE -Wl,--no-as-needed)
-  target_link_libraries(CudaqCITests PUBLIC qb::core)
+  target_link_libraries(CudaqCITests PUBLIC qristal::core)
   include(CheckLanguage)
   check_language(CUDA)
   if(CMAKE_CUDA_COMPILER AND NOT BUILD_TESTS_WITHOUT_GPU)

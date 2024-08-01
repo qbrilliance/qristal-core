@@ -1,7 +1,7 @@
-import qb.core
+import qristal.core
 import numpy as np
 
-s = qb.core.session()
+s = qristal.core.session()
 s.init()
 
 n = 3
@@ -10,7 +10,7 @@ ctrl_qubits = list(range(n-1))
 tgt_qubit = n-1
 
 for i in range(2**n):
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     bitstring = [int(x) for x in bin(i)[2:].zfill(n)]
     print("Input:", list(reversed(bitstring)))
     for j in range(n):

@@ -1,16 +1,16 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-// QB
-#include "qb/core/backend_utils.hpp"
+// Qristal
+#include "qristal/core/backend_utils.hpp"
 
-namespace qb
+namespace qristal
 {
 
   /// Set QB hardware options
-  void add_qb_hardware_options(xacc::HeterogeneousMap& m, 
-                               YAML::Node& y, 
+  void add_qb_hardware_options(xacc::HeterogeneousMap& m,
+                               YAML::Node& y,
                                const run_i_j_config& run_config)
-  {                       
+  {
     using namespace setting;
 
     // Add a trailing slash to the URL if it doesn't already have one
@@ -19,21 +19,21 @@ namespace qb
       std::string url = y["url"].as<std::string>();
       if (url.back() != '/') y["url"] = url + "/";
     }
-    
-    // Base settings 
+
+    // Base settings
     required<std::string>("url", y, m);
     required<double>("poll_secs", y, m);
-    required<uint>("poll_retries", y, m);    
+    required<uint>("poll_retries", y, m);
     required<bool>("recursive", y, m);
     required<bool>("resample", y, m);
-    optional<bool>("exclusive_access", false, y, m); 
+    optional<bool>("exclusive_access", false, y, m);
     optional<std::vector<uint>>("init", std::vector<uint>(run_config.num_qubits, 0), y, m);
     optional<bool>("use_default_contrast_settings", true, y, m);
 
     // Error if recursive and resample are both true
     if (m.get<bool>("recursive") and m.get<bool>("resample"))
      throw std::runtime_error("Resample and recursive options are mutually incompatible.");
-            
+
     // Options setting the balanced SSR contrast below which a shot will be ignored.
     if (not m.get<bool>("use_default_contrast_settings"))
     {
@@ -42,11 +42,11 @@ namespace qb
       // Applies during initialisation.  0.6 is the usable upper bound.  Hardware default is 0.1.
       required<double>("init_contrast_threshold", y, m);
 
-      // Applies on a per-qubit basis during final readout. Best case is ~0.3, unusable when <0.05.  
+      // Applies on a per-qubit basis during final readout. Best case is ~0.3, unusable when <0.05.
       // Indexing of this list matches to the index of qubits.  Hardware defaults are 0.1.
       required<std::map<int,double>>("qubit_contrast_thresholds", y, m);
 
-      // Make sure all contrasts are between 0 and 1 
+      // Make sure all contrasts are between 0 and 1
       check_range("init_contrast_threshold", m.get<double>("init_contrast_threshold"), {0,1});
       for (const auto& contrast : m.get<std::map<int,double>>("qubit_contrast_thresholds"))
       {

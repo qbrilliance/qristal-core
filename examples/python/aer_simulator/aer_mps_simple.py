@@ -1,6 +1,6 @@
-import qb.core
+import qristal.core
 
-s = qb.core.session(True)
+s = qristal.core.session(True)
 s.init()
 
 # Use the aer accelerator, matrix product state method
@@ -10,7 +10,7 @@ s.sn = 1000
 s.noise = True
 
 s.instring='''
-__qpu__ void QBCIRCUIT(qreg q) {
+__qpu__ void qristal_circuit(qreg q) {
     OPENQASM 2.0;
     include "qelib1.inc";
     creg c[2];

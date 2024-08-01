@@ -5,13 +5,13 @@
 # for various numbers of qubits
 
 import numpy as np
-import qb.core
+import qristal.core
 import ast
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib import cm
-from qb.core import run_MLQAE
-from qb.core import run_canonical_ae_with_oracle
+from qristal.core import run_MLQAE
+from qristal.core import run_canonical_ae_with_oracle
 
 method = 'mlqae'
 ps = [0.49]
@@ -21,13 +21,13 @@ for p in ps:
     print("amplitude = ", np.sqrt(p))
     while n<=10:
         # State prep circuit: (preparing the state that we want to estimate the amplitude)
-        state_prep = qb.core.Circuit()
+        state_prep = qristal.core.Circuit()
         state_prep.ry(0, theta_p)
         for i in range(n-1):
             state_prep.cnot(i,i+1)
 
         # Oracle
-        oracle = qb.core.Circuit()
+        oracle = qristal.core.Circuit()
         # The oracle should be a multi-controlled z gate
         if n == 1:
             oracle.z(0)

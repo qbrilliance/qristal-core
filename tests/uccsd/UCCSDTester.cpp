@@ -2,7 +2,7 @@
 #include "Instruction.hpp"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "qb/core/uccsd/fermionic_excitation_generator.hpp"
+#include "qristal/core/uccsd/fermionic_excitation_generator.hpp"
 using namespace xacc;
 
 TEST(UCCSDTester, generateFermionicExcitations) {

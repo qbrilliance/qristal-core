@@ -5,11 +5,11 @@ set(source_files
 )
 
 set(headers
-  include/qb/core/noise_model/json_complex_convert.hpp
-  include/qb/core/noise_model/noise_channel.hpp
-  include/qb/core/noise_model/noise_model.hpp
-  include/qb/core/noise_model/noise_properties.hpp
-  include/qb/core/noise_model/readout_error.hpp
+  include/qristal/core/noise_model/json_complex_convert.hpp
+  include/qristal/core/noise_model/noise_channel.hpp
+  include/qristal/core/noise_model/noise_model.hpp
+  include/qristal/core/noise_model/noise_properties.hpp
+  include/qristal/core/noise_model/readout_error.hpp
 )
 
 set(LIBRARY_NAME noise)
@@ -39,7 +39,7 @@ target_link_libraries(${LIBRARY_NAME}
 # Install the library
 install(
   TARGETS ${LIBRARY_NAME}
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qbcore_LIBDIR}
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
   EXPORT ${LIBRARY_NAME}Targets
 )
 

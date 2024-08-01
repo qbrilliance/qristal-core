@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <thread>
-#include "qb/core/backends/aws_braket/AWSQuantumTask.hpp"
-#include "qb/core/thread_pool.hpp"
+#include "qristal/core/backends/aws_braket/AWSQuantumTask.hpp"
+#include "qristal/core/thread_pool.hpp"
 
-namespace qb
+namespace qristal
 {
   /// Constructor
   aws_async_job_handle::aws_async_job_handle(const pybind11::object& aws_task, const std::vector<int>& measure_bits)
@@ -127,4 +127,4 @@ namespace qb
       std::this_thread::sleep_for(std::chrono::milliseconds(poll_interval_ms));
     }
   }
-} // namespace qb
+}

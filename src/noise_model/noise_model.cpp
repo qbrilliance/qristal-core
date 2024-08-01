@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-#include "qb/core/noise_model/noise_model.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
 #include <dlfcn.h>
 #include <vector>
 #include <algorithm>
@@ -9,11 +9,11 @@
 
 namespace {
 // Kron combine 2 noise channels
-qb::NoiseChannel noise_channel_expand(const qb::NoiseChannel& noise_channel_1,
-                                      const qb::NoiseChannel& noise_channel_2) {
-  qb::NoiseChannel combined_channel;
+qristal::NoiseChannel noise_channel_expand(const qristal::NoiseChannel& noise_channel_1,
+                                      const qristal::NoiseChannel& noise_channel_2) {
+  qristal::NoiseChannel combined_channel;
   const auto mat_to_eigen =
-      [](const qb::KrausOperator::Matrix& mat) -> Eigen::MatrixXcd {
+      [](const qristal::KrausOperator::Matrix& mat) -> Eigen::MatrixXcd {
     Eigen::MatrixXcd eigen_mat(mat.size(), mat[0].size());
     for (int row = 0; row < eigen_mat.rows(); ++row) {
       for (int col = 0; col < eigen_mat.cols(); ++col) {
@@ -24,8 +24,8 @@ qb::NoiseChannel noise_channel_expand(const qb::NoiseChannel& noise_channel_1,
   };
 
   const auto eigen_to_mat =
-      [](const Eigen::MatrixXcd& eigen_mat) -> qb::KrausOperator::Matrix {
-    qb::KrausOperator::Matrix mat(eigen_mat.rows());
+      [](const Eigen::MatrixXcd& eigen_mat) -> qristal::KrausOperator::Matrix {
+    qristal::KrausOperator::Matrix mat(eigen_mat.rows());
     for (int row = 0; row < eigen_mat.rows(); ++row) {
       std::vector<std::complex<double>> row_data(eigen_mat.cols());
       for (int col = 0; col < eigen_mat.cols(); ++col) {
@@ -48,7 +48,7 @@ qb::NoiseChannel noise_channel_expand(const qb::NoiseChannel& noise_channel_1,
       }
       Eigen::MatrixXcd expanded_mat = Eigen::kroneckerProduct(
           mat_to_eigen(kraus1.matrix), mat_to_eigen(kraus2.matrix));
-      qb::KrausOperator expanded_kraus_op;
+      qristal::KrausOperator expanded_kraus_op;
       expanded_kraus_op.qubits = qubits;
       expanded_kraus_op.matrix = eigen_to_mat(expanded_mat);
       combined_channel.emplace_back(expanded_kraus_op);
@@ -58,7 +58,7 @@ qb::NoiseChannel noise_channel_expand(const qb::NoiseChannel& noise_channel_1,
 }
 
 }
-namespace qb
+namespace qristal
 {
     NoiseModel::NoiseModel(const nlohmann::json &js) : m_qobj_noise_model(js)
     {
@@ -69,7 +69,7 @@ namespace qb
     {
         // Get qubit connectivity topology
         m_qubit_topology = noise_props.qubit_topology;
-        
+
         // Add readout errors
         m_readout_errors = noise_props.readout_errors;
 
@@ -137,21 +137,21 @@ namespace qb
 
     // Build and return a registered noise model.
     NoiseModel::NoiseModel(const std::string& name,
-                           size_t nb_qubits, 
+                           size_t nb_qubits,
                            std::optional<QubitConnectivity> connectivity,
                            std::optional<std::reference_wrapper<const std::vector<std::pair<size_t, size_t>>>> connected_pairs)
     {
         // If the default model has been requested, just load it and be done
-        if (name == "default") 
+        if (name == "default")
         {
             if (connected_pairs != std::nullopt) make_default(*this, nb_qubits, *connectivity, *connected_pairs);
             else if (connectivity != std::nullopt) make_default(*this, nb_qubits, *connectivity);
             else make_default(*this, nb_qubits);
             return;
         }
-      
+
         // Otherwise, we try to load the model from the emulator.
-        static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqbemulator.so";
+        static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
         void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY | RTLD_DEEPBIND);
         if (!handle)
         {
@@ -163,7 +163,7 @@ namespace qb
 
         // Clear all errors
         dlerror();
-        // Attempt to get the function pointer from the shared library 
+        // Attempt to get the function pointer from the shared library
         auto get_emulator_noise_model = reinterpret_cast<NoiseModel*(*)(const char*)>(dlsym(handle, "get_emulator_noise_model"));
         // Check that nothing went wrong
         char* error_msg = dlerror();
@@ -181,7 +181,7 @@ namespace qb
             throw std::runtime_error("The noise model " + name + " exists in neither the Qristal SDK nor the Qristal Emulator.");
         }
         model->name = name;
-        *this = *model; 
+        *this = *model;
     }
 
     std::string NoiseModel::get_qobj_compiler() const {
@@ -215,7 +215,7 @@ namespace qb
       return {"u1", "u2", "u3", "cx"};
     }
 
-    noise_aware_placement_config NoiseModel::to_noise_aware_placement_config() const 
+    noise_aware_placement_config NoiseModel::to_noise_aware_placement_config() const
     {
       noise_aware_placement_config config;
       // Populate connectivity info
@@ -231,7 +231,7 @@ namespace qb
             qId, (readout_error.p_01 + readout_error.p_10) / 2.0);
       }
 
-      // Map from qubit index -> list of single-qubit gate errors for averaging.  
+      // Map from qubit index -> list of single-qubit gate errors for averaging.
       std::unordered_map<size_t, std::vector<double>> qubit_id_to_gate_errors;
       // Iterate over the whole noise channel map
       for (const auto &[gate_name, operands_to_noise_channels] : get_noise_channels()) {
@@ -270,7 +270,7 @@ namespace qb
           }
         }
       }
-      
+
       /// Average all single-qubit gate errors at a qubit node.
       for (const auto &[qubit, gate_errors] : qubit_id_to_gate_errors) {
         assert(!gate_errors.empty());
@@ -399,7 +399,7 @@ namespace qb
         return m_readout_errors;
     }
 
-    const std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> &NoiseModel::get_noise_channels() const 
+    const std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> &NoiseModel::get_noise_channels() const
     {
         return m_noise_channels;
     }

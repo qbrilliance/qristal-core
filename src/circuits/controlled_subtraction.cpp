@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/controlled_subtraction.hpp"
+#include "qristal/core/circuits/controlled_subtraction.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -13,7 +13,7 @@
 #include <optional>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool ControlledSubtraction::expand(
     const xacc::HeterogeneousMap &runtimeOptions) {
 
@@ -122,4 +122,4 @@ const std::vector<std::string> ControlledSubtraction::requiredKeys() {
   return {"qubits_larger", "qubits_smaller"};
 }
 
-} // namespace qb
+}

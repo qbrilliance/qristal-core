@@ -3,14 +3,14 @@
 #include <iostream>
 
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qb/core/tools/zip_tool.hpp"
-#include "qb/core/session.hpp"
-#include "qb/core/circuit_builder.hpp"
-#include "qb/core/noise_model/noise_model.hpp"
-#include "qb/core/benchmark/workflows/RotationSweep.hpp"
-#include "qb/core/benchmark/DataLoaderGenerator.hpp"
+#include "qristal/core/tools/zip_tool.hpp"
+#include "qristal/core/session.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
 
-using namespace qb::benchmark;
+using namespace qristal::benchmark;
 
 TEST(RotationSweepTester, check_circuit_construction) {
     const size_t n_qubits = 4;
@@ -20,9 +20,9 @@ TEST(RotationSweepTester, check_circuit_construction) {
     const size_t n_points = 5;
 
     //construct expected circuits
-    std::vector<qb::CircuitBuilder> correct_circuits;
+    std::vector<qristal::CircuitBuilder> correct_circuits;
     for (size_t i = 0; i < 5; ++i) {
-        qb::CircuitBuilder cb;
+        qristal::CircuitBuilder cb;
         correct_circuits.push_back(cb);
     }
     correct_circuits[0].RX(1, -1.0 * std::numbers::pi);
@@ -42,7 +42,7 @@ TEST(RotationSweepTester, check_circuit_construction) {
     correct_circuits[4].RZ(3, std::numbers::pi);
 
     //define session
-    qb::session sim(false);
+    qristal::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
@@ -66,13 +66,13 @@ TEST(RotationSweepTester, check_serialization) {
 
     //define serializable objects
     //(1) session
-    qb::session sim(false);
+    qristal::session sim(false);
     sim.init();
     sim.set_acc("qpp");
     sim.set_sn(1000);
     sim.set_qn(3);
-    sim.set_noise_mitigations(qb::Table2d<std::string>{std::vector<std::string>{"assignment-error-kernel", "rich-extrap"}, std::vector<std::string>{"ro-error"}});
-    qb::NoiseModel nm("default");
+    sim.set_noise_mitigations(qristal::Table2d<std::string>{std::vector<std::string>{"assignment-error-kernel", "rich-extrap"}, std::vector<std::string>{"ro-error"}});
+    qristal::NoiseModel nm("default");
     sim.set_noise_model(nm);
 
     //(2) bit string counts

@@ -1,5 +1,5 @@
 import numpy as np
-import qb.core.optimization.vqee as qbOpt
+import qristal.core.optimization.vqee as qbOpt
 
 def test_vqee_toggle_visual_off() :
   print("* vqee_toggle_visual:")

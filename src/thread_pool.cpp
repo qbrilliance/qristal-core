@@ -1,9 +1,9 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
-#include "qb/core/thread_pool.hpp"
+#include "qristal/core/thread_pool.hpp"
 
 #include <iostream>
 
-namespace qb
+namespace qristal
 {
 
   /// Public interface for setting the number of threads to be maintained in the pool

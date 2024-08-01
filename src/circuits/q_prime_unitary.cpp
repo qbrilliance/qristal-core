@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/q_prime_unitary.hpp"
+#include "qristal/core/circuits/q_prime_unitary.hpp"
 #include "CommonGates.hpp"
 #include "xacc_service.hpp"
 //#include <array>
@@ -17,7 +17,7 @@
 //#include <ostream>
 #include "IRProvider.hpp"
 
-namespace qb {
+namespace qristal {
 bool QPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   std::cout << "Defining QPrime" << std::endl;
   // Inputs:
@@ -100,4 +100,4 @@ const std::vector<std::string> QPrime::requiredKeys() {
   return {"qubits_metric", "qubits_string",
              "qubits_next_metric", "qubits_next_letter"};
 }
-} // namespace qb
+}

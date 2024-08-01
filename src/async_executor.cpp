@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 
-#include "qb/core/async_executor.hpp"
-#include "qb/core/thread_pool.hpp"
+#include "qristal/core/async_executor.hpp"
+#include "qristal/core/thread_pool.hpp"
 
 #include "json.hpp"
 #include "xacc.hpp"
@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-namespace qb {
+namespace qristal {
 
 void Executor::initialize(const std::string &in_qpuConfig) {
   auto qpu_configs = nlohmann::json::parse(in_qpuConfig);
@@ -86,4 +86,4 @@ std::string sync(Handle &handle, int time_out_secs) {
   return result_buffer->toString();
 }
 
-} // namespace qb
+}

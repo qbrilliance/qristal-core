@@ -2,36 +2,36 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/amplitude_amplification.hpp"
-#include "qb/core/circuits/canonical_amplitude_estimation.hpp"
-#include "qb/core/circuits/comparator.hpp"
-#include "qb/core/circuits/efficient_encoding.hpp"
-#include "qb/core/circuits/mcu_with_ancilla.hpp"
-#include "qb/core/circuits/phase_estimation.hpp"
-#include "qb/core/circuits/equality_checker.hpp"
-#include "qb/core/circuits/q_prime_unitary.hpp"
-#include "qb/core/circuits/ripple_adder.hpp"
-#include "qb/core/circuits/u_prime_unitary.hpp"
-#include "qb/core/circuits/uq_prime_unitary.hpp"
-#include "qb/core/circuits/w_prime_unitary.hpp"
-#include "qb/core/circuits/controlled_swap.hpp"
-#include "qb/core/circuits/controlled_addition.hpp"
-#include "qb/core/circuits/generalised_mcx.hpp"
-#include "qb/core/circuits/compare_beam_oracle.hpp"
-#include "qb/core/circuits/inverse_circuit.hpp"
-#include "qb/core/circuits/init_rep_flag.hpp"
-#include "qb/core/circuits/ae_to_metric.hpp"
-#include "qb/core/circuits/qd_beam_state_prep.hpp"
-#include "qb/core/circuits/superposition_adder.hpp"
-#include "qb/core/circuits/pseudo_trace_amplitude_estimation.hpp"
-#include "qb/core/circuits/subtraction.hpp"
-#include "qb/core/circuits/controlled_subtraction.hpp"
-#include "qb/core/circuits/proper_fraction_division.hpp"
-#include "qb/core/circuits/controlled_proper_fraction_division.hpp"
-#include "qb/core/circuits/compare_gt.hpp"
-#include "qb/core/circuits/multiplication.hpp"
-#include "qb/core/circuits/controlled_multiplication.hpp"
-#include "qb/core/circuits/mean_value_finder.hpp"
+#include "qristal/core/circuits/amplitude_amplification.hpp"
+#include "qristal/core/circuits/canonical_amplitude_estimation.hpp"
+#include "qristal/core/circuits/comparator.hpp"
+#include "qristal/core/circuits/efficient_encoding.hpp"
+#include "qristal/core/circuits/mcu_with_ancilla.hpp"
+#include "qristal/core/circuits/phase_estimation.hpp"
+#include "qristal/core/circuits/equality_checker.hpp"
+#include "qristal/core/circuits/q_prime_unitary.hpp"
+#include "qristal/core/circuits/ripple_adder.hpp"
+#include "qristal/core/circuits/u_prime_unitary.hpp"
+#include "qristal/core/circuits/uq_prime_unitary.hpp"
+#include "qristal/core/circuits/w_prime_unitary.hpp"
+#include "qristal/core/circuits/controlled_swap.hpp"
+#include "qristal/core/circuits/controlled_addition.hpp"
+#include "qristal/core/circuits/generalised_mcx.hpp"
+#include "qristal/core/circuits/compare_beam_oracle.hpp"
+#include "qristal/core/circuits/inverse_circuit.hpp"
+#include "qristal/core/circuits/init_rep_flag.hpp"
+#include "qristal/core/circuits/ae_to_metric.hpp"
+#include "qristal/core/circuits/qd_beam_state_prep.hpp"
+#include "qristal/core/circuits/superposition_adder.hpp"
+#include "qristal/core/circuits/pseudo_trace_amplitude_estimation.hpp"
+#include "qristal/core/circuits/subtraction.hpp"
+#include "qristal/core/circuits/controlled_subtraction.hpp"
+#include "qristal/core/circuits/proper_fraction_division.hpp"
+#include "qristal/core/circuits/controlled_proper_fraction_division.hpp"
+#include "qristal/core/circuits/compare_gt.hpp"
+#include "qristal/core/circuits/multiplication.hpp"
+#include "qristal/core/circuits/controlled_multiplication.hpp"
+#include "qristal/core/circuits/mean_value_finder.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -44,67 +44,67 @@ public:
 
   void Start(BundleContext context) {
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::CanonicalAmplitudeEstimation>());
+        std::make_shared<qristal::CanonicalAmplitudeEstimation>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::PhaseEstimation>());
+        std::make_shared<qristal::PhaseEstimation>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::AmplitudeAmplification>());
+        std::make_shared<qristal::AmplitudeAmplification>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::UQPrime>());
+        std::make_shared<qristal::UQPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::WPrime>());
+        std::make_shared<qristal::WPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::UPrime>());
+        std::make_shared<qristal::UPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::QPrime>());
+        std::make_shared<qristal::QPrime>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::RippleCarryAdder>());
+        std::make_shared<qristal::RippleCarryAdder>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::Comparator>());
+        std::make_shared<qristal::Comparator>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::EfficientEncoding>());
+        std::make_shared<qristal::EfficientEncoding>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::MultiControlledUWithAncilla>());
+        std::make_shared<qristal::MultiControlledUWithAncilla>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::EqualityChecker>());
+        std::make_shared<qristal::EqualityChecker>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::ControlledSwap>());
+        std::make_shared<qristal::ControlledSwap>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::ControlledAddition>());
+        std::make_shared<qristal::ControlledAddition>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::GeneralisedMCX>());
+        std::make_shared<qristal::GeneralisedMCX>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::CompareBeamOracle>());
+        std::make_shared<qristal::CompareBeamOracle>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::InverseCircuit>());
+        std::make_shared<qristal::InverseCircuit>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::InitRepeatFlag>());
+        std::make_shared<qristal::InitRepeatFlag>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::InitRepeatFlag>());
+        std::make_shared<qristal::InitRepeatFlag>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::AEtoMetric>());
+        std::make_shared<qristal::AEtoMetric>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::BeamStatePrep>());
+        std::make_shared<qristal::BeamStatePrep>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::SuperpositionAdder>());
+        std::make_shared<qristal::SuperpositionAdder>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::PseudoTraceAmplitudeEstimation>());
+        std::make_shared<qristal::PseudoTraceAmplitudeEstimation>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::Subtraction>());
+        std::make_shared<qristal::Subtraction>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::ControlledSubtraction>());
+        std::make_shared<qristal::ControlledSubtraction>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::ProperFractionDivision>());
+        std::make_shared<qristal::ProperFractionDivision>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::ControlledProperFractionDivision>());
+        std::make_shared<qristal::ControlledProperFractionDivision>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::CompareGT>());
+        std::make_shared<qristal::CompareGT>());
     context.RegisterService<xacc::Instruction>(
-        std::make_shared<qb::Multiplication>());
+        std::make_shared<qristal::Multiplication>());
     context.RegisterService<xacc::Instruction>(
-    std::make_shared<qb::ControlledMultiplication>());
+    std::make_shared<qristal::ControlledMultiplication>());
     context.RegisterService<xacc::Instruction>(
-    std::make_shared<qb::MeanValueFinder>());
+    std::make_shared<qristal::MeanValueFinder>());
   }
 
   void Stop(BundleContext context) {}

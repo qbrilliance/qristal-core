@@ -1,11 +1,11 @@
 /**
  * Copyright Quantum Brilliance
  */
-#include "qb/core/qobj/QuantumBrillianceQobjCompiler.hpp"
+#include "qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp"
 #include <nlohmann/json.hpp>
 #include "xacc.hpp"
 
-namespace qb {
+namespace qristal {
 struct QobjOp {
   std::string name;
   std::vector<size_t> qubits;
@@ -79,4 +79,4 @@ const std::string QuantumBrillianceQobjCompiler::translate(
     xacc::HeterogeneousMap &options) {
   return translate(function);
 }
-} // namespace qb
+}

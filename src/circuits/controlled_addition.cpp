@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/controlled_addition.hpp"
+#include "qristal/core/circuits/controlled_addition.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool ControlledAddition::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -212,4 +212,4 @@ const std::vector<std::string> ControlledAddition::requiredKeys() {
   return {"qubits_adder", "qubits_sum", "c_in"};
 }
 
-} // namespace qb
+}

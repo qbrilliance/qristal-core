@@ -1,12 +1,12 @@
 // Copyright Quantum Brilliance Pty Ltd
 
-#include "qb/core/profiler.hpp"
-#include "qb/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qristal/core/profiler.hpp"
+#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
 #include "CompositeInstruction.hpp"
 
-namespace qb {
+namespace qristal {
 //
-// Methods for qb::Profiler
+// Methods for qristal::Profiler
 //
 /*  Class: Profiler
     Profiles the time (in ms) for 1 shot of a given CompositeInstruction.  The caller is responsible for scaling to the number-of-shots by passing this to the constructor.  The number-of-repetitions should be handled by the caller appropriately.
@@ -182,4 +182,4 @@ void Profiler::run() {
               << std::endl;
   }
 }
-} // namespace qb
+}

@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/generalised_mcx.hpp"
+#include "qristal/core/circuits/generalised_mcx.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool GeneralisedMCX::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 
   ////////////////////////////////////////////////////////
@@ -97,4 +97,4 @@ const std::vector<std::string> GeneralisedMCX::requiredKeys() {
   return {"target"};
 }
 
-} // namespace qb
+}

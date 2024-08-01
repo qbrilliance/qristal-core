@@ -2,14 +2,14 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/ripple_adder.hpp"
+#include "qristal/core/circuits/ripple_adder.hpp"
 #include "CommonGates.hpp"
 #include "xacc_service.hpp"
 #include <CompositeInstruction.hpp>
 #include <assert.h>
 #include "IRProvider.hpp"
 
-namespace qb {
+namespace qristal {
 bool RippleCarryAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Add reg1 to reg2 and save to reg2
   // c_in and c_out are carry bits (in and out)
@@ -132,4 +132,4 @@ bool RippleCarryAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 }
 
 const std::vector<std::string> RippleCarryAdder::requiredKeys() { return {}; }
-} // namespace qb
+}

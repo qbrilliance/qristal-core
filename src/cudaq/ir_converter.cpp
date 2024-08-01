@@ -1,11 +1,11 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qb/core/cudaq/ir_converter.hpp"
+#include "qristal/core/cudaq/ir_converter.hpp"
 #include "cudaq/utils/cudaq_utils.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 #include <cassert>
 
-namespace qb {
+namespace qristal {
 cudaq_ir_converter::cudaq_ir_converter(
     std::shared_ptr<xacc::CompositeInstruction> xacc_ir)
     : m_cudaq_builder(cudaq::make_kernel<std::vector<double>>()),
@@ -263,4 +263,4 @@ cudaq_ir_converter::get_mul_factor_expression(const std::string &expr_str) {
   // This is a variable name, no multiplication, hence factor = 1.0.
   return std::make_pair(1.0, expr_str);
 }
-} // namespace qb
+}

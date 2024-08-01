@@ -1,8 +1,8 @@
-# Import the core of the QB SDK
-import qb.core
+# Import the core of Qristal
+import qristal.core
 
 # A circuit on two qubits that is extremely long!!!
-circ = qb.core.Circuit()
+circ = qristal.core.Circuit()
 # Repeat a random circuits...
 # there are 5 x 3 = 15 CNOT gates
 for i in range(5):
@@ -23,8 +23,8 @@ circ.measure_all()
 print("Original circuit:")
 circ.print()
 
-# Create a quantum computing session using the QB SDK
-my_sim = qb.core.session(True)
+# Create a quantum computing session using Qristal
+my_sim = qristal.core.session(True)
 
 # Set up meaningful defaults for session parameters
 my_sim.init()
@@ -43,7 +43,7 @@ my_sim.ir_target = circ
 
 # Set the circuit optimization pipeline:
 # I want to apply two-qubit squash then remove any redundant gates!
-my_sim.circuit_optimization = [qb.core.two_qubit_squash(), qb.core.redundancy_removal()]
+my_sim.circuit_optimization = [qristal.core.two_qubit_squash(), qristal.core.redundancy_removal()]
 # Make sure we run those passes..
 my_sim.nooptimise = False
 # Run the circuit 100 times and count up the results in each of the classical registers

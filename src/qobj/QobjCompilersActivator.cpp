@@ -1,5 +1,5 @@
 // Copyright Quantum Brilliance
-#include "qb/core/qobj/QuantumBrillianceQobjCompiler.hpp"
+#include "qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp"
 
 #include "cppmicroservices/BundleActivator.h"
 #include "cppmicroservices/BundleContext.h"
@@ -7,7 +7,7 @@
 
 #include "xacc.hpp"
 
-namespace qb {
+namespace qristal {
 /// Simple Pimpl wrapper for the default XACC's QObj generator,
 /// allowing us to alias the service name for usability.
 class XaccQObjPimpl : public xacc::Compiler {
@@ -83,7 +83,7 @@ public:
   /// Destructor
   ~XaccQObjPimpl() override {}
 };
-} // namespace qb
+}
 
 namespace {
 class US_ABI_LOCAL QObjCompilersActivator
@@ -95,9 +95,9 @@ public:
   // Start plugin bundle (loading the plugin shared lib)
   void Start(cppmicroservices::BundleContext context) {
     context.RegisterService<xacc::Compiler>(
-        std::make_shared<qb::QuantumBrillianceQobjCompiler>());
+        std::make_shared<qristal::QuantumBrillianceQobjCompiler>());
     context.RegisterService<xacc::Compiler>(
-        std::make_shared<qb::XaccQObjPimpl>());
+        std::make_shared<qristal::XaccQObjPimpl>());
   }
 
   void Stop(cppmicroservices::BundleContext /*context*/) {}

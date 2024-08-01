@@ -5,11 +5,11 @@
  */
 
 
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 
 int main(int argc, char * argv[])
 {
-    qb::session my_sim;
+    qristal::session my_sim;
 
     // 2 qubits
     const int n = 2;
@@ -52,13 +52,13 @@ int main(int argc, char * argv[])
     if (qdk or noisier)
     {
       // Create a noise model with 2 qubits.
-      qb::NoiseModel nm(qdk ? "qb-qdk1" : "default", n);
+      qristal::NoiseModel nm(qdk ? "qb-qdk1" : "default", n);
 
       // If requested, overwrite the readout errors on the first bit of
       // the model with some very large values (for the sake of example).
       if (noisier)
       {
-        qb::ReadoutError ro_error;
+        qristal::ReadoutError ro_error;
         ro_error.p_01 = 0.20;
         ro_error.p_10 = 0.30;
         nm.set_qubit_readout_error(0, ro_error);

@@ -12,13 +12,13 @@ project(vqe-cudaq-gradients
   LANGUAGES CXX
 )
 
-set(qbcore_DIR  @CMAKE_INSTALL_PREFIX@)
-find_package(qbcore)
+set(qristal_core_DIR  @CMAKE_INSTALL_PREFIX@)
+find_package(qristal_core)
 
 add_executable(vqe-cudaq-gradients vqe-lbfgs-cudaq.cpp)
 
 target_link_libraries(vqe-cudaq-gradients
   PRIVATE
-    qb::core
+    qristal::core
 )
 

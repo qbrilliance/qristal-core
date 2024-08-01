@@ -2,7 +2,7 @@
  *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
  ***/
 
-#include "qb/core/circuits/compare_beam_oracle.hpp"
+#include "qristal/core/circuits/compare_beam_oracle.hpp"
 #include "CommonGates.hpp"
 #include "IRProvider.hpp"
 #include "xacc_service.hpp"
@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <vector>
 
-namespace qb {
+namespace qristal {
 bool CompareBeamOracle::expand(const xacc::HeterogeneousMap &runtimeOptions) {
   // Inputs:
   if (!runtimeOptions.keyExists<int>("q0")) {
@@ -193,4 +193,4 @@ bool CompareBeamOracle::expand(const xacc::HeterogeneousMap &runtimeOptions) {
 const std::vector<std::string> CompareBeamOracle::requiredKeys() {
   return {"q0", "q1", "q2", "FA", "FB", "SA"};
 }
-} // namespace qb
+}

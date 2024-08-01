@@ -1,9 +1,9 @@
 // (c) 2021 Quantum Brilliance Pty Ltd
 #include <gtest/gtest.h>
-#include "qb/core/session.hpp"
+#include "qristal/core/session.hpp"
 
 TEST(TestJensenShannonDivergence, maximum_divergence) {
-  auto s = qb::session(false);
+  auto s = qristal::session(false);
   s.init();
   s.set_acc("qpp");
   s.set_qn(2);
@@ -49,7 +49,7 @@ TEST(TestJensenShannonDivergence, maximum_divergence) {
 }
 
 TEST(TestJensenShannonDivergence, minimum_divergence) {
-  auto s = qb::session(false);
+  auto s = qristal::session(false);
   s.init();
   s.set_acc("qpp");
   s.set_qn(2);
@@ -95,7 +95,7 @@ TEST(TestJensenShannonDivergence, minimum_divergence) {
 }
 
 TEST(TestJensenShannonDivergence, simple) {
-  auto s = qb::session(false);
+  auto s = qristal::session(false);
   s.init();
   s.set_acc("qpp");
   s.set_qn(2);

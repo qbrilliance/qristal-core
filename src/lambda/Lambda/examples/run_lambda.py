@@ -17,7 +17,7 @@ def qbdj(qn) :
     xgates_str=''.join(['X(q['+str(mye[0])+']);' for mye in enumerate(bitstr) if mye[1]==1])
 
     generator = '''
-__qpu__ void QBCIRCUIT(qreg q) {\n'
+__qpu__ void qristal_circuit(qreg q) {\n'
 for (int i=0; i<%d; i++) {
   H(q[i]);
 }

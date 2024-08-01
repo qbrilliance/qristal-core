@@ -12,8 +12,8 @@ project(vqeeCalculator
   LANGUAGES CXX
 )
 
-set(qbcore_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
-find_package(qbcore)
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
 if(XACC_DIR)
     message(STATUS "Test for MPI-enabled Qristal by detecting: ")
     message(STATUS "${XACC_DIR}/plugins/libxacc-hpc-virt-decorator.so")
@@ -25,14 +25,14 @@ if(XACC_DIR)
       target_include_directories(vqeeCalculator
         PUBLIC . ${MPI_CXX_HEADER_DIR})
       target_link_libraries(vqeeCalculator
-        PRIVATE qb::core ${MPI_CXX_LIBRARIES})
+        PRIVATE qristal::core ${MPI_CXX_LIBRARIES})
     else()
       message(STATUS "MPI not enabled in Qristal, proceeding without MPI for vqeeCalculator...")
       add_executable(vqeeCalculator vqee_calculator.cpp)
       target_include_directories(vqeeCalculator
         PUBLIC . )
       target_link_libraries(vqeeCalculator
-        PRIVATE qb::core)
+        PRIVATE qristal::core)
     endif()
 else()
   message(FATAL_ERROR "Exiting: XACC component of Qristal installation was not found at ${XACC_DIR}")

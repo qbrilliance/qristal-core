@@ -1,14 +1,14 @@
 # Test cases for circuit optimization
 
 import pytest
-import qb.core
+import qristal.core
 import random
 # Test optimization setting in session
 def test_opt_pass():
-    s = qb.core.session()
+    s = qristal.core.session()
     s.init()
     # A circuit on two qubits that are extremely long!!!
-    circ = qb.core.Circuit()
+    circ = qristal.core.Circuit()
     # Repeat a random circuits...
     # 20 layers == 20 CNOTs
     num_layers = 20
@@ -21,7 +21,7 @@ def test_opt_pass():
     print("Original circuit:")
     circ.print()
 
-    my_sim = qb.core.session(True)
+    my_sim = qristal.core.session(True)
 
     # Set up meaningful defaults for session parameters
     my_sim.init()
@@ -39,7 +39,7 @@ def test_opt_pass():
     my_sim.ir_target = circ
 
     # Set the circuit optimization pipeline:
-    my_sim.circuit_optimization = [qb.core.two_qubit_squash(), qb.core.redundancy_removal()]
+    my_sim.circuit_optimization = [qristal.core.two_qubit_squash(), qristal.core.redundancy_removal()]
     # Make sure we run those passes..
     my_sim.nooptimise = False
     # Run the circuit 100 times and count up the results in each of the classical registers
