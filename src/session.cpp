@@ -1038,7 +1038,7 @@ namespace qristal
   }
 
   /// Get the simulator based on `run_i_j_config`
-  std::shared_ptr<xacc::Accelerator> session::get_sim_qpu(bool execute_on_hardware, const run_i_j_config &run_config)
+  std::shared_ptr<xacc::Accelerator> session::get_sim_qpu(bool execute_on_hardware, run_i_j_config &run_config)
   {
     // If a hardware accelerator was selected, we set acc = "tnqvm"
     std::string acc = (execute_on_hardware ? "tnqvm" : run_config.acc_name);
@@ -1079,13 +1079,31 @@ namespace qristal
     }
 #endif
 
-    // Load emulator if emulator tensor network backends are selected.
-    if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo") {
+    // Load emulator if emulator backends are selected.
+    if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo" || (acc == "qsim" && noises)) {
+      // Load emulator library
       static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
       void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-
       if (handle == NULL) {
         std::cout << "The accelerator you are searching for may be available in the Qristal Emulator plugin. Please see https://quantumbrilliance.com/quantum-brilliance-emulator." << std::endl;
+      }
+
+      if (noises) {
+        if (run_config.noise_model.name == "qb-nm1" || run_config.noise_model.name == "qb-nm2" ||
+            run_config.noise_model.name == "qb-nm3" || run_config.noise_model.name == "qb-qdk1" ||
+            run_config.noise_model.name == "qb-dqc2") { // Emulator noise models
+          // Load noise model from emulator
+          using func_type = qristal::NoiseModel *(const char *);
+          auto *get_emulator_noise_model =
+              reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
+
+          // run_config.noise_model.name is of type string but the emulator requires the noise
+          // model's name to be of type const char.
+          // Convert noise model name's type from string to char.
+          char* noise_model_name_as_char = new char[run_config.noise_model.name.length() + 1];
+          std::strcpy(noise_model_name_as_char, run_config.noise_model.name.c_str());
+          run_config.noise_model = *get_emulator_noise_model(noise_model_name_as_char);
+        }
       }
     }
 
@@ -1165,200 +1183,35 @@ namespace qristal
         }
       }
     } else if (acc == "qsim" && noises) {
-      // Use qsim via Cirq wrapper to handle noise if requested
+      // Use qsim via Cirq wrapper to handle noise if requested.
       // The "cirq-qsim" backend is part of the external emulator package
       // to be used with the qb emulator noise models only.
-      if (run_config.noise_model.name != "qb-nm1" &&
-          run_config.noise_model.name != "qb-nm2" &&
-          run_config.noise_model.name != "qb-nm3") {
-        // We don't support arbitrary noise model in qsim yet.
-        // Hence, ignore the noise request. Log info to let users know.
-        std::cout
-            << "# The 'qsim' accelerator doesn't support noise configuration '"
-            << run_config.noise_model.name << "'." << std::endl;
-        std::cout << "# If you wish to use qsim with noise, please install the "
-                     "emulator package and select a noise model "
-                     "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
-                  << std::endl;
-        std::cout << "# Disabling noise." << std::endl;
-      } else {
-        // Switch to "cirq-qsim" from emulator package
-        qpu = xacc::getAccelerator("cirq-qsim");
+      xacc::HeterogeneousMap qpu_options;
+      if (debug_) {
+        std::cout << "# Noise model for qsim (from emulator package): enabled" << std::endl;
+      }
+      qpu = xacc::getAccelerator("cirq-qsim", {{"noise-model", &run_config.noise_model}});
+    } else if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo") {
+      xacc::HeterogeneousMap qpu_options {
+        {"initial-bond-dim", initial_bond_dimension},
+        {"max-bond-dim", max_bond_dimension},
+        {"abs-truncation-threshold", svd_cutoff},
+        {"rel-truncation-threshold", rel_svd_cutoff},
+        {"measurement-sampling-sequential", measure_sample_sequential}};
+      if (acc == "qb-purification") { // Additional options for qb-purification
+        qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
+        qpu_options.insert("max-kraus-dim", max_kraus_dimension);
+      }
+
+      if (noises) { // Use tensor network backend via xacc wrapper to handle noise if requested.
         if (debug_) {
-          std::cout << "# Noise model for qsim (from emulator package): enabled"
-                    << std::endl;
+          std::cout << "# Noise model for " << acc << " (from emulator package): enabled" << std::endl;
         }
+        qpu_options.insert("noise-model", &run_config.noise_model);
       }
-    } else if (acc == "qb-mps") {
-      if (noises) {
-        // Use MPS via qb-mps wrapper to handle noise if requested
-        // The "qb-mps" backend is part of the external emulator package
-        // to be used with the qb emulator noise models only.
-        if (run_config.noise_model.name != "qb-nm1" &&
-            run_config.noise_model.name != "qb-nm2" &&
-            run_config.noise_model.name != "qb-nm3" &&
-            run_config.noise_model.name != "qb-qdk1" &&
-            run_config.noise_model.name != "qb-dqc2") {
-          // We don't support arbitrary noise model in qb-mps yet.
-          // Hence, ignore the noise request. Log info to let users know.
-          std::cout
-              << "# The 'qb-mps' accelerator doesn't support noise configuration '"
-              << run_config.noise_model.name << "'." << std::endl;
-          std::cout << "# If you wish to use qb-mps with noise, please install the "
-                      "emulator package and select a noise model "
-                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
-                    << std::endl;
-          std::cout << "# Disabling noise." << std::endl;
-        } else {
-          // Switch to "qb-mps" from emulator package
-          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
-          void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-          using func_type = qristal::NoiseModel *(const char *);
-          auto *get_emulator_noise_model =
-              reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
-
-          // run_config.noise_model.name is of type string but the emulator requires the noise
-          // model's name to be of type const char.
-          // Convert noise model name's type from string to char.
-          char* noise_model_name_as_char = new char[run_config.noise_model.name.length() + 1];
-          std::strcpy(noise_model_name_as_char, run_config.noise_model.name.c_str());
-          auto *noise_model_name = get_emulator_noise_model(noise_model_name_as_char);
-
-          qpu = xacc::getAccelerator("qb-mps", {
-              {"initial-bond-dim", initial_bond_dimension},
-              {"max-bond-dim", max_bond_dimension},
-              {"abs-truncation-threshold", svd_cutoff},
-              {"rel-truncation-threshold", rel_svd_cutoff},
-              {"noise-model", noise_model_name},
-              {"measurement-sampling-sequential", measure_sample_sequential}});
-          if (debug_) {
-            std::cout << "# Noise model for qb-mps (from emulator package): enabled"
-                      << std::endl;
-          }
-        }
-      } else { // Noiseless simulation
-        qpu = xacc::getAccelerator("qb-mps", {
-            {"initial-bond-dim", initial_bond_dimension},
-            {"max-bond-dim", max_bond_dimension},
-            {"abs-truncation-threshold", svd_cutoff},
-            {"rel-truncation-threshold", rel_svd_cutoff},
-            {"measurement-sampling-sequential", measure_sample_sequential}});
-      }
-    } else if (acc == "qb-purification") {
-      if (noises) {
-        // Use purification via qb-purification wrapper to handle noise if requested
-        // The "qb-purification" backend is part of the external emulator package
-        // to be used with the qb emulator noise models only.
-        if (run_config.noise_model.name != "qb-nm1" &&
-            run_config.noise_model.name != "qb-nm2" &&
-            run_config.noise_model.name != "qb-nm3" &&
-            run_config.noise_model.name != "qb-qdk1" &&
-            run_config.noise_model.name != "qb-dqc2") {
-          // We don't support arbitrary noise model in qb-purification yet.
-          // Hence, ignore the noise request. Log info to let users know.
-          std::cout
-              << "# The 'qb-purification' accelerator doesn't support noise configuration '"
-              << run_config.noise_model.name << "'." << std::endl;
-          std::cout << "# If you wish to use qb-purification with noise, please install the "
-                      "emulator package and select a noise model "
-                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
-                    << std::endl;
-          std::cout << "# Disabling noise." << std::endl;
-        } else {
-          // Switch to "qb-purification" from emulator package
-          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
-          void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-          using func_type = qristal::NoiseModel *(const char *);
-          auto *get_emulator_noise_model =
-              reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
-
-          // run_config.noise_model.name is of type string but the emulator requires the noise
-          // model's name to be of type const char.
-          // Convert noise model name's type from string to char.
-          char* noise_model_name_as_char = new char[run_config.noise_model.name.length() + 1];
-          std::strcpy(noise_model_name_as_char, run_config.noise_model.name.c_str());
-          auto *noise_model_name = get_emulator_noise_model(noise_model_name_as_char);
-
-          qpu = xacc::getAccelerator("qb-purification", {
-              {"initial-bond-dim", initial_bond_dimension},
-              {"initial-kraus-dim", initial_kraus_dimension},
-              {"max-bond-dim", max_bond_dimension},
-              {"max-kraus-dim", max_kraus_dimension},
-              {"abs-truncation-threshold", svd_cutoff},
-              {"rel-truncation-threshold", rel_svd_cutoff},
-              {"noise-model", noise_model_name},
-              {"measurement-sampling-sequential", measure_sample_sequential}});
-          if (debug_) {
-            std::cout << "# Noise model for qb-purification (from emulator package): enabled"
-                      << std::endl;
-          }
-        }
-      } else { // Noiseless simulation
-        qpu = xacc::getAccelerator("qb-purification", {
-            {"initial-bond-dim", initial_bond_dimension},
-            {"initial-kraus-dim", initial_kraus_dimension},
-            {"max-bond-dim", max_bond_dimension},
-            {"max-kraus-dim", max_kraus_dimension},
-            {"abs-truncation-threshold", svd_cutoff},
-            {"rel-truncation-threshold", rel_svd_cutoff},
-            {"measurement-sampling-sequential", measure_sample_sequential}});
-      }
-    } else if (acc == "qb-mpdo") {
-      if (noises) {
-        // Use MPDO via qb-mpdo wrapper to handle noise if requested
-        // The "qb-mpdo" backend is part of the external emulator package
-        // to be used with the qb emulator noise models only.
-        if (run_config.noise_model.name != "qb-nm1" &&
-            run_config.noise_model.name != "qb-nm2" &&
-            run_config.noise_model.name != "qb-nm3" &&
-            run_config.noise_model.name != "qb-qdk1" &&
-            run_config.noise_model.name != "qb-dqc2") {
-          // We don't support arbitrary noise model in qb-mpdo yet.
-          // Hence, ignore the noise request. Log info to let users know.
-          std::cout
-              << "# The 'qb-mpdo' accelerator doesn't support noise configuration '"
-              << run_config.noise_model.name << "'." << std::endl;
-          std::cout << "# If you wish to use qb-mpdo with noise, please install the "
-                      "emulator package and select a noise model "
-                      "(e.g. 'qb-nm1', 'qb-nm2' or 'qb-nm3')."
-                    << std::endl;
-          std::cout << "# Disabling noise." << std::endl;
-        } else {
-          // Switch to "qb-mpdo" from emulator package
-          static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
-          void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-          using func_type = qristal::NoiseModel *(const char *);
-          auto *get_emulator_noise_model =
-              reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
-
-          // run_config.noise_model.name is of type string but the emulator requires the noise
-          // model's name to be of type const char.
-          // Convert noise model name's type from string to char.
-          char* noise_model_name_as_char = new char[run_config.noise_model.name.length() + 1];
-          std::strcpy(noise_model_name_as_char, run_config.noise_model.name.c_str());
-          auto *noise_model_name = get_emulator_noise_model(noise_model_name_as_char);
-
-          qpu = xacc::getAccelerator("qb-mpdo", {
-              {"initial-bond-dim", initial_bond_dimension},
-              {"max-bond-dim", max_bond_dimension},
-              {"abs-truncation-threshold", svd_cutoff},
-              {"rel-truncation-threshold", rel_svd_cutoff},
-              {"noise-model", noise_model_name},
-              {"measurement-sampling-sequential", measure_sample_sequential}});
-          if (debug_) {
-            std::cout << "# Noise model for qb-mpdo (from emulator package): enabled"
-                      << std::endl;
-          }
-        }
-      } else { // Noiseless simulation
-        qpu = xacc::getAccelerator("qb-mpdo", {
-            {"initial-bond-dim", initial_bond_dimension},
-            {"max-bond-dim", max_bond_dimension},
-            {"abs-truncation-threshold", svd_cutoff},
-            {"rel-truncation-threshold", rel_svd_cutoff},
-            {"measurement-sampling-sequential", measure_sample_sequential}});
-      }
+      qpu = xacc::getAccelerator(acc, qpu_options);
     }
+
     return qpu;
   }
 

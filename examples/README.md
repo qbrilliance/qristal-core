@@ -528,6 +528,14 @@ _noise_: true
 
 A C++ implementation of `noise_model_custom_channel.py`.
 
+`noise_model_custom_channel_qb_gateset`
+
+_qubits_: 2  
+_gate depth_: 6  
+_noise_: true  
+
+A C++ implementation of `noise_model_custom_channel_qb_gateset.py`.
+
 `parametrization`
 
 _qubits_: 1-2

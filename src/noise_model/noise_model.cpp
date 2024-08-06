@@ -106,20 +106,19 @@ namespace qristal
                     const double phase_damp_rate = 1.0 - std::exp(-gate_duration / t2);
 
                     // 1-qubit gate error
-                    auto thermal_relaxation = GeneralizedPhaseAmplitudeDampingChannel::Create(qubit, 0.0, amp_damp_rate, phase_damp_rate);
-                    add_gate_error(thermal_relaxation, gate_name, qubits);
+                    if (qubits.size() == 1) {
+                        auto thermal_relaxation = GeneralizedPhaseAmplitudeDampingChannel::Create(qubit, 0.0, amp_damp_rate, phase_damp_rate);
+                        add_gate_error(thermal_relaxation, gate_name, qubits);
 
-                    // Adds depolarizing noise if needed.
-                    const double equiv_pauli_rate = decoherence_pauli_error(t1, t2, gate_duration);
-                    if (rb_pauli_rate > equiv_pauli_rate)
-                    {
-                        const double p_depol = rb_pauli_rate - equiv_pauli_rate;
-                        add_gate_error(DepolarizingChannel::Create(qubit, p_depol), gate_name, {qubit});
-                    }
-
-                    // 2-qubit gate error
-                    if (qubits.size() == 2)
-                    {
+                        // Adds depolarizing noise if needed.
+                        const double equiv_pauli_rate = decoherence_pauli_error(t1, t2, gate_duration);
+                        if (rb_pauli_rate > equiv_pauli_rate)
+                        {
+                            const double p_depol = rb_pauli_rate - equiv_pauli_rate;
+                            add_gate_error(DepolarizingChannel::Create(qubit, p_depol), gate_name, {qubit});
+                        }
+                    } else { // 2-qubit gate error
+                        assert(qubits.size() == 2);
                         const double gate_error = rb_pauli_rate;
                         auto thermal_relaxation_q1 = GeneralizedPhaseAmplitudeDampingChannel::Create(qubits[0], 0.0, amp_damp_rate, phase_damp_rate);
                         auto thermal_relaxation_q2 = GeneralizedPhaseAmplitudeDampingChannel::Create(qubits[1], 0.0, amp_damp_rate, phase_damp_rate);

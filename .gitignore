@@ -56,4 +56,4 @@ build/
 deps/
 
 #Generated sources
-include/qb/core/cmake_variables.hpp
+include/qristal/core/cmake_variables.hpp

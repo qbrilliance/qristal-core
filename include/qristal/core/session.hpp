@@ -1220,7 +1220,7 @@ namespace qristal
       convertRawOpenQasmToQBKernel(const std::string &in_rawQasm);
 
       /// Get the simulator based on `run_i_j_config`
-      std::shared_ptr<xacc::Accelerator> get_sim_qpu(bool execute_on_hardware, const run_i_j_config& run_config);
+      std::shared_ptr<xacc::Accelerator> get_sim_qpu(bool execute_on_hardware, run_i_j_config& run_config);
 
       /// Calculate the gradients for the parametrized quantum task at the
       /// (ii, jj) index in the experiment table.

@@ -16,7 +16,7 @@ int main(int argc, char * argv[])
 
   // Qubit topology
   std::vector<std::pair<int, int>> qubit_topology_list = {};
-  for (size_t i = 0; i < nb_qubits; i++) {
+  for (size_t i = 0; i < nb_qubits - 1; i++) {
     qubit_topology_list.emplace_back(std::make_pair(i, i + 1));
   }
 

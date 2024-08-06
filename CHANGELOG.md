@@ -19,6 +19,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations.
 - Added a custom pyGSTi model pack to the pyGSTi python examples for gate set tomography protocols using the QDK's native gate set: Rx(pi/2), Ry(pi/2), and CZ.
 - Adjusted the pyGSTi_runner.cpp and execute_GST_XYCZ.py examples to use the new custom model pack.
+- Add ability to send custom noise models to emulator backends.
 
 ### Fixed
 

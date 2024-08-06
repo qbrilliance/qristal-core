@@ -3,6 +3,7 @@
 #include "qristal/core/python/py_noise_model.hpp"
 #include "qristal/core/python/py_stl_containers.hpp"
 #include "qristal/core/noise_model/noise_model.hpp"
+#include <pybind11/stl_bind.h>
 
 namespace qristal {
 void bind_noise_model(pybind11::module &m) {
@@ -269,6 +270,8 @@ void bind_noise_model(pybind11::module &m) {
       .def_readwrite(
           "p_10", &qristal::ReadoutError::p_10,
           R"(Classical probability of detecting 1 whereas the true state was :math:`|0\rangle`)");
+
+  pybind11::bind_map<std::unordered_map<size_t, ReadoutError>>(m, "MapSize_tReadoutError");
 
   py::class_<qristal::NoiseModel> nm(
       m, "NoiseModel",

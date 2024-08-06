@@ -1,0 +1,23 @@
+# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to create your own noise
+# models using QB's gateset in C++.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(noise_model_custom_channel_qb_gateset
+  DESCRIPTION "Quantum Brilliance noise_model_custom_channel_qb_gateset example"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+add_executable(noise_model_custom_channel_qb_gateset noise_model_custom_channel_qb_gateset.cpp)
+
+target_link_libraries(noise_model_custom_channel_qb_gateset
+  PRIVATE
+    qristal::core
+)
