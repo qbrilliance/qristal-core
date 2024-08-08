@@ -52,8 +52,8 @@ def main(arguments):
     # on the first bit of the model with some very large values (for the sake of example).
     if "--noisier" in arguments:
       ro_error = qristal.core.ReadoutError()
-      ro_error.p_01 = 0.20
-      ro_error.p_10 = 0.30
+      ro_error.p_01 = 0.5
+      ro_error.p_10 = 0.5
       nm.set_qubit_readout_error(0, ro_error)
 
     # Hand over the noise model to the session.  Note that if this call

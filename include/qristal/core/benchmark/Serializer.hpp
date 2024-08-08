@@ -131,7 +131,7 @@ namespace qristal
                     for ( const auto& vecnm : session.get_noise_models() ) {
                         std::vector<std::string> temp;
                         for (const auto& nm : vecnm) {
-                            temp.push_back(nm.to_json());
+                            temp.push_back(nm->to_json());
                         }
                         noise_models_.push_back(temp);
                     }

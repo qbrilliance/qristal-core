@@ -55,7 +55,9 @@ namespace qristal
     /// Runtime parameters for parametrized circuit
     std::vector<double> param_values;
     /// Noise model
-    NoiseModel noise_model;
+    NoiseModel* noise_model;
+    /// Noise model owned by this config
+    std::shared_ptr<NoiseModel> noise_model_owned;
     /// Noise mitigation strategy (empty if none)
     std::string noise_mitigation;
     /// Random seed value for the simulator (if set)

@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Quantum Brilliance Pty Ltd
 /**
  * This example shows how to make your own noise model using QB's gateset
- */ 
+ */
 
 #include "qristal/core/session.hpp"
 #include "qristal/core/noise_model/noise_model.hpp"
@@ -58,7 +58,7 @@ qristal::NoiseModel ring_noise_model(size_t nb_qubits) {
 }
 
 
-int main(int argc, char * argv[]) 
+int main(int argc, char * argv[])
 {
   qristal::session my_sim;
 
@@ -77,8 +77,9 @@ int main(int argc, char * argv[])
   // Set this to true to include noise
   my_sim.set_noise(true);
 
-  // Hand over the noise model to the session.
-  my_sim.set_noise_model(ring_noise_model(n));
+  // Create the noise model and hand it over to the session.
+  qristal::NoiseModel my_noise_model = ring_noise_model(n);
+  my_sim.set_noise_model(my_noise_model);
 
   // Define the kernel
   my_sim.set_instring(R"(

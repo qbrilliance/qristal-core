@@ -163,7 +163,8 @@ namespace qristal
         // Clear all errors
         dlerror();
         // Attempt to get the function pointer from the shared library
-        auto get_emulator_noise_model = reinterpret_cast<NoiseModel*(*)(const char*)>(dlsym(handle, "get_emulator_noise_model"));
+        using func_type = std::shared_ptr<qristal::NoiseModel>(const std::string);
+        func_type* get_emulator_noise_model = reinterpret_cast<func_type*>(dlsym(handle, "get_emulator_noise_model"));
         // Check that nothing went wrong
         char* error_msg = dlerror();
         // Encountered an error:
@@ -172,15 +173,19 @@ namespace qristal
             throw std::runtime_error("Failed to load get_emulator_noise_model from " +
                                      std::string(EMULATOR_NOISE_MODEL_LIB_NAME)+ ".\n" + std::string(error_msg) + ".");
         }
-        // Get the noise model
-        NoiseModel* model = get_emulator_noise_model(name.c_str());
-        // Check that a valid result was returned.
-        if (model == nullptr)
+
+        // Get the noise model. Note the this casts the derived class to an instance of the base class, so any future usage of
+        // polymorphism in defining QB noise models in the emulator will require this strategy to be modified!
+        try
         {
-            throw std::runtime_error("The noise model " + name + " exists in neither the Qristal SDK nor the Qristal Emulator.");
+          std::shared_ptr<NoiseModel> model = get_emulator_noise_model(name);
+          model->name = name;
+          *this = *model;
         }
-        model->name = name;
-        *this = *model;
+        catch (std::exception& e)
+        {
+          throw std::runtime_error("The noise model " + name + " exists in neither the Qristal SDK nor the Qristal Emulator.");
+        }
     }
 
     std::string NoiseModel::get_qobj_compiler() const {

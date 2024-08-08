@@ -58,9 +58,9 @@ namespace qristal
 
     // Generic options
     m.insert("n_qubits", static_cast<size_t>(run_config.num_qubits));
-    m.insert("noise-model", run_config.noise_model.to_json());
-    m.insert("noise-model-name", run_config.noise_model.name);
-    m.insert("m_connectivity", run_config.noise_model.get_connectivity());
+    m.insert("noise-model", run_config.noise_model->to_json());
+    m.insert("noise-model-name", run_config.noise_model->name);
+    m.insert("m_connectivity", run_config.noise_model->get_connectivity());
     m.insert("shots", run_config.num_shots);
     m.insert("output_oqm_enabled", run_config.oqm_enabled);
 

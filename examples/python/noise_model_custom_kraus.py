@@ -123,8 +123,9 @@ def main(arguments):
   # Set this to true to include noise
   my_sim.noise = True
 
-  # Hand over the noise model to the session.
-  my_sim.noise_model = ring_noise_model(n)
+  # Create the noise model and hand it over to the session.
+  nm = ring_noise_model(n)
+  my_sim.noise_model = nm
 
   # Define the kernel
   my_sim.instring = '''

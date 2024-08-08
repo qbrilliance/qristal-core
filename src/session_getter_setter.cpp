@@ -338,14 +338,14 @@ void session::validate_measure_sample_options(const std::string &measure_sample_
 const Table2d<std::string> & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
 
 //
-void session::set_noise_model(const NoiseModel &noise_model) {
+void session::set_noise_model(NoiseModel &noise_model) {
   noise_models_.clear();
-  noise_models_.emplace_back(std::vector<NoiseModel>{noise_model});
+  noise_models_.emplace_back(std::vector<NoiseModel*>{&noise_model});
 }
-void session::set_noise_models(const std::vector<std::vector<NoiseModel>> &noise_models) {
+void session::set_noise_models(const std::vector<std::vector<NoiseModel*>> &noise_models) {
   noise_models_ = noise_models;
 }
-const std::vector<std::vector<NoiseModel>> &session::get_noise_models() const { return noise_models_; }
+const std::vector<std::vector<NoiseModel*>> &session::get_noise_models() const { return noise_models_; }
 //
 void session::set_expected_amplitudes(const std::map<
     std::vector<bool>, std::complex<double>> &amp) {

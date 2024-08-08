@@ -2,6 +2,7 @@
 
 // STL
 #include <algorithm>
+#include <vector>
 #include <memory>
 #include <regex>
 #include <random>
@@ -742,11 +743,12 @@ namespace qristal
     {
       if (noise_models_[0].empty())
       {
-        config.noise_model = NoiseModel("default", config.num_qubits);
+        config.noise_model_owned = std::make_shared<NoiseModel>("default", config.num_qubits);
+        config.noise_model = config.noise_model_owned.get();
       }
       else
       {
-        ValidatorTwoDim<NoiseModel> noise_models_valid(noise_models_);
+        ValidatorTwoDim<NoiseModel*> noise_models_valid(noise_models_);
         config.noise_model = noise_models_valid.get(ii, jj);
       }
     }
@@ -1079,31 +1081,13 @@ namespace qristal
     }
 #endif
 
-    // Load emulator if emulator backends are selected.
+    // Load emulator if an emulator backend is selected.
     if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo" || (acc == "qsim" && noises)) {
       // Load emulator library
       static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
       void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
       if (handle == NULL) {
         std::cout << "The accelerator you are searching for may be available in the Qristal Emulator plugin. Please see https://quantumbrilliance.com/quantum-brilliance-emulator." << std::endl;
-      }
-
-      if (noises) {
-        if (run_config.noise_model.name == "qb-nm1" || run_config.noise_model.name == "qb-nm2" ||
-            run_config.noise_model.name == "qb-nm3" || run_config.noise_model.name == "qb-qdk1" ||
-            run_config.noise_model.name == "qb-dqc2") { // Emulator noise models
-          // Load noise model from emulator
-          using func_type = qristal::NoiseModel *(const char *);
-          auto *get_emulator_noise_model =
-              reinterpret_cast<func_type *>(dlsym(handle, "get_emulator_noise_model"));
-
-          // run_config.noise_model.name is of type string but the emulator requires the noise
-          // model's name to be of type const char.
-          // Convert noise model name's type from string to char.
-          char* noise_model_name_as_char = new char[run_config.noise_model.name.length() + 1];
-          std::strcpy(noise_model_name_as_char, run_config.noise_model.name.c_str());
-          run_config.noise_model = *get_emulator_noise_model(noise_model_name_as_char);
-        }
       }
     }
 
@@ -1143,9 +1127,9 @@ namespace qristal
           std::cout << "# Using default AER simulation method." << std::endl;
       }
       if (run_config.noise) {
-        aer_options.insert("noise-model", run_config.noise_model.to_json());
+        aer_options.insert("noise-model", run_config.noise_model->to_json());
         aer_options.insert("qobj-compiler",
-                           run_config.noise_model.get_qobj_compiler());
+                           run_config.noise_model->get_qobj_compiler());
         if (debug_)
           std::cout << "# Noise model: enabled" << std::endl;
       } else {
@@ -1171,7 +1155,7 @@ namespace qristal
         qpu = xacc::getAccelerator(
             "qb-lambda", {{"device", "GPU"},
                           {"url", lambda_url},
-                          {"noise-model", run_config.noise_model.to_json()}});
+                          {"noise-model", run_config.noise_model->to_json()}});
         if (debug_) {
           std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
         }
@@ -1190,7 +1174,7 @@ namespace qristal
       if (debug_) {
         std::cout << "# Noise model for qsim (from emulator package): enabled" << std::endl;
       }
-      qpu = xacc::getAccelerator("cirq-qsim", {{"noise-model", &run_config.noise_model}});
+      qpu = xacc::getAccelerator("cirq-qsim", {{"noise-model", run_config.noise_model}});
     } else if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo") {
       xacc::HeterogeneousMap qpu_options {
         {"initial-bond-dim", initial_bond_dimension},
@@ -1207,7 +1191,7 @@ namespace qristal
         if (debug_) {
           std::cout << "# Noise model for " << acc << " (from emulator package): enabled" << std::endl;
         }
-        qpu_options.insert("noise-model", &run_config.noise_model);
+        qpu_options.insert("noise-model", run_config.noise_model);
       }
       qpu = xacc::getAccelerator(acc, qpu_options);
     }

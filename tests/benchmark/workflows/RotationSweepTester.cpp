@@ -106,7 +106,7 @@ TEST(RotationSweepTester, check_serialization) {
     auto session_info = dlg.obtain_session_infos()[0];
     EXPECT_EQ(session_info.accs_, sim.get_accs());
     EXPECT_EQ(session_info.noise_mitigations_, sim.get_noise_mitigations());
-    auto nms = sim.get_noise_models()[0][0].to_json();
+    auto nms = sim.get_noise_models()[0][0]->to_json();
     EXPECT_EQ(session_info.noise_models_, std::vector<std::vector<std::string>>{std::vector<std::string>{nms}});
     EXPECT_EQ(session_info.qns_, sim.get_qns());
     EXPECT_EQ(session_info.sns_, sim.get_sns());

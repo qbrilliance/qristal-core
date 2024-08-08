@@ -98,7 +98,7 @@ namespace qristal
       Table2d<std::string> measure_sample_sequentials_;
 
       // Noise models
-      std::vector<std::vector<NoiseModel>> noise_models_;
+      std::vector<std::vector<NoiseModel*>> noise_models_;
 
       // Variables not wrapped to Python
       Table2d<size_t> acc_uses_n_bits_;
@@ -924,19 +924,19 @@ namespace qristal
        *
        * @param model The noise model to use
        */
-      void set_noise_model(const NoiseModel& model);
+      void set_noise_model(NoiseModel& model);
       /**
        * @brief Set the noise models
        *
        * @param models The noise models to use
        */
-      void set_noise_models(const std::vector<std::vector<NoiseModel>>& noise_models);
+      void set_noise_models(const std::vector<std::vector<NoiseModel*>>& noise_models);
       /**
        * @brief Get the noise models
        *
        * @return The noise models to use
        */
-      const std::vector<std::vector<NoiseModel>>& get_noise_models() const;
+      const std::vector<std::vector<NoiseModel*>>& get_noise_models() const;
 
       /**
        * @brief Set the expected amplitudes for Jensen–Shannon divergence calculation

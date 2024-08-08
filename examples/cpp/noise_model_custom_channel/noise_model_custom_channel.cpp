@@ -70,8 +70,9 @@ int main(int argc, char * argv[])
     // Set this to true to include noise
     my_sim.set_noise(true);
 
-    // Hand over the noise model to the session.
-    my_sim.set_noise_model(ring_noise_model(n));
+    // Create the noise model and hand it over to the session.
+    qristal::NoiseModel my_noise_model = ring_noise_model(n);
+    my_sim.set_noise_model(my_noise_model);
 
     // Define the kernel
     my_sim.set_instring(R"(

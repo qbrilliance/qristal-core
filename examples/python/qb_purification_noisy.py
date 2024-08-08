@@ -24,7 +24,8 @@ s.measure_sample_sequential = "auto"
 # Uncomment the following lines to introduce noise to the simulation.
 # You will need to have the Qristal emulator installed for this to work.
 #s.noise = True
-#s.noise_model = qristal.core.NoiseModel("qb-nm1", n_qbits)
+#nm = qristal.core.NoiseModel("qb-nm1", n_qbits)
+#s.noise_model = nm
 
 # In this test we use cx to perform a standard
 # cx on |111>. Expected outcome: |011>
