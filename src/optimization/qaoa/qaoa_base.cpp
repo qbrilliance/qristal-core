@@ -81,16 +81,6 @@ namespace qristal::op {
   }
   const Table2d<size_t> & QaoaBase::get_qns() const { return QaoaBase::qns_; }
 
-  // rns (number of repetitions)
-  void QaoaBase::set_rn(const std::size_t &in_rn) {
-    QaoaBase::rns_.clear();
-    QaoaBase::rns_.push_back({in_rn});
-  }
-  void QaoaBase::set_rns(const Table2d<size_t> &in_rns) {
-    QaoaBase::rns_ = in_rns;
-  }
-  const Table2d<size_t> & QaoaBase::get_rns() const { return QaoaBase::rns_; }
-
   // sns (number of shots)
   void QaoaBase::set_sn(const std::size_t &in_sn) {
     QaoaBase::sns_.clear();
@@ -383,17 +373,6 @@ namespace qristal::op {
           qns:
 
           A 2d-array version of qn.
-
-  )";
-
-  const char* QaoaBase::help_rns_ = R"(
-          rn:
-
-          Number of repetitions [unused].
-
-          rns:
-
-          A 2d-array version of rn.
 
   )";
 

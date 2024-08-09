@@ -51,10 +51,6 @@ void bind_qaoa_simple(pybind11::module &opt_m) {
                     &qristal::op::QaoaSimple::set_qn, qristal::op::QaoaSimple::help_qns_)
       .def_property("qns", &qristal::op::QaoaSimple::get_qns,
                     &qristal::op::QaoaSimple::set_qns, qristal::op::QaoaSimple::help_qns_)
-      .def_property("rn", &qristal::op::QaoaSimple::get_rns,
-                    &qristal::op::QaoaSimple::set_rn, qristal::op::QaoaSimple::help_rns_)
-      .def_property("rns", &qristal::op::QaoaSimple::get_rns,
-                    &qristal::op::QaoaSimple::set_rns, qristal::op::QaoaSimple::help_rns_)
       .def_property("sn", &qristal::op::QaoaSimple::get_sns,
                     &qristal::op::QaoaSimple::set_sn, qristal::op::QaoaSimple::help_sns_)
       .def_property("sns", &qristal::op::QaoaSimple::get_sns,

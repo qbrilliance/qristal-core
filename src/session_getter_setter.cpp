@@ -218,15 +218,6 @@ const Table2d<bool> & session::get_output_oqm_enableds() const {
   return session::output_oqm_enableds_;
 }
 //
-void session::set_log_enabled(const bool &in_log_enabled) {
-  session::log_enableds_.clear();
-  session::log_enableds_.push_back({in_log_enabled});
-}
-void session::set_log_enableds(const Table2d<bool> &in_log_enabled) {
-  session::log_enableds_ = in_log_enabled;
-}
-const Table2d<bool> & session::get_log_enableds() const { return session::log_enableds_; }
-//
 void session::set_notiming(const bool &in_notiming) {
   session::notimings_.clear();
   session::notimings_.push_back({in_notiming});
@@ -241,13 +232,6 @@ void session::set_qn(const size_t &in_qn) {
 void session::set_qns(const Table2d<size_t> &in_qn) { session::qns_ = in_qn; }
 const Table2d<size_t> & session::get_qns() const { return session::qns_; }
 //
-void session::set_rn(const size_t &in_rn) {
-  session::rns_.clear();
-  session::rns_.push_back({in_rn});
-}
-void session::set_rns(const Table2d<size_t> &in_rn) { session::rns_ = in_rn; }
-const Table2d<size_t> & session::get_rns() const { return session::rns_; }
-//
 void session::set_sn(const size_t &in_sn) {
   session::sns_.clear();
   session::sns_.push_back({in_sn});
@@ -255,21 +239,6 @@ void session::set_sn(const size_t &in_sn) {
 void session::set_sns(const Table2d<size_t> &in_sn) { session::sns_ = in_sn; }
 const Table2d<size_t> & session::get_sns() const { return session::sns_; }
 //
-void session::set_beta(const std::map<int,double> &in_beta) {
-  session::betas_.clear();
-  session::betas_.push_back({in_beta});
-}
-void session::set_betas(const Table2d<std::map<int,double>> &in_beta) { session::betas_ = in_beta; }
-const Table2d<std::map<int,double>> & session::get_betas() const { return session::betas_; }
-//
-void session::set_theta(const std::map<int,double> &in_theta) {
-  session::thetas_.clear();
-  session::thetas_.push_back({in_theta});
-}
-void session::set_thetas(const Table2d<std::map<int,double>> &in_theta) { session::thetas_ = in_theta; }
-const Table2d<std::map<int,double>> & session::get_thetas() const { return session::thetas_; }
-//
-
 void session::set_initial_bond_dimension(const size_t &in_initial_bond_dimension) {
   session::initial_bond_dimensions_.clear();
   session::initial_bond_dimensions_.push_back({in_initial_bond_dimension});
@@ -463,18 +432,6 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* rn:" << std::endl <<
-  "    Number of experiments/repetitions" << std::endl <<
-  "  = ";
-  for (auto item : get_rns()) {
-      for (auto itel : item) {
-        out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
   out << "* qn:" << std::endl <<
   "    Number of qubits" << std::endl <<
   "  = ";
@@ -649,56 +606,6 @@ const std::string session::get_summary() const {
               out << " " << itel;
       }
       out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* log_enabled:" << std::endl <<
-  "    Enable log file output" << std::endl <<
-  "  = ";
-  for (auto item : get_log_enableds()) {
-      for (auto itel : item) {
-              out << " " << itel;
-      }
-      out << std::endl;
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* beta:" << std::endl <<
-  "    Parameters for quantum circuit" << std::endl <<
-  "  = ";
-  for (auto item : get_betas()) {
-      out << std::endl << " ";
-      for (auto itel : item) {
-          for (auto it : itel) {
-              out << " | " << it.first << ": " << it.second;
-          }
-          if (itel.size() > 0) {
-              out << " | ";
-          } else {
-              out << " NA ";
-          }
-      }
-  }
-  out << std::endl << std::endl;
-  //
-
-  out << "* theta:" << std::endl <<
-  "    Hyperparameters for algorithms" << std::endl <<
-  "  = ";
-  for (auto item : get_thetas()) {
-      out << std::endl << " ";
-      for (auto itel : item) {
-          for (auto it : itel) {
-              out << " | " << it.first << ": " << it.second;
-          }
-          if (itel.size() > 0) {
-              out << " | ";
-          } else {
-              out << " NA ";
-          }
-      }
   }
   out << std::endl << std::endl;
   //

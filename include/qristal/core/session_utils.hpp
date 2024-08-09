@@ -27,8 +27,6 @@ namespace qristal
     int num_shots;
     /// Number of qubits (qns_)
     int num_qubits;
-    /// Number of repetitions (rns_)
-    int num_repetitions;
     /// Enable post-execution transpilation and resource estimation
     bool oqm_enabled;
     /// Whether or not out_counts should be calculated

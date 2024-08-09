@@ -8,6 +8,7 @@
 #include <random>
 #include <sstream>
 #include <stdexcept>
+#include <random>
 
 // Boost
 #include <boost/dynamic_bitset.hpp>
@@ -115,9 +116,9 @@ namespace qristal
         aer_sim_types_{}, randoms_{{}},
         xasms_{{{false}}}, quil1s_{{{false}}}, noplacements_{{{false}}},
         nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
-        output_oqm_enableds_{{{false}}}, log_enableds_{{{false}}},
-        notimings_{{{false}}}, qns_{{}}, rns_{{}}, sns_{{}}, betas_{{}},
-        calc_out_counts_{{{false}}}, calc_jacobians_{{{false}}}, thetas_{{}}, parameter_vectors_{{{}}},
+        output_oqm_enableds_{{{false}}},
+        notimings_{{{false}}}, qns_{{}}, sns_{{}},
+        calc_out_counts_{{{false}}}, calc_jacobians_{{{false}}}, parameter_vectors_{{{}}},
         initial_bond_dimensions_{{}}, initial_kraus_dimensions_{{}}, max_bond_dimensions_{{}},
         max_kraus_dimensions_{{}}, svd_cutoffs_{{}}, rel_svd_cutoffs_{{}}, noise_models_{{}},
         acc_outputs_qbit0_left_{{{}}}, acc_uses_n_bits_{{{}}}, expected_amplitudes_{{}},
@@ -509,17 +510,6 @@ namespace qristal
         throw std::range_error("Number of qubits [qn] cannot be empty");
       }
       config.num_qubits = qns_valid.get(ii, jj);
-    }
-
-    /// Number of repetitions
-    {
-      ValidatorTwoDim<size_t> rns_valid(rns_, session::RNS_LOWERBOUND, session::RNS_UPPERBOUND,
-                                                 " number of repetitions [rn] ");
-      if (rns_valid.is_data_empty())
-      {
-        throw std::range_error("Number of repetitions [rn] cannot be empty");
-      }
-      config.num_repetitions = rns_valid.get(ii, jj);
     }
 
     /// Enable out_counts calculation
@@ -934,36 +924,6 @@ namespace qristal
         }
       }
 
-      // Replace QBTHETA_n with theta[n]
-      // Note: Does not apply to XASM and Quil1 formats
-      if (!xasm && !quil1 && (validate_thetas_option() >= 0)) {
-        std::map<int,double> lowerbound{{0, -1.0e9}}; // Currently this limit is ignored
-        std::map<int,double> upperbound{{0, 1.0e9}};  // Currently this limit is ignored
-
-        ValidatorTwoDim<std::map<int,double>> thetas_valid(
-            thetas_, lowerbound, upperbound,
-            " values for circuit parameters QBTHETA_n ");
-        Pretranspile tpre =
-            Pretranspile("Substituting QBTHETA_n with theta[n]");
-        std::map<int,double> theta = thetas_valid.get(ii, jj);
-        std::vector<double> qbtheta;
-        if (!theta.empty()) {
-          map_to_vec<std::map<int,double>, std::vector<double>>(theta, qbtheta);
-        }
-        for (size_t j = 0; j < qbtheta.size(); j++) {
-          std::stringstream starget;
-          std::stringstream sval;
-
-          starget << "QBTHETA_" << j;
-          sval << qbtheta.at(j);
-          if (debug_) {
-            std::cout << starget.str() << " = " << sval.str() << std::endl;
-          }
-          tpre.set_parameter(starget.str(), sval.str());
-        }
-        tpre.run(target_circuit);
-      }
-
       // Insert include file for QB: include_qb
       if (!xasm && !quil1) {
         std::string incqb = run_config.openqasm_qb_include_filepath;
@@ -1370,7 +1330,6 @@ namespace qristal
     }
     set_qn(12);
     set_sn(1024);
-    set_rn(1);
     set_noise(false);
     set_initial_bond_dimension(1);
     set_initial_kraus_dimension(1);
@@ -1387,7 +1346,6 @@ namespace qristal
 
   void session::aws_setup(uint wn) {
     if (debug_) std::cout << "Setting AWS Braket defaults." << std::endl;
-    set_rn(1);
     set_noise(false);
     set_initial_bond_dimension(1);
     set_initial_kraus_dimension(1);
@@ -1577,9 +1535,6 @@ namespace qristal
     int shots = run_config.num_shots;
     if (debug_)
       debug_msg << "# Shots: " << shots << std::endl;
-    size_t n_samples = run_config.num_repetitions;
-    if (debug_)
-      debug_msg << "# Repetitions: " << n_samples << std::endl;
     bool output_oqm_enableds = run_config.oqm_enabled;
     if (debug_) {
       if (output_oqm_enableds) {
@@ -1944,6 +1899,38 @@ namespace qristal
       for (uint i = 0; i < bitvec.size(); i++) if (bitvec[i]) result += 1<<i;
     }
     return result;
+  }
+
+  // Randomly draw (and remove) a single shot from the results map
+  std::vector<bool> session::draw_shot(const size_t i, const size_t j) {
+
+    // Save this as a private member variable after the i,j job array stuff has been removed
+    size_t shots_remaining = std::accumulate(results_.at(i).at(j).begin(), results_.at(i).at(j).end(), 0, [](auto sum, auto& e) { return sum+e.second; });
+    if (shots_remaining == 0) throw std::out_of_range("Unable to draw shot as no shots remain.");
+
+    // RNG
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+    std::uniform_int_distribution<> gen_shot_index(0, shots_remaining-1);
+
+    // Randomly generate an integer representing the index of the shot to draw
+    const size_t shot_index = gen_shot_index(rng);
+
+    // Iterate through the results map entries until the drawn shot has been reached
+    size_t sum = 0;
+    std::vector<bool> bitvec;
+    for (auto entry = results_.at(i).at(j).begin(); entry != results_.at(i).at(j).end(); ++entry) {
+      assert(entry->second > 0);
+      sum += entry->second;
+      // If the drawn shot has been reached, save the bitvector and break the loop
+      if (sum >= shot_index) {
+        bitvec = entry->first;
+        // If this was the last shot for this bitvector, remove it
+        if (--(entry->second) == 0) results_.at(i).at(j).erase(entry);
+        break;
+      }
+    }
+    return bitvec;
   }
 
 }

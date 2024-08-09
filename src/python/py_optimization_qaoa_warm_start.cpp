@@ -58,12 +58,6 @@ void bind_qaoa_warm_start(pybind11::module &opt_m) {
       .def_property("qns", &qristal::op::QaoaWarmStart::get_qns,
                     &qristal::op::QaoaWarmStart::set_qns,
                     qristal::op::QaoaWarmStart::help_qns_)
-      .def_property("rn", &qristal::op::QaoaWarmStart::get_rns,
-                    &qristal::op::QaoaWarmStart::set_rn,
-                    qristal::op::QaoaWarmStart::help_rns_)
-      .def_property("rns", &qristal::op::QaoaWarmStart::get_rns,
-                    &qristal::op::QaoaWarmStart::set_rns,
-                    qristal::op::QaoaWarmStart::help_rns_)
       .def_property("sn", &qristal::op::QaoaWarmStart::get_sns,
                     &qristal::op::QaoaWarmStart::set_sn,
                     qristal::op::QaoaWarmStart::help_sns_)

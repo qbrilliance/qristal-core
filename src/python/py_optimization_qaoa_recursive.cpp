@@ -52,12 +52,6 @@ void bind_qaoa_recursive(pybind11::module &opt_m) {
       .def_property("qns", &qristal::op::QaoaRecursive::get_qns,
                     &qristal::op::QaoaRecursive::set_qns,
                     qristal::op::QaoaRecursive::help_qns_)
-      .def_property("rn", &qristal::op::QaoaRecursive::get_rns,
-                    &qristal::op::QaoaRecursive::set_rn,
-                    qristal::op::QaoaRecursive::help_rns_)
-      .def_property("rns", &qristal::op::QaoaRecursive::get_rns,
-                    &qristal::op::QaoaRecursive::set_rns,
-                    qristal::op::QaoaRecursive::help_rns_)
       .def_property("sn", &qristal::op::QaoaRecursive::get_sns,
                     &qristal::op::QaoaRecursive::set_sn,
                     qristal::op::QaoaRecursive::help_sns_)

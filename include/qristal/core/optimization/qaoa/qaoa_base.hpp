@@ -27,7 +27,6 @@ class QaoaBase {
     Table2d<size_t> qaoa_steps_;
     Table2d<bool> extended_params_;
 
-    Table2d<size_t> rns_;
     Table2d<std::string> rownames_;
     Table2d<std::string> colnames_;
 
@@ -104,8 +103,6 @@ class QaoaBase {
     const size_t SNS_UPPERBOUND = 1000000;
     const size_t QNS_LOWERBOUND = 1;
     const size_t QNS_UPPERBOUND = 10000;
-    const size_t RNS_LOWERBOUND = 1;
-    const size_t RNS_UPPERBOUND = 1000000;
     const size_t QAOA_STEPS_LOWERBOUND = 1;
     const size_t QAOA_STEPS_UPPERBOUND = 10000;
     const size_t MAXEVALS_LOWERBOUND = 1;
@@ -128,7 +125,6 @@ class QaoaBase {
       optimum_energy_lowerbounds_{{}},
       accs_{{"qpp"}},
       qns_{{1}},
-      rns_{{1}},
       sns_{{256}},
       noises_{{false}},
       acc_outputs_qbit0_left_{{{}}},
@@ -183,11 +179,6 @@ class QaoaBase {
     void set_qns(const Table2d<size_t> &in_qns);
     const Table2d<size_t> &get_qns() const;
     static const char *help_qns_;
-    //
-    void set_rn(const size_t &in_rn);
-    void set_rns(const Table2d<size_t> &in_rns);
-    const Table2d<size_t> &get_rns() const;
-    static const char *help_rns_;
     //
     void set_sn(const size_t &in_sn);
     void set_sns(const Table2d<size_t> &in_sns);

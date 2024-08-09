@@ -179,32 +179,14 @@ void bind_session(pybind11::module &m) {
                     &qristal::session::get_output_oqm_enableds,
                     &qristal::session::set_output_oqm_enableds,
                     qristal::help::output_oqm_enableds_)
-      .def_property("log_enabled", &qristal::session::get_log_enableds,
-                    &qristal::session::set_log_enabled,
-                    qristal::help::log_enableds_)
-      .def_property("log_enableds", &qristal::session::get_log_enableds,
-                    &qristal::session::set_log_enableds,
-                    qristal::help::log_enableds_)
       .def_property("qn", &qristal::session::get_qns, &qristal::session::set_qn,
                     qristal::help::qns_)
       .def_property("qns", &qristal::session::get_qns, &qristal::session::set_qns,
                     qristal::help::qns_)
-      .def_property("rn", &qristal::session::get_rns, &qristal::session::set_rn,
-                    qristal::help::rns_)
-      .def_property("rns", &qristal::session::get_rns, &qristal::session::set_rns,
-                    qristal::help::rns_)
       .def_property("sn", &qristal::session::get_sns, &qristal::session::set_sn,
                     qristal::help::sns_)
       .def_property("sns", &qristal::session::get_sns, &qristal::session::set_sns,
                     qristal::help::sns_)
-      .def_property("beta", &qristal::session::get_betas, &qristal::session::set_beta,
-                    qristal::help::betas_)
-      .def_property("betas", &qristal::session::get_betas, &qristal::session::set_betas,
-                    qristal::help::betas_)
-      .def_property("theta", &qristal::session::get_thetas, &qristal::session::set_theta,
-                    qristal::help::thetas_)
-      .def_property("thetas", &qristal::session::get_thetas,
-                    &qristal::session::set_thetas, qristal::help::thetas_)
       .def_property("parameter_list", &qristal::session::get_parameter_vectors,
                     &qristal::session::set_parameter_vector,
                     qristal::help::parameter_vectors_)
@@ -364,6 +346,8 @@ void bind_session(pybind11::module &m) {
              return s.bitstring_index(py_array_to_std_vec(key));
            },
            qristal::help::bitstring_index_)
+      .def("draw_shot", py::overload_cast<const size_t, const size_t>(&qristal::session::draw_shot),
+           "draw_shot(i,j) : Draw a single shot from the saved results of circuit i, condition j.")
       .def("divergence", py::overload_cast<>(&qristal::session::get_jensen_shannon),
            "Calculate Jensen-Shannon divergence")
       .def("init", py::overload_cast<>(&qristal::session::init),

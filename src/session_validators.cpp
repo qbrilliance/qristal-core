@@ -268,64 +268,6 @@ int session::validate_qns_nonempty() {
   return returnval;
 }
 
-int session::validate_rns_nonempty() {
-  const int VALID_ALL = 0;
-  // const int VALID_PARTIAL = 1;
-  const int INVALID = -1;
-
-  bool is_rns_empty = true;
-
-  int returnval = VALID_ALL;
-  if (debug_) {
-    std::cout << "[debug]:"
-              << "Checking for valid settings for the number of repetitions..."
-              << std::endl;
-  }
-
-  if (!rns_.empty()) {
-    is_rns_empty =
-        std::all_of(rns_.cbegin(), rns_.cend(),
-                    [](std::vector<size_t> rn) { return rn.empty(); });
-    if (debug_ && is_rns_empty) {
-      std::cout << "[debug]:"
-                << "rns_ is empty" << std::endl;
-    }
-  }
-  if (is_rns_empty) {
-    throw std::invalid_argument(
-        "session: number of repetitions [rn] must have a value");
-    returnval = INVALID;
-  }
-  return returnval;
-}
-
-int session::validate_thetas_option() {
-  const int VALID_ALL = 0;
-  const int NOT_SET = -1;
-  // const int INVALID = -2;
-
-  bool is_thetas_empty = true;
-
-  int returnval = VALID_ALL;
-  if (debug_) {
-    std::cout << "[debug]:"
-              << "Checking if the optional thetas_ is set..." << std::endl;
-  }
-
-  if (!thetas_.empty()) {
-    is_thetas_empty = std::all_of(thetas_.cbegin(), thetas_.cend(),
-                                  [](std::vector<std::map<int,double>> theta) { return theta.empty(); });
-    if (debug_ && is_thetas_empty) {
-      std::cout << "[debug]:"
-                << "thetas_ is empty" << std::endl;
-    }
-  }
-  if (is_thetas_empty) {
-    returnval = NOT_SET;
-  }
-  return returnval;
-}
-
 int session::is_ii_consistent() {
   const int INVALID = -1;
   // const int SINGLETON = 1;
@@ -362,14 +304,6 @@ int session::is_ii_consistent() {
   }
   if ((N_ii = singleton_or_eqlength(noises_, N_ii)) == INVALID) {
     std::cout << "[noise] shape is invalid" << std::endl;
-    return INVALID;
-  }
-  if ((N_ii = singleton_or_eqlength(thetas_, N_ii)) == INVALID) {
-    std::cout << "[theta] shape is invalid" << std::endl;
-    return INVALID;
-  }
-  if ((N_ii = singleton_or_eqlength(betas_, N_ii)) == INVALID) {
-    std::cout << "[beta] shape is invalid" << std::endl;
     return INVALID;
   }
 
@@ -446,25 +380,12 @@ int session::is_jj_consistent() {
       return INVALID;
     }
   }
-  for (auto el : thetas_) {
-    if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-      std::cout << "[theta] shape is invalid" << std::endl;
-      return INVALID;
-    }
-  }
-  for (auto el : betas_) {
-    if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
-      std::cout << "[beta] shape is invalid" << std::endl;
-      return INVALID;
-    }
-  }
   for (auto el : noise_models_) {
     if ((N_jj = singleton_or_eqlength(el, N_jj)) == INVALID) {
       std::cout << "[noise_model] shape is invalid" << std::endl;
       return INVALID;
     }
   }
-  // add more shape checks here
 
   return N_jj;
 }

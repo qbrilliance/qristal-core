@@ -268,22 +268,6 @@ namespace qristal {
 
         A 1d-array (list) version of output_oqm_enabled.
     )";
-    const char* log_enableds_ = R"(
-        .. warning::
-                This property is currently unused.
-
-        log_enabled:
-
-        Setting this to True to enable logging to file. The single setting applies globally.
-
-        Valid settings: True | False
-
-        log_enableds:
-
-        Valid settings: [[True|False, ...], [True|False, ...]]
-
-        A 1d-array (list) version of log_enabled.
-    )";
 
     const char* qns_ = R"(
         qn:
@@ -293,16 +277,6 @@ namespace qristal {
         qns:
 
         A 1d-array (list) version of qn.
-    )";
-
-    const char* rns_ = R"(
-        rn:
-
-        Number of repetitions. The single setting applies globally.
-
-        rns:
-
-        A 1d-array (list) version of rn.
     )";
 
     const char* sns_ = R"(
@@ -323,21 +297,6 @@ namespace qristal {
         randoms:
 
         A 1d-array (list) version of random.
-    )";
-
-    const char* betas_ = R"(
-        .. warning::
-                This property is currently unused.
-    )";
-
-    const char* thetas_ = R"(
-        theta:
-
-        Angle variables (theta) to invoke the input parameterized quantum circuit with. The single setting applies globally.
-
-        thetas:
-
-        A 1d-array (list) version of theta.
     )";
 
     const char* parameter_vectors_ = R"(

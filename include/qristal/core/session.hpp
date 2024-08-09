@@ -73,18 +73,13 @@ namespace qristal
       Table2d<bool> nosims_;
       Table2d<bool> noises_;
       Table2d<bool> output_oqm_enableds_;
-      Table2d<bool> log_enableds_;
       Table2d<bool> notimings_;
       Table2d<bool> calc_out_counts_;
       Table2d<bool> calc_jacobians_;
 
       Table2d<size_t> qns_;
-      Table2d<size_t> rns_;
       Table2d<size_t> sns_;
       Table2d<size_t> seeds_;
-
-      Table2d<std::map<int,double>> betas_;
-      Table2d<std::map<int,double>> thetas_;
 
       Table2d<std::vector<double>> parameter_vectors_;
 
@@ -144,8 +139,6 @@ namespace qristal
       const size_t SNS_UPPERBOUND = 1000000;
       const size_t QNS_LOWERBOUND = 1;
       const size_t QNS_UPPERBOUND = 10000;
-      const size_t RNS_LOWERBOUND = 1;
-      const size_t RNS_UPPERBOUND = 1000000;
       const size_t MAX_BOND_DIMENSION_LOWERBOUND = 1;
       const size_t MAX_BOND_DIMENSION_UPPERBOUND = 50000;
       const size_t INITIAL_BOND_DIMENSION_LOWERBOUND = 1;
@@ -660,14 +653,6 @@ namespace qristal
        */
       const Table2d<bool> &get_output_oqm_enableds() const;
 
-      /// @private
-      // This function is not being used.
-      void set_log_enabled(const bool &in_log_enabled);
-      /// @private
-      void set_log_enableds(const Table2d<bool> &in_log_enabled);
-      /// @private
-      const Table2d<bool> &get_log_enableds() const;
-
       /**
        * @brief Set the notiming configuration flag
        *
@@ -707,25 +692,6 @@ namespace qristal
       const Table2d<size_t> &get_qns() const;
 
       /**
-       * @brief Set the number of repetitions
-       *
-       * @param in_rn Number of repetitions
-       */
-      void set_rn(const size_t &in_rn);
-      /**
-       * @brief Set the numbers of repetitions
-       *
-       * @param in_rn Numbers of repetitions
-       */
-      void set_rns(const Table2d<size_t> &in_rn);
-      /**
-       * @brief Get the numbers of repetitions
-       *
-       * @return Numbers of repetitions
-       */
-      const Table2d<size_t> &get_rns() const;
-
-      /**
        * @brief Set the number of measurement shots
        *
        * @param in_sn Number of shots
@@ -743,35 +709,6 @@ namespace qristal
        * @return Number of shots
        */
       const Table2d<size_t> &get_sns() const;
-
-      /// @private
-      // unused
-      void set_beta(const std::map<int,double> &in_beta);
-      /// @private
-      // unused
-      void set_betas(const Table2d<std::map<int,double>> &in_beta);
-      /// @private
-      // unused
-      const Table2d<std::map<int,double>> &get_betas() const;
-
-      /**
-       * @brief Set the angle variables (theta)
-       *
-       * @param in_theta Theta values
-       */
-      void set_theta(const std::map<int,double> &in_theta);
-      /**
-       * @brief Set the angle variables (theta)
-       *
-       * @param in_theta Theta values
-       */
-      void set_thetas(const Table2d<std::map<int,double>> &in_theta);
-      /**
-       * @brief Get  the angle variables (theta)
-       *
-       * @return Theta values
-       */
-      const Table2d<std::map<int,double>> &get_thetas() const;
 
       /**
        * @brief Set the initial bond dimension (MPS simulator)
@@ -1155,9 +1092,11 @@ namespace qristal
 
       /// Get the QPU pool executor.
       Executor& get_executor();
-      /// Shortcuts for setting defaults
+
+      /// Shortcut for setting defaults
       /// 12 qubits, 1024 shots, noiseless
       void init();
+
       /**
        * @brief AWS defaults
        *
@@ -1174,11 +1113,12 @@ namespace qristal
        */
       inline size_t bitstring_index(const std::vector<bool>& bitvec);
 
+      /// Randomly draw (and remove) a single shot from the results map
+      std::vector<bool> draw_shot(const size_t i, const size_t j);
+
     private:
       int validate_sns_nonempty();
       int validate_qns_nonempty();
-      int validate_rns_nonempty();
-      int validate_thetas_option();
       int validate_instrings();
       void validate_acc(const std::string &acc);
       void validate_noise_mitigation(const std::string &noise_mitigate);
