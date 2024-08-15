@@ -82,6 +82,7 @@ workflow:
     - core_artefacts/build/TketTests
     - core_artefacts/build/BraketTests
     - core_artefacts/build/HardwareTests
+    - core_artefacts/build/ProfilingCITests
   cudaq:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
@@ -127,6 +128,7 @@ workflow:
     - core_artefacts/build/TketTests
     - core_artefacts/build/BraketTests
     - core_artefacts/build/HardwareTests
+    - core_artefacts/build/ProfilingCITests
     - core_artefacts/build/_deps
     - core_artefacts/deps
   rhel:
@@ -238,6 +240,7 @@ ci-build-install-missing:
       -DINSTALL_MISSING=ON
       -DWITH_TKET=ON
       -DENABLE_MPI=$USE_MPI
+      -DWITH_PROFILING=ON
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
@@ -265,6 +268,27 @@ ci-cpp-tests:
     reports:
       junit: core_gtests.xml
       junit: tket_gtests.xml
+
+ci-cpp-profiling-tests:
+  stage: test
+  needs: ["ci-build-install-missing"]
+  tags:
+    - lambda
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - mv core_artefacts/build .
+    - mv core_artefacts/deps .
+    - chmod 700 relocate.sh
+    - ./relocate.sh
+    - cmake --install build
+    - ls -l build/.
+    - find -name "ProfilingCITests"
+    - ./build/ProfilingCITests --test --gtest_output='xml:core_profiling_gtests.xml'
+  artifacts:
+    when: always
+    reports:
+      junit: core_profiling_gtests.xml
 
 ci-py-tests:
   stage: test

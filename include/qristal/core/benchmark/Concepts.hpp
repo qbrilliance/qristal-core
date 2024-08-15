@@ -13,16 +13,11 @@ namespace qristal
         /**
         * @brief Concept for the bare minimum executable workflow usable in qristal::benchmark
         *
-        * @details Each metric usable in qristal::benchmark will require an executable workflow. The latter should contain member functions to
-        * -> get and set the qristal::session,
-        * -> build all required quantum circuits as std::vector<qristal::CircuitBuilder>, and
-        * -> execute a set of Task's given as std::vector<Task>
+        * @details Each metric usable in qb::benchmark will require an executable workflow. The latter should contain member functions to
+        * -> execute a set of Task's given as std::vector<Task>  
         */
         template <typename WORKFLOW>
         concept ExecutableWorkflow = requires( WORKFLOW w, std::vector<Task> tasks ) {
-            {w.get_session()} -> std::same_as<const qristal::session&>;
-            {w.set_session()} -> std::same_as<qristal::session&>;
-            {w.get_circuits()} -> std::same_as<std::vector<qristal::CircuitBuilder>>;
             {w.execute(tasks)} -> std::same_as<std::time_t>;
         };
 

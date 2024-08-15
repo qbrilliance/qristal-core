@@ -88,6 +88,11 @@ set(headers
   include/qristal/core/tools/zip_tool.hpp
 )
 
+if (WITH_PROFILING)
+  # Add code that requires profiling library dependencies 
+  list(APPEND headers include/qristal/core/benchmark/workflows/RuntimeAnalyzer.hpp)
+endif()
+
 add_library(${PROJECT_NAME} SHARED ${source_files} ${headers})
 add_library(${NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -128,6 +133,13 @@ target_link_libraries(${PROJECT_NAME}
     GTest::gtest
     GTest::gtest_main
  )
+
+if (WITH_PROFILING)
+ target_link_libraries(${PROJECT_NAME}
+   PUBLIC
+     cppuprofile::cppuprofile
+ )
+endif()
 
 # Enable CUDAQ if available
 if (WITH_CUDAQ)
@@ -243,6 +255,10 @@ endif()
 file(APPEND ${outfile} "\nfind_dependency(GTest ${GTest_VERSION})")
 if (WITH_CUDAQ)
   file(APPEND ${outfile} "\nadd_compile_definitions(WITH_CUDAQ)")
+endif()
+if (WITH_PROFILING)
+  file(APPEND ${outfile} "\nset(cppuprofile_DIR ${cppuprofile_DIR})\
+                          \nfind_dependency(cppuprofile)")
 endif()
 
 # Install both files

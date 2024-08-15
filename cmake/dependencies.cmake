@@ -496,3 +496,50 @@ if (NVQPP_EXECUTABLE)
   message(STATUS "* CUDAQ include directory: ${CUDAQ_INCLUDE_DIR}.")
   message(STATUS "* CUDAQ lib directory: ${CUDAQ_LIB_DIR}.")
 endif ()
+
+# cppuprofile
+if (WITH_PROFILING)
+  set(cppuprofile_VERSION "1.1.1")
+
+  #look for nvidia-smi binary (necessary to conduct Nvidia GPU profiling)
+  find_program(_nvidia_smi "nvidia-smi") 
+  if (_nvidia_smi)
+    set(GPU_MONITOR_NVIDIA ON CACHE BOOL "Enable NVIDIA GPU monitoring")
+    add_definitions(-DGPU_MONITOR_NVIDIA) #expose as C++ macro
+  endif()
+
+  add_dependency(cppuprofile ${cppuprofile_VERSION}
+    GITHUB_REPOSITORY herrnils/cppuprofile
+    GIT_TAG master
+    #GITHUB_REPOSITORY Orange-OpenSource/cppuprofile #Change back after pull request was merged
+    #GIT_TAG ${cppuprofile_VERSION}
+    OPTIONS
+      "BUILD_SHARED_LIBS OFF"
+  )
+
+  if(cppuprofile_ADDED) #check if CPM successfully added cppuprofile
+    set(cppuprofile_DIR ${CMAKE_INSTALL_PREFIX}/cmake/cppuprofile)
+    #In cppuprofile's cmake configuration, the source directory is set as the interface include
+    #directory. To get rid of this, purge the latter and add new build and install interfaces manually
+    set_target_properties(cppuprofile PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
+    target_include_directories(cppuprofile
+      PUBLIC
+        $<BUILD_INTERFACE:${cppuprofile_SOURCE_DIR}/lib>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include/cppuprofile>
+    )
+    #Make a duplicate path within the cppuprofile source directory so that package-qualified include paths work at build time
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ../lib ${cppuprofile_SOURCE_DIR}/lib/cppuprofile)
+
+    add_library(cppuprofile::cppuprofile ALIAS cppuprofile)
+    #cppuprofile also does not export targets, therefore add custom targets
+    install(TARGETS cppuprofile EXPORT cppuprofile-targets)
+    install(EXPORT cppuprofile-targets
+      FILE cppuprofile-config.cmake
+      NAMESPACE cppuprofile::
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cppuprofile)
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/include/cppuprofile/nvidiamonitor.h)")
+    install(FILES ${cppuprofile_SOURCE_DIR}/lib/monitors/nvidiamonitor.h
+      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/cppuprofile/monitors)
+  endif()
+endif()

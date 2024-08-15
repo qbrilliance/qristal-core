@@ -21,6 +21,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added functions to convert quantum process matrices in their Choi representation to and from their superoperator representation. Also added convenient function delegations involving standard process matrices (chi), and Kraus representations.
 - Added a custom pyGSTi model pack to the pyGSTi python examples for gate set tomography protocols using the QDK's native gate set: Rx(pi/2), Ry(pi/2), and CZ.
 - Adjusted the pyGSTi_runner.cpp and execute_GST_XYCZ.py examples to use the new custom model pack.
+- Added conditional dependency to `cppuprofile` via `cmake` flag `-DWITH_PROFILING=ON`.
+- Added workflow wrapper `RuntimeAnalyzer` to `qb::benchmark` to profile runtime resources (CPU, RAM, GPU) in a user-specified interval. Please note that GPU profiling is only working for Nvidia GPUs and is delegated to `nvidia-smi` calls. It will be automatically enabled if `nvidia-smi` was found in the system.
 - Add ability to send custom noise models to emulator backends.
 
 ### Fixed

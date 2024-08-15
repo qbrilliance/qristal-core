@@ -1,0 +1,26 @@
+# Copyright (c) 2024 Quantum Brilliance Pty Ltd
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(runtime_profiling
+  DESCRIPTION "Quantum Brilliance RuntimeAnalyzer example for Circuit Fidelity evaluation of RotationSweep workflow"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+find_program(_nvidia_smi "nvidia-smi") 
+if (_nvidia_smi)
+  set(GPU_MONITOR_NVIDIA ON CACHE BOOL "Enable NVIDIA GPU monitoring")
+  add_definitions(-DGPU_MONITOR_NVIDIA) #expose as C++ macro
+endif()
+
+add_executable(runtime_profiling runtime_profiling.cpp)
+
+target_link_libraries(runtime_profiling
+  PUBLIC
+    qristal::core
+)

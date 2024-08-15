@@ -668,3 +668,12 @@ Determination of the ground state of a chain of four hydrogen atoms, using VQE w
 
 Determination of the deuteron's ground state energy using VQE with the L-BFGS optimiser.
 
+## C++ with -DWITH_PROFILING=ON ##
+
+`runtime_profiling`
+
+_qubits_: 5  
+_gate depth_: 1  
+_noise_: false/true  
+
+Example `RotationSweep` workflow wrapped into `RuntimeAnalyzer` to profile CPU, RAM, and GPU resources in intervals of 20 ms. 

@@ -45,6 +45,12 @@ else()
   set(INSTALL_MISSING_PYTHON ${INSTALL_MISSING})
 endif()
 
+#Add option to compile with profiling library / source files 
+option(WITH_PROFILING OFF)
+if(WITH_PROFILING)
+  message(STATUS "Including profiling library and source files in the local build.")
+endif()
+
 # Project output target namespace
 set(NAMESPACE qristal)
 

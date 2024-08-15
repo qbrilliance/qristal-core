@@ -155,3 +155,11 @@ if (WITH_CUDAQ)
   # Add the test
   add_test(NAME cudaq_ci_test COMMAND CudaqCITests)
 endif()
+
+if (WITH_PROFILING)
+  add_executable(ProfilingCITests tests/benchmark/workflows/RuntimeAnalyzerTester.cpp)
+  set_property(TARGET ProfilingCITests PROPERTY CXX_STANDARD 20)
+  target_link_options(ProfilingCITests PRIVATE -Wl,--no-as-needed)
+  target_link_libraries(ProfilingCITests PUBLIC qristal::core)
+  add_test(NAME profiling_ci_test COMMAND ProfilingCITests)
+endif()

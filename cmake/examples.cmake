@@ -70,6 +70,10 @@ if(WITH_EXAMPLES)
     add_example(noise_aware_placement_aws SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/noise_aware_placement_aws.cpp EXTRAS ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_aware_placement_aws/aws_rigetti.yaml)
   endif()
 
+  if (WITH_PROFILING)
+    add_example(runtime_profiling SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/runtime_profiling/runtime_profiling.cpp)
+  endif()
+  
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples
