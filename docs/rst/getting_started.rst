@@ -12,7 +12,7 @@ Quickstart
 Installation
 ------------
 
-Qristal can either be run `directly from the provided Docker image <https://github.com/qbrilliance/qristal#docker>`_, or `installed from source <https://github.com/qbrilliance/qristal>`_.  This section provides instructions for working with the source. If using Windows Subsystem for Linux 2, ensure you have Docker Desktop installed **on Windows** and not under your Linux distribution, as it allows Docker to use `WSL2 as a backend <https://docs.docker.com/desktop/windows/wsl/>`_. 
+Qristal can either be run `directly from the provided Docker image <https://github.com/qbrilliance/qristal#docker>`_, or `installed from source <https://github.com/qbrilliance/qristal>`_.  This section provides instructions for working with the source. If using Windows Subsystem for Linux 2, ensure you have Docker Desktop installed **on Windows** and not under your Linux distribution, as it allows Docker to use `WSL2 as a backend <https://docs.docker.com/desktop/windows/wsl/>`_.
 
 Dependencies
 ^^^^^^^^^^^^
@@ -66,7 +66,7 @@ Installing from source
     cmake .. -DINSTALL_MISSING=ON
     make install
 
--The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.  
+-The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
 
 The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
 
@@ -100,7 +100,7 @@ Please follow the error message to install the correct version (specified as a g
 
 Similarly, if building with noise-aware placement routines enabled using ``-DWITH_TKET=ON``, you can pass ``-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>`` to ``cmake`` to tell it to use your own installation of TKET rather than building TKET from source.
 
-Contributing 
+Contributing
 ------------
 
 
@@ -177,8 +177,3 @@ to the QB GitHub repository, filling out the pull request form.
 We may ask for changes to a pull request if it requires more documentation or unit tests to better make use of it.
 
 Last but not least, **thank you** for taking the time to contribute.
-
-Emulator
---------
-
-.. include:: emulator.rst

@@ -22,3 +22,16 @@ index 6b699b1..fc5e7e5 100644
  # Add DEBUG preprocessor def for debug-only code
  IF(CMAKE_BUILD_TYPE MATCHES "Debug")
    add_compile_definitions(_DEBUG)
+diff --git a/tnqvm/TNQVM.hpp b/tnqvm/TNQVM.hpp
+index 047c4d0..0a213a7 100644
+--- a/tnqvm/TNQVM.hpp
++++ b/tnqvm/TNQVM.hpp
+@@ -135,7 +135,7 @@ public:
+   virtual void
+   execute(std::shared_ptr<AcceleratorBuffer> buffer,
+           const std::shared_ptr<CompositeInstruction> baseCircuit,
+-          const std::vector<std::shared_ptr<CompositeInstruction>> basisRotations) override;
++          const std::vector<std::shared_ptr<CompositeInstruction>> basisRotations);
+ 
+   const std::vector<std::complex<double>>
+   getAcceleratorState(std::shared_ptr<CompositeInstruction> program) override;

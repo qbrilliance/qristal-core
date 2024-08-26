@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Qristal -- The Quantum Brilliance SDK 
+Welcome to Qristal -- The Quantum Brilliance SDK
 ================================================
 
 .. image:: static/img/qb_logo_laptop.png
@@ -36,7 +36,7 @@ This documentation covers both the `Qristal Software Development Kit <https://qu
 
 Qristal is released under the open source Apache License, Version 2.0.
 
-The Emulator plugin for Qristal `can be obtained in binary form from Quantum Brilliance <https://quantumbrilliance.com/sales-contact>`_. 
+The Emulator plugin for Qristal `can be obtained in binary form from Quantum Brilliance <https://quantumbrilliance.com/sales-contact>`_.
 
 
 .. toctree::
@@ -47,6 +47,7 @@ The Emulator plugin for Qristal `can be obtained in binary form from Quantum Bri
    rst/cli
    rst/backends
    rst/emulator
+   rst/vqpu
 
 .. toctree::
    :caption: Advanced Topics

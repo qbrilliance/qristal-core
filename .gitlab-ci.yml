@@ -1,9 +1,10 @@
+include:
+  - '.qristal-core-ci-images.yml'
+  - project: 'qbau/software-and-apps/pipelines'
+    ref: main
+    file: 'ppc_instance_handler.gitlab-ci.yml'
+
 variables:
-  CI_IMAGE_UBUNTU_X86_CLANG: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_clang-1
-  CI_IMAGE_UBUNTU_X86_CLANG_CUDA: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_cuda-12.1.1_clang-1
-  CI_IMAGE_UBUNTU_X86_GCC: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_x86-22.04:all_dep_gcc-1
-  CI_IMAGE_RHEL_X86:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_x86-8:all_dep_cuda-12.1.1_clang-1
-  CI_IMAGE_RHEL_PPC:  registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/rhel_ppc64le-8:all_dep_cuda-12.1.1_clang-1
   USE_MPI: "ON"
 
  # branch to use for downstream repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
@@ -529,10 +530,6 @@ rhel-x86-trigger-emulator:
 
 
 # - - - - - - - powerpc - - - - - - - #
-include:
-  - project: 'qbau/software-and-apps/pipelines'
-    ref: main
-    file: 'ppc_instance_handler.gitlab-ci.yml'
 
 # build
 ppc_instance_start:

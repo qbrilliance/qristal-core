@@ -320,12 +320,14 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       "EXATN_BUILD_TESTS OFF"
       "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
       "CMAKE_C_COMPILER ${EXATN_C_COMPILER}"
+      # Prevent exatn finding Python, as we don't need Python bindings and they fail to build with some versions of Python
+      "Python_LIBRARY /nope"
   )
 
   # TNQVM
   add_poorly_behaved_dependency(tnqvm 1.0.0
     FIND_PACKAGE_NAME TNQVM
-    GIT_TAG 68a03dd
+    GIT_TAG 1334763
     GIT_REPOSITORY https://github.com/ornl-qci/tnqvm
     OPTIONS
      "XACC_DIR ${XACC_ROOT}"
