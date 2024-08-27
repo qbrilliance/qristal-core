@@ -35,6 +35,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed a bug in `CircuitBuilder::append` where the variables in the appeded circuit would not be added to the original circuit.
 - Fixed a bug in `session` where the execution would fail if there were more free parameters than elements in the output probability vector.
 - Added a python binding for the parametrized `U3` gate.
+- Fixed memory allocation in qristal-qobj.
 
 
 ## [1.6.0] - 2024-06-18

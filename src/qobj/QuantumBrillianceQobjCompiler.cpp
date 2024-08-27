@@ -40,6 +40,7 @@ const std::string QuantumBrillianceQobjCompiler::translate(
   auto transpiled_ir = xacc::ir::asComposite(function->clone());
   transpiler->apply(transpiled_ir, nullptr);
   std::vector<QobjOp> qobj_instructions;
+  size_t memory_counter = 0; // Memory counter to store measured qubits
   for (auto &xacc_inst : transpiled_ir->getInstructions()) {
     if (xacc_inst->name() == "Rx") {
       QobjOp inst;
@@ -62,7 +63,8 @@ const std::string QuantumBrillianceQobjCompiler::translate(
       QobjOp inst;
       inst.qubits = xacc_inst->bits();
       inst.name = "measure";
-      inst.memory = xacc_inst->bits();
+      inst.memory = {memory_counter};
+      memory_counter++;
       qobj_instructions.emplace_back(std::move(inst));
     } else {
       throw std::runtime_error("Invalid basis instructions.");

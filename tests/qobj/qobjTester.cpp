@@ -215,3 +215,223 @@ TEST(transpilationTester, checkAerNoiseSim2) {
     EXPECT_LT((*dm)[0][0].real(), 0.9);
   }
 }
+
+TEST(transpilationTester, checkSubsetMeasure) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program_measure01 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[0]);
+      Rx(q[1], pi);
+      Measure(q[0]);
+      Measure(q[1]);
+    })", nullptr)->getComposites()[0];
+
+  auto program_measure0 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[0]);
+      Rx(q[1], pi);
+      Measure(q[0]);
+    })", nullptr)->getComposites()[0];
+
+  auto program_measure1 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[0]);
+      Rx(q[1], pi);
+      Measure(q[1]);
+    })", nullptr)->getComposites()[0];
+
+  { // Check with Xacc QObj generator (default): Measure both qubits
+    auto accelerator = xacc::getAccelerator("aer");
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program_measure01);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+  }
+
+  { // Check with Xacc QObj generator (default): Measure qubit 0 only
+    auto accelerator = xacc::getAccelerator("aer");
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program_measure0);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["0"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["1"], 500, 50);
+  }
+
+  { // Check with Xacc QObj generator (default): Measure qubit 1 only
+    auto accelerator = xacc::getAccelerator("aer");
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program_measure1);
+    buffer->print();
+    EXPECT_EQ(buffer->getMeasurementCounts()["1"], 1024);
+  }
+
+  { // Check with qristal QObj generator: Measure both qubits
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program_measure01);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+  }
+
+  { // Check with qristal QObj generator: Measure qubit 0 only
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program_measure0);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["0"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["1"], 500, 50);
+  }
+
+  { // Check with qristal QObj generator: Measure qubit 1 only
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program_measure1);
+    buffer->print();
+    EXPECT_EQ(buffer->getMeasurementCounts()["1"], 1024);
+  }
+}
+
+TEST(transpilationTester, checkSubsetMeasure2) {
+  // Check qristal QObj generator. Measure a subset of 2 qubits out of a circuit containing 3 qubits.
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program1_measure_all = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[1]);
+      Rx(q[2], pi);
+      Measure(q[0]);
+      Measure(q[1]);
+      Measure(q[2]);
+    })", nullptr)->getComposites()[0];
+
+  auto program1_measure01 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[1]);
+      Rx(q[2], pi);
+      Measure(q[0]);
+      Measure(q[1]);
+    })", nullptr)->getComposites()[0];
+
+  auto program1_measure10 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[1]);
+      Rx(q[2], pi);
+      Measure(q[1]);
+      Measure(q[0]);
+    })", nullptr)->getComposites()[0];
+
+  auto program1_measure12 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[1]);
+      Rx(q[2], pi);
+      Measure(q[1]);
+      Measure(q[2]);
+    })", nullptr)->getComposites()[0];
+
+  auto program1_measure21 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[1]);
+      Rx(q[2], pi);
+      Measure(q[2]);
+      Measure(q[1]);
+    })", nullptr)->getComposites()[0];
+
+  auto program2_measure02 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[0]);
+      Rx(q[2], pi);
+      Measure(q[0]);
+      Measure(q[2]);
+    })", nullptr)->getComposites()[0];
+
+  auto program2_measure20 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      H(q[0]);
+      Rx(q[2], pi);
+      Measure(q[2]);
+      Measure(q[0]);
+    })", nullptr)->getComposites()[0];
+
+  { // Program1: Measure all 3 qubits
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program1_measure_all);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["100"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["110"], 500, 50);
+  }
+
+  { // Program1: Measure qubits 0 and 1
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program1_measure01);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["00"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
+  }
+
+  { // Program1: Measure qubits 1 and 0
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program1_measure10);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["00"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 50);
+  }
+
+  { // Program1: Measure qubits 1 and 2
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program1_measure12);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+  }
+
+  { // Program1: Measure qubits 2 and 1
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program1_measure21);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+  }
+
+  { // Program 2: Measure qubits 0 and 2
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program2_measure02);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+  }
+
+  { // Program 2: Measure qubits 0 and 2
+    auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    auto buffer = xacc::qalloc(2);
+    accelerator->execute(buffer, program2_measure20);
+    buffer->print();
+    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+  }
+}
+
+TEST(transpilationTester, checkQObjTranspileSubsetMeasure) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
+      Measure(q[1]);
+    })", nullptr)->getComposites()[0];
+
+  { // Use default QObj
+    auto compiler = xacc::getCompiler("qobj");
+    const auto qobj_str = compiler->translate(program);
+    // std::cout << "qobj_str:\n" << qobj_str << "\n";
+    auto qobj = nlohmann::json::parse(qobj_str);
+    auto insts_json = qobj["qObject"]["experiments"][0]["instructions"];
+    // std::cout << "insts_json:\n" << insts_json << "\n";
+    EXPECT_EQ(insts_json[0]["memory"][0], 0);
+    EXPECT_EQ(insts_json[0]["qubits"][0], 1);
+  }
+
+  { // Use QB QObj
+    auto compiler = xacc::getCompiler("qristal-qobj");
+    const auto qobj_str = compiler->translate(program);
+    // std::cout << "qobj_str:\n" << qobj_str << "\n";
+    auto qobj = nlohmann::json::parse(qobj_str);
+    auto insts_json = qobj["qObject"]["experiments"][0]["instructions"];
+    // std::cout << "insts_json:\n" << insts_json << "\n";
+    EXPECT_EQ(insts_json[0]["memory"][0], 0);
+    EXPECT_EQ(insts_json[0]["qubits"][0], 1);
+  }
+}
