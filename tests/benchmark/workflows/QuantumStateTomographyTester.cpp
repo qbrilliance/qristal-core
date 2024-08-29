@@ -101,3 +101,43 @@ TEST(QuantumStateTomographyTester, checkRotationSweep) {
         EXPECT_TRUE(ideal_densities[i].isApprox(measured_densities[i], 1e-2));
     }
 }
+
+TEST(QuantumStateTomographyTester, checkMLE) {
+    //create folder for intermediate benchmark results (required because DataLoaderGenerator is not used here!)
+    if ( std::filesystem::exists(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME)) == false ){
+        std::filesystem::create_directory(std::filesystem::path(SerializerConstants::INTERMEDIATE_RESULTS_FOLDER_NAME));
+    }
+
+    const std::set<size_t> qubits = {0, 1, 2};
+
+    //define session
+    qristal::session sim(false);
+    sim.init();
+    sim.set_acc("qsim");
+    sim.set_sn(1000000);
+    sim.set_qn(qubits.size());
+
+    //define workflow
+    RotationSweep workflow(
+        std::vector<char>({'Z', 'X', 'Y'}), //specific rotations applied
+        -45, //start (deg)
+        45,  //end (deg)
+        6,   //points
+        sim
+    );
+
+    QuantumStateTomography<RotationSweep> qst(workflow);
+    qst.set_maximum_likelihood_estimation(100, 1e-6);
+    std::time_t t = qst.execute(std::vector<Task>{Task::MeasureCounts, Task::IdealDensity});
+
+    DataLoaderGenerator dlg(qst.get_identifier(), std::vector<Task>{Task::MeasureCounts, Task::IdealDensity});
+    dlg.set_timestamps(std::vector<std::time_t>{t}); //manually load in correct timestamp
+
+    auto ideal_densities = dlg.obtain_ideal_densities()[0];
+    auto counts = dlg.obtain_measured_counts(); //and obtain measurements
+    auto measured_densities = qst.assemble_densities(counts[0]);
+
+    for (size_t i = 0; i < ideal_densities.size(); ++i) {
+        EXPECT_TRUE(ideal_densities[i].isApprox(measured_densities[i], 1e-2));
+    }
+}

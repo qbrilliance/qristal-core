@@ -126,6 +126,12 @@ namespace qristal {
                 return symbol_ == p.get_symbol();
             }
             /**
+            * @brief Smaller operator for Pauli symbols.
+            */
+            bool operator < (const Pauli& p) const {
+                return this->symbol_ < p.get_symbol();
+            }
+            /**
             * @brief Translate the Pauli symbol into its matrix representation.
             *
             * Arguments: ---

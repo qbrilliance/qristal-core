@@ -72,6 +72,33 @@ namespace qristal
                     }
                 }
 
+                /**
+                * @brief Enable maximum likelihood estimation (MLE) in the assemble_density function.
+                *
+                * Arguments:
+                * @param n_MLE_iterations the maximum number of iterations used in the iterative MLE procedure, defaults to 100.
+                * @param MLE_conv_threshold the convergence threshold, defaults to 1e-3.
+                * @param mBasisSymbols_to_Projectors a std::map from the used basis symbols in the QST protocoll to their corresponding complex-valued 2x2 projector matrices for
+                * bit results 0 and 1 stored in a std::vector<ComplexMatrix>. By default, the mapping from the standard Pauli basis to Bloch sphere unit states, i.e., the Clifford states, are used.
+                * 
+                * @return ---
+                */
+                void set_maximum_likelihood_estimation(
+                    const size_t n_MLE_iterations = 100, 
+                    const double MLE_conv_threshold = 1e-3,
+                    const std::map<SYMBOL, std::vector<ComplexMatrix>>& mBasisSymbols_to_Projectors = std::map<Pauli, std::vector<ComplexMatrix>>{
+                        {Pauli::Symbol::X, std::vector<ComplexMatrix>{BlochSphereUnitState(BlochSphereUnitState::Symbol::Xp).get_matrix(), BlochSphereUnitState(BlochSphereUnitState::Symbol::Xm).get_matrix()}},
+                        {Pauli::Symbol::Y, std::vector<ComplexMatrix>{BlochSphereUnitState(BlochSphereUnitState::Symbol::Yp).get_matrix(), BlochSphereUnitState(BlochSphereUnitState::Symbol::Ym).get_matrix()}},
+                        {Pauli::Symbol::Z, std::vector<ComplexMatrix>{BlochSphereUnitState(BlochSphereUnitState::Symbol::Zp).get_matrix(), BlochSphereUnitState(BlochSphereUnitState::Symbol::Zm).get_matrix()}}
+                    }
+                )
+                {
+                    mBasisSymbols_to_Projectors_ = mBasisSymbols_to_Projectors;
+                    perform_maximum_likelihood_estimation_ = true;
+                    n_MLE_iterations_ = n_MLE_iterations; 
+                    MLE_conv_threshold_ = MLE_conv_threshold;
+                }
+
                 std::vector<qristal::CircuitBuilder> append_measurement_bases(qristal::CircuitBuilder & workflow_circuit) const {
                     std::vector<qristal::CircuitBuilder> circuits;
                     size_t n_qubit_basis_states = std::pow(basis_.size(), qubits_.size());
@@ -131,15 +158,23 @@ namespace qristal
                 * @brief Calculate density matrices from measured bit string counts of the quantum state tomography workflow.
                 *
                 * Arguments:
-                * @param measurement_counts the measured bit string counts as serialized by the execute function. Contains n * 3^q bit string histograms for n wrapped workflow circuits and q measured qubits.
+                * @param measurement_counts the measured bit string counts as serialized by the execute function. Contains n * 3^q bit string histograms for n wrapped workflow 
+                * circuits and q measured qubits.
                 *
                 * @return std::vector<ComplexMatrix> the quantum state density matrices obtained through the quantum state tomography experiments.
                 *
-                * @details This member function will iterate over all sets of 3^q (for q measured qubits) measured bit string counts and calculate one complex density matrix for each set by
+                * @details This member function will iterate over all sets of 3^q (for q measured qubits) measured bit string counts and calculate one complex density matrix 
+                * for each set. If the member function `set_maximum_likelihood_estimation` was called, it will 
+                * (i) iterate over all measured bases and each measured bitstring and assemble measured frequencies f_j as well as corresponding projectors E_j,
+                * (ii) initialize a density matrix to rho_1 = 1/2^q * I (for q qubits), and
+                * (iii) iteratively update rho through rho_k+1 = R(rho_k) * rho_k * R(rho_k), where R(rho_k) = sum_j f_j / Tr(E_j*rho_k) * E_j until convergence or the maximum 
+                * number of iterations was reached. This technique will guarantee that the assembled density matrices are unit-traced, hermitian, and positive semi-definite. 
+                * In case no maximum likelihood estimation was set, this function will perform a standard QST protocoll by
                 * (i) reconstructing the measurement basis that was used for a given set of measured bit string counts,
                 * (ii) augmenting the original measurement basis to the accessible basis strings by resolving all identities with the chosen symbol,
                 * (iii) evaluating the measured expectation values for each basis string
                 * (iv) adding the corresponding contribution to the individual (zero initialized) complex density matrices.
+                * Beware! The latter will guarantee that the assembled density are only unit-traced and hermitian!
                 */
                 std::vector<ComplexMatrix> assemble_densities(const std::vector<std::map<std::vector<bool>, int>>& measurement_counts) const
                 {
@@ -148,46 +183,108 @@ namespace qristal
                     size_t n_qubit_basis_size = std::pow(basis_.size(), qubits_.size());
                     size_t task_step = std::pow(3, qubits_.size());
                     for (size_t task = 0; task < measurement_counts.size(); task += task_step) { //create one density matrix for each task aka workflow circuit
+
+                        //(1) initialize empty density matrix
                         ComplexMatrix density = ComplexMatrix::Zero(density_dimension, density_dimension);
-                        for (size_t measurement = 0; measurement < n_qubit_basis_size; ++measurement) { //Each circuit was measured 3^n times
-                            const std::map<std::vector<bool>, int>& counts = measurement_counts.at(task + measurement); //extract relevant counts map
-                            const size_t n_shots = sumMapValues(counts);
-                            std::vector<std::vector<SYMBOL>> accessible_bases; // collect all accessible bases for the given measurement (e.g., IX and ZX from ZX)
-                            //convert i to x-nary number of length qubits.size() to find out which basis rotation to apply on which qubit
-                            std::vector<size_t> indices = convert_decimal(measurement, basis_.size(), qubits_.size());
-                            //handle the first symbol explicitly
-                            accessible_bases.push_back(std::vector<SYMBOL>{basis_[indices[0]]});
-                            if (basis_[indices[0]] == use_for_identity_) {
-                                accessible_bases.push_back(std::vector<SYMBOL>{get_identity<Symbol>()});
+
+                        //(2) either obtain density through iterative MLE (this ensures hermiticity, positive semi-definiteness, and unit-trace, cf. https://arxiv.org/abs/quant-ph/0311097)
+                        if (perform_maximum_likelihood_estimation_) {
+                            //(2.1) initialize density to identity matrix 
+                            for (size_t i = 0; i < density_dimension; ++i) {
+                                density(i,i) = 1.0 / static_cast<double>(density_dimension);
                             }
-                            //handle the remaining ones by iterating over all already found bases and augmenting
-                            for (size_t q = 1; q < indices.size(); ++q) {
-                                std::vector<std::vector<SYMBOL>> new_bases;
-                                for (const auto& basis : accessible_bases) {
-                                    new_bases.push_back(basis);
-                                    new_bases.back().push_back(basis_[indices[q]]);
-                                    if (basis_[indices[q]] == use_for_identity_) {
-                                        new_bases.push_back(basis);
-                                        new_bases.back().push_back(get_identity<Symbol>());
+
+                            //(2.2) iterate over all measurement bases and obtain projectors and measured frequencies
+                            std::vector<ComplexMatrix> projections; 
+                            std::vector<double> measured_frequencies;
+                            for (size_t measurement = 0; measurement < n_qubit_basis_size; ++measurement) {
+                                //(2.2.1) extract corresponding symbols vector (i.e., the Pauli basis) 
+                                std::vector<SYMBOL> basis;  
+                                for (auto const & i : convert_decimal(measurement, basis_.size(), qubits_.size())) {
+                                    basis.push_back(basis_[i]);
+                                } 
+
+                                //(2.2.2) Now iterate over all measured counts 
+                                const std::map<std::vector<bool>, int>& counts = measurement_counts.at(task + measurement);
+                                const size_t n_shots = sumMapValues(counts);
+                                for (auto const & [bitstring, count] : counts) {
+                                    //store the measured frequencies
+                                    measured_frequencies.push_back(static_cast<double>(count) / static_cast<double>(n_shots));
+
+                                    //and evaluate the corresponding projector (in reverse order!)
+                                    ComplexMatrix proj = ComplexMatrix::Ones(1,1); 
+                                    for (int i = bitstring.size() - 1; i >= 0; --i) {
+                                        proj = Eigen::kroneckerProduct(proj, mBasisSymbols_to_Projectors_.at(basis[i])[bitstring[i]]).eval();
                                     }
-                                }
-                                accessible_bases = new_bases;
-                            }
-                            //now go through all measured counts
-                            std::vector<double> exp_values(accessible_bases.size(), 0.0); //initialize zero expectation values for each basis
-                            for (const auto& [bitstring, count] : counts) {
-                                for (const auto& [exp_value, accessible_base] : std::ranges::views::zip(exp_values, accessible_bases)) {
-                                    //evaluate sign with which the measured bitstring contributes to all basis expectation values
-                                    int sign = evaluate_sign(bitstring, accessible_base);
-                                    exp_value += static_cast<double>(sign) * static_cast<double>(count) / static_cast<double>(n_shots);
+                                    projections.push_back(proj);
                                 }
                             }
-                            //finally go through all expectation values, build full matrix representation of basis and add to density matrix
-                            for (const auto & [exp_value, accessible_base] : std::ranges::views::zip(exp_values, accessible_bases)) {
-                                density += exp_value * calculate_Kronecker_product(accessible_base);
+
+                            //(2.3) finally assemble the density matrix through iterative transform
+                            for (size_t iter = 1; iter <= n_MLE_iterations_; ++iter) {
+                                //(2.3.1) first build up full transform operator from measured frequencies and evaluated expectation values of the current density
+                                ComplexMatrix R = ComplexMatrix::Zero(density_dimension, density_dimension);
+                                for (auto const & [projection, frequency] : std::ranges::views::zip(projections, measured_frequencies)) {
+                                    double p = (projection.adjoint() * density).trace().real(); 
+                                    R += frequency / p * projection;
+                                }
+                                //(2.3.2) then transform density 
+                                ComplexMatrix new_density = R*density*R; 
+                                new_density *= 1.0 / new_density.trace(); 
+                                //(2.3.3) check for convergence
+                                if (new_density.isApprox(density, MLE_conv_threshold_)) {
+                                    density = new_density; 
+                                    break;
+                                }
+                                density = new_density;
                             }
                         }
-                        densities.push_back(1.0 / pow(2, static_cast<double>(qubits_.size())) * density); //push normalized density to collection
+                        //(2) or through standard QST protocol (linear inversion ensuring only hermiticity and unit-trace)
+                        else {
+                            for (size_t measurement = 0; measurement < n_qubit_basis_size; ++measurement) { //Each circuit was measured 3^n times
+                                const std::map<std::vector<bool>, int>& counts = measurement_counts.at(task + measurement); //extract relevant counts map
+                                const size_t n_shots = sumMapValues(counts);
+                                std::vector<std::vector<SYMBOL>> accessible_bases; // collect all accessible bases for the given measurement (e.g., IX and ZX from ZX)
+                                //convert i to x-nary number of length qubits.size() to find out which basis rotation to apply on which qubit
+                                std::vector<size_t> indices = convert_decimal(measurement, basis_.size(), qubits_.size());
+                                //handle the first symbol explicitly
+                                accessible_bases.push_back(std::vector<SYMBOL>{basis_[indices[0]]});
+                                if (basis_[indices[0]] == use_for_identity_) {
+                                    accessible_bases.push_back(std::vector<SYMBOL>{get_identity<Symbol>()});
+                                }
+                                //handle the remaining ones by iterating over all already found bases and augmenting
+                                for (size_t q = 1; q < indices.size(); ++q) {
+                                    std::vector<std::vector<SYMBOL>> new_bases;
+                                    for (const auto& basis : accessible_bases) {
+                                        new_bases.push_back(basis);
+                                        new_bases.back().push_back(basis_[indices[q]]);
+                                        if (basis_[indices[q]] == use_for_identity_) {
+                                            new_bases.push_back(basis);
+                                            new_bases.back().push_back(get_identity<Symbol>());
+                                        }
+                                    }
+                                    accessible_bases = new_bases;
+                                }
+
+                                //now go through all measured counts
+                                std::vector<double> temp_exp_values(accessible_bases.size(), 0.0); //initialize zero expectation values for each basis
+                                for (const auto& [bitstring, count] : counts) {
+                                    for (const auto& [exp_value, accessible_base] : std::ranges::views::zip(temp_exp_values, accessible_bases)) {
+                                        //evaluate sign with which the measured bitstring contributes to all basis expectation values
+                                        int sign = evaluate_sign(bitstring, accessible_base);
+                                        exp_value += static_cast<double>(sign) * static_cast<double>(count) / static_cast<double>(n_shots);
+                                    }
+                                }
+
+                                //and finally update density matrix
+                                for (const auto & [exp_value, basis] : std::ranges::views::zip(temp_exp_values, accessible_bases)) {
+                                    density += exp_value * calculate_Kronecker_product(basis);
+                                }
+                            }
+                            density *= 1.0 / pow(2, static_cast<double>(qubits_.size())); //normalization
+                        }
+
+                        densities.push_back(density); //push normalized density to collection
                     }
 
                     return densities;
@@ -263,6 +360,12 @@ namespace qristal
                 std::set<size_t> qubits_;
                 const std::vector<SYMBOL> basis_;
                 const SYMBOL use_for_identity_;
+
+                //used for maximum likelihood estimation only
+                bool perform_maximum_likelihood_estimation_ = false;
+                size_t n_MLE_iterations_; 
+                double MLE_conv_threshold_;
+                std::map<SYMBOL, std::vector<ComplexMatrix>> mBasisSymbols_to_Projectors_;
         };
 
         /**

@@ -24,6 +24,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added conditional dependency to `cppuprofile` via `cmake` flag `-DWITH_PROFILING=ON`.
 - Added workflow wrapper `RuntimeAnalyzer` to `qb::benchmark` to profile runtime resources (CPU, RAM, GPU) in a user-specified interval. Please note that GPU profiling is only working for Nvidia GPUs and is delegated to `nvidia-smi` calls. It will be automatically enabled if `nvidia-smi` was found in the system.
 - Add ability to send custom noise models to emulator backends.
+- Added maximum likelihood estimation to standard quantum state tomography protocol. Can be enabled by calling `set_maximum_likelihood_estimation()`. 
 
 ### Fixed
 
