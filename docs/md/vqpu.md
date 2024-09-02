@@ -26,7 +26,7 @@ Note that this method requires access to QB internal repositories, and is theref
 4. Link `lib/qristal` from within your Qristal installation directory to `$QcStackPath/apps/qcstack_server/qristal`.
 6. Launch the vQPU by changing directory to `$QcStackPath/apps/qcstack_server` and running
 ```
-poetry run python3 -m qb.qcstack_server.qcstack_server --system emulator --max-circuit-depth X --reservation-shared-secret Y --calibration False --benchmarking False
+poetry run python3 -m qb.qcstack_server.qcstack_server --system vqpu --max-circuit-depth X --reservation-shared-secret Y --calibration False --benchmarking False
 ```
   where `X` is the maximum circuit depth that you desire the vQPU to accept, and `Y` is the secret key that you wish to be required to reserve the vQPU for exclusive use.
 

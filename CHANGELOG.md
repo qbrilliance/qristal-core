@@ -15,6 +15,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Added documentation and test triggers for the Qristal Virtual QPU
 - Added session::draw_shot function to allow drawing a single random shot from the set of simulated results.
 - Updated all examples and tests to use new output map format.
 - Use a dynamic check against the actual memory capabilities of the machine in use in order to decide when to populate the `out_counts` vector. This replaces the previous hardcoded limit of 32 qubits.

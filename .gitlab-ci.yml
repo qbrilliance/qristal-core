@@ -6,11 +6,11 @@ include:
 
 variables:
   USE_MPI: "ON"
-
- # branch to use for downstream repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
+  # Branches to use for downstream repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
   EMULATOR_TRIGGER_BRANCH: main
   DECODER_TRIGGER_BRANCH: main
   SDK_TRIGGER_BRANCH: main
+  QCSTACK_TRIGGER_BRANCH: develop
 
 stages:
   - build
@@ -407,6 +407,7 @@ trigger-emulator:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: trigger-emulator
+    QCSTACK_TAG: develop
 
 # Trigger downstream emulator build and run benchmark.
 trigger-emulator-benchmark:
@@ -433,6 +434,17 @@ trigger-sdk:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
+# If this branch is part of a merge request, trigger downstream qcstack vQPU build and test.
+trigger-vqpu-in-qcstack:
+  stage: downstream
+  needs: ["ci-build"]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  trigger:
+    project: qbau/control/qcstack
+    branch: $QCSTACK_TRIGGER_BRANCH
+  variables:
+    UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
 # - - - - - - - - - - - - - - - - - - RHEL - - - - - - - - - - - - - - - - - - #
 
