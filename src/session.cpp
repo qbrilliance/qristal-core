@@ -1812,6 +1812,21 @@ namespace qristal
        (sim_qpu->name() == "qpp" || (sim_qpu->name() == "aer" && run_config.aer_sim_type == "statevector"))) {
       state_vec_ = sim_qpu->getExecutionInfo<xacc::ExecutionInfo::WaveFuncPtrType>(
                         xacc::ExecutionInfo::WaveFuncKey);
+
+      if (out_counts_ordered_by_MSB_) {
+        std::vector<std::complex<double>> state_vec_tmp = *state_vec_;
+        // Generate bitstring configurations
+        const size_t num_qubits = std::log2(state_vec_->size());
+        for (size_t i = 0; i < state_vec_->size(); i++) {
+          auto bitstring = boost::dynamic_bitset<>(num_qubits, i);
+          std::vector<bool> vb;
+          for (size_t j = 0; j < bitstring.size(); j++) {
+            vb.emplace_back(bitstring[j]);
+          }
+          state_vec_tmp[bitstring_index(vb)] = state_vec_->at(i);
+        }
+        *state_vec_ = state_vec_tmp;
+      }
     }
 
     // Get counts

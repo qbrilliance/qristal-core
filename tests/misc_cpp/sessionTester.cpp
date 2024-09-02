@@ -285,3 +285,33 @@ TEST(sessionTester, test_draw_shot) {
   EXPECT_EQ(qristal_results, my_results);
   EXPECT_THROW(my_sim.draw_shot(0,0), std::out_of_range);
 }
+
+TEST(sessionTester, test_state_vec_order) {
+  const size_t num_qubits = 2;
+  const uint shots = 1000;
+
+  qristal::CircuitBuilder circuit;
+  circuit.X(0);
+  circuit.MeasureAll(num_qubits);
+
+  // Repeat all tests with out_counts and state vector indexed by both MSB and LSB, to show that it has no effect.
+  for (bool MSB : {true, false}) {
+    qristal::session my_sim(false, MSB);
+    my_sim.init();
+    my_sim.set_qn(num_qubits);
+    my_sim.set_sn(shots);
+    my_sim.set_acc("qpp");
+    my_sim.set_seed(1000);
+    my_sim.set_irtarget_m(circuit.get());
+    my_sim.set_calc_out_counts(true);
+    my_sim.get_state_vec(true);
+    my_sim.run();
+
+    // Check that the state vector and counts for MSB and LSB have the same non-zero valued index
+    std::shared_ptr<std::vector<std::complex<double>>> stateVec = my_sim.get_state_vec_raw();
+    std::vector<int> counts = my_sim.get_out_counts()[0][0];
+    for (size_t i = 0; i < counts.size(); i++) {
+      EXPECT_EQ(shots * stateVec->at(i).real(), counts[i]);
+    }
+  }
+}

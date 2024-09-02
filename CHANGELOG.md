@@ -12,6 +12,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Renamed session.qb12() --> session.init()
 - Renamed python commands to retrieve and print state-vector
 - Removed multiple internal typedefs for STL types, and simplified opaque Python bindings for those types; most opaquely bound STL types' Python type names have changed.
+- Flipped state vector output to be consistent with bit string ordering.
 
 ### Added
 
