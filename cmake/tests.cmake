@@ -1,9 +1,5 @@
 # Copyright (c) Quantum Brilliance Pty Ltd
 
-configure_file(tests/lambda/fake_aer_server.py.in
-  ${CMAKE_BINARY_DIR}/plugins/qb_lambda/tests/fake_aer_server.py
-)
-
 # When you add a new test, please keep the alphabetical ordering!
 add_executable(CITests
   #tests/advice/QPrimeTester.cpp

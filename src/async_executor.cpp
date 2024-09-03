@@ -20,20 +20,7 @@ void Executor::initialize(const std::string &in_qpuConfig) {
     for (auto it = accs_configs.begin(); it != accs_configs.end(); ++it) {
       auto acc_config = *it;
       const std::string acc_name = acc_config["acc"];
-      if (acc_name == "qb-lambda") {
-        const std::string url = (acc_config.find("device") != acc_config.end())
-                              ? acc_config["url"]
-                              : "ec2-3-26-79-252.ap-southeast-2.compute.amazonaws.com";
-        const std::string device = [&]() -> std::string {
-            if (acc_config.find("device") != acc_config.end()) {
-              return acc_config["device"];
-            }
-            return "GPU";
-        }();
-        auto qpu = xacc::getAccelerator(acc_name, {{"url", url}, {"device", device}});
-        m_pool.emplace_back(qpu);
-      }
-      else if (xacc::hasAccelerator(acc_name)) {
+      if (xacc::hasAccelerator(acc_name)) {
         auto qpu = xacc::getAccelerator(acc_name);
         m_pool.emplace_back(qpu);
       }

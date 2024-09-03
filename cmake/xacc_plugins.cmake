@@ -143,15 +143,6 @@ add_xacc_plugin(circuits
     include/qristal/core/circuits/w_prime_unitary.hpp
 )
 
-# Offload to QB Lambda server
-add_xacc_plugin(qb_lambda
-  SOURCES
-    src/backends/lambda/QBLambdaRemoteAccelerator.cpp
-  DEPENDENCIES
-    cpr
-    nlohmann::json
-)
-
 # Sparse simulator
 add_xacc_plugin(sparse_simulator
   SOURCES

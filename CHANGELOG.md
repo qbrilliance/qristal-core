@@ -6,6 +6,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Breaking
 
+- Remove qb-lambda remote accelerator superseded by Qristal vQPU.
 - Retrieve noise models by smart pointer from emulator plugin.
 - Changed "qb" namespace and Python module name to "qristal".
 - Changed primary output type. The previous jsonised string outputs `out_raws` have now been superseded by a bit-order-agnostic `results` map of type `std::map<std::vector<bool>, int>`, presented in Python as a `dict`-ish opaquely bound type.  Qubits are now identified programmatically only by their indices in either a `std::vector<bool>` bitvector (in C++) or a `list[bool]` (in Python).  Printing bitvectors directly (via stream overloads or corresponding Python `__str__` methods) displays the highest-index bit to the left.
@@ -16,7 +17,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
-- Added documentation and test triggers for the Qristal Virtual QPU
+- Added documentation and test triggers for the Qristal Virtual QPU (vQPU).
 - Added session::draw_shot function to allow drawing a single random shot from the set of simulated results.
 - Updated all examples and tests to use new output map format.
 - Use a dynamic check against the actual memory capabilities of the machine in use in order to decide when to populate the `out_counts` vector. This replaces the previous hardcoded limit of 32 qubits.
@@ -26,7 +27,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added conditional dependency to `cppuprofile` via `cmake` flag `-DWITH_PROFILING=ON`.
 - Added workflow wrapper `RuntimeAnalyzer` to `qb::benchmark` to profile runtime resources (CPU, RAM, GPU) in a user-specified interval. Please note that GPU profiling is only working for Nvidia GPUs and is delegated to `nvidia-smi` calls. It will be automatically enabled if `nvidia-smi` was found in the system.
 - Add ability to send custom noise models to emulator backends.
-- Added maximum likelihood estimation to standard quantum state tomography protocol. Can be enabled by calling `set_maximum_likelihood_estimation()`. 
+- Added maximum likelihood estimation to standard quantum state tomography protocol. Can be enabled by calling `set_maximum_likelihood_estimation()`.
 
 ### Fixed
 

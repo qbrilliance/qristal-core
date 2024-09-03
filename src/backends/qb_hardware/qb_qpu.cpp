@@ -218,6 +218,10 @@ namespace xacc
         if (debug) std::cout << "* Status code " << r.status_code << std::endl;
         switch (r.status_code)
         {
+          case 0:
+            throw std::runtime_error("Device " + qpu.name() + " at " + remoteUrl +
+             " did not respond to HTTP " + operation + " operation.");
+            break;
           case 200:
             Response = (r.text == "null" ? response_is_status_code(r.status_code) : r.text);
             break;

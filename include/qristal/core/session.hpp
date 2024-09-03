@@ -157,7 +157,6 @@ namespace qristal
           "qpp",
           "qsim",
           "loopback",
-          "qb-lambda",
           "sparse-sim",
           "cirq-qsim",
           "qb-mps",

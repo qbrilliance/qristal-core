@@ -1098,34 +1098,6 @@ namespace qristal
       }
       // Get AER and initialize it with proper settings.
       qpu = xacc::getAccelerator(acc, aer_options);
-    } else if (acc == "qb-lambda") {
-      std::string lambda_url = "ec2-3-26-79-252.ap-southeast-2.compute."
-                               "amazonaws.com"; // Default AWS reverse proxy
-                                                // server for the QB Lambda
-                                                // workstation
-      //"10.10.8.50:4000"; // internal address
-      // TODO add checking for existence of url key
-      if (remote_backend_database_["qb-lambda"])
-      {
-        lambda_url = remote_backend_database_["qb-lambda"]["url"].as<std::string>();
-        if (debug_) std::cout << "Execute on Lambda workstation @ " << lambda_url << std::endl;
-      }
-
-      if (noises) {
-        qpu = xacc::getAccelerator(
-            "qb-lambda", {{"device", "GPU"},
-                          {"url", lambda_url},
-                          {"noise-model", run_config.noise_model->to_json()}});
-        if (debug_) {
-          std::cout << "# Noise model: enabled - 48 qubit" << std::endl;
-        }
-      } else {
-        qpu = xacc::getAccelerator("qb-lambda",
-                                   {{"device", "GPU"}, {"url", lambda_url}});
-        if (debug_) {
-          std::cout << "# Noise model: disabled" << std::endl;
-        }
-      }
     } else if (acc == "qsim" && noises) {
       // Use qsim via Cirq wrapper to handle noise if requested.
       // The "cirq-qsim" backend is part of the external emulator package
@@ -1555,7 +1527,6 @@ namespace qristal
 
     // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS or Lambda.
     const bool exec_on_hardware = run_config.acc_name != "aws-braket" and
-                                  run_config.acc_name != "qb-lambda" and
                                   remote_backend_database_[run_config.acc_name];
 
     // Collect all the simulator options (thread safe)

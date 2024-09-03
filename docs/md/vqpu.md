@@ -6,13 +6,23 @@ The Qristal vQPU is a virtualised quantum hardware solution. It offers an interf
 
 The vQPU can be installed in three different ways: with the pre-built Docker image or bare metal in source or binary form.
 
-### Docker
-
-Coming soon.
-
 ### Binary install
 
 Coming soon.
+
+### Docker
+
+Note that this method presently requires access to a QB internal development container repository, and is therefore only applicable to employees of QB and partners with relevant access agreements.
+
+To launch a Qristal vQPU,
+
+1. Set environment variable `VQPU_PORT` to the port that you would like to use to communicate with the vQPU, e.g. `export VQPU_PORT=8888`.
+2. Set the environment variable `VQPU_CONFIG_DIR` to the full path to the directory containing the `vqpu.system_config.json` file that you wish to use to define the vQPU configuration.  Examples can be found in the Qristal emulator repository, in the folder `tests/vqpu/experiment_configs`.
+3. Run the following from a Linux command prompt:
+```
+docker run --rm -d --name qristal_vqpu -v $VQPU_CONFIG_DIR:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs -p${VQPU_PORT}:8080 registry.gitlab.com/qbau/software-and-apps/emulator/qristal-vqpu-dev:latest
+```
+Step 2 can be skipped, and the `-v` switch removed from step 3, if you are happy to simply run with the default vQPU configuration stored in qcstack.
 
 ### Source install
 
@@ -38,7 +48,7 @@ Once the vQPU process is running, you may:
 
 ## Options
 
-The Qristal vQPU offers many of the same options and settings as the Qristal SDK's `session` object.  These can be set by editing or overwriting the file `$QcStackPath/packages/system/qb/system/configs/experiment_configs/emulator.system_config.json`.
+The Qristal vQPU offers many of the same options and settings as the Qristal SDK's `session` object.  These can be set by editing or overwriting the file `$QcStackPath/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json`.
 
 * `debug`: *boolean*. Run the vQPU with debug output.
 

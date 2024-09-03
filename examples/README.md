@@ -344,13 +344,6 @@ _noise_: true
 
 A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.  The basic version of the example does not include noise. If you have the Qristal Emulator installed, two lines in the example file can be uncommented to convert it into an example of a simulation in a noisy environment, using noise models provided by the emulator. Details about the noise model are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
 
-`remote_workstation_example.py`
-
-_qubits_: 18
-_noise_: false
-
-An example of a random circuit, offloaded to the dual-GPU QB Lambda server in Canberra.
-
 `set_circuit.py`
 
 _qubits_: 3
@@ -530,9 +523,9 @@ A C++ implementation of `noise_model_custom_channel.py`.
 
 `noise_model_custom_channel_qb_gateset`
 
-_qubits_: 2  
-_gate depth_: 6  
-_noise_: true  
+_qubits_: 2
+_gate depth_: 6
+_noise_: true
 
 A C++ implementation of `noise_model_custom_channel_qb_gateset.py`.
 
@@ -672,8 +665,8 @@ Determination of the deuteron's ground state energy using VQE with the L-BFGS op
 
 `runtime_profiling`
 
-_qubits_: 5  
-_gate depth_: 1  
-_noise_: false/true  
+_qubits_: 5
+_gate depth_: 1
+_noise_: false/true
 
-Example `RotationSweep` workflow wrapped into `RuntimeAnalyzer` to profile CPU, RAM, and GPU resources in intervals of 20 ms. 
+Example `RotationSweep` workflow wrapped into `RuntimeAnalyzer` to profile CPU, RAM, and GPU resources in intervals of 20 ms.

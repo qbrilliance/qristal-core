@@ -337,12 +337,19 @@ ci-hardware-tests:
     - docker run -d --rm --name qcstack_server -p=8443:8443 $QCSTACK_REGISTRY:$QCSTACK_TAG $QCSTACK_ARGS
     # Give qcstack time to spin up properly
     - sleep 20
-    # Run C++ tests of qcstack interface
-    - ./build/HardwareTests --test --gtest_output='xml:core_hardware_gtests.xml'
-    # Run python tests of qcstack interface
-    - cd tests/qcstack && python3 -m pytest --junitxml="report-qcstack.xml"
-    # Shut down (and auto-remove) qcstack container
-    - docker stop qcstack_server
+    # Make sure the qcstack image hasn't crashed
+    - if docker inspect qcstack_server; then
+        # Run C++ tests of qcstack interface
+    -   ./build/HardwareTests --test --gtest_output='xml:core_hardware_gtests.xml'
+        # Run python tests of qcstack interface
+    -   cd tests/qcstack && python3 -m pytest --junitxml="report-qcstack.xml"
+        # Shut down (and auto-remove) qcstack container
+    -   docker stop qcstack_server
+    # Otherwise print error and fail
+    - else
+    -   echo "Qcstack image $QCSTACK_REGISTRY:$QCSTACK_TAG failed to startup properly."
+    -   exit 1
+    - fi
   artifacts:
     when: always
     reports:
