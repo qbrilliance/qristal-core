@@ -5,6 +5,10 @@
 #include <complex>
 #include <vector>
 #include <Eigen/Dense>
+#include <unsupported/Eigen/NonLinearOptimization>
+#include <unsupported/Eigen/NumericalDiff>
+#include <optional>
+#include <iostream>
 
 namespace qristal
 {
@@ -417,6 +421,216 @@ namespace qristal
       static constexpr char name[] = "custom_kraus";
       static NoiseChannel Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen);
     };
+
+    //============================================ Process matrix interpolation methods ============================================
+
+    /**
+     * @brief Create a 1-qubit process matrix from a U3 rotation gate. The U3 gate is a generic 1-qubit rotation
+     * gate with 3 Euler angles; U3(theta, phi, lambda). 1-qubit rotation gates Rx(theta_x), Ry(theta_y) and
+     * Rz(theta_z) can be generated from the U3 gate as follows:
+     * Rx(theta_x) = U3(theta_x, -pi/2, pi/2)
+     * Ry(theta_y) = U3(theta_y, 0, 0)
+     * Rz(theta_z) = U3(0, 0, theta_z)
+     * See https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.U3Gate for more details.
+     *  
+     * @param theta Euler angle \theta
+     * @param phi Euler angle \phi
+     * @param lambda Euler angle \lambda
+     * @return 1-qubit process matrix
+     */
+    Eigen::MatrixXcd createIdealU3ProcessMatrix(double theta, double phi, double lambda);
+
+    /**
+     * @brief Create a noisy N-qubit process matrix
+     * 
+     * @param nb_qubits number of qubits
+     * @param theta vector containing the Euler rotation angle \theta of all qubits
+     * @param phi vector containing the Euler rotation angle \phi of all qubits
+     * @param lambda vector containing the Euler rotation angle \lambda of all qubits
+     * @param channel_params vector containing noise channel parameters of all qubits
+     * @return Output process matrix 
+     */
+    Eigen::MatrixXcd createNQubitNoisyProcessMatrix(size_t nb_qubits,
+        std::vector<double> theta, std::vector<double> phi, std::vector<double> lambda,
+        Eigen::VectorXd channel_params);
+
+    /**
+     * @brief Create a noisy 1-qubit process matrix
+     * 
+     * @param theta qubit's Euler rotation angle \theta
+     * @param phi qubit's Euler rotation angle \phi
+     * @param lambda qubit's Euler rotation angle \lambda
+     * @param channel_params vector containing noise channel damping parameters of qubit
+     * @return Output process matrix 
+     */
+    Eigen::MatrixXcd create1QubitNoisyProcessMatrix(double theta, double phi, double lambda,
+        Eigen::VectorXd channel_params);
+
+    /**
+     * @brief Generic functor (function vector) to use Eigen's numerical differentiator Eigen::NumericalDiff
+     * 
+     * @param Scalar_ Scalar function to solve
+     * @param NX Number of inputs
+     * @param NY Value of inputs
+     */
+    template <typename Scalar_, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
+    struct EigenNumericalDiffFunctor {
+      // Information that tells the caller the numeric type (eg. double) and size (input / output dim)
+      typedef Scalar_ Scalar;
+      enum { InputsAtCompileTime = NX, ValuesAtCompileTime = NY }; // Required by numerical differentiation module.
+      // Tell the caller the matrix sizes associated with the input, output, and jacobian
+      typedef Eigen::Matrix<Scalar, InputsAtCompileTime, 1> InputType;
+      typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, 1> ValueType;
+      typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, InputsAtCompileTime> JacobianType;
+
+      // Local copy of the number of inputs
+      const int m_inputs, m_values;
+
+      // Constructors:
+      EigenNumericalDiffFunctor() : m_inputs(InputsAtCompileTime), m_values(ValuesAtCompileTime) {}
+      EigenNumericalDiffFunctor(int inputs, int values) : m_inputs(inputs), m_values(values) {}
+
+      // Get methods for users to determine function input and output dimensions
+      int inputs() const { return m_inputs; }
+      int values() const { return m_values; }
+    };
+
+    /**
+     * @brief Functor (function vector) to use Eigen's Levenberg-Marquardt (Eigen::LevenbergMarquardt)
+     * nonlinear solver to solve for process matrix.
+     * 
+     * @param input_vec Process matrix flatted to a Eigen::VectorXcd
+     * @param nb_qubits Number of qubits
+     * @param theta vector containing the Euler rotation angles \theta of all qubits
+     * @param phi vector containing the Euler rotation angles \phi all qubits
+     * @param lambda vector containing the Euler rotation angles \lambda of all qubits
+     * @param m Size of input_vector
+     * @param n Number of parameters to solve for
+     */
+    struct LMFunctorNoisy : qristal::EigenNumericalDiffFunctor<double> {
+      LMFunctorNoisy(void): qristal::EigenNumericalDiffFunctor<double>(m, n) {}
+      int operator()(const Eigen::VectorXd &x, Eigen::VectorXd &fvec) const {
+        // Create noisy process matrix with input angles and noise channel parameters x.
+        Eigen::MatrixXcd guess_mat;
+        if (nb_qubits == 1) {
+          guess_mat = qristal::create1QubitNoisyProcessMatrix(theta[0], phi[0], lambda[0], x);
+        } else {
+          guess_mat = qristal::createNQubitNoisyProcessMatrix(nb_qubits, theta, phi, lambda, x);
+        }
+        // To use Eigen's numerical differentiation, we need to convert the complex matrix into a complex vector.
+        Eigen::VectorXcd guess_vec = Eigen::Map<Eigen::VectorXcd>(guess_mat.data(), guess_mat.rows() * guess_mat.cols());
+        // Solve for x's by minimizing the difference between the input process matrix and the generated noisy process matrix
+        fvec = (input_vec - guess_vec).cwiseAbs();
+
+        return 0;
+      }
+
+      Eigen::VectorXcd input_vec; // Input process matrix
+      size_t nb_qubits; // Number of qubits
+      std::vector<double> theta; // Euler rotation angle \theta
+      std::vector<double> phi; // Euler rotation angle \phi
+      std::vector<double> lambda; // Euler rotation angle \lambda
+      int m; // Number of data points, i.e. values.
+      int n; // The number of parameters, i.e. inputs.
+      int values() const { return m; } // Returns 'm', the number of values.
+      int inputs() const { return n; } // Returns 'n', the number of inputs.
+    };
+
+    /**
+     * @brief Solves noise channel parameters for an input N-qubit process matrix. Current noise channels:
+     *  - generalized phase and amplitude damping
+     *  - 1-qubit depolarization
+     * 
+     * @param process_matrix_1qubit vector of 1-qubit process matrices
+     * @param process_matrix_Nqubit N-qubit process matrix
+     * @param nb_qubits Number of qubits
+     * @param theta vector containing the Euler rotation angle \theta of all qubits
+     * @param phi vector containing the Euler rotation angle \phi of all qubits
+     * @param lambda vector containing the Euler rotation angle \lambda of all qubits
+     * @param max_iter Maximum number of solver iterations (default = 1000)
+     * @param maxfev Maximum number of function evaluation (default = 1000)
+     * @param xtol tolerance for the norm of the solution vector (default = 1e-8)
+     * @param ftol tolerance for the norm of the vector function (default = 1e-8)
+     * @param gtol tolerance for the norm of the gradient of the error vector (default = 1e-8)
+     * 
+     * @return Vector containing solved noise channel parameters
+     */
+    Eigen::VectorXd processMatrixSolverNQubit(std::vector<Eigen::MatrixXcd> process_matrix_1qubit,
+        Eigen::MatrixXcd process_matrix_Nqubit, size_t nb_qubits,
+        std::vector<double> theta, std::vector<double> phi, std::vector<double> lambda, size_t max_iter = 1000,
+        size_t maxfev = 1000, double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+
+    /**
+     * @brief Solves noise channel parameters for an input 1-qubit process matrix. Current noise channels:
+     *  - generalized phase and amplitude damping
+     *  - 1-qubit depolarization
+     * 
+     * @param process_matrix_1qubit 1-qubit process matrices
+     * @param nb_qubits Number of qubits
+     * @param theta qubit's Euler rotation angle \theta
+     * @param phi qubit's Euler rotation angle \phi
+     * @param lambda qubit's Euler rotation angle \lambda
+     * @param max_iter Maximum number of solver iterations (default = 1000)
+     * @param maxfev Maximum number of function evaluation (default = 1000)
+     * @param xtol tolerance for the norm of the solution vector (default = 1e-8)
+     * @param ftol tolerance for the norm of the vector function (default = 1e-8)
+     * @param gtol tolerance for the norm of the gradient of the error vector (default = 1e-8)
+     * 
+     * @return Vector containing solved noise channel parameters
+     */
+    Eigen::VectorXd processMatrixSolver1Qubit(Eigen::MatrixXcd process_matrix,
+        double theta, double phi, double lambda, size_t max_iter = 1000,
+        size_t maxfev = 1000, double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+
+    /**
+     * @brief Internal functionality for process matrix solver. Contains the 2 loops: first loop is a solve
+     * for the rough channel parameters. The second loops takes the roughly-solved values as input and
+     * does a few fine solving to improve accuracy. 
+     * 
+     * @param nb_qubits Number of qubits
+     * @param nb_params Number of parameters in the solution vector (3 for current available noise channels)
+     * @param lm Eigen::LevenbergMarquardt solver object
+     * @param guess_params Input guess vector (optional). Generates random guess value if not provided
+     * 
+     * @return Vector containing solved noise channel parameters
+     */
+    Eigen::VectorXd processMatrixSolverInternal(size_t nb_qubits, size_t nb_params, size_t max_iter,
+        Eigen::LevenbergMarquardt<Eigen::NumericalDiff<qristal::LMFunctorNoisy>, double> lm,
+        std::optional<Eigen::VectorXd> guess_params = std::nullopt);
+
+    /**
+     * @brief Creates an interpolated process matrix at angle {theta, phi, lambda} using
+     * the average noise channel damping parameters of 2 input process matrices
+     * 
+     * @param nb_qubits Number of qubits
+     * @param process_matrix_1qubit_1 vector of 1-qubit process matrices at Euler angle {theta1, phi1, lambda1}
+     * @param process_matrix_1qubit_2 vector of 1-qubit process matrices at Euler angle {theta2, phi2, lambda2}
+     * @param process_matrix_Nqubit_1 N-qubit process matrix at Euler angle {theta1, phi1, lambda1}
+     * @param process_matrix_Nqubit_2 N-qubit process matrix at Euler angle {theta2, phi2, lambda2}
+     * @param theta1 vector containing the x-rotation angle of all qubits for the set of Euler angles {theta1, phi1, lambda1}
+     * @param phi1 vector containing the y-rotation angle of all qubits for the set of Euler angles {theta1, phi1, lambda1}
+     * @param lambda1 vector containing the z-rotation angle of all qubits for the set of Euler angles {theta1, phi1, lambda1}
+     * @param theta2 vector containing the x-rotation angle of all qubits for the set of Euler angles {theta2, phi2, lambda2}
+     * @param phi2 vector containing the y-rotation angle of all qubits for the set of Euler angles {theta2, phi2, lambda2}
+     * @param lambda2 vector containing the z-rotation angle of all qubits for the set of Euler angles {theta2, phi2, lambda2}
+     * @param theta_target \theta target angle of output process matrix
+     * @param phi_target \phi target angle of output process matrix
+     * @param lambda_target \lambda target angle of output process matrix
+     * @param max_iter Maximum number of solver iterations (default = 1000)
+     * @param maxfev Maximum number of function evaluation (default = 1000)
+     * @param xtol Tolerance for the norm of the solution vector (default = 1e-8)
+     * @param ftol tolerance for the norm of the vector function (default = 1e-8)
+     * @param gtol Tolerance for the norm of the gradient of the error vector (default = 1e-8)
+     *
+     * @return Output process matrix
+     */
+    Eigen::MatrixXcd processMatrixInterpolator(size_t nb_qubits,
+        std::vector<Eigen::MatrixXcd> process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd> process_matrix_1qubit_2,
+        Eigen::MatrixXcd process_matrix_Nqubit_1, Eigen::MatrixXcd process_matrix_Nqubit_2,
+        std::vector<double> theta1, std::vector<double> phi1, std::vector<double> lambda1,
+        std::vector<double> theta2, std::vector<double> phi2, std::vector<double> lambda2,
+        double theta_target, double phi_target, double lambda_target,
+        size_t max_iter = 1000, size_t maxfev = 1000, double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
 }
 
 #endif

@@ -5,6 +5,7 @@
 #include "xacc.hpp"
 #include "Accelerator.hpp"
 #include "Eigen/Dense"
+#include <unsupported/Eigen/KroneckerProduct>
 
 #include "qristal/core/noise_model/noise_model.hpp"
 #include "qristal/core/primitives.hpp"
@@ -375,4 +376,195 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   auto choi_mat2 = qristal::kraus_to_choi(kraus_mats_1);
 
   EXPECT_TRUE(choi_mat.isApprox(choi_mat2, 1e-14));
+}
+
+TEST(NoiseChannelTester, testProcessMatrixSolver1Qubit) {
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
+  // Choose some physically meaningful random values
+  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
+  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
+  static std::uniform_real_distribution<double> dist_depol1(0.0, 1e-5);
+
+  // Create process matrix with some chosen Euler angles {theta, phi, lambda} and random noise channel damping parameters.
+  double theta = dist_angle(gen);
+  double phi = dist_angle(gen);
+  double lambda = dist_angle(gen);
+  double gen_amp_damp_rate = dist_amp_damp(gen);
+  double gen_phase_damp_rate = dist_phase_damp(gen);
+  double depol_1qubit_rate = dist_depol1(gen);
+
+  Eigen::VectorXd channel_params(3); // Factor of 3 corresponds to the 3 noise channels
+  channel_params << gen_amp_damp_rate, gen_phase_damp_rate, depol_1qubit_rate;
+
+  // Create input process matrix
+  Eigen::MatrixXcd process_mat_noisy = qristal::create1QubitNoisyProcessMatrix(theta, phi, lambda, channel_params);
+
+  // Solve noise channel damping parameters for the given input process matrix
+  size_t max_iter = 1000;
+  Eigen::VectorXd x = qristal::processMatrixSolver1Qubit(process_mat_noisy, theta, phi, lambda, max_iter);
+
+  // Check that the solved damping parameters are close to their input values.
+  EXPECT_NEAR(gen_amp_damp_rate, x(0), 1e-9);
+  EXPECT_NEAR(gen_phase_damp_rate, x(1), 1e-6);
+  EXPECT_NEAR(depol_1qubit_rate, x(2), 1e-8);
+
+  std::cout << "\nInput values vs. solved values\n";
+  std::cout << "gen_amp_damp_rate, input: " << gen_amp_damp_rate << ", solved: " << x(0)
+            << ", % diff: " << std::abs(gen_amp_damp_rate - x(0)) / gen_amp_damp_rate * 100 << "\n";
+  std::cout << "gen_phase_damp_rate, input: " << gen_phase_damp_rate << ", solved: " << x(1)
+            << ", % diff: " << std::abs(gen_phase_damp_rate - x(1)) / gen_phase_damp_rate * 100 << "\n";
+  std::cout << "depol_1qubit_rate, input: " << depol_1qubit_rate << ", solved: " << x(2)
+            << ", % diff: " << std::abs(depol_1qubit_rate - x(2)) / depol_1qubit_rate * 100 << "\n";
+  std::cout << "\n";
+
+  // Reconstruct the process matrix by using the solved parameters
+  Eigen::MatrixXcd reconstructed_mat =
+      qristal::create1QubitNoisyProcessMatrix(theta, phi, lambda, x);
+  // Check that the input process matrix and the reconstructed matrix are close.
+  EXPECT_TRUE(process_mat_noisy.isApprox(reconstructed_mat, 1.0e-6));
+}
+
+TEST(NoiseChannelTester, testProcessMatrixSolverNQubit) {
+  const size_t nb_qubits = 2;
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
+  // Choose some physically meaningful random values
+  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
+  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
+  static std::uniform_real_distribution<double> dist_depol1(0.0, 1e-5);
+
+  // Create process matrix with some chosen angles {theta, phi, lambda} and random noise channel damping parameters.
+  std::vector<double> theta, phi, lambda, gen_amp_damp_rate_vec, gen_phase_damp_rate_vec, depol_1qubit_rate_vec;
+  for (size_t i = 0; i < nb_qubits; i++) {
+    theta.emplace_back(dist_angle(gen));
+    phi.emplace_back(dist_angle(gen));
+    lambda.emplace_back(dist_angle(gen));
+    gen_amp_damp_rate_vec.emplace_back(dist_amp_damp(gen));
+    gen_phase_damp_rate_vec.emplace_back(dist_phase_damp(gen));
+    depol_1qubit_rate_vec.emplace_back(dist_depol1(gen));
+  }
+
+  Eigen::VectorXd gen_amp_damp_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_amp_damp_rate_vec.data(), gen_amp_damp_rate_vec.size());
+  Eigen::VectorXd gen_phase_damp_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_phase_damp_rate_vec.data(), gen_phase_damp_rate_vec.size());
+  Eigen::VectorXd depol_1qubit_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(depol_1qubit_rate_vec.data(), depol_1qubit_rate_vec.size());
+  Eigen::VectorXd channel_params1(3); // 3 parameters from the 2 noise channels
+  Eigen::VectorXd channel_params2(3); // 3 parameters from the 2 noise channels
+  Eigen::VectorXd channel_paramsN(3*nb_qubits); // Factor of 3 corresponds to the 2 noise channels
+  channel_params1 << gen_amp_damp_rate(0), gen_phase_damp_rate(0), depol_1qubit_rate(0);
+  channel_params2 << gen_amp_damp_rate(1), gen_phase_damp_rate(1), depol_1qubit_rate(1);
+  channel_paramsN << gen_amp_damp_rate, gen_phase_damp_rate, depol_1qubit_rate;
+
+  // Create input 1-qubit process matrices
+  Eigen::MatrixXcd process_mat_noisy1 = qristal::create1QubitNoisyProcessMatrix(theta[0], phi[0], lambda[0], channel_params1);
+  Eigen::MatrixXcd process_mat_noisy2 = qristal::create1QubitNoisyProcessMatrix(theta[1], phi[1], lambda[1], channel_params2);
+  // Create input N-qubit process matrix
+  Eigen::MatrixXcd process_mat_noisyN = qristal::createNQubitNoisyProcessMatrix(nb_qubits, theta, phi, lambda, channel_paramsN);
+
+  // Solve noise channel damping parameters for the given input process matrix
+  size_t max_iter = 1000;
+  Eigen::VectorXd x = qristal::processMatrixSolverNQubit({process_mat_noisy1, process_mat_noisy2},
+      process_mat_noisyN, nb_qubits, theta, phi, lambda, max_iter);
+
+  // Check that the solved damping parameters are close to their input values.
+  for (size_t i = 0; i < nb_qubits; i++) {
+    EXPECT_NEAR(gen_amp_damp_rate_vec[i], x(i), 1e-9);
+    EXPECT_NEAR(gen_phase_damp_rate[i], x(i + nb_qubits), 1e-6);
+    EXPECT_NEAR(depol_1qubit_rate[i], x(i + 2*nb_qubits), 1e-8);
+  }
+
+  std::cout << "\nInput values vs. solved values\n";
+  for (size_t i = 0; i < nb_qubits; i++) {
+    std::cout << "Qubit: " << i << "\n";
+    std::cout << "gen_amp_damp_rate, input: " << gen_amp_damp_rate_vec[i] << ", solved: " << x(i)
+              << ", % diff: " << std::abs(gen_amp_damp_rate_vec[i] - x(i)) / gen_amp_damp_rate_vec[i] * 100 << "\n";
+    std::cout << "gen_phase_damp_rate, input: " << gen_phase_damp_rate_vec[i] << ", solved: " << x(i + nb_qubits)
+              << ", % diff: " << std::abs(gen_phase_damp_rate_vec[i] - x(i + nb_qubits)) / gen_phase_damp_rate_vec[i] * 100 << "\n";
+    std::cout << "depol_1qubit_rate, input: " << depol_1qubit_rate_vec[i] << ", solved: " << x(i + 2*nb_qubits)
+              << ", % diff: " << std::abs(depol_1qubit_rate_vec[i] - x(i + 2*nb_qubits)) / depol_1qubit_rate_vec[i] * 100 << "\n";
+    std::cout << "\n";
+  }
+
+  // Reconstruct the process matrix by using the solved parameters
+  Eigen::MatrixXcd reconstructed_mat = qristal::createNQubitNoisyProcessMatrix(nb_qubits, theta, phi, lambda, x);
+  // Check that the input process matrix and the reconstructed matrix are close.
+  EXPECT_TRUE(process_mat_noisyN.isApprox(reconstructed_mat, 1.0e-6));
+}
+
+TEST(NoiseChannelTester, testProcessMatrixInterpolator) {
+  const size_t nb_qubits = 2;
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  // Choose some physically meaningful random values
+  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
+  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
+  static std::uniform_real_distribution<double> dist_depol1(0.0, 1e-5);
+
+  // Create angles and noise channel parameters for angles {theta1, phi1, lambda1}
+  std::vector<double> theta1 = {0.1*std::numbers::pi, 0.2*std::numbers::pi};
+  std::vector<double> phi1 = {0.3*std::numbers::pi, 0.4*std::numbers::pi};
+  std::vector<double> lambda1 = {0.5*std::numbers::pi, 0.6*std::numbers::pi};
+  std::vector<double> gen_amp_damp_rate_vec1 = {dist_amp_damp(gen), dist_amp_damp(gen)};
+  std::vector<double> gen_phase_damp_rate_vec1 = {dist_phase_damp(gen), dist_phase_damp(gen)};
+  std::vector<double> depol_1qubit_rate_vec1 = {dist_depol1(gen), dist_depol1(gen)};
+
+  // Create angles and noise channel parameters for angles {theta2, phi2, lambda2}
+  std::vector<double> theta2 = {0.3*std::numbers::pi, 0.4*std::numbers::pi};
+  std::vector<double> phi2 = {0.5*std::numbers::pi, 0.6*std::numbers::pi};
+  std::vector<double> lambda2 = {0.7*std::numbers::pi, 0.8*std::numbers::pi};
+  std::vector<double> gen_amp_damp_rate_vec2 = {dist_amp_damp(gen), dist_amp_damp(gen)};
+  std::vector<double> gen_phase_damp_rate_vec2 = {dist_phase_damp(gen), dist_phase_damp(gen)};
+  std::vector<double> depol_1qubit_rate_vec2 = {dist_depol1(gen), dist_depol1(gen)};
+
+  // Convert angles and noise channel parameters to Eigen
+  Eigen::VectorXd gen_amp_damp_rate1 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_amp_damp_rate_vec1.data(), gen_amp_damp_rate_vec1.size());
+  Eigen::VectorXd gen_amp_damp_rate2 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_amp_damp_rate_vec2.data(), gen_amp_damp_rate_vec2.size());
+  Eigen::VectorXd gen_phase_damp_rate1 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_phase_damp_rate_vec1.data(), gen_phase_damp_rate_vec1.size());
+  Eigen::VectorXd gen_phase_damp_rate2 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_phase_damp_rate_vec2.data(), gen_phase_damp_rate_vec2.size());
+  Eigen::VectorXd depol_1qubit_rate1 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(depol_1qubit_rate_vec1.data(), depol_1qubit_rate_vec1.size());
+  Eigen::VectorXd depol_1qubit_rate2 = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(depol_1qubit_rate_vec2.data(), depol_1qubit_rate_vec2.size());
+  Eigen::VectorXd channel_params_qubit1_1(3), channel_params_qubit2_1(3), channel_params_qubit1_2(3), channel_params_qubit2_2(3),
+      channel_params_qubitN_1(6), channel_params_qubitN_2(6);
+  channel_params_qubit1_1 << gen_amp_damp_rate1(0), gen_phase_damp_rate1(0), depol_1qubit_rate1(0);
+  channel_params_qubit2_1 << gen_amp_damp_rate1(1), gen_phase_damp_rate1(1), depol_1qubit_rate1(1);
+  channel_params_qubitN_1 << gen_amp_damp_rate1, gen_phase_damp_rate1, depol_1qubit_rate1;
+  channel_params_qubit1_2 << gen_amp_damp_rate2(0), gen_phase_damp_rate2(0), depol_1qubit_rate2(0);
+  channel_params_qubit2_2 << gen_amp_damp_rate2(1), gen_phase_damp_rate2(1), depol_1qubit_rate2(1);
+  channel_params_qubitN_2 << gen_amp_damp_rate2, gen_phase_damp_rate2, depol_1qubit_rate2;
+
+  // Create input 1-qubit process matrices at angles {theta1, phi1, lambda1}
+  Eigen::MatrixXcd process_mat_noisy_qubit1_1 = qristal::create1QubitNoisyProcessMatrix(theta1[0], phi1[0], lambda1[0], channel_params_qubit1_1);
+  Eigen::MatrixXcd process_mat_noisy_qubit2_1 = qristal::create1QubitNoisyProcessMatrix(theta1[1], phi1[1], lambda1[1], channel_params_qubit2_1);
+  // Create input N-qubit process matrix at angles {theta1, phi1, lambda1}
+  Eigen::MatrixXcd process_mat_noisy_qubitN_1 = qristal::createNQubitNoisyProcessMatrix(nb_qubits, theta1, phi1, lambda1, channel_params_qubitN_1);
+
+  // Create input 1-qubit process matrices at angles {theta2, phi2, lambda2}
+  Eigen::MatrixXcd process_mat_noisy_qubit1_2 = qristal::create1QubitNoisyProcessMatrix(theta2[0], phi2[0], lambda2[0], channel_params_qubit1_2);
+  Eigen::MatrixXcd process_mat_noisy_qubit2_2 = qristal::create1QubitNoisyProcessMatrix(theta2[1], phi2[1], lambda2[1], channel_params_qubit2_2);
+  // Create input N-qubit process matrix at angles {theta2, phi2, lambda2}
+  Eigen::MatrixXcd process_mat_noisy_qubitN_2 = qristal::createNQubitNoisyProcessMatrix(nb_qubits, theta2, phi2, lambda2, channel_params_qubitN_2);
+
+  // Interpolate noise channel parameters to generate a process matrix at target angles
+  double theta_target = 0.2*std::numbers::pi;
+  double phi_target = 0.3*std::numbers::pi;
+  double lambda_target = 0.4*std::numbers::pi;
+  Eigen::MatrixXcd process_mat_interp = qristal::processMatrixInterpolator(nb_qubits,
+      {process_mat_noisy_qubit1_1, process_mat_noisy_qubit2_1}, {process_mat_noisy_qubit1_2, process_mat_noisy_qubit2_2},
+      process_mat_noisy_qubitN_1, process_mat_noisy_qubitN_2, theta1, phi1, lambda1, theta2, phi2, lambda2,
+      theta_target, phi_target, lambda_target);
+
+  // Check that interpolated process matrix have the same values as a constructed process
+  // matrix with the expected arguments
+  std::vector<double> theta_target_vec, phi_target_vec, lambda_target_vec;
+  for (size_t i = 0; i < nb_qubits; i++) {
+    theta_target_vec.emplace_back(theta_target);
+    phi_target_vec.emplace_back(phi_target);
+    lambda_target_vec.emplace_back(lambda_target);
+  }
+  Eigen::VectorXd channel_params_avg = (channel_params_qubitN_1 + channel_params_qubitN_2) / 2;
+  Eigen::MatrixXcd reconstructed_process_mat_interp = qristal::createNQubitNoisyProcessMatrix(
+      nb_qubits, theta_target_vec, phi_target_vec, lambda_target_vec, channel_params_avg);
+  EXPECT_TRUE(reconstructed_process_mat_interp.isApprox(process_mat_interp, 1.0e-6));
 }
