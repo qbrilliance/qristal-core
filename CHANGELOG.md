@@ -29,6 +29,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added ability to send custom noise models to emulator backends.
 - Added maximum likelihood estimation to standard quantum state tomography protocol. Can be enabled by calling `set_maximum_likelihood_estimation()`.
 - Added process matrix solver and interpolator.
+- Enabled Kraus matrix contribution probability to improve qsim Kraus matrix sampling.
 
 ### Fixed
 

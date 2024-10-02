@@ -88,9 +88,9 @@ def ring_noise_model(nb_qubits):
     # Note: To use the emulator backends, Kraus operators for native gate set {rx, ry, cz} must be supplied.
     # Set the single-qubit gate fidelities.
     # Kraus operators for 1-qubit gate depolarizing channel
-    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u1), "u1", [qId])
-    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u2), "u2", [qId])
-    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u3), "u3", [qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u1, None), "u1", [qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u2, None), "u2", [qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId], single_qubit_kraus_u3, None), "u3", [qId])
 
     # Set the qubit connections to form a ring
     qId2 = 0 if qId == nb_qubits - 1 else qId + 1
@@ -98,8 +98,8 @@ def ring_noise_model(nb_qubits):
 
     # Set the corresponding two-qubit gate fidelities
     # Create 2-qubit Kraus matrices
-    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus), "cx", [qId, qId2])
-    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus), "cx", [qId2, qId])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus, None), "cx", [qId, qId2])
+    noise_model.add_gate_error(qristal.core.krausOpToChannel.Create([qId, qId2], two_qubit_kraus, None), "cx", [qId2, qId])
 
   return noise_model
 

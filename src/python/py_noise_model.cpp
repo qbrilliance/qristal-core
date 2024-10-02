@@ -98,9 +98,10 @@ void bind_noise_model(pybind11::module &m) {
       .def(py::init<>())
       .def_readonly_static("name", &qristal::krausOpToChannel::name)
       .def("Create",
-          [](const py::list qubits_list, py::list kraus_ops_list) {
+          [](const py::list qubits_list, py::list kraus_ops_list, std::optional<py::list> kraus_probs_list = std::nullopt) {
             std::vector<size_t> qubits_vector;
             std::vector<Eigen::MatrixXcd> kraus_ops_eigen;
+            std::vector<double> kraus_probs;
             for (auto &qubit : qubits_list) {
               qubits_vector.emplace_back(py::cast<size_t>(qubit));
             }
@@ -124,7 +125,18 @@ void bind_noise_model(pybind11::module &m) {
               }
               kraus_ops_eigen.emplace_back(kraus_op_eigen);
             }
-            return qristal::krausOpToChannel::Create(qubits_vector, kraus_ops_eigen);
+
+            if (kraus_probs_list) {
+              for (size_t i = 0; i < kraus_probs_list.value().size(); i++) {
+                kraus_probs.emplace_back(py::cast<double>(kraus_probs_list.value()[i]));
+              }
+            } else {
+              for (size_t i = 0; i < kraus_ops_eigen.size(); i++) {
+                kraus_probs.emplace_back(0.0);
+              }
+            }
+
+            return qristal::krausOpToChannel::Create(qubits_vector, kraus_ops_eigen, kraus_probs);
           }, R"(
       Create krausOpToChannel channel (balanced/symmetric)
 

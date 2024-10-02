@@ -27,6 +27,12 @@ namespace qristal
          *
          */
         std::vector<size_t> qubits;
+
+        /**
+         * @brief Probability of each Kraus matrix.
+         * 
+         */
+        double prob;
     };
 
     /**
@@ -416,10 +422,16 @@ namespace qristal
     /**
      * @brief Convert input Kraus operator matrix to noise channel
      * 
+     * @param qubits Vector of qubit indices that the Kraus operators act on
+     * @param kraus_ops_eigen Vector of Kraus operators in Eigen matrix type
+     * @param kraus_probs (Optional) Vector of Kraus operator probability. Each probability
+     * corresponds to the contribution of each Kraus matrix to the noise channel. Providing
+     * this will help speed up the qsim state vector-based backend simulation.
      */
     struct krausOpToChannel {
       static constexpr char name[] = "custom_kraus";
-      static NoiseChannel Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen);
+      static NoiseChannel Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen,
+          std::optional<std::vector<double>> kraus_probs = std::nullopt);
     };
 
     //============================================ Process matrix interpolation methods ============================================
@@ -508,7 +520,7 @@ namespace qristal
      * @param n Number of parameters to solve for
      */
     struct LMFunctorNoisy : qristal::EigenNumericalDiffFunctor<double> {
-      LMFunctorNoisy(void): qristal::EigenNumericalDiffFunctor<double>(m, n) {}
+      LMFunctorNoisy(void): qristal::EigenNumericalDiffFunctor<double>(m = 0, n = 0) {}
       int operator()(const Eigen::VectorXd &x, Eigen::VectorXd &fvec) const {
         // Create noisy process matrix with input angles and noise channel parameters x.
         Eigen::MatrixXcd guess_mat;

@@ -44,36 +44,42 @@ namespace qristal
 
     NoiseChannel AmplitudeDampingChannel::Create(size_t q, double gamma)
     {
-        KrausOperator::Matrix mat1{{1.0, 0.0}, {0.0, std::sqrt(1 - gamma)}};
+        const double p1 = 1 - gamma;
+        const double p2 = gamma;
+        KrausOperator::Matrix mat1{{1.0, 0.0}, {0.0, std::sqrt(p1)}};
         KrausOperator::Matrix mat2{{0.0, std::sqrt(gamma)}, {0.0, 0.0}};
-        return {{mat1, {q}}, {mat2, {q}}};
+        return {{mat1, {q}, p1}, {mat2, {q}, p2}};
     }
 
     NoiseChannel PhaseDampingChannel::Create(size_t q, double gamma)
     {
-        KrausOperator::Matrix mat1{{1.0, 0.0}, {0.0, std::sqrt(1 - gamma)}};
+        const double p1 = 1 - gamma;
+        const double p2 = gamma;
+        KrausOperator::Matrix mat1{{1.0, 0.0}, {0.0, std::sqrt(p1)}};
         KrausOperator::Matrix mat2{{0.0, 0.0}, {0.0, std::sqrt(gamma)}};
-        return {{mat1, {q}}, {mat2, {q}}};
+        return {{mat1, {q}, p1}, {mat2, {q}, p2}};
     }
 
     NoiseChannel DepolarizingChannel::Create(size_t q, double p)
     {
-        const double p1 = std::sqrt(1 - p);
-        const double p2 = std::sqrt(p / 3);
-        KrausOperator::Matrix mat_Id{{p1, 0.0}, {0.0, p1}};
-        KrausOperator::Matrix mat_X{{0, p2}, {p2, 0}};
-        KrausOperator::Matrix mat_Y{{0, -p2 * std::complex<double>(0, 1)}, {p2 * std::complex<double>(0, 1), 0}};
-        KrausOperator::Matrix mat_Z{{p2, 0}, {0, -p2}};
+        const double p1 = 1 - p;
+        const double p2 = p / 3;
+        KrausOperator::Matrix mat_Id{{std::sqrt(p1), 0.0}, {0.0, std::sqrt(p1)}};
+        KrausOperator::Matrix mat_X{{0, std::sqrt(p2)}, {std::sqrt(p2), 0}};
+        KrausOperator::Matrix mat_Y{{0, -std::sqrt(p2) * std::complex<double>(0, 1)}, {std::sqrt(p2) * std::complex<double>(0, 1), 0}};
+        KrausOperator::Matrix mat_Z{{std::sqrt(p2), 0}, {0, -std::sqrt(p2)}};
 
-        return {{mat_Id, {q}}, {mat_X, {q}}, {mat_Y, {q}}, {mat_Z, {q}}};
+        return {{mat_Id, {q}, p1}, {mat_X, {q}, p2}, {mat_Y, {q}, p2}, {mat_Z, {q}, p2}};
     }
 
     NoiseChannel DepolarizingChannel::Create(size_t q1, size_t q2, double p)
     {
         constexpr size_t num_terms = 16;
         constexpr double max_param = num_terms / (num_terms - 1.0);
-        const double coeff_iden = std::sqrt(1 - p / max_param);
-        const double coeff_pauli = std::sqrt(p / num_terms);
+        const double prob_iden = 1 - p / max_param;
+        const double prob_pauli = p / num_terms;
+        const double coeff_iden = std::sqrt(prob_iden);
+        const double coeff_pauli = std::sqrt(prob_pauli);
 
         static const std::unordered_map<char, Eigen::MatrixXcd> pauli_op_map = []()
         {
@@ -109,6 +115,7 @@ namespace qristal
             qristal::KrausOperator kraus_op;
             kraus_op.matrix = mat;
             kraus_op.qubits = {q1, q2};
+            kraus_op.prob = std::pow(coeff, 2);
             return kraus_op;
         };
 
@@ -143,6 +150,12 @@ namespace qristal
         const auto c0 = std::sqrt(1 - excited_state_population);
         const auto c1 = std::sqrt(excited_state_population);
         const auto param = 1 - param_amp - param_phase;
+        const double pA0 = (1 - excited_state_population) * param;
+        const double pA1 = (1 - excited_state_population) * param_amp;
+        const double pA2 = (1 - excited_state_population) * param_phase;
+        const double pB0 = excited_state_population * param;
+        const double pB1 = excited_state_population * param_amp;
+        const double pB2 = excited_state_population * param_phase;
         // Damping ops to 0 state
         KrausOperator::Matrix A0 = {{c0, 0}, {0, c0 * std::sqrt(param)}};
         KrausOperator::Matrix A1 = {{0, c0 * std::sqrt(param_amp)}, {0, 0}};
@@ -153,6 +166,7 @@ namespace qristal
         KrausOperator::Matrix B2 = {{c1 * std::sqrt(param_phase), 0}, {0, 0}};
 
         const std::vector<KrausOperator::Matrix> all_ops{A0, A1, A2, B0, B1, B2};
+        const std::vector<double> all_probs{pA0, pA1, pA2, pB0, pB1, pB2};
         // Select non-zero ops
         const auto is_non_zero = [](const KrausOperator::Matrix &mat)
         {
@@ -171,13 +185,14 @@ namespace qristal
         };
 
         std::vector<KrausOperator::Matrix> non_zero_ops;
-        std::copy_if(all_ops.begin(), all_ops.end(), std::back_inserter(non_zero_ops), is_non_zero);
         NoiseChannel channel;
-        for (const auto &kraus_mat : non_zero_ops)
-        {
-            KrausOperator op{kraus_mat, {q}};
+        for (size_t i = 0; i < all_ops.size(); i++) {
+          if (is_non_zero(all_ops[i])) {
+            KrausOperator op{all_ops[i], {q}, all_probs[i]};
             channel.emplace_back(op);
+          }
         }
+
         return channel;
     }
 
@@ -412,7 +427,8 @@ namespace qristal
                               choi_chan / (double)input_dim);
     }
 
-    NoiseChannel krausOpToChannel::Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen) {
+    NoiseChannel krausOpToChannel::Create(std::vector<size_t> qubits, std::vector<Eigen::MatrixXcd> kraus_ops_eigen,
+        std::optional<std::vector<double>> kraus_probs) {
       NoiseChannel kraus_ops;
       for (size_t i = 0; i < kraus_ops_eigen.size(); i++) {
         Eigen::MatrixXcd kraus_op_mat = kraus_ops_eigen[i];
@@ -427,6 +443,7 @@ namespace qristal
         qristal::KrausOperator kraus_op;
         kraus_op.matrix = eigen_to_matrix(kraus_op_mat);
         kraus_op.qubits = qubits;
+        kraus_op.prob = kraus_probs ? kraus_probs.value()[i] : 0.0;
         kraus_ops.emplace_back(kraus_op);
       }
 
