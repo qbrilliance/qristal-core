@@ -15,15 +15,18 @@ TEST(ParametrizedCircuitTester, test_builder_api) {
   circuit.U1(1, "delta");
   circuit.CPhase(0, 1, "epsilon");
   circuit.U3(0, "theta_1", "theta_2", "theta_3");
+  circuit.CRZ(0, 1, "phi");
   circuit.MeasureAll(num_qubits);
+  circuit.print();
   std::shared_ptr<xacc::CompositeInstruction> instructions = circuit.get();
   std::string expected_circ =
       "Rx(alpha) q0\nRy(beta) q0\nRz(gamma) q1\n"
       "U1(delta) q1\nCPhase(epsilon) q0,q1\n"
       "U(theta_1,theta_2,theta_3) q0\n"
+      "CRZ(phi) q0,q1\n"
       "Measure q0\nMeasure q1\n";
   EXPECT_TRUE(circuit.is_parametrized());
-  EXPECT_EQ(circuit.num_free_params(), 8);
+  EXPECT_EQ(circuit.num_free_params(), 9);
   EXPECT_EQ(instructions->toString(), expected_circ);
 }
 
@@ -92,3 +95,4 @@ TEST(ParametrizedCircuitTester, test_circuit_append_to_new_param) {
     EXPECT_TRUE(expected_free_params[i] == actual_free_params[i]);
   }
 }
+

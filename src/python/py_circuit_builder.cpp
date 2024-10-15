@@ -435,6 +435,113 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
+          "crz",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
+              double theta) { builder.CRZ(ctrl_idx, target_idx, theta); },
+          py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("theta"),
+          R"(
+      CRZ gate
+
+     This method adds a controlled-U1 (CPhase) gate to the circuit.
+
+     The CRZ gate performs a RZ(theta) gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+     - **theta** the value of the phase [double]
+
+    )")
+      .def(
+          "crz",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx, std::string param_name) {
+            builder.CRZ(ctrl_idx, target_idx, param_name);
+          },
+          py::arg("ctrl_idx"),py::arg("target_idx"), py::arg("param_name"), R"(
+      CRZ gate
+
+     This method adds a controlled parameterized z-axis rotation (CRZ) gate to the circuit.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
+
+    )")
+      .def(
+          "crx",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
+              double theta) { builder.CRX(ctrl_idx, target_idx, theta); },
+          py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("theta"),
+          R"(
+      CRX gate
+
+     The CRX gate performs a RX(theta) gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+     - **theta** the value of the phase [double]
+
+    )")
+      .def(
+          "crx",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx, std::string param_name) {
+            builder.CRX(ctrl_idx, target_idx, param_name);
+          },
+          py::arg("ctrl_idx"),py::arg("target_idx"), py::arg("param_name"), R"(
+      CRX gate
+
+     This method adds a controlled parameterized z-axis rotation (CRX) gate to the circuit.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
+
+    )")
+      .def(
+          "cry",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
+              double theta) { builder.CRX(ctrl_idx, target_idx, theta); },
+          py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("theta"),
+          R"(
+      CRY gate
+
+     The CRY gate performs a RY(theta) gate on the target qubit
+     conditional on the control qubit being in the 1 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+     - **theta** the value of the phase [double]
+
+    )")
+      .def(
+          "cry",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx, std::string param_name) {
+            builder.CRY(ctrl_idx, target_idx, param_name);
+          },
+          py::arg("ctrl_idx"),py::arg("target_idx"), py::arg("param_name"), R"(
+      CRY gate
+
+     This method adds a controlled parameterized z-axis rotation (CRY) gate to the circuit.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the qubit being acted on [int]
+     - **name** the name of the free parameter [string]
+
+    )")
+      .def(
           "ch",
           [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
             builder.CH(ctrl_idx, target_idx);

@@ -210,6 +210,51 @@ namespace qristal
     add_gate_with_free_parameters(gate_name, {ctrl_idx, target_idx}, {param_name});
   }
 
+  void CircuitBuilder::CRZ(size_t ctrl_idx, size_t target_idx, double theta) {
+    circuit_->addInstruction(gate_provider_->createInstruction(
+        "CRZ", {ctrl_idx, target_idx}, {theta}));
+  }
+
+  void CircuitBuilder::CRZ(size_t ctrl_idx, size_t target_idx, std::string param_name) {
+    add_gate_with_free_parameters("CRZ", {ctrl_idx, target_idx}, {param_name});
+  }
+
+  void CircuitBuilder::CRX(size_t ctrl_idx, size_t target_idx, double theta) {
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Ry", {target_idx}, {std::numbers::pi}));
+    circuit_->addInstruction(gate_provider_->createInstruction(
+        "CRZ", {ctrl_idx, target_idx}, {theta}));
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Ry", {target_idx}, {-std::numbers::pi}));
+  }
+
+  void CircuitBuilder::CRX(size_t ctrl_idx, size_t target_idx, std::string param_name) {
+    std::string gate_name = "CZ";
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Ry", {target_idx}, {std::numbers::pi}));
+    add_gate_with_free_parameters(gate_name, {ctrl_idx, target_idx}, {param_name});
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Ry", {target_idx}, {-std::numbers::pi}));
+  }
+
+  void CircuitBuilder::CRY(size_t ctrl_idx, size_t target_idx, double theta) {
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Rx", {target_idx}, {-std::numbers::pi}));
+    circuit_->addInstruction(gate_provider_->createInstruction(
+        "CRZ", {ctrl_idx, target_idx}, {theta}));
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Rx", {target_idx}, {std::numbers::pi}));
+  }
+
+  void CircuitBuilder::CRY(size_t ctrl_idx, size_t target_idx, std::string param_name) {
+    std::string gate_name = "CZ";
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Rx", {target_idx}, {-std::numbers::pi}));
+    add_gate_with_free_parameters(gate_name, {ctrl_idx, target_idx}, {param_name});
+    circuit_->addInstruction(
+    gate_provider_->createInstruction("Rx", {target_idx}, {std::numbers::pi}));
+  }
+
   void CircuitBuilder::SWAP(size_t q1, size_t q2) {
     circuit_->addInstruction(
         gate_provider_->createInstruction("Swap", {q1, q2}));

@@ -579,6 +579,128 @@ namespace qristal {
       void CPhase(size_t ctrl_idx, size_t target_idx, std::string param_name);
 
       /**
+      * @brief CRZ gate
+      *
+      * This method adds a controlled-RZ gate to the circuit.
+      *
+      * The CRZ gate performs a RZ gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+      *
+      * \f[
+      *
+      * CRZ(\theta)\ket{ab} \rightarrow \ket{a}RZ(\theta)^a \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx the index of the control qubit [size_t]
+      * @param target_idx the index of the target qubit [size_t]
+      * @param theta the value of the phase [double]
+      */
+      void CRZ(size_t ctrl_idx, size_t target_idx, double theta);
+
+      /**
+      * This method adds an z-axis rotation (CRZ) gate with a free
+      * parameter to the circuit.
+      * It is equivalent to the parameterized CPhase gate.
+      *
+      * The name of the free parameter must be passed to the method.
+      *
+      * The CRZ gate performs a RZ gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+      *
+      * \f[
+      *
+      * CRZ(\theta)\ket{ab} \rightarrow \ket{a}RZ(\theta)^a \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx  the index of the control qubit [size_t]
+      * @param target_idx  the index of the qubit being acted on [size_t]
+      * @param param_name the name of the free parameter [std::string]
+      */
+      void CRZ(size_t ctrl_idx, size_t target_idx, std::string param_name);
+
+      /**
+      * @brief CRX gate
+      *
+      * This method adds a controlled-RX gate to the circuit.
+      *
+      * The CRX gate performs a RX gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+      *
+      * \f[
+      *
+      * CRX(\theta)\ket{ab} \rightarrow \ket{a}RX(\theta)^a \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx the index of the control qubit [size_t]
+      * @param target_idx the index of the target qubit [size_t]
+      * @param theta the value of the phase [double]
+      */
+      void CRX(size_t ctrl_idx, size_t target_idx, double theta);
+
+     /** 
+      * This method adds an x-axis rotation (CRX) gate with a free
+      * parameter to the circuit.
+      * The name of the free parameter must be passed to the method.
+      *
+      * The CRX gate performs a RX gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+      *
+      * \f[
+      *
+      * CRX(\theta)\ket{ab} \rightarrow \ket{a}RX(\theta)^a \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx  the index of the control qubit [size_t]
+      * @param target_idx  the index of the qubit being acted on [size_t]
+      * @param param_name the name of the free parameter [std::string]
+      */
+      void CRX(size_t ctrl_idx, size_t target_idx, std::string param_name);
+
+      /**
+      * @brief CRY gate
+      *
+      * This method adds a controlled-RY gate to the circuit.
+      *
+      * The CRY gate performs a RY gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+      *
+      * \f[
+      *
+      * CRY(\theta)\ket{ab} \rightarrow \ket{a}RY(\theta)^a \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx the index of the control qubit [size_t]
+      * @param target_idx the index of the target qubit [size_t]
+      * @param theta the value of the phase [double]
+      */
+      void CRY(size_t ctrl_idx, size_t target_idx, double theta);
+
+      /**
+      * This method adds an y-axis rotation (CRY) gate with a free
+      * parameter to the circuit.
+      * The name of the free parameter must be passed to the method.
+      *
+      * The CRY gate performs a RY gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{1}\f$ state. That is:
+      *
+      * \f[
+      *
+      * CRY(\theta)\ket{ab} \rightarrow \ket{a}RY(\theta)^a \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx  the index of the control qubit [size_t]
+      * @param target_idx  the index of the qubit being acted on [size_t]
+      * @param param_name the name of the free parameter [std::string]
+      */
+      void CRY(size_t ctrl_idx, size_t target_idx, std::string param_name);
+
+      /**
       * @brief SWAP gate
       *
       * This method adds a SWAP gate to the circuit.
