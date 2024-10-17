@@ -7,6 +7,7 @@
 #include "qristal/core/session.hpp"
 #include "qristal/core/circuit_builder.hpp"
 #include "qristal/core/thread_pool.hpp"
+#include <pybind11/eigen.h>
 
 namespace qristal {
 void bind_session(pybind11::module &m) {
@@ -168,6 +169,9 @@ void bind_session(pybind11::module &m) {
       .def_property("noise_mitigations", &qristal::session::get_noise_mitigations,
                     &qristal::session::set_noise_mitigations,
                     qristal::help::noise_mitigations_)
+      .def_property("SPAM_confusion", &qristal::session::get_SPAM_correction_matrix,
+                    &qristal::session::set_SPAM_confusion_matrix, 
+                    qristal::help::SPAM_confusion_)
       .def_property("notiming", &qristal::session::get_notimings,
                     &qristal::session::set_notiming, qristal::help::notimings_)
       .def_property("notimings", &qristal::session::get_notimings,
@@ -262,6 +266,8 @@ void bind_session(pybind11::module &m) {
           qristal::help::state_vec_)
       .def_property_readonly("results", &qristal::session::results,
                              qristal::help::results_)
+      .def_property_readonly("results_native", &qristal::session::results_native,
+                             qristal::help::results_native_)
       .def_property_readonly("out_probs", &qristal::session::get_out_probs,
                              qristal::help::out_probs_)
       .def_property_readonly("out_counts", &qristal::session::get_out_counts,

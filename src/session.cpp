@@ -1837,6 +1837,26 @@ namespace qristal
           timing_profile.get_total_initialisation_maxgate_readout_time_ms(xacc_scope_timer_qpu_ms, run_config.num_shots);
     }
 
+    // Perform SPAM correction (if set) and store corrected results separately
+    if (perform_SPAM_correction_) {
+      std::cerr << "╭────────────────────────────────────────────────────────╮" << std::endl;
+      std::cerr << "│     Warning: Automatic SPAM correction is enabled!     │" << std::endl;
+      std::cerr << "│ `results` will be overwritten by SPAM-corrected counts │" << std::endl;
+      std::cerr << "│  Native results can be retrieved from `results_native` │" << std::endl;
+      std::cerr << "╰────────────────────────────────────────────────────────╯" << std::endl;
+      results_native_ = results_; 
+      //overwrite results_ with SPAM-corrected counts
+      results_.clear();
+      for (const auto& counts_list : results_native_) {
+        std::vector<std::map<std::vector<bool>, int>> SPAM_corrected;
+        for (const auto& counts: counts_list){
+          SPAM_corrected.push_back(
+            qristal::apply_SPAM_correction(counts, SPAM_correction_mat_)
+          );
+        }
+        results_.push_back(SPAM_corrected);
+      }
+    }
   }
 
   // Wrap raw OpenQASM string in a QB Kernel:

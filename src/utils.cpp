@@ -17,6 +17,47 @@ std::ostream& operator<<(std::ostream& s, const std::map<std::vector<bool>, int>
 
 namespace qristal {
 
+  std::map<std::vector<bool>, int> apply_SPAM_correction(
+      const std::map<std::vector<bool>, int>& counts, 
+      const Eigen::MatrixXd& SPAM_correction_mat
+  ) {
+    //(1) organize counts into Eigen::Vector 
+    size_t n_qubits = counts.begin()->first.size();
+    Eigen::VectorXd counts_vec = Eigen::VectorXd::Zero(SPAM_correction_mat.rows());
+    for (auto const & [bitstring, count] : counts) {
+      //convert std::vector<bool> to boost::dynamic_bitset
+      boost::dynamic_bitset<> bitset(bitstring.size());
+      for (size_t i = 0; i < n_qubits; ++i) {
+        bitset[n_qubits - 1 - i] = bitstring[i]; //boost uses r2l ordering!
+      }
+      //and to integer index
+      counts_vec(bitset.to_ulong()) = count; 
+    }
+    double N = counts_vec.sum();
+    //(2) apply SPAM correction 
+    counts_vec = SPAM_correction_mat * counts_vec;
+    //(3) re-set counts 
+    //(3.1) replace negative values with zero 
+    for (Eigen::Index i = 0; i < counts_vec.rows(); ++i) {
+      counts_vec(i) = std::max(0.0, counts_vec(i));
+    }
+    //(3.2) Rescale based on the total sum and assemble corrected counts 
+    std::map<std::vector<bool>, int> corrected_counts;
+    double scale_factor = N / counts_vec.sum(); 
+    for (Eigen::Index i = 0; i < counts_vec.rows(); ++i) {
+      int c = std::round(counts_vec(i) * scale_factor); 
+      if (c > 0) {
+        boost::dynamic_bitset<> bits(n_qubits, i);
+        std::vector<bool> key(n_qubits); 
+        for (size_t j = 0; j < n_qubits; ++j) {
+          key[j] = bits[n_qubits - 1 - j];
+        }
+        corrected_counts[key] = c;
+      }
+    }
+    return corrected_counts;
+  }
+
   template<>
   std::ostream& operator<<(std::ostream& s, const std::vector<bool>& v) {
     for (const auto& i : v | std::views::reverse) s << i;

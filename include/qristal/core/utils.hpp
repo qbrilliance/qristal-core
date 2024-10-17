@@ -10,7 +10,7 @@
 
 #include <args.hxx>
 #include <nlohmann/json.hpp>
-
+#include <Eigen/Dense>
 
 /**
 * Utility (helper) functions
@@ -20,6 +20,20 @@
 std::ostream& operator<< (std::ostream& s, const std::map<std::vector<bool>, int>& m);
 
 namespace qristal {
+
+  /**
+  * @brief A helper function applying a given SPAM correction matrix to measured bit string counts
+  *
+  * Arguments: 
+  * @param counts : A constant reference to the native measured counts std::map. 
+  * @param SPAM_correction_mat : A constant reference to the SPAM correction matrix.
+  *
+  * @return std::map<std::vector<bool>, int> : The SPAM-corrected counts.
+  */
+  std::map<std::vector<bool>, int> apply_SPAM_correction(
+      const std::map<std::vector<bool>, int>& counts, 
+      const Eigen::MatrixXd& SPAM_correction_mat
+  );
 
   /// Overload to allow `std::cout << vector`
   template <typename T>

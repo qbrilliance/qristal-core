@@ -449,6 +449,12 @@ namespace qristal {
         After calling session.run(), the counts from running sn shots are stored in a dictionary of shot counts. The dictionary keys are bit lists of length qn, with the same bit indexation as the processor registers.
     )";
 
+    const char* results_native_ = R"(
+        results_native:
+
+        An additional results container holding the native measurement results if automatic SPAM correction was enabled in session. 
+    )";
+
     const char* out_counts_ = R"(
         out_counts:
 
@@ -594,6 +600,15 @@ namespace qristal {
         noise_mitigations:
 
         A 1d-array (list) version of noise_mitigation.
+    )";
+
+    const char* SPAM_confusion_ = R"(
+        SPAM_confusion: 
+
+        Set a state preparation and measurement (SPAM) confusion matrix, which will be used to correct the measured results.
+        After setting, and calling `run()`, the results variable will automatically be populated with SPAM-corrected counts. 
+        The native counts will be stored in `results_native` instead. Calling `SPAM_confusion` after setting, will return 
+        the used SPAM correction matrix, i.e., the inverse of the passed confusion matrix.  
     )";
 
     const char* seeds_ = R"(

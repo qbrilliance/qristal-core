@@ -124,6 +124,9 @@ namespace qristal
       std::shared_ptr<std::vector<std::complex<double>>> state_vec_;
 
       // Error mitigation
+      bool perform_SPAM_correction_ = false; 
+      Eigen::MatrixXd SPAM_correction_mat_; 
+      Table2d<std::map<std::vector<bool>, int>> results_native_;
       Table2d<std::string> error_mitigations_;
 
       // Constants
@@ -915,6 +918,16 @@ namespace qristal
       const Table2d<std::map<std::vector<bool>,int>> &results() const;
 
       /**
+       * @brief Get the native output measurement counts as a map
+       *
+       * @return Native measurement counts map
+       *
+       * @details Beware: The native results are only stored separately, if a confusion or 
+       * correction matrix was supplied to session, enabling automatic SPAM correction!
+       */
+      const Table2d<std::map<std::vector<bool>,int>> & results_native() const;
+
+      /**
        * @brief Get the output measurement counts as a vector
        *
        * @return Measurement counts vector
@@ -991,6 +1004,27 @@ namespace qristal
        */
       const Table2d<std::map<int,double>> & get_out_z_op_expects() const;
 
+      /**
+       * @brief Set automatic SPAM correction by providing a suitable SPAM correction matrix
+       *
+       * @return ---
+       */
+      void set_SPAM_correction_matrix(const Eigen::MatrixXd& mat);
+
+      /**
+       * @brief Get the stored SPAM correction matrix.
+       *
+       * @return A const reference to Eigen::MatrixXd
+       */
+      const Eigen::MatrixXd& get_SPAM_correction_matrix() const; 
+
+      /**
+       * @brief Set automatic SPAM correction by providing a suitable SPAM confusion matrix
+       *
+       * @return ---
+       */
+      void set_SPAM_confusion_matrix(const Eigen::MatrixXd& mat);
+      
       /**
        * @brief Set the noise mitigation method
        *

@@ -338,6 +338,7 @@ void session::setName(const std::string &name_) { session::name_m.push_back({nam
 const Table2d<std::string> & session::getName() const { return session::name_m; }
 
 const Table2d<std::map<std::vector<bool>,int>>& session::results() const { return session::results_ ; }
+const Table2d<std::map<std::vector<bool>,int>> & session::results_native() const { return session::results_native_; }
 //
 const Table2d<std::vector<int>> & session::get_out_counts() const {
   //TODO after removing i,j functionality: add a check that calc_out_counts is true
@@ -404,6 +405,21 @@ void session::set_noise_mitigations(const Table2d<std::string> &noise_mitigation
     }
   }
   session::error_mitigations_ = noise_mitigations;
+}
+
+void session::set_SPAM_correction_matrix(const Eigen::MatrixXd& mat)
+{
+  size_t dim = std::pow(2, get_qns()[0][0]);
+  assert(mat.rows() == dim && mat.cols() == dim && "Mismatching dimensions of SPAM correction matrix and numbers of qubits!");
+  perform_SPAM_correction_ = true; 
+  SPAM_correction_mat_ = mat;
+}
+const Eigen::MatrixXd& session::get_SPAM_correction_matrix() const {
+  return SPAM_correction_mat_;
+}
+void session::set_SPAM_confusion_matrix(const Eigen::MatrixXd& mat)
+{
+  set_SPAM_correction_matrix(mat.inverse());
 }
 
 void session::validate_noise_mitigation(const std::string &noise_mitigation) {
