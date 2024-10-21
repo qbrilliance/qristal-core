@@ -443,4 +443,12 @@ namespace qristal {
   bool ValidatorTwoDim<std::map<int,double>>::is_gt_eq_lowerbound<std::map<int,double>>(
       const std::map<int,double> &subj, const std::string &in_desc);
 
+  /**
+   * @brief Convert a variable of type double to a type string with N precision.
+   * 
+   * @param input Input of type double
+   * @param precision Precision/number of decimal places to keep
+   * @return Converted variable of type string
+   */
+  std::string double_to_string(double input, int precision);
 }

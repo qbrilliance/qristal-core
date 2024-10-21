@@ -328,4 +328,11 @@ namespace qristal {
     return returnval;
   }
 
+  std::string double_to_string(double input, int precision) {
+    std::ostringstream val;
+    val.precision(precision);
+    val << std::fixed << input;
+    std::string val_str = std::move(val).str();
+    return val_str;
+  }
 }

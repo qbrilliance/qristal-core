@@ -1039,7 +1039,23 @@ namespace qristal
         std::cout << "# Using CUDA Quantum Simulator backend: " << acc
                   << std::endl;
       }
-      return std::make_shared<qristal::cudaq_acc>(acc);
+
+      xacc::HeterogeneousMap qpu_options {
+        {"shots", run_config.num_shots},
+        {"initial-bond-dim", initial_bond_dimension},
+        {"max-bond-dim", max_bond_dimension},
+        {"abs-truncation-threshold", svd_cutoff},
+        {"rel-truncation-threshold", rel_svd_cutoff},
+        {"measurement-sampling-sequential", measure_sample_sequential}};
+      if (acc == "cudaq:qb_purification") { // Additional options for qb-purification
+        qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
+        qpu_options.insert("max-kraus-dim", max_kraus_dimension);
+      }
+
+      auto cudaq_accelerator = std::make_shared<qristal::cudaq_acc>(acc);
+      cudaq_accelerator->initialize(qpu_options);
+
+      return cudaq_accelerator;
     }
 #endif
 
