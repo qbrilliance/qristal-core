@@ -99,6 +99,16 @@ namespace qristal
                 std::vector<qristal::CircuitBuilder> get_circuits() const; //return full list of SPAM circuits (no measurements!)
 
                 /**
+                * @brief Helper function to compute the confusion matrix for the given SPAM workflow.
+                *
+                * Arguments:
+                * @param counts : The measured counts for all SPAM circuits. 
+                *
+                * @return Eigen::MatrixXd : The assembled confusion matrix.
+                */
+                Eigen::MatrixXd calculate_confusion_matrix(const std::vector<std::map<std::vector<bool>, int>>& counts) const;
+
+                /**
                 * @brief Serialization method for measured bit string counts
                 *
                 * Arguments:

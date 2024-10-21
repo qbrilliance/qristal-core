@@ -4,6 +4,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
 #include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/primitives.hpp"
 
 namespace qristal
 {
@@ -29,6 +30,28 @@ namespace qristal
             }
 
             return circuits;
+        }
+
+        Eigen::MatrixXd SPAMBenchmark::calculate_confusion_matrix(const std::vector<std::map<std::vector<bool>, int>>& counts_maps) const {
+            //(1) Initialize zero confusion matrix
+            const size_t N = std::pow(2, qubits_.size());
+            Eigen::MatrixXd confusion = Eigen::MatrixXd::Zero(N, N);
+
+            //(2) Evaluate confusion for every ideal bitstring, i.e., circuit
+            for (size_t bitstring = 0; bitstring < N; ++bitstring) {
+                double n_shots = static_cast<double>(sumMapValues(counts_maps[bitstring]));
+                Eigen::VectorXd current_row = Eigen::VectorXd::Zero(N);
+                for (auto const & [measured_bitstring, count] : counts_maps[bitstring]) {
+                    boost::dynamic_bitset<> bits(measured_bitstring.size());
+                    for (size_t i = 0; i < measured_bitstring.size(); ++i) {
+                      bits[i] = measured_bitstring[i];
+                    } 
+                    current_row(bits.to_ulong()) = static_cast<double>(count) / n_shots;
+                }
+                //assign row vector of confusion matrix 
+                confusion.row(bitstring) = current_row;
+            }
+            return confusion;
         }
 
         void executeWorkflowTask<SPAMBenchmark, Task::IdealCounts>::operator()(SPAMBenchmark & workflow, std::time_t timestamp) const {

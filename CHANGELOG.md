@@ -34,6 +34,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added the python binding `qristal.core.session.SPAM_confusion` to interface with `qristal::session::set_SPAM_confusion_matrix()`, and `qristal.core.session.results_native` with 
 `qristal::session::results_native()`.
 - Added parameterized CRZ, CRX and CRY gates providing controlled Z, X and Y gates respectively. CRZ is equivalent to parameterized CPhase. Also added python wrappers crz, crx and cry.
+- Added a confusion matrix metric `ConfusionMatrix` to `qristal::benchmark` to evaluate confusion matrices of arbitrary SPAM workflows. 
+- Added a convenience function `qristal::session::run_with_SPAM()` and a corresponding python binding `qristal.core.session.run_with_SPAM()` to (i) automatically execute a SPAMBenchmark, (ii) enable automatic SPAM correction in `qristal::session`, and (iii) finally calling `qristal::session::run()`. 
 
 ### Fixed
 

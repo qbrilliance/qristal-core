@@ -22,6 +22,8 @@
 #include "qristal/core/session.hpp"
 #include "qristal/core/passes/circuit_opt_passes.hpp"
 #include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/benchmark/metrics/ConfusionMatrix.hpp"
 
 // XACC
 #include "CompositeInstruction.hpp"
@@ -1233,6 +1235,34 @@ namespace qristal
         run(ii, jj);
       }
     }
+  }
+
+  void session::run_with_SPAM(size_t n_shots) {
+    std::cerr << "╭────────────────────────────────────────────────────────╮" << std::endl;
+    std::cerr << "│ Warning: Called run() with automatic SPAM measurement! │" << std::endl;
+    std::cerr << "│        I will execute a new SPAM benchmark now!        │" << std::endl;
+    std::cerr << "╰────────────────────────────────────────────────────────╯" << std::endl;
+    //(1) create a copy of this session and set the numbers of shots 
+    session sim_cp = *this;
+    if (n_shots == 0) {
+      n_shots = sns_[0][0];
+    }
+    sim_cp.set_sn(n_shots);
+
+    //(2) execute and evaluate a SPAM benchmark
+    std::set<size_t> qubits; 
+    for (size_t q = 0; q < qns_[0][0]; ++q) {
+      qubits.insert(q);
+    }
+    qristal::benchmark::SPAMBenchmark workflow(qubits, sim_cp);
+    qristal::benchmark::ConfusionMatrix<qristal::benchmark::SPAMBenchmark> metric(workflow);
+    auto confusion = metric.evaluate(true).begin()->second;
+
+    //(3) enable automatic SPAM correction 
+    set_SPAM_confusion_matrix(confusion);
+
+    //(4) continue with normal run()
+    run();
   }
 
   void session::run_gradients(const size_t ii, const size_t jj) {

@@ -1114,6 +1114,18 @@ namespace qristal
        */
       void run();
 
+      /**
+       * @brief Execute a standard SPAM benchmark, and use the measured confusion 
+       * matrix to automatically correct SPAM errors in a consecutive `run()`
+       * 
+       * Arguments: 
+       * @param n_shots : The number of shots to be used for the SPAM benchmark. 
+       * Defaults to 0, taking the same number of shots as set in sns_.
+       *
+       * @return ---
+       */
+      void run_with_SPAM(size_t n_shots = 0);
+
       /// Set the multi-qpu run configurations:
       /// e.g., the list of QPUs paricipate in this run
       void set_parallel_run_config(const std::string &in_config);

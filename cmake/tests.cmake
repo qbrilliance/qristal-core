@@ -12,6 +12,7 @@ add_executable(CITests
   tests/benchmark/metrics/CircuitFidelityTester.cpp
   tests/benchmark/metrics/QuantumProcessFidelityTester.cpp
   tests/benchmark/metrics/QuantumStateFidelityTester.cpp
+  tests/benchmark/metrics/ConfusionMatrixTester.cpp
   tests/benchmark/workflows/PyGSTiBenchmarkTester.cpp
   tests/benchmark/workflows/QuantumProcessTomographyTester.cpp
   tests/benchmark/workflows/QuantumStateTomographyTester.cpp

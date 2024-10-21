@@ -72,6 +72,7 @@ set(headers
   include/qristal/core/benchmark/metrics/QuantumProcessMatrix.hpp
   include/qristal/core/benchmark/metrics/QuantumStateDensity.hpp
   include/qristal/core/benchmark/metrics/QuantumStateFidelity.hpp
+  include/qristal/core/benchmark/metrics/ConfusionMatrix.hpp
   include/qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp
   include/qristal/core/benchmark/workflows/QuantumProcessTomography.hpp
   include/qristal/core/benchmark/workflows/QuantumStateTomography.hpp

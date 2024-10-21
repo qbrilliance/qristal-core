@@ -1,0 +1,23 @@
+# Copyright (c) 2024 Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to set up and run a Bell 
+# circuit with automatic SPAM correction.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(bell_with_SPAM
+  DESCRIPTION "Quantum Brilliance automatic SPAM correction example"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+add_executable(bell_with_SPAM bell_with_SPAM.cpp)
+
+target_link_libraries(bell_with_SPAM
+  PRIVATE
+    qristal::core
+)

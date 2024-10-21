@@ -341,6 +341,8 @@ void bind_session(pybind11::module &m) {
            "Print summary of session settings")
       .def("run", py::overload_cast<>(&qristal::session::run),
            "Execute all declared quantum circuits under all conditions")
+      .def("run_with_SPAM", py::overload_cast<size_t>(&qristal::session::run_with_SPAM), 
+           "Automatically execute a SPAM measurement and enable automatic SPAM correction. Then automatically exexute run().")
       .def("runit",
            py::overload_cast<const size_t, const size_t>(&qristal::session::run),
            "runit(i,j) : Execute circuit i, condition j")

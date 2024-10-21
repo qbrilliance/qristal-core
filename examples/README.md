@@ -31,6 +31,14 @@ _noise_: false
 
 A simple example showing a 2 qubit circuit consisting of just a Hadamard and a regular 1-qubit NOT gate.
 
+`bell_with_SPAM.py`
+
+_qubits_: 2
+_gate depth_: 2
+_noise_: true
+
+A simple example demonstrating a 2 qubit Bell circuit with automatic SPAM measurement and correction.
+
 `quickstart.py`
 
 _qubits_: 2
@@ -463,6 +471,14 @@ _gate depth_: 3
 _noise_: false
 
 A C++ implementation of `demo1.py`.
+
+`bell_with_SPAM`
+
+_qubits_: 2
+_gate depth_: 2
+_noise_: true
+
+A C++ implementation of `bell_with_SPAM.py`.
 
 `h1`
 
