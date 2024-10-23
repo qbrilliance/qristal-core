@@ -509,7 +509,7 @@ void bind_circuit_builder(pybind11::module &m) {
       .def(
           "cry",
           [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
-              double theta) { builder.CRX(ctrl_idx, target_idx, theta); },
+              double theta) { builder.CRY(ctrl_idx, target_idx, theta); },
           py::arg("ctrl_idx"), py::arg("target_idx"), py::arg("theta"),
           R"(
       CRY gate

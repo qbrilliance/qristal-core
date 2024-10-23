@@ -1,7 +1,143 @@
 # Test cases for quantum circuit library
 
 import pytest
+import numpy as np
 
+#helper function returning the U3 gate unitary
+def U3(theta, phi, lamb):
+  c = np.cos(theta / 2.0)
+  s = np.sin(theta / 2.0)
+  pphi = complex(np.cos(phi), np.sin(phi))
+  plambda = complex(np.cos(lamb), np.sin(lamb))
+  result = np.array([
+    [c, -1.0 * plambda * s],
+    [pphi * s, pphi * plambda * c]
+  ])
+  return result
+
+#helper function returning the CRX gate unitary
+def CRX(angle):
+  c = np.cos(angle / 2.0)
+  s = np.sin(angle / 2.0)
+  result = np.array([
+    [1, 0, 0, 0],
+    [0, c, 0, complex(0, -1.0*s)],
+    [0, 0, 1, 0],
+    [0, complex(0, -1.0*s), 0, c]
+  ])
+  return result  
+
+#helper function returning the CRY gate unitary
+def CRY(angle):
+  c = np.cos(angle / 2.0)
+  s = np.sin(angle / 2.0)
+  result = np.array([
+    [1, 0, 0, 0],
+    [0, c, 0, -1.0*s],
+    [0, 0, 1, 0],
+    [0, s, 0, c]
+  ])
+  return result   
+
+def test_crx():
+  import qristal.core
+
+  #(1) Generate random U3 and CRX angles and calculate ideal state vector 
+  U3_0 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
+  U3_1 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
+  crx_angle = 4 * np.pi * np.random.rand() - 2 * np.pi
+  ideal_state = np.zeros(4, dtype=complex)
+  ideal_state[0] = 1.0
+  ideal_state = np.kron(
+    U3(U3_1[0], U3_1[1], U3_1[2]), U3(U3_0[0], U3_0[1], U3_0[2])
+  ) @ ideal_state
+  ideal_state = CRX(crx_angle) @ ideal_state
+
+  #(2) Construct fixed and parameterized circuit
+  circuit_1 = qristal.core.Circuit()
+  circuit_1.u3(0, U3_0[0], U3_0[1], U3_0[2])
+  circuit_1.u3(1, U3_1[0], U3_1[1], U3_1[2])
+  circuit_1.crx(0, 1, crx_angle)
+  circuit_1.measure_all()
+  circuit_2 = qristal.core.Circuit()
+  circuit_2.u3(0, U3_0[0], U3_0[1], U3_0[2])
+  circuit_2.u3(1, U3_1[0], U3_1[1], U3_1[2])
+  circuit_2.crx(0, 1, "theta")
+  circuit_2.measure_all()
+
+  # (3) Obtain simulated state vector from both circuits
+  my_sim = qristal.core.session(False)
+  my_sim.init()
+  my_sim.acc = "qpp"
+  my_sim.qn = 2
+  my_sim.sn = 1
+  my_sim.get_state_vec = True
+  # non-parameterized circuit
+  my_sim.ir_target = circuit_1
+  my_sim.run()
+  statevec_1 = my_sim.get_state_vec_raw
+  # parameterized circuit 
+  my_sim.ir_target = circuit_2
+  my_sim.parameter_list = [crx_angle] 
+  my_sim.run()
+  statevec_2 = my_sim.get_state_vec_raw
+  
+  # (4) Compare both state vectors to the ideal (correct) one 
+  for i in range(len(ideal_state)):
+    assert ideal_state[i].real == pytest.approx(statevec_1[i].real, 1e-3)
+    assert ideal_state[i].imag == pytest.approx(statevec_1[i].imag, 1e-3)
+    assert ideal_state[i].real == pytest.approx(statevec_2[i].real, 1e-3)
+    assert ideal_state[i].imag == pytest.approx(statevec_2[i].imag, 1e-3)
+
+def test_cry():
+  import qristal.core
+
+  #(1) Generate random U3 and CRX angles and calculate ideal state vector 
+  U3_0 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
+  U3_1 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
+  cry_angle = 4 * np.pi * np.random.rand() - 2 * np.pi
+  ideal_state = np.zeros(4, dtype=complex)
+  ideal_state[0] = 1.0
+  ideal_state = np.kron(
+    U3(U3_1[0], U3_1[1], U3_1[2]), U3(U3_0[0], U3_0[1], U3_0[2])
+  ) @ ideal_state
+  ideal_state = CRY(cry_angle) @ ideal_state
+
+  #(2) Construct fixed and parameterized circuit
+  circuit_1 = qristal.core.Circuit()
+  circuit_1.u3(0, U3_0[0], U3_0[1], U3_0[2])
+  circuit_1.u3(1, U3_1[0], U3_1[1], U3_1[2])
+  circuit_1.cry(0, 1, cry_angle)
+  circuit_1.measure_all()
+  circuit_2 = qristal.core.Circuit()
+  circuit_2.u3(0, U3_0[0], U3_0[1], U3_0[2])
+  circuit_2.u3(1, U3_1[0], U3_1[1], U3_1[2])
+  circuit_2.cry(0, 1, "theta")
+  circuit_2.measure_all()
+
+  # (3) Obtain simulated state vector from both circuits
+  my_sim = qristal.core.session(False)
+  my_sim.init()
+  my_sim.acc = "qpp"
+  my_sim.qn = 2
+  my_sim.sn = 1
+  my_sim.get_state_vec = True
+  # non-parameterized circuit
+  my_sim.ir_target = circuit_1
+  my_sim.run()
+  statevec_1 = my_sim.get_state_vec_raw
+  # parameterized circuit 
+  my_sim.ir_target = circuit_2
+  my_sim.parameter_list = [cry_angle] 
+  my_sim.run()
+  statevec_2 = my_sim.get_state_vec_raw
+  
+  # (4) Compare both state vectors to the ideal (correct) one 
+  for i in range(len(ideal_state)):
+    assert ideal_state[i].real == pytest.approx(statevec_1[i].real, 1e-3)
+    assert ideal_state[i].imag == pytest.approx(statevec_1[i].imag, 1e-3)
+    assert ideal_state[i].real == pytest.approx(statevec_2[i].real, 1e-3)
+    assert ideal_state[i].imag == pytest.approx(statevec_2[i].imag, 1e-3)
 
 def test_qpe():
     print(" Testing Quantum Phase Estimation ")
