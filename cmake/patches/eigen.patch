@@ -12,6 +12,28 @@ index 1e53ba49b..122297e6c 100644
  #include "src/Core/products/Parallelizer.h"
  #include "src/Core/ProductEvaluators.h"
  #include "src/Core/products/GeneralMatrixVector.h"
+diff --git a/Eigen/src/Core/arch/NEON/Complex.h b/Eigen/src/Core/arch/NEON/Complex.h
+index d31953bf5..0e533f871 100644
+--- a/Eigen/src/Core/arch/NEON/Complex.h
++++ b/Eigen/src/Core/arch/NEON/Complex.h
+@@ -374,12 +374,12 @@ template<> EIGEN_STRONG_INLINE Packet2cf psqrt<Packet2cf>(const Packet2cf& a) {
+ #if EIGEN_ARCH_ARM64 && !EIGEN_APPLE_DOUBLE_NEON_BUG
+ 
+ // See bug 1325, clang fails to call vld1q_u64.
+-#if EIGEN_COMP_CLANG || EIGEN_COMP_CASTXML
++//#if EIGEN_COMP_CLANG || EIGEN_COMP_CASTXML
+   static uint64x2_t p2ul_CONJ_XOR = {0x0, 0x8000000000000000};
+-#else
+-  const uint64_t  p2ul_conj_XOR_DATA[] = { 0x0, 0x8000000000000000 };
+-  static uint64x2_t p2ul_CONJ_XOR = vld1q_u64( p2ul_conj_XOR_DATA );
+-#endif
++//#else
++//  const uint64_t  p2ul_conj_XOR_DATA[] = { 0x0, 0x8000000000000000 };
++//  static uint64x2_t p2ul_CONJ_XOR = vld1q_u64( p2ul_conj_XOR_DATA );
++//#endif
+ 
+ struct Packet1cd
+ {
 diff --git a/Eigen/src/Core/products/GeneralMatrixMatrix.h b/Eigen/src/Core/products/GeneralMatrixMatrix.h
 index 73ddd260e..83d094ede 100644
 --- a/Eigen/src/Core/products/GeneralMatrixMatrix.h
