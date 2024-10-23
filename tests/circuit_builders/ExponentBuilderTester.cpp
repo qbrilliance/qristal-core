@@ -194,7 +194,7 @@ TEST(ExponentCircuitTester_2, checkSimple) {
         std::cout << "log_value:" << log_value << " exp_value:" << exp_value << std::endl;
         int qindex;
         for (int i = min_significance_-1; i < nb_qubits_exp ; i++) {
-          qindex = qubits[i];
+          qindex = (i >= qubits.size()) ? 0 : qubits[i];
           if (exp_value&((int) pow(2,qindex))) {
             expected_measurement.push_back('1');
           }
