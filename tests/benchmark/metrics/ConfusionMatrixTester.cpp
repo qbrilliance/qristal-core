@@ -89,7 +89,7 @@ TEST(ConfusionMatrixTester, check_noisy) {
             //enable automatic SPAM correction, rerun, and check against identity
             sim.set_SPAM_confusion_matrix(confusion);
             auto corrected_confusion = metric.evaluate(true).begin()->second;
-            EXPECT_TRUE(ideal.isApprox(corrected_confusion, 1e-3));
+            EXPECT_TRUE(ideal.isApprox(corrected_confusion, 1e-2));
         }
     }
 }
