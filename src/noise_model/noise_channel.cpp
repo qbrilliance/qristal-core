@@ -469,8 +469,8 @@ namespace qristal
       return U;
     }
 
-    Eigen::MatrixXcd create1QubitNoisyProcessMatrix(double theta, double phi, double lambda,
-        Eigen::VectorXd channel_params) {
+    Eigen::MatrixXcd create1QubitNoisyProcessMatrix(const double& theta, const double& phi, const double& lambda,
+        const std::vector<noiseChannelSymbol>& channel_list, const Eigen::VectorXd& channel_params) {
       // Create ideal process matrix
       Eigen::MatrixXcd ideal_process_mat = qristal::createIdealU3ProcessMatrix(theta, phi, lambda);
       // Convert process matrix to superoperator representation
@@ -478,20 +478,8 @@ namespace qristal
 
       // The Kraus matrices in the noise channels are independent of the qubit index, so we can directly create
       // one channel, say for qubit 0, and apply them to all qubits.
-      double gen_amp_damp_rate = channel_params(0);
-      double gen_phase_damp_rate = channel_params(1);
-      double depol_1qubit_rate = channel_params(2);
-      qristal::NoiseChannel gen_phase_amp_damp =
-          qristal::GeneralizedPhaseAmplitudeDampingChannel::Create(0, 0.0, gen_amp_damp_rate, gen_phase_damp_rate);
-      qristal::NoiseChannel depol_1qubit = qristal::DepolarizingChannel::Create(0, depol_1qubit_rate);
-
-      std::vector<Eigen::MatrixXcd> channel_kraus_matrices;
-      for (const auto &x : gen_phase_amp_damp) {
-        channel_kraus_matrices.emplace_back(matrix_to_eigen(x.matrix));
-      }
-      for (const auto &x : depol_1qubit) {
-        channel_kraus_matrices.emplace_back(matrix_to_eigen(x.matrix));
-      }
+      std::vector<Eigen::MatrixXcd> channel_kraus_matrices =
+          qristal::setChannelMatrices(channel_list, channel_params);
 
       // Convert noise channel matrices to superoperator representation
       Eigen::MatrixXcd channel_kraus_matrices_super = qristal::kraus_to_superoperator(channel_kraus_matrices);
@@ -501,21 +489,35 @@ namespace qristal
       return noisy_process_mat_super;
     }
 
-    Eigen::MatrixXcd createNQubitNoisyProcessMatrix(size_t nb_qubits,
-        std::vector<double> theta, std::vector<double> phi, std::vector<double> lambda,
-        Eigen::VectorXd channel_params) {
+    Eigen::MatrixXcd createNQubitNoisyProcessMatrix(const size_t nb_qubits,
+        const std::vector<double>& theta, const std::vector<double>& phi, const std::vector<double>& lambda,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list, const Eigen::VectorXd& channel_params) {
       // Generate noisy process matrix by creating an ideal process matrix and acting the noise channel
       // matrices on it.
       Eigen::MatrixXcd process_matrix = Eigen::MatrixXcd::Zero(std::pow(2, 2*nb_qubits), std::pow(2, 2*nb_qubits));
+      size_t num_previous_params = 0;
       for (size_t i = 0; i < nb_qubits; i++) {
+        // Calculate the number of total parameters for all channels in channel_list[i]
+        size_t nb_params = std::accumulate(channel_list[i].begin(), channel_list[i].end(), 0, 
+            [](size_t sum, const noiseChannelSymbol& channel) { 
+              return sum + getNumberOfNoiseChannelParams(channel); 
+            }
+        ); 
+        // Initialize empty Eigen vector for that particular qubit 
+        Eigen::VectorXd channel_param_1qubit = Eigen::VectorXd::Zero(nb_params);
+        // Fill with the respective channel parameters
+        size_t p_idx = 0; 
+        for (auto const& channel : channel_list[i]) {
+          for (size_t local_idx = 0; local_idx < getNumberOfNoiseChannelParams(channel); local_idx++) {
+            channel_param_1qubit(p_idx + local_idx) = channel_params(num_previous_params + p_idx + local_idx); 
+          }
+          p_idx += getNumberOfNoiseChannelParams(channel);
+        }
+        num_previous_params += p_idx; 
+
         // Create noisy 1-qubit process matrix
-        double gen_amp_damp_rate = channel_params(i);
-        double gen_phase_damp_rate = channel_params(i + nb_qubits);
-        double depol_1qubit_rate = channel_params(i + 2*nb_qubits);
-        Eigen::VectorXd channel_params_1qubit(3);
-        channel_params_1qubit << gen_amp_damp_rate, gen_phase_damp_rate, depol_1qubit_rate;
-        Eigen::MatrixXcd noisy_process_mat_super =  qristal::create1QubitNoisyProcessMatrix(
-            theta[i], phi[i], lambda[i], channel_params_1qubit);
+        Eigen::MatrixXcd noisy_process_mat_super = qristal::create1QubitNoisyProcessMatrix(
+            theta[i], phi[i], lambda[i], channel_list[i], channel_param_1qubit);
 
         // Expand the vector space of the 1-qubit process matrix N-qubit vector space
         Eigen::MatrixXcd process_mat_tmp;
@@ -531,15 +533,13 @@ namespace qristal
       return process_matrix;
     }
 
-    Eigen::VectorXd processMatrixSolverInternal(size_t nb_qubits, size_t nb_params, size_t max_iter,
-        Eigen::LevenbergMarquardt<Eigen::NumericalDiff<qristal::LMFunctorNoisy>, double> lm,
+    Eigen::VectorXd processMatrixSolverInternal(const size_t& nb_qubits,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list,
+        const size_t& nb_params, size_t max_iter,
+        Eigen::LevenbergMarquardt<Eigen::NumericalDiff<qristal::LMFunctorNoisy>, double>& lm,
         std::optional<Eigen::VectorXd> guess_params) {
       static std::random_device rd;
       static std::mt19937 gen(rd());
-      // Choose some physically meaningful random values as guess values
-      static std::uniform_real_distribution<double> dist_amp_damp(0.0, 2e-6);
-      static std::uniform_real_distribution<double> dist_phase_damp(0.0, 2e-3);
-      static std::uniform_real_distribution<double> dist_depol1(0.0, 2e-5);
       // Random values to perturb the solved parameters
       static std::uniform_real_distribution<double> dist_perturb(-0.1, 0.1);
 
@@ -556,16 +556,9 @@ namespace qristal
           if (guess_params) { // Use guess parameters if provided
             x = guess_params.value();
           } else { // Use random guess parameters
-            std::vector<double> gen_amp_damp_rate_vec, gen_phase_damp_rate_vec, depol_1qubit_rate_vec;
-            for (size_t i = 0; i < nb_qubits; i++) {
-              gen_amp_damp_rate_vec.emplace_back(dist_amp_damp(gen));
-              gen_phase_damp_rate_vec.emplace_back(dist_phase_damp(gen));
-              depol_1qubit_rate_vec.emplace_back(dist_depol1(gen));
-            }
-            Eigen::VectorXd gen_amp_damp_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_amp_damp_rate_vec.data(), gen_amp_damp_rate_vec.size());
-            Eigen::VectorXd gen_phase_damp_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_phase_damp_rate_vec.data(), gen_phase_damp_rate_vec.size());
-            Eigen::VectorXd depol_1qubit_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(depol_1qubit_rate_vec.data(), depol_1qubit_rate_vec.size());
-            x << gen_amp_damp_rate, gen_phase_damp_rate, depol_1qubit_rate;
+            std::vector<double> guess_rate_vec = generateRandomChannels(nb_qubits, channel_list);
+            Eigen::VectorXd guess_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(guess_rate_vec.data(), guess_rate_vec.size());
+            x << guess_rate;
           }
 
           info = lm.minimize(x);
@@ -622,10 +615,10 @@ namespace qristal
       return x;
     }
 
-    Eigen::VectorXd processMatrixSolver1Qubit(Eigen::MatrixXcd process_matrix,
-        double theta, double phi, double lambda, size_t max_iter,
-        size_t maxfev, double xtol, double ftol, double gtol) {
-      size_t nb_params = 3; // 3 parameters for the 2 noise channels
+    Eigen::VectorXd processMatrixSolver1Qubit(Eigen::MatrixXcd& process_matrix,
+        const double& theta, const double& phi, const double& lambda,
+        const std::vector<noiseChannelSymbol>& channel_list, const size_t& nb_params,
+        size_t max_iter, size_t maxfev, double xtol, double ftol, double gtol) {
 
       // To use Eigen's numerical differentiation, we need to convert the complex matrix into a complex vector.
       Eigen::VectorXcd process_vec = Eigen::Map<Eigen::VectorXcd>(process_matrix.data(), process_matrix.rows() * process_matrix.cols());
@@ -635,6 +628,7 @@ namespace qristal
       functor.m = process_vec.size();
       functor.n = nb_params;
       functor.nb_qubits = 1;
+      functor.channel_list = {channel_list};
       functor.theta = {theta};
       functor.phi = {phi};
       functor.lambda = {lambda};
@@ -646,43 +640,42 @@ namespace qristal
       lm.parameters.ftol = ftol;
       lm.parameters.gtol = gtol;
       // Solve for guess parameters x's.
-      Eigen::VectorXd x = qristal::processMatrixSolverInternal(1, nb_params, max_iter, lm);
+      Eigen::VectorXd x = qristal::processMatrixSolverInternal(1, {channel_list}, nb_params, max_iter, lm);
 
       return x;
     }
 
-    Eigen::VectorXd processMatrixSolverNQubit(std::vector<Eigen::MatrixXcd> process_matrix_1qubit,
-        Eigen::MatrixXcd process_matrix_Nqubit, size_t nb_qubits,
-        std::vector<double> theta, std::vector<double> phi, std::vector<double> lambda, size_t max_iter,
-        size_t maxfev, double xtol, double ftol, double gtol) {
+    Eigen::VectorXd processMatrixSolverNQubit(std::vector<Eigen::MatrixXcd>& process_matrix_1qubit,
+        Eigen::MatrixXcd& process_matrix_Nqubit, const size_t& nb_qubits,
+        const std::vector<double>& theta, const std::vector<double>& phi, const std::vector<double>& lambda,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list,
+        const std::vector<size_t>& nb_params, size_t max_iter, size_t maxfev, double xtol, double ftol,
+        double gtol) {
       //--------------------------------- Solve the 1-qubit process matrices ---------------------------------
       // Solve the 1-qubit process matrices and use their solutions as a guess to the N-qubit process matrix
       assert(nb_qubits == process_matrix_1qubit.size());
-      std::vector<double> gen_amp_damp_rate_vec, gen_phase_damp_rate_vec, depol_1qubit_rate_vec; // Vectors so store 1-qubit solutions
+      std::vector<double> x_vec; // Vector to store 1-qubit solutions
       for (size_t i = 0; i < nb_qubits; i++) {
-        Eigen::VectorXd x = qristal::processMatrixSolver1Qubit(process_matrix_1qubit[i], theta[i], phi[i], lambda[i], max_iter);
+        Eigen::VectorXd x = qristal::processMatrixSolver1Qubit(process_matrix_1qubit[i],
+            theta[i], phi[i], lambda[i], channel_list[i], nb_params[i], max_iter);
         // Collect solutions to be used as guess values for the N-qubit process matrix solver
-        gen_amp_damp_rate_vec.emplace_back(x(0));
-        gen_phase_damp_rate_vec.emplace_back(x(1));
-        depol_1qubit_rate_vec.emplace_back(x(2));
+        for (size_t j = 0; j < x.size(); j++) {
+          x_vec.emplace_back(x(j));
+        }
       }
+      Eigen::VectorXd x_guess = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(x_vec.data(), x_vec.size());
 
-      //--------------------------------- Solve the N-qubit process matrix ---------------------------------
-      size_t nb_params = 3 * nb_qubits; // 3 parameters for the 2 noise channels, per qubit
-      Eigen::VectorXd gen_amp_damp_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_amp_damp_rate_vec.data(), gen_amp_damp_rate_vec.size());
-      Eigen::VectorXd gen_phase_damp_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(gen_phase_damp_rate_vec.data(), gen_phase_damp_rate_vec.size());
-      Eigen::VectorXd depol_1qubit_rate = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(depol_1qubit_rate_vec.data(), depol_1qubit_rate_vec.size());
-      Eigen::VectorXd x_guess(nb_params);
-      x_guess << gen_amp_damp_rate, gen_phase_damp_rate, depol_1qubit_rate;
-
+      // --------------------------------- Solve the N-qubit process matrix ---------------------------------
       // To use Eigen's numerical differentiation, we need to convert the complex matrix into a complex vector.
       Eigen::VectorXcd process_vec = Eigen::Map<Eigen::VectorXcd>(process_matrix_Nqubit.data(), process_matrix_Nqubit.rows() * process_matrix_Nqubit.cols());
+      size_t sum_nb_params = std::accumulate(nb_params.begin(), nb_params.end(), 0);
 
       qristal::LMFunctorNoisy functor;
       functor.input_vec = process_vec;
       functor.m = process_vec.size();
-      functor.n = nb_params;
+      functor.n = sum_nb_params;
       functor.nb_qubits = nb_qubits;
+      functor.channel_list = channel_list;
       functor.theta = theta;
       functor.phi = phi;
       functor.lambda = lambda;
@@ -694,27 +687,30 @@ namespace qristal
       lm.parameters.ftol = ftol;
       lm.parameters.gtol = gtol;
       // Solve for guess parameters x's.
-      Eigen::VectorXd x = qristal::processMatrixSolverInternal(nb_qubits, nb_params, max_iter, lm, x_guess);
+      Eigen::VectorXd x = qristal::processMatrixSolverInternal(nb_qubits, channel_list, sum_nb_params,
+                                                               max_iter, lm, x_guess);
 
       return x;
     }
 
-    Eigen::MatrixXcd processMatrixInterpolator(size_t nb_qubits,
-        std::vector<Eigen::MatrixXcd> process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd> process_matrix_1qubit_2,
-        Eigen::MatrixXcd process_matrix_Nqubit_1, Eigen::MatrixXcd process_matrix_Nqubit_2,
-        std::vector<double> theta1, std::vector<double> phi1, std::vector<double> lambda1,
-        std::vector<double> theta2, std::vector<double> phi2, std::vector<double> lambda2,
-        double theta_target, double phi_target, double lambda_target, size_t max_iter, size_t maxfev,
-        double xtol, double ftol, double gtol) {
+    Eigen::MatrixXcd processMatrixInterpolator(const size_t& nb_qubits,
+        std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_2,
+        Eigen::MatrixXcd& process_matrix_Nqubit_1, Eigen::MatrixXcd& process_matrix_Nqubit_2,
+        const std::vector<double>& theta1, const std::vector<double>& phi1, const std::vector<double>& lambda1,
+        const std::vector<double>& theta2, const std::vector<double>& phi2, const std::vector<double>& lambda2,
+        const double& theta_target, const double& phi_target, const double& lambda_target,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list,
+        const std::vector<size_t>& nb_params, size_t max_iter, size_t maxfev, double xtol, double ftol,
+        double gtol) {
 
       // Solve for the noise channel parameters at angle {tx1, ty1, tz1}
       Eigen::VectorXd params1 = qristal::processMatrixSolverNQubit(
           process_matrix_1qubit_1, process_matrix_Nqubit_1, nb_qubits, theta1, phi1, lambda1,
-          max_iter, maxfev, xtol, ftol, gtol);
+          channel_list, nb_params, max_iter, maxfev, xtol, ftol, gtol);
       // Solve for the noise channel parameters at angle {tx2, ty2, tz2}
       Eigen::VectorXd params2 = qristal::processMatrixSolverNQubit(
           process_matrix_1qubit_2, process_matrix_Nqubit_2, nb_qubits, theta2, phi2, lambda2,
-          max_iter, maxfev, xtol, ftol, gtol);
+          channel_list, nb_params, max_iter, maxfev, xtol, ftol, gtol);
 
       // Calculate average of each param in param1 and param2
       Eigen::VectorXd params_avg = (params1 + params2) / 2;
@@ -728,8 +724,83 @@ namespace qristal
         lambda_target_vec.emplace_back(lambda_target);
       }
       Eigen::MatrixXcd output_process_matrix = qristal::createNQubitNoisyProcessMatrix(
-          nb_qubits, theta_target_vec, phi_target_vec, lambda_target_vec, params_avg);
+          nb_qubits, theta_target_vec, phi_target_vec, lambda_target_vec, channel_list, params_avg);
 
       return output_process_matrix;
+    }
+
+    std::vector<Eigen::MatrixXcd> setChannelMatrices(const std::vector<noiseChannelSymbol>& channel_list,
+        const Eigen::VectorXd& channel_params) {
+      std::vector<Eigen::MatrixXcd> channel_kraus_matrices = {};
+      size_t param_index = 0;
+      qristal::NoiseChannel noise_channel;
+      for (auto const& channel : channel_list) {
+        switch (channel) {
+          case noiseChannelSymbol::depolarization_1qubit:
+            noise_channel = qristal::DepolarizingChannel::Create(0, channel_params[param_index]);
+            ++param_index;
+            break;
+          case noiseChannelSymbol::generalized_phase_amplitude_damping:
+            noise_channel = qristal::GeneralizedPhaseAmplitudeDampingChannel::Create(
+                0, 0.0, channel_params[param_index], channel_params[param_index + 1]);
+            ++(++param_index);
+            break;
+          case noiseChannelSymbol::generalized_amplitude_damping:
+            noise_channel = qristal::GeneralizedAmplitudeDampingChannel::Create(
+                0, 0.0, channel_params[param_index]);
+            ++param_index;
+            break;
+          case noiseChannelSymbol::amplitude_damping:
+            noise_channel = qristal::AmplitudeDampingChannel::Create(0, channel_params[param_index]);
+            ++param_index;
+            break;
+          case noiseChannelSymbol::phase_damping:
+            noise_channel = qristal::PhaseDampingChannel::Create(0, channel_params[param_index]);
+            ++param_index;
+            break;
+        }
+
+        for (const auto &m : noise_channel) {
+          channel_kraus_matrices.emplace_back(matrix_to_eigen(m.matrix));
+        }
+      }
+
+      return channel_kraus_matrices;
+    }
+
+    std::vector<double> generateRandomChannels(const size_t& nb_qubits,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list) {
+      static std::random_device rd;
+      static std::mt19937 gen(rd());
+      // Choose some physically meaningful random values as guess values
+      static std::uniform_real_distribution<double> dist_amp_damp(0.0, 2e-6);
+      static std::uniform_real_distribution<double> dist_phase_damp(0.0, 2e-3);
+      static std::uniform_real_distribution<double> dist_depol1(0.0, 2e-5);
+
+      std::vector<double> params;
+      for (size_t i = 0; i < nb_qubits; i++) {
+        for (auto const& channel : channel_list[i]) {
+          switch (channel) {
+            case noiseChannelSymbol::depolarization_1qubit:
+              params.push_back(dist_depol1(gen));
+              break;
+            case noiseChannelSymbol::generalized_phase_amplitude_damping:
+              params.push_back(dist_amp_damp(gen));
+              params.push_back(dist_phase_damp(gen));
+              break;
+            case noiseChannelSymbol::generalized_amplitude_damping:
+              params.push_back(dist_amp_damp(gen));
+              break;
+            case noiseChannelSymbol::amplitude_damping:
+              params.push_back(dist_amp_damp(gen));
+              break;
+            case noiseChannelSymbol::phase_damping:
+              params.push_back(dist_phase_damp(gen));
+              break;
+          }
+        }
+      }
+
+      return params;
     }
 }

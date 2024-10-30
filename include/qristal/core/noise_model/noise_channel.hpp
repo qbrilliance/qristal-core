@@ -436,6 +436,29 @@ namespace qristal
 
     //============================================ Process matrix interpolation methods ============================================
 
+    enum noiseChannelSymbol {
+      depolarization_1qubit = 0,
+      generalized_phase_amplitude_damping = 1,
+      generalized_amplitude_damping = 2,
+      amplitude_damping = 3,
+      phase_damping = 4
+    };
+
+    constexpr size_t getNumberOfNoiseChannelParams(const noiseChannelSymbol& channel) {
+      switch (channel) {
+        case noiseChannelSymbol::depolarization_1qubit:
+          return 1; 
+        case noiseChannelSymbol::generalized_phase_amplitude_damping:
+          return 2; 
+        case noiseChannelSymbol::generalized_amplitude_damping:
+          return 1; 
+        case noiseChannelSymbol::amplitude_damping:
+          return 1; 
+        case noiseChannelSymbol::phase_damping:
+          return 1; 
+      }
+    }
+
     /**
      * @brief Create a 1-qubit process matrix from a U3 rotation gate. The U3 gate is a generic 1-qubit rotation
      * gate with 3 Euler angles; U3(theta, phi, lambda). 1-qubit rotation gates Rx(theta_x), Ry(theta_y) and
@@ -459,12 +482,13 @@ namespace qristal
      * @param theta vector containing the Euler rotation angle \theta of all qubits
      * @param phi vector containing the Euler rotation angle \phi of all qubits
      * @param lambda vector containing the Euler rotation angle \lambda of all qubits
+     * @param channel_list Labels of noise channel to solve
      * @param channel_params vector containing noise channel parameters of all qubits
      * @return Output process matrix 
      */
-    Eigen::MatrixXcd createNQubitNoisyProcessMatrix(size_t nb_qubits,
-        std::vector<double> theta, std::vector<double> phi, std::vector<double> lambda,
-        Eigen::VectorXd channel_params);
+    Eigen::MatrixXcd createNQubitNoisyProcessMatrix(const size_t nb_qubits,
+        const std::vector<double>& theta, const std::vector<double>& phi, const std::vector<double>& lambda,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list, const Eigen::VectorXd& channel_params);
 
     /**
      * @brief Create a noisy 1-qubit process matrix
@@ -472,11 +496,12 @@ namespace qristal
      * @param theta qubit's Euler rotation angle \theta
      * @param phi qubit's Euler rotation angle \phi
      * @param lambda qubit's Euler rotation angle \lambda
+     * @param channel_list Labels of noise channel to solve
      * @param channel_params vector containing noise channel damping parameters of qubit
      * @return Output process matrix 
      */
-    Eigen::MatrixXcd create1QubitNoisyProcessMatrix(double theta, double phi, double lambda,
-        Eigen::VectorXd channel_params);
+    Eigen::MatrixXcd create1QubitNoisyProcessMatrix(const double& theta, const double& phi, const double& lambda,
+        const std::vector<noiseChannelSymbol>& channel_list, const Eigen::VectorXd& channel_params);
 
     /**
      * @brief Generic functor (function vector) to use Eigen's numerical differentiator Eigen::NumericalDiff
@@ -516,6 +541,7 @@ namespace qristal
      * @param theta vector containing the Euler rotation angles \theta of all qubits
      * @param phi vector containing the Euler rotation angles \phi all qubits
      * @param lambda vector containing the Euler rotation angles \lambda of all qubits
+     * @param channel_list Labels of noise channel to solve
      * @param m Size of input_vector
      * @param n Number of parameters to solve for
      */
@@ -523,12 +549,8 @@ namespace qristal
       LMFunctorNoisy(void): qristal::EigenNumericalDiffFunctor<double>(m = 0, n = 0) {}
       int operator()(const Eigen::VectorXd &x, Eigen::VectorXd &fvec) const {
         // Create noisy process matrix with input angles and noise channel parameters x.
-        Eigen::MatrixXcd guess_mat;
-        if (nb_qubits == 1) {
-          guess_mat = qristal::create1QubitNoisyProcessMatrix(theta[0], phi[0], lambda[0], x);
-        } else {
-          guess_mat = qristal::createNQubitNoisyProcessMatrix(nb_qubits, theta, phi, lambda, x);
-        }
+        Eigen::MatrixXcd guess_mat = qristal::createNQubitNoisyProcessMatrix(
+            nb_qubits, theta, phi, lambda, channel_list, x);
         // To use Eigen's numerical differentiation, we need to convert the complex matrix into a complex vector.
         Eigen::VectorXcd guess_vec = Eigen::Map<Eigen::VectorXcd>(guess_mat.data(), guess_mat.rows() * guess_mat.cols());
         // Solve for x's by minimizing the difference between the input process matrix and the generated noisy process matrix
@@ -542,6 +564,7 @@ namespace qristal
       std::vector<double> theta; // Euler rotation angle \theta
       std::vector<double> phi; // Euler rotation angle \phi
       std::vector<double> lambda; // Euler rotation angle \lambda
+      std::vector<std::vector<noiseChannelSymbol>> channel_list; // Labels of noise channel to solve
       int m; // Number of data points, i.e. values.
       int n; // The number of parameters, i.e. inputs.
       int values() const { return m; } // Returns 'm', the number of values.
@@ -559,6 +582,8 @@ namespace qristal
      * @param theta vector containing the Euler rotation angle \theta of all qubits
      * @param phi vector containing the Euler rotation angle \phi of all qubits
      * @param lambda vector containing the Euler rotation angle \lambda of all qubits
+     * @param channel_list Labels of noise channel to solve
+     * @param nb_params Number of noise channel parameters
      * @param max_iter Maximum number of solver iterations (default = 1000)
      * @param maxfev Maximum number of function evaluation (default = 1000)
      * @param xtol tolerance for the norm of the solution vector (default = 1e-8)
@@ -567,10 +592,12 @@ namespace qristal
      * 
      * @return Vector containing solved noise channel parameters
      */
-    Eigen::VectorXd processMatrixSolverNQubit(std::vector<Eigen::MatrixXcd> process_matrix_1qubit,
-        Eigen::MatrixXcd process_matrix_Nqubit, size_t nb_qubits,
-        std::vector<double> theta, std::vector<double> phi, std::vector<double> lambda, size_t max_iter = 1000,
-        size_t maxfev = 1000, double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+    Eigen::VectorXd processMatrixSolverNQubit(std::vector<Eigen::MatrixXcd>& process_matrix_1qubit,
+        Eigen::MatrixXcd& process_matrix_Nqubit, const size_t& nb_qubits,
+        const std::vector<double>& theta, const std::vector<double>& phi, const std::vector<double>& lambda,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list,
+        const std::vector<size_t>& nb_params, size_t max_iter = 1000, size_t maxfev = 1000,
+        double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
 
     /**
      * @brief Solves noise channel parameters for an input 1-qubit process matrix. Current noise channels:
@@ -582,6 +609,8 @@ namespace qristal
      * @param theta qubit's Euler rotation angle \theta
      * @param phi qubit's Euler rotation angle \phi
      * @param lambda qubit's Euler rotation angle \lambda
+     * @param channel_list Labels of noise channel to solve
+     * @param nb_params Number of noise channel parameters
      * @param max_iter Maximum number of solver iterations (default = 1000)
      * @param maxfev Maximum number of function evaluation (default = 1000)
      * @param xtol tolerance for the norm of the solution vector (default = 1e-8)
@@ -590,9 +619,11 @@ namespace qristal
      * 
      * @return Vector containing solved noise channel parameters
      */
-    Eigen::VectorXd processMatrixSolver1Qubit(Eigen::MatrixXcd process_matrix,
-        double theta, double phi, double lambda, size_t max_iter = 1000,
-        size_t maxfev = 1000, double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+    Eigen::VectorXd processMatrixSolver1Qubit(Eigen::MatrixXcd& process_matrix,
+        const double& theta, const double& phi, const double& lambda,
+        const std::vector<noiseChannelSymbol>& channel_list, const size_t& nb_params, 
+        size_t max_iter = 1000, size_t maxfev = 1000, double xtol = 1e-8,
+        double ftol = 1e-8, double gtol = 1e-8);
 
     /**
      * @brief Internal functionality for process matrix solver. Contains the 2 loops: first loop is a solve
@@ -600,14 +631,17 @@ namespace qristal
      * does a few fine solving to improve accuracy. 
      * 
      * @param nb_qubits Number of qubits
-     * @param nb_params Number of parameters in the solution vector (3 for current available noise channels)
+     * @param channel_list Labels of noise channel to solve
+     * @param nb_params Number of parameters in the solution vector
      * @param lm Eigen::LevenbergMarquardt solver object
      * @param guess_params Input guess vector (optional). Generates random guess value if not provided
      * 
      * @return Vector containing solved noise channel parameters
      */
-    Eigen::VectorXd processMatrixSolverInternal(size_t nb_qubits, size_t nb_params, size_t max_iter,
-        Eigen::LevenbergMarquardt<Eigen::NumericalDiff<qristal::LMFunctorNoisy>, double> lm,
+    Eigen::VectorXd processMatrixSolverInternal(const size_t& nb_qubits,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list,
+        const size_t& nb_params, size_t max_iter,
+        Eigen::LevenbergMarquardt<Eigen::NumericalDiff<qristal::LMFunctorNoisy>, double>& lm,
         std::optional<Eigen::VectorXd> guess_params = std::nullopt);
 
     /**
@@ -628,6 +662,7 @@ namespace qristal
      * @param theta_target \theta target angle of output process matrix
      * @param phi_target \phi target angle of output process matrix
      * @param lambda_target \lambda target angle of output process matrix
+     * @param channel_list Labels of noise channel to solve
      * @param max_iter Maximum number of solver iterations (default = 1000)
      * @param maxfev Maximum number of function evaluation (default = 1000)
      * @param xtol Tolerance for the norm of the solution vector (default = 1e-8)
@@ -636,13 +671,35 @@ namespace qristal
      *
      * @return Output process matrix
      */
-    Eigen::MatrixXcd processMatrixInterpolator(size_t nb_qubits,
-        std::vector<Eigen::MatrixXcd> process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd> process_matrix_1qubit_2,
-        Eigen::MatrixXcd process_matrix_Nqubit_1, Eigen::MatrixXcd process_matrix_Nqubit_2,
-        std::vector<double> theta1, std::vector<double> phi1, std::vector<double> lambda1,
-        std::vector<double> theta2, std::vector<double> phi2, std::vector<double> lambda2,
-        double theta_target, double phi_target, double lambda_target,
-        size_t max_iter = 1000, size_t maxfev = 1000, double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+    Eigen::MatrixXcd processMatrixInterpolator(const size_t& nb_qubits,
+        std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_2,
+        Eigen::MatrixXcd& process_matrix_Nqubit_1, Eigen::MatrixXcd& process_matrix_Nqubit_2,
+        const std::vector<double>& theta1, const std::vector<double>& phi1, const std::vector<double>& lambda1,
+        const std::vector<double>& theta2, const std::vector<double>& phi2, const std::vector<double>& lambda2,
+        const double& theta_target, const double& phi_target, const double& lambda_target,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list,
+        const std::vector<size_t>& nb_params, size_t max_iter = 1000, size_t maxfev = 1000,
+        double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+
+    /**
+     * @brief Retrieve the channel Kraus matrices
+     * 
+     * @param channel_list Labels of noise channel to solve
+     * @param channel_params vector containing noise channel damping parameters of qubit
+     * @return std::vector<Eigen::MatrixXcd> 
+     */
+    std::vector<Eigen::MatrixXcd> setChannelMatrices(const std::vector<noiseChannelSymbol>& channel_list,
+        const Eigen::VectorXd& channel_params);
+
+    /**
+     * @brief Generate a channel specified in *channels* with random damping parameters
+     * 
+     * @param nb_qubits Number of qubits
+     * @param channel_list Labels of noise channel to solve
+     * @return std::vector<double> 
+     */
+    std::vector<double> generateRandomChannels(const size_t& nb_qubits,
+        const std::vector<std::vector<noiseChannelSymbol>>& channel_list);
 }
 
 #endif
