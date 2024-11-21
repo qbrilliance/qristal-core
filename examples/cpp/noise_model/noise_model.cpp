@@ -49,10 +49,11 @@ int main(int argc, char * argv[])
     bool noisier = false;
     for (auto x : arguments) { if (x == "--noisier") noisier = true; }
 
+    qristal::NoiseModel nm("default", n);
     if (qdk or noisier)
     {
       // Create a noise model with 2 qubits.
-      qristal::NoiseModel nm(qdk ? "qb-qdk1" : "default", n);
+      nm = qristal::NoiseModel(qdk ? "qb-qdk1" : "default", n);
 
       // If requested, overwrite the readout errors on the first bit of
       // the model with some very large values (for the sake of example).
