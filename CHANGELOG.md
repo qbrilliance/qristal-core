@@ -38,6 +38,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added a convenience function `qristal::session::run_with_SPAM()` and a corresponding python binding `qristal.core.session.run_with_SPAM()` to (i) automatically execute a SPAMBenchmark, (ii) enable automatic SPAM correction in `qristal::session`, and (iii) finally calling `qristal::session::run()`. 
 - Revealed tensor network parameters in CudaQ wrapper.
 - Added user-specified channels for process matrix solver and interpolator.
+- Added 2-qubit noise channels to process matrix solver and interpolator.
 
 ### Fixed
 
