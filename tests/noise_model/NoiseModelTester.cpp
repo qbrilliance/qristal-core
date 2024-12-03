@@ -394,9 +394,9 @@ TEST(NoiseChannelTester, testProcessMatrixSolver1Qubit) {
   static std::mt19937 gen(rd());
   static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
   // Choose some physically meaningful random values
-  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
-  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
-  static std::uniform_real_distribution<double> dist_depol1(0.0, 1e-5);
+  static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_depol1(1e-8, 1e-1);
 
   // Test 4 1-qubit noise channels together with 1-qubit depolarization
   std::vector<std::vector<qristal::noiseChannelSymbol>> channel_tests_vec =
@@ -462,9 +462,9 @@ TEST(NoiseChannelTester, testProcessMatrixSolverNQubit) {
   static std::mt19937 gen(rd());
   static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
   // Choose some physically meaningful random values
-  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
-  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
-  static std::uniform_real_distribution<double> dist_depol1(0.0, 1e-5);
+  static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_depol1(1e-8, 1e-1);
 
   // Test 4 1-qubit noise channels together with 1-qubit depolarization
   std::vector<std::vector<qristal::noiseChannelSymbol>> channel_tests_vec =
@@ -562,9 +562,9 @@ TEST(NoiseChannelTester, testProcessMatrixSolverNQubit_2qubitDepol) {
   static std::mt19937 gen(rd());
   static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
   // Choose some physically meaningful random values
-  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
-  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
-  static std::uniform_real_distribution<double> dist_depol2(0.0, 1e-3);
+  static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_depol2(1e-8, 1e-1);
 
   // Test 4 1-qubit noise channels together with 2-qubit depolarization (latter is retrieved below)
   std::vector<std::vector<qristal::noiseChannelSymbol>> channel_tests_vec =
@@ -674,9 +674,9 @@ TEST(NoiseChannelTester, testProcessMatrixSolverNQubit_2qubitDepol_qubitPairs) {
   static std::mt19937 gen(rd());
   static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
   // Choose some physically meaningful random values
-  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
-  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
-  static std::uniform_real_distribution<double> dist_depol2(0.0, 1e-3);
+  static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_depol2(1e-8, 1e-1);
 
   // Loop over qubit pairs
   for (size_t qId = 0; qId < qubit_pair.size(); qId++) {
@@ -766,9 +766,9 @@ TEST(NoiseChannelTester, testProcessMatrixInterpolator) {
   static std::random_device rd;
   static std::mt19937 gen(rd());
   // Choose some physically meaningful random values
-  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
-  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
-  static std::uniform_real_distribution<double> dist_depol1(0.0, 1e-5);
+  static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_depol1(1e-8, 1e-1);
 
   // Test 4 1-qubit noise channels together with 1-qubit depolarization
   std::vector<std::vector<qristal::noiseChannelSymbol>> channel_tests_vec =
@@ -902,9 +902,9 @@ TEST(NoiseChannelTester, testProcessMatrixInterpolator_2qubitDepol) {
   static std::random_device rd;
   static std::mt19937 gen(rd());
   // Choose some physically meaningful random values
-  static std::uniform_real_distribution<double> dist_amp_damp(0.0, 1e-6);
-  static std::uniform_real_distribution<double> dist_phase_damp(0.0, 1e-3);
-  static std::uniform_real_distribution<double> dist_depol2(0.0, 1e-3);
+  static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 1e-1);
+  static std::uniform_real_distribution<double> dist_depol2(1e-8, 1e-1);
 
   // Test 4 1-qubit noise channels together with 2-qubit depolarization (latter is retrieved below)
   std::vector<std::vector<qristal::noiseChannelSymbol>> channel_tests_vec =
