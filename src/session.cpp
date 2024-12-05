@@ -113,7 +113,6 @@ namespace qristal
   session::session()
       : name_m{{}}, number_m{{}}, infiles_{{}},
         include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
-        remote_backend_database_path_{SDK_DIR "/remote_backends.yaml"},
         instrings_{{}}, irtarget_ms_{{}}, accs_{{"qpp"}},
         aer_sim_types_{}, randoms_{{}},
         xasms_{{{false}}}, quil1s_{{{false}}}, noplacements_{{{false}}},
@@ -130,6 +129,7 @@ namespace qristal
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
         executor_(std::make_shared<Executor>()), error_mitigations_{}, state_vec_{},
         in_get_state_vec_(false), measure_sample_sequentials_{{"auto"}} {
+    set_remote_backend_database_path(SDK_DIR "/remote_backends.yaml");
     xacc::Initialize();
     xacc::setIsPyApi();
     xacc::set_verbose(debug_);

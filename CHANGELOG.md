@@ -51,7 +51,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed a bug in `session` where the execution would fail if there were more free parameters than elements in the output probability vector.
 - Added a python binding for the parametrized `U3` gate.
 - Fixed memory allocation in qristal-qobj.
-
+- When calling `qristal::session::set_remote_backend_database_path()`, `session`'s internal list of valid backends `VALID_ACCS` will be reset to a default pre-configured list of available backends before all backends in the supplied custom remote backends file will be added to `VALID_ACCS`. This allows users to (i) specify new backends with arbitrary names and (ii) seamlessly switch between different remote backend yaml within the same `session`.
 
 ## [1.6.0] - 2024-06-18
 

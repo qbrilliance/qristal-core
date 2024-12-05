@@ -71,7 +71,14 @@ session::calc_out_counts_ = calc_out_counts;
 const Table2d<bool> & session::get_calc_out_counts() const { return session::calc_out_counts_; }
 //
 void session::set_remote_backend_database_path(const std::string &path) {
+  //reset VALID_ACCS to the hardcoded iniital backends 
+  VALID_ACCS = VALID_ACCS_BKUP;
+  //Add keys from remote_backends_database
   session::remote_backend_database_path_ = path;
+  YAML::Node db = YAML::LoadFile(remote_backend_database_path_);
+  for (YAML::const_iterator it = db.begin(); it != db.end(); ++it) {
+    VALID_ACCS.insert(it->first.as<std::string>());
+  }
 }
 const std::string& session::get_remote_backend_database_path() const { return session::remote_backend_database_path_; }
 //

@@ -155,17 +155,17 @@ namespace qristal
       // Valid strings
       std::unordered_set<std::string> VALID_ACCS = {
           "aer",
-          "aws-braket",
           "tnqvm",
           "qpp",
           "qsim",
-          "loopback",
           "sparse-sim",
           "cirq-qsim",
           "qb-mps",
           "qb-purification",
           "qb-mpdo"
       };
+      //book-keeping of the initial hardcoded valid backends
+      std::unordered_set<std::string> VALID_ACCS_BKUP = VALID_ACCS; 
 
       // Valid AER simulator types
       std::unordered_set<std::string> VALID_AER_SIM_TYPES = {
