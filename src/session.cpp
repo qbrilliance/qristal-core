@@ -733,15 +733,19 @@ namespace qristal
 
     /// Choice of noise model
     {
-      if (noise_models_[0].empty())
-      {
-        config.noise_model_owned = std::make_shared<NoiseModel>("default", config.num_qubits);
-        config.noise_model = config.noise_model_owned.get();
-      }
-      else
-      {
-        ValidatorTwoDim<NoiseModel*> noise_models_valid(noise_models_);
-        config.noise_model = noise_models_valid.get(ii, jj);
+      if (config.noise == true) {
+        if (noise_models_[0].empty())
+        {
+          config.noise_model_owned = std::make_shared<NoiseModel>("default", config.num_qubits);
+          config.noise_model = config.noise_model_owned.get();
+        }
+        else
+        {
+          ValidatorTwoDim<NoiseModel*> noise_models_valid(noise_models_);
+          config.noise_model = noise_models_valid.get(ii, jj);
+        }
+      } else {
+        config.no_placement = true; // Set to true if noise is off so that XACC does not trigger noise aware placement
       }
     }
 
