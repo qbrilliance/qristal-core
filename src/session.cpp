@@ -1055,6 +1055,12 @@ namespace qristal
         qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
         qpu_options.insert("max-kraus-dim", max_kraus_dimension);
       }
+      if (noises) {
+        if (debug_) {
+          std::cout << "# Noise model for " << acc << " (from emulator package): enabled" << std::endl;
+        }
+        qpu_options.insert("noise-model", run_config.noise_model);
+      }
 
       auto cudaq_accelerator = std::make_shared<qristal::cudaq_acc>(acc);
       cudaq_accelerator->initialize(qpu_options);
@@ -1141,7 +1147,7 @@ namespace qristal
         qpu_options.insert("max-kraus-dim", max_kraus_dimension);
       }
 
-      if (noises) { // Use tensor network backend via xacc wrapper to handle noise if requested.
+      if (noises) {
         if (debug_) {
           std::cout << "# Noise model for " << acc << " (from emulator package): enabled" << std::endl;
         }

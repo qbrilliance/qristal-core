@@ -39,6 +39,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Revealed tensor network parameters in CudaQ wrapper.
 - Added user-specified channels for process matrix solver and interpolator.
 - Added 2-qubit noise channels to process matrix solver and interpolator.
+- Added support for noise to CudaQ wrapped emulator backends
 
 ### Fixed
 

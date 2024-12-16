@@ -55,6 +55,22 @@ int main()
   // Hand over the circuit to the sim object
   s.set_instring(targetCircuit);
 
+  // CudaQ has no transpiler, so we need to transpile the circuit to QB's native gate set {rx, ry, cz} first.
+  if (s.get_accs()[0][0] == "cudaq:qb_mps" && s.get_noises()[0][0] == true) {
+    // To do this, we simply run the program without executing the circuit, i.e. by setting nosim = True
+    s.set_nosim(true);
+    s.run();
+
+    // Now we can get the transpiled circuit using "out_transpiled_circuit"
+    std::string circ_qasm = s.get_out_transpiled_circuits()[0][0];
+    std::cout << circ_qasm << "\n";
+    // The transpiled circuit is in openQasm, so we feed it back into session via "instring"
+    s.set_instring(circ_qasm);
+
+    // Execute the transpiled circuit by setting nosim = False
+    s.set_nosim(false);
+  }
+
   // Run the circuit
   s.run();
 

@@ -2,8 +2,15 @@
 #pragma once
 #include "Accelerator.hpp"
 #include "qristal/core/utils.hpp"
+#include "qristal/core/noise_model/noise_model.hpp"
+#include <cudaq.h>
 
 namespace qristal {
+struct cudaqNoiseStruct {
+  std::optional<std::shared_ptr<NoiseModel>> qristal_noise_model_to_emulator = std::nullopt;
+};
+extern cudaqNoiseStruct cudaqNoise;
+
 /// A xacc::Accelerator wrapper for offloading XACC IR execution to CUDA Quantum
 /// simulator backends by converting XACC IR to Quake then QIR.
 class cudaq_acc : public xacc::Accelerator {
@@ -25,6 +32,8 @@ class cudaq_acc : public xacc::Accelerator {
   double m_rel_svd_cutoff;
   /// Measurement sampling method
   std::string m_measure_sample_sequential; 
+  /// CudaQ's struct containing sampling function's members: number of shots and noise model
+  cudaq::sample_options sample_ops;
 
 public:
   /// Constructor

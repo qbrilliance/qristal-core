@@ -44,5 +44,20 @@ circ.measure_all()
 
 # run the circuit and check results
 s.ir_target = circ
+
+# CudaQ has no transpiler, so we need to transpile the circuit to QB's native gate set {rx, ry, cz} first.
+if s.acc[0][0] == "cudaq:qb_purification" and s.noise[0][0] == True:
+  # To do this, we simply run the program without executing the circuit, i.e. by setting nosim = True
+  s.nosim = True
+  s.run()
+
+  # Now we can get the transpiled circuit using "out_transpiled_circuit"
+  circ_qasm = s.out_transpiled_circuit[0][0]
+  # print(circ_qasm)
+  # The transpiled circuit is in openQasm, so we feed it back into session via "instring"
+  s.instring = circ_qasm
+
+  # Execute the transpiled circuit by setting nosim = False
+  s.nosim = False
 s.run()
 print(s.results[0][0])

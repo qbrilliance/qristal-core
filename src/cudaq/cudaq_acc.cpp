@@ -3,8 +3,11 @@
 #include "cudaq/algorithms/sample.h"
 #include "qristal/core/cudaq/ir_converter.hpp"
 #include "qristal/core/cudaq/sim_pool.hpp"
+#include <cudaq.h>
 
 namespace qristal {
+cudaqNoiseStruct cudaqNoise;
+
 cudaq_acc::cudaq_acc(const std::string &backend_name)
     : m_backend(backend_name) {}
 const std::string cudaq_acc::name() const { return "cudaq"; }
@@ -22,7 +25,12 @@ void cudaq_acc::initialize(const xacc::HeterogeneousMap &params) {
 
 void cudaq_acc::updateConfiguration(const xacc::HeterogeneousMap &config) {
   if (config.keyExists<int>("shots")) {
-    m_shots = config.get<int>("shots");
+    sample_ops.shots = config.get<int>("shots");
+  }
+
+  if (config.pointerLikeExists<NoiseModel>("noise-model")) {
+    NoiseModel *nm = config.getPointerLike<NoiseModel>("noise-model");
+    cudaqNoise.qristal_noise_model_to_emulator = std::make_shared<NoiseModel>(*nm);
   }
   if (config.keyExists<int>("initial-bond-dim")) {
     m_initial_bond_dim = config.get<int>("initial-bond-dim");
@@ -66,7 +74,8 @@ void cudaq_acc::freeEnvVars() {
 
 const std::vector<std::string> cudaq_acc::configurationKeys() {
   return {"shots", "initial-bond-dim", "initial-kraus-dim", "max-bond-dim", "max-kraus-dim",
-          "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-sequential"};
+          "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-sequential",
+          "noise-model"};
 }
 
 void cudaq_acc::execute(
@@ -79,7 +88,7 @@ void cudaq_acc::execute(
   // Set the simulator
   cudaq_sim_pool::get_instance().set_simulator(m_backend);
   auto cudaq_counts =
-      cudaq::sample(m_shots, cudaq_builder, std::vector<double>{});
+      cudaq::sample(sample_ops, cudaq_builder, std::vector<double>{});
   freeEnvVars();
   for (const auto &[bits, count] : cudaq_counts) {
     buffer->appendMeasurement(bits, count);
