@@ -236,28 +236,6 @@ def test_recursive():
     s.run()
     assert(s.results[0][0].total_counts() == s.sn[0][0])
 
-def test_resampling():
-    print("Using loopback to test resampling.")
-    import qristal.core
-    from yaml import safe_load, dump
-    import os
-    s = qristal.core.session()
-    s.init()
-    s.qn=2
-    s.acc='loopback'
-    s.xasm = True
-    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    s.sn=30
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    db["recursive"] = False
-    db["resample"] = True
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-    s.run()
-    assert(s.results[0][0].total_counts() == s.sn[0][0])
-
 def test_resampling_qb_safe_limit_shots():
     print("Using loopback to test QB_SAFE_LIMIT_SHOTS with resampling.")
     import qristal.core

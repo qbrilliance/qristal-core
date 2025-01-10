@@ -320,8 +320,8 @@ ci-hardware-tests:
     - if: $CI_PIPELINE_SOURCE != "schedule"
       variables:
         QCSTACK_REGISTRY: registry.gitlab.com/qbau/control/qcstack/qcstack_server
-        QCSTACK_TAG: "2024.4.12"
-        QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --max-circuit-depth 1000 --reservation-shared-secret hello --calibration False --benchmark False"
+        QCSTACK_TAG: "latest"
+        QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --max-circuit-depth 1000 --reservation-shared-secret hello --system dummy --calibration False --benchmark False"
   script:
     - mv core_artefacts/build .
     - mv core_artefacts/deps .

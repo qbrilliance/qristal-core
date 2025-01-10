@@ -373,6 +373,7 @@ namespace xacc
           jsel["settings"]["shots"] = QB_SAFE_LIMIT_SHOTS;
       }
 
+
       jsel["settings"]["results"] = results; // default: "normal"
       if (!use_default_contrast_settings)
       {
@@ -383,6 +384,13 @@ namespace xacc
         }
         jsel["settings"]["readout_contrast_threshold"]["qubits"] = qctjs;
       }
+      // By default we'll take anything they give us as opposed to the number of shots we request
+      // TODO: This should be an option & probably default to "exact" - return the number of shots
+      // requested! As implemented now, the system matches how it works prior to the
+      // shot_fulfilment_strategy setting being added.
+      jsel["settings"]["shot_fulfilment_strategy"] = "lackadaisical";
+
+
       jsel["init"] = init;
 
       // Circuit
