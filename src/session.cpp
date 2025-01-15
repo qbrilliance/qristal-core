@@ -128,7 +128,7 @@ namespace qristal
         out_qbjsons_{{{}}}, out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
         executor_(std::make_shared<Executor>()), error_mitigations_{}, state_vec_{},
-        in_get_state_vec_(false), measure_sample_sequentials_{{"auto"}} {
+        in_get_state_vec_(false), measure_sample_methods_{{"auto"}} {
     set_remote_backend_database_path(SDK_DIR "/remote_backends.yaml");
     xacc::Initialize();
     xacc::setIsPyApi();
@@ -722,13 +722,13 @@ namespace qristal
 
     /// QB tensor network accelerator measurement sampling method
     {
-      ValidatorTwoDim<std::string> measure_sample_sequential_valid(
-          measure_sample_sequentials_, VALID_MEASURE_SAMPLING_OPTIONS, " Measurement sampling method [measure-sample-sequential] ");
-      if (measure_sample_sequential_valid.is_data_empty())
+      ValidatorTwoDim<std::string> measure_sample_method_valid(
+          measure_sample_methods_, VALID_MEASURE_SAMPLING_OPTIONS, " Measurement sampling method [measure-sample-method] ");
+      if (measure_sample_method_valid.is_data_empty())
       {
-        throw std::range_error("Measure sampling method [measure-sample-sequential] cannot be empty");
+        throw std::range_error("Measure sampling method [measure-sample-method] cannot be empty");
       }
-      config.measure_sample_sequential = measure_sample_sequential_valid.get(ii, jj);
+      config.measure_sample_method = measure_sample_method_valid.get(ii, jj);
     }
 
     /// Choice of noise model
@@ -1018,7 +1018,7 @@ namespace qristal
     int initial_kraus_dimension = run_config.initial_kraus_tnqvm;
     double svd_cutoff = run_config.svd_cutoff_tnqvm;
     double rel_svd_cutoff = run_config.rel_svd_cutoff_tnqvm;
-    std::string measure_sample_sequential = run_config.measure_sample_sequential;
+    std::string measure_sample_method = run_config.measure_sample_method;
     // Optional random seed: randomized by default.
     int random_seed = []() {
       static std::random_device dev;
@@ -1050,7 +1050,7 @@ namespace qristal
         {"max-bond-dim", max_bond_dimension},
         {"abs-truncation-threshold", svd_cutoff},
         {"rel-truncation-threshold", rel_svd_cutoff},
-        {"measurement-sampling-sequential", measure_sample_sequential}};
+        {"measurement-sampling-method", measure_sample_method}};
       if (acc == "cudaq:qb_purification") { // Additional options for qb-purification
         qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
         qpu_options.insert("max-kraus-dim", max_kraus_dimension);
@@ -1141,7 +1141,7 @@ namespace qristal
         {"max-bond-dim", max_bond_dimension},
         {"abs-truncation-threshold", svd_cutoff},
         {"rel-truncation-threshold", rel_svd_cutoff},
-        {"measurement-sampling-sequential", measure_sample_sequential}};
+        {"measurement-sampling-method", measure_sample_method}};
       if (acc == "qb-purification") { // Additional options for qb-purification
         qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
         qpu_options.insert("max-kraus-dim", max_kraus_dimension);
@@ -1368,7 +1368,7 @@ namespace qristal
     std::map<int,double> rel_scut{{0, 1.0e-4}};
     set_rel_svd_cutoff(rel_scut);
     set_output_oqm_enabled(true);
-    set_measure_sample_sequential("auto");
+    set_measure_sample_method("auto");
     set_aer_sim_type("statevector");
   }
 

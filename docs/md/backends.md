@@ -207,7 +207,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `svd_cutoff`: *floating-point*, optional, default: 1.0e-8. Smallest absolute value of the singular values to keep.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
-* `measure_sample_sequential`: *string*, optional. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` (default) for cutensornet-based sampling with cutensor-based sampling as fallback.
+* `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -222,7 +222,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `svd_cutoff`: 1.0e-6
 * `rel_svd_cutoff`: 1.0e-3
 * `noise`: `false`
-* `measure_sample_sequential`: `auto`
+* `measure_sample_method`: `auto`
 
 ### Quantum Brilliance Matrix-Product Density Operator: `qb-mpdo` and `cudaq:qb_mpdo`
 
@@ -241,7 +241,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `svd_cutoff`: *floating-point*, optional, default: 1.0e-8. Smallest absolute value of the singular values to keep.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
-* `measure_sample_sequential`: *string*, optional. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` (default) for cutensornet-based sampling with cutensor-based sampling as fallback.
+* `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -256,7 +256,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `svd_cutoff`: 1.0e-6
 * `rel_svd_cutoff`: 1.0e-3
 * `noise`: `false`
-* `measure_sample_sequential`: `auto`
+* `measure_sample_method`: `auto`
 
 ### Quantum Brilliance purification: `qb-purification` and `cudaq:qb_purification`
 
@@ -277,7 +277,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `svd_cutoff`: *floating-point*, optional, default: 1.0e-8. Smallest absolute value of the singular values to keep.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
-* `measure_sample_sequential`: *string*, optional. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` (default) for cutensornet-based sampling with cutensor-based sampling as fallback.
+* `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -294,7 +294,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `svd_cutoff`: 1.0e-6
 * `rel_svd_cutoff`: 1.0e-3
 * `noise`: `false`
-* `measure_sample_sequential`: `auto`
+* `measure_sample_method`: `auto`
 
 
 ### TNQVM-ExaTN MPS: `tnqvm`

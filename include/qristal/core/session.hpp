@@ -90,7 +90,7 @@ namespace qristal
       Table2d<size_t> initial_kraus_dimensions_;
       Table2d<std::map<int,double>> svd_cutoffs_;
       Table2d<std::map<int,double>> rel_svd_cutoffs_;
-      Table2d<std::string> measure_sample_sequentials_;
+      Table2d<std::string> measure_sample_methods_;
 
       // Noise models
       std::vector<std::vector<NoiseModel*>> noise_models_;
@@ -190,7 +190,7 @@ namespace qristal
 
       // Valid measurement sampling options
       std::unordered_set<std::string> VALID_MEASURE_SAMPLING_OPTIONS = {
-          "auto", "on", "off"};
+          "auto", "sequential", "cutensornet", "cutensornet_multishot"};
 
     public:
       /**
@@ -833,30 +833,31 @@ namespace qristal
       const Table2d<std::map<int,double>> &get_rel_svd_cutoffs() const;
 
       /**
-       * @brief Set the measurement sampling method - "off" uses the cutensorNet
-       * contraction method of the entire tensor network state. Program terminates
-       * with error meassage if cutensorNet fails.
-       * "on" uses the cutensor sequential contraction method.
+       * @brief Set the measurement sampling method. Options:
+       * "cutensornet" uses the single-shot cutensorNet contraction method of the entire
+       * tensor network state. Program terminates with error meassage if cutensorNet fails.
+       * "cutensornet_multishot" uses the multi-shot cutensorNet contraction method.
+       * "sequential" uses the cutensor sequential contraction method.
        * "auto" (default) uses the cutensorNet contraction method and automatically
        * swithes to the cutensor sequential contraction method if the cutensorNet
        * method fails.
        * @note This is only needed if using the emulator tensor network accelerator
        *
-       * @param in_measure_sample_sequential Measure sampling option value
+       * @param in_measure_sample_method Measure sampling option value
        */
-      void set_measure_sample_sequential(const std::string &in_measure_sample_sequential);
+      void set_measure_sample_method(const std::string &in_measure_sample_method);
       /**
        * @brief Set the measurement sampling methods
        *
-       * @param in_measure_sample_sequential Measure sampling option values
+       * @param in_measure_sample_method Measure sampling option values
        */
-      void set_measure_sample_sequentials(const Table2d<std::string> &in_measure_sample_sequential);
+      void set_measure_sample_methods(const Table2d<std::string> &in_measure_sample_method);
       /**
        * @brief Get the measurement sampling method
        *
        * @return Measure sampling option values
        */
-      const Table2d<std::string> &get_measure_sample_sequentials() const;
+      const Table2d<std::string> &get_measure_sample_methods() const;
 
       /**
        * @brief Set the noise model

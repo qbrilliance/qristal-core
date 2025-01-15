@@ -288,18 +288,18 @@ void session::set_rel_svd_cutoff(const std::map<int,double> &in_rel_svd_cutoff) 
 void session::set_rel_svd_cutoffs(const Table2d<std::map<int,double>> &in_rel_svd_cutoff) { session::rel_svd_cutoffs_ = in_rel_svd_cutoff; }
 const Table2d<std::map<int,double>> & session::get_rel_svd_cutoffs() const { return session::rel_svd_cutoffs_; }
 //
-void session::set_measure_sample_sequential(const std::string &in_measure_sample_sequential) {
-  validate_measure_sample_options(in_measure_sample_sequential);
-  session::measure_sample_sequentials_.clear();
-  session::measure_sample_sequentials_.push_back({in_measure_sample_sequential});
+void session::set_measure_sample_method(const std::string &in_measure_sample_method) {
+  validate_measure_sample_options(in_measure_sample_method);
+  session::measure_sample_methods_.clear();
+  session::measure_sample_methods_.push_back({in_measure_sample_method});
 }
-void session::set_measure_sample_sequentials(const Table2d<std::string> &in_measure_sample_sequential) {
-  for (auto item : in_measure_sample_sequential) {
+void session::set_measure_sample_methods(const Table2d<std::string> &in_measure_sample_method) {
+  for (auto item : in_measure_sample_method) {
     for (auto im : item) {
       session::validate_measure_sample_options(im);
     }
   }
-  session::measure_sample_sequentials_ = in_measure_sample_sequential;
+  session::measure_sample_methods_ = in_measure_sample_method;
 }
 void session::validate_measure_sample_options(const std::string &measure_sample_options) {
   if (VALID_MEASURE_SAMPLING_OPTIONS.find(measure_sample_options) == VALID_MEASURE_SAMPLING_OPTIONS.end()) {
@@ -311,7 +311,7 @@ void session::validate_measure_sample_options(const std::string &measure_sample_
     throw std::range_error(measure_sample_options_error_message.str());
   }
 }
-const Table2d<std::string> & session::get_measure_sample_sequentials() const { return session::measure_sample_sequentials_; }
+const Table2d<std::string> & session::get_measure_sample_methods() const { return session::measure_sample_methods_; }
 
 //
 void session::set_noise_model(NoiseModel &noise_model) {
@@ -719,10 +719,10 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* measure_sample_sequential:" << std::endl <<
+  out << "* measure_sample_method:" << std::endl <<
   "    QB tensor network measurement sampling method" << std::endl <<
   "  = ";
-  for (auto item : get_measure_sample_sequentials()) {
+  for (auto item : get_measure_sample_methods()) {
     for (auto itel : item) {
       out << " " << itel;
     }

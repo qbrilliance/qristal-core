@@ -387,14 +387,14 @@ namespace qristal {
                 This is only needed if using the "tnqvm" backend accelerator.
     )";
 
-    const char* measure_sample_sequentials_ = R"(
-        measure_sample_sequential:
+    const char* measure_sample_methods_ = R"(
+        measure_sample_method:
 
         Set the measurement sampling method (QB emulator tensor network simulator). The single setting applies globally.
 
-        measure_sample_sequentials:
+        measure_sample_methods:
 
-        A 1d-array (list) version of measure_sample_sequential.
+        A 1d-array (list) version of measure_sample_method.
 
         .. note::
                 This is only needed if using the emulator tensor network accelerators.

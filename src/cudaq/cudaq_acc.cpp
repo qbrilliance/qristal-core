@@ -56,9 +56,9 @@ void cudaq_acc::updateConfiguration(const xacc::HeterogeneousMap &config) {
     m_rel_svd_cutoff = config.get<double>("rel-truncation-threshold");
     setEnvVar(m_rel_svd_cutoff, "CUDAQ_RELATIVE_CUTOFF");
   }
-  if (config.stringExists("measurement-sampling-sequential")) {
-    m_measure_sample_sequential = config.getString("measurement-sampling-sequential");
-    setEnvVar(m_measure_sample_sequential, "CUDAQ_MEASURE_SAMPLING_SEQ");
+  if (config.stringExists("measurement-sampling-method")) {
+    m_measure_sample_method = config.getString("measurement-sampling-method");
+    setEnvVar(m_measure_sample_method, "CUDAQ_MEASURE_SAMPLING_METHOD");
   }
 }
 
@@ -69,12 +69,12 @@ void cudaq_acc::freeEnvVars() {
   unsetenv("CUDAQ_MAX_KRAUS");
   unsetenv("CUDAQ_ABS_CUTOFF");
   unsetenv("CUDAQ_RELATIVE_CUTOFF");
-  unsetenv("CUDAQ_MEASURE_SAMPLING_SEQ");
+  unsetenv("CUDAQ_MEASURE_SAMPLING_METHOD");
 }
 
 const std::vector<std::string> cudaq_acc::configurationKeys() {
   return {"shots", "initial-bond-dim", "initial-kraus-dim", "max-bond-dim", "max-kraus-dim",
-          "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-sequential",
+          "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-method",
           "noise-model"};
 }
 

@@ -31,7 +31,7 @@ class cudaq_acc : public xacc::Accelerator {
   /// Singular values relative cutoff threshold
   double m_rel_svd_cutoff;
   /// Measurement sampling method
-  std::string m_measure_sample_sequential; 
+  std::string m_measure_sample_method; 
   /// CudaQ's struct containing sampling function's members: number of shots and noise model
   cudaq::sample_options sample_ops;
 

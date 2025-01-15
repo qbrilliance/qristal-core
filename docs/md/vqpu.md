@@ -105,7 +105,7 @@ Tensor network backend settings used if `backend` is one of `qb-mpdo`, `qb-mps`,
 
 * `rel_svd_cutoff`: *floating-point*. Smallest singular value, relative to the largest singular value, to keep.
 
-* `measure_sample_sequential`: *string*. Measurement sampling modes: `on` for cutensor-based sampling, `off` for cutensornet-based sampling, `auto` for cutensornet-based sampling with cutensor-based sampling as fallback.
+* `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 
 Settings used if `backend` is `qb-purification` or `cudaq:qb-purification`:
 

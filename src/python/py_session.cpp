@@ -237,13 +237,13 @@ void bind_session(pybind11::module &m) {
                     &qristal::session::get_max_kraus_dimensions,
                     &qristal::session::set_max_kraus_dimensions,
                     qristal::help::max_kraus_dimensions_)
-      .def_property("measure_sample_sequential", &qristal::session::get_measure_sample_sequentials,
-                    &qristal::session::set_measure_sample_sequential,
-                    qristal::help::measure_sample_sequentials_)
-      .def_property("measure_sample_sequentials",
-                    &qristal::session::get_measure_sample_sequentials,
-                    &qristal::session::set_measure_sample_sequentials,
-                    qristal::help::measure_sample_sequentials_)
+      .def_property("measure_sample_method", &qristal::session::get_measure_sample_methods,
+                    &qristal::session::set_measure_sample_method,
+                    qristal::help::measure_sample_methods_)
+      .def_property("measure_sample_methods",
+                    &qristal::session::get_measure_sample_methods,
+                    &qristal::session::set_measure_sample_methods,
+                    qristal::help::measure_sample_methods_)
       .def_property("expected_amplitudes", &qristal::session::get_expected_amplitudes,
                     &qristal::session::set_expected_amplitudes,
                     qristal::help::expected_amplitudes_)
