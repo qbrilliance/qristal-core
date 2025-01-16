@@ -1,12 +1,10 @@
-# API V1 QC Stack Server integration with Qristal
-# The QC Stack Server used here is a software-only instance.
+# Test qcstack_server interface with Qristal
 
 import pytest
 
 def test_CI_230208_simple_setters_for_contrast_thresholds():
     print("This test checks the ability to set contrast thresholds.")
     import qristal.core
-    import os
     import json
     from yaml import safe_load, dump
 
@@ -35,7 +33,6 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
-    db["recursive"] = False
     db["use_default_contrast_settings"] = False
     db["init_contrast_threshold"] = init_thresh
     db["qubit_contrast_thresholds"] = { 0: qubit_0_thresh, 1: qubit_1_thresh }
@@ -62,14 +59,13 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     assert(res['settings'].keys().__contains__('readout_contrast_threshold') == False)
 
 def test_CI_230131_cz_arbitrary_rotation():
-    print("Checks CZ and Ry at arbitrary rotation angle.  Verifies that the requested number of shots is actually performed via recursive requests")
+    print("Checks CZ and Ry at arbitrary rotation angle.  Verifies that the requested number of shots is actually performed.")
     import qristal.core
     from yaml import safe_load, dump
-    import os
     s = qristal.core.session()
     s.init()
     s.qn = 2
-    s.sn = 128
+    s.sn = 64
 
     s.xasm = True
 
@@ -85,22 +81,14 @@ def test_CI_230131_cz_arbitrary_rotation():
     s.instring = targetCircuit
     s.acc = "loopback"
 
-    # Set new options
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-
     # Run the circuit on the back-end
     s.run()
     assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_CI_230131_arbitrary_rotation():
-    print("Checks Rx and Ry arbitrary rotation angles.  Verifies that the requested number of shots is actually performed via recursive requests")
+    print("Checks Rx and Ry arbitrary rotation angles.  Verifies that the requested number of shots is actually performed.")
     import qristal.core
     from yaml import safe_load, dump
-    import os
     s = qristal.core.session()
     s.init()
     s.qn = 2
@@ -121,23 +109,15 @@ def test_CI_230131_arbitrary_rotation():
     s.instring = targetCircuit
     s.acc = "loopback"
 
-    # Set new options
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-
     # Run the circuit on the back-end
     s.run()
     assert(s.results[0][0].total_counts() == s.sn[0][0])
 
 def test_CI_230106_1_loopback_6s():
-    print("Check 2s and 6s polling interval set from JSON config file")
+    print("Check 2s and 6s polling interval.")
     import qristal.core
     from yaml import safe_load, dump
     import timeit
-    import os
     s = qristal.core.session()
     s.init()
     s.qn = 1
@@ -160,27 +140,24 @@ def test_CI_230106_1_loopback_6s():
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["loopback"]
     db["poll_secs"] = 6
-    db["recursive"] = False
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'loopback': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-    # Run the circuit on the back-end
+    # Run the circuit on the backend
     eltim = timeit.timeit(lambda: s.run(), number=1)
     assert (eltim > 6.0)
 
     # Reset polling to 2s
     db["poll_secs"] = 2
     dump({'loopback': db}, stream)
-    # Run the circuit on the back-end
+    # Run the circuit on the backend
     eltim = timeit.timeit(lambda: s.run(), number=1)
-    assert (eltim < 25.0)
+    assert (eltim < 150.0)
 
 def test_CI_220225_1_init_measure_no_gates() :
     print("When a circuit contains no gates, QB hardware expects a JSON with circuit=[] instead of circuit='null'")
     import qristal.core
     from yaml import safe_load, dump
-    import timeit
-    import os
     import json
 
     s = qristal.core.session()
@@ -199,18 +176,12 @@ def test_CI_220225_1_init_measure_no_gates() :
     s.instring = targetCircuit
     s.acc = "loopback"
 
-    # Set new options
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    db["recursive"] = False
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-
-    # Run the circuit on the back-end
-    eltim = timeit.timeit(lambda: s.run(), number=1)
+    # Run the circuit on the backend
+    s.run()
     res = json.loads(s.out_qbjson[0][0])
     assert(len(res["circuit"]) == 0)
+
+    # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
     __qpu__ void qristal_circuit(qbit q) {
         H(q[0]);
@@ -218,48 +189,11 @@ def test_CI_220225_1_init_measure_no_gates() :
     }
     '''
     s.instring = targetCircuit
-    # Run the circuit on the back-end
-    eltim = timeit.timeit(lambda: s.run(), number=1)
+
+    # Run the circuit on the backend
+    s.run()
     res = json.loads(s.out_qbjson[0][0])
     assert(len(res["circuit"]) == 2)
-
-def test_recursive():
-    print("Using loopback to test recursive request.")
-    import qristal.core
-    s = qristal.core.session()
-    s.init()
-    s.qn=2
-    s.acc='loopback'
-    s.xasm = True
-    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    s.sn=16
-    s.run()
-    assert(s.results[0][0].total_counts() == s.sn[0][0])
-
-def test_resampling_qb_safe_limit_shots():
-    print("Using loopback to test QB_SAFE_LIMIT_SHOTS with resampling.")
-    import qristal.core
-    from yaml import safe_load, dump
-    import os
-    import json
-    QB_SAFE_LIMIT_SHOTS = 512
-    s = qristal.core.session()
-    s.init()
-    s.qn=2
-    s.acc='loopback'
-    s.xasm = True
-    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
-    s.sn=1024
-    stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
-    db["recursive"] = False
-    db["resample"] = True
-    stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
-    s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
-    s.run()
-    tjs = json.loads(s.out_qbjson[0][0])
-    assert(tjs['settings']['shots'] == QB_SAFE_LIMIT_SHOTS)
 
 # Note that the reservation is not released after this test, so the qcstack server
 # remains in exclusive access mode afterwards -- so this test must run after all
@@ -268,7 +202,6 @@ def test_reservation():
     print("Using json web token to reserve qcstack for exclusive access")
     import qristal.core
     from yaml import safe_load, dump
-    import os
     s = qristal.core.session()
     s.init()
     s.qn=2

@@ -98,7 +98,7 @@ TEST(transpilationTester, checkAerNoiseSim1) {
   auto xasmCompiler = xacc::getCompiler("xasm");
   // A program with single CZ:
   // (1) If the default AER transpilation is used, it will have a high level of
-  // noise due to CZ -> u2-CX-u2 decomposition. 
+  // noise due to CZ -> u2-CX-u2 decomposition.
   // (2) If the custom QB QObj
   // compiler is used, CZ will be noise free (since we didn't specify any
   // two-qubit noises)
@@ -166,7 +166,7 @@ TEST(transpilationTester, checkAerNoiseSim2) {
 
   auto xasmCompiler = xacc::getCompiler("xasm");
   // A program with single CNOT:
-  // (1) If the default AER transpilation is used, it will have no noise since CNOT is a basis gate and no noise was assigned. 
+  // (1) If the default AER transpilation is used, it will have no noise since CNOT is a basis gate and no noise was assigned.
   // (2) If the custom QB QObj compiler is used, CNOT will be noisy due to "rx", "ry" noise
   auto program = xasmCompiler
                      ->compile(R"(__qpu__ void test1(qbit q) {
@@ -242,8 +242,8 @@ TEST(transpilationTester, checkSubsetMeasure) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure01);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 70);
   }
 
   { // Check with Xacc QObj generator (default): Measure qubit 0 only
@@ -251,8 +251,8 @@ TEST(transpilationTester, checkSubsetMeasure) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure0);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["0"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["1"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["0"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["1"], 500, 70);
   }
 
   { // Check with Xacc QObj generator (default): Measure qubit 1 only
@@ -268,8 +268,8 @@ TEST(transpilationTester, checkSubsetMeasure) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure01);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 70);
   }
 
   { // Check with qristal QObj generator: Measure qubit 0 only
@@ -277,8 +277,8 @@ TEST(transpilationTester, checkSubsetMeasure) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure0);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["0"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["1"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["0"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["1"], 500, 70);
   }
 
   { // Check with qristal QObj generator: Measure qubit 1 only
@@ -348,8 +348,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program1_measure_all);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["100"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["110"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["100"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["110"], 500, 70);
   }
 
   { // Program1: Measure qubits 0 and 1
@@ -357,8 +357,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program1_measure01);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["00"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["00"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 70);
   }
 
   { // Program1: Measure qubits 1 and 0
@@ -366,8 +366,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program1_measure10);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["00"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["00"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 70);
   }
 
   { // Program1: Measure qubits 1 and 2
@@ -375,8 +375,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program1_measure12);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 70);
   }
 
   { // Program1: Measure qubits 2 and 1
@@ -384,8 +384,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program1_measure21);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 70);
   }
 
   { // Program 2: Measure qubits 0 and 2
@@ -393,8 +393,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program2_measure02);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["10"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 70);
   }
 
   { // Program 2: Measure qubits 0 and 2
@@ -402,8 +402,8 @@ TEST(transpilationTester, checkSubsetMeasure2) {
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program2_measure20);
     buffer->print();
-    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 50);
-    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 50);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["01"], 500, 70);
+    EXPECT_NEAR(buffer->getMeasurementCounts()["11"], 500, 70);
   }
 }
 

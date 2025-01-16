@@ -23,25 +23,6 @@ const std::string reservationEndpoint = "api/v1/reservations";
 namespace qristal
 {
 
-  // Hardware polling loop
-  void polling_loop(
-      double polling_interval,
-      int polling_attempts,
-      std::shared_ptr<xacc::quantum::qb_qpu> hardware_device,
-      std::map<std::string, int> &counts,
-      const std::vector<std::shared_ptr<xacc::CompositeInstruction>>& circuits,
-      bool debug)
-  {
-    for (int i = 0; i < polling_attempts; i++)
-    {
-      std::this_thread::sleep_for(std::chrono::duration<double, std::chrono::seconds::period>(polling_interval));
-      if (debug) std::cout << "# Waited for " << polling_interval << " seconds" << std::endl;
-      bool success = hardware_device->resultsReady(circuits, counts, polling_interval, polling_attempts);
-      if (debug) std::cout << "# Poll return: " << (success ? "": "not ") << "ready" << std::endl;
-      if (success) break;
-    }
-  }
-
   // Send a circuit for execution on QB hardware
   void execute_on_qb_hardware(
       std::shared_ptr<xacc::quantum::qb_qpu> hardware_device,
@@ -53,13 +34,7 @@ namespace qristal
     // Send circuit for execution to QB hardware
     hardware_device->setup_hardware();
     hardware_device->execute(buffer, circuits);
-
-    // Poll QB hardware for circuit results
-    auto hardware_settings = hardware_device->getProperties();
-    double polling_interval = hardware_settings.get<double>("poll_secs");
-    int polling_attempts = hardware_settings.get<uint>("poll_retries");
-    std::map<std::string, int> counts;
-    polling_loop(polling_interval, polling_attempts, hardware_device, counts, circuits, debug);
+    std::map<std::string, int> counts = hardware_device->poll_for_results();
 
     // Store the counts in the buffer
     for (auto &kv : counts)
@@ -120,8 +95,6 @@ namespace xacc
       m.insert("qubit_contrast_thresholds", qubit_contrast_thresholds);
       m.insert("results", results);
       m.insert("url", remoteUrl);
-      m.insert("recursive", recursive);
-      m.insert("resample", resample);
       m.insert("exclusive_access", exclusive_access);
       m.insert("exclusive_access_token", exclusive_access_token);
       return m;
@@ -143,8 +116,6 @@ namespace xacc
         "qubit_contrast_thresholds",
         "results",
         "url",
-        "recursive",
-        "resample",
         "exclusive_access",
         "exclusive_access_token"
       };
@@ -168,8 +139,6 @@ namespace xacc
       update("qubit_contrast_thresholds", qubit_contrast_thresholds);
       update("results", results);
       update("url", remoteUrl);
-      update("recursive", recursive);
-      update("resample", resample);
       update("exclusive_access", exclusive_access);
       update("exclusive_access_token", exclusive_access_token);
     }
@@ -373,7 +342,6 @@ namespace xacc
           jsel["settings"]["shots"] = QB_SAFE_LIMIT_SHOTS;
       }
 
-
       jsel["settings"]["results"] = results; // default: "normal"
       if (!use_default_contrast_settings)
       {
@@ -384,13 +352,7 @@ namespace xacc
         }
         jsel["settings"]["readout_contrast_threshold"]["qubits"] = qctjs;
       }
-      // By default we'll take anything they give us as opposed to the number of shots we request
-      // TODO: This should be an option & probably default to "exact" - return the number of shots
-      // requested! As implemented now, the system matches how it works prior to the
-      // shot_fulfilment_strategy setting being added.
-      jsel["settings"]["shot_fulfilment_strategy"] = "lackadaisical";
-
-
+      jsel["settings"]["shot_fulfilment_strategy"] = "exact";
       jsel["init"] = init;
 
       // Circuit
@@ -445,89 +407,52 @@ namespace xacc
 
 
     // Polling for circuit execution results via HTTP GET
-    bool qb_qpu::resultsReady(
-        const std::vector<std::shared_ptr<CompositeInstruction>> citargets,
-        std::map<std::string, int> &counts, int polling_interval,
-        int polling_attempts)
+    bool qb_qpu::resultsReady(std::map<std::string, int> &counts)
     {
-      int acc_valid = 0;
       std::string path = circuitEndpoint + "/" + std::to_string(circuit_id);
       if (debug) std::cout << "* Poll for results at path: " << remoteUrl << path << std::endl;
       json fromqdk = json::parse(Get(remoteUrl, path, http_header));
       auto data = fromqdk["data"];
       if (data == nullptr) return false;
 
-      if (not resample)
       // Tally up the results
+      int shots_tallied = 0;
+      for (auto &el : data)
       {
-        for (auto &el : data)
-        {
-          if (acc_valid < shots)
-          {
-            std::stringstream current_state;
-            for (auto &el_it : el) current_state << el_it;
-            std::string bitString = current_state.str();
-            if (counts.find(bitString) != counts.end())
-            {
-              counts[bitString]++;
-              acc_valid++;
-            }
-            else
-            {
-              counts.insert(std::make_pair(bitString, 1));
-              acc_valid++;
-            }
-          }
-        }
-      }
-      else
-      // Start of resample (sample-with-replacement) procedure
-      {
-        std::default_random_engine qb_rnd_gen(static_cast<long unsigned int>(time(0)));
-        std::uniform_int_distribution<int> p_unif(0, data.size()-1);
-        while (acc_valid < shots)
+        if (shots_tallied < shots)
         {
           std::stringstream current_state;
-          auto el = data[p_unif(qb_rnd_gen)];
           for (auto &el_it : el) current_state << el_it;
           std::string bitString = current_state.str();
           if (counts.find(bitString) != counts.end())
           {
             counts[bitString]++;
-            acc_valid++;
+            shots_tallied++;
           }
           else
           {
             counts.insert(std::make_pair(bitString, 1));
-            acc_valid++;
+            shots_tallied++;
           }
         }
       }
-
-
-      // Start of recursive calls
-      if (recursive and acc_valid != shots)
-      {
-        std::shared_ptr<xacc::quantum::qb_qpu> hardware_device = std::make_shared<xacc::quantum::qb_qpu>(true);
-        auto next_properties = getProperties();
-        next_properties.insert("shots", (shots - acc_valid));
-        hardware_device->updateConfiguration(next_properties);
-        if (debug)
-        {
-          std::cout << "# Recursive request: remote URL is "
-                    << next_properties.get<std::string>("url")
-                    << std::endl;
-          std::cout << "# Recursive request: shots is "
-                    << next_properties.get<int>("shots") << std::endl;
-          std::cout << "# Recursive request: polling interval is "
-                    << polling_interval << " seconds" << std::endl;
-        }
-        auto buffer = xacc::qalloc(n_qubits);
-        hardware_device->execute(buffer, citargets);
-        qristal::polling_loop(polling_interval, polling_attempts, hardware_device, counts, citargets, debug);
-      }
-
       return true;
+    }
+
+
+    // Poll QB hardware for circuit results
+    std::map<std::string, int> qb_qpu::poll_for_results()
+    {
+      std::map<std::string, int> counts;
+      for (int i = 0; i < poll_retries; i++)
+      {
+        std::this_thread::sleep_for(std::chrono::duration<double, std::chrono::seconds::period>(poll_secs));
+        if (debug) std::cout << "# Waited for " << poll_secs << " seconds" << std::endl;
+        bool success = resultsReady(counts);
+        if (debug) std::cout << "# Poll return: " << (success ? "": "not ") << "ready" << std::endl;
+        if (success) break;
+      }
+      return counts;
     }
 
   }

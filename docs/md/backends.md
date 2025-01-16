@@ -25,16 +25,12 @@ Qristal can execute circuits on a wide variety of hardware and simulator backend
 <br/><br/>
 * `poll_retries`: *integer*, required. Maximum number of times to query the device about the completion status of a running circuit. If this many unsuccessful queries are made, return a timeout error.
 <br/><br/>
-* `recursive`: *boolean*, required. If less than the requested number of shots is returned, resubmit the circuit to the device (potentially multiple times) in order to generate additional shots. Not compatible with `resample`.
-<br/><br/>
-* `resample`: *boolean*, required. If less than the requested number of shots is returned, bootstrap resample from the received counts in order to make up any shortfall. Not compatible with `recursive`.
-<br/><br/>
 * `url`: *string*, required.  The URL of the hardware device (or its circuit server *qcstack*, if *qcstack* is not running on the hardware device itself).
 <br/><br/>
 * `use_default_contrast_settings`: *boolean*, optional. Run with the default measurement contrast settings defined by the hardware device. Default: True
   <br/>The following options are required if `use_default_contrast_settings = false`:
-  * `init_contrast_threshold`: *floating-point*.  The contrast threshold to use for initialisation during post-selection. Shots are only accepted if qubit initialisation using pulsed ODMR results in a photoluminescence contrast exceeding this value. The usable upper bound on this setting is 0.6. Hardware default is 0.1.
-  * `qubit_contrast_thresholds`: *{ integer keys $\rightarrow$ floating-point values }*.  The contrast threshold to apply on a per-qubit basis during final readout. Shots are only accepted if readout using pulsed ODMR results in a photoluminescence contrast exceeding this value. The best realistic case is about 0.3. Hardware is unusable when this is less than about 0.05. Indexing of this list matches the indices of qubits in circuits. Hardware default is 0.1.
+  * `init_contrast_threshold`: *floating-point*.  The contrast threshold to use for initialisation during post-selection. Shots are only accepted if qubit initialisation using single-shot readout results in a photoluminescence contrast exceeding this value. The highest practically usable setting is about 0.2.
+  * `qubit_contrast_thresholds`: *{ integer keys $\rightarrow$ floating-point values }*.  The contrast threshold to apply on a per-qubit basis during final readout. Shots are only accepted if single-shot readout produces a  photoluminescence contrast exceeding this value. The highest practically usable setting is about 0.2. Indexing of this list matches the indices of qubits in circuits.
 
 
 These parameters are set in the `remote_backends.yaml` configuration file, under the top-level heading corresponding to the named QB hardware resource to which they should be applied. To use an alternative file, assign its path to the `qristal.session.remote_backend_database_path` attribute.

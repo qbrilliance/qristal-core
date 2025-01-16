@@ -19,9 +19,11 @@ TEST(qbqpuTester, testInstantiationGetDetails)
 {
   int delay = 20;
   int shots = 256;
+  double poll_secs = 5;
+  uint poll_retries = 10;
   int n_qubits = 4;
   std::vector<uint> init_qubits(n_qubits, 0);
-  
+
   auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>(true);
   std::vector<std::string> config_qb_qdk = hardware_device->configurationKeys();
   xacc::HeterogeneousMap mm = hardware_device->getProperties();
@@ -33,8 +35,8 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   const std::string url = db["loopback"]["url"].as<std::string>();
   mm.insert("url", url.back() == '/' ? url : url + '/');
   mm.insert("shots", shots);
-  mm.insert("recursive", true); 
-  mm.insert("resample", false); 
+  mm.insert("poll_secs", poll_secs);
+  mm.insert("poll_retries", poll_retries);
   mm.insert("init", init_qubits);
   mm.insert("exclusive_access", false);
   mm.insert("use_default_contrast_settings", false);
@@ -97,9 +99,8 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   std::cout << "* Start to poll hardware to retrieve results..." << std::endl;
 
   // Poll with HTTP GET
-  std::map<std::string, int> out_counts;
-  int polling_interval_when_recursive = 5;
-  int polling_attempts_when_recursive = 10;
-  bool success = hardware_device->resultsReady(ir->getComposites(), out_counts, polling_interval_when_recursive, polling_attempts_when_recursive);
-  ASSERT_EQ(success, true);
+  std::map<std::string, int> counts = hardware_device->poll_for_results();
+  int sum = std::accumulate(std::begin(counts), std::end(counts), 0,
+   [](const int previous, const auto& el) { return previous + el.second; });
+  ASSERT_EQ(sum, shots);
 }

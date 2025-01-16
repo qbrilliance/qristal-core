@@ -24,15 +24,9 @@ namespace qristal
     required<std::string>("url", y, m);
     required<double>("poll_secs", y, m);
     required<uint>("poll_retries", y, m);
-    required<bool>("recursive", y, m);
-    required<bool>("resample", y, m);
     optional<bool>("exclusive_access", false, y, m);
     optional<std::vector<uint>>("init", std::vector<uint>(run_config.num_qubits, 0), y, m);
     optional<bool>("use_default_contrast_settings", true, y, m);
-
-    // Error if recursive and resample are both true
-    if (m.get<bool>("recursive") and m.get<bool>("resample"))
-     throw std::runtime_error("Resample and recursive options are mutually incompatible.");
 
     // Options setting the balanced SSR contrast below which a shot will be ignored.
     if (not m.get<bool>("use_default_contrast_settings"))
