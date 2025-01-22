@@ -106,7 +106,6 @@ set_target_properties(CITests HardwareTests BraketTests
   PROPERTIES
     BUILD_RPATH "${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR};${XACC_ROOT}/lib"
 )
-add_dependencies(CITests qasm_simulator)
 
 # Install assets needed for defining tests downstream
 install(

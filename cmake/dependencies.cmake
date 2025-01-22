@@ -167,10 +167,8 @@ add_dependency(nlohmann_json ${nlohmann_json_VERSION}
 )
 if(TARGET nlohmann_json)
   add_library(nlohmann::json ALIAS nlohmann_json)
-  add_library(AER_DEPENDENCY_PKG::nlohmann_json ALIAS nlohmann_json)
 elseif(TARGET nlohmann_json::nlohmann_json)
   add_library(nlohmann::json ALIAS nlohmann_json::nlohmann_json)
-  add_library(AER_DEPENDENCY_PKG::nlohmann_json ALIAS nlohmann_json::nlohmann_json)
 endif()
 if(nlohmann_json_ADDED)
   set(nlohmann_json_DIR ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann/nlohmann_json)
@@ -423,54 +421,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
       "cppitertools_INSTALL_CMAKE_DIR share"
   )
 
-  # QASM simulator.
-  find_program(QB_STANDALONE_AER_EXE qasm_simulator)
-  is_in_install_path(${QB_STANDALONE_AER_EXE} AER_FOUND_IN_INSTALLED_QRISTAL)
-  if(AER_FOUND_IN_INSTALLED_QRISTAL OR ${QB_STANDALONE_AER_EXE} STREQUAL "QB_STANDALONE_AER_EXE-NOTFOUND")
-    # Install required dependency spdlog
-    set(name "spdlog")
-    set(repo "https://github.com/gabime/spdlog.git")
-    set(tag "1.5.0")
-    add_dependency(${name} ${tag}
-      GIT_REPOSITORY ${repo}
-      GIT_TAG v${tag}
-    )
-    if(TARGET spdlog)
-      add_library(AER_DEPENDENCY_PKG::spdlog ALIAS spdlog)
-    elseif(TARGET spdlog::spdlog)
-      add_library(AER_DEPENDENCY_PKG::spdlog ALIAS spdlog::spdlog)
-    endif()
-    # Now install the QASM simulator
-    set(name "qasm_simulator")
-    set(repo "https://github.com/Qiskit/qiskit-aer.git")
-    set(tag "0.10.4")
-    set(patch ${CMAKE_CURRENT_LIST_DIR}/patches/qasm_simulator.patch)
-    list(APPEND PREHASH GIT_REPOSITORY ${repo})
-    list(APPEND PREHASH GIT_TAG ${tag})
-    list(APPEND PREHASH PATCH_COMMAND git apply ${patch})
-    list(APPEND PREHASH URL)
-    list(SORT PREHASH)
-    string(SHA1 hash "${PREHASH}")
-    add_dependency(${name} ${tag}
-      GIT_REPOSITORY ${repo}
-      GIT_TAG ${tag}
-      PATCH_FILE ${patch}
-      OPTIONS
-        "CMAKE_MODULE_PATH ${CPM_SOURCE_CACHE}/${name}/${hash}/cmake"
-        "CMAKE_BUILD_TYPE Release"
-        "DISABLE_CONAN ON"
-    )
-    if(qasm_simulator_ADDED)
-      set(QB_STANDALONE_AER_EXE ${CMAKE_INSTALL_PREFIX}/bin/qasm_simulator)
-    else()
-      find_program(QB_STANDALONE_AER_EXE qasm_simulator)
-      add_custom_target(qasm_simulator)
-    endif()
-  else()
-    add_custom_target(qasm_simulator)
-    message(STATUS "qasm_simulator found: ${QB_STANDALONE_AER_EXE}")
-  endif() # (qasm-simulator NOTFOUND)
-
 endif() # (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
 # Get rid of other cmake paths
@@ -504,7 +454,7 @@ if (WITH_PROFILING)
   set(cppuprofile_VERSION "1.1.1")
 
   #look for nvidia-smi binary (necessary to conduct Nvidia GPU profiling)
-  find_program(_nvidia_smi "nvidia-smi") 
+  find_program(_nvidia_smi "nvidia-smi")
   if (_nvidia_smi)
     set(GPU_MONITOR_NVIDIA ON CACHE BOOL "Enable NVIDIA GPU monitoring")
     add_definitions(-DGPU_MONITOR_NVIDIA) #expose as C++ macro
