@@ -554,15 +554,12 @@ namespace qristal
       static std::uniform_real_distribution<double> dist_perturb(-0.1, 0.1);
 
       // Solve for guess parameters x's.
-      // Do one some rough iterations first to get a converged solution and to get some "previous"
-      // output to be fed into subsequent iterations
       lm.fnorm = std::numeric_limits<double>::signaling_NaN();
       double sum_fvec = std::numeric_limits<double>::signaling_NaN();
       int info = 10;
       Eigen::VectorXd x(nb_params);
-      bool x_is_positive_valued = 0;
       for (size_t i = 0; i < max_iter; i++) {
-        if (std::isnan(lm.fnorm) || std::isnan(sum_fvec) || info > 5 || !x_is_positive_valued) {
+        if (std::isnan(lm.fnorm) || std::isnan(sum_fvec) || info > 5) {
           if (guess_params) { // Use guess parameters if provided
             x = guess_params.value();
           } else { // Use random guess parameters
@@ -573,52 +570,51 @@ namespace qristal
 
           info = lm.minimize(x);
           sum_fvec = std::accumulate(lm.fvec.begin(), lm.fvec.end(), 0.0);
-          for (size_t i = 0; i < x.size(); i++) {
-            if (x[i] < 0) {
-              x_is_positive_valued = 0;
-              break;
-            } else {
-              x_is_positive_valued = 1;
-            }
-          }
         } else {
           break;
         }
       }
-      Eigen::VectorXd x_prev = x;
-      double sum_fvec_prev = sum_fvec;
-      double fnorm_prev = lm.fnorm;
 
-      // Now do the subsequent iterations for convergence
-      for (size_t i = 0; i < max_iter; i++) {
-        int info = lm.minimize(x);
-        double sum_fvec = std::accumulate(lm.fvec.begin(), lm.fvec.end(), 0.0);
-        bool x_is_positive_valued = 1;
-        for (size_t i = 0; i < x.size(); i++) {
-          if (x[i] < 0) {
-            x_is_positive_valued = 0;
+      // Do the subsequent iterations to improve x if needed.
+      bool x_precision_tolerance = (x.array() > 1e-8).all(); // Check whether x contains precision violating-valued elements
+      bool x_is_positive_valued = (x.array() > 0).all(); // Check whether x contains negative-valued elements
+      if (lm.fnorm > 1e-4 || sum_fvec > 1e-6 || info > 5 || !x_is_positive_valued || !x_precision_tolerance) {
+        Eigen::VectorXd x_prev = x;
+        double sum_fvec_prev = sum_fvec;
+        double fnorm_prev = lm.fnorm;
+
+        for (size_t i = 0; i < max_iter; i++) {
+          int info = lm.minimize(x);
+          double sum_fvec = std::accumulate(lm.fvec.begin(), lm.fvec.end(), 0.0);
+          x_precision_tolerance = (x.array() > 1e-8).all(); // Check whether x contains precision violating-valued elements
+          x_is_positive_valued = (x.array() > 0).all(); // Check whether x contains negative-valued elements
+
+          // Perturb small value if the norm of current vector function (fnorm) is not converged to < 1e-4
+          // The tolerance value of 1e-4 is selected from the reconstruction of the process matrix (reconstructed_mat)
+          // gives an acceptable difference relative to the initial process matrix (process_mat_noisy).
+          if (lm.fnorm > 1e-4 || sum_fvec > 1e-6 || info > 5 || !x_is_positive_valued || !x_precision_tolerance) {
+            if (sum_fvec > sum_fvec_prev) {
+              x = x_prev;
+            } else {
+              sum_fvec_prev = sum_fvec;
+              x_prev = x;
+            }
+
+            // Check whether elements of x are smaller than solver's precision tolerance of 1e-8. If there are,
+            // then reassign it a random value.
+            if (!x_precision_tolerance) {
+              x = (x.array() < 1e-8).select(dist_perturb(gen), x);
+            }
+            // Check whether elements of x are negative-values. If there are, then negate the negative elements.
+            if (!x_is_positive_valued) {
+              x = (x.array() < 0).select(-x, x);
+            }
+            // Perturb elements of x.
+            Eigen::VectorXd randVec = Eigen::VectorXd::NullaryExpr(x.size(), [&](){return dist_perturb(gen);}); // Create Eigen vector of random numbers using dist_perturb().
+            x = x + x.cwiseProduct(randVec); // Perturb all elements of x.
+          } else {
             break;
           }
-        }
-
-        // Perturb small angles if the norm of current vector function (fnorm) is not converged to < 1e-4
-        // The tolerance value of 1e-4 is selected from the reconstruction of the process matrix (reconstructed_mat)
-        // gives an acceptable difference relative to the initial process matrix (process_mat_noisy).
-        if (lm.fnorm > 1e-4 || sum_fvec > 1e-6 || info > 5 || !x_is_positive_valued) {
-          if (sum_fvec > sum_fvec_prev) {
-            x = x_prev;
-          } else {
-            sum_fvec_prev = sum_fvec;
-            x_prev = x;
-          }
-
-          for (size_t i = 0; i < x.size(); i++) {
-            x[i] = (x[i] < 0) ? x[i] * -1.0 : x[i];
-            assert(x[i] >= 0);
-            x[i] += dist_perturb(gen) * x[i];
-          }
-        } else {
-          break;
         }
       }
 
@@ -683,7 +679,7 @@ namespace qristal
           // guesses for 2-qubit channels. So we add them to x_guess here as a small number.
           static std::random_device rd;
           static std::mt19937 gen(rd());
-          static std::uniform_real_distribution<double> dist_depol2(0.0, 2e-4);
+          static std::uniform_real_distribution<double> dist_depol2(1e-8, 2e-4);
           x_vec.emplace_back(dist_depol2(gen));
         }
 
@@ -804,10 +800,10 @@ namespace qristal
       static std::random_device rd;
       static std::mt19937 gen(rd());
       // Choose some physically meaningful random values as guess values
-      static std::uniform_real_distribution<double> dist_amp_damp(0.0, 2e-6);
-      static std::uniform_real_distribution<double> dist_phase_damp(0.0, 2e-3);
-      static std::uniform_real_distribution<double> dist_depol1(0.0, 2e-5);
-      static std::uniform_real_distribution<double> dist_depol2(0.0, 2e-4);
+      static std::uniform_real_distribution<double> dist_amp_damp(1e-8, 2e-6);
+      static std::uniform_real_distribution<double> dist_phase_damp(1e-8, 2e-3);
+      static std::uniform_real_distribution<double> dist_depol1(1e-8, 2e-5);
+      static std::uniform_real_distribution<double> dist_depol2(1e-8, 2e-4);
 
       std::vector<double> params;
       for (auto const& [qubits, channels] : channel_list) {
