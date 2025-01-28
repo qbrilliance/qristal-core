@@ -23,8 +23,7 @@ int main() {
         std::vector<qristal::CircuitBuilder>{circuit},
         sim
     );
-    QuantumStateTomography<SimpleCircuitExecution> qstworkflow(workflow); //wrap into QST object
-    qstworkflow.set_maximum_likelihood_estimation(); //enable maximum likelihood estimation
+    QuantumStateTomography<SimpleCircuitExecution> qstworkflow(workflow, true); //wrap into QST object and enable maximum likelihood estimation
 
     //(3) pass to metric
     QuantumStateDensity<QuantumStateTomography<SimpleCircuitExecution>> metric(qstworkflow);

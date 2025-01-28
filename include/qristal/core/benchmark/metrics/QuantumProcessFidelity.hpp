@@ -12,6 +12,16 @@ namespace qristal
 {
     namespace benchmark
     {
+
+        /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class QuantumProcessFidelityPythonBase {
+            public: 
+                virtual ~QuantumProcessFidelityPythonBase() = default; 
+                virtual std::map< std::time_t, std::vector<double> >  evaluate(const bool force_new = false) const = 0;
+        };
+
         /**
         * @brief Quantum process fidelity metric evaluation class templated for arbitrary quantum process tomography workflows @tparam QPTWorkflow.
         *
@@ -22,7 +32,7 @@ namespace qristal
         */
         template <QPTWorkflow QPTWORKFLOW>
         requires CanStoreMeasuredCounts<QPTWORKFLOW> && CanStoreIdealProcesses<typename QPTWORKFLOW::QSTWorkflowType::ExecutableWorkflowType> && CanStoreSessionInfos<QPTWORKFLOW>
-        class QuantumProcessFidelity {
+        class QuantumProcessFidelity : public virtual QuantumProcessFidelityPythonBase {
             public:
                 /**
                 * @brief Constructor for the quantum process fidelity metric evaluation class.
@@ -47,11 +57,29 @@ namespace qristal
                 * for all workflow circuits are evaluated and returned in a std::map to the corresponding timestamp of
                 * execution.
                 */
-                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false);
+                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const;
 
             private:
                 QPTWORKFLOW& qptworkflow_;
                 const std::vector<Task> tasks_{Task::MeasureCounts, Task::IdealProcess, Task::Session};
+        };
+
+        /**
+        * @brief The type-erased QuantumProcessMatrix handle exposed in the python bindings. 
+        */
+        class QuantumProcessFidelityPython {
+            public:
+                //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumProcessTomographyPython
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessFidelity objects. 
+                //To not pollute the standalone header, this was moved to a cpp file.
+                QuantumProcessFidelityPython(QuantumProcessTomographyPython& qstpython);
+
+                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const {
+                    return workflow_ptr_->evaluate(force_new);
+                }
+
+            private:
+                std::unique_ptr<QuantumProcessFidelityPythonBase> workflow_ptr_; 
         };
 
         /**
@@ -75,7 +103,7 @@ namespace qristal
 
         template <QPTWorkflow QPTWORKFLOW>
         requires CanStoreMeasuredCounts<QPTWORKFLOW> && CanStoreIdealProcesses<typename QPTWORKFLOW::QSTWorkflowType::ExecutableWorkflowType> && CanStoreSessionInfos<QPTWORKFLOW>
-        std::map<std::time_t, std::vector<double>> QuantumProcessFidelity<QPTWORKFLOW>::evaluate(const bool force_new) {
+        std::map<std::time_t, std::vector<double>> QuantumProcessFidelity<QPTWORKFLOW>::evaluate(const bool force_new) const {
             std::map<std::time_t, std::vector<double>> timestamp2fidelities;
             //(1) initialize DataLoaderGenerator to either read in already stored results or generate new ones
             DataLoaderGenerator dlg(qptworkflow_.get_identifier(), tasks_, force_new);

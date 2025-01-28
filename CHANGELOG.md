@@ -43,6 +43,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added support for noise to CudaQ wrapped emulator backends.
 - Added multi-shot cutensornet sampling method for MPS and purification.
 - Always request exact shot number in QB hardware backend, using new exact-shot feature recently added to QB hardware API.
+- Added python bindings for qristal::benchmark to qristal.core.benchmark including workflows (SPAMBenchmark, RotationSweep, SimpleCircuitExecution, PyGSTiBenchmark, QuantumStateTomography, and QuantumProcessTomography) and metrics (CircuitFidelity, PyGSTiResults, ConfusionMatrix, QuantumStateDensity, QuantumProcessMatrix, QuantumStateFidelity, and QuantumProcessFidelity).
+- Added new python examples demonstrating the usage of qristal.core.benchmark and removed the old `pyGSTi_runner` C++ and `execute_GST_XYCZ.py` python examples in favor of a new single python based example `benchmark/pyGSTi.py`.
 
 ### Fixed
 

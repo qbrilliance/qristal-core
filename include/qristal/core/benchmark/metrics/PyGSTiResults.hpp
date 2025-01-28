@@ -34,6 +34,15 @@ namespace qristal
         }
 
         /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class PyGSTiResultsPythonBase {
+            public: 
+                virtual ~PyGSTiResultsPythonBase() = default; 
+                virtual std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true) const = 0;
+        };
+
+        /**
         * @brief pyGSTi results metric evaluation class templated for arbitrary @tparam PyGSTiWorkflow workflows.
         *
         * @details This class may be used to print circuit results from a given templated @tparam PyGSTiWorkflow workflow
@@ -43,7 +52,7 @@ namespace qristal
         */
         template <PyGSTiWorkflow WORKFLOW>
         requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
-        class PyGSTiResults {
+        class PyGSTiResults : public virtual PyGSTiResultsPythonBase {
             public:
                 /**
                 * @brief Constructor for the PyGSTiResults metric evaluation class.
@@ -75,6 +84,23 @@ namespace qristal
             private:
                 WORKFLOW& workflow_;
                 const std::vector<Task> tasks_{Task::MeasureCounts, Task::Session};
+        };
+
+        /**
+        * @brief The type-erased PyGSTiResults handle exposed in the python bindings. 
+        */
+        class PyGSTiResultsPython {
+            public: 
+                template <PyGSTiWorkflow WORKFLOW>
+                requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
+                PyGSTiResultsPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<PyGSTiResults<WORKFLOW>>(workflow)) {}
+
+                std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true) const {
+                    return workflow_ptr_->evaluate(force_new);
+                }
+
+            private: 
+                std::unique_ptr<PyGSTiResultsPythonBase> workflow_ptr_;
         };
 
 

@@ -7,6 +7,7 @@
 #include "qristal/core/python/py_optimization.hpp"
 #include "qristal/core/python/py_session.hpp"
 #include "qristal/core/python/py_stl_containers.hpp"
+#include "qristal/core/python/py_benchmark.hpp"
 #include "xacc.hpp"
 #include <pybind11/iostream.h>
 
@@ -51,4 +52,26 @@ PYBIND11_MODULE(core, m) {
   qristal::bind_qaoa_recursive(m_opt);
   // Warm-start QAOA
   qristal::bind_qaoa_warm_start(m_opt);
+
+  // Benchmarking modules; nested under core.benchmark sub-module 
+  py::module_ m_benchmark = m.def_submodule("benchmark", "Benchmarking modules within qristal.core"); 
+  //general 
+  qristal::bind_Task(m_benchmark); //Task
+  qristal::bind_Pauli(m_benchmark); //Pauli
+  qristal::bind_BlochSphereUnitState(m_benchmark); //BlochSphereUnitState
+  //workflows 
+  qristal::bind_SPAMBenchmark(m_benchmark); //SPAMBenchmark
+  qristal::bind_RotationSweep(m_benchmark); //RotationSweep
+  qristal::bind_SimpleCircuitExecution(m_benchmark); //SimpleCircuitExecution
+  qristal::bind_PyGSTiBenchmark(m_benchmark); //PyGSTiBenchmark
+  qristal::bind_QuantumStateTomography(m_benchmark); //QuantumStateTomography
+  qristal::bind_QuantumProcessTomography(m_benchmark); //QuantumProcessTomography
+  //metrics 
+  qristal::bind_CircuitFidelity(m_benchmark); //CircuitFidelity 
+  qristal::bind_PyGSTiResults(m_benchmark); //PyGSTiResults
+  qristal::bind_ConfusionMatrix(m_benchmark); //ConfusionMatrix
+  qristal::bind_QuantumStateDensity(m_benchmark); //QuantumStateDensity
+  qristal::bind_QuantumProcessMatrix(m_benchmark); //QuantumProcessMatrix 
+  qristal::bind_QuantumStateFidelity(m_benchmark); //QuantumStateFidelity
+  qristal::bind_QuantumProcessFidelity(m_benchmark); //QuantumProcessFidelity
 }

@@ -15,6 +15,15 @@ namespace qristal
     namespace benchmark
     {
         /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class QuantumStateDensityPythonBase {
+            public: 
+                virtual ~QuantumStateDensityPythonBase() = default; 
+                virtual std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const = 0;
+        };
+
+        /**
         * @brief Quantum state density metric evaluation class templated for arbitrary quantum state tomography workflows @tparam QSTWorkflow.
         *
         * @details This class may be used to evaluate the quantum state densities for arbitrary templated quantum state
@@ -23,7 +32,7 @@ namespace qristal
         */
         template <QSTWorkflow QSTWORKFLOW>
         requires CanStoreMeasuredCounts<QSTWORKFLOW> && CanStoreSessionInfos<QSTWORKFLOW>
-        class QuantumStateDensity {
+        class QuantumStateDensity : public virtual QuantumStateDensityPythonBase {
             public:
                 /**
                 * @brief Constructor for the quantum state density metric evaluation class.
@@ -55,6 +64,24 @@ namespace qristal
 
                 QSTWORKFLOW& workflow_;
                 const std::vector<Task> tasks_{Task::MeasureCounts, Task::Session};
+        };
+
+        /**
+        * @brief The type-erased QuantumStateDensity handle exposed in the python bindings. 
+        */
+        class QuantumStateDensityPython {
+            public:
+                //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumStateTomographyPython
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessTomography objects. 
+                //To not pollute the standalone header, this was moved to a cpp file.
+                QuantumStateDensityPython(QuantumStateTomographyPython& qstpython);
+
+                std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const {
+                    return workflow_ptr_->evaluate(force_new);
+                }
+
+            private:
+                std::unique_ptr<QuantumStateDensityPythonBase> workflow_ptr_; 
         };
 
         template <QSTWorkflow QSTWORKFLOW>

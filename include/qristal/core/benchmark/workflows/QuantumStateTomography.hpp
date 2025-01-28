@@ -19,6 +19,27 @@ namespace qristal
     namespace benchmark
     {
         /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class QuantumStateTomographyPythonBase {
+            public: 
+                virtual ~QuantumStateTomographyPythonBase() = default; 
+                virtual std::time_t execute(const std::vector<Task>& tasks) = 0;
+                virtual std::time_t execute_all() = 0;
+                virtual const std::vector<Pauli>& get_basis() const = 0;
+                virtual const std::string& get_identifier() const = 0;
+                virtual const std::set<size_t>& get_qubits() const = 0;
+                virtual void set_maximum_likelihood_estimation(
+                    const size_t n_MLE_iterations, 
+                    const double MLE_conv_threshold,
+                    const std::map<Pauli, std::vector<ComplexMatrix>>& mBasisSymbols_to_Projectors
+                ) = 0;
+                virtual std::vector<ComplexMatrix> assemble_densities(
+                    const std::vector<std::map<std::vector<bool>, int>>& measurement_counts
+                ) const = 0;
+        };
+
+        /**
         * @brief Standard quantum state tomography workflow templated for arbitrary wrapped workflows and measurement bases
         *
         * @details This workflow class may be used to execute standard quantum state tomography experiments. It is templated and wrapped around arbitrary @tparam ExecutableWorkflow objects and measurement bases @tparam Symbol.
@@ -28,7 +49,7 @@ namespace qristal
         */
         template <ExecutableWorkflow EXECWORKFLOW, typename SYMBOL = Pauli>
             requires MatrixTranslatable<SYMBOL> && CircuitAppendable<SYMBOL> && HasIdentity<SYMBOL>
-        class QuantumStateTomography
+        class QuantumStateTomography : public virtual QuantumStateTomographyPythonBase
         {
             public:
                 using Symbol = SYMBOL; //expose measurement basis symbol type
@@ -40,6 +61,7 @@ namespace qristal
                 * Arguments:
                 * @param workflow the wrapped @tparam ExecutableWorkflow the quantum state tomography is acted upon.
                 * @param qubits the list of qubit indices that are measured
+                * @param perform_maximum_likelihood_estimation : optional bool to enable MLE in the QST protocol. Defaults to false.
                 * @param basis list of the measured one qubit basis symbols (excluding the identity). Defaults to Pauli X, Y, and Z.
                 * @param use_for_identity the basis symbol used to resolve the identity in the QST protocol. Defaults to Pauli::Z.
                 *
@@ -48,15 +70,27 @@ namespace qristal
                 QuantumStateTomography(
                     EXECWORKFLOW& workflow,
                     const std::set<size_t>& qubits,
+                    const bool perform_maximum_likelihood_estimation = false,
                     const std::vector<SYMBOL>& basis = std::vector<Pauli>{Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z},
                     const SYMBOL& use_for_identity = Pauli::Symbol::Z
-                ) : workflow_(workflow), identifier_(std::string("QST") + workflow_.get_identifier()), qubits_(qubits), basis_(basis), use_for_identity_(use_for_identity) {}
+                ) : workflow_(workflow), 
+                    identifier_(std::string("QST") + workflow_.get_identifier()), 
+                    qubits_(qubits), 
+                    perform_maximum_likelihood_estimation_(perform_maximum_likelihood_estimation), 
+                    basis_(basis), 
+                    use_for_identity_(use_for_identity) 
+                {
+                  if (perform_maximum_likelihood_estimation_) {
+                      set_maximum_likelihood_estimation(); //set default options
+                  }
+                }
 
                 /**
                 * @brief Constructor for standard quantum state tomography workflows for all involved qubits.
                 *
                 * Arguments:
                 * @param workflow the wrapped @tparam ExecutableWorkflow the quantum state tomography is acted upon.
+                * @param perform_maximum_likelihood_estimation : optional bool to enable MLE in the QST protocol. Defaults to false.
                 * @param basis list of the measured one qubit basis symbols (excluding the identity), defaults to Pauli X, Y, and Z.
                 * @param use_for_identity the basis symbol used to resolve the identity in the QST protocol. Defaults to Pauli::Z.
                 *
@@ -64,16 +98,25 @@ namespace qristal
                 */
                 QuantumStateTomography(
                     EXECWORKFLOW& workflow,
+                    const bool perform_maximum_likelihood_estimation = false,
                     const std::vector<SYMBOL>& basis = std::vector<Pauli>{Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z},
                     const SYMBOL& use_for_identity = Pauli::Symbol::Z
-                ) : workflow_(workflow), identifier_(std::string("QST") + workflow_.get_identifier()), basis_(basis), use_for_identity_(use_for_identity) {
+                ) : workflow_(workflow), 
+                    identifier_(std::string("QST") + workflow_.get_identifier()), 
+                    perform_maximum_likelihood_estimation_(perform_maximum_likelihood_estimation), 
+                    basis_(basis), 
+                    use_for_identity_(use_for_identity) 
+                {
                     for (size_t i = 0; i < workflow_.get_session().get_qns()[0][0]; ++i) {
                         qubits_.insert(i);
+                    }
+                    if (perform_maximum_likelihood_estimation_) {
+                        set_maximum_likelihood_estimation(); //set default options
                     }
                 }
 
                 /**
-                * @brief Enable maximum likelihood estimation (MLE) in the assemble_density function.
+                * @brief Change default options for maximum likelihood estimation (MLE) in the assemble_density function.
                 *
                 * Arguments:
                 * @param n_MLE_iterations the maximum number of iterations used in the iterative MLE procedure, defaults to 100.
@@ -94,7 +137,6 @@ namespace qristal
                 )
                 {
                     mBasisSymbols_to_Projectors_ = mBasisSymbols_to_Projectors;
-                    perform_maximum_likelihood_estimation_ = true;
                     n_MLE_iterations_ = n_MLE_iterations; 
                     MLE_conv_threshold_ = MLE_conv_threshold;
                 }
@@ -362,10 +404,84 @@ namespace qristal
                 const SYMBOL use_for_identity_;
 
                 //used for maximum likelihood estimation only
-                bool perform_maximum_likelihood_estimation_ = false;
+                const bool perform_maximum_likelihood_estimation_;
                 size_t n_MLE_iterations_; 
                 double MLE_conv_threshold_;
                 std::map<SYMBOL, std::vector<ComplexMatrix>> mBasisSymbols_to_Projectors_;
+        };
+
+        /**
+        * @brief The type-erased QuantumStateTomography handle exposed in the python bindings. 
+        */
+        class QuantumStateTomographyPython {
+            public: 
+                template <ExecutableWorkflow EXECWORKFLOW, typename SYMBOL = Pauli>
+                requires MatrixTranslatable<SYMBOL> && CircuitAppendable<SYMBOL> && HasIdentity<SYMBOL>
+                QuantumStateTomographyPython(
+                    EXECWORKFLOW& workflow,
+                    const std::set<size_t>& qubits,
+                    const bool perform_maximum_likelihood_estimation = false,
+                    const std::vector<SYMBOL>& basis = std::vector<Pauli>{Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z},
+                    const SYMBOL& use_for_identity = Pauli::Symbol::Z
+                ) : workflow_ptr_(std::make_unique<QuantumStateTomography<EXECWORKFLOW, SYMBOL>>(workflow, qubits, perform_maximum_likelihood_estimation, basis, use_for_identity)) 
+                {}
+
+                template <ExecutableWorkflow EXECWORKFLOW, typename SYMBOL = Pauli>
+                requires MatrixTranslatable<SYMBOL> && CircuitAppendable<SYMBOL> && HasIdentity<SYMBOL>
+                QuantumStateTomographyPython(
+                    EXECWORKFLOW& workflow,
+                    const bool perform_maximum_likelihood_estimation = false,
+                    const std::vector<SYMBOL>& basis = std::vector<Pauli>{Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z},
+                    const SYMBOL& use_for_identity = Pauli::Symbol::Z
+                ) : workflow_ptr_(std::make_unique<QuantumStateTomography<EXECWORKFLOW, SYMBOL>>(workflow, perform_maximum_likelihood_estimation, basis, use_for_identity))
+                {} 
+ 
+                template <typename SYMBOL>
+                requires MatrixTranslatable<SYMBOL> && CircuitAppendable<SYMBOL> && HasIdentity<SYMBOL>
+                void set_maximum_likelihood_estimation(
+                    const size_t n_MLE_iterations = 100, 
+                    const double MLE_conv_threshold = 1e-3,
+                    const std::map<SYMBOL, std::vector<ComplexMatrix>>& mBasisSymbols_to_Projectors = std::map<Pauli, std::vector<ComplexMatrix>>{
+                        {Pauli::Symbol::X, std::vector<ComplexMatrix>{BlochSphereUnitState(BlochSphereUnitState::Symbol::Xp).get_matrix(), BlochSphereUnitState(BlochSphereUnitState::Symbol::Xm).get_matrix()}},
+                        {Pauli::Symbol::Y, std::vector<ComplexMatrix>{BlochSphereUnitState(BlochSphereUnitState::Symbol::Yp).get_matrix(), BlochSphereUnitState(BlochSphereUnitState::Symbol::Ym).get_matrix()}},
+                        {Pauli::Symbol::Z, std::vector<ComplexMatrix>{BlochSphereUnitState(BlochSphereUnitState::Symbol::Zp).get_matrix(), BlochSphereUnitState(BlochSphereUnitState::Symbol::Zm).get_matrix()}}
+                    }
+                ) {
+                  workflow_ptr_->set_maximum_likelihood_estimation(n_MLE_iterations, MLE_conv_threshold, mBasisSymbols_to_Projectors);
+                }
+                
+                std::time_t execute(const std::vector<Task>& tasks) {
+                  return workflow_ptr_->execute(tasks);
+                }
+
+                std::time_t execute_all() {
+                  return workflow_ptr_->execute_all();
+                }
+
+                std::vector<ComplexMatrix> assemble_densities(const std::vector<std::map<std::vector<bool>, int>>& measurement_counts) const {
+                  return workflow_ptr_->assemble_densities(measurement_counts);
+                }
+
+                template <typename SYMBOL>
+                requires MatrixTranslatable<SYMBOL> && CircuitAppendable<SYMBOL> && HasIdentity<SYMBOL>
+                const std::vector<SYMBOL>& get_basis() const {
+                  return workflow_ptr_->get_basis();
+                }
+
+                const std::string& get_identifier() const {
+                  return workflow_ptr_->get_identifier();
+                }
+
+                const std::set<size_t>& get_qubits() const {
+                  return workflow_ptr_->get_qubits();
+                }
+
+                const std::unique_ptr<QuantumStateTomographyPythonBase>& get() const {
+                  return workflow_ptr_;
+                }
+
+            private:
+                std::unique_ptr<QuantumStateTomographyPythonBase> workflow_ptr_; 
         };
 
         /**

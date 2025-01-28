@@ -126,7 +126,7 @@ TEST(QuantumStateTomographyTester, checkMLE) {
         sim
     );
 
-    QuantumStateTomography<RotationSweep> qst(workflow);
+    QuantumStateTomography<RotationSweep> qst(workflow, true);
     qst.set_maximum_likelihood_estimation(100, 1e-6);
     std::time_t t = qst.execute(std::vector<Task>{Task::MeasureCounts, Task::IdealDensity});
 

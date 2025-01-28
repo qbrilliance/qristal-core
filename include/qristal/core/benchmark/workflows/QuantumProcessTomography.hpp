@@ -28,6 +28,18 @@ namespace qristal
         }
 
         /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class QuantumProcessTomographyPythonBase {
+            public:
+                virtual ~QuantumProcessTomographyPythonBase() = default;
+                virtual std::time_t execute(const std::vector<Task>& tasks) = 0;
+                virtual std::time_t execute_all() = 0;
+                virtual const std::string& get_identifier() const = 0;
+                virtual std::vector<ComplexMatrix> assemble_processes(const std::vector<ComplexMatrix>& densities) = 0;
+        };
+
+        /**
         * @brief Standard quantum process tomography workflow templated for arbitrary wrapped quantum state tomography workflows and input state bases.
         *
         * @details This workflow class may be used to execute standard quantum process tomography experiments. It is templated and wrapped around arbitrary quantum state tomography workflows @tparam QSTWorkflow and
@@ -37,7 +49,7 @@ namespace qristal
         */
         template <QSTWorkflow QSTWORKFLOW, typename StateSymbol = BlochSphereUnitState>
         requires MatrixTranslatable<StateSymbol> && CircuitAppendable<StateSymbol>
-        class QuantumProcessTomography
+        class QuantumProcessTomography : public virtual QuantumProcessTomographyPythonBase
         {
             public:
 
@@ -275,6 +287,44 @@ namespace qristal
 
                 Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> invS_, invB_;
         };
+
+        /**
+        * @brief The type-erased QuantumProcessTomography handle exposed in the python bindings. 
+        */
+        class QuantumProcessTomographyPython {
+            public:
+                //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumStateTomographyPython
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessTomography objects. 
+                //To not pollute the standalone header, this was moved to a cpp file.
+                QuantumProcessTomographyPython(
+                    QuantumStateTomographyPython& qstpython,
+                    const std::vector<BlochSphereUnitState>& states = std::vector<BlochSphereUnitState>{BlochSphereUnitState::Symbol::Zp, BlochSphereUnitState::Symbol::Zm, BlochSphereUnitState::Symbol::Xp, BlochSphereUnitState::Symbol::Ym}
+                );
+
+                std::time_t execute(const std::vector<Task>& tasks) {
+                    return workflow_ptr_->execute(tasks);
+                }
+
+                std::time_t execute_all() {
+                    return workflow_ptr_->execute_all();
+                }
+
+                std::vector<ComplexMatrix> assemble_processes(const std::vector<ComplexMatrix>& densities) {
+                    return workflow_ptr_->assemble_processes(densities);
+                }
+
+                const std::string& get_identifier() const {
+                    return workflow_ptr_->get_identifier();
+                }
+
+                const std::unique_ptr<QuantumProcessTomographyPythonBase>& get() const {
+                  return workflow_ptr_;
+                }
+
+            private:
+                std::unique_ptr<QuantumProcessTomographyPythonBase> workflow_ptr_; 
+        };
+
 
         /**
         * @brief Fully specialized execute functor for the Task::MeasureCounts task of the templated QuantumProcessTomography workflow.

@@ -12,6 +12,9 @@ pybind11_add_module (py${PROJECT_NAME}
   src/python/py_placement.cpp
   src/python/py_session.cpp
   src/python/py_stl_containers.cpp
+  src/python/py_benchmark.cpp
+  src/python/py_benchmark_workflows.cpp 
+  src/python/py_benchmark_metrics.cpp
 )
 
 target_link_libraries(py${PROJECT_NAME}

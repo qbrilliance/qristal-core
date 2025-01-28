@@ -14,6 +14,16 @@ namespace qristal
 {
     namespace benchmark
     {
+
+        /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class QuantumStateFidelityPythonBase {
+            public: 
+                virtual ~QuantumStateFidelityPythonBase() = default; 
+                virtual std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const = 0;
+        };
+
         /**
         * @brief Quantum state fidelity metric evaluation class templated for arbitrary quantum state tomography workflows @tparam QSTWorkflow.
         *
@@ -24,7 +34,7 @@ namespace qristal
         */
         template <QSTWorkflow QSTWORKFLOW>
         requires CanStoreMeasuredCounts<QSTWORKFLOW> && CanStoreIdealDensities<typename QSTWORKFLOW::ExecutableWorkflowType> && CanStoreSessionInfos<QSTWORKFLOW>
-        class QuantumStateFidelity {
+        class QuantumStateFidelity : public virtual QuantumStateFidelityPythonBase {
             public:
                 /**
                 * @brief Constructor for the quantum state fidelity metric evaluation class.
@@ -49,11 +59,29 @@ namespace qristal
                 * for all workflow circuits are evaluated and returned in a std::map to the corresponding timestamp of
                 * execution.
                 */
-                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false);
+                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const;
 
             private:
                 QSTWORKFLOW& qstworkflow_;
                 const std::vector<Task> tasks_{Task::MeasureCounts, Task::IdealDensity, Task::Session};
+        };
+
+        /**
+        * @brief The type-erased QuantumStateDensity handle exposed in the python bindings. 
+        */
+        class QuantumStateFidelityPython {
+            public:
+                //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumStateTomographyPython
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumStateFidelity objects. 
+                //To not pollute the standalone header, this was moved to a cpp file.
+                QuantumStateFidelityPython(QuantumStateTomographyPython& qstpython);
+
+                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const {
+                    return workflow_ptr_->evaluate(force_new);
+                }
+
+            private:
+                std::unique_ptr<QuantumStateFidelityPythonBase> workflow_ptr_; 
         };
 
         /**
@@ -76,7 +104,7 @@ namespace qristal
 
         template <QSTWorkflow QSTWORKFLOW>
         requires CanStoreMeasuredCounts<QSTWORKFLOW> && CanStoreIdealDensities<typename QSTWORKFLOW::ExecutableWorkflowType> && CanStoreSessionInfos<QSTWORKFLOW>
-        std::map<std::time_t, std::vector<double>> QuantumStateFidelity<QSTWORKFLOW>::evaluate(const bool force_new) {
+        std::map<std::time_t, std::vector<double>> QuantumStateFidelity<QSTWORKFLOW>::evaluate(const bool force_new) const {
             std::map<std::time_t, std::vector<double>> timestamp2fidelities;
             //(1) initialize DataLoaderGenerator to either read in already stored results or generate new ones
             DataLoaderGenerator dlg(qstworkflow_.get_identifier(), tasks_, force_new);

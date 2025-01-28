@@ -8,12 +8,21 @@
 
 #include "qristal/core/benchmark/Serializer.hpp"
 #include "qristal/core/benchmark/DataLoaderGenerator.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
 
 namespace qristal
 {
     namespace benchmark
     {
+
+        /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class QuantumProcessMatrixPythonBase {
+            public: 
+                virtual ~QuantumProcessMatrixPythonBase() = default; 
+                virtual std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const = 0;
+        };
 
         /**
         * @brief Quantum process matrix metric evaluation class templated for arbitrary quantum process tomography workflows @tparam QPTWorkflow.
@@ -24,7 +33,7 @@ namespace qristal
         */
         template <QPTWorkflow QPTWORKFLOW>
         requires CanStoreMeasuredCounts<QPTWORKFLOW> && CanStoreSessionInfos<QPTWORKFLOW>
-        class QuantumProcessMatrix {
+        class QuantumProcessMatrix : public virtual QuantumProcessMatrixPythonBase {
             public:
                 /**
                 * @brief Constructor for the quantum process matrix metric evaluation class.
@@ -56,6 +65,24 @@ namespace qristal
 
                 QPTWORKFLOW& workflow_;
                 const std::vector<Task> tasks_{Task::MeasureCounts, Task::Session};
+        };
+
+        /**
+        * @brief The type-erased QuantumProcessMatrix handle exposed in the python bindings. 
+        */
+        class QuantumProcessMatrixPython {
+            public:
+                //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumProcessTomographyPython
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessMatrix objects. 
+                //To not pollute the standalone header, this was moved to a cpp file.
+                QuantumProcessMatrixPython(QuantumProcessTomographyPython& qstpython);
+
+                std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const {
+                    return workflow_ptr_->evaluate(force_new);
+                }
+
+            private:
+                std::unique_ptr<QuantumProcessMatrixPythonBase> workflow_ptr_; 
         };
 
         template <QPTWorkflow QPTWORKFLOW>

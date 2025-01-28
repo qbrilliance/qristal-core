@@ -20,6 +20,11 @@ set(source_files
   src/benchmark/workflows/PyGSTiBenchmark.cpp
   src/benchmark/workflows/RotationSweep.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
+  src/benchmark/workflows/QuantumProcessTomography.cpp
+  src/benchmark/metrics/QuantumStateDensity.cpp
+  src/benchmark/metrics/QuantumProcessMatrix.cpp
+  src/benchmark/metrics/QuantumStateFidelity.cpp
+  src/benchmark/metrics/QuantumProcessFidelity.cpp
   src/optimization/qaoa/qaoa_base.cpp
   src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_recursive.cpp

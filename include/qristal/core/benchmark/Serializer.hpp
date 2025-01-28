@@ -26,6 +26,53 @@ namespace qristal
     namespace benchmark
     {
 
+        /**
+        * @brief Helper function attempting to cast a qristal::benchmark python binding metric pointer to
+        * a pointer of the templated base Metric with a compatible workflow. 
+        *
+        * Template Arguments: 
+        * @tparam Metric : The C++ base metric template class, e.g., `QuantumStateFidelity`. 
+        * @tparam BindingMetricBase : The python binding base class for the metric, e.g., `QuantumStateFidelityPythonBase`. 
+        * @tparam BindingWorkflow : The python binding class for the wrapped workflow, e.g., `QuantumStateTomographyPython`. 
+        * @tparam CompatibleWorkflows : Variadic template of all C++ workflow classes to be tested, e.g., `QuantumStateTomography<RotationSweep>`.
+        * @tparam AdditionalArgs : Optional variadic template for additional required arguments to construct a `Metric` object. 
+        *
+        * Arguments:
+        * @param workflow_ptr : std::unique_ptr to the BindingMetric to be casted.  
+        * @param workflow : A reference to the BindingWorkflow to be wrapped inside. 
+        * @param args : A forward reference to AdditionalArgs passed to the `Metric` constructor
+        *
+        * @return ---
+        */
+        template <
+            template <typename, typename...> class Metric, 
+            typename BindingMetricBase, 
+            typename BindingWorkflow, 
+            typename... CompatibleWorkflows, 
+            typename... AdditionalArgs>
+        void cast_python_metric_pointer(
+            std::unique_ptr<BindingMetricBase>& workflow_ptr, 
+            BindingWorkflow& workflow, 
+            AdditionalArgs&&... args
+        ) {
+            bool matched = false;
+
+            //try every CompatibleWorkflow in the variadic template CompatibleWorkflows
+            ([&] {
+                if (!matched) {
+                    if (auto casted = dynamic_cast<CompatibleWorkflows*>(&(*workflow.get()))) {
+                        workflow_ptr = std::make_unique<Metric<CompatibleWorkflows>>(*casted, std::forward<AdditionalArgs>(args)...);
+                        matched = true;
+                    }
+                }
+            }(), ...);
+
+            //if no workflow could be casted successfully, throw an error
+            if (!matched) {
+                throw std::runtime_error("Unsupported workflow type in python binding metric!");
+            }
+        }
+
         namespace SerializerConstants {
             static const std::string INTERMEDIATE_RESULTS_FOLDER_NAME = "intermediate_benchmark_results";
         }

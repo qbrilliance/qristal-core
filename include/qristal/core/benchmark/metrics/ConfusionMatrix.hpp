@@ -1,6 +1,5 @@
 // Copyright (c) 2023 Quantum Brilliance Pty Ltd
-#ifndef _QB_BENCHMARK_CIRCUITFIDELITY_
-#define _QB_BENCHMARK_CIRCUITFIDELITY_
+#pragma once
 
 #define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
 #include "qristal/core/tools/zip_tool.hpp"
@@ -23,6 +22,15 @@ namespace qristal
         };
 
         /**
+        * @brief Pure virtual python bindings helper class not used in the C++ implementation.
+        */
+        class ConfusionMatrixPythonBase {
+            public: 
+                virtual ~ConfusionMatrixPythonBase() = default; 
+                virtual std::map< std::time_t, Eigen::MatrixXd > evaluate(const bool force_new = false) const = 0;
+        };
+
+        /**
         * @brief Confusion matrix metric evaluation class templated for arbitrary @tparam ExecutableWorkflow SPAM workflows.
         *
         * @details This class may be used to evaluate the confusion matrix for arbitrary templated @tparam
@@ -32,7 +40,7 @@ namespace qristal
         */
         template <ExecutableWorkflow WORKFLOW>
         requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW> && CanCalculateConfusionMatrix<WORKFLOW>
-        class ConfusionMatrix {
+        class ConfusionMatrix : public virtual ConfusionMatrixPythonBase {
             public:
                 /**
                 * @brief Constructor for the confusion matrix metric evaluation class.
@@ -65,7 +73,23 @@ namespace qristal
                 const std::vector<Task> tasks_{Task::MeasureCounts, Task::Session};
         };
 
+        /**
+        * @brief The type-erased ConfusionMatrix handle exposed in the python bindings. 
+        */
+        class ConfusionMatrixPython {
+            public: 
+                template <ExecutableWorkflow WORKFLOW>
+                requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW> && CanCalculateConfusionMatrix<WORKFLOW>
+                ConfusionMatrixPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<ConfusionMatrix<WORKFLOW>>(workflow)) {}
+    
+                std::map< std::time_t, Eigen::MatrixXd> evaluate(const bool force_new = false) const {
+                    return workflow_ptr_->evaluate(force_new);
+                }
 
+            private: 
+                std::unique_ptr<ConfusionMatrixPythonBase> workflow_ptr_;
+        };
+ 
         template <ExecutableWorkflow WORKFLOW>
         requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW> && CanCalculateConfusionMatrix<WORKFLOW>
         std::map< std::time_t, Eigen::MatrixXd > ConfusionMatrix<WORKFLOW>::evaluate(const bool force_new) const {
@@ -88,5 +112,3 @@ namespace qristal
         }
     }
 }
-
-#endif
