@@ -91,3 +91,33 @@ index 7026f728..6e9754e7 100644
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
  endif()
  
+--- a/quantum/plugins/ibm/aer/src/framework/linalg/eigensystem.hpp
++++ b/quantum/plugins/ibm/aer/src/framework/linalg/eigensystem.hpp
+@@ -19,6 +19,7 @@
+ #include "framework/blas_protos.hpp"
+ #include "framework/matrix.hpp"
+ 
++#include <Eigen/Dense>
+ 
+ /**
+  * Returns the eigenvalues and eigenvectors
+@@ -92,7 +93,16 @@
+                        &abstol, &m, eigenvalues.data(), eigenvectors.data(), &ldz, work.data(),
+                        &lwork, rwork.data(), iwork.data(), ifail.data(), &info);
+ 
+-  if(info){
++  Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> hermitian_matrix_eigen(
++      hermitian_matrix.GetRows(), hermitian_matrix.GetColumns());
++  for (size_t i = 0; i < hermitian_matrix.GetRows(); i++) {
++    for (size_t j = 0; j < hermitian_matrix.GetColumns(); j++) {
++      hermitian_matrix_eigen(i, j) = hermitian_matrix[i + j*hermitian_matrix.GetRows()];
++    }
++  }
++  double eigen_hermitian_check = ((hermitian_matrix_eigen - hermitian_matrix_eigen.adjoint()).cwiseAbs()).sum();
++
++  if(info && eigen_hermitian_check > 1e-12){
+       throw std::runtime_error("Something went wrong in heevx call within eigensystem_hermitian funcion. "
+                                "Check that input matrix is really hermitian");
+   }
+
+ 
