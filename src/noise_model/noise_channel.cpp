@@ -714,41 +714,138 @@ namespace qristal
       return x;
     }
 
-    Eigen::MatrixXcd processMatrixInterpolator(const size_t& nb_qubits,
-        std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_2,
-        Eigen::MatrixXcd& process_matrix_Nqubit_1, Eigen::MatrixXcd& process_matrix_Nqubit_2,
-        const std::vector<double>& theta1, const std::vector<double>& phi1, const std::vector<double>& lambda1,
-        const std::vector<double>& theta2, const std::vector<double>& phi2, const std::vector<double>& lambda2,
-        const double& theta_target, const double& phi_target, const double& lambda_target,
-        const std::unordered_map<std::vector<size_t>, std::vector<qristal::noiseChannelSymbol>,
-            qristal::vector_hash<std::vector<size_t>>>& channel_list,
-        const std::vector<size_t>& nb_params, size_t max_iter, size_t maxfev, double xtol, double ftol,
-        double gtol) {
-
-      // Solve for the noise channel parameters at angle {tx1, ty1, tz1}
-      Eigen::VectorXd params1 = qristal::processMatrixSolverNQubit(
-          process_matrix_1qubit_1, process_matrix_Nqubit_1, nb_qubits, theta1, phi1, lambda1,
-          channel_list, nb_params, max_iter, maxfev, xtol, ftol, gtol);
-      // Solve for the noise channel parameters at angle {tx2, ty2, tz2}
-      Eigen::VectorXd params2 = qristal::processMatrixSolverNQubit(
-          process_matrix_1qubit_2, process_matrix_Nqubit_2, nb_qubits, theta2, phi2, lambda2,
-          channel_list, nb_params, max_iter, maxfev, xtol, ftol, gtol);
-
-      // Calculate average of each param in param1 and param2
-      Eigen::VectorXd params_avg = (params1 + params2) / 2;
-
-      // Create output process matrix using average noise channel parameters of both
-      // input process matrices
-      std::vector<double> theta_target_vec, phi_target_vec, lambda_target_vec;
-      for (size_t i = 0; i < nb_qubits; i++) {
-        theta_target_vec.emplace_back(theta_target);
-        phi_target_vec.emplace_back(phi_target);
-        lambda_target_vec.emplace_back(lambda_target);
+    void InterpolationModel::validateInputs() const  {
+      switch (type_) {
+        case Type::Polynomial: {
+          if (!polynomial_degree_.has_value()) {
+            throw std::invalid_argument("Polynomial interpolation requires a polynomial degree!");
+          }
+          break;
+        }
+        default: {
+          if (polynomial_degree_.has_value()) {
+            std::cerr << "Interpolator warning! Polynomial degree supplied but a different interpolation model was selected!" << std::endl;
+          }
+        }
       }
-      Eigen::MatrixXcd output_process_matrix = qristal::createNQubitNoisyProcessMatrix(
-          nb_qubits, theta_target_vec, phi_target_vec, lambda_target_vec, channel_list, params_avg);
+    }
 
-      return output_process_matrix;
+    NoiseChannelInterpolator::NoiseChannelInterpolator(
+      const std::vector<Eigen::VectorXd>& noise_params, 
+      const std::vector<U3Angle>& rotation_angles, 
+      const std::vector<InterpolationModel>& models
+    ) {
+      //for each interpolation model 
+      for (size_t i = 0; i < models.size(); ++i) {
+        switch (models[i].type()) {
+          case InterpolationModel::Type::Average: {
+            //just compute the average of all i-th noise channel parameters 
+            double average = 0.0; 
+            for (Eigen::Index a = 0; a < rotation_angles.size(); ++a) {
+              average += noise_params[a](i);
+            }
+            average /= static_cast<double>(rotation_angles.size());
+            //and push lambda  
+            interpolationFunctions_.push_back(
+              [average, i](const U3Angle& target, Eigen::VectorXd& params) {
+                params(i) = average; 
+              }
+            );
+            break;
+          }
+          case InterpolationModel::Type::Linear:
+          case InterpolationModel::Type::Polynomial: {
+            //(1) build design matrix of all rotation angles and noise channel param targets
+            //first compute the number of terms in the polynomial basis 
+            size_t num_terms = 0; 
+            const size_t polynomial_degree = (models[i].type() == InterpolationModel::Type::Linear ? 1 : models[i].polynomial_degree().value());
+            for (size_t n = 0; n <= polynomial_degree; ++n) {
+              num_terms += (n + 1) * (n + 2) / 2; //number of terms for degree n 
+            }
+            Eigen::MatrixXd X = Eigen::MatrixXd::Zero(rotation_angles.size(), num_terms); 
+            Eigen::VectorXd f = Eigen::VectorXd::Zero(rotation_angles.size());
+            for (size_t angle = 0; angle < rotation_angles.size(); ++angle) {
+              f(angle) = noise_params[angle](i);
+              double theta = std::get<0>(rotation_angles[angle]); 
+              double phi = std::get<1>(rotation_angles[angle]);
+              double lamb = std::get<2>(rotation_angles[angle]);
+              size_t col = 0; 
+              //for all possible degrees up to maximum polynomial_degree
+              for (int n = 0; n <= polynomial_degree; ++n) {
+                //generate all polynomial terms theta^j phi^k lamb^l such that j + k + l = n
+                for (int j = 0; j <= n; ++j) { //theta^j
+                  for (int k = 0; k <= n - j; ++k) { //phi^k 
+                    int l = n - j - k; //lamb^k
+                    X(angle, col) = std::pow(theta, j) * std::pow(phi, k) * std::pow(lamb, l);
+                    ++col;
+                  }
+                }
+              }
+            }
+            
+            //(2) Fit the model 
+            Eigen::MatrixXd XtX = X.transpose() * X;
+            //use pseudo inverse to circumvent numerical instabilities for singular matrices
+            Eigen::VectorXd coeffs = XtX.completeOrthogonalDecomposition().pseudoInverse() * X.transpose() * f; 
+
+            //(3) and push lambda passing the coefficients 
+            interpolationFunctions_.push_back(
+              [coeffs, i, polynomial_degree](const U3Angle& target, Eigen::VectorXd& params) {
+                //(3.1) compute the representation of target in polynomial basis
+                double theta = std::get<0>(target);
+                double phi = std::get<1>(target);
+                double lamb = std::get<2>(target); 
+                size_t col = 0; 
+                Eigen::VectorXd a(coeffs.size());
+                for (int n = 0; n <= polynomial_degree; ++n) {
+                  for (int j = 0; j <= n; ++j) { //theta^j
+                    for (int k = 0; k <= n - j; ++k) { //phi^k 
+                      int l = n - j - k; //lamb^k
+                      a(col) = std::pow(theta, j) * std::pow(phi, k) * std::pow(lamb, l);
+                      ++col;
+                    }
+                  }
+                }
+                //(3.2) contract with coefficients to get the interpolated parameter  
+                params(i) = coeffs.transpose() * a;
+              }
+            );
+            break;
+          }
+          case InterpolationModel::Type::Exponential: {
+            //(1) Set up design matrix for log target 
+            Eigen::MatrixXd X = Eigen::MatrixXd::Zero(rotation_angles.size(), 4); 
+            Eigen::VectorXd f = Eigen::VectorXd::Zero(rotation_angles.size());
+            for (size_t angle = 0; angle < rotation_angles.size(); ++angle) {
+              if (noise_params[angle](i) <= 0.0) {
+                throw std::runtime_error("Exponential interpolation is only possible for positive noise channel parameters!");
+              }
+              f(angle) = std::log(noise_params[angle](i));
+              X(angle, 0) = 1.0; 
+              X(angle, 1) = std::get<0>(rotation_angles[angle]); 
+              X(angle, 2) = std::get<1>(rotation_angles[angle]);
+              X(angle, 3) = std::get<2>(rotation_angles[angle]);
+            }
+
+            //(2) Fit the model 
+            Eigen::MatrixXd XtX = X.transpose() * X;
+            //use pseudo inverse to circumvent numerical instabilities for singular matrices
+            Eigen::VectorXd coeffs = XtX.completeOrthogonalDecomposition().pseudoInverse() * X.transpose() * f; 
+
+            //(3) and push lambda passing the coefficients 
+            interpolationFunctions_.push_back(
+              [coeffs, i](const U3Angle& target, Eigen::VectorXd& params) {
+                params(i) = std::exp(coeffs[0]) * std::exp(
+                    coeffs[1] * std::get<0>(target) + 
+                    coeffs[2] * std::get<1>(target) +
+                    coeffs[3] * std::get<2>(target)
+                );
+              }
+            );
+            break;
+          }
+        }
+      } 
     }
 
     std::vector<Eigen::MatrixXcd> setChannelMatrices(const std::vector<noiseChannelSymbol>& channel_list,

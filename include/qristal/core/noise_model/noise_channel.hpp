@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <unsupported/Eigen/NonLinearOptimization>
 #include <unsupported/Eigen/NumericalDiff>
+#include <tuple>
 #include <optional>
 #include <iostream>
 
@@ -663,42 +664,111 @@ namespace qristal
         std::optional<Eigen::VectorXd> guess_params = std::nullopt);
 
     /**
-     * @brief Creates an interpolated process matrix at angle {theta, phi, lambda} using
-     * the average noise channel damping parameters of 2 input process matrices
-     * 
-     * @param nb_qubits Number of qubits
-     * @param process_matrix_1qubit_1 vector of 1-qubit process matrices at Euler angle {theta1, phi1, lambda1}
-     * @param process_matrix_1qubit_2 vector of 1-qubit process matrices at Euler angle {theta2, phi2, lambda2}
-     * @param process_matrix_Nqubit_1 N-qubit process matrix at Euler angle {theta1, phi1, lambda1}
-     * @param process_matrix_Nqubit_2 N-qubit process matrix at Euler angle {theta2, phi2, lambda2}
-     * @param theta1 vector containing the x-rotation angle of all qubits for the set of Euler angles {theta1, phi1, lambda1}
-     * @param phi1 vector containing the y-rotation angle of all qubits for the set of Euler angles {theta1, phi1, lambda1}
-     * @param lambda1 vector containing the z-rotation angle of all qubits for the set of Euler angles {theta1, phi1, lambda1}
-     * @param theta2 vector containing the x-rotation angle of all qubits for the set of Euler angles {theta2, phi2, lambda2}
-     * @param phi2 vector containing the y-rotation angle of all qubits for the set of Euler angles {theta2, phi2, lambda2}
-     * @param lambda2 vector containing the z-rotation angle of all qubits for the set of Euler angles {theta2, phi2, lambda2}
-     * @param theta_target \theta target angle of output process matrix
-     * @param phi_target \phi target angle of output process matrix
-     * @param lambda_target \lambda target angle of output process matrix
-     * @param channel_list Labels of noise channel to solve
-     * @param max_iter Maximum number of solver iterations (default = 1000)
-     * @param maxfev Maximum number of function evaluation (default = 1000)
-     * @param xtol Tolerance for the norm of the solution vector (default = 1e-8)
-     * @param ftol tolerance for the norm of the vector function (default = 1e-8)
-     * @param gtol Tolerance for the norm of the gradient of the error vector (default = 1e-8)
-     *
-     * @return Output process matrix
-     */
-    Eigen::MatrixXcd processMatrixInterpolator(const size_t& nb_qubits,
-        std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_1, std::vector<Eigen::MatrixXcd>& process_matrix_1qubit_2,
-        Eigen::MatrixXcd& process_matrix_Nqubit_1, Eigen::MatrixXcd& process_matrix_Nqubit_2,
-        const std::vector<double>& theta1, const std::vector<double>& phi1, const std::vector<double>& lambda1,
-        const std::vector<double>& theta2, const std::vector<double>& phi2, const std::vector<double>& lambda2,
-        const double& theta_target, const double& phi_target, const double& lambda_target,
-        const std::unordered_map<std::vector<size_t>, std::vector<qristal::noiseChannelSymbol>,
-            qristal::vector_hash<std::vector<size_t>>>& channel_list,
-        const std::vector<size_t>& nb_params, size_t max_iter = 1000, size_t maxfev = 1000,
-        double xtol = 1e-8, double ftol = 1e-8, double gtol = 1e-8);
+    * @brief Specification of an interpolation model consisting of an interpolation type 
+    * and optional arguments (currently only maximum polynomial degree).
+    */
+    class InterpolationModel {
+      public: 
+        /**
+        * @brief The type of interpolation to be used. Either average, linear, polynomial, 
+        * or exponential.
+        */
+        enum class Type {
+          Average, Linear, Polynomial, Exponential
+        }; 
+
+        /**
+        * @brief Trivial constructor for InterpolationModel validating the user input. 
+        * 
+        * Arguments: 
+        * @param type : The type of interpolation. 
+        * @param polynomial_degree : Optional argument specifying the maximum polynomial degree. Only used if type was set to Polynomial.
+        * 
+        * @returns ---
+        */
+        InterpolationModel(
+          const Type& type, 
+          std::optional<size_t> polynomial_degree = std::nullopt
+        ): type_(type), polynomial_degree_(polynomial_degree) {
+          validateInputs();
+        }
+
+        //Getters 
+        const Type& type() const {return type_;}
+        const std::optional<size_t>& polynomial_degree() const {return polynomial_degree_;}
+
+      private: 
+        /**
+        * @brief Private helper function to validate the optional arguments specified by the user.  
+        */
+        void validateInputs() const; 
+
+        const Type type_; 
+        const std::optional<size_t> polynomial_degree_; 
+    }; 
+
+    typedef std::tuple<double, double, double> U3Angle; 
+
+    /**
+    * @brief Interpolation class for angle-dependent noise channel parameters. 
+    */
+    class NoiseChannelInterpolator {
+      public: 
+        /**
+        * @brief Default constructor for NoiseChannelInterpolator.  
+        * 
+        * Arguments: 
+        * @param noise_params : A std::vector of noise channel parameters. 
+        * @param rotation_angles : The corresponding std::vector of 1-qubit rotation angels (given by 3-tuples of doubles).
+        * @param models : A std::vector of InterpolationModels to be used for each individual noise channel parameter. 
+        * 
+        * @returns ---
+        */
+        NoiseChannelInterpolator(
+          const std::vector<Eigen::VectorXd>& noise_params, 
+          const std::vector<U3Angle>& rotation_angles, 
+          const std::vector<InterpolationModel>& models
+        );
+
+        /**
+        * @brief Convenient constructor overload specifying the same InterpolationModel for every noise channel parameter.  
+        * 
+        * Arguments: 
+        * @param noise_params : A std::vector of noise channel parameters. 
+        * @param rotation_angles : The corresponding std::vector of 1-qubit rotation angels (given by 3-tuples of doubles).
+        * @param models : An InterpolationModel to be used for all noise channel parameters. 
+        * 
+        * @returns ---
+        */
+        NoiseChannelInterpolator(
+          const std::vector<Eigen::VectorXd>& noise_params, 
+          const std::vector<U3Angle>& rotation_angles, 
+          const InterpolationModel& model
+        ) {
+          std::vector<InterpolationModel> models(noise_params[0].size(), model);
+          (*this) = NoiseChannelInterpolator(noise_params, rotation_angles, models);
+        }
+
+        /**
+        * @brief Interface to interpolate noise channels to an aribtrary rotation angle.  
+        * 
+        * Arguments: 
+        * @param target : An arbitrary U3 rotation angle given as a 3-tuple of doubles. 
+        * 
+        * @returns Eigen::VectorXd : The interpolated noise channel parameters for the given angle.  
+        */
+        Eigen::VectorXd operator()(const U3Angle& target) const {
+          Eigen::VectorXd new_channels = Eigen::VectorXd::Zero(interpolationFunctions_.size()); 
+          for (auto const & func : interpolationFunctions_) {
+            func(target, new_channels);
+          }
+          return new_channels;
+        }
+
+      private: 
+        std::vector<std::function<void(const U3Angle&, Eigen::VectorXd&)>> interpolationFunctions_;
+
+    };
 
     /**
      * @brief Retrieve the channel Kraus matrices

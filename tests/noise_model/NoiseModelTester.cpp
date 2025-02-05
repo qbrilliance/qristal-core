@@ -875,24 +875,26 @@ TEST(NoiseChannelTester, testProcessMatrixInterpolator) {
     double lambda_target = 0.4*std::numbers::pi;
     std::vector<Eigen::MatrixXcd> process_mat_noisy_1qubit_angle1 = {process_mat_noisy_qubit1_angle1, process_mat_noisy_qubit2_angle1};
     std::vector<Eigen::MatrixXcd> process_mat_noisy_1qubit_angle2 = {process_mat_noisy_qubit1_angle2, process_mat_noisy_qubit2_angle2};
-    Eigen::MatrixXcd process_mat_interp = qristal::processMatrixInterpolator(nb_qubits,
-        process_mat_noisy_1qubit_angle1, process_mat_noisy_1qubit_angle2,
-        process_mat_noisy_qubitN_angle1, process_mat_noisy_qubitN_angle2, theta1, phi1, lambda1, theta2, phi2, lambda2,
-        theta_target, phi_target, lambda_target, channel_list, nb_params);
 
-    // Check that interpolated process matrix have the same values as a constructed process matrix with the
-    // expected arguments
-    std::vector<double> theta_target_vec, phi_target_vec, lambda_target_vec;
-    for (size_t i = 0; i < nb_qubits; i++) {
-      theta_target_vec.emplace_back(theta_target);
-      phi_target_vec.emplace_back(phi_target);
-      lambda_target_vec.emplace_back(lambda_target);
-    }
+    //(A) obtain the noise channel params for each process matrix 
+    Eigen::VectorXd params1 = qristal::processMatrixSolverNQubit(
+      process_mat_noisy_1qubit_angle1, process_mat_noisy_qubitN_angle1, nb_qubits, theta1, phi1, lambda1, channel_list, nb_params
+    );
+    Eigen::VectorXd params2 = qristal::processMatrixSolverNQubit(
+      process_mat_noisy_1qubit_angle2, process_mat_noisy_qubitN_angle2, nb_qubits, theta2, phi2, lambda2, channel_list, nb_params
+    );
+    //(B) construct interpolator 
+    qristal::NoiseChannelInterpolator interpolator(
+      {params1, params2}, //noise channels for two different angles 
+      {{theta1[0], phi1[0], lambda1[0]}, {theta1[1], phi1[1], lambda1[1]}}, 
+      qristal::InterpolationModel(qristal::InterpolationModel::Type::Average)
+    );
+    //(C) obtain interpolated noise channel parameters for target 
+    auto new_channels = interpolator({theta_target, phi_target, lambda_target}); 
+
+    //check that the interpolated channels are just the average 
     Eigen::VectorXd channel_params_avg = (channel_params_qubitN_angle1 + channel_params_qubitN_angle2) / 2;
-    Eigen::MatrixXcd reconstructed_process_mat_interp = qristal::createNQubitNoisyProcessMatrix(
-        nb_qubits, theta_target_vec, phi_target_vec, lambda_target_vec,
-        channel_list, channel_params_avg);
-    EXPECT_TRUE(reconstructed_process_mat_interp.isApprox(process_mat_interp, 1.0e-6));
+    EXPECT_TRUE(channel_params_avg.isApprox(new_channels, 1e-6)); 
   }
 }
 
@@ -1015,23 +1017,69 @@ TEST(NoiseChannelTester, testProcessMatrixInterpolator_2qubitDepol) {
     double lambda_target = 0.4*std::numbers::pi;
     std::vector<Eigen::MatrixXcd> process_mat_noisy_1qubit_angle1 = {process_mat_noisy_qubit1_angle1, process_mat_noisy_qubit2_angle1};
     std::vector<Eigen::MatrixXcd> process_mat_noisy_1qubit_angle2 = {process_mat_noisy_qubit1_angle2, process_mat_noisy_qubit2_angle2};
-    Eigen::MatrixXcd process_mat_interp = qristal::processMatrixInterpolator(nb_qubits,
-        process_mat_noisy_1qubit_angle1, process_mat_noisy_1qubit_angle2,
-        process_mat_noisy_qubitN_angle1, process_mat_noisy_qubitN_angle2, theta1, phi1, lambda1, theta2, phi2, lambda2,
-        theta_target, phi_target, lambda_target, channel_list, nb_params);
 
-    // Check that interpolated process matrix have the same values as a constructed process
-    // matrix with the expected arguments
-    std::vector<double> theta_target_vec, phi_target_vec, lambda_target_vec;
-    for (size_t i = 0; i < nb_qubits; i++) {
-      theta_target_vec.emplace_back(theta_target);
-      phi_target_vec.emplace_back(phi_target);
-      lambda_target_vec.emplace_back(lambda_target);
-    }
+    //(A) obtain the noise channel params for each process matrix 
+    Eigen::VectorXd params1 = qristal::processMatrixSolverNQubit(
+      process_mat_noisy_1qubit_angle1, process_mat_noisy_qubitN_angle1, nb_qubits, theta1, phi1, lambda1, channel_list, nb_params
+    );
+    Eigen::VectorXd params2 = qristal::processMatrixSolverNQubit(
+      process_mat_noisy_1qubit_angle2, process_mat_noisy_qubitN_angle2, nb_qubits, theta2, phi2, lambda2, channel_list, nb_params
+    );
+    //(B) construct interpolator 
+    qristal::NoiseChannelInterpolator interpolator(
+      {params1, params2}, //noise channels for two different angles 
+      {{theta1[0], phi1[0], lambda1[0]}, {theta1[1], phi1[1], lambda1[1]}}, 
+      qristal::InterpolationModel(qristal::InterpolationModel::Type::Average)
+    );
+    //(C) obatin interpolated noise channel parameters for target 
+    auto new_channels = interpolator({theta_target, phi_target, lambda_target}); 
+
+    //check that the interpolated channels are just the average 
     Eigen::VectorXd channel_params_avg = (channel_params_qubitN_angle1 + channel_params_qubitN_angle2) / 2;
-    Eigen::MatrixXcd reconstructed_process_mat_interp = qristal::createNQubitNoisyProcessMatrix(
-        nb_qubits, theta_target_vec, phi_target_vec, lambda_target_vec,
-        channel_list, channel_params_avg);
-    EXPECT_TRUE(reconstructed_process_mat_interp.isApprox(process_mat_interp, 1.0e-6));
+    EXPECT_TRUE(channel_params_avg.isApprox(new_channels, 1e-6)); 
+  }
+}
+
+TEST(NoiseChannelTester, check_basic_interpolation) {
+  //trivial check for correct 1-D interpolation
+  std::vector<qristal::U3Angle> angles{
+    {0.0, 0.0, 0.0}, 
+    {1.0, 0.0, 0.0},
+    {2.0, 0.0, 0.0}, 
+    {3.0, 0.0, 0.0}
+  }; 
+
+  //different noise channels for the four angles to be interpolated
+  //value 1: (10, 20, 30, 40) -> average : 25.0 (constant)
+  //value 2: (5, 10, 15, 20) -> linear : 5*x + 5
+  //value 3: (0, 1, 4, 9) -> polynomial (degree 2) : x^2
+  //value 4: (1, 2, 4, 8) -> exponential : 2^x = exp(ln(2) * x)
+  Eigen::VectorXd p1(4); 
+  p1 << 10.0, 5.0, 0.0, 1.0; 
+  Eigen::VectorXd p2(4); 
+  p2 << 20.0, 10.0, 1.0, 2.0; 
+  Eigen::VectorXd p3(4); 
+  p3 << 30.0, 15.0, 4.0, 4.0; 
+  Eigen::VectorXd p4(4);
+  p4 << 40.0, 20.0, 9.0, 8.0;
+
+  //create interpolator with different models for each value
+  qristal::NoiseChannelInterpolator interpolator(
+    {p1, p2, p3, p4},
+    angles,
+    {
+      qristal::InterpolationModel(qristal::InterpolationModel::Type::Average), 
+      qristal::InterpolationModel(qristal::InterpolationModel::Type::Linear), 
+      qristal::InterpolationModel(qristal::InterpolationModel::Type::Polynomial, 2), 
+      qristal::InterpolationModel(qristal::InterpolationModel::Type::Exponential)
+    }
+  ); 
+
+  //check correct interpolation in test range from 0.5 to 10.0
+  for (double test = 0.5; test <= 10.0; test += 0.1) {
+    auto new_channels = interpolator({test, 0.0, 0.0}); 
+    Eigen::VectorXd correct(4); 
+    correct << 25.0, 5.0*test + 5.0, std::pow(test, 2), std::exp(std::log(2.0)*test); 
+    EXPECT_TRUE(correct.isApprox(new_channels, 1e-12)); 
   }
 }
