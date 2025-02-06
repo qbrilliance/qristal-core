@@ -315,13 +315,12 @@ ci-hardware-tests:
   needs: ["ci-build-install-missing"]
   tags:
     - lambda
+  variables:
+    QCSTACK_REGISTRY: registry.gitlab.com/qbau/control/qcstack/qcstack_server
+    QCSTACK_TAG: "2025.1.1"
+    QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --system randomised-dummy --max-circuit-depth 1000  --reservation-shared-secret hello --calibration False"
   rules:
-    - if: $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_PIPELINE_SOURCE != "schedule"
-      variables:
-        QCSTACK_REGISTRY: registry.gitlab.com/qbau/control/qcstack/qcstack_server
-        QCSTACK_TAG: "latest"
-        QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --max-circuit-depth 1000 --reservation-shared-secret hello --system dummy --calibration False --benchmark False"
   script:
     - mv core_artefacts/build .
     - mv core_artefacts/deps .
