@@ -467,6 +467,14 @@ _noise_: false
 
 Similar to `vqee_example_4` except the classical algorithm used here is CMA-ES.
 
+`xing_the_xasm.py`
+
+_qubits_: 2
+_gate depth_: 3
+_noise_: N/A
+
+An example of how to convert a circuit from OpenQASM2 to XASM.
+
 `simple_placement.py`
 
 A simple example demonstrating circuit placement based on backend topology.

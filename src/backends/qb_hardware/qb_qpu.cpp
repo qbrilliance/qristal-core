@@ -31,16 +31,17 @@ namespace qristal
       const run_i_j_config &run_config,
       bool debug)
   {
-    // Send circuit for execution to QB hardware
-    hardware_device->setup_hardware();
-    hardware_device->execute(buffer, circuits);
-    std::map<std::string, int> counts = hardware_device->poll_for_results();
-
-    // Store the counts in the buffer
-    for (auto &kv : counts)
+    hardware_device->setup_hardware(run_config.execute_circuit);
+    hardware_device->execute(buffer, circuits, run_config.execute_circuit);
+    if (run_config.execute_circuit)
     {
-      buffer->appendMeasurement(kv.first, kv.second);
-      if (debug) std::cout << "State: " << kv.first << " has count: " << kv.second << std::endl;
+      std::map<std::string, int> counts = hardware_device->poll_for_results();
+      // Store the counts in the buffer
+      for (auto &kv : counts)
+      {
+        buffer->appendMeasurement(kv.first, kv.second);
+        if (debug) std::cout << "State: " << kv.first << " has count: " << kv.second << std::endl;
+      }
     }
   }
 }
@@ -66,7 +67,7 @@ namespace xacc
 
     const std::string qb_qpu::name() const
     {
-      return "QB hardware";
+      return qpu_name;
     }
 
     const std::string qb_qpu::description() const
@@ -264,7 +265,7 @@ namespace xacc
 
 
     // Initialise the QB hardware (reserve, get native gateset, etc.)
-    void qb_qpu::setup_hardware()
+    void qb_qpu::setup_hardware(bool check_hardware_lifesigns)
     {
       try
       {
@@ -276,9 +277,11 @@ namespace xacc
         }
 
         // Get native gateset
-        json fromqdk = json::parse(Get(remoteUrl, nativeGateEndpoint));
-        if (debug) std::cout << "* Native gates query returned: " << fromqdk.dump() << "\n";
-
+        if (check_hardware_lifesigns)
+        {
+          json fromqdk = json::parse(Get(remoteUrl, nativeGateEndpoint));
+          if (debug) std::cout << "* Native gates query returned: " << fromqdk.dump() << "\n";
+        }
       }
       catch (std::exception& e)
       {
@@ -289,7 +292,8 @@ namespace xacc
 
     void qb_qpu::execute(
         std::shared_ptr<AcceleratorBuffer> buffer,
-        const std::vector<std::shared_ptr<CompositeInstruction>> functions)
+        const std::vector<std::shared_ptr<CompositeInstruction>> functions,
+        bool execute_circuit)
     {
       try
       {
@@ -303,8 +307,11 @@ namespace xacc
           qbjson = processInput(tmpBuffer, std::vector<std::shared_ptr<CompositeInstruction>>{f});
           // Output the JSON sent to the QB hardware if debug is turned on.
           if (debug) std::cout << "* JSON to be sent to QB hardware: " << std::endl << qbjson << std::endl;
-          std::string responseStr = Post(remoteUrl, circuitEndpoint, qbjson, http_header);
-          processResponse(tmpBuffer, responseStr);
+          if (execute_circuit)
+          {
+            std::string responseStr = Post(remoteUrl, circuitEndpoint, qbjson, http_header);
+            processResponse(tmpBuffer, responseStr);
+          }
           tmpBuffers.push_back(tmpBuffer);
           buffer->appendChild(tmpBuffer->name(), tmpBuffer);
           counter++;

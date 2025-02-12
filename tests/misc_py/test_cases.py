@@ -15,7 +15,7 @@ import pytest
 #     s.run()
 #     assert (len(s.results[0][0]) > 0, "Failed test: CI_210826_3_init_random_5 - TNQVM-ExaTN-MPS"
 
-def test_loopback_rx_ry_rz() :
+def test_example_hardware_device_rx_ry_rz() :
     print(" Loopback QCStack check transpiling into discrete angles")
     import qristal.core
     import json
@@ -35,7 +35,7 @@ def test_loopback_rx_ry_rz() :
     }
     '''
     s.instring = targetCircuit
-    s.acc = "loopback"
+    s.acc = "example_hardware_device"
 
     # Run the circuit on the back-end
     s.run()

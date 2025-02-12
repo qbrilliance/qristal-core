@@ -207,18 +207,18 @@ namespace qristal {
         A 1d-array (list) version of nooptimise.
     )";
 
-    const char* nosims_ = R"(
-        nosim:
+    const char* execute_circuits_ = R"(
+        execute_circuit:
 
         Valid settings: True | False
 
-        Setting this to True to disable circuit simulation. The single setting applies globally.
+        Set this to False to disable circuit simulation. The single setting applies globally.
 
-        nosims:
+        execute_circuits:
 
         Valid settings: [[True|False, ...], [True|False, ...]]
 
-        A 1d-array (list) version of nosim.
+        A 1d-array (list) version of execute_circuit.
     )";
 
     const char* noises_ = R"(
@@ -452,7 +452,7 @@ namespace qristal {
     const char* results_native_ = R"(
         results_native:
 
-        An additional results container holding the native measurement results if automatic SPAM correction was enabled in session. 
+        An additional results container holding the native measurement results if automatic SPAM correction was enabled in session.
     )";
 
     const char* out_counts_ = R"(
@@ -603,12 +603,12 @@ namespace qristal {
     )";
 
     const char* SPAM_confusion_ = R"(
-        SPAM_confusion: 
+        SPAM_confusion:
 
         Set a state preparation and measurement (SPAM) confusion matrix, which will be used to correct the measured results.
-        After setting, and calling `run()`, the results variable will automatically be populated with SPAM-corrected counts. 
-        The native counts will be stored in `results_native` instead. Calling `SPAM_confusion` after setting, will return 
-        the used SPAM correction matrix, i.e., the inverse of the passed confusion matrix.  
+        After setting, and calling `run()`, the results variable will automatically be populated with SPAM-corrected counts.
+        The native counts will be stored in `results_native` instead. Calling `SPAM_confusion` after setting, will return
+        the used SPAM correction matrix, i.e., the inverse of the passed confusion matrix.
     )";
 
     const char* seeds_ = R"(

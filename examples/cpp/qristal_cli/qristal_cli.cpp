@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
                                    {"noplacement"});
   args::Flag arg_enable_optimiser(switches, "", "Enable circuit optimiser",
                                   {"optimise"});
-  args::Flag arg_disable_simulator(switches, "", "Skip simulation", {"nosim"});
+  args::Flag arg_disable_simulator(switches, "", "Perform actual execution of circuit", {"execute_circuit"});
 
   try {
     parser.ParseCLI(argc, argv);
@@ -471,7 +471,7 @@ int main(int argc, char **argv) {
       // Here we check if the user wants to bypass simulation (eg. user only
       // wants circuit transpiling and estimates of quantum timing)
       if (arg_disable_simulator) {
-          s.set_nosim(true);
+          s.set_execute_circuit(false);
       }
     }
     //

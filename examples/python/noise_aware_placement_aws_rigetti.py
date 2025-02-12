@@ -1,3 +1,5 @@
+from yaml import safe_load, dump
+
 # Import the core of Qristal
 import qristal.core
 
@@ -24,12 +26,17 @@ s.placement = "noise-aware"
 # !Important!: make sure AWS credentials have been set on the computer,
 # e.g., using AWS CLI tool to cache the API key.
 s.acc = "aws-braket"
-s.aws_device = "Rigetti"
+stream = open(s.remote_backend_database_path, 'r')
+db = safe_load(stream)["aws-braket"]
+db["device"] = "Rigetti"
+stream = open(s.remote_backend_database_path + ".temp", 'w')
+dump({'aws-braket': db}, stream)
+s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
 
-# Don't submit the circuit to AWS for execution (via the `nosim` config)
+# Don't submit the circuit to AWS for execution (via the `execute_circuit` config)
 # Note: there is no charge when querying backend information during circuit placement run.
 # Actual circuit execution, on the other hand, will incur a cost.
-s.nosim = True
+s.execute_circuit = False
 s.run()
 print("Placed circuit (for Rigetti device):")
 circ.print()

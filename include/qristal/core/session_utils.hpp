@@ -45,9 +45,9 @@ namespace qristal
     bool no_placement;
     /// Disable circuit optimisation if true
     bool no_optimise;
-    /// Disable simulation (accelerator execution) if true
-    /// e.g., just want to run transpilation for resource estimation.
-    bool no_sim;
+    /// Perform circuit execution (simulation or hardware execution) if true
+    /// Set false if e.g. just wanting to run transpilation for resource estimation.
+    bool execute_circuit;
     /// Enable noisy simulation/emulation
     bool noise;
     /// Runtime parameters for parametrized circuit

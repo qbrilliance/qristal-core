@@ -70,7 +70,7 @@ namespace qristal
       Table2d<bool> quil1s_;
       Table2d<bool> noplacements_;
       Table2d<bool> nooptimises_;
-      Table2d<bool> nosims_;
+      Table2d<bool> execute_circuits_;
       Table2d<bool> noises_;
       Table2d<bool> output_oqm_enableds_;
       Table2d<bool> notimings_;
@@ -124,8 +124,8 @@ namespace qristal
       std::shared_ptr<std::vector<std::complex<double>>> state_vec_;
 
       // Error mitigation
-      bool perform_SPAM_correction_ = false; 
-      Eigen::MatrixXd SPAM_correction_mat_; 
+      bool perform_SPAM_correction_ = false;
+      Eigen::MatrixXd SPAM_correction_mat_;
       Table2d<std::map<std::vector<bool>, int>> results_native_;
       Table2d<std::string> error_mitigations_;
 
@@ -152,8 +152,8 @@ namespace qristal
       const size_t INITIAL_KRAUS_DIMENSION_UPPERBOUND = 50000;
 
 
-      // Valid strings
-      std::unordered_set<std::string> VALID_ACCS = {
+      // Valid simulator backends
+      const std::unordered_set<std::string> VALID_SIMULATOR_ACCS = {
           "aer",
           "tnqvm",
           "qpp",
@@ -164,8 +164,8 @@ namespace qristal
           "qb-purification",
           "qb-mpdo"
       };
-      //book-keeping of the initial hardcoded valid backends
-      std::unordered_set<std::string> VALID_ACCS_BKUP = VALID_ACCS; 
+      // Valid backends (will be augmented later with hardware devices as needed)
+      std::unordered_set<std::string> VALID_ACCS = VALID_SIMULATOR_ACCS;
 
       // Valid AER simulator types
       std::unordered_set<std::string> VALID_AER_SIM_TYPES = {
@@ -580,25 +580,25 @@ namespace qristal
       const Table2d<Passes> &get_circuit_opts() const;
 
       /**
-       * @brief Set the nosim flag
+       * @brief Set the execute_circuit flag
        *
        * True to disable circuit simulation, e.g., dry-run to inspect transpilation and resource estimation only.
        *
-       * @param in_nosim nosim flag
+       * @param in_execute_circuit execute_circuit flag
        */
-      void set_nosim(const bool &in_nosim);
+      void set_execute_circuit(const bool &in_execute_circuit);
       /**
-       * @brief Set the nosim flags
+       * @brief Set the execute_circuit flags
        *
-       * @param in_nosim nosim flags
+       * @param in_execute_circuit execute_circuit flags
        */
-      void set_nosims(const Table2d<bool> &in_nosim);
+      void set_execute_circuits(const Table2d<bool> &in_execute_circuit);
       /**
-       * @brief Get the nosim flags
+       * @brief Get the execute_circuit flags
        *
-       * @return nosim flags
+       * @return execute_circuit flags
        */
-      const Table2d<bool> &get_nosims() const;
+      const Table2d<bool> &get_execute_circuits() const;
 
       /**
        * @brief Set the noise simulation flag
@@ -923,7 +923,7 @@ namespace qristal
        *
        * @return Native measurement counts map
        *
-       * @details Beware: The native results are only stored separately, if a confusion or 
+       * @details Beware: The native results are only stored separately, if a confusion or
        * correction matrix was supplied to session, enabling automatic SPAM correction!
        */
       const Table2d<std::map<std::vector<bool>,int>> & results_native() const;
@@ -1017,7 +1017,7 @@ namespace qristal
        *
        * @return A const reference to Eigen::MatrixXd
        */
-      const Eigen::MatrixXd& get_SPAM_correction_matrix() const; 
+      const Eigen::MatrixXd& get_SPAM_correction_matrix() const;
 
       /**
        * @brief Set automatic SPAM correction by providing a suitable SPAM confusion matrix
@@ -1025,7 +1025,7 @@ namespace qristal
        * @return ---
        */
       void set_SPAM_confusion_matrix(const Eigen::MatrixXd& mat);
-      
+
       /**
        * @brief Set the noise mitigation method
        *
@@ -1116,11 +1116,11 @@ namespace qristal
       void run();
 
       /**
-       * @brief Execute a standard SPAM benchmark, and use the measured confusion 
+       * @brief Execute a standard SPAM benchmark, and use the measured confusion
        * matrix to automatically correct SPAM errors in a consecutive `run()`
-       * 
-       * Arguments: 
-       * @param n_shots : The number of shots to be used for the SPAM benchmark. 
+       *
+       * Arguments:
+       * @param n_shots : The number of shots to be used for the SPAM benchmark.
        * Defaults to 0, taking the same number of shots as set in sns_.
        *
        * @return ---

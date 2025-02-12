@@ -149,10 +149,10 @@ void bind_session(pybind11::module &m) {
       .def_property("circuit_optimizations", &qristal::session::get_circuit_opts,
                     &qristal::session::set_circuit_opts,
                     qristal::help::circuit_opts_)
-      .def_property("nosim", &qristal::session::get_nosims, &qristal::session::set_nosim,
-                    qristal::help::nosims_)
-      .def_property("nosims", &qristal::session::get_nosims,
-                    &qristal::session::set_nosims, qristal::help::nosims_)
+      .def_property("execute_circuit", &qristal::session::get_execute_circuits, &qristal::session::set_execute_circuit,
+                    qristal::help::execute_circuits_)
+      .def_property("execute_circuits", &qristal::session::get_execute_circuits,
+                    &qristal::session::set_execute_circuits, qristal::help::execute_circuits_)
       .def_property("noise", &qristal::session::get_noises, &qristal::session::set_noise,
                     qristal::help::noises_)
       .def_property("noises", &qristal::session::get_noises,
@@ -170,7 +170,7 @@ void bind_session(pybind11::module &m) {
                     &qristal::session::set_noise_mitigations,
                     qristal::help::noise_mitigations_)
       .def_property("SPAM_confusion", &qristal::session::get_SPAM_correction_matrix,
-                    &qristal::session::set_SPAM_confusion_matrix, 
+                    &qristal::session::set_SPAM_confusion_matrix,
                     qristal::help::SPAM_confusion_)
       .def_property("notiming", &qristal::session::get_notimings,
                     &qristal::session::set_notiming, qristal::help::notimings_)
@@ -341,7 +341,7 @@ void bind_session(pybind11::module &m) {
            "Print summary of session settings")
       .def("run", py::overload_cast<>(&qristal::session::run),
            "Execute all declared quantum circuits under all conditions")
-      .def("run_with_SPAM", py::overload_cast<size_t>(&qristal::session::run_with_SPAM), 
+      .def("run_with_SPAM", py::overload_cast<size_t>(&qristal::session::run_with_SPAM),
            "Automatically execute a SPAM measurement and enable automatic SPAM correction. Then automatically exexute run().")
       .def("runit",
            py::overload_cast<const size_t, const size_t>(&qristal::session::run),

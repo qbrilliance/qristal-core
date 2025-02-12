@@ -26,7 +26,7 @@ int main() {
   // Note: there is no charge when querying backend information (still needs a
   // valid AWS Braket account). Actual circuit execution, on the other hand,
   // will incur a cost.
-  my_sim.set_nosim(true);
+  my_sim.set_execute_circuit(false);
 
   // Choose noise-aware placement strategy
   my_sim.set_placement("noise-aware");

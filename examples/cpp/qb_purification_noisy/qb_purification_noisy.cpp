@@ -59,8 +59,8 @@ int main()
 
   // CudaQ has no transpiler, so we need to transpile the circuit to QB's native gate set {rx, ry, cz} first.
   if (s.get_accs()[0][0] == "cudaq:qb_purification" && s.get_noises()[0][0] == true) {
-    // To do this, we simply run the program without executing the circuit, i.e. by setting nosim = True
-    s.set_nosim(true);
+    // To do this, we simply run the program without executing the circuit, i.e. by setting execute_circuit = false
+    s.set_execute_circuit(false);
     s.run();
 
     // Now we can get the transpiled circuit using "out_transpiled_circuit"
@@ -69,8 +69,8 @@ int main()
     // The transpiled circuit is in openQasm, so we feed it back into session via "instring"
     s.set_instring(circ_qasm);
 
-    // Execute the transpiled circuit by setting nosim = False
-    s.set_nosim(false);
+    // Execute the transpiled circuit by setting execute_circuit = true
+    s.set_execute_circuit(true);
   }
 
   // Run the circuit

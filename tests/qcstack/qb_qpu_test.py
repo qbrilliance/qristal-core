@@ -28,16 +28,16 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     }
     '''
     s.instring = targetCircuit
-    s.acc = "loopback"
+    s.acc = "example_hardware_device"
 
     # Set new options
     stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
+    db = safe_load(stream)["example_hardware_device"]
     db["use_default_contrast_settings"] = False
     db["init_contrast_threshold"] = init_thresh
     db["qubit_contrast_thresholds"] = { 0: qubit_0_thresh, 1: qubit_1_thresh }
     stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
+    dump({'example_hardware_device': db}, stream)
     stream.close()
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
 
@@ -52,7 +52,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     # Change the yaml file to just use default contrasts
     db["use_default_contrast_settings"] = True
     stream = open(s.remote_backend_database_path, 'w')
-    dump({'loopback': db}, stream)
+    dump({'example_hardware_device': db}, stream)
     stream.close()
     s.run()
     res = json.loads(s.out_qbjson[0][0])
@@ -79,7 +79,7 @@ def test_CI_230131_cz_arbitrary_rotation():
     }
     '''
     s.instring = targetCircuit
-    s.acc = "loopback"
+    s.acc = "example_hardware_device"
 
     # Run the circuit on the back-end
     s.run()
@@ -107,13 +107,13 @@ def test_CI_230131_arbitrary_rotation():
     }
     '''
     s.instring = targetCircuit
-    s.acc = "loopback"
+    s.acc = "example_hardware_device"
 
     # Run the circuit on the back-end
     s.run()
     assert(s.results[0][0].total_counts() == s.sn[0][0])
 
-def test_CI_230106_1_loopback_6s():
+def test_CI_230106_1_example_hardware_device_6s():
     print("Check 2s and 6s polling interval.")
     import qristal.core
     from yaml import safe_load, dump
@@ -134,14 +134,14 @@ def test_CI_230106_1_loopback_6s():
     }
     '''
     s.instring = targetCircuit
-    s.acc = "loopback"
+    s.acc = "example_hardware_device"
 
     # Set new options (including 6s polling)
     stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
+    db = safe_load(stream)["example_hardware_device"]
     db["poll_secs"] = 6
     stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
+    dump({'example_hardware_device': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     # Run the circuit on the backend
     eltim = timeit.timeit(lambda: s.run(), number=1)
@@ -149,7 +149,7 @@ def test_CI_230106_1_loopback_6s():
 
     # Reset polling to 2s
     db["poll_secs"] = 2
-    dump({'loopback': db}, stream)
+    dump({'example_hardware_device': db}, stream)
     # Run the circuit on the backend
     eltim = timeit.timeit(lambda: s.run(), number=1)
     assert (eltim < 150.0)
@@ -174,7 +174,7 @@ def test_CI_220225_1_init_measure_no_gates() :
     }
     '''
     s.instring = targetCircuit
-    s.acc = "loopback"
+    s.acc = "example_hardware_device"
 
     # Run the circuit on the backend
     s.run()
@@ -205,15 +205,15 @@ def test_reservation():
     s = qristal.core.session()
     s.init()
     s.qn=2
-    s.acc='loopback'
+    s.acc='example_hardware_device'
     s.xasm = True
     s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
     stream = open(s.remote_backend_database_path, 'r')
-    db = safe_load(stream)["loopback"]
+    db = safe_load(stream)["example_hardware_device"]
     db["exclusive_access"] = True
     stream = open(s.remote_backend_database_path + ".temp", 'w')
-    dump({'loopback': db}, stream)
+    dump({'example_hardware_device': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
     s.run()
     assert(s.results[0][0].total_counts() <= s.sn[0][0])

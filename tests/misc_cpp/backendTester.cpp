@@ -60,7 +60,7 @@ CX q[0], q[1];
   my_sim.set_nooptimise(false);
   my_sim.set_noplacement(false);
   // Don't run sim, just checking transpilation
-  my_sim.set_nosim(true);
+  my_sim.set_execute_circuit(false);
   my_sim.run();
 
   const std::string transpiled_circuit_qasm =
@@ -105,7 +105,7 @@ swap q[0], q[1];
   my_sim.set_nooptimise(false);
   my_sim.set_noplacement(false);
   // Don't run sim, just checking transpilation
-  my_sim.set_nosim(true);
+  my_sim.set_execute_circuit(false);
   my_sim.run();
 
   const std::string transpiled_circuit_qasm =

@@ -6,6 +6,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Breaking
 
+- Rename the example hardware device in remote_backends.yaml from "loopback" to "example_hardware_device"
+- Replaced "nosim" option with "execute_circuit"
 - Remove qb-lambda remote accelerator superseded by Qristal vQPU.
 - Retrieve noise models by smart pointer from emulator plugin.
 - Changed "qb" namespace and Python module name to "qristal".
@@ -18,6 +20,9 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- More device-specific diagnostic output if hardware backend cannot be contacted
+- Added ability to skip circuit execution when using hardware backends
+- Added example and test of no-execution conversion of OpenQASM2 circuits to XASM
 - Added documentation and test triggers for the Qristal Virtual QPU (vQPU).
 - Added session::draw_shot function to allow drawing a single random shot from the set of simulated results.
 - Updated all examples and tests to use new output map format.
@@ -48,6 +53,9 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Fixed
 
+- Fixed bug preventing the specification of hardware backend before setting remote backends file path
+- Fixed bug in specifying AWS device in AWS Rigetti example
+- Fixed name of qristal.inc file inside session object
 - Moved the `python_module` sources and includes into the main `src` and `include` paths
 - Sectioned the python help strings off into a header localised to the python module and not associated with the `session` class
 - Moved the session getters and setters exclusively into the `qb::core` library (i.e. so they are no longer built a second time into the python module *and* the core shared library)

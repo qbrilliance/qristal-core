@@ -71,9 +71,9 @@ session::calc_out_counts_ = calc_out_counts;
 const Table2d<bool> & session::get_calc_out_counts() const { return session::calc_out_counts_; }
 //
 void session::set_remote_backend_database_path(const std::string &path) {
-  //reset VALID_ACCS to the hardcoded iniital backends 
-  VALID_ACCS = VALID_ACCS_BKUP;
-  //Add keys from remote_backends_database
+  //Reset VALID_ACCS to the simulator backends
+  VALID_ACCS = VALID_SIMULATOR_ACCS;
+  //Add keys from remote_backend_database
   session::remote_backend_database_path_ = path;
   YAML::Node db = YAML::LoadFile(remote_backend_database_path_);
   for (YAML::const_iterator it = db.begin(); it != db.end(); ++it) {
@@ -83,16 +83,10 @@ void session::set_remote_backend_database_path(const std::string &path) {
 const std::string& session::get_remote_backend_database_path() const { return session::remote_backend_database_path_; }
 //
 void session::set_acc(const std::string &acc) {
-  session::validate_acc(acc);
   session::accs_.clear();
   session::accs_.push_back({acc});
 }
 void session::set_accs(const Table2d<std::string> &accs) {
-  for (auto item : accs) {
-    for (auto im : item) {
-      session::validate_acc(im);
-    }
-  }
   session::accs_ = accs;
 }
 
@@ -196,12 +190,12 @@ const Table2d<Passes> &session::get_circuit_opts() const {
 }
 
 //
-void session::set_nosim(const bool &in_nosim) {
-  session::nosims_.clear();
-  session::nosims_.push_back({in_nosim});
+void session::set_execute_circuit(const bool &in_execute_circuit) {
+  session::execute_circuits_.clear();
+  session::execute_circuits_.push_back({in_execute_circuit});
 }
-void session::set_nosims(const Table2d<bool> &in_nosim) { session::nosims_ = in_nosim; }
-const Table2d<bool> & session::get_nosims() const { return session::nosims_; }
+void session::set_execute_circuits(const Table2d<bool> &in_execute_circuit) { session::execute_circuits_ = in_execute_circuit; }
+const Table2d<bool> & session::get_execute_circuits() const { return session::execute_circuits_; }
 //
 void session::set_noise(const bool &in_noise) {
   session::noises_.clear();
@@ -418,7 +412,7 @@ void session::set_SPAM_correction_matrix(const Eigen::MatrixXd& mat)
 {
   size_t dim = std::pow(2, get_qns()[0][0]);
   assert(mat.rows() == dim && mat.cols() == dim && "Mismatching dimensions of SPAM correction matrix and numbers of qubits!");
-  perform_SPAM_correction_ = true; 
+  perform_SPAM_correction_ = true;
   SPAM_correction_mat_ = mat;
 }
 const Eigen::MatrixXd& session::get_SPAM_correction_matrix() const {
@@ -585,10 +579,10 @@ const std::string session::get_summary() const {
   out << std::endl << std::endl;
   //
 
-  out << "* nosim:" << std::endl <<
-  "    Disable the circuit simulation step" << std::endl <<
+  out << "* execute_circuit:" << std::endl <<
+  "    Disable the circuit execution step" << std::endl <<
   "  = ";
-  for (auto item : get_nosims()) {
+  for (auto item : get_execute_circuits()) {
       for (auto itel : item) {
               out << " " << itel;
       }

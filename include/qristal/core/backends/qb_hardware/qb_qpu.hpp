@@ -37,7 +37,7 @@ namespace xacc
         const int QB_SAFE_LIMIT_SHOTS = 512;
 
         /// Default constructor that just inits the parent class
-        qb_qpu(const bool debug_flag = false) : RemoteAccelerator(), debug(debug_flag) {}
+        qb_qpu(const std::string name, const bool debug_flag = false) : RemoteAccelerator(), debug(debug_flag), qpu_name(name) {}
 
         /// Destructor
         virtual ~qb_qpu() {}
@@ -70,16 +70,21 @@ namespace xacc
         ///
         void initialize(const HeterogeneousMap &params = {}) override;
 
-        /// Initialise the QB hardware (reserve, get native gateset, etc.)
-        void setup_hardware();
+        /// @brief Initialise the QB hardware (reserve, get native gateset, etc.)
+        ///
+        /// @param check_hardware_lifesigns Check for a response from the hardware
+        ///
+        void setup_hardware(bool check_hardware_lifesigns);
 
         /// @brief Submit the circuit with HTTP POST to QB hardware and poll for results with HTTP GET
         ///
         /// @param buffer Output location and storage of intermediate results
         /// @param functions Input circuit in XACC IR format
+        /// @param execute_circuit Actually send the circuit to the hardware for execution
         ///
         void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-         const std::vector<std::shared_ptr<CompositeInstruction>> functions) override;
+         const std::vector<std::shared_ptr<CompositeInstruction>> functions,
+         bool execute_circuit);
 
         /// @brief Converts the circuit to a representation that QB hardware accepts
         ///
@@ -109,6 +114,7 @@ namespace xacc
       protected:
 
         bool debug;
+        std::string qpu_name;
 
         /// Command
         std::string command = "circuit";

@@ -1,4 +1,4 @@
-loopback:
+example_hardware_device:
   url: https://localhost:8443
   poll_secs: 2
   poll_retries: 100

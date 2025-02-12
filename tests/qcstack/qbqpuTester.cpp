@@ -10,9 +10,9 @@ using json = nlohmann::json;
 
 TEST(qbqpuTester, testInstantiation)
 {
-  auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>(true);
+  auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>("test_qbqpu", true);
   std::cout << "* Signature: " << hardware_device->getSignature() << std::endl;
-  EXPECT_EQ(hardware_device->getSignature(), "QB hardware:");
+  EXPECT_EQ(hardware_device->getSignature(), "test_qbqpu:");
 }
 
 TEST(qbqpuTester, testInstantiationGetDetails)
@@ -24,7 +24,7 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   int n_qubits = 4;
   std::vector<uint> init_qubits(n_qubits, 0);
 
-  auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>(true);
+  auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>("test_qbqpu", true);
   std::vector<std::string> config_qb_qdk = hardware_device->configurationKeys();
   xacc::HeterogeneousMap mm = hardware_device->getProperties();
 
@@ -32,7 +32,7 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   for (std::string cel : config_qb_qdk) std::cout << "    " << cel << std::endl;
 
   YAML::Node db = YAML::LoadFile("remote_backends.yaml");
-  const std::string url = db["loopback"]["url"].as<std::string>();
+  const std::string url = db["example_hardware_device"]["url"].as<std::string>();
   mm.insert("url", url.back() == '/' ? url : url + '/');
   mm.insert("shots", shots);
   mm.insert("poll_secs", poll_secs);
@@ -86,10 +86,10 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   std::cout << "* Processed input into: " << retresult.dump(4) << std::endl;
 
   // Set up QB hardware
-  hardware_device->setup_hardware();
+  hardware_device->setup_hardware(true);
 
   // Proceed to RemoteAccelerator::execute(buffer, ir->getComposites())
-  hardware_device->execute(buffer, ir->getComposites());
+  hardware_device->execute(buffer, ir->getComposites(), true);
   std::cout << "* HTTP POST done..." << std::endl;
 
   // Delay until it is time to poll for results

@@ -112,11 +112,11 @@ namespace qristal
   /// Default session constructor
   session::session()
       : name_m{{}}, number_m{{}}, infiles_{{}},
-        include_qbs_{{SDK_DIR "/include/qb/core/qblib.inc"}},
+        include_qbs_{{SDK_DIR "/include/qb/core/qristal.inc"}},
         instrings_{{}}, irtarget_ms_{{}}, accs_{{"qpp"}},
         aer_sim_types_{}, randoms_{{}},
         xasms_{{{false}}}, quil1s_{{{false}}}, noplacements_{{{false}}},
-        nooptimises_{{{true}}}, nosims_{{{false}}}, noises_{{{false}}},
+        nooptimises_{{{true}}}, execute_circuits_{{{true}}}, noises_{{{false}}},
         output_oqm_enableds_{{{false}}},
         notimings_{{{false}}}, qns_{{}}, sns_{{}},
         calc_out_counts_{{{false}}}, calc_jacobians_{{{false}}}, parameter_vectors_{{{}}},
@@ -624,14 +624,14 @@ namespace qristal
       config.no_optimise = nooptimises_valid.get(ii, jj);
     }
 
-    /// Skip simulation flag
+    /// Circuit execution flag
     {
-      ValidatorTwoDim<bool> nosims_valid(nosims_, false, true, " disable circuit simulator [nosim] ");
-      if (nosims_valid.is_data_empty())
+      ValidatorTwoDim<bool> execute_circuits_valid(execute_circuits_, false, true, " enable execution of circuit [execute_circuit] ");
+      if (execute_circuits_valid.is_data_empty())
       {
-        throw std::range_error("Flag for disabling circuit simulator [nosim] cannot be empty");
+        throw std::range_error("Flag for enabling execution of circuit [execute_circuit] cannot be empty");
       }
-      config.no_sim = nosims_valid.get(ii, jj);
+      config.execute_circuit = execute_circuits_valid.get(ii, jj);
     }
 
     /// Enable/disable noise flag
@@ -1166,6 +1166,9 @@ namespace qristal
 
   void session::validate_run() {
 
+    // Allowed backend
+    for (auto i : accs_) for (auto acc : i) session::validate_acc(acc);
+
     // Shape consistency
     const int N_ii = is_ii_consistent();
     const int N_jj = is_jj_consistent();
@@ -1268,7 +1271,7 @@ namespace qristal
     std::cerr << "│ Warning: Called run() with automatic SPAM measurement! │" << std::endl;
     std::cerr << "│        I will execute a new SPAM benchmark now!        │" << std::endl;
     std::cerr << "╰────────────────────────────────────────────────────────╯" << std::endl;
-    //(1) create a copy of this session and set the numbers of shots 
+    //(1) create a copy of this session and set the numbers of shots
     session sim_cp = *this;
     if (n_shots == 0) {
       n_shots = sns_[0][0];
@@ -1276,7 +1279,7 @@ namespace qristal
     sim_cp.set_sn(n_shots);
 
     //(2) execute and evaluate a SPAM benchmark
-    std::set<size_t> qubits; 
+    std::set<size_t> qubits;
     for (size_t q = 0; q < qns_[0][0]; ++q) {
       qubits.insert(q);
     }
@@ -1284,7 +1287,7 @@ namespace qristal
     qristal::benchmark::ConfusionMatrix<qristal::benchmark::SPAMBenchmark> metric(workflow);
     auto confusion = metric.evaluate(true).begin()->second;
 
-    //(3) enable automatic SPAM correction 
+    //(3) enable automatic SPAM correction
     set_SPAM_confusion_matrix(confusion);
 
     //(4) continue with normal run()
@@ -1542,7 +1545,7 @@ namespace qristal
 
     bool noplacement = run_config.no_placement;
     bool nooptimise = run_config.no_optimise;
-    bool nosim = run_config.no_sim;
+    bool execute_circuit = run_config.execute_circuit;
     std::stringstream debug_msg;
     if (debug_) {
       switch (run_config.source_type) {
@@ -1581,7 +1584,7 @@ namespace qristal
     // Load the remote backend database
     remote_backend_database_ = YAML::LoadFile(remote_backend_database_path_);
 
-    // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS or Lambda.
+    // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS.
     const bool exec_on_hardware = run_config.acc_name != "aws-braket" and
                                   remote_backend_database_[run_config.acc_name];
 
@@ -1725,7 +1728,21 @@ namespace qristal
 
     xacc::ScopeTimer timer_for_qpu(
         "Walltime, in ms, for simulator to execute quantum circuit", false);
-    if (!nosim && !exec_on_hardware) {
+    if (exec_on_hardware) {
+      // Hardware execution
+      // We don't expect to run this in an async. context (e.g., an acceletor instance from a pool)
+      assert(!accelerator && !optional_mutex);
+      std::shared_ptr<xacc::quantum::qb_qpu> hardware_device = std::make_shared<xacc::quantum::qb_qpu>(run_config.acc_name, debug_);
+      hardware_device->updateConfiguration(mqbacc);
+      if (debug_) std::cout << "# " << run_config.acc_name << " accelerator: initialised" << std::endl;
+
+      // Execute (and polling wait)
+      execute_on_qb_hardware(hardware_device, buffer_b, citargets, run_config, debug_);
+
+      // Store the JSON sent to the QB hardware for the user to inspect
+      out_qbjsons_.at(ii).at(jj) = hardware_device->get_qbjson();
+
+    } else if (execute_circuit) {
       try {
         if (debug_) {
           debug_msg << "# "
@@ -1756,21 +1773,8 @@ namespace qristal
         throw std::invalid_argument(
             "The simulation of your input circuit failed");
       }
-    } else if (exec_on_hardware) {
-      // Hardware execution
-      // We don't expect to run this in an async. context (e.g., an acceletor instance from a pool)
-      assert(!accelerator && !optional_mutex);
-      std::shared_ptr<xacc::quantum::qb_qpu> hardware_device = std::make_shared<xacc::quantum::qb_qpu>(debug_);
-      hardware_device->updateConfiguration(mqbacc);
-      if (debug_) std::cout << "# " << run_config.acc_name << " accelerator: initialised" << std::endl;
-
-      // Execute (and polling wait)
-      execute_on_qb_hardware(hardware_device, buffer_b, citargets, run_config, debug_);
-
-      // Store the JSON sent to the QB hardware for the user to inspect
-      out_qbjsons_.at(ii).at(jj) = hardware_device->get_qbjson();
-
     }
+
     // ==============================================
     // ------------  Post processing  ---------------
     // ==============================================
@@ -1817,7 +1821,7 @@ namespace qristal
     }
 
     // Get Z operator expectation:
-    if (!run_config.no_sim) {
+    if (run_config.execute_circuit) {
       if (buffer_b->hasExtraInfoKey("ro-fixed-exp-val-z") ||
           buffer_b->hasExtraInfoKey("exp-val-z") ||
           (!buffer_b->getMeasurementCounts().empty())) {
@@ -1858,7 +1862,7 @@ namespace qristal
 
     // Get counts
     const auto& counts_map = buffer_b->getMeasurementCounts();
-    if (!run_config.no_sim) {
+    if (run_config.execute_circuit) {
       // Save the counts to results_
       populate_measure_counts_data(ii, jj, counts_map);
       // If required to calculate gradients, do it now
@@ -1900,7 +1904,7 @@ namespace qristal
       std::cerr << "│ `results` will be overwritten by SPAM-corrected counts │" << std::endl;
       std::cerr << "│  Native results can be retrieved from `results_native` │" << std::endl;
       std::cerr << "╰────────────────────────────────────────────────────────╯" << std::endl;
-      results_native_ = results_; 
+      results_native_ = results_;
       //overwrite results_ with SPAM-corrected counts
       results_.clear();
       for (const auto& counts_list : results_native_) {

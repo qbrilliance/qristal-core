@@ -20,7 +20,7 @@ def test_cz_optimization():
     s.nooptimise = False
     s.noplacement = True
     s.notiming = True
-    s.nosim = True
+    s.execute_circuit = False
     s.run()
     print(s.out_transpiled_circuit[0][0])
     # Use xacc to recompile the transpiled qasm for validation
@@ -41,7 +41,7 @@ def test_cz_placement():
     s.nooptimise = True
     s.noplacement = False
     s.notiming = True
-    s.nosim = True
+    s.execute_circuit = False
     s.run()
     print(s.out_transpiled_circuit[0][0])
     # Use xacc to recompile the transpiled qasm for validation
@@ -84,7 +84,7 @@ def test_cphase_simple():
     circ_qristal = qristal.core.Circuit()
     circ_qristal.cphase(0, 1, theta)
     my_sim.ir_target = circ_qristal
-    my_sim.nosim = True
+    my_sim.execute_circuit = False
     my_sim.run()
     transpiled_circ_qristal = my_sim.out_transpiled_circuit[0][0]
 
@@ -102,3 +102,27 @@ def test_cphase_simple():
         elif ir_aer.getInstruction(i).name() == "CZ":
             assert(ir_aer.getInstruction(i).name() == ir_qristal.getInstruction(i).name())
             assert(ir_aer.getInstruction(i).bits() == ir_qristal.getInstruction(i).bits())
+
+def test_xasm_output():
+    print(" Testing QB machine code (XASM) output.")
+    import qristal.core
+    import json
+    my_sim = qristal.core.session()
+    my_sim.init()
+    my_sim.execute_circuit = False
+    my_sim.acc = "example_hardware_device"
+    my_sim.qn = 2
+    my_sim.instring = '''
+    __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
+    {
+      OPENQASM 2.0;
+      include "qelib1.inc";
+      creg c[2];
+      h q[0];
+      cx q[1],q[0];
+      measure q[0] -> c[0];
+      measure q[1] -> c[1];
+    }
+    '''
+    my_sim.run()
+    assert(json.loads(my_sim.out_qbjson[0][0])["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'CZ(q[1],q[0])', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)'])

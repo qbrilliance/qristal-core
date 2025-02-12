@@ -42,7 +42,7 @@
                                           [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
         --noplacement                     Disable placement mapping
         --optimise                        Enable circuit optimiser
-        --nosim                           Skip simulation
+        --execute_circuit                 Perform actual execution of the circuit; default: true
       * Random circuit options
         --random=[#random_circuit_depth]  --random=20 will sample and analyse
                                           quantum random circuits of [#qubits]
