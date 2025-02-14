@@ -1302,9 +1302,6 @@ namespace qristal
     std::vector<double> param_vals = parameter_vectors_.at(ii).at(jj);
     Table2d<std::shared_ptr<xacc::CompositeInstruction>> gradient_circs;
     size_t num_params = param_vals.size();
-    if (target_circuit->nVariables() <= 0 or num_params != target_circuit->nVariables()) throw
-     std::logic_error("This circuit is not parametrized correctly, so gradients cannot be calculated.");
-
     // Calculate param-shift gradient
     for (size_t i = 0; i < 2*num_params; i+=2) {
       std::vector<double> vals(param_vals);
@@ -1617,7 +1614,7 @@ namespace qristal
         // Direct IR input (e.g., circuit builder)
         std::shared_ptr<xacc::CompositeInstruction> in_circ = irtarget_ms_.at(ii).at(0);
         if (in_circ->nVariables() > 0) {
-          in_circ = in_circ->operator()(parameter_vectors_.at(ii).at(0));
+          in_circ = in_circ->operator()(parameter_vectors_.at(ii).at(jj));
         }
         citargets.push_back(in_circ);
       } else {

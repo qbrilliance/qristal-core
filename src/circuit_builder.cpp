@@ -14,8 +14,8 @@ namespace qristal
       : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
     if (copy_nodes) {
       circuit_ = gate_provider_->createComposite("QBSDK_circuit");
-      circuit_->addInstructions(composite->getInstructions());
       circuit_->addVariables(composite->getVariables());
+      circuit_->addInstructions(composite->getInstructions());
     } else {
       circuit_ = composite;
     }
