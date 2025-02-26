@@ -308,7 +308,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 
 These parameters are currently `qristal.core.session` attributes.
 
-**Example**: `test_random_seed_tnqvm()` in `tests/python_module/execution_test.py`
+**Example**: `qft.py`
 
 
 ### Aer MPS: `aer` (`matrix_product_state`)
@@ -326,7 +326,7 @@ These parameters are currently `qristal.core.session` attributes.
 
 These parameters are currently `qristal.core.session` attributes.
 
-**Example**: `aer_simulator/aer_mps_simple.py`
+**Example**: `qft.py`
 
 
 ### Amazon Braket TN1: `aws-braket` (TN1)
@@ -369,7 +369,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 **Parameters**: None
 
-**Example**: `tests/python_module/cudaq_integration.py`
+**Example**: `qft.py`
 
 
 ### Amazon Braket DM1: `aws-braket` (DM1)
@@ -413,6 +413,6 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 These parameters are currently `qristal.core.session` attributes.
 
-**Example**:
+**Example**: `qft.py`
 
 **Notes**: Noise must be enabled in order to use this simulator.  This is done by setting the `qristal.core.session` attribute `noise = True`.

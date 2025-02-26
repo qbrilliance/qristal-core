@@ -47,21 +47,13 @@ _noise_: false
 
 The 2-qubit Bell state quickstart example given in the README of the main project.
 
-`aer_simulator/aer_mps_simple.py`
-
-_qubits_: 2
-_gate depth_: 6
-_noise_: true
-
-Example usage of the aer matrix-product-state-based simulator for computing a 2-qubit Bell state circuit.
-
-`aer_simulator/aer_mps_dj_large.py`
+`dj_large.py`
 
 _qubits_: 41
 _gate depth_: 204
 _noise_: true
 
-Example usage of the aer matrix-product-state-based simulator for computing a larger Deutsch-Jozsa circuit.  This example may take some time to run.
+A relatively large Deutsch-Jozsa circuit example. This example may take some time to run.
 
 `amcu.py`
 
@@ -374,7 +366,7 @@ Demonstrates the use of the QAOA and QUBO APIs at a QAP problem. This example ma
 _qubits_: 5
 _noise_: false
 
-Example of a quantum Fourier transform.
+Example of a quantum Fourier transform. This example runs 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) in parallel.
 
 `qpe.py`
 
@@ -536,6 +528,13 @@ _qaoa_steps_: 2
 _noise_: false
 
 Demonstrates the use of Qristal's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
+
+`qft`
+
+_qubits_: 5
+_noise_: false
+
+Example of a quantum Fourier transform using 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) in parallel.
 
 `qristal_cli`
 

@@ -1,0 +1,24 @@
+# Copyright (c) Quantum Brilliance Pty Ltd
+#
+# Demonstration of a quantum Fourier circuit
+# running multiple accelerator backends in
+# parallel in C++
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(qft
+  DESCRIPTION "Quantum Brilliance QFT example with multiple backends in parallel"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+add_executable(qft qft.cpp)
+
+target_link_libraries(qft
+  PRIVATE
+    qristal::core
+)
