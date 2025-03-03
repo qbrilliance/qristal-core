@@ -101,7 +101,40 @@ void session::validate_acc(const std::string &acc) {
   }
 }
 const Table2d<std::string> & session::get_accs() const { return session::accs_; }
-//
+
+void session::validate_max_qubits_acc(size_t &num_qubits, std::string acc, std::string &aer_sim_type) {
+  if (acc == "aer") {
+    if (aer_sim_type == "statevector") {
+      acc = "aer_statevector";
+    } else if (aer_sim_type == "density_matrix") {
+      acc = "aer_density_matrix";
+    }
+  }
+
+  auto it = MAX_QUBITS_ACCS.find(acc);
+  if (it != MAX_QUBITS_ACCS.end() && num_qubits > it->second) {
+    std::cout << "Warning: The selected accelerator may not support the requested number of qubits.\n";
+  }
+}
+
+void session::validate_gate_noise(NoiseModel* &noise_model) {
+  std::string qobj_compiler = noise_model->get_qobj_compiler();
+  std::vector<std::string> basis_gates = noise_model->get_qobj_basis_gates();
+
+  std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> noise_channels = noise_model->get_noise_channels();
+  for (const auto &[gate, channel] : noise_channels) {
+    auto it = std::find(basis_gates.begin(), basis_gates.end(), gate);
+    if (it == basis_gates.end()) {
+      std::cout << "Warning: Supplied gate " << gate << " is not a basis gate of the chosen backend; noise will not be applied on this gate. Please set the correct qobj_compiler.\n";
+      std::cout << "Current qobj_compiler: " << qobj_compiler << ", has basis gates: { ";
+      for (size_t i = 0; i < basis_gates.size(); i++) {
+        std::cout << basis_gates[i] << " ";
+      }
+      std::cout << "} \n";
+    }
+  }
+}
+
 void session::set_aer_sim_type(const std::string &sim_type) {
   validate_aer_sim_type(sim_type);
   aer_sim_types_.clear();

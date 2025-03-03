@@ -1169,6 +1169,18 @@ namespace qristal
     // Allowed backend
     for (auto i : accs_) for (auto acc : i) session::validate_acc(acc);
 
+    for (size_t i = 0; i < accs_.size(); i++) {
+      for (size_t j = 0; j < accs_[i].size(); j++) {
+        // Maximum number of qubits for backend
+        session::validate_max_qubits_acc(qns_[i][j], accs_[i][j], aer_sim_types_[i][j]);
+
+        if (accs_[i][j] == "aer" && noises_[i][j] && !noise_models_[i].empty()) {
+          // Check if noise model contains the native gate set of the backend
+          session::validate_gate_noise(noise_models_[i][j]);
+        }
+      }
+    }
+
     // Shape consistency
     const int N_ii = is_ii_consistent();
     const int N_jj = is_jj_consistent();

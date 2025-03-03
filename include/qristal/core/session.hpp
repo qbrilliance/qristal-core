@@ -19,6 +19,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 // YAML
@@ -172,6 +173,19 @@ namespace qristal
         "statevector",
         "density_matrix",
         "matrix_product_state"
+      };
+
+      // Recommended maximum qubit number for selected accelerator type
+      const std::unordered_map<std::string, size_t> MAX_QUBITS_ACCS = {
+        std::make_pair("aer_density_matrix", 14),
+        std::make_pair("aer_statevector", 28),
+        std::make_pair("cirq-qsim", 28),
+        std::make_pair("cudaq:custatevec_fp32", 28),
+        std::make_pair("cudaq:custatevec_fp64", 28),
+        std::make_pair("cudaq:dm", 14),
+        std::make_pair("cudaq:qpp", 28),
+        std::make_pair("qpp", 28),
+        std::make_pair("qsim", 28)
       };
 
       std::unordered_set<std::string> VALID_ERROR_MITIGATIONS = {
@@ -1167,6 +1181,8 @@ namespace qristal
       int validate_qns_nonempty();
       int validate_instrings();
       void validate_acc(const std::string &acc);
+      void validate_max_qubits_acc(size_t &num_qubits, std::string acc, std::string &aer_sim_type);
+      void validate_gate_noise(NoiseModel* &noise_model);
       void validate_noise_mitigation(const std::string &noise_mitigate);
       void validate_aer_sim_type(const std::string &sim_type);
       void validate_measure_sample_options(const std::string &measure_sample_options);
