@@ -396,7 +396,17 @@ namespace qristal
     KrausOperator::Matrix kraus_to_superoperator(const NoiseChannel& noise_channel) {
       return eigen_to_matrix(kraus_to_superoperator(noise_channel_to_eigen(noise_channel)));
     }
+    
+    Eigen::MatrixXcd choi_to_process(const Eigen::MatrixXcd &choi){
+      //transform choi matrix in computational basis (|0..0><0..0|, ..., |1..1><1..1|) to Pauli basis (II..I, II..X, ..., ZZ..Z)
+      const size_t n_qubits = std::log2(choi.rows()) / 2;
+      auto T = get_computational_to_pauli_transform(n_qubits);
+      return 1.0 / std::pow(4, n_qubits) * T * choi * T.adjoint(); //return transformed process matrix
+    }
 
+    Eigen::MatrixXcd superoperator_to_process(const Eigen::MatrixXcd &superop){
+        return choi_to_process(superoperator_to_choi(superop));
+    }
     //================================================================================================================================
 
     NoiseChannel eigen_to_noisechannel(const std::vector<Eigen::MatrixXcd>& kraus_mats) {
@@ -496,7 +506,7 @@ namespace qristal
         const Eigen::VectorXd& channel_params) {
       // Generate noisy process matrix by creating an ideal process matrix and acting the noise channel
       // matrices on it.
-      Eigen::MatrixXcd process_matrix = Eigen::MatrixXcd::Zero(std::pow(2, 2*nb_qubits), std::pow(2, 2*nb_qubits));
+      Eigen::MatrixXcd process_matrix = Eigen::MatrixXcd::Identity(std::pow(2, 2*nb_qubits), std::pow(2, 2*nb_qubits));
       size_t num_previous_params = 0;
       for (const auto &[qubits, channels] : channel_list) {
         // Calculate the number of total parameters for all channels in channel_list
@@ -525,7 +535,7 @@ namespace qristal
 
           // Expand the vector space of the 1-qubit process matrix to N-qubit vector space
           Eigen::MatrixXcd process_matrix_Nqubit = expandProcessMatrixSpace(qubits, nb_qubits, noisy_process_mat_super);
-          process_matrix += process_matrix_Nqubit;
+          process_matrix *= process_matrix_Nqubit;
         } else if (qubits.size() == 2) {
           // 2-qubit gates are angle-independent, hence a 2-qubit system's noiseless process matrix is just
           // a 4^N x 4^N identity matrix. The corresponding noisy process matrix can then be obtained by acting
@@ -535,7 +545,7 @@ namespace qristal
           // Get 2-qubit depolarization channel as an N-qubit process matrix
           Eigen::MatrixXcd depol_2qubit_process_mat = create2QubitDepolProcessMatrix(qubits, nb_qubits, channel_param_1qubit(0));
           Eigen::MatrixXcd depol_2qubit_process_mat_super = process_to_superoperator(depol_2qubit_process_mat);
-          process_matrix += depol_2qubit_process_mat;
+          process_matrix *= depol_2qubit_process_mat;
         }
       }
 
@@ -935,6 +945,7 @@ namespace qristal
 
     Eigen::MatrixXcd expandProcessMatrixSpace(const std::vector<size_t>& qubit_idx, const size_t& nb_qubits,
         const Eigen::MatrixXcd& process_matrix_1qubit) {
+      Eigen::MatrixXcd temp = qristal::superoperator_to_process(process_matrix_1qubit);
       // Expand the vector space of the 1-qubit process matrix to N-qubit vector space
       Eigen::MatrixXcd process_matrix_Nqubit;
       size_t num_left_qubits = qubit_idx[0];
@@ -945,12 +956,14 @@ namespace qristal
         num_right_qubits = nb_qubits - qubit_idx[1] - 1;
       }
 
-      Eigen::MatrixXcd Id_left = Eigen::MatrixXcd::Identity(std::pow(2, 2*num_left_qubits), std::pow(2, 2*num_left_qubits));
-      Eigen::MatrixXcd Id_right = Eigen::MatrixXcd::Identity(std::pow(2, 2*num_right_qubits), std::pow(2, 2*num_right_qubits));
-      process_matrix_Nqubit = Eigen::kroneckerProduct(Id_left, process_matrix_1qubit).eval();
+      Eigen::MatrixXcd Id_left = Eigen::MatrixXcd::Zero(std::pow(2, 2*num_left_qubits), std::pow(2, 2*num_left_qubits));
+      Id_left(0, 0) = 1.0;
+      Eigen::MatrixXcd Id_right = Eigen::MatrixXcd::Zero(std::pow(2, 2*num_right_qubits), std::pow(2, 2*num_right_qubits));
+      Id_right(0, 0) = 1.0;
+      process_matrix_Nqubit = Eigen::kroneckerProduct(Id_left, temp).eval();
       process_matrix_Nqubit = Eigen::kroneckerProduct(process_matrix_Nqubit, Id_right).eval();
 
-      return process_matrix_Nqubit;
+      return qristal::process_to_superoperator(process_matrix_Nqubit);
     }
 
     Eigen::MatrixXcd create2QubitDepolProcessMatrix(const std::vector<size_t>& depol_qubits, const size_t& nb_qubits,
@@ -976,4 +989,64 @@ namespace qristal
       // Build up full matrix and return
       return process_mat_diagonal.asDiagonal();
     }
+
+  //----------------------------------------------- Partial trace --------------------------------------------------
+
+  size_t get_index(const size_t n_qubits, const std::set<size_t>& indices, size_t index){
+    size_t result = 0;
+    for (auto it = indices.rbegin(); it != indices.rend(); ++it) {
+      result += std::pow(4, n_qubits - *it - 1) *  (index % 4);
+      index /= 4;
+    }
+    return result;
+  }
+
+  //internal partial trace function called by the exposed partialTraceProcessMatrixKeep and partialTraceProcessMatrixRemove
+  Eigen::MatrixXcd partialTraceProcessMatrix(
+      const Eigen::MatrixXcd& full, 
+      const std::set<size_t>& kept_indices, 
+      const std::set<size_t>& removed_indices
+  ) {
+    //initialize result matrix
+    size_t new_size = std::pow(2, 2*kept_indices.size());
+    size_t n_qubits = std::log2(full.rows())/2; 
+    Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(new_size, new_size);
+
+    //perform partial trace
+    size_t sum_size = full.rows() / new_size;
+    for (size_t i = 0; i < result.rows(); ++i) {
+      size_t index_i = get_index(n_qubits, kept_indices, i);
+      for (size_t j = 0; j < result.cols(); ++j) {
+        size_t index_j = get_index(n_qubits, kept_indices, j);
+        for (size_t k = 0; k < sum_size; ++k) { //summation index
+          size_t index_out = get_index(n_qubits, removed_indices, k);
+          size_t left = index_i + index_out;
+          size_t right = index_j + index_out;
+          result(i,j) += full(left, right); 
+        } 
+      }
+    }
+    return result;
+  }
+
+  std::set<size_t> getComplementarySet(const size_t n, const std::set<size_t>& s) {
+    std::set<size_t> complement;
+    for (size_t i = 0; i < n; ++i) {
+      if (s.find(i) == s.end()) {
+        complement.insert(i);
+      }
+    }
+    return complement;
+  }
+
+  Eigen::MatrixXcd partialTraceProcessMatrixKeep(const Eigen::MatrixXcd& full, const std::set<size_t>& indices) {    
+    size_t n_qubits = std::log2(full.rows())/2; 
+    return partialTraceProcessMatrix(full, indices, getComplementarySet(n_qubits, indices));
+  }
+
+  Eigen::MatrixXcd partialTraceProcessMatrixRemove(const Eigen::MatrixXcd& full, const std::set<size_t>& indices) {
+    size_t n_qubits = std::log2(full.rows())/2; 
+    return partialTraceProcessMatrix(full, getComplementarySet(n_qubits, indices), indices);
+  }
+
 }

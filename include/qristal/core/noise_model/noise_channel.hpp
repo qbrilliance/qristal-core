@@ -10,6 +10,8 @@
 #include <tuple>
 #include <optional>
 #include <iostream>
+#include <algorithm>
+#include <set>
 
 namespace qristal
 {
@@ -813,6 +815,65 @@ namespace qristal
      */
     Eigen::MatrixXcd create2QubitDepolProcessMatrix(const std::vector<size_t>& depol_qubits, const size_t& nb_qubits,
         const double& p);
+
+    /**
+     * @brief Helper function returning the complementary set of an arbitrary subset of the elements [0, n-1]. 
+     * Example: n = 4, s = {0, 2} returns {1, 3} 
+     * 
+     * @param n: unsigned integer defining the maximum range of the subset.  
+     * @param s: aribtrary ordered subset in the range [0, n-1].
+     * 
+     * @return std::set<size_t>: the complementary set to s.
+     */
+    std::set<size_t> getComplementarySet(const size_t n, const std::set<size_t>& s);
+
+    /**
+     * @brief Trace out all qubit indices except a given list of qubit indices from an arbitrary n-qubit process matrix.
+     * 
+     * @param full: N-qubit process matrix that will be traced out.
+     * @param indices: set of qubit indices that remain after tracing out.
+     * 
+     * @return Eigen::MatrixXcd: traced out indices.size() qubit process matrix. 
+     */
+    Eigen::MatrixXcd partialTraceProcessMatrixKeep(const Eigen::MatrixXcd& full, const std::set<size_t>& indices);
+    
+    /**
+     * @brief Trace out an arbitrary set of qubit indices from an arbitrary n-qubit process matrix.
+     * 
+     * @param full: N-qubit process matrix that will be traced out.
+     * @param indices: set of qubit indices to be traced out.
+     * 
+     * @return Eigen::MatrixXcd: traced out N - indices.size() qubit process matrix. 
+     */
+    Eigen::MatrixXcd partialTraceProcessMatrixRemove(const Eigen::MatrixXcd& full, const std::set<size_t>& indices);
+
+    /**
+     * @brief Convert an Eigen-based Choi matrix to its Eigen-based standard process matrix representation.
+     * 
+     * Arguments: 
+     * @param choi the Eigen-based (Eigen::MatrixXcd) Choi process matrix in the computational basis ordered in 
+     * ascending bit string order (|0..0><0..0|, |0..0><0..1|, ..., |1..1><1..0|, |1..1><1..1|)
+     * 
+     * @return Process matrix in the standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z 
+     * 
+     * @details This function transforms an arbitrary Eigen-based Choi matrix to the standard process matrix representation
+     * by applying a basis transformation obtained via (1/sqrt(d))*get_computational_to_pauli_transform.adjoint().
+     */
+    Eigen::MatrixXcd choi_to_process(const Eigen::MatrixXcd &choi);
+
+    /**
+     * @brief Convert an Eigen-based process matrix in superoperator representation to its Eigen-based standard 
+     * representation.
+     * 
+     * Arguments: 
+     * @param superop the Eigen-based superoperator matrix representation of the quantum process.
+     *
+     * @return  Process matrix in the standard Pauli basis ordered from II..I, II..X, ... ZZ..Y, ZZ..Z
+     * 
+     * @details This function transforms an arbitrary process matrix in superoperator representation to its standard 
+     * representation by calling superoperator_to_choi followed by choi_to_process.
+     */
+    Eigen::MatrixXcd superoperator_to_process(const Eigen::MatrixXcd &superop);
 }
 
 #endif

@@ -304,7 +304,7 @@ Eigen::MatrixXcd evolve_density_superop(const Eigen::MatrixXcd& superop, const E
   return result;
 }
 
-TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
+TEST(NoiseChannelTester, checkConversions) {
   const size_t n_qubits = 3; 
   std::uniform_real_distribution<double> gen(-1.0*std::numbers::pi, std::numbers::pi);
   std::default_random_engine re;
@@ -336,6 +336,7 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   Eigen::MatrixXcd process_mat = Eigen::kroneckerProduct(Rx, Rz).eval(); 
   process_mat = Eigen::kroneckerProduct(process_mat, Ry).eval();
 
+
   //transform to Choi matrix: 
   auto choi_mat = qristal::process_to_choi(process_mat);
 
@@ -349,6 +350,12 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   auto kraus_mats_1 = qristal::choi_to_kraus(choi_mat);
   auto kraus_mats_2 = qristal::process_to_kraus(process_mat); //also test the direct call
 
+  //transform from choi to process:
+  Eigen::MatrixXcd process_c = qristal::choi_to_process(choi_mat); 
+
+  //transform superoperator to process: 
+  Eigen::MatrixXcd process_s = qristal::superoperator_to_process(superop_2);
+
   //initialize random density 
   Eigen::Vector<std::complex<double>, Eigen::Dynamic> state = Eigen::Vector<std::complex<double>, Eigen::Dynamic>::Random(std::pow(2, n_qubits));
   state.normalize();
@@ -356,6 +363,8 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
 
   //evolve density with process matrix
   auto evolved_density_process = evolve_density_process(process_mat, density);
+  auto evolved_density_process_c = evolve_density_process(process_c, density);
+  auto evolved_density_process_s = evolve_density_process(process_s, density);
   //evolve density with choi matrix
   auto evolved_density_choi = evolve_density_choi(choi_mat, density);
   //evolve density with superoperator matrix 
@@ -371,10 +380,15 @@ TEST(NoiseChannelTester, checkProcess2Choi2Kraus) {
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_superop_2, 1e-14));
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_1, 1e-14));
   EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_kraus_2, 1e-14));
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_process_c, 1e-14));
+  EXPECT_TRUE(evolved_density_process.isApprox(evolved_density_process_s, 1e-14));
+  
+  //check transformation to process
+  EXPECT_TRUE(process_c.isApprox(process_mat, 1e-14)); //check transformation from choi to process
+  EXPECT_TRUE(process_s.isApprox(process_mat, 1e-14)); //check transformation from superoperator to process
 
   //final check: transform to kraus matrices to NoiseChannel and back to Choi matrix 
   auto choi_mat2 = qristal::kraus_to_choi(kraus_mats_1);
-
   EXPECT_TRUE(choi_mat.isApprox(choi_mat2, 1e-14));
 }
 
@@ -1083,3 +1097,99 @@ TEST(NoiseChannelTester, check_basic_interpolation) {
     EXPECT_TRUE(correct.isApprox(new_channels, 1e-12)); 
   }
 }
+
+TEST(NoiseChannelTester, testexpandProcessMatrixSpace) {
+  //In this test: Create a random (ideal) 1-qubit process matrix, expand it to up to n qubit space 
+  //and check correct density evolution 
+  std::uniform_real_distribution<double> gen(0, 2.0 * std::numbers::pi);
+  std::default_random_engine re;
+  Eigen::MatrixXcd chi = qristal::createIdealU3ProcessMatrix(gen(re), gen(re), gen(re)); 
+  Eigen::MatrixXcd I_process = Eigen::MatrixXcd::Zero(4, 4);
+  I_process(0, 0) = 1.0; 
+
+  //initialize random 1-qubit density 
+  Eigen::VectorXcd state = Eigen::VectorXcd::Random(2);
+  state.normalize();
+  Eigen::MatrixXcd density = state * state.adjoint();
+  Eigen::MatrixXcd I_density = Eigen::MatrixXcd::Zero(2, 2);
+  I_density(0, 0) = 1.0; 
+
+  Eigen::MatrixXcd correct_evolution = evolve_density_process(chi, density);
+
+  const size_t max_n_qubits = 4;
+  for (size_t n_qubits = 1; n_qubits <= max_n_qubits; ++n_qubits) {
+    for (size_t q_idx = 0; q_idx < n_qubits; ++q_idx) {
+      //(1) build up n_qubit density matrix and n qubit evolved density matrix 
+      Eigen::MatrixXcd n_density = Eigen::MatrixXcd::Ones(1, 1);
+      Eigen::MatrixXcd correct_n_evolved_density = Eigen::MatrixXcd::Ones(1, 1);
+      for (size_t q = 0; q < n_qubits; ++q) {
+        if (q == q_idx) {
+          n_density = Eigen::kroneckerProduct(n_density, density).eval();
+          correct_n_evolved_density = Eigen::kroneckerProduct(correct_n_evolved_density, correct_evolution).eval();
+        }
+        else {
+          n_density = Eigen::kroneckerProduct(n_density, I_density).eval();
+          correct_n_evolved_density = Eigen::kroneckerProduct(correct_n_evolved_density, I_density).eval();
+        }
+      }
+
+      //(2) evolve n_qubit density with expanded process matrix 
+      Eigen::MatrixXcd n_super = qristal::expandProcessMatrixSpace({q_idx}, n_qubits, qristal::process_to_superoperator(chi)); 
+      Eigen::MatrixXcd n_evolved_density = evolve_density_superop(n_super, n_density);
+
+      //(3) check against expanded correct evolved density 
+      EXPECT_TRUE(correct_n_evolved_density.isApprox(n_evolved_density, 1e-12));
+    }
+  }
+}
+
+TEST(NoiseChannelTester, testTraceProcessMatrix){
+  std::vector<size_t> nb_qubits = {2,3,4,5}; 
+
+  for (size_t n_id = 0; n_id < nb_qubits.size(); ++n_id){
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<double> dist_angle(0.0, 2 * std::numbers::pi);
+  
+    // Create nb_qubits random angles
+    std::vector<double> theta, phi, lambda;
+    
+    for (size_t i = 0; i < nb_qubits[n_id]; ++i) {
+      theta.emplace_back(dist_angle(gen));
+      phi.emplace_back(dist_angle(gen));
+      lambda.emplace_back(dist_angle(gen));
+    }
+    
+    // Calculate tensor product of the nb_qubits process matrices
+    Eigen::MatrixXcd process = qristal::createIdealU3ProcessMatrix(theta[0],phi[0],lambda[0]);
+    for (size_t i = 1; i < nb_qubits[n_id]; ++i) {
+      process = Eigen::kroneckerProduct(process,qristal::createIdealU3ProcessMatrix(theta[i],phi[i],lambda[i])).eval();
+    }
+
+    // Check partial trace with indices are all subsets of {0,.., nb_qubits-1} except empty and improper subset
+    std::set<size_t> indices;
+    size_t n_subsets = std::pow(2, nb_qubits[n_id]);
+    for(size_t i=1; i<n_subsets-1; ++i){
+      size_t r = i;
+      size_t v = 0;
+      indices = {};
+      while(r > 0){
+          if (fmod(r,2) ==1){
+              indices.insert(v);
+          }
+          v++;
+          r = size_t(r/2);
+      }
+      Eigen::MatrixXcd trace_keep = qristal::partialTraceProcessMatrixKeep(process, indices);
+      Eigen::MatrixXcd trace_remove = qristal::partialTraceProcessMatrixRemove(process, qristal::getComplementarySet(nb_qubits[n_id], indices));
+      //Calculate reduced process matrix
+      Eigen::MatrixXcd reduced_process = Eigen::MatrixXcd::Ones(1, 1);
+      for (auto const& i : indices) {
+        reduced_process = Eigen::kroneckerProduct(reduced_process, qristal::createIdealU3ProcessMatrix(theta[i], phi[i], lambda[i])).eval();
+      }
+      EXPECT_TRUE(trace_keep.isApprox(reduced_process, 1e-12));
+      EXPECT_TRUE(trace_remove.isApprox(reduced_process, 1e-12));
+    }
+  }
+}
+
