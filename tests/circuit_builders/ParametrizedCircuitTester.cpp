@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "qristal/core/circuit_builder.hpp"
 #include "qristal/core/noise_model/noise_channel.hpp"
 #include "qristal/core/session.hpp"

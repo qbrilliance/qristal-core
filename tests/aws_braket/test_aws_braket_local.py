@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 import os
 import pytest
 def test_CI_220531_1_simple_aws_sv_local():

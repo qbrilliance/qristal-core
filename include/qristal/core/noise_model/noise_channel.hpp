@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #ifndef _QB_NOISE_CHANNEL_
 #define _QB_NOISE_CHANNEL_
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 /**
  * This example shows how to use your own noise model
  * parameters to generate a noise model object.

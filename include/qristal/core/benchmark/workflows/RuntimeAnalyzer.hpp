@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #ifndef _QB_BENCHMARK_RUNTIMEANALYZER_
 #define _QB_BENCHMARK_RUNTIMEANALYZER_
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "qristal/core/cudaq/ir_converter.hpp"
 #include "qristal/core/cudaq/sim_pool.hpp"
 #include "cudaq/algorithm.h"

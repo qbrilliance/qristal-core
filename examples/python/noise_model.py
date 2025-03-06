@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 
 # This example shows how to turn on noise in a simulation,
 # and how to modify the default noise model used.

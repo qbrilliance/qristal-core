@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 import os
 import pytest
 def test_CI_220307_1_exponential_search() :

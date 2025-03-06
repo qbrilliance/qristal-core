@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "CommonGates.hpp"
 #include "Optimizer.hpp"
 #include "xacc.hpp"

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 
 #include <cmath>
 #include <boost/dynamic_bitset.hpp>

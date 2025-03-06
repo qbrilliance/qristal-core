@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 import os
 import pytest
 def test_CI_211101_1_q_chemistry_h2() :

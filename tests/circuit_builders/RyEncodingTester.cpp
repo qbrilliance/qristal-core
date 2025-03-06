@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "Circuit.hpp"
 #include "qristal/core/circuit_builders/ry_encoding.hpp"
 #include "qristal/core/circuit_builder.hpp"

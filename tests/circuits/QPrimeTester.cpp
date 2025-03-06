@@ -1,4 +1,4 @@
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "qristal/core/circuits/q_prime_unitary.hpp"
 #include "Circuit.hpp"
 #include "xacc.hpp"

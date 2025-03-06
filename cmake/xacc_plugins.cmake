@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 
 # Gateset transpiler module (to be used by emulator)
 add_xacc_plugin(qb_gateset_transpiler

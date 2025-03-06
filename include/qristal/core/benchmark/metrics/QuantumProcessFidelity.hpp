@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #ifndef _QB_BENCHMARK_QUANTUMPROCESSFIDELITY_
 #define _QB_BENCHMARK_QUANTUMPROCESSFIDELITY_
 

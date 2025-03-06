@@ -1,5 +1,5 @@
 /***
- *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
+ *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
 #include "qristal/core/circuits/u_prime_unitary.hpp"

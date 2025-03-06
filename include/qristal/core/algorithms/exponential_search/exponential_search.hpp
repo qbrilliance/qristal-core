@@ -1,5 +1,5 @@
 #pragma once
-// Copyright (c) 2022 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "Algorithm.hpp"
 #include "IRProvider.hpp"
 #include "InstructionIterator.hpp"

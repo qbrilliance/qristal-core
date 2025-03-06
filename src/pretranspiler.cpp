@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 
 #include "qristal/core/pretranspiler.hpp"
 #include <regex>

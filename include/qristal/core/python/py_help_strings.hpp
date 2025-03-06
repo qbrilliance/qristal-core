@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 
 // Help strings for Python bindings
 namespace qristal {

@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Quantum Brilliance Pty Ltd
+# Copyright (c) Quantum Brilliance Pty Ltd
 
 # Add a C++ example that gets compiled when building and installed unbuilt when installing
 macro(add_example NAME)

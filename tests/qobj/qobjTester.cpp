@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "qristal/core/session.hpp"
 #include <gtest/gtest.h>
 #include "xacc.hpp"

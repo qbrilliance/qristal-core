@@ -1,5 +1,5 @@
 /***
- *** Copyright (c) 2022 Quantum Brilliance Pty Ltd
+ *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 #ifndef QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_

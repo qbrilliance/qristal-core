@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Quantum Brilliance Pty Ltd
+// Copyright (c) Quantum Brilliance Pty Ltd
 #include "cudaq/algorithm.h"
 #include "cudaq/gradients/central_difference.h"
 #include "cudaq/optimizers.h"
