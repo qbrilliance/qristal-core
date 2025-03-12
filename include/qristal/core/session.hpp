@@ -400,7 +400,6 @@ namespace qristal
       const Table2d<bool> &get_calc_out_counts() const;
 
       /**
-       * @brief Set the path to the qpu config JSON file.
        * @brief Set the path to the remote backend database yaml file.
        *
        * @param remote_backend_database_path Path to the remote backend database yaml file.
@@ -727,120 +726,120 @@ namespace qristal
       const Table2d<size_t> &get_sns() const;
 
       /**
-       * @brief Set the initial bond dimension (MPS simulator)
-       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * @brief Set the initial bond dimension (tensor network simulators)
+       * @note This is only needed if using tensor network backend accelerators.
        *
-       * @param in_initial_bond_dimension Initial MPS bond dimension value
+       * @param in_initial_bond_dimension Initial tensor network bond dimension value
        */
       void set_initial_bond_dimension(const size_t &in_initial_bond_dimension);
       /**
-       * @brief Set the initial bond dimension (MPS simulator)
+       * @brief Set the initial bond dimension (tensor network simulators)
        *
-       * @param in_initial_bond_dimension Initial MPS bond dimension value
+       * @param in_initial_bond_dimension Initial tensor network bond dimension value
        */
       void set_initial_bond_dimensions(const Table2d<size_t> &in_initial_bond_dimension);
       /**
-       * @brief Get the initial bond dimension (MPS simulator)
+       * @brief Get the initial bond dimension (tensor network simulators)
        *
-       * @return Initial MPS bond dimension value
+       * @return Initial tensor network bond dimension value
        */
       const Table2d<size_t> &get_initial_bond_dimensions() const;
 
       /**
-       * @brief Set the initial kraus dimension (MPS simulator)
-       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * @brief Set the initial kraus dimension (emulator purification simulator)
+       * @note This is only needed if using the emulator purification backend accelerator.
        *
-       * @param in_initial_kraus_dimension Initial MPS kraus dimension value
+       * @param in_initial_kraus_dimension Initial emulator purification kraus dimension value
        */
       void set_initial_kraus_dimension(const size_t &in_initial_kraus_dimension);
       /**
-       * @brief Set the initial kraus dimension (MPS simulator)
+       * @brief Set the initial kraus dimension (emulator purification simulator)
        *
-       * @param in_initial_kraus_dimension Initial MPS kraus dimension value
+       * @param in_initial_kraus_dimension Initial emulator purification kraus dimension value
        */
       void set_initial_kraus_dimensions(const Table2d<size_t> &in_initial_kraus_dimension);
       /**
-       * @brief Get the initial kraus dimension (MPS simulator)
+       * @brief Get the initial kraus dimension (emulator purification simulator)
        *
-       * @return Initial MPS kraus dimension value
+       * @return Initial emulator purification kraus dimension value
        */
       const Table2d<size_t> &get_initial_kraus_dimensions() const;
 
       /**
-       * @brief Set the maximum bond dimension (MPS simulator)
-       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * @brief Set the maximum bond dimension (tensor network simulators)
+       * @note This is only needed if using the tensor network backend accelerators.
        *
-       * @param in_max_bond_dimension Max MPS bond dimension value
+       * @param in_max_bond_dimension Max tensor network bond dimension value
        */
       void set_max_bond_dimension(const size_t &in_max_bond_dimension);
       /**
-       * @brief Set the maximum bond dimension (MPS simulator)
+       * @brief Set the maximum bond dimension (tensor network simulators)
        *
-       * @param in_max_bond_dimension Max MPS bond dimension value
+       * @param in_max_bond_dimension Max tensor network bond dimension value
        */
       void set_max_bond_dimensions(const Table2d<size_t> &in_max_bond_dimension);
       /**
-       * @brief Get the maximum bond dimension (MPS simulator)
+       * @brief Get the maximum bond dimension (tensor network simulators)
        *
-       * @return Max MPS bond dimension value
+       * @return Max tensor network bond dimension value
        */
       const Table2d<size_t> &get_max_bond_dimensions() const;
 
       /**
-       * @brief Set the maximum kraus dimension (MPS simulator)
-       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * @brief Set the maximum kraus dimension (emulator purification simulator)
+       * @note This is only needed if using the emulator purification backend accelerator.
        *
-       * @param in_max_kraus_dimension Max MPS kraus dimension value
+       * @param in_max_kraus_dimension Max emulator purification kraus dimension value
        */
       void set_max_kraus_dimension(const size_t &in_max_kraus_dimension);
       /**
-       * @brief Set the maximum kraus dimension (MPS simulator)
+       * @brief Set the maximum kraus dimension (emulator purification simulator)
        *
-       * @param in_max_kraus_dimension Max MPS kraus dimension value
+       * @param in_max_kraus_dimension Max emulator purification kraus dimension value
        */
       void set_max_kraus_dimensions(const Table2d<size_t> &in_max_kraus_dimension);
       /**
-       * @brief Get the maximum kraus dimension (MPS simulator)
+       * @brief Get the maximum kraus dimension (emulator purification simulator)
        *
-       * @return Max MPS kraus dimension value
+       * @return Max emulator purification kraus dimension value
        */
       const Table2d<size_t> &get_max_kraus_dimensions() const;
 
       /**
-       * @brief Set the SVD cutoff limit (MPS simulator)
-       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * @brief Set the SVD cutoff limit (tensor network simulators)
+       * @note This is only needed if using the tensor network backend accelerators.
        *
        * @param in_svd_cutoff SVD cutoff value
        */
       void set_svd_cutoff(const std::map<int,double> &in_svd_cutoff);
       /**
-       * @brief Set the SVD cutoff limit (MPS simulator)
+       * @brief Set the SVD cutoff limit (tensor network simulators)
        *
        * @param in_svd_cutoff SVD cutoff value
        */
       void set_svd_cutoffs(const Table2d<std::map<int,double>> &in_svd_cutoff);
       /**
-       * @brief Get the SVD cutoff limit (MPS simulator)
+       * @brief Get the SVD cutoff limit (tensor network simulators)
        *
        * @return SVD cutoff value
        */
       const Table2d<std::map<int,double>> &get_svd_cutoffs() const;
 
       /**
-       * @brief Set the relative SVD cutoff limit (MPS simulator)
-       * @note This is only needed if using the "tnqvm" backend accelerator.
+       * @brief Set the relative SVD cutoff limit (tensor network simulators)
+       * @note This is only needed if using the tensor network backend accelerators.
        *
        * @param in_rel_svd_cutoff SVD cutoff value
        */
       void set_rel_svd_cutoff(const std::map<int,double> &in_rel_svd_cutoff);
       /**
-       * @brief Set the relative SVD cutoff limit (MPS simulator)
+       * @brief Set the relative SVD cutoff limit (tensor network simulators)
        *
        * @param in_rel_svd_cutoff SVD cutoff value
        */
       void set_rel_svd_cutoffs(const Table2d<std::map<int,double>> &in_rel_svd_cutoff);
       /**
-       * @brief Get the relative SVD cutoff limit (MPS simulator)
+       * @brief Get the relative SVD cutoff limit (tensor network simulators)
        *
        * @return Relative SVD cutoff value
        */
