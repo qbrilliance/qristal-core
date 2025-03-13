@@ -2,7 +2,7 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
-## [X.X.X] - YYYY-MM-DD
+## [1.7.0] - 2025-03-13
 
 ### Breaking
 
@@ -52,6 +52,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added new python examples demonstrating the usage of qristal.core.benchmark and removed the old `pyGSTi_runner` C++ and `execute_GST_XYCZ.py` python examples in favor of a new single python based example `benchmark/pyGSTi.py`.
 - Added partial trace for process matrix in the standard Pauli basis.
 - Added conversion of process matrix from superoperator and choi to standard process matrix.
+- Added warning for backends' maximum qubit number.
 
 ### Fixed
 

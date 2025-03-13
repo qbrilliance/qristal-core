@@ -312,79 +312,79 @@ namespace qristal {
     const char* initial_bond_dimensions_ = R"(
         initial_bond_dimension:
 
-        Set the initial bond dimension (MPS simulator). The single setting applies globally.
+        Set the initial bond dimension (tensor network simulators). The single setting applies globally.
 
         initial_bond_dimensions:
 
         A 1d-array (list) version of initial_bond_dimension.
 
         .. note::
-                This is only needed if using the "tnqvm" backend accelerator.
+                This is only needed if using the tensor network backend accelerators.
     )";
 
     const char* initial_kraus_dimensions_ = R"(
         initial_kraus_dimension:
 
-        Set the initial kraus dimension (MPS simulator). The single setting applies globally.
+        Set the initial kraus dimension (emulator purification simulator). The single setting applies globally.
 
         initial_kraus_dimensions:
 
         A 1d-array (list) version of initial_kraus_dimension.
 
         .. note::
-                This is only needed if using the "tnqvm" backend accelerator.
+                This is only needed if using the emulator purification backend accelerator.
     )";
 
     const char* max_bond_dimensions_ = R"(
         max_bond_dimension:
 
-        Set the maximum bond dimension (MPS simulator). The single setting applies globally.
+        Set the maximum bond dimension (tensor network simulators). The single setting applies globally.
 
         max_bond_dimensions:
 
         A 1d-array (list) version of max_bond_dimension.
 
         .. note::
-                This is only needed if using the "tnqvm" backend accelerator.
+                This is only needed if using the tensor network backend accelerators.
     )";
 
     const char* max_kraus_dimensions_ = R"(
         max_kraus_dimension:
 
-        Set the maximum kraus dimension (MPS simulator). The single setting applies globally.
+        Set the maximum kraus dimension (emulator purification simulator). The single setting applies globally.
 
         max_kraus_dimensions:
 
         A 1d-array (list) version of max_kraus_dimension.
 
         .. note::
-                This is only needed if using the "tnqvm" backend accelerator.
+                This is only needed if using the emulator purification backend accelerator.
     )";
 
     const char* svd_cutoffs_ = R"(
         svd_cutoff:
 
-        Set the SVD cutoff threshold value (MPS simulator). The single setting applies globally.
+        Set the SVD cutoff threshold value (tensor network simulators). The single setting applies globally.
 
         svd_cutoffs:
 
         A 1d-array (list) version of svd_cutoff.
 
         .. note::
-                This is only needed if using the "tnqvm" backend accelerator.
+                This is only needed if using the tensor network backend accelerators.
     )";
 
     const char* rel_svd_cutoffs_ = R"(
         rel_svd_cutoff:
 
-        Set the relative SVD cutoff threshold value (MPS simulator). The single setting applies globally.
+        Set the relative SVD cutoff threshold value (tensor network simulators). The single setting applies globally.
 
         rel_svd_cutoffs:
 
         A 1d-array (list) version of rel_svd_cutoff.
 
         .. note::
-                This is only needed if using the "tnqvm" backend accelerator.
+                This is only needed if using the tensor network backend accelerators.
     )";
 
     const char* measure_sample_methods_ = R"(
