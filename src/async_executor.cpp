@@ -3,7 +3,7 @@
 #include "qristal/core/async_executor.hpp"
 #include "qristal/core/thread_pool.hpp"
 
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include "xacc.hpp"
 
 #include <chrono>

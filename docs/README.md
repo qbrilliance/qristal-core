@@ -11,11 +11,10 @@ The QB documentation system is built on the following technologies:
 | Breathe    | Sphinx extension that can convert Doxygen’s XML output into individual reStructuredText directives (e.g. enables directives to show the documentation for a given function, class, macro, etc.). |
 | Exhale     | Sphinx extension uses Doxygen’s XML output to create an entire set of reStructuredText pages to document the whole C++ library API. Uses Breathe underneath the hood.                            |
 
-These dependencies can be installed by:
+Pre-requisite `apt` dependencies can be installed with the below. `Pip` dependencies are automatically installed during `cmake` configuration.
 
 ```
 sudo apt install doxygen graphviz
-python3 -m pip install sphinx==4.5.0 sphinx_rtd_theme==1.2.0 exhale==0.3.6 myst-parser==0.18.1
 ```
 
 **NOTE**

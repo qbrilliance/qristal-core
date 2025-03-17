@@ -53,6 +53,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added partial trace for process matrix in the standard Pauli basis.
 - Added conversion of process matrix from superoperator and choi to standard process matrix.
 - Added warning for backends' maximum qubit number.
+- Allow automatic installation of python dependencies needed for building docs, via INSTALL_MISSING. 
+- Improved automatic installation of python dependencies to use a single call to `pip`.
 
 ### Fixed
 
@@ -71,6 +73,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - When calling `qristal::session::set_remote_backend_database_path()`, `session`'s internal list of valid backends `VALID_ACCS` will be reset to a default pre-configured list of available backends before all backends in the supplied custom remote backends file will be added to `VALID_ACCS`. This allows users to (i) specify new backends with arbitrary names and (ii) seamlessly switch between different remote backend yaml within the same `session`.
 - Fixes for QML - order of adding variables vs instructions in `CircuitBuilder`, and removing a check in `session` that exists in XACC already.
 - Fixed a minor issue where a folder named `_deps` would appear in the user's current working directory during cmake configuration when building the repo.
+- Fixed issue with dependencies preventing the building of docs on some systems.
 
 ## [1.6.0] - 2024-06-18
 

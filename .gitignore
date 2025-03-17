@@ -48,6 +48,7 @@ build/
 
 # Clangd IntelliSense cached files
 .clangd/
+.cache/
 
 #Python cache
 *__pycache__
@@ -55,5 +56,7 @@ build/
 #Dependencies
 deps/
 
-#Generated sources
+#Generated files
 include/qristal/core/cmake_variables.hpp
+docs/rst/emulator.rst
+docs/static/js/qb_ga.js

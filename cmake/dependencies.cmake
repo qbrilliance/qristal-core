@@ -1,6 +1,6 @@
 include(add_dependency)
 include(add_poorly_behaved_dependency)
-include(add_python_module)
+include(add_python_package)
 
 # Add some colour
 if(NOT WIN32)
@@ -270,31 +270,22 @@ endif()
 # Add dependencies needed only for compiled libraries.
 if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
-  # Python modules.  Add to this alphabetically please!
-  add_python_module(ase
-                    ast
-                    boto3
-                    botocore
-                    braket:amazon-braket-sdk
-                    flask
-                    http
-                    json
-                    matplotlib
-                    numpy
-                    os
-                    pathlib
-                    pip
-                    pytest
-                    qiskit
-                    queue
-                    random
-                    re
-                    subprocess
-                    threading
-                    time
-                    timeit
-                    uuid
-                   )
+  # The items listed below are Pip package names. They are used as the argument to importlib.metadata.version() to
+  # determine whether it is installed on the system. Be wary that if installing the Python package via apt, the
+  # package name may differ from the package name when installed via pip in rare situations (this is usually the case
+  # when packages are forked and the name is changed slightly).
+  add_python_package(
+    amazon-braket-sdk==1.74.1
+    ase==3.22.1
+    boto3==1.34
+    botocore==1.34
+    matplotlib==3.8.4
+    numpy==1.26.4
+    pytest==8.2.0
+    qiskit==0.46.0
+
+    # TODO (SWA-2341): sync packages installed here with those installed in the Qristal SDK image
+  )
 
   # EXATN
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
