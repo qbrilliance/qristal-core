@@ -55,6 +55,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added warning for backends' maximum qubit number.
 - Allow automatic installation of python dependencies needed for building docs, via INSTALL_MISSING. 
 - Improved automatic installation of python dependencies to use a single call to `pip`.
+- Added and enabled MPI support to cmake configuration
 
 ### Fixed
 

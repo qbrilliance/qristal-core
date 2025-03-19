@@ -188,6 +188,10 @@ if (WITH_CUDAQ)
   endforeach()
 endif()
 
+if(ADD_MPI)
+  target_link_libraries(${PROJECT_NAME} PUBLIC MPI::MPI_CXX)
+endif()
+
 # Install the library
 install(
   TARGETS ${PROJECT_NAME}

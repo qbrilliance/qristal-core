@@ -52,6 +52,8 @@ If you wish to build Qristal's C++ noise-aware circuit placement routines, you m
 
 If you also wish to build the html documentation, you can pass `-DBUILD_DOCS=ON` to `cmake`.
 
+MPI acceleration is supported via adding `-DWITH_MPI=ON` to the `cmake` configuration step. Note that `-DMPI_HOME=...` can also be set instead (or in addition) to enable MPI and specify a custom install location. See [Installing from source](https://qristal.readthedocs.io/en/latest/rst/getting_started.html#installing-from-source) for more information on MPI support in Qristal.
+
 ## Documentation
 You can find the docs for Qristal on the web at [qristal.readthedocs.io](https://qristal.readthedocs.io).  If you have built and installed the documentation (see [compilation](#compilation)), you can also find it at `<installation_directory>/docs/html/index.html`.
 

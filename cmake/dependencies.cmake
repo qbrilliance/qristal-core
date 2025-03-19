@@ -1,6 +1,7 @@
 include(add_dependency)
 include(add_poorly_behaved_dependency)
 include(add_python_package)
+include(mpi_utilities)
 
 # Add some colour
 if(NOT WIN32)
@@ -36,11 +37,8 @@ if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 else()
-  message(STATUS "OpenMP was not detected...continuing without it...")
+  message(STATUS "OpenMP was not detected... continuing without it...")
 endif()
-
-# For XACC, but impacts Qristal too.
-set(ENABLE_MPI OFF CACHE BOOL "MPI Capability")
 
 # Eigen
 # Previously used Eigen from XACC, but it is outdated and has issues.
@@ -80,7 +78,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
   GIT_REPOSITORY https://github.com/eclipse/xacc
   PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/xacc.patch
   OPTIONS
-    "XACC_ENABLE_MPI @ENABLE_MPI@"
+    "XACC_ENABLE_MPI @XACC_ENABLE_MPI@"
     "COMPILE_FOR_LOCAL_ARCH ${COMPILE_FOR_LOCAL_ARCH}"
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
     "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
@@ -186,6 +184,14 @@ if(BLAS_FOUND)
   cmake_path(GET BLAS_LIBRARIES PARENT_PATH BLAS_PATH)
 else()
   message(FATAL_ERROR "System installation of OpenBLAS not found. This is required for installing Eigen and EXATN.")
+endif()
+
+# MPI
+# See https://cmake.org/cmake/help/v3.20/module/FindMPI.html for more information
+if(ADD_MPI)
+  add_mpi()
+else()
+  message(STATUS "WITH_MPI has not been set. Building without MPI support.")
 endif()
 
 # tket

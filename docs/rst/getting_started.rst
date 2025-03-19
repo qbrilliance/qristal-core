@@ -58,15 +58,15 @@ Installing from source
 
 1. For development purposes, it is **recommended** to install Qristal using *automatic dependency installation* mode.
 
-.. code-block:: bash
+.. code-block::
 
-    git clone https://github.com/qbrilliance/qristal.git qristal
-    cd qristal
-    mkdir build && cd build
-    cmake .. -DINSTALL_MISSING=ON
-    make install
+  git clone https://github.com/qbrilliance/qristal.git qristal
+  cd qristal
+  mkdir build && cd build
+  cmake .. -DINSTALL_MISSING=ON
+  make install
 
--The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
+The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
 
 The :ref:`required dependencies <required_deps>` **must** be installed on your system. ``-DINSTALL_MISSING=ON`` will not handle those mandatory dependencies.
 
@@ -75,14 +75,125 @@ The :ref:`required dependencies <required_deps>` **must** be installed on your s
 
 The directory into which Qristal is to be installed can be specified by setting ``-DCMAKE_INSTALL_PREFIX=<YOUR QRISTAL INSTALLATION DIR>``.
 
-If you wish to build Qristal's C++ noise-aware circuit placement routines, you must also enable the use of the additional dependency `TKET <https://github.com/CQCL/tket>`_. This is done by passing ``-DWITH_TKET=ON`` to ``cmake``. TKET will be installed automatically by ``cmake`` if both ``-DWITH_TKET=ON`` and ``-DINSTALL_MISSING=ON`` (or ``-DINSTALL_MISSING=CXX``) are passed to `cmake`.
-
-MPI is enabled by adding the option ``-DENABLE_MPI=ON``.
+If you wish to build Qristal's C++ noise-aware circuit placement routines, you must also enable the use of the additional dependency `TKET <https://github.com/CQCL/tket>`_. This is done by passing ``-DWITH_TKET=ON`` to ``cmake``. TKET will be installed automatically by ``cmake`` if both ``-DWITH_TKET=ON`` and ``-DINSTALL_MISSING=ON`` (or ``-DINSTALL_MISSING=CXX``) are passed to ``cmake``.
 
 If you also wish to build this html documentation, pass ``-DBUILD_DOCS=ON``.
 
+**MPI support**
 
-3. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced alternative to step 1**)
+When using Qristal, MPI acceleration is available when using:
+
+1. ``xacc``'s ``tnqvm`` backend
+2. ``xacc``'s ``HPCVirtDecorator`` class
+3. the ``VQEE`` optimisation algorithm (uses xacc's ``HPCVirtDecorator``)
+
+To take advantage of this, either add ``-DWITH_MPI=ON`` or ``-DMPI_HOME=<MPI install location>`` to the ``cmake`` configuration step. The default behaviour is to use whatever MPI installation has been installed to the system's root directory. A custom MPI installation can be specified via ``-DMPI_HOME=<MPI install location>``. For more fine-grained and customised control of MPI compiler, header and library locations to configure the build with, see the relevant section in the `cmake documentation <https://cmake.org/cmake/help/v3.20/module/FindMPI.html#variables-for-locating-mpi>`_.
+
+.. note::
+  Items 1-3 above are controlled in isolation to other Qristal MPI acceleration using ``-DXACC_ENABLE_MPI=ON``. Setting ``-DWITH_MPI=ON`` or ``-DMPI_HOME=<MPI install location>`` will *not* implicitly enable MPI acceleration within XACC.
+
+Example usage:
+
+.. code-block:: none
+  :class: no-lexing
+
+  cmake -B build -S . -DWITH_MPI=ON -DMPI_HOME=/opt/mpich -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DINSTALL_MISSING=ON
+  ...
+  -- Found MPI_CXX: /opt/mpich/lib/libmpicxx.so (found version "4.1") 
+  -- Found MPI: TRUE (found version "4.1") found components: CXX 
+  -- MPI configuration:
+      MPI_HOME: /opt/mpich
+      MPI_VERSION: 
+      MPI_CXX_VERSION: 4.1
+      MPI_CXX_INCLUDE_DIRS: /opt/mpich/include
+      MPI_CXX_LIBRARIES: /opt/mpich/lib/libmpicxx.so;/opt/mpich/lib/libmpi.so
+      MPI_CXX_COMPILER: /opt/mpich/bin/mpicxx
+      MPI_CXX_COMPILE_DEFINITIONS: 
+      MPI_CXX_COMPILE_OPTIONS: 
+      MPI_CXX_LINK_FLAGS: -Wl,-rpath -Wl,/opt/mpich/lib -Wl,--enable-new-dtags
+      MPIEXEC_EXECUTABLE: /opt/mpich/bin/mpiexec
+  -- MPI C++ compiler wraps the same compiler that's configured for this cmake project (/usr/bin/c++)
+  ...
+
+Note that MPI integration with Qristal assumes all "found" MPI directories and binaries are under the ``MPI_HOME`` directory and uses this to ensure ``cmake`` has not found an MPI install that is different to where the user has specified it to be. If this is not the case, the below error will occur:
+
+.. code-block:: none
+  :class: no-lexing
+
+  -- MPI configuration:
+      MPI_HOME: /opt/mpich
+      MPI_VERSION: 
+      MPI_CXX_VERSION: 3.1
+      MPI_CXX_INCLUDE_DIRS: /usr/lib/aarch64-linux-gnu/openmpi/include;/usr/lib/aarch64-linux-gnu/openmpi/include/openmpi
+      MPI_CXX_LIBRARIES: /usr/lib/aarch64-linux-gnu/openmpi/lib/libmpi_cxx.so;/usr/lib/aarch64-linux-gnu/openmpi/lib/libmpi.so
+      MPI_CXX_COMPILER: /usr/bin/mpicxx
+      MPI_CXX_COMPILE_DEFINITIONS: 
+      MPI_CXX_COMPILE_OPTIONS: 
+      MPI_CXX_LINK_FLAGS: 
+      MPIEXEC_EXECUTABLE: /usr/bin/mpiexec
+  -- MPI C++ compiler wraps the same compiler that's configured for this cmake project (/usr/bin/c++)
+  CMake Warning at cmake/mpi_utilities.cmake:69 (message):
+      /usr/lib/aarch64-linux-gnu/openmpi/include is not a child of /opt/mpich.
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+
+  CMake Warning at cmake/mpi_utilities.cmake:69 (message):
+      /usr/lib/aarch64-linux-gnu/openmpi/include/openmpi is not a child of
+      /opt/mpich.
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+
+  CMake Warning at cmake/mpi_utilities.cmake:69 (message):
+      /usr/lib/aarch64-linux-gnu/openmpi/lib/libmpi_cxx.so is not a child of
+      /opt/mpich.
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+
+  CMake Warning at cmake/mpi_utilities.cmake:69 (message):
+      /usr/lib/aarch64-linux-gnu/openmpi/lib/libmpi.so is not a child of
+      /opt/mpich.
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+
+  CMake Warning at cmake/mpi_utilities.cmake:69 (message):
+      /usr/bin/mpiexec is not a child of /opt/mpich.
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+
+  CMake Warning at cmake/mpi_utilities.cmake:69 (message):
+      /usr/bin/mpicxx is not a child of /opt/mpich.
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+
+  CMake Error at cmake/mpi_utilities.cmake:75 (message):
+      Configuration will not continue as the found MPI implementation is not
+      under the configured MPI_HOME (/opt/mpich).
+  Call Stack (most recent call first):
+      cmake/mpi_utilities.cmake:20 (check_mpi_configuration)
+      cmake/dependencies.cmake:198 (add_mpi)
+      CMakeLists.txt:31 (include)
+
+  -- Configuring incomplete, errors occurred!
+
+1. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced alternative to step 1**)
 
 - Follow the installation instructions of `XACC <https://github.com/eclipse/xacc>`_, `ExaTN <https://github.com/ORNL-QCI/exatn>`_ and `TNQVM <https://github.com/ORNL-QCI/tnqvm>`_.
 

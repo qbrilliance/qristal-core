@@ -2,6 +2,15 @@
 set(MIN_CMAKE_VERSION 3.20)
 cmake_minimum_required(VERSION ${MIN_CMAKE_VERSION} FATAL_ERROR)
 
+# Check whether to build with MPI support
+option(WITH_MPI "Build Qristal with MPI support" OFF)
+set(ADD_MPI OFF CACHE BOOL "Cache variable for building Qristal with MPI support")
+if (WITH_MPI OR DEFINED MPI_HOME)
+  set(ADD_MPI ON)
+endif()
+# Controls whether to use MPI acceleration in XACC and the VQEE optimisation algorithm.
+set(XACC_ENABLE_MPI OFF CACHE BOOL "MPI acceleration within xacc")
+
 # Get version number from git tag.  Must be done before the project command is called.
 find_package(Git)
 if(GIT_FOUND)

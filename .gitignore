@@ -26,6 +26,9 @@
 *.a
 *.lib
 
+# MacOS
+.DS_Store
+
 # Executables
 *.exe
 *.out
