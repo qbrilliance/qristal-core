@@ -2,6 +2,21 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
+
+## [X.X.X] - YYYY-MM-DD
+
+### Breaking
+- 
+
+### Added
+- Added and enabled MPI support to cmake configuration
+
+### Fixed
+- CMake configuration: Python package warning was incorrectly being displayed if the installed version didn't *exactly* match the required version. E.g. if numpy version 1.26 is required and version 1.26.2 is installed, a warning was previously incorrectly displayed during CMake configuration
+- Fixed a minor issue where a folder named `_deps` would appear in the user's current working directory during cmake configuration when building the repo.
+- Fixed issue with dependencies preventing the building of docs on some systems.
+
+
 ## [1.7.0] - 2025-03-13
 
 ### Breaking
@@ -55,7 +70,6 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added warning for backends' maximum qubit number.
 - Allow automatic installation of python dependencies needed for building docs, via INSTALL_MISSING. 
 - Improved automatic installation of python dependencies to use a single call to `pip`.
-- Added and enabled MPI support to cmake configuration
 
 ### Fixed
 
@@ -73,8 +87,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed memory allocation in qristal-qobj.
 - When calling `qristal::session::set_remote_backend_database_path()`, `session`'s internal list of valid backends `VALID_ACCS` will be reset to a default pre-configured list of available backends before all backends in the supplied custom remote backends file will be added to `VALID_ACCS`. This allows users to (i) specify new backends with arbitrary names and (ii) seamlessly switch between different remote backend yaml within the same `session`.
 - Fixes for QML - order of adding variables vs instructions in `CircuitBuilder`, and removing a check in `session` that exists in XACC already.
-- Fixed a minor issue where a folder named `_deps` would appear in the user's current working directory during cmake configuration when building the repo.
-- Fixed issue with dependencies preventing the building of docs on some systems.
+
 
 ## [1.6.0] - 2024-06-18
 

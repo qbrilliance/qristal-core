@@ -8,6 +8,60 @@ if (NOT Python_EXECUTABLE)
   set(Python_EXECUTABLE PYBIND11_PYTHON_EXECUTABLE_LAST)
 endif()
 
+# Checks whether the install version is the same as the required version and if not, outputs 
+# a warning. Takes into account whether all components (or just those that have been specified)
+# of the required version A.B.C matches the installed version. E.g. if only A.B has been specified,
+# only the major (A) and minor (B) versions are checked for equality.
+#
+#    PACKAGE_NAME: The name of the package
+#    REQUIRED_VERSION: The required version
+#    INSTALLED_VERSION: The installed version to check the required version against
+function(check_installed_version_compatible)
+    # Parse the arguments
+    cmake_parse_arguments(ARG "" "PACKAGE_NAME;REQUIRED_VERSION;INSTALLED_VERSION" "" ${ARGV})
+
+    # Split the version numbers into components
+    string(REPLACE "." ";" required_version_list ${ARG_REQUIRED_VERSION})
+    string(REPLACE "." ";" installed_version_list ${ARG_INSTALLED_VERSION})
+
+    # Get the length of the version lists
+    list(LENGTH required_version_list required_version_list_length)
+    list(LENGTH installed_version_list installed_version_list_length)
+
+    set(required_major_version "")
+    set(required_minor_version "")
+    set(required_patch_version "")
+    set(installed_major_version "")
+    set(installed_minor_version "")
+    set(installed_patch_version "")
+    # Extract version components based on the length of the required version list
+    if(required_version_list_length GREATER 0)
+        list(GET required_version_list 0 required_major_version)
+        list(GET installed_version_list 0 installed_major_version)
+    endif()
+
+    if(required_version_list_length GREATER 1)
+        list(GET required_version_list 1 required_minor_version)
+        list(GET installed_version_list 1 installed_minor_version)
+    endif()
+
+    if(required_version_list_length GREATER 2)
+        list(GET required_version_list 2 required_patch_version)
+        list(GET installed_version_list 2 installed_patch_version)
+    endif()
+
+    # Check and emit a single warning if necessary
+    if((DEFINED required_major_version AND NOT required_major_version STREQUAL installed_major_version) OR
+       (DEFINED required_minor_version AND NOT required_minor_version STREQUAL installed_minor_version) OR
+       (DEFINED required_patch_version AND NOT required_patch_version STREQUAL installed_patch_version))
+        message(WARNING
+            "Python package already on the system ${ARG_PACKAGE_NAME}==${ARG_INSTALLED_VERSION} differs from the "
+            "version required by this project ${ARG_REQUIRED_VERSION}. Please resolve this situation manually "
+            "as this may cause compatibility issues.")
+    endif()
+endfunction()
+
+
 # Add a python package dependency.
 #
 # Expects a list of pip packages in the same package and version specification format pip uses:
@@ -21,7 +75,7 @@ endif()
 # alongside each other.
 function(add_python_package)
 
-  # Iterate over all requested packages to see if they are installed
+  # Iterate over all required packages to see if they are installed
   foreach(item ${ARGN})
 
     # Split the list item into a list where item 1 is the package name and item 2 is 
@@ -41,7 +95,7 @@ function(add_python_package)
       message(STATUS "package_name: ${package_name}; package_version: ${package_version}")
     else()
       message(FATAL_ERROR
-        "Invalid syntax for add_python_package. Expects pip package in the format <name>:<version>."
+        "Invalid syntax for add_python_package. Expects pip package in the format <name>==<version>."
       )
     endif()
 
@@ -61,7 +115,7 @@ function(add_python_package)
       if(NOT package_version)
         message(STATUS "Python package ${package_name} not found") 
       else()
-        message(STATUS "Python package ${package_name}:${package_version} not found") 
+        message(STATUS "Python package ${package_name}==${package_version} not found") 
       endif()
       if(INSTALL_MISSING_PYTHON)
         if(package_version)
@@ -74,13 +128,14 @@ function(add_python_package)
         set(MISSING_DEPENDENCIES "${MISSING_DEPENDENCIES}" "${package_name} (Python package)" PARENT_SCOPE)
       endif()
     else()
-      message(STATUS "Found Python package ${package_name}:${installed_version}")
-      if(package_version AND NOT package_version STREQUAL installed_version)
-        message(WARNING
-          "Python package already on the system ${package_name}:${installed_version} differs from the "
-          "version required by this project ${package_version}. Please resolve this situation manually "
-          "as this may cause compatibility issues.")
-      endif()
+      message(STATUS "Found Python package ${package_name}==${installed_version}")
+
+      check_installed_version_compatible(
+          PACKAGE_NAME ${package_name}
+          REQUIRED_VERSION ${package_version}
+          INSTALLED_VERSION ${installed_version}
+      )
+
     endif()
     
   endforeach()
