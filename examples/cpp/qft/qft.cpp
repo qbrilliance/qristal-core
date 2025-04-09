@@ -28,11 +28,13 @@ int main()
 {
   constexpr int num_qubits = 5;
   constexpr int num_shots = 1024;
+  constexpr int aer_instance_thread_limit = 4;
 
   // Make a Qristal session
   auto my_sim = qristal::session(false);
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(num_shots);
+  my_sim.set_aer_omp_threads(aer_instance_thread_limit);
 
   // Set up sensible default parameters
   my_sim.init();

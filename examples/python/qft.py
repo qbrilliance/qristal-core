@@ -30,22 +30,24 @@ for backend in backends:
     if backend == "aer_mps":
         s.acc = "aer"
         s.aer_sim_type = "matrix_product_state"
+        s.aer_omp_threads = 4
     elif backend == "aer_dm":
         s.acc = "aer"
         s.aer_sim_type = "density_matrix"
+        s.aer_omp_threads = 4
     else:
         s.acc = backend
     sessions.append(s)
 
 # Execute circuit and retrieve distribution
 def get_prob_dist(sim, results):
-    s.run() 
+    s.run()
     measured_probs_dict = {}
-    for i in s.results[0][0]: 
+    for i in s.results[0][0]:
         measured_probs_dict[str(i)[::-1]] = s.results[0][0][i] / s.results[0][0].total_counts()
     results.append(measured_probs_dict)
 
-# Execute backends in parallel 
+# Execute backends in parallel
 processes = []
 manager = multiprocessing.Manager()
 all_results = manager.list()  # This will be shared across all processes
@@ -58,7 +60,7 @@ for sim in sessions:
     p.start()
 
 # Wait for all workers to complete task
-for p in processes: 
+for p in processes:
     p.join()
 
 # Print all results

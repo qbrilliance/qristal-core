@@ -95,6 +95,19 @@ namespace qristal {
         A 1d-array (list) version of aer_sim_type.
     )";
 
+    const char* aer_omp_threadss_ = R"(
+        aer_omp_threads:
+
+        Valid settings: any positive integer
+
+        Sets the number of threads allowed to be used by the AER simulator.
+        Defaults to the value of the environment variable OMP_NUM_THREADS; if that is empty, thread number is chosen by XACC & AER.
+
+        aer_omp_threadss:
+
+        A 1d-array (list) version of aer_omp_threads.
+    )";
+
     const char* xasms_ = R"(
         xasm:
 

@@ -20,6 +20,9 @@ def main(arguments):
   # Aer simulator selected
   my_sim.acc = "aer"
 
+  # Choose how many OpenMP threads to use to run the AER simulator
+  my_sim.aer_omp_threads = 8
+
   # Set this to true to include noise
   my_sim.noise = True
 

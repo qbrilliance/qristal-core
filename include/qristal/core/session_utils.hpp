@@ -77,6 +77,8 @@ namespace qristal
     double rel_svd_cutoff_tnqvm;
     /// [AER backend] Simulator type (e.g., state vec, density matrix, etc.)
     std::string aer_sim_type;
+    /// [AER backend] Number of OpenMP threads
+    size_t aer_omp_threads = 0;
     /// [Emulator tensor network accelerators] Measurement sampling method
     std::string measure_sample_method;
   };

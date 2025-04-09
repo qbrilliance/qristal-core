@@ -23,6 +23,9 @@ int main(int argc, char * argv[])
     // Aer simulator selected
     my_sim.set_acc("aer");
 
+    // Choose how many OpenMP threads to use to run the AER simulator
+    my_sim.set_aer_omp_threads(8);
+
     // Set this to true to include noise
     my_sim.set_noise(true);
 

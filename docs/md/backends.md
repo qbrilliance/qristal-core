@@ -149,6 +149,7 @@ These parameters are currently `qristal.core.session` attributes.
 
 **Parameters**:
 
+* `aer_omp_threads` *integer*, optional. The number of OpenMP threads that the AER simulator should run with. If not set, the environment variable OMP_NUM_THREADS is read and explicitly passed to AER instead, overriding any other choices of thread number done internally in AER.  If neither is set, AER chooses the number of threads internally.
 * `aer_sim_type`: *string*, optional. The type of AER simulator. Can be set as `aer_sim_type = statevector` (default).
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `get_state_vec`: *boolean*, optional. Retrieve final state-vector if set as true (default = false).
@@ -321,6 +322,7 @@ These parameters are currently `qristal.core.session` attributes.
 
 **Parameters**:
 
+* `aer_omp_threads` *integer*, optional. The number of OpenMP threads that the AER simulator should run with. If not set, the environment variable OMP_NUM_THREADS is read and explicitly passed to AER instead, overriding any other choices of thread number done internally in AER.  If neither is set, AER chooses the number of threads internally.
 * `aer_sim_type`: *string*, required. The type of AER simulator. Must be set as `aer_sim_type = matrix_product_state`.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 
@@ -408,6 +410,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 **Parameters**:
 
+* `aer_omp_threads` *integer*, optional. The number of OpenMP threads that the AER simulator should run with. If not set, the environment variable OMP_NUM_THREADS is read and explicitly passed to AER instead, overriding any other choices of thread number done internally in AER.  If neither is set, AER chooses the number of threads internally.
 * `aer_sim_type`: *string*, required. The type of AER simulator. Must be set as `aer_sim_type = density_matrix`.
 * `noise`: *boolean*, required. Include noise in the circuit simulation.
 

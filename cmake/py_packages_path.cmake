@@ -5,10 +5,15 @@
 # If the path is given directly when invoking cmake, just use the value given there.  Otherwise, work it out.
 if(NOT PYTHON_PACKAGES_PATH)
 
+  # If the python executable has not been given directly, assume it to be simply python3
+  if(NOT PYTHON_EXECUTABLE)
+    set(PYTHON_EXECUTABLE python3)
+  endif()
+
   # Determine if using venv or not
   execute_process(RESULT_VARIABLE PYTHON_VENV_USED
                   ERROR_VARIABLE DISCARD
-                  COMMAND python3 -c "import sys; assert sys.prefix == sys.base_prefix")
+                  COMMAND ${PYTHON_EXECUTABLE} -c "import sys; assert sys.prefix == sys.base_prefix")
     if(FAILURE)
       message(FATAL_ERROR "Failed to determine whether a Python virtual environment is being used or not.")
     endif()
@@ -20,7 +25,7 @@ if(NOT PYTHON_PACKAGES_PATH)
     execute_process(RESULT_VARIABLE FAILURE
                     OUTPUT_VARIABLE PYTHON_PACKAGES_PATH
                     OUTPUT_STRIP_TRAILING_WHITESPACE
-                    COMMAND python3 -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+                    COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
     if(FAILURE)
       message(FATAL_ERROR "Failed to determine the path to your Python packages dir. Please set it manually with -DPYTHON_PACKAGES_PATH=/path/to/dir.")
     endif()
@@ -41,7 +46,7 @@ if(NOT PYTHON_PACKAGES_PATH)
       execute_process(RESULT_VARIABLE FAILURE
                       OUTPUT_VARIABLE PYTHON_PACKAGES_PATH
                       OUTPUT_STRIP_TRAILING_WHITESPACE
-                      COMMAND python3 -c "import site; print(site.getsitepackages()[0])")
+                      COMMAND ${PYTHON_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])")
       if(FAILURE)
         message(FATAL_ERROR "Attempting a root install, but failed to determine your global Python packages path.")
       endif()
@@ -53,7 +58,7 @@ if(NOT PYTHON_PACKAGES_PATH)
       execute_process(RESULT_VARIABLE FAILURE
                       OUTPUT_VARIABLE PYTHON_PACKAGES_PATH
                       OUTPUT_STRIP_TRAILING_WHITESPACE
-                      COMMAND python3 -m site --user-site)
+                      COMMAND ${PYTHON_EXECUTABLE} -m site --user-site)
       if(FAILURE)
         if(FAILURE STREQUAL "1" OR FAILURE STREQUAL "2")
           message(FATAL_ERROR "Attempting a local install, but failed because your local Python installation has its user site directory (site-packages) disabled. Try enabling it, or installing as root.")

@@ -62,6 +62,7 @@ namespace qristal
       Table2d<std::string> accs_;
 
       Table2d<std::string> aer_sim_types_;
+      Table2d<size_t> aer_omp_threadss_;
 
       Table2d<size_t> randoms_;
       Table2d<std::string> placements_;
@@ -450,6 +451,25 @@ namespace qristal
        * @return Simulator type
        */
       const Table2d<std::string> &get_aer_sim_types() const;
+
+      /**
+       * @brief Set the maximum number of OpenMP threads that AER can use.
+       *
+       * @param n number of threads
+       */
+      void set_aer_omp_threads(const size_t &n);
+      /**
+       * @brief Set the AER max threads
+       *
+       * @param n numbers of threads
+       */
+      void set_aer_omp_threadss(const Table2d<size_t> &n);
+      /**
+       * @brief Get the AER max OpenMP threads
+       *
+       * @return numbers of threads
+       */
+      const Table2d<size_t> &get_aer_omp_threadss() const;
 
       /**
        * @brief Set the depth of the auto-generated random circuit
@@ -1184,6 +1204,7 @@ namespace qristal
       void validate_gate_noise(NoiseModel* &noise_model);
       void validate_noise_mitigation(const std::string &noise_mitigate);
       void validate_aer_sim_type(const std::string &sim_type);
+      void validate_aer_omp_threads(const size_t &n);
       void validate_measure_sample_options(const std::string &measure_sample_options);
       int is_ii_consistent();
       int is_jj_consistent();

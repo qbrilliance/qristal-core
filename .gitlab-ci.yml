@@ -48,7 +48,6 @@ workflow:
 #    - core_artefacts/build/CMakeFiles/Export/
 #    - core_artefacts/build/lib*
 #    - core_artefacts/build/core.cpython-*-linux-gnu.so
-#    - core_artefacts/build/plugins
 #    - core_artefacts/build/configured_example_files
 #    - core_artefacts/cmake/py_packages_path.cmake
 #    - core_artefacts/cmake/xacc_utilities.cmake
@@ -68,7 +67,6 @@ workflow:
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
-    - core_artefacts/build/plugins
     - core_artefacts/build/configured_example_files
     - core_artefacts/cmake/py_packages_path.cmake
     - core_artefacts/cmake/xacc_utilities.cmake
@@ -93,7 +91,6 @@ workflow:
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
-    - core_artefacts/build/plugins
     - core_artefacts/build/configured_example_files
     - core_artefacts/cmake/py_packages_path.cmake
     - core_artefacts/cmake/xacc_utilities.cmake
@@ -114,7 +111,6 @@ workflow:
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
-    - core_artefacts/build/plugins
     - core_artefacts/build/configured_example_files
     - core_artefacts/cmake/py_packages_path.cmake
     - core_artefacts/cmake/xacc_utilities.cmake
@@ -141,7 +137,6 @@ workflow:
     - core_artefacts/build/CMakeFiles/Export/
     - core_artefacts/build/lib*
     - core_artefacts/build/core.cpython-*-linux-gnu.so
-    - core_artefacts/build/plugins
     - core_artefacts/build/configured_example_files
     - core_artefacts/cmake/py_packages_path.cmake
     - core_artefacts/cmake/xacc_utilities.cmake
@@ -301,12 +296,43 @@ ci-py-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
+    - cd tests/python_module && python3 -m pytest --junitxml="report.xml" --ignore aer_thread_test.py
     - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
     reports:
       junit: tests/python_module/report.xml
+
+ci-omp-tests:
+  stage: test
+  needs: ["ci-build-install-missing"]
+  tags:
+    - lambda
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - mv core_artefacts/build .
+    - mv core_artefacts/deps .
+    - chmod 700 relocate.sh
+    - ./relocate.sh
+    - cmake --install build
+    - cd tests/python_module
+    - python3 -m pytest -k "aer_omp_thread" aer_thread_test.py &
+    - export NTHREADS=$(sleep 2 && ps -T -p $! | grep "00:00:0[1-9]" | wc -l)
+    - if [[ "$NTHREADS" -eq 7 ]]; then
+    -   echo "Passed using session.aer_omp_threads"
+    - else
+    -   echo "Expected 7 threads but found $NTHREADS."
+    -   exit 1
+    - fi
+    - python3 -m pytest -k "omp_num_threads" aer_thread_test.py &
+    - export NTHREADS=$(sleep 2 && ps -T -p $! | grep "00:00:0[1-9]" | wc -l)
+    - if [[ "$NTHREADS" -eq 3 ]]; then
+    -   echo "Passed using OMP_NUM_THREADS"
+    - else
+    -   echo "Expected 3 threads but found $NTHREADS."
+    -   exit 1
+    - fi
 
 #Note: it may be that in future this could be done a little more neatly using the Docker executor
 #      instead of the shell executor, with the qcstack container specified with the "service" keyword.
@@ -526,7 +552,7 @@ rhel-x86-py-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
-    - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
+    - cd tests/python_module && python3 -m pytest --junitxml="report.xml" --ignore aer_thread_test.py
     - rm -rf ${QB_DIR}/core
   artifacts:
     when: always
@@ -631,7 +657,7 @@ rhel-power-py-tests:
   tags:
     - powerDocker
   script:
-    - cd tests/python_module && python3 -m pytest --junitxml="report.xml"
+    - cd tests/python_module && python3 -m pytest --junitxml="report.xml" --ignore aer_thread_test.py
     - rm -rf ${QB_DIR}/core
   artifacts:
     when: always

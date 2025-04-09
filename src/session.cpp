@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <random>
+#include <cstdlib>
 
 // Boost
 #include <boost/dynamic_bitset.hpp>
@@ -114,7 +115,7 @@ namespace qristal
       : name_m{{}}, number_m{{}}, infiles_{{}},
         include_qbs_{{SDK_DIR "/include/qb/core/qristal.inc"}},
         instrings_{{}}, irtarget_ms_{{}}, accs_{{"qpp"}},
-        aer_sim_types_{}, randoms_{{}},
+        aer_sim_types_{}, aer_omp_threadss_{}, randoms_{{}},
         xasms_{{{false}}}, quil1s_{{{false}}}, noplacements_{{{false}}},
         nooptimises_{{{true}}}, execute_circuits_{{{true}}}, noises_{{{false}}},
         output_oqm_enableds_{{{false}}},
@@ -779,6 +780,16 @@ namespace qristal
       }
     }
 
+    /// AER max threads
+    {
+      if (!aer_omp_threadss_.empty()) {
+        ValidatorTwoDim<size_t> aer_omp_threads_valid(
+            aer_omp_threadss_, 1, std::numeric_limits<int>::max(),
+            " max threads usable by AER simulator [aer_omp_threads] ");
+        config.aer_omp_threads = aer_omp_threads_valid.get(ii, jj);
+      }
+    }
+
     return config;
   }
 
@@ -1113,6 +1124,16 @@ namespace qristal
       } else {
         if (debug_)
           std::cout << "# Using default AER simulation method." << std::endl;
+      }
+      if (run_config.aer_omp_threads == 0) {
+        char* omp_num_threads = std::getenv("OMP_NUM_THREADS");
+        if (omp_num_threads != NULL) run_config.aer_omp_threads = strtol(omp_num_threads, nullptr, 10);
+        else if (debug_) std::cout << "# AER will determine how many threads to use for itself." << std::endl;
+      }
+      if (run_config.aer_omp_threads != 0) {
+        aer_options.insert("max_parallel_threads", run_config.aer_omp_threads);
+        if (debug_)std::cout << "# Allowing AER simulator to use up to " << run_config.aer_omp_threads
+                             << " OpenMP threads." << std::endl;
       }
       if (run_config.noise) {
         aer_options.insert("noise-model", run_config.noise_model->to_json());

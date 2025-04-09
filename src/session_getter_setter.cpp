@@ -160,6 +160,24 @@ void session::validate_aer_sim_type(const std::string &sim_type) {
 }
 const Table2d<std::string> &session::get_aer_sim_types() const { return aer_sim_types_; }
 
+void session::set_aer_omp_threads(const size_t &n) {
+  validate_aer_omp_threads(n);
+  aer_omp_threadss_.clear();
+  aer_omp_threadss_.emplace_back(std::vector<size_t>{n});
+}
+void session::set_aer_omp_threadss(const Table2d<size_t> &n) {
+  for (const auto &item : n) {
+    for (const auto &im : item) {
+      validate_aer_omp_threads(im);
+    }
+  }
+  aer_omp_threadss_ = n;
+}
+void session::validate_aer_omp_threads(const size_t &n) {
+  if (n < 1) throw std::range_error("Qristal: aer_omp_threads must be > 0");
+}
+const Table2d<size_t> &session::get_aer_omp_threadss() const { return aer_omp_threadss_; }
+
 //
 
 void session::set_random(const size_t &in_random) {

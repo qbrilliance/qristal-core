@@ -2,16 +2,19 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
+<<<<<<< HEAD
 
 ## [X.X.X] - YYYY-MM-DD
 
 ### Breaking
-- 
+-
 
 ### Added
+- Direct control of the number of OpenMP threads used by aer backend via new aer_omp_threads option.
 - Added and enabled MPI support to cmake configuration
 
 ### Fixed
+- Now passing Python executable to py_packages_path.cmake, allowing for full installation using non-system Python.
 - CMake configuration: Python package warning was incorrectly being displayed if the installed version didn't *exactly* match the required version. E.g. if numpy version 1.26 is required and version 1.26.2 is installed, a warning was previously incorrectly displayed during CMake configuration
 - Fixed a minor issue where a folder named `_deps` would appear in the user's current working directory during cmake configuration when building the repo.
 - Fixed issue with dependencies preventing the building of docs on some systems.
@@ -68,7 +71,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added partial trace for process matrix in the standard Pauli basis.
 - Added conversion of process matrix from superoperator and choi to standard process matrix.
 - Added warning for backends' maximum qubit number.
-- Allow automatic installation of python dependencies needed for building docs, via INSTALL_MISSING. 
+- Allow automatic installation of python dependencies needed for building docs, via INSTALL_MISSING.
 - Improved automatic installation of python dependencies to use a single call to `pip`.
 
 ### Fixed

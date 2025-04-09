@@ -103,6 +103,12 @@ void bind_session(pybind11::module &m) {
       .def_property("aer_sim_types", &qristal::session::get_aer_sim_types,
                     &qristal::session::set_aer_sim_types,
                     qristal::help::aer_sim_types_)
+      .def_property("aer_omp_threads", &qristal::session::get_aer_omp_threadss,
+                    &qristal::session::set_aer_omp_threads,
+                    qristal::help::aer_omp_threadss_)
+      .def_property("aer_omp_threadss", &qristal::session::get_aer_omp_threadss,
+                    &qristal::session::set_aer_omp_threadss,
+                    qristal::help::aer_omp_threadss_)
       .def_property("random", &qristal::session::get_randoms,
                     &qristal::session::set_random, qristal::help::randoms_)
       .def_property("randoms", &qristal::session::get_randoms,

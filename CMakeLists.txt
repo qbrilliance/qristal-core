@@ -89,6 +89,7 @@ install(
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} \
                                                        -Dqristal_core_LIBDIR=${qristal_core_LIBDIR} \
                                                        -DXACC_ROOT=${XACC_ROOT} \
+                                                       -DPYTHON_EXECUTABLE=${Python_EXECUTABLE} \
                                                        -DPYTHON_PACKAGES_PATH=${PYTHON_PACKAGES_PATH} \
                                                        -DPROJECT_NAME=${PROJECT_NAME} \
                                                        -P${CMAKE_INSTALL_PREFIX}/cmake/py_packages_path.cmake)")
