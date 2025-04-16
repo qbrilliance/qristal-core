@@ -60,6 +60,10 @@ void cudaq_acc::updateConfiguration(const xacc::HeterogeneousMap &config) {
     m_measure_sample_method = config.getString("measurement-sampling-method");
     setEnvVar(m_measure_sample_method, "CUDAQ_MEASURE_SAMPLING_METHOD");
   }
+  if (config.keyExists<std::vector<size_t>>("gpu-device-id")) {
+    m_gpu_device_id = config.get<std::vector<size_t>>("gpu-device-id");
+    setEnvVar(m_gpu_device_id, "CUDAQ_GPU_DEVICE_ID");
+  }
 }
 
 void cudaq_acc::freeEnvVars() {
@@ -70,12 +74,13 @@ void cudaq_acc::freeEnvVars() {
   unsetenv("CUDAQ_ABS_CUTOFF");
   unsetenv("CUDAQ_RELATIVE_CUTOFF");
   unsetenv("CUDAQ_MEASURE_SAMPLING_METHOD");
+  unsetenv("CUDAQ_GPU_DEVICE_ID");
 }
 
 const std::vector<std::string> cudaq_acc::configurationKeys() {
   return {"shots", "initial-bond-dim", "initial-kraus-dim", "max-bond-dim", "max-kraus-dim",
           "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-method",
-          "noise-model"};
+          "noise-model", "gpu-device-id"};
 }
 
 void cudaq_acc::execute(

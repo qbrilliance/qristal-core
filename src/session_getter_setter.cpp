@@ -102,13 +102,17 @@ void session::validate_acc(const std::string &acc) {
 }
 const Table2d<std::string> & session::get_accs() const { return session::accs_; }
 
-void session::validate_max_qubits_acc(size_t &num_qubits, std::string acc, std::string &aer_sim_type) {
+void session::validate_max_qubits_acc(size_t &num_qubits, std::string acc, std::string &aer_sim_type, std::vector<size_t> &gpu_device_id) {
   if (acc == "aer") {
     if (aer_sim_type == "statevector") {
       acc = "aer_statevector";
     } else if (aer_sim_type == "density_matrix") {
       acc = "aer_density_matrix";
     }
+  }
+
+  if (acc == "cirq-qsim") {
+    acc = gpu_device_id.empty() ? "cirq-qsim-cpu" : "cirq-qsim-gpu";
   }
 
   auto it = MAX_QUBITS_ACCS.find(acc);
@@ -357,6 +361,13 @@ void session::validate_measure_sample_options(const std::string &measure_sample_
   }
 }
 const Table2d<std::string> & session::get_measure_sample_methods() const { return session::measure_sample_methods_; }
+
+void session::set_gpu_device_id(const std::vector<size_t> &in_gpu_device_id) {
+  session::gpu_device_ids_.clear();
+  session::gpu_device_ids_.push_back({in_gpu_device_id});
+}
+void session::set_gpu_device_ids(const Table2d<std::vector<size_t>> &in_gpu_device_id) { session::gpu_device_ids_ = in_gpu_device_id; }
+const Table2d<std::vector<size_t>> & session::get_gpu_device_ids() const { return session::gpu_device_ids_; }
 
 //
 void session::set_noise_model(NoiseModel &noise_model) {
@@ -768,6 +779,18 @@ const std::string session::get_summary() const {
   "    QB tensor network measurement sampling method" << std::endl <<
   "  = ";
   for (auto item : get_measure_sample_methods()) {
+    for (auto itel : item) {
+      out << " " << itel;
+    }
+    out << std::endl;
+  }
+  out << std::endl << std::endl;
+  //
+
+  out << "* gpu_device_id:" << std::endl <<
+  "    GPU device ID" << std::endl <<
+  "  = ";
+  for (auto item : get_gpu_device_ids()) {
     for (auto itel : item) {
       out << " " << itel;
     }

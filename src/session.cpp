@@ -129,7 +129,7 @@ namespace qristal
         out_qbjsons_{{{}}}, out_single_qubit_gate_qtys_{{{}}}, out_double_qubit_gate_qtys_{{{}}},
         out_total_init_maxgate_readout_times_{{{}}}, out_z_op_expects_{{{}}},
         executor_(std::make_shared<Executor>()), error_mitigations_{}, state_vec_{},
-        in_get_state_vec_(false), measure_sample_methods_{{"auto"}} {
+        in_get_state_vec_(false), measure_sample_methods_{{"auto"}}, gpu_device_ids_{{{}}} {
     set_remote_backend_database_path(SDK_DIR "/remote_backends.yaml");
     xacc::Initialize();
     xacc::setIsPyApi();
@@ -732,6 +732,15 @@ namespace qristal
       config.measure_sample_method = measure_sample_method_valid.get(ii, jj);
     }
 
+    /// GPU device ID for GPU-enabled backends
+    {
+      // TODO: Once CUDA library has been added/detected, use cudaGetDeviceCount() to obtain number of GPU devices, then
+      // use that to create a validator here.
+      if (!gpu_device_ids_[0].empty()) {
+        config.gpu_device_id = gpu_device_ids_.at(0).at(0);
+      }
+    }
+
     /// Choice of noise model
     {
       if (config.noise == true) {
@@ -1030,6 +1039,7 @@ namespace qristal
     double svd_cutoff = run_config.svd_cutoff_tnqvm;
     double rel_svd_cutoff = run_config.rel_svd_cutoff_tnqvm;
     std::string measure_sample_method = run_config.measure_sample_method;
+    std::vector<size_t> gpu_device_id = run_config.gpu_device_id;
     // Optional random seed: randomized by default.
     int random_seed = []() {
       static std::random_device dev;
@@ -1055,13 +1065,18 @@ namespace qristal
                   << std::endl;
       }
 
+      if (acc != "cudaq:qpp" && gpu_device_id.empty()) {
+        throw std::invalid_argument("No GPU device specified. Please specify GPU devices in gpu_device_id option.");
+      }
+
       xacc::HeterogeneousMap qpu_options {
         {"shots", run_config.num_shots},
         {"initial-bond-dim", initial_bond_dimension},
         {"max-bond-dim", max_bond_dimension},
         {"abs-truncation-threshold", svd_cutoff},
         {"rel-truncation-threshold", rel_svd_cutoff},
-        {"measurement-sampling-method", measure_sample_method}};
+        {"measurement-sampling-method", measure_sample_method},
+        {"gpu-device-id", gpu_device_id}};
       if (acc == "cudaq:qb_purification") { // Additional options for qb-purification
         qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
         qpu_options.insert("max-kraus-dim", max_kraus_dimension);
@@ -1151,18 +1166,28 @@ namespace qristal
       // Use qsim via Cirq wrapper to handle noise if requested.
       // The "cirq-qsim" backend is part of the external emulator package
       // to be used with the qb emulator noise models only.
-      xacc::HeterogeneousMap qpu_options;
       if (debug_) {
         std::cout << "# Noise model for qsim (from emulator package): enabled" << std::endl;
       }
-      qpu = xacc::getAccelerator("cirq-qsim", {{"noise-model", run_config.noise_model}});
+
+      xacc::HeterogeneousMap qpu_options {{"noise-model", run_config.noise_model}};
+      if (!gpu_device_id.empty()) { // Add GPU option
+        qpu_options.insert("gpu-device-id", gpu_device_id);
+      }
+      qpu = xacc::getAccelerator("cirq-qsim", qpu_options);
+
     } else if (acc == "qb-mps" || acc == "qb-purification" || acc == "qb-mpdo") {
+      if (gpu_device_id.empty()) {
+        throw std::invalid_argument("No GPU device specified. Please specify GPU devices in gpu_device_id option.");
+      }
+
       xacc::HeterogeneousMap qpu_options {
         {"initial-bond-dim", initial_bond_dimension},
         {"max-bond-dim", max_bond_dimension},
         {"abs-truncation-threshold", svd_cutoff},
         {"rel-truncation-threshold", rel_svd_cutoff},
-        {"measurement-sampling-method", measure_sample_method}};
+        {"measurement-sampling-method", measure_sample_method},
+        {"gpu-device-id", gpu_device_id}};
       if (acc == "qb-purification") { // Additional options for qb-purification
         qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
         qpu_options.insert("max-kraus-dim", max_kraus_dimension);
@@ -1186,14 +1211,17 @@ namespace qristal
   }
 
   void session::validate_run() {
-
     // Allowed backend
     for (auto i : accs_) for (auto acc : i) session::validate_acc(acc);
 
     for (size_t i = 0; i < accs_.size(); i++) {
       for (size_t j = 0; j < accs_[i].size(); j++) {
+        std::string acc = accs_[i][j];
+        if (acc == "qsim" && noises_[i][j] && !noise_models_[i].empty()) {
+          acc = "cirq-qsim";
+        }
         // Maximum number of qubits for backend
-        session::validate_max_qubits_acc(qns_[i][j], accs_[i][j], aer_sim_types_[i][j]);
+        session::validate_max_qubits_acc(qns_[i][j], acc, aer_sim_types_[i][j], gpu_device_ids_[i][j]);
 
         if (accs_[i][j] == "aer" && noises_[i][j] && !noise_models_[i].empty()) {
           // Check if noise model contains the native gate set of the backend

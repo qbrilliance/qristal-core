@@ -35,6 +35,8 @@ for backend in backends:
         s.acc = "aer"
         s.aer_sim_type = "density_matrix"
         s.aer_omp_threads = 4
+    elif backend == "cudaq:dm" :
+        s.gpu_device_id = [0]
     else:
         s.acc = backend
     sessions.append(s)

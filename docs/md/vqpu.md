@@ -71,6 +71,8 @@ The Qristal vQPU offers many of the same options and settings as the Qristal SDK
 
 * `qristal_seed`: *integer or 'null'*. Optional. The random seed to pass to Qristal to seed the vQPU. The default value (`null`) causes the vQPU to choose its own seed from the system clock.
 
+* `gpu_device_id`: *Vector of integers*. Optional. The GPU device IDs to use when running the simulation (for GPU-enabled accelerators only).
+
 * `backend`: *string*. The simulator backend to use for QPU virtualisation. Valid values:
   - `"qsim"`: [Quantum Brilliance state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-state-vector-qsim)
   - `"sparse-sim"`: [Microsoft sparse state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#microsoft-sparse-state-vector-sparse-sim)

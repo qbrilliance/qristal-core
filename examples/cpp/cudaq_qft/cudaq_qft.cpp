@@ -20,6 +20,7 @@ int main()
 
   // Choose a CUDAQ simulator backend, e.g., custatevec_fp32 (single-precision)
   my_sim.set_acc("cudaq:custatevec_fp32");
+  my_sim.set_gpu_device_id({0});
 
   // Choose how many qubits to simulate
   constexpr int num_qubits = 10;

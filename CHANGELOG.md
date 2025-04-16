@@ -12,6 +12,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 ### Added
 - Direct control of the number of OpenMP threads used by aer backend via new aer_omp_threads option.
 - Added and enabled MPI support to cmake configuration
+- Added user-specified GPU device index for GPU-enabled accelerators. This allows users to select specific GPU device(s) to execute simulations on.
 
 ### Fixed
 - Now passing Python executable to py_packages_path.cmake, allowing for full installation using non-system Python.

@@ -161,6 +161,7 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   // Both custatevec_fp32 and custatevec_fp64 are okay,
   // use f32 to speed up the test.
   my_sim.set_acc("cudaq:custatevec_fp32");
+  my_sim.set_gpu_device_id({0});
   // Choose how many 'shots' to run through the circuit
   my_sim.set_sn(20000);
   my_sim.set_qn(NB_QUBITS);
@@ -210,6 +211,7 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   my_sim.set_qn(2);
   // Use CUDAQ "dm" backend
   my_sim.set_acc("cudaq:dm");
+  my_sim.set_gpu_device_id({0});
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
   // Print the cumulative results
@@ -243,6 +245,7 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   my_sim.set_qn(2);
   // Use CUDAQ "dm" backend
   my_sim.set_acc("cudaq:dm");
+  my_sim.set_gpu_device_id({0});
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
   // Print the cumulative results

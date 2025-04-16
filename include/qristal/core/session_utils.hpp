@@ -81,6 +81,8 @@ namespace qristal
     size_t aer_omp_threads = 0;
     /// [Emulator tensor network accelerators] Measurement sampling method
     std::string measure_sample_method;
+    /// [GPU-enabled backends] GPU device IDs
+    std::vector<size_t> gpu_device_id;
   };
 
 }

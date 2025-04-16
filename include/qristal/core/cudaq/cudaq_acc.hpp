@@ -34,6 +34,8 @@ class cudaq_acc : public xacc::Accelerator {
   std::string m_measure_sample_method; 
   /// CudaQ's struct containing sampling function's members: number of shots and noise model
   cudaq::sample_options sample_ops;
+  /// GPU device IDs
+  std::vector<size_t> m_gpu_device_id; 
 
 public:
   /// Constructor
@@ -75,6 +77,14 @@ public:
     }
     const char *param_char = param_str.c_str();
     setenv(env_var_name, param_char, true);
+
+    if constexpr (std::is_same_v<T, std::vector<size_t>>) {
+      std::stringstream param_str_vec;
+      std::copy(param.begin(), param.end(), std::ostream_iterator<int>(param_str_vec, " "));
+      const std::string tmp = param_str_vec.str();
+      const char *param_char = tmp.c_str();
+      setenv(env_var_name, param_char, true);
+    }
   }
 };
 }

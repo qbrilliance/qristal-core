@@ -84,6 +84,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 **Parameters**:
 
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
+* `gpu_device_id`: *Vector of integers*. GPU device IDs. Only for GPU version
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -134,7 +135,8 @@ These parameters are currently `qristal.core.session` attributes.
 
 **Requires**: CUDA Quantum
 
-**Parameters**: None
+**Parameters**:
+* `gpu_device_id`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
 
 **Example**: `cudaq_qft.py`
 
@@ -205,6 +207,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
+* `gpu_device_id`: *Vector of integers*. GPU device IDs.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -239,6 +242,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
+* `gpu_device_id`: *Vector of integers*. GPU device IDs.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -275,6 +279,7 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
+* `gpu_device_id`: *Vector of integers*. GPU device IDs.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -369,7 +374,8 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 **Requires**: CUDA Quantum
 
-**Parameters**: None
+**Parameters**:
+* `gpu_device_id`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
 
 **Example**: `qft.py`
 

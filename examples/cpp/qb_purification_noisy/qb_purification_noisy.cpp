@@ -33,6 +33,7 @@ int main()
   std::map<int, double> rel_scut{{0, 1.0e-10}};
   s.set_rel_svd_cutoff(rel_scut);
   s.set_measure_sample_method("auto");
+  s.set_gpu_device_id({0});
 
   // Set the noise model
   // Uncomment the following lines to introduce noise to the simulation.

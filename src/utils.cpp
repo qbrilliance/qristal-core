@@ -244,6 +244,9 @@ namespace qristal {
     if (config.count("max-kraus-dimension")) {
         output_to_js["max_kraus_dimension"] = config["max-kraus-dimension"];
     }
+    if (config.count("gpu-device-id")) {
+        output_to_js["gpu_device_id"] = config["gpu-device-id"];
+    }
     if (config.count("qaoa")) {
       output_to_js["qaoa"] = config["qaoa"].get<std::vector<double>>();
     }

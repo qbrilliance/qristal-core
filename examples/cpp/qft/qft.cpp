@@ -35,6 +35,7 @@ int main()
   my_sim.set_qn(num_qubits);
   my_sim.set_sn(num_shots);
   my_sim.set_aer_omp_threads(aer_instance_thread_limit);
+  my_sim.set_gpu_device_id({0});
 
   // Set up sensible default parameters
   my_sim.init();

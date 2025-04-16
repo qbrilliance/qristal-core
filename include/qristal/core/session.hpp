@@ -94,6 +94,9 @@ namespace qristal
       Table2d<std::map<int,double>> rel_svd_cutoffs_;
       Table2d<std::string> measure_sample_methods_;
 
+      // List of GPU device number
+      Table2d<std::vector<size_t>> gpu_device_ids_;
+
       // Noise models
       std::vector<std::vector<NoiseModel*>> noise_models_;
 
@@ -180,7 +183,8 @@ namespace qristal
       const std::unordered_map<std::string, size_t> MAX_QUBITS_ACCS = {
         std::make_pair("aer_density_matrix", 14),
         std::make_pair("aer_statevector", 28),
-        std::make_pair("cirq-qsim", 28),
+        std::make_pair("cirq-qsim-cpu", 20),
+        std::make_pair("cirq-qsim-gpu", 28),
         std::make_pair("cudaq:custatevec_fp32", 28),
         std::make_pair("cudaq:custatevec_fp64", 28),
         std::make_pair("cudaq:dm", 14),
@@ -893,6 +897,26 @@ namespace qristal
       const Table2d<std::string> &get_measure_sample_methods() const;
 
       /**
+       * @brief Set the GPU device IDs
+       * @note This is only needed if using a GPU-enabled simulator.
+       *
+       * @param in_gpu_device_id GPU device IDs
+       */
+      void set_gpu_device_id(const std::vector<size_t> &in_gpu_device_id);
+      /**
+       * @brief Set the GPU device IDs
+       *
+       * @param in_gpu_device_id GPU device IDs
+       */
+      void set_gpu_device_ids(const Table2d<std::vector<size_t>> &in_gpu_device_id);
+      /**
+       * @brief Get the GPU device IDs
+       *
+       * @return GPU device IDs
+       */
+      const Table2d<std::vector<size_t>> &get_gpu_device_ids() const;
+
+      /**
        * @brief Set the noise model
        *
        * @param model The noise model to use
@@ -1200,7 +1224,7 @@ namespace qristal
       int validate_qns_nonempty();
       int validate_instrings();
       void validate_acc(const std::string &acc);
-      void validate_max_qubits_acc(size_t &num_qubits, std::string acc, std::string &aer_sim_type);
+      void validate_max_qubits_acc(size_t &num_qubits, std::string acc, std::string &aer_sim_type, std::vector<size_t> &gpu_device_id);
       void validate_gate_noise(NoiseModel* &noise_model);
       void validate_noise_mitigation(const std::string &noise_mitigate);
       void validate_aer_sim_type(const std::string &sim_type);

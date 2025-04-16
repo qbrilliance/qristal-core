@@ -14,6 +14,7 @@ s.acc = "qsim"
 #s.noise = True
 #nm = qristal.core.NoiseModel("qb-nm1", n_qbits)
 #s.noise_model = nm
+#s.gpu_device_id = [0] # Uncomment to use GPU-enabled cirq-qsim, otherwise cirq-qsim will use its CPU backend
 
 # In this test we use generalised mcx to
 # perform a standard mcx on |111>

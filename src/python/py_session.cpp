@@ -250,6 +250,22 @@ void bind_session(pybind11::module &m) {
                     &qristal::session::get_measure_sample_methods,
                     &qristal::session::set_measure_sample_methods,
                     qristal::help::measure_sample_methods_)
+      .def_property("gpu_device_id",
+                    &qristal::session::get_gpu_device_ids,
+                    [&](qristal::session &s, const py::array_t<size_t>& gpu_device_id) {
+                      s.set_gpu_device_id(py_array_to_std_vec(gpu_device_id));
+                    },
+                    qristal::help::gpu_device_ids_)
+      .def_property("gpu_device_ids",
+                    &qristal::session::get_gpu_device_ids,
+                    [&](qristal::session &s, const std::vector<std::vector<py::array_t<size_t>>>& gpu_device_id_vec) {
+                      for (const auto &x : gpu_device_id_vec) {
+                        for (const auto &gpu_device_id : x) {
+                          s.set_gpu_device_id(py_array_to_std_vec(gpu_device_id));
+                        }
+                      }
+                    },
+                    qristal::help::gpu_device_ids_)
       .def_property("expected_amplitudes", &qristal::session::get_expected_amplitudes,
                     &qristal::session::set_expected_amplitudes,
                     qristal::help::expected_amplitudes_)

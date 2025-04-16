@@ -413,6 +413,19 @@ namespace qristal {
                 This is only needed if using the emulator tensor network accelerators.
     )";
 
+    const char* gpu_device_ids_ = R"(
+        gpu_device_id:
+
+        Set list of GPU device IDs (GPU-enabled simulators). The single setting applies globally.
+
+        gpu_device_ids:
+
+        A 1d-array (list) version of gpu_device_id.
+
+        .. note::
+                This is only needed if using a GPU-enabled backend accelerators.
+    )";
+
     const char* noise_models_ = R"(
         noise_model:
 
