@@ -1,19 +1,20 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
+
+#include <fmt/base.h>
+
 #include <iostream>
 #include <string>
 
 int main()
 {
-
-  // And we're off!
-  std::cout << "Executing C++ demo..." << std::endl;
-
-  // Make a Qristal session
+    // Make a Qristal session
   auto my_sim = qristal::session(false);
 
   // Set up sensible default parameters
   my_sim.init();
+
+  my_sim.supervisor_print("Executing Qristal MPI Demo...");
 
   // Choose a simulator backend
   my_sim.set_acc("qpp");
@@ -22,10 +23,10 @@ int main()
   my_sim.set_qn(2);
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(100);
+  my_sim.set_sn(1000000);
 
-  // Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit')
-  const std::string targetCircuit = R"(
+  // Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit') and hand the kernel over to the sim object
+  my_sim.set_instring(R"(
     __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
     {
       OPENQASM 2.0;
@@ -36,17 +37,14 @@ int main()
       measure q[0] -> c[0];
       measure q[1] -> c[1];
     }
-    )";
+    )");
 
-  // Hand the kernel over to the sim object
-  my_sim.set_instring(targetCircuit);
-
-  // Run the circuit 100 times and count up the results in each of the classical
+  // Run the circuit and count up the results in each of the classical
   // registers
-  std::cout << "About to run quantum program..." << std::endl;
+  my_sim.supervisor_print("About to run quantum program...\n");
   my_sim.run();
-  std::cout << "Ran successfully!" << std::endl;
+  my_sim.supervisor_print("Ran successfully!\n");
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.results()[0][0] << std::endl;
+  my_sim.supervisor_print("Results:\n{}\n", my_sim.results()[0][0]);
 }

@@ -3,21 +3,49 @@
 #pragma once
 #include "qristal/core/typedefs.hpp"
 
+#include <iostream>
 #include <map>
+#include <ranges>
 #include <stdexcept>
 #include <unordered_set>
-#include <iostream>
 
-#include <args.hxx>
-#include <nlohmann/json.hpp>
 #include <Eigen/Dense>
+#include <args.hxx>
+#include <fmt/base.h>
+#include <fmt/ranges.h>
+#include <nlohmann/json.hpp>
 
 /**
 * Utility (helper) functions
 */
 
 /// Stream overload for map from vector of bools to ints
-std::ostream& operator<< (std::ostream& s, const std::map<std::vector<bool>, int>& m);
+std::ostream &operator<<(std::ostream &s,
+                         const std::map<std::vector<bool>, int> &m);
+
+// fmt formatter for std::map<std::vector<bool>, int>
+template <> struct fmt::formatter<std::map<std::vector<bool>, int>> {
+  template <typename ParseContext> constexpr auto parse(ParseContext &ctx) {
+    return ctx.begin();
+  }
+
+  template <typename FormatContext>
+  auto format(const std::map<std::vector<bool>, int> &map,
+              FormatContext &ctx) const {
+    auto out = ctx.out();
+    bool first_key = true;
+    for (const auto &[key, val] : map) {
+      fmt::format_to(out, "{}{}: {}", first_key ? "" : "\n",
+                     fmt::join(key | std::views::transform([](bool b) {
+                                 return static_cast<int32_t>(b);
+                               }),
+                               ""),
+                     val);
+      first_key = false;
+    }
+    return out;
+  }
+};
 
 namespace qristal {
 

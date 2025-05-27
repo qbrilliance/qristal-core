@@ -78,12 +78,14 @@ add_poorly_behaved_dependency(xacc 1.0.0
   GIT_REPOSITORY https://github.com/eclipse/xacc
   PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/xacc.patch
   OPTIONS
-    "XACC_ENABLE_MPI @XACC_ENABLE_MPI@"
+    "XACC_ENABLE_MPI ${ENABLE_MPI_IN_DEPS}"
     "COMPILE_FOR_LOCAL_ARCH ${COMPILE_FOR_LOCAL_ARCH}"
     "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
     "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
     "CMAKE_INSTALL_LIBDIR lib"
     "Eigen3_DIR ${Eigen3_DIR}"
+    "THREAD_SANITIZER_AVAILABLE OFF"
+    "ADDRESS_SANITIZER_AVAILABLE OFF"
 )
 
 # Python 3 interpreter and libraries
@@ -115,7 +117,7 @@ if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "")
     set(yaml-cpp_DIR $ENV{YAML_CPP_DIR}/${qristal_core_LIBDIR}/cmake/yaml-cpp)
   endif()
 endif()
-set(yamlcpp_VERSION "0.7.0")
+set(yamlcpp_VERSION "0.8.0")
 add_dependency(yamlcpp ${yamlcpp_VERSION}
   GITHUB_REPOSITORY jbeder/yaml-cpp
   FIND_PACKAGE_NAME yaml-cpp
@@ -143,17 +145,8 @@ add_dependency(googletest ${GTest_VERSION}
   FIND_PACKAGE_NAME GTest
   GIT_TAG release-1.12.1
   OPTIONS
-    "INSTALL_GTEST ON"
     "gtest_force_shared_crt ON"
 )
-if(googletest_ADDED)
-  set(GTest_DIR ${CMAKE_INSTALL_PREFIX}/cmake/googletest/GTest CACHE PATH "GTest Installation path." FORCE)
-  install(
-    DIRECTORY ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/cmake/GTest
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/googletest
-  )
-  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}/cmake/GTest)")
-endif()
 
 # json library
 set(nlohmann_json_VERSION "3.1.1")
@@ -177,6 +170,43 @@ if(nlohmann_json_ADDED)
   install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake/nlohmann_json)")
 endif()
 
+# fmt lib
+set(fmt_VERSION "11.1.4")
+add_dependency(fmt ${fmt_VERSION}
+  GIT_TAG ${fmt_VERSION}
+  GITHUB_REPOSITORY fmtlib/fmt
+  FIND_PACKAGE_ARGUMENTS "CONFIG"
+  OPTIONS
+    "FMT_TEST OFF"
+    "FMT_DOC OFF"
+    "CMAKE_POSITION_INDEPENDENT_CODE ON"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
+)
+if(fmt_ADDED)
+  set(fmt_DIR ${CMAKE_INSTALL_PREFIX}/cmake/fmt)
+endif()
+
+# range-v3 library
+set(range-v3_VERSION "0.12.0")
+add_dependency(range-v3 ${range-v3_VERSION}
+  GIT_TAG ${range-v3_VERSION}
+  GITHUB_REPOSITORY ericniebler/range-v3
+  FIND_PACKAGE_ARGUMENTS "CONFIG"
+  OPTIONS
+    "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
+    "RANGE_V3_TESTS OFF"
+    "RANGE_V3_EXAMPLES OFF"
+    "RANGE_V3_PERF OFF"
+    "RANGE_V3_DOCS OFF"
+    "RANGES_BUILD_CALENDAR_EXAMPLE OFF"
+    "RANGES_DEEP_STL_INTEGRATION ON" # Note this allows interoperability between std::ranges and range-v3 ranges
+    "CMAKE_POSITION_INDEPENDENT_CODE ON"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
+)
+if(range-v3_ADDED)
+  set(range-v3_DIR ${CMAKE_INSTALL_PREFIX}/cmake/range-v3)
+endif()
+
 # BLAS; used as a dependency for EXATN and Eigen.
 set(BLA_VENDOR OpenBLAS)
 find_package(BLAS)
@@ -188,7 +218,7 @@ endif()
 
 # MPI
 # See https://cmake.org/cmake/help/v3.20/module/FindMPI.html for more information
-if(ADD_MPI)
+if(WITH_MPI)
   add_mpi()
 else()
   message(STATUS "WITH_MPI has not been set. Building without MPI support.")
@@ -197,7 +227,7 @@ endif()
 # tket
 set(WITH_TKET OFF CACHE BOOL "Enable TKET for noise-aware circuit placement.")
 set(TKET_VERSION 1.11.1)
-set(TKET_TAG "1cd9fe36")
+set(TKET_TAG "1cd9fe3")
 if(WITH_TKET)
   add_poorly_behaved_dependency(TKET ${TKET_VERSION}
     FIND_PACKAGE_NAME TKET
@@ -282,7 +312,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   # when packages are forked and the name is changed slightly).
   add_python_package(
     amazon-braket-sdk==1.74.1
-    ase==3.22.1
+    ase==3.25.0
     boto3==1.34
     botocore==1.34
     matplotlib==3.8.4
@@ -304,19 +334,26 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   else()
     set(EXATN_C_COMPILER "gcc")
   endif()
+  set(exatn_options 
+    "BLAS_LIB OPENBLAS"
+    "BLAS_PATH @BLAS_PATH@"
+    "EXATN_BUILD_TESTS OFF"
+    "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
+    "CMAKE_C_COMPILER ${EXATN_C_COMPILER}"
+    # Prevent exatn finding Python, as we don't need Python bindings and they fail to build with some versions of Python
+    "Python_LIBRARY /nope"
+  )
+  # exatn always runs find_package(MPI) then uses MPI_LIB STREQUAL NONE to determine whether to link against the MPI target.
+  # We need to convert our MPI build control facility to exatn's.
+  if(ENABLE_MPI_IN_DEPS)
+    list(APPEND exatn_options "MPI_HOME ${MPI_HOME}")
+  endif()
   add_poorly_behaved_dependency(exatn 1.0.0
     FIND_PACKAGE_NAME EXATN
     GIT_TAG d8a15b1
     GIT_REPOSITORY https://github.com/ornl-qci/exatn
     UPDATE_SUBMODULES True
-    OPTIONS
-      "BLAS_LIB OPENBLAS"
-      "BLAS_PATH @BLAS_PATH@"
-      "EXATN_BUILD_TESTS OFF"
-      "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
-      "CMAKE_C_COMPILER ${EXATN_C_COMPILER}"
-      # Prevent exatn finding Python, as we don't need Python bindings and they fail to build with some versions of Python
-      "Python_LIBRARY /nope"
+    OPTIONS ${exatn_options}
   )
 
   # TNQVM

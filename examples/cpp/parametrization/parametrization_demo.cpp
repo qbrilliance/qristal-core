@@ -20,10 +20,10 @@ int main() {
   my_sim.set_qn(2);
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(10'000);
+  my_sim.set_sns({{10'000}, {10'000}});
 
   // Choose to enable gradient calculations
-  my_sim.set_calc_jacobian(true);
+  my_sim.set_calc_jacobians({{true}, {true}});
 
   // Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit')
   auto circ1 = qristal::CircuitBuilder();

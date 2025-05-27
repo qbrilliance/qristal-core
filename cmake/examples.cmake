@@ -74,6 +74,10 @@ if(WITH_EXAMPLES)
   if (WITH_PROFILING)
     add_example(runtime_profiling SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/runtime_profiling/runtime_profiling.cpp)
   endif()
+
+  if (WITH_MPI)
+    add_example(mpi_demo SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_demo/mpi_demo.cpp)
+  endif()
   
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python

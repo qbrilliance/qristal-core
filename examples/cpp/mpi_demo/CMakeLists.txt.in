@@ -1,0 +1,29 @@
+# Copyright (c) Quantum Brilliance Pty Ltd
+#
+# Demonstration of how to set up the build of a
+# C++ main program with MPI functionality.
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(mpi_demo
+  DESCRIPTION "Quantum Brilliance mpi_demo example"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core REQUIRED)
+
+# If Qristal is configured with MPI, the package configuration file will search for it
+# during CMake configuration of this project
+if(NOT MPI_FOUND)
+  message(FATAL_ERROR "The found Qristal package has not been configured with MPI")
+endif()
+
+add_executable(${PROJECT_NAME} mpi_demo.cpp)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
+    qristal::core
+)

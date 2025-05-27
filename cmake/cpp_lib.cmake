@@ -1,41 +1,41 @@
 set(source_files
   # C++ library source files in alphabetical order
   src/async_executor.cpp
-  src/backend.cpp
   src/backend_utils.cpp
-  src/circuit_builder.cpp
-  src/primitives.cpp
-  src/pretranspiler.cpp
-  src/profiler.cpp
-  src/session.cpp
-  src/session_getter_setter.cpp
-  src/session_validators.cpp
-  src/thread_pool.cpp
-  src/utils.cpp
+  src/backend.cpp
+  src/backends/aws_braket/options.cpp
+  src/backends/qb_hardware/options.cpp
   src/backends/qb_hardware/qb_qpu.cpp
   src/backends/qb_hardware/qb_visitor.cpp
-  src/backends/qb_hardware/options.cpp
-  src/backends/aws_braket/options.cpp
   src/benchmark/DataLoaderGenerator.cpp
+  src/benchmark/metrics/QuantumProcessFidelity.cpp
+  src/benchmark/metrics/QuantumProcessMatrix.cpp
+  src/benchmark/metrics/QuantumStateDensity.cpp
+  src/benchmark/metrics/QuantumStateFidelity.cpp
   src/benchmark/workflows/PyGSTiBenchmark.cpp
+  src/benchmark/workflows/QuantumProcessTomography.cpp
   src/benchmark/workflows/RotationSweep.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
-  src/benchmark/workflows/QuantumProcessTomography.cpp
-  src/benchmark/metrics/QuantumStateDensity.cpp
-  src/benchmark/metrics/QuantumProcessMatrix.cpp
-  src/benchmark/metrics/QuantumStateFidelity.cpp
-  src/benchmark/metrics/QuantumProcessFidelity.cpp
+  src/circuit_builder.cpp
   src/optimization/qaoa/qaoa_base.cpp
-  src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_recursive.cpp
+  src/optimization/qaoa/qaoa_simple.cpp
   src/optimization/qaoa/qaoa_warmStart.cpp
   src/optimization/vqee/case_generator.cpp
-  src/optimization/vqee/vqee.cpp
-  src/optimization/vqee/vqee_nlopt.cpp
   src/optimization/vqee/vqee_mlpack.cpp
+  src/optimization/vqee/vqee_nlopt.cpp
+  src/optimization/vqee/vqee.cpp
   src/passes/circuit_opt_passes.cpp
   src/passes/noise_aware_placement_pass.cpp
   src/passes/swap_placement_pass.cpp
+  src/pretranspiler.cpp
+  src/primitives.cpp
+  src/profiler.cpp
+  src/session_getter_setter.cpp
+  src/session_validators.cpp
+  src/session.cpp
+  src/thread_pool.cpp
+  src/utils.cpp
 )
 
 if (WITH_CUDAQ)
@@ -48,42 +48,32 @@ endif()
 
 set(headers
   # C++ library header files in alphabetical order
-  include/qristal/core/qristal.inc
   include/qristal/core/async_executor.hpp
-  include/qristal/core/backend.hpp
   include/qristal/core/backend_utils.hpp
-  include/qristal/core/cmake_variables.hpp
-  include/qristal/core/circuit_builder.hpp
-  include/qristal/core/circuit_builders/exponent.hpp
-  include/qristal/core/circuit_builders/ry_encoding.hpp
-  include/qristal/core/pretranspiler.hpp
-  include/qristal/core/primitives.hpp
-  include/qristal/core/profiler.hpp
-  include/qristal/core/remote_async_accelerator.hpp
-  include/qristal/core/session.hpp
-  include/qristal/core/session_utils.hpp
-  include/qristal/core/thread_pool.hpp
-  include/qristal/core/typedefs.hpp
-  include/qristal/core/utils.hpp
+  include/qristal/core/backend.hpp
   include/qristal/core/backends/qb_hardware/qb_qpu.hpp
   include/qristal/core/backends/qb_hardware/qb_visitor.hpp
   include/qristal/core/benchmark/Concepts.hpp
   include/qristal/core/benchmark/DataLoaderGenerator.hpp
-  include/qristal/core/benchmark/Serializer.hpp
-  include/qristal/core/benchmark/Task.hpp
   include/qristal/core/benchmark/metrics/CircuitFidelity.hpp
+  include/qristal/core/benchmark/metrics/ConfusionMatrix.hpp
   include/qristal/core/benchmark/metrics/PyGSTiResults.hpp
   include/qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp
   include/qristal/core/benchmark/metrics/QuantumProcessMatrix.hpp
   include/qristal/core/benchmark/metrics/QuantumStateDensity.hpp
   include/qristal/core/benchmark/metrics/QuantumStateFidelity.hpp
-  include/qristal/core/benchmark/metrics/ConfusionMatrix.hpp
+  include/qristal/core/benchmark/Serializer.hpp
+  include/qristal/core/benchmark/Task.hpp
   include/qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp
   include/qristal/core/benchmark/workflows/QuantumProcessTomography.hpp
   include/qristal/core/benchmark/workflows/QuantumStateTomography.hpp
   include/qristal/core/benchmark/workflows/RotationSweep.hpp
   include/qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp
   include/qristal/core/benchmark/workflows/SPAMBenchmark.hpp
+  include/qristal/core/circuit_builder.hpp
+  include/qristal/core/circuit_builders/exponent.hpp
+  include/qristal/core/circuit_builders/ry_encoding.hpp
+  include/qristal/core/cmake_variables.hpp
   include/qristal/core/optimization/qaoa/qaoa.hpp
   include/qristal/core/optimization/vqee/vqee.hpp
   include/qristal/core/passes/base_pass.hpp
@@ -91,7 +81,18 @@ set(headers
   include/qristal/core/passes/noise_aware_placement_config.hpp
   include/qristal/core/passes/noise_aware_placement_pass.hpp
   include/qristal/core/passes/swap_placement_pass.hpp
+  include/qristal/core/pretranspiler.hpp
+  include/qristal/core/primitives.hpp
+  include/qristal/core/profiler.hpp
+  include/qristal/core/qristal.inc
+  include/qristal/core/remote_async_accelerator.hpp
+  include/qristal/core/session_utils.hpp
+  include/qristal/core/session.hpp
+  include/qristal/core/thread_pool.hpp
+  include/qristal/core/tools/wait_until.hpp
   include/qristal/core/tools/zip_tool.hpp
+  include/qristal/core/typedefs.hpp
+  include/qristal/core/utils.hpp
 )
 
 if (WITH_PROFILING)
@@ -129,6 +130,8 @@ target_link_libraries(${PROJECT_NAME}
     autodiff::autodiff
     cereal::cereal
     CURL::libcurl
+    range-v3::range-v3
+    fmt::fmt
   PRIVATE
     cpr
   INTERFACE
@@ -136,8 +139,6 @@ target_link_libraries(${PROJECT_NAME}
     Eigen3::Eigen
     Python::Python
     pybind11::pybind11
-    GTest::gtest
-    GTest::gtest_main
  )
 
 if (WITH_PROFILING)
@@ -188,13 +189,53 @@ if (WITH_CUDAQ)
   endforeach()
 endif()
 
-if(ADD_MPI)
-  target_link_libraries(${PROJECT_NAME} PUBLIC MPI::MPI_CXX)
+set(targets ${PROJECT_NAME})
+if(WITH_MPI)
+  # Add in alphabetical order
+  set(mpi_header_files
+    include/qristal/core/mpi/message_types.hpp
+    include/qristal/core/mpi/mpi_manager.hpp
+    include/qristal/core/mpi/results_serialisation.hpp
+    include/qristal/core/mpi/results_types.hpp
+    include/qristal/core/mpi/workload_partitioning.hpp
+  )
+
+  # Add in alphabetical order
+  set(mpi_source_files
+    src/mpi/mpi_manager.cpp
+    src/mpi/results_serialisation.cpp
+    src/mpi/workload_partitioning.cpp
+  )
+
+  # Create core's MPI library
+  set(MPI_SUPPORT_LIBRARY_NAME mpi_acceleration)
+  add_library(${MPI_SUPPORT_LIBRARY_NAME} SHARED ${mpi_source_files} ${mpi_header_files})
+  add_library(${NAMESPACE}::${PROJECT_NAME}::${MPI_SUPPORT_LIBRARY_NAME} ALIAS ${MPI_SUPPORT_LIBRARY_NAME})
+  target_include_directories(${MPI_SUPPORT_LIBRARY_NAME}
+    PUBLIC
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:include>
+  )
+  # Note: modern cmake only requires the MPI::MPI_CXX target to be linked.
+  # All other MPI_* variables populated by find_package(MPI) are for older
+  # cmake versions that do not create the MPI::MPI_CXX target.
+  # See https://cliutils.gitlab.io/modern-cmake/chapters/packages/MPI.html
+  target_link_libraries(${MPI_SUPPORT_LIBRARY_NAME}
+    PUBLIC
+      MPI::MPI_CXX
+      range-v3::range-v3
+      fmt::fmt
+  )
+  list(APPEND targets ${MPI_SUPPORT_LIBRARY_NAME})
+
+  # Add to core
+  target_link_libraries(${PROJECT_NAME} PUBLIC ${MPI_SUPPORT_LIBRARY_NAME})
+  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_MPI)
 endif()
 
 # Install the library
 install(
-  TARGETS ${PROJECT_NAME}
+  TARGETS ${targets}
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
   EXPORT ${PROJECT_NAME}Targets
 )
@@ -251,24 +292,28 @@ file(WRITE ${outfile} "# Import all transitive dependencies of qristal::core nee
                      \nfind_dependency(autodiff ${autodiff_VERSION})\
                      \nset(CURL_NO_CURL_CMAKE ON)\
                      \nfind_dependency(cereal ${cereal_VERSION})\
-                     \nfind_dependency(CURL)")
+                     \nfind_dependency(CURL)\
+                     \nset(range-v3_DIR ${range-v3_DIR})\
+                     \nfind_dependency(range-v3)\
+                     \nset(fmt_DIR ${fmt_DIR})\
+                     \nfind_dependency(fmt)")
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${outfile} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)\
                           \nadd_eigen_from_xacc()")
 else()
   file(APPEND ${outfile} "\nset(Eigen3_DIR ${Eigen3_DIR})\
-                          \nfind_dependency(Eigen3 ${Eigen3_VERSION})")
+                          \nfind_dependency(Eigen3 ${EIGEN3_VERSION_STRING})")
 endif()
-if(NOT "${GTest_DIR}" STREQUAL "GTest_DIR-NOTFOUND")
-  file(APPEND ${outfile} "\nset(GTest_DIR ${GTest_DIR})")
-endif()
-file(APPEND ${outfile} "\nfind_dependency(GTest ${GTest_VERSION})")
 if (WITH_CUDAQ)
   file(APPEND ${outfile} "\nadd_compile_definitions(WITH_CUDAQ)")
 endif()
 if (WITH_PROFILING)
   file(APPEND ${outfile} "\nset(cppuprofile_DIR ${cppuprofile_DIR})\
                           \nfind_dependency(cppuprofile)")
+endif()
+if(WITH_MPI)
+  file(APPEND ${outfile} "\nset(MPI_HOME ${MPI_HOME})
+                          \nfind_dependency(MPI COMPONENTS CXX)")
 endif()
 
 # Install both files

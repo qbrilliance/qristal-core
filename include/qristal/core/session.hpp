@@ -1,16 +1,23 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "qristal/core/async_executor.hpp"
-#include "qristal/core/remote_async_accelerator.hpp"
-#include "qristal/core/cmake_variables.hpp"
-#include "qristal/core/utils.hpp"
-#include "qristal/core/session_utils.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/passes/base_pass.hpp"
+#include <qristal/core/async_executor.hpp>
+#include <qristal/core/cmake_variables.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/passes/base_pass.hpp>
+#include <qristal/core/remote_async_accelerator.hpp>
+#include <qristal/core/session_utils.hpp>
+#include <qristal/core/utils.hpp>
+
+// MPI
+#ifdef USE_MPI
+#include <qristal/core/mpi/mpi_manager.hpp>
+#include <qristal/core/mpi/results_types.hpp>
+#endif
+
 // CUDAQ support
 #ifdef WITH_CUDAQ
-  #include "cudaq/utils/cudaq_utils.h"
+#include <cudaq/utils/cudaq_utils.h>
 #endif
 
 // STL
@@ -19,11 +26,15 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
 // YAML
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
+
+// fmt
+#include <fmt/base.h>
 
 // Forward declarations
 namespace xacc::quantum { class qb_qpu; }
@@ -105,15 +116,92 @@ namespace qristal
 
       Table2d<std::map<std::vector<bool>, std::complex<double>>> expected_amplitudes_;
 
-      // For storing results
-      Table2d<std::map<std::vector<bool>, int>> results_;
+      /**
+       * @brief The results of a Quantum calculation.
+       * The map value (count) is the number of times the map key (Qubit states
+       * with the same bit indexation as the processor registers) was measured
+       * after all shots are run.
+       *
+       * @note The Qubit states are represented as a vector of booleans for the
+       * reasons outlined below:
+       * - High qubit counts can quickly exhaust all possible values able to
+       *   be encoded by even a 64-bit integer causing integer overflow.
+       * - Values are agnostic with respect to both endianness and ordering
+       *   because a vector with indices correspond unambiguously to the
+       *   register number of each qubit. Specifically:
+       *   - Ordering: if qubits were saved as e.g. a string "0010110", a
+       *     convention about whether the value of qubit 0 goes on the left of
+       *     the string or the right of it must be chosen.
+       *   - Endianness: if instead a maximally compact representation is opted
+       *     for where an integer that corresponds to the whole bitstring is
+       *     used (e.g. @ref out_counts_), a convention about whether bit 0 is
+       *     the most or the least significant bit in encoding that integer must
+       *     be chosen.
+       *
+       */
+      Table2d<std::map<std::vector<bool>, int32_t>> results_;
+
+      /**
+       * @brief Provides counts for every possible combination of qubit
+       * measurements ordered according to the selected encoding (MSB, LSB).
+       * Requires @ref calc_out_counts_ to be set to true.
+       *
+       * E.g. If 2 qubits are used in the calculation, the out counts vector
+       * will contain the count of each result in the below order.
+       *
+       * | Encoding | Order of Results |
+       * |----------|------------------|
+       * | MSB      | 00, 01, 10, 11   |
+       * | LSB      | 00, 10, 01, 11   |
+       *
+       */
+      Table2d<std::vector<int32_t>> out_counts_;
+
+      /**
+       * @brief Probability distribution of output results. Order of
+       * probabilities is identical to the order of the @ref out_counts_.
+       *
+       * @note The indices of this list correspond to the different possible
+       * base-2 bitstring solutions, with the mapping from bitstring to list
+       * index provided by the function bitstring_index.
+       */
       Table2d<std::vector<double>> out_probs_;
-      Table2d<std::vector<int>> out_counts_;
+
+      /**
+       * @brief A 2D array of probability gradients with dimensions of the
+       * number of parameters by the number of qubits. Requires @ref
+       * calc_jacobians_ to be set to true.
+       *
+       * The jacobians calculate the gradients of the probability with
+       * respect to the runtime parameters, in the following format (where
+       * @c y is the probability list and @c x is the parameter list):
+       *
+       * \f[
+       * \begin{bmatrix}
+       * \frac{dy_0}{dx_0} & \frac{dy_0}{dx_1} & ... & \frac{dy_0}{dx_n} \\
+       * \frac{dy_1}{dx_0} & \frac{dy_1}{dx_1} & ... & \frac{dy_1}{dx_n} \\
+       * ... \\
+       * \frac{dy_m}{dx_0} & \frac{dy_m}{dx_1} & ... & \frac{dy_m}{dx_n}
+       * \end{bmatrix}
+       * \f]
+       *
+       * Since the jacobian is returned as a list-of-lists, it can be
+       * accessed in row major format, and indexing the above matrix can be done
+       * accordingly, i.e. @c get_out_jacobians()[0][1] corresponds to the
+       * @c dy_0/dx_1 value. @c x_i correspond to the parameters set in the
+       * parameter list (i.e. the parameters ordered by their first appearance
+       * in the circuit). @c y_i are the output probabilities of different
+       * bitstrings, indexed in the same manner as the out_count list.
+       * Explicitly, the index @c i corresponding to a specific bitstring can be
+       * obtained by calling @c bitstring_index(bitstring), with bitstring
+       * given as a list of bit values.
+       */
+      Table2d<std::vector<std::vector<double>>> out_prob_gradients_;
+
       Table2d<std::map<int,double>> out_divergences_;
       Table2d<std::string> out_transpiled_circuits_;
       Table2d<std::string> out_qobjs_;
       Table2d<std::string> out_qbjsons_;
-      Table2d<Table2d<double>> out_prob_gradients_;
       Table2d<bool> acc_outputs_qbit0_left_;
       //
       Table2d<std::map<int,int>> out_single_qubit_gate_qtys_;
@@ -131,7 +219,13 @@ namespace qristal
       // Error mitigation
       bool perform_SPAM_correction_ = false;
       Eigen::MatrixXd SPAM_correction_mat_;
-      Table2d<std::map<std::vector<bool>, int>> results_native_;
+
+      /**
+       * @brief When error mitigation is performed for the session, the raw
+       * results are stored in here.
+       * @see results_
+       */
+      Table2d<std::map<std::vector<bool>, int32_t>> results_native_;
       Table2d<std::string> error_mitigations_;
 
       // Constants
@@ -211,7 +305,85 @@ namespace qristal
       std::unordered_set<std::string> VALID_MEASURE_SAMPLING_OPTIONS = {
           "auto", "sequential", "cutensornet", "cutensornet_multishot"};
 
+#ifdef USE_MPI
+    private:
+      mpi::MpiManager mpi_manager_{};
+
     public:
+      /**
+       * @brief Controls whether a session object should communicate over MPI.
+       * @details This is used to ensure the gradients session copy does not try
+       * to communicate with other processes. This is the responsibility of the
+       * master session object.
+       * @warning The default configuration for a session object is to
+       * communicate over MPI. If making copies of session objects, keep this in
+       * mind.
+       *
+       * @param val The value to set
+       */
+      bool mpi_acceleration_enabled{true};
+
+      /**
+       * @brief Light-weight convenience wrapper function for fmt::print that
+       * only prints when the process is the supervisor.
+       *
+       * @tparam T Format string argument parameter pack
+       * @param fmt Format string
+       * @param args Format string arguments
+       */
+      template <typename... T>
+      void supervisor_print(fmt::format_string<T...> fmt, T &&...args) {
+        if (mpi_manager_.get_process_id() == 0) {
+          fmt::print(std::forward<fmt::format_string<T...>>(fmt),
+                     std::forward<T>(args)...);
+        }
+      }
+
+      /**
+       * @brief Overload for supervisor_print which allows printing to stderr.
+       *
+       * @tparam T Format string argument parameter pack
+       * @param file File to print to
+       * @param fmt Format string
+       * @param args Format string arguments
+       */
+      template <typename... T>
+      void supervisor_print(FILE *file, fmt::format_string<T...> fmt,
+                            T &&...args) {
+        if (mpi_manager_.get_process_id() == 0) {
+          fmt::print(file, std::forward<fmt::format_string<T...>>(fmt),
+                     std::forward<T>(args)...);
+        }
+      }
+
+#endif
+
+    public:
+      // Building docs results in the following error for this type aliases so
+      // they are skipped from being parsed.
+      //      /workspaces/core/build/docs/_cpp_api/classqristal_1_1session.rst:13:Invalid
+      //      C++ declaration: Expected end of definition. [error at 41]
+      //        ResultsMapQubitsType =
+      //              decltype(results_)::value_type::value_type::key_type
+      //              ------------------^
+      //      gmake[2]: *** [CMakeFiles/ReadTheDocsHtmlBuild.dir/build.make:125:
+      //           docs/_build/html/index.html] Error 2
+      //      gmake[1]: *** [CMakeFiles/Makefile2:2413:
+      //           CMakeFiles/ReadTheDocsHtmlBuild.dir/all] Error 2
+      //      gmake: *** [Makefile:166: all] Error 2
+      /// @cond DOXYGEN_SHOULD_SKIP_THIS
+      using ResultsMapQubitsType = decltype(results_)::value_type::value_type::key_type;
+      using ResultsMapCountType = decltype(results_)::value_type::value_type::mapped_type;
+      using ResultsMapType = decltype(results_)::value_type::value_type;
+      using NativeResultsMapType = decltype(results_native_)::value_type::value_type;
+      using CountType = decltype(out_counts_)::value_type::value_type::value_type;
+      using OutCountsType = decltype(out_counts_)::value_type::value_type;
+      using ProbabilityType = decltype(out_probs_)::value_type::value_type::value_type;
+      using OutProbabilitiesType = decltype(out_probs_)::value_type::value_type;
+      using ProbabilityGradientType = decltype(out_prob_gradients_)::value_type::value_type::value_type::value_type;
+      using OutProbabilityGradientsType = decltype(out_prob_gradients_)::value_type::value_type;
+      /// @endcond
+
       /**
        * @brief Construct a new session object
        *
@@ -1214,7 +1386,7 @@ namespace qristal
        *
        * @param bitvec The bit-vector to be converted to the vector index
        */
-      inline size_t bitstring_index(const std::vector<bool>& bitvec);
+      size_t bitstring_index(const std::vector<bool> &bitvec);
 
       /// Randomly draw (and remove) a single shot from the results map
       std::vector<bool> draw_shot(const size_t i, const size_t j);
@@ -1360,3 +1532,49 @@ namespace qristal
   };
 
 }
+
+#ifdef USE_MPI
+
+/**
+ * @brief These checks exist to ensure the result types of the session object
+ * exactly match the types used to serialise those results over MPI. If these
+ * types change, the implementation will break and undefined behaviour will
+ * be introduced.
+ * @note The below was the simplest mechanism available to implement
+ * serialisation data type checks without causing additional obfuscation of
+ * result types via additional aliases used in the session object private member
+ * variables.
+ *
+ */
+namespace qristal {
+
+#define CHECK_SESSION_RESULT_TYPE(type1, type2)                                \
+  static_assert(                                                               \
+      std::is_same_v<type1, type2>,                                            \
+      "Results types in the session class must exactly match those used in "   \
+      "MPI serialisation. Serialisation/deserialisation functions have been "  \
+      "written which rely on types being identical. If the types require "     \
+      "changing, these functions need to be reviewed so that the necessary "   \
+      "changes can be made to avoid undefined behaviour.")
+
+CHECK_SESSION_RESULT_TYPE(session::ResultsMapQubitsType, mpi::Qubits);
+CHECK_SESSION_RESULT_TYPE(session::ResultsMapCountType, mpi::Count);
+CHECK_SESSION_RESULT_TYPE(session::ResultsMapType, mpi::ResultsMap);
+CHECK_SESSION_RESULT_TYPE(session::NativeResultsMapType, mpi::ResultsMap);
+
+CHECK_SESSION_RESULT_TYPE(session::CountType, mpi::Count);
+CHECK_SESSION_RESULT_TYPE(session::OutCountsType, mpi::OutCounts);
+
+CHECK_SESSION_RESULT_TYPE(session::ProbabilityType, mpi::Probability);
+CHECK_SESSION_RESULT_TYPE(session::OutProbabilitiesType, mpi::OutProbabilities);
+CHECK_SESSION_RESULT_TYPE(session::ProbabilityGradientType, mpi::Probability);
+CHECK_SESSION_RESULT_TYPE(session::OutProbabilityGradientsType,
+                          mpi::OutProbabilityGradients);
+
+// // Also ensure the count type used in the results map is the same used in
+// outcounts
+CHECK_SESSION_RESULT_TYPE(session::ResultsMapCountType, session::CountType);
+
+} // namespace qristal
+
+#endif

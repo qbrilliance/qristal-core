@@ -2,33 +2,38 @@
 
 // STL
 #include <algorithm>
-#include <vector>
+#include <cstdlib>
 #include <memory>
-#include <regex>
+#include <optional>
 #include <random>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
-#include <random>
-#include <cstdlib>
+#include <thread>
+#include <vector>
 
 // Boost
 #include <boost/dynamic_bitset.hpp>
+
+// fmt
+#include <fmt/format.h>
 
 // Qristal
 #include "qristal/core/backend.hpp"
 #include "qristal/core/backend_utils.hpp"
 #include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
+#include "qristal/core/benchmark/metrics/ConfusionMatrix.hpp"
+#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
+#include "qristal/core/circuit_builder.hpp"
+#include "qristal/core/passes/circuit_opt_passes.hpp"
 #include "qristal/core/pretranspiler.hpp"
 #include "qristal/core/profiler.hpp"
 #include "qristal/core/session.hpp"
-#include "qristal/core/passes/circuit_opt_passes.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/metrics/ConfusionMatrix.hpp"
 
 // XACC
-#include "CompositeInstruction.hpp"
 #include "AcceleratorBuffer.hpp"
+#include "CompositeInstruction.hpp"
+#include "range/v3/view/zip.hpp"
 #include "xacc.hpp"
 
 // CUDAQ support
@@ -39,6 +44,11 @@
 
 // dlopen
 #include <dlfcn.h>
+
+#ifdef USE_MPI
+#include <qristal/core/mpi/results_types.hpp>
+#include <qristal/core/mpi/workload_partitioning.hpp>
+#endif
 
 // Helper functions
 namespace
@@ -501,7 +511,15 @@ namespace qristal
         throw std::range_error("Number of shots [sn] cannot be empty");
       }
 
+#ifdef USE_MPI
+      int32_t num_mpi_processes = mpi_manager_.get_total_processes();
+      int32_t current_process_mpi_id = mpi_manager_.get_process_id();
+      size_t configured_shots = sns_valid.get(ii, jj);
+      config.num_shots = mpi::shots_for_mpi_process(
+          num_mpi_processes, configured_shots, current_process_mpi_id);
+#else
       config.num_shots = sns_valid.get(ii, jj);
+#endif
     }
 
     /// Number of qubits
@@ -1101,7 +1119,11 @@ namespace qristal
       static const char *EMULATOR_NOISE_MODEL_LIB_NAME = "libqristal_emulator.so";
       void *handle = dlopen(EMULATOR_NOISE_MODEL_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
       if (handle == NULL) {
-        std::cout << "The accelerator you are searching for may be available in the Qristal Emulator plugin. Please see https://quantumbrilliance.com/quantum-brilliance-emulator." << std::endl;
+        std::cout
+            << "The accelerator you are searching for may be available in the "
+               "Qristal Emulator plugin. Please see "
+               "https://quantumbrilliance.com/quantum-brilliance-emulator."
+            << std::endl;
       }
     }
 
@@ -1205,11 +1227,6 @@ namespace qristal
     return qpu;
   }
 
-  /// Run (execute) task specified by the (ii, jj) index pair
-  void session::run(const size_t ii, const size_t jj) {
-    run_internal(ii, jj, /*acc = */ nullptr);
-  }
-
   void session::validate_run() {
     // Allowed backend
     for (auto i : accs_) for (auto acc : i) session::validate_acc(acc);
@@ -1250,67 +1267,72 @@ namespace qristal
     // Clear all stored results:
     results_.clear();
     results_.resize(N_ii);
-    for (auto el : results_) {
+    for (auto &el : results_) {
+      el.resize(N_jj);
+    }
+    results_native_.clear();
+    results_native_.resize(N_ii);
+    for (auto &el : results_native_) {
       el.resize(N_jj);
     }
     out_probs_.clear();
     out_probs_.resize(N_ii);
-    for (auto el : out_probs_) {
+    for (auto &el : out_probs_) {
       el.resize(N_jj);
     }
     out_counts_.clear();
     out_counts_.resize(N_ii);
-    for (auto el : out_counts_) {
+    for (auto &el : out_counts_) {
       el.resize(N_jj);
     }
     out_prob_gradients_.clear();
     out_prob_gradients_.resize(N_ii);
-    for (auto el : out_prob_gradients_) {
+    for (auto &el : out_prob_gradients_) {
       el.resize(N_jj);
     }
     out_divergences_.clear();
     out_divergences_.resize(N_ii);
-    for (auto el : out_divergences_) {
+    for (auto &el : out_divergences_) {
       el.resize(N_jj);
     }
     out_transpiled_circuits_.clear();
     out_transpiled_circuits_.resize(N_ii);
-    for (auto el : out_transpiled_circuits_) {
+    for (auto &el : out_transpiled_circuits_) {
       el.resize(N_jj);
     }
     out_qobjs_.clear();
     out_qobjs_.resize(N_ii);
-    for (auto el : out_qobjs_) {
+    for (auto &el : out_qobjs_) {
       el.resize(N_jj);
     }
     out_qbjsons_.clear();
     out_qbjsons_.resize(N_ii);
-    for (auto el : out_qbjsons_) {
+    for (auto &el : out_qbjsons_) {
       el.resize(N_jj);
     }
     out_single_qubit_gate_qtys_.clear();
     out_single_qubit_gate_qtys_.resize(N_ii);
-    for (auto el : out_single_qubit_gate_qtys_) {
+    for (auto &el : out_single_qubit_gate_qtys_) {
       el.resize(N_jj);
     }
     out_double_qubit_gate_qtys_.clear();
     out_double_qubit_gate_qtys_.resize(N_ii);
-    for (auto el : out_double_qubit_gate_qtys_) {
+    for (auto &el : out_double_qubit_gate_qtys_) {
       el.resize(N_jj);
     }
     out_total_init_maxgate_readout_times_.clear();
     out_total_init_maxgate_readout_times_.resize(N_ii);
-    for (auto el : out_total_init_maxgate_readout_times_) {
+    for (auto &el : out_total_init_maxgate_readout_times_) {
       el.resize(N_jj);
     }
     acc_outputs_qbit0_left_.clear();
     acc_outputs_qbit0_left_.resize(N_ii);
-    for (auto el : acc_outputs_qbit0_left_) {
+    for (auto &el : acc_outputs_qbit0_left_) {
       el.resize(N_jj);
     }
     acc_uses_n_bits_.clear();
     acc_uses_n_bits_.resize(N_ii);
-    for (auto el : acc_uses_n_bits_) {
+    for (auto &el : acc_uses_n_bits_) {
       el.resize(N_jj);
     }
   }
@@ -1379,6 +1401,9 @@ namespace qristal
     gradient_sess.set_irtarget_ms(gradient_circs);
     gradient_sess.set_calc_jacobian(false);
     gradient_sess.set_calc_out_counts(true);
+#ifdef USE_MPI
+    gradient_sess.mpi_acceleration_enabled = false;
+#endif
     gradient_sess.run();
     run_i_j_config run_config = get_run_config(ii, jj);
     size_t num_qubits = run_config.num_qubits;
@@ -1517,7 +1542,6 @@ namespace qristal
       src_str = tmp;
     }
 
-
     // Compile source string to IR
     auto irtarget = compiler->compile(src_str);
     // Get the kernel composite instruction (quantum circuit)
@@ -1537,6 +1561,11 @@ namespace qristal
   }
 
   Executor &session::get_executor() { return *executor_; }
+
+  /// Run (execute) task specified by the (ii, jj) index pair
+  void session::run(const size_t ii, const size_t jj) {
+    run_internal(ii, jj, /*acc = */ nullptr);
+  }
 
   std::shared_ptr<async_job_handle> session::run_async(const std::size_t ii, const std::size_t jj, std::shared_ptr<xacc::Accelerator> accelerator) {
     static std::mutex shared_mutex;
@@ -1924,7 +1953,9 @@ namespace qristal
       // Save the counts to results_
       populate_measure_counts_data(ii, jj, counts_map);
       // If required to calculate gradients, do it now
-      if (run_config.calc_jacobian) run_gradients(ii, jj);
+      if (run_config.calc_jacobian) {
+        run_gradients(ii, jj);
+      }
     }
 
     // Transpile to QB native gates (acc)
@@ -1975,6 +2006,46 @@ namespace qristal
         results_.push_back(SPAM_corrected);
       }
     }
+
+#ifdef USE_MPI
+    if (mpi_acceleration_enabled && mpi_manager_.get_total_processes() > 1) {
+      // Sync data across all processes now that all post processing has been
+      // done
+      std::optional<std::reference_wrapper<mpi::ResultsMap>> results_native;
+      if (perform_SPAM_correction_) {
+        results_native = results_native_[ii][jj];
+      }
+
+      std::optional<std::span<mpi::Count>> out_counts;
+      if (calc_out_counts_[ii][jj]) {
+        out_counts = out_counts_[ii][jj];
+      }
+
+      std::optional<std::span<mpi::Probability>> out_probs;
+      std::optional<std::reference_wrapper<mpi::OutProbabilityGradients>>
+          out_prob_gradients;
+      if (calc_jacobians_[ii][jj]) {
+        out_probs = out_probs_[ii][jj];
+        out_prob_gradients = out_prob_gradients_[ii][jj];
+      }
+
+      auto current_process_mpi_id = mpi_manager_.get_process_id();
+      if (current_process_mpi_id == 0) {
+        // This is the supervisor process. Receive, unpack and combine
+        // the results from the other worker processes with the results
+        // from this process
+        mpi::collect_results_from_mpi_processes(
+            mpi_manager_, sns_[ii][jj], run_config.num_shots, results_[ii][jj],
+            results_native, out_counts, out_probs, out_prob_gradients);
+      } else {
+        // This is a worker process. Pack the results and send to the
+        // supervisor process
+        mpi::send_results_to_supervisor(mpi_manager_, results_[ii][jj],
+                                        results_native, out_counts, out_probs,
+                                        out_prob_gradients);
+      }
+    }
+#endif
   }
 
   // Wrap raw OpenQASM string in a QB Kernel:

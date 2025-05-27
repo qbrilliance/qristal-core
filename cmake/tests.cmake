@@ -1,7 +1,7 @@
 # Copyright (c) Quantum Brilliance Pty Ltd
 
 # When you add a new test, please keep the alphabetical ordering!
-add_executable(CITests
+set(test_sources 
   #tests/advice/QPrimeTester.cpp
   #tests/advice/UPrimeTester.cpp
   #tests/advice/UQPrimeTester.cpp
@@ -10,9 +10,9 @@ add_executable(CITests
   #tests/algorithms/amplitude_estimation/MLAmplitudeEstimationAlgorithmTester.cpp
   tests/algorithms/exponential_search/ExponentialSearchAlgorithmTester.cpp
   tests/benchmark/metrics/CircuitFidelityTester.cpp
+  tests/benchmark/metrics/ConfusionMatrixTester.cpp
   tests/benchmark/metrics/QuantumProcessFidelityTester.cpp
   tests/benchmark/metrics/QuantumStateFidelityTester.cpp
-  tests/benchmark/metrics/ConfusionMatrixTester.cpp
   tests/benchmark/workflows/PyGSTiBenchmarkTester.cpp
   tests/benchmark/workflows/QuantumProcessTomographyTester.cpp
   tests/benchmark/workflows/QuantumStateTomographyTester.cpp
@@ -23,7 +23,6 @@ add_executable(CITests
   #tests/circuit_builders/RyEncodingTester.cpp
   tests/circuits/AEtoMetricCircuitTester.cpp
   tests/circuits/AmplitudeAmplificationTester.cpp
-  tests/circuits/CUTester.cpp
   tests/circuits/CanonicalAmplitudeEstimationCircuitTester.cpp
   tests/circuits/ComparatorCircuitTester.cpp
   tests/circuits/CompareBeamOracleCircuitTester.cpp
@@ -35,6 +34,7 @@ add_executable(CITests
   #tests/circuits/ControlledQAETester.cpp
   #tests/circuits/ControlledSubtractionCircuitTester.cpp
   tests/circuits/ControlledSwapCircuitTester.cpp
+  tests/circuits/CUTester.cpp
   tests/circuits/EfficientEncodingCircuitTester.cpp
   tests/circuits/EqualityCheckerCircuitTester.cpp
   tests/circuits/GeneralisedMCXCircuitTester.cpp
@@ -53,13 +53,13 @@ add_executable(CITests
   tests/circuits/UPrimeTester.cpp
   tests/circuits/UQPrimeTester.cpp
   tests/circuits/WPrimeTester.cpp
-  tests/misc_cpp/XaccInitialisedTests.cpp
   tests/misc_cpp/backendTester.cpp
   tests/misc_cpp/coreCLITester.cpp
   tests/misc_cpp/error_mitigation.cpp
   tests/misc_cpp/jensen_shannon.cpp
   tests/misc_cpp/sessionTester.cpp
   tests/misc_cpp/transpilationTester.cpp
+  tests/misc_cpp/XaccInitialisedTests.cpp
   tests/noise_model/NoiseModelTester.cpp
   tests/optimization/qaoaTester.cpp
   tests/optimization/vqeeTester.cpp
@@ -69,6 +69,15 @@ add_executable(CITests
   tests/uccsd/UCCSDTester.cpp
   tests/vqe/VqeGenTester.cpp
 )
+
+if(WITH_MPI)
+  # When you add a new test, please keep the alphabetical ordering!
+  list(APPEND test_sources
+    tests/mpi/SerialisationTester.cpp
+  )
+endif()
+
+add_executable(CITests ${test_sources})
 
 add_executable(HardwareTests
   tests/misc_cpp/XaccInitialisedTests.cpp
@@ -90,16 +99,28 @@ target_link_libraries(CITests
   PRIVATE
     qristal::core
     cppitertools::cppitertools
+    GTest::gtest
+    GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
 )
 target_link_libraries(HardwareTests
   PRIVATE
     qristal::core
     cppitertools::cppitertools
+    GTest::gtest
+    GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
 )
 target_link_libraries(BraketTests
   PRIVATE
     qristal::core
     cppitertools::cppitertools
+    GTest::gtest
+    GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
 )
 
 set_target_properties(CITests HardwareTests BraketTests
@@ -124,6 +145,10 @@ if (WITH_TKET)
     PRIVATE
       qristal::core
       cppitertools::cppitertools
+      GTest::gtest
+      GTest::gtest_main
+      GTest::gmock
+      GTest::gmock_main
   )
   set_target_properties(TketTests
     PROPERTIES
@@ -141,7 +166,14 @@ if (WITH_CUDAQ)
   add_executable(CudaqCITests tests/cudaq/CudaqTester.cpp)
   set_property(TARGET CudaqCITests PROPERTY CXX_STANDARD 20)
   target_link_options(CudaqCITests PRIVATE -Wl,--no-as-needed)
-  target_link_libraries(CudaqCITests PUBLIC qristal::core)
+  target_link_libraries(CudaqCITests
+    PUBLIC
+      qristal::core
+      GTest::gtest
+      GTest::gtest_main
+      GTest::gmock
+      GTest::gmock_main
+  )
   include(CheckLanguage)
   check_language(CUDA)
   if(CMAKE_CUDA_COMPILER AND NOT BUILD_TESTS_WITHOUT_GPU)
@@ -156,6 +188,13 @@ if (WITH_PROFILING)
   add_executable(ProfilingCITests tests/benchmark/workflows/RuntimeAnalyzerTester.cpp)
   set_property(TARGET ProfilingCITests PROPERTY CXX_STANDARD 20)
   target_link_options(ProfilingCITests PRIVATE -Wl,--no-as-needed)
-  target_link_libraries(ProfilingCITests PUBLIC qristal::core)
+  target_link_libraries(ProfilingCITests
+    PUBLIC
+      qristal::core
+      GTest::gtest
+      GTest::gtest_main
+      GTest::gmock
+      GTest::gmock_main
+  )
   add_test(NAME profiling_ci_test COMMAND ProfilingCITests)
 endif()

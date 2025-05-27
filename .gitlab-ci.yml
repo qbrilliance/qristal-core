@@ -6,7 +6,7 @@ include:
 
 variables:
   USE_MPI: "ON"
-  # Branches to use for downstream repo triggers (ubuntu-x86, rhel-x86, rhel-power). Default: "main"
+  # Branches to use for downstream repo triggers (ubuntu-amd64, almalinux-amd64, almalinux-power). Default: "main"
   EMULATOR_TRIGGER_BRANCH: main
   DECODER_TRIGGER_BRANCH: main
   SDK_TRIGGER_BRANCH: main
@@ -128,7 +128,9 @@ workflow:
     - core_artefacts/build/ProfilingCITests
     - core_artefacts/build/_deps
     - core_artefacts/deps
-  rhel:
+    - core_artefacts/build/docs
+    - core_artefacts/.venv
+  almalinux:
     - core_artefacts/build/cmake_install.cmake
     - core_artefacts/build/afterCPMAddPackage.cmake
     - core_artefacts/build/coreDependencies.cmake
@@ -157,11 +159,11 @@ workflow:
 # - - - - - - - build - - - - - - - #
 ci-build:
   stage: build
-  image: $CI_IMAGE_UBUNTU_X86_CLANG
+  image: $CI_IMAGE_UBUNTU_AMD64_CLANG
   tags:
     - cutensornet2.0
   rules:
-    - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
+    - if: $CI_PIPELINE_SOURCE != "pipeline"
   script:
     - rm -rf ${QB_DIR}/core
     - echo "MPI is $USE_MPI"
@@ -171,7 +173,7 @@ ci-build:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI=$USE_MPI
+      -DENABLE_MPI_IN_DEPS=$USE_MPI
     - cmake --build build -- -j`nproc`
     - mkdir core_artefacts
     - mv build cmake examples include src tests remote_backends.yaml core_artefacts
@@ -181,7 +183,7 @@ ci-build:
 
 ci-build-gcc:
   stage: build
-  image: $CI_IMAGE_UBUNTU_X86_GCC
+  image: $CI_IMAGE_UBUNTU_AMD64_GCC
   tags:
     - cutensornet2.0
   rules:
@@ -195,13 +197,13 @@ ci-build-gcc:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI=$USE_MPI
+      -DENABLE_MPI_IN_DEPS=$USE_MPI
     - cmake --build build -- -j`nproc`
     - cmake --install build
 
 ci-build-cuda:
   stage: build
-  image: $CI_IMAGE_UBUNTU_X86_CLANG_CUDA
+  image: $CI_IMAGE_UBUNTU_AMD64_CLANG_CUDA
   tags:
     - cutensornet2.0
   rules:
@@ -232,15 +234,19 @@ ci-build-install-missing:
     - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
     #- apt update && apt install -y build-essential cmake gfortran git libboost-all-dev libcurl4-openssl-dev libeigen3-dev libopenblas-dev libpython3-dev libssl-dev python3 python3-pip
+    # Note: this job uses a Python virtual environment to circumvent pip package issues on the bare metal Lambda server runner
+    - python3.11 -m venv .venv
+    - source .venv/bin/activate
     - cmake -B build .
       -DINSTALL_MISSING=ON
+      -DBUILD_DOCS=ON
       -DWITH_TKET=ON
-      -DENABLE_MPI=$USE_MPI
+      -DENABLE_MPI_IN_DEPS=$USE_MPI
       -DWITH_PROFILING=ON
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
     - mkdir core_artefacts
-    - mv build deps cmake examples include src tests remote_backends.yaml core_artefacts
+    - mv .venv build deps cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
     paths: !reference [.paths, deps]
@@ -250,7 +256,7 @@ ci-cpp-tests:
   stage: test
   needs: ["ci-build"]
   extends: .install-core
-  image: $CI_IMAGE_UBUNTU_X86_CLANG
+  image: $CI_IMAGE_UBUNTU_AMD64_CLANG
   tags:
     - cutensornet2.0
   rules:
@@ -290,7 +296,7 @@ ci-py-tests:
   stage: test
   needs: ["ci-build"]
   extends: .install-core
-  image: $CI_IMAGE_UBUNTU_X86_CLANG
+  image: $CI_IMAGE_UBUNTU_AMD64_CLANG
   tags:
     - cutensornet2.0
   rules:
@@ -311,6 +317,8 @@ ci-omp-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
+    - mv core_artefacts/.venv .
+    - source .venv/bin/activate
     - mv core_artefacts/build .
     - mv core_artefacts/deps .
     - chmod 700 relocate.sh
@@ -348,6 +356,8 @@ ci-hardware-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
   script:
+    - mv core_artefacts/.venv .
+    - source .venv/bin/activate
     - mv core_artefacts/build .
     - mv core_artefacts/deps .
     - chmod 700 relocate.sh
@@ -383,7 +393,7 @@ ci-hardware-tests:
 cudaq-cpp-tests:
   stage: test
   needs: [ci-build-cuda]
-  image: $CI_IMAGE_UBUNTU_X86_CLANG_CUDA
+  image: $CI_IMAGE_UBUNTU_AMD64_CLANG_CUDA
   extends: .install-core
   tags:
     - cutensornet2.0
@@ -400,7 +410,7 @@ cudaq-cpp-tests:
 cudaq-py-tests:
   stage: test
   needs: [ci-build-cuda]
-  image: $CI_IMAGE_UBUNTU_X86_CLANG_CUDA
+  image: $CI_IMAGE_UBUNTU_AMD64_CLANG_CUDA
   extends: .install-core
   tags:
     - cutensornet2.0
@@ -478,12 +488,12 @@ trigger-vqpu-in-qcstack:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
-# - - - - - - - - - - - - - - - - - - RHEL - - - - - - - - - - - - - - - - - - #
+# - - - - - - - - - - - - - - - - - - ALMALINUX - - - - - - - - - - - - - - - - - - #
 
 # build
-rhel-x86-build:
+almalinux-amd64-build:
   stage: build
-  image: $CI_IMAGE_RHEL_X86
+  image: $CI_IMAGE_ALMALINUX_AMD64
   tags:
     - cutensornet2.0
   rules:
@@ -496,21 +506,21 @@ rhel-x86-build:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI=$USE_MPI
+      -DENABLE_MPI_IN_DEPS=$USE_MPI
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
     - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
-    paths: !reference [.paths, rhel]
+    paths: !reference [.paths, almalinux]
 
 # tests
-rhel-x86-cpp-tests:
+almalinux-amd64-cpp-tests:
   stage: test
-  needs: ["rhel-x86-build"]
+  needs: ["almalinux-amd64-build"]
   extends: .install-core
-  image: $CI_IMAGE_RHEL_X86
+  image: $CI_IMAGE_ALMALINUX_AMD64
   tags:
     - cutensornet2.0
   rules:
@@ -525,11 +535,11 @@ rhel-x86-cpp-tests:
       junit: core_gtests.xml
       junit: tket_gtests.xml
 
-rhel-x86-cudaq-tests:
+almalinux-amd64-cudaq-tests:
   stage: test
-  needs: ["rhel-x86-build"]
+  needs: ["almalinux-amd64-build"]
   extends: .install-core
-  image: $CI_IMAGE_RHEL_X86
+  image: $CI_IMAGE_ALMALINUX_AMD64
   tags:
     - cutensornet2.0
   rules:
@@ -542,11 +552,11 @@ rhel-x86-cudaq-tests:
     reports:
       junit: core_cudaq_gtests.xml
 
-rhel-x86-py-tests:
+almalinux-amd64-py-tests:
   stage: test
-  needs: ["rhel-x86-build"]
+  needs: ["almalinux-amd64-build"]
   extends: .install-core
-  image: $CI_IMAGE_RHEL_X86
+  image: $CI_IMAGE_ALMALINUX_AMD64
   tags:
     - cutensornet2.0
   rules:
@@ -560,9 +570,9 @@ rhel-x86-py-tests:
       junit: tests/python_module/report.xml
 
 # trigger: If this branch is part of a merge request, trigger downstream emulator build and test.
-rhel-x86-trigger-emulator:
+almalinux-amd64-trigger-emulator:
   stage: downstream
-  needs: ["rhel-x86-build"]
+  needs: ["almalinux-amd64-build"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -570,7 +580,7 @@ rhel-x86-trigger-emulator:
     branch: $EMULATOR_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
-    UPSTREAM_JOB: rhel-x86-trigger-emulator
+    UPSTREAM_JOB: almalinux-amd64-trigger-emulator
 
 
 # - - - - - - - powerpc - - - - - - - #
@@ -586,10 +596,10 @@ ppc_instance_start:
       when: manual
       allow_failure: false
 
-rhel-power-build:
+almalinux-power-build:
   stage: build
   needs: [ppc_instance_start]
-  image: $CI_IMAGE_RHEL_PPC
+  image: $CI_IMAGE_ALMALINUX_PPC
   tags:
     - powerDocker
   script:
@@ -600,7 +610,7 @@ rhel-power-build:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI=$USE_MPI
+      -DENABLE_MPI_IN_DEPS=$USE_MPI
       -DBUILD_TESTS_WITHOUT_GPU=ON
     - cmake --build build -- -j`nproc`
     - cmake --install build
@@ -608,16 +618,16 @@ rhel-power-build:
     - mv build cmake examples include src tests remote_backends.yaml core_artefacts
   artifacts:
     when: always
-    paths: !reference [.paths, rhel]
+    paths: !reference [.paths, almalinux]
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
 
 # tests
-rhel-power-cpp-tests:
+almalinux-power-cpp-tests:
   stage: test
-  needs: ["rhel-power-build"]
+  needs: ["almalinux-power-build"]
   extends: .install-core
-  image: $CI_IMAGE_RHEL_PPC
+  image: $CI_IMAGE_ALMALINUX_PPC
   tags:
     - powerDocker
   script:
@@ -632,11 +642,11 @@ rhel-power-cpp-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
 
-rhel-power-cudaq-tests:
+almalinux-power-cudaq-tests:
   stage: test
-  needs: ["rhel-power-build"]
+  needs: ["almalinux-power-build"]
   extends: .install-core
-  image: $CI_IMAGE_RHEL_PPC
+  image: $CI_IMAGE_ALMALINUX_PPC
   tags:
     - powerDocker
   script:
@@ -649,11 +659,11 @@ rhel-power-cudaq-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
 
-rhel-power-py-tests:
+almalinux-power-py-tests:
   stage: test
-  needs: ["rhel-power-build"]
+  needs: ["almalinux-power-build"]
   extends: .install-core
-  image: $CI_IMAGE_RHEL_PPC
+  image: $CI_IMAGE_ALMALINUX_PPC
   tags:
     - powerDocker
   script:
@@ -670,15 +680,15 @@ ppc_instance_stop:
   extends: .ppc_instance_stop
   stage: test
   when: always
-  needs: [rhel-power-build, rhel-power-cpp-tests, rhel-power-cudaq-tests, rhel-power-py-tests]
+  needs: [almalinux-power-build, almalinux-power-cpp-tests, almalinux-power-cudaq-tests, almalinux-power-py-tests]
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
 
 # trigger
 # If this branch is part of a merge request, trigger downstream emulator build and test.
-rhel-power-trigger-emulator:
+almalinux-power-trigger-emulator:
   stage: downstream
-  needs: ["rhel-power-build"]
+  needs: ["almalinux-power-build"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   trigger:
@@ -686,5 +696,5 @@ rhel-power-trigger-emulator:
     branch: $EMULATOR_TRIGGER_BRANCH
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
-    UPSTREAM_JOB: rhel-power-trigger-emulator
-# - - - - - - - - - - - - - - - - - - RHEL (end)- - - - - - - - - - - - - - - - - - #
+    UPSTREAM_JOB: almalinux-power-trigger-emulator
+# - - - - - - - - - - - - - - - - - - ALMALINUX (end)- - - - - - - - - - - - - - - - - - #

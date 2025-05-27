@@ -56,15 +56,17 @@ Additional dependencies that can be installed automatically at build time:
 Installing from source
 ^^^^^^^^^^^^^^^^^^^^^^
 
+Automatic Dependency Installation
+"""""""""""""""""""""""""""""""""
+
 1. For development purposes, it is **recommended** to install Qristal using *automatic dependency installation* mode.
 
-.. code-block::
+.. code-block:: bash
 
   git clone https://github.com/qbrilliance/qristal.git qristal
-  cd qristal
-  mkdir build && cd build
-  cmake .. -DINSTALL_MISSING=ON
-  make install
+  cmake -B qristal/build -S qristal -DINSTALL_MISSING=ON
+  cmake --build qristal/build --parallel $(nproc)
+  cmake --install qristal/build # Default installs to the build directory which in this case is "qristal/build"
 
 The ``-DINSTALL_MISSING=ON`` flag ensures that all missing dependencies (if any) will be downloaded and installed automatically.  To automatically download and install only C++ dependencies, instead set ``-DINSTALL_MISSING=CXX``.  To download and install only Python module dependencies, use ``-DINSTALL_MISSING=PYTHON``.
 
@@ -79,20 +81,59 @@ If you wish to build Qristal's C++ noise-aware circuit placement routines, you m
 
 If you also wish to build this html documentation, pass ``-DBUILD_DOCS=ON``.
 
-**MPI support**
 
-When using Qristal, MPI acceleration is available when using:
+Manual Dependency Installation
+""""""""""""""""""""""""""""""
 
-1. ``xacc``'s ``tnqvm`` backend
-2. ``xacc``'s ``HPCVirtDecorator`` class
-3. the ``VQEE`` optimisation algorithm (uses xacc's ``HPCVirtDecorator``)
+1. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced alternative to step 1**)
 
-To take advantage of this, either add ``-DWITH_MPI=ON`` or ``-DMPI_HOME=<MPI install location>`` to the ``cmake`` configuration step. The default behaviour is to use whatever MPI installation has been installed to the system's root directory. A custom MPI installation can be specified via ``-DMPI_HOME=<MPI install location>``. For more fine-grained and customised control of MPI compiler, header and library locations to configure the build with, see the relevant section in the `cmake documentation <https://cmake.org/cmake/help/v3.20/module/FindMPI.html#variables-for-locating-mpi>`_.
+- Follow the installation instructions of `XACC <https://github.com/eclipse/xacc>`_, `ExaTN <https://github.com/ORNL-QCI/exatn>`_ and `TNQVM <https://github.com/ORNL-QCI/tnqvm>`_.
 
-.. note::
-  Items 1-3 above are controlled in isolation to other Qristal MPI acceleration using ``-DXACC_ENABLE_MPI=ON``. Setting ``-DWITH_MPI=ON`` or ``-DMPI_HOME=<MPI install location>`` will *not* implicitly enable MPI acceleration within XACC.
+- Perform system-level installation of the :ref:`remaining libraries<auto_install_deps>`.
 
-Example usage:
+- Configure CMake build with
+
+.. code-block:: bash
+
+  cmake .. -DXACC_DIR=<YOUR XACC INSTALLATION DIR> -DEXATN_DIR=<YOUR EXATN INSTALLATION DIR> -DTNQVM_DIR=<YOUR TNQVM INSTALLATION DIR>
+
+In this manual mode, the build system will check for a **specific** version of XACC, EXATN and TNQVM as provided.
+If not satisfied, it will terminate the build and ask for a reinstallation of the dependency.
+Please follow the error message to install the correct version (specified as a git commit hash key).
+
+Similarly, if building with noise-aware placement routines enabled using ``-DWITH_TKET=ON``, you can pass ``-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>`` to ``cmake`` to tell it to use your own installation of TKET rather than building TKET from source.
+
+
+MPI support
+"""""""""""
+
+When using Qristal, enabling MPI allows the user to take advantage of multiple computing nodes to accelerate calculations. Workloads are partitioned across multiple processes, which are typically configured to run across different nodes via something like Slurm, and executed in parallel. The resultant data from each process is then synchronised. The implementation of MPI in the application or dependency determines how the work is partitioned, run and synchronised.
+
+Qristal Native
+''''''''''''''
+
+To enable native MPI acceleration in Qristal, either add ``-DWITH_MPI=ON`` or ``-DMPI_HOME=<MPI install location>`` to the ``cmake`` configuration step. The default behaviour is to use whatever MPI installation has been installed to the system's root directory. A custom MPI installation can be specified via ``-DMPI_HOME=<MPI install location>``. For more fine-grained and customised control of MPI compiler, header and library locations to configure the build with, see the relevant section in the `cmake documentation <https://cmake.org/cmake/help/v3.20/module/FindMPI.html#variables-for-locating-mpi>`_.
+
+Qristal implements MPI acceleration by partitioning shots across processes. Once all MPI processes finish running their allocated number of shots, the supervisor MPI process synchronises and, where necessary, rescales the results of all processes before combining them with its own.
+
+Qristal Dependencies
+''''''''''''''''''''
+
+To enable MPI acceleration in Qristal dependencies, add ``-DENABLE_MPI_IN_DEPS=ON`` to the ``cmake`` configuration step. Enabling MPI acceleration for Qristal will *not* implicitly enable MPI acceleration within dependencies. When ``-DENABLE_MPI_IN_DEPS=ON`` is used, finding MPI is left up to the individual dependencies that support MPI.
+
+**Dependency support for MPI:**
+
+1. Parallelisation when using specific ``xacc`` backends
+
+   a. ``tnqvm`` backend when built with ``exatn`` backend (which Qristal does)
+   b. ``"hpc-virtualization"`` backend
+
+      - See the ``HPCVirtDecorator`` ("xacc/quantum/plugins/decorators/hpc-virtualization/hpc_virt_decorator.*") class declaration (hpp) and definition (cpp) for more information
+
+2. Circuit-level parallelisation for expectation value computation using the ``VQEE`` optimisation algorithm (uses the  `"hpc-virtualization"`` backend)
+
+Example Usage
+'''''''''''''
 
 .. code-block:: none
   :class: no-lexing
@@ -193,27 +234,9 @@ Note that MPI integration with Qristal assumes all "found" MPI directories and b
 
   -- Configuring incomplete, errors occurred!
 
-1. Manual Installation of :ref:`additional dependencies <auto_install_deps>` (**Advanced alternative to step 1**)
-
-- Follow the installation instructions of `XACC <https://github.com/eclipse/xacc>`_, `ExaTN <https://github.com/ORNL-QCI/exatn>`_ and `TNQVM <https://github.com/ORNL-QCI/tnqvm>`_.
-
-- Perform system-level installation of the :ref:`remaining libraries<auto_install_deps>`.
-
-- Configure CMake build with
-
-.. code-block:: bash
-
-  cmake .. -DXACC_DIR=<YOUR XACC INSTALLATION DIR> -DEXATN_DIR=<YOUR EXATN INSTALLATION DIR> -DTNQVM_DIR=<YOUR TNQVM INSTALLATION DIR>
-
-In this manual mode, the build system will check for a **specific** version of XACC, EXATN and TNQVM as provided.
-If not satisfied, it will terminate the build and ask for a reinstallation of the dependency.
-Please follow the error message to install the correct version (specified as a git commit hash key).
-
-Similarly, if building with noise-aware placement routines enabled using ``-DWITH_TKET=ON``, you can pass ``-DWITH_TKET=ON -DTKET_DIR=<YOUR TKET INSTALLATION DIR>`` to ``cmake`` to tell it to use your own installation of TKET rather than building TKET from source.
 
 Contributing
 ------------
-
 
 There are many ways in which you can contribute to Qristal, whether by contributing some code or by engaging in discussions;
 we value contributions in all shapes and sizes!

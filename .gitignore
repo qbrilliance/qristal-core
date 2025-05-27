@@ -47,7 +47,7 @@ terraform.tfstate
 password.txt
 
 # Always ignore build folder
-build/
+build*/
 
 # Clangd IntelliSense cached files
 .clangd/
@@ -63,3 +63,12 @@ deps/
 include/qristal/core/cmake_variables.hpp
 docs/rst/emulator.rst
 docs/static/js/qb_ga.js
+
+# From CI tests
+intermediate_benchmark_results/
+qristal_circuit.inc
+
+# VS Code configs. Note: these are not currently tracked but eventually
+# will be when the intergrations repo is merged with this one
+.devcontainer/
+.vscode/

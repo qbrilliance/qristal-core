@@ -53,10 +53,27 @@ const Table2d<std::vector<double>> & session::get_parameter_vectors() const {
 void session::set_calc_jacobian(bool calc_jacobian) {
   session::calc_jacobians_.clear();
   session::calc_jacobians_.push_back({calc_jacobian});
+  // If calculating jacobians, out counts are needed but we don't want to reset 
+  // out counts if calc_jacobians is being switch off
   if (calc_jacobian) set_calc_out_counts(true);
 }
 void session::set_calc_jacobians(Table2d<bool> calc_jacobians) {
-  session::calc_jacobians_ = calc_jacobians;
+  calc_jacobians_ = calc_jacobians;
+
+  // Temporary hack to make calc_out_counts_ the same size as
+  // calc_out_jacobians_. Note: removal of job array work makes this hack
+  // irrelevant
+  if (calc_out_counts_.size() != calc_jacobians_.size()) {
+    calc_out_counts_.resize(calc_jacobians_.size());
+  }
+  for (int i = 0; i < calc_jacobians_.size(); ++i) {
+    for (int j = 0; j < calc_jacobians_.at(i).size(); ++j) {
+      if (calc_out_counts_.at(i).size() != calc_jacobians_.at(i).size()) {
+        calc_out_counts_.at(i).resize(calc_jacobians_.at(i).size());
+      }
+      if (calc_jacobians_.at(i).at(j)) { calc_out_counts_.at(i).at(j) = true; }
+    }
+  }
 }
 const Table2d<bool> & session::get_calc_jacobians() const { return session::calc_jacobians_; }
 //

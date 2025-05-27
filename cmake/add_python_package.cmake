@@ -130,12 +130,14 @@ function(add_python_package)
     else()
       message(STATUS "Found Python package ${package_name}==${installed_version}")
 
-      check_installed_version_compatible(
-          PACKAGE_NAME ${package_name}
-          REQUIRED_VERSION ${package_version}
-          INSTALLED_VERSION ${installed_version}
-      )
-
+      # Only check the installed version if one was supplied to this function
+      if(package_version)
+        check_installed_version_compatible(
+            PACKAGE_NAME ${package_name}
+            REQUIRED_VERSION ${package_version}
+            INSTALLED_VERSION ${installed_version}
+        )
+      endif()
     endif()
     
   endforeach()
