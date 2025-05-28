@@ -356,6 +356,16 @@ namespace qristal
         }
       }
 
+      int32_t get_mpi_process_id()
+      {
+        return mpi_manager_.get_process_id();
+      }
+
+      int32_t get_total_mpi_processes()
+      {
+        return mpi_manager_.get_total_processes();
+      }
+
 #endif
 
     public:
@@ -839,7 +849,7 @@ namespace qristal
       /**
        * @brief Set the flag to retrieve the state vector
        *
-       * @param in_get_state_vec Flag to retrieve state vector (works with QPP backend only!)
+       * @param in_get_state_vec Flag to retrieve state vector (works with QPP and QER backends only!)
        */
       void get_state_vec(const bool &in_get_state_vec);
 

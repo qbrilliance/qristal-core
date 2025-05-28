@@ -198,3 +198,14 @@ if (WITH_PROFILING)
   )
   add_test(NAME profiling_ci_test COMMAND ProfilingCITests)
 endif()
+
+if(WITH_MPI)
+  add_executable(MPICITests tests/mpi/ShotParallelisationTester.cpp)
+  target_link_libraries(MPICITests PRIVATE
+    qristal::core
+    GTest::gtest
+    GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
+  )
+endif()

@@ -15,6 +15,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Circuit shot run parallelisation via MPI
 - Added docs to result-related private member variables of `session.hpp`
 - Build docs in CI with `-DINSTALL_MISSING=ON`
+- Added integration tests for circuit shot parallelisation via MPI
 
 ### Fixed
 - Now passing Python executable to py_packages_path.cmake, allowing for full installation using non-system Python.

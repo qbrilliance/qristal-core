@@ -5,7 +5,6 @@ include:
     file: 'ppc_instance_handler.gitlab-ci.yml'
 
 variables:
-  USE_MPI: "ON"
   # Branches to use for downstream repo triggers (ubuntu-amd64, almalinux-amd64, almalinux-power). Default: "main"
   EMULATOR_TRIGGER_BRANCH: main
   DECODER_TRIGGER_BRANCH: main
@@ -78,6 +77,7 @@ workflow:
     - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests
+    - core_artefacts/build/MPICITests
     - core_artefacts/build/TketTests
     - core_artefacts/build/BraketTests
     - core_artefacts/build/HardwareTests
@@ -166,7 +166,6 @@ ci-build:
     - if: $CI_PIPELINE_SOURCE != "pipeline"
   script:
     - rm -rf ${QB_DIR}/core
-    - echo "MPI is $USE_MPI"
     - cmake -B build .
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
       -DXACC_DIR=${QB_DIR}/xacc
@@ -174,6 +173,7 @@ ci-build:
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
       -DENABLE_MPI_IN_DEPS=$USE_MPI
+      -DWITH_MPI=ON
     - cmake --build build -- -j`nproc`
     - mkdir core_artefacts
     - mv build cmake examples include src tests remote_backends.yaml core_artefacts
@@ -190,14 +190,13 @@ ci-build-gcc:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
     - rm -rf ${QB_DIR}/core
-    - echo "MPI is $USE_MPI"
     - cmake -B build .
       -DCMAKE_INSTALL_PREFIX=${QB_DIR}/core
       -DXACC_DIR=${QB_DIR}/xacc
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI_IN_DEPS=$USE_MPI
+      -DWITH_MPI=ON
     - cmake --build build -- -j`nproc`
     - cmake --install build
 
@@ -241,7 +240,6 @@ ci-build-install-missing:
       -DINSTALL_MISSING=ON
       -DBUILD_DOCS=ON
       -DWITH_TKET=ON
-      -DENABLE_MPI_IN_DEPS=$USE_MPI
       -DWITH_PROFILING=ON
     - cmake --build build -- -j`nproc`
     # We need to put these things in a dedicated folder to avoid clashing with files of the same name in downstream projects.
@@ -262,6 +260,7 @@ ci-cpp-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
+    - mpirun --allow-run-as-root -n 5 ./build/MPICITests --test --gtest_output='xml:mpi_gtests.xml'
     - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
     - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
     - rm -rf ${QB_DIR}/core
@@ -270,6 +269,7 @@ ci-cpp-tests:
     reports:
       junit: core_gtests.xml
       junit: tket_gtests.xml
+      junit: mpi_gtests.xml
 
 ci-cpp-profiling-tests:
   stage: test
@@ -506,7 +506,6 @@ almalinux-amd64-build:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI_IN_DEPS=$USE_MPI
     - cmake --build build -- -j`nproc`
     - cmake --install build
     - mkdir core_artefacts
@@ -610,7 +609,6 @@ almalinux-power-build:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI_IN_DEPS=$USE_MPI
       -DBUILD_TESTS_WITHOUT_GPU=ON
     - cmake --build build -- -j`nproc`
     - cmake --install build

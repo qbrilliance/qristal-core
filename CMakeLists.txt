@@ -18,7 +18,13 @@ if(GIT_FOUND)
     COMMAND git describe --tags --abbrev=0
     OUTPUT_VARIABLE PROJECT_VERSION
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    RESULT_VARIABLE GIT_DESCRIBE_RESULT
   )
+
+  if (NOT GIT_DESCRIBE_RESULT EQUAL 0)
+    message(FATAL_ERROR "Failed to get git tag: git describe returned ${GIT_DESCRIBE_RESULT}")
+  endif()
+
   string(REGEX REPLACE "^v(.*)" "\\1" PROJECT_VERSION "${PROJECT_VERSION}")
 endif()
 

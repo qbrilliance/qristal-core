@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <qristal/core/mpi/results_serialisation.hpp>
 #include <qristal/core/mpi/results_types.hpp>
 
@@ -88,12 +89,12 @@ TEST(SerialisationTester, PackAndUnpackMapMultipleEntriesKeysInOneElement) {
   EXPECT_EQ(packed_map[0], 4); // Original size of the vector<bool> map key
   // Note: key2 and value 2 will be serialised first because this is an ordered
   // map and the key for entry 2 (0101) is less than entry 1 (1010)
-  EXPECT_EQ(packed_map[1], 1);      // Size of array for entry 2
+  EXPECT_EQ(packed_map[1], 1);               // Size of array for entry 2
   EXPECT_EQ(packed_map[2], key2_serialised); // Packed bools for entry 2
-  EXPECT_EQ(packed_map[3], value2); // Count for entry 2
-  EXPECT_EQ(packed_map[4], 1);      // Size of array for entry 1
+  EXPECT_EQ(packed_map[3], value2);          // Count for entry 2
+  EXPECT_EQ(packed_map[4], 1);               // Size of array for entry 1
   EXPECT_EQ(packed_map[5], key1_serialised); // Packed bools for entry 1
-  EXPECT_EQ(packed_map[6], value1); // Count for entry 1
+  EXPECT_EQ(packed_map[6], value1);          // Count for entry 1
 
   // The original map is used to test adding an element where a key doesn't
   // exist and adding to an existing element where a key does exist
@@ -202,10 +203,33 @@ TEST(SerialisationTester, PackAndUnpackEmpty2dVector) {
   EXPECT_EQ(packed_gradients.size(), 0);
 
   // Try to deserialise
-  auto unpacked_gradients = qristal::mpi::serialisation::unpack_gradients(
-      packed_gradients | std::views::all);
+  auto unpacked_gradients =
+      qristal::mpi::serialisation::unpack_gradients(packed_gradients);
 
-  EXPECT_EQ(std::ranges::distance(unpacked_gradients), 0);
+  // range-v3 v0.12.0 has a bug with chunk_view when it is empty. This causes a
+  // divide by zero floating point core dump when its internal `size_()` member
+  // method is called. As a workaround proxy check to see whether the returned
+  // view is empty, this test checks for a floating point divide by zero SIGFPE
+  // process exit in a forked process. This is the only way to detect this
+  // failure in a gtest. There is also a different exception thrown (less
+  // specific) when checking whether it is empty via its `empty()` method or
+  // iterating through the view.
+  pid_t pid = fork();
+  ASSERT_NE(pid, -1) << "Fork failed";
+
+  if (pid == 0) {
+    // Child process: cause SIGFPE
+    EXPECT_EQ(::ranges::distance(unpacked_gradients), 0);
+    _exit(0); // Should not reach here
+  } else {
+    // Parent process: wait for child
+    int status;
+    waitpid(pid, &status, 0);
+
+    // Check if child terminated due to SIGFPE
+    ASSERT_TRUE(WIFSIGNALED(status));
+    EXPECT_EQ(WTERMSIG(status), SIGFPE);
+  }
 }
 
 /**
