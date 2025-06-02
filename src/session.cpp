@@ -913,6 +913,10 @@ namespace qristal
         instrings_.at(ii).at(0) += "\n# Random circuit created:\n\n";
         instrings_.at(ii).at(0) += target_circuit;
       }
+
+      if (!run_config.no_optimise) {
+        std::cout << "Warning! Optimising a random circuit may take a long time!\n";
+      }
     } else if (file_or_string_or_random_or_ir == session::circuit_input_types::VALID_IR) {
       if (debug_) {
         std::cout << "Using a directly created XACC IR" << std::endl;
@@ -1797,6 +1801,21 @@ namespace qristal
           // to the optimization pass. Set copy_nodes to false to keep the root
           // node (citargets.at(0)) intact.
           CircuitBuilder ir_as_circuit(citargets.at(0), /*copy_nodes*/ false);
+
+          // Check if the circuit contains control-unitary (C-U) gates, which
+          // XACC's CircuitOptimizer is not able to correctly optimise.
+          std::shared_ptr<xacc::CompositeInstruction> circ = ir_as_circuit.get();
+          xacc::InstructionIterator iter(circ);
+          while (iter.hasNext()) {
+            xacc::InstPtr next = iter.next();
+            if (next->name() == "C-U") {
+              std::cout << "This circuit contains a control-unitary gate or a gate constructed from a control-unitary gate, " <<
+                           "e.g. a multi-control or generalised multi-control gate. " <<
+                           "Such a gate cannot be optimised by the circuit optimiser.\n";
+              throw std::runtime_error("Gate error");
+            }
+          }
+
           pass->apply(ir_as_circuit);
         }
         if (debug_) {
