@@ -24,6 +24,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed issue with dependencies preventing the building of docs on some systems.
 - Fixed eigen not being found when building examples after building Qristal with `-DINSTALL_MISSING=ON`
 - CMake configuration: Python package automatic install failed when not specifying the version to install
+- CMake configuration: sometimes "pooly behaved" dependencies were not found due to an edge case when the commit hash length for the version of the package is different to that which is tested against
 
 
 ## [1.7.0] - 2025-03-13

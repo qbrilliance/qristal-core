@@ -96,7 +96,9 @@ macro(add_poorly_behaved_dependency NAME VERSION)
   if(DRY_RUN_SUCCEEDED)
 
     find_package(${arg_FIND_PACKAGE_NAME} QUIET HINTS ${dir})
-    if(NOT ${arg_FIND_PACKAGE_NAME}_FOUND OR NOT "${${arg_FIND_PACKAGE_NAME}_VERSION}" STREQUAL "${VERSION}-${arg_GIT_TAG}")
+    string(FIND "${${arg_FIND_PACKAGE_NAME}_VERSION}" "${VERSION}-${arg_GIT_TAG}" MATCH1)
+    string(FIND "${VERSION}-${arg_GIT_TAG}" "${${arg_FIND_PACKAGE_NAME}_VERSION}" MATCH2)
+    if(NOT ${arg_FIND_PACKAGE_NAME}_FOUND OR (MATCH1 EQUAL -1 AND MATCH2 EQUAL -1))
       message(FATAL_ERROR "Inconsistent cmake results: dry run of find_package for ${arg_FIND_PACKAGE_NAME} succeeded, but actual run failed!")
     endif()
 
