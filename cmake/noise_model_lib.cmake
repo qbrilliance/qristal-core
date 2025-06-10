@@ -34,6 +34,7 @@ target_link_libraries(${LIBRARY_NAME}
   PUBLIC
     nlohmann::json
     Eigen3::Eigen
+    range-v3::range-v3
 )
 
 # Install the library

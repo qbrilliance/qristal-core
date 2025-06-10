@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1000
 
 # This example demonstrates the concept of amplitude amplification iterations.
 # Here, we want to amplify the amplitude of |1> state (so-called marked state)
@@ -32,9 +32,10 @@ for i in range(1, 41, 1):
     full_circuit.measure_all()
 
     # Run the full amplitude estimation procedure:
-    s.ir_target = full_circuit
+    s.irtarget = full_circuit
+    s.qn = full_circuit.num_qubits()
     s.run()
     # Calculate the probability of the marked state
-    good_count = int(s.results[0][0][[1]])
-    good_state_ampls.append(good_count/1024)
+    good_count = int(s.results[[1]])
+    good_state_ampls.append(good_count/1000)
     print(i, "\t\t", good_state_ampls[-1], "\t", np.sin((2*i+1)*epsilon/2)**2)

@@ -2,14 +2,19 @@
 #ifndef _QB_BENCHMARK_PYGSTIRESULTS_
 #define _QB_BENCHMARK_PYGSTIRESULTS_
 
-#include <ranges>
-#include <fstream>
+// Qristal
+#include <qristal/core/benchmark/Serializer.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+
+// Boost
 #include <boost/dynamic_bitset.hpp>
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
-#include "qristal/core/benchmark/Serializer.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
+// STL
+#include <ranges>
+#include <fstream>
+
+// range v3
+#include <range/v3/view/zip.hpp>
 
 namespace qristal
 {
@@ -37,8 +42,8 @@ namespace qristal
         * @brief Pure virtual python bindings helper class not used in the C++ implementation.
         */
         class PyGSTiResultsPythonBase {
-            public: 
-                virtual ~PyGSTiResultsPythonBase() = default; 
+            public:
+                virtual ~PyGSTiResultsPythonBase() = default;
                 virtual std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true) const = 0;
         };
 
@@ -87,10 +92,10 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased PyGSTiResults handle exposed in the python bindings. 
+        * @brief The type-erased PyGSTiResults handle exposed in the python bindings.
         */
         class PyGSTiResultsPython {
-            public: 
+            public:
                 template <PyGSTiWorkflow WORKFLOW>
                 requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
                 PyGSTiResultsPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<PyGSTiResults<WORKFLOW>>(workflow)) {}
@@ -99,7 +104,7 @@ namespace qristal
                     return workflow_ptr_->evaluate(force_new);
                 }
 
-            private: 
+            private:
                 std::unique_ptr<PyGSTiResultsPythonBase> workflow_ptr_;
         };
 
@@ -122,9 +127,9 @@ namespace qristal
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 
             //(3) compile list of results in pyGSTi compatible format
-            for (const auto& [session_info, measured_bitcounts, timestamp] : std::ranges::views::zip(session_infos, measured_bitcounts_collection, timestamps)) {
+            for (const auto& [session_info, measured_bitcounts, timestamp] : ::ranges::views::zip(session_infos, measured_bitcounts_collection, timestamps)) {
                 std::vector<std::string> circuit_results;
-                const size_t n_qubits = session_info.qns_[0][0];
+                const size_t n_qubits = session_info.qn;
                 size_t limit = std::pow(2, n_qubits);
                 //print header (mandatory for pyGSTi)
                 std::stringstream header;
@@ -134,7 +139,7 @@ namespace qristal
                 }
                 circuit_results.push_back(header.str());
                 //print circuit results
-                for (const auto& [measured_bitcount, circuit_string] : std::ranges::views::zip(measured_bitcounts, workflow_.get_pyGSTi_circuit_strings())) {
+                for (const auto& [measured_bitcount, circuit_string] : ::ranges::views::zip(measured_bitcounts, workflow_.get_pyGSTi_circuit_strings())) {
                     std::stringstream ss;
                     ss << circuit_string;
                     for (size_t i = 0; i < limit; ++i) {

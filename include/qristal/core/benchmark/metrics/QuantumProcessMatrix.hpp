@@ -2,13 +2,16 @@
 #ifndef _QB_BENCHMARK_QUANTUMPROCESSMATRIX_
 #define _QB_BENCHMARK_QUANTUMPROCESSMATRIX_
 
-#include <ranges>
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
+// Qristal
+#include <qristal/core/benchmark/Serializer.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+#include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
 
-#include "qristal/core/benchmark/Serializer.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
-#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+// STL
+#include <ranges>
+
+// range v3
+#include <range/v3/view/zip.hpp>
 
 namespace qristal
 {
@@ -19,8 +22,8 @@ namespace qristal
         * @brief Pure virtual python bindings helper class not used in the C++ implementation.
         */
         class QuantumProcessMatrixPythonBase {
-            public: 
-                virtual ~QuantumProcessMatrixPythonBase() = default; 
+            public:
+                virtual ~QuantumProcessMatrixPythonBase() = default;
                 virtual std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const = 0;
         };
 
@@ -68,12 +71,12 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased QuantumProcessMatrix handle exposed in the python bindings. 
+        * @brief The type-erased QuantumProcessMatrix handle exposed in the python bindings.
         */
         class QuantumProcessMatrixPython {
             public:
                 //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumProcessTomographyPython
-                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessMatrix objects. 
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessMatrix objects.
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumProcessMatrixPython(QuantumProcessTomographyPython& qstpython);
 
@@ -82,7 +85,7 @@ namespace qristal
                 }
 
             private:
-                std::unique_ptr<QuantumProcessMatrixPythonBase> workflow_ptr_; 
+                std::unique_ptr<QuantumProcessMatrixPythonBase> workflow_ptr_;
         };
 
         template <QPTWorkflow QPTWORKFLOW>
@@ -101,7 +104,7 @@ namespace qristal
 
             //(3) assemble process matrix for each workflow circuit of each selected timestamp
             std::vector<ComplexMatrix> processes;
-            for (const auto & [measured_bitcounts, timestamp] : std::ranges::views::zip(measured_bitcounts_collection, timestamps)) {
+            for (const auto & [measured_bitcounts, timestamp] : ::ranges::views::zip(measured_bitcounts_collection, timestamps)) {
                 timestamp2processes[timestamp] = workflow_.assemble_processes(workflow_.get_qst().assemble_densities(measured_bitcounts));
             }
             return timestamp2processes;

@@ -2,9 +2,9 @@
 
 #include <cmath>
 #include <boost/dynamic_bitset.hpp>
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/primitives.hpp"
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/primitives.hpp>
 
 namespace qristal
 {
@@ -45,10 +45,10 @@ namespace qristal
                     boost::dynamic_bitset<> bits(measured_bitstring.size());
                     for (size_t i = 0; i < measured_bitstring.size(); ++i) {
                       bits[i] = measured_bitstring[i];
-                    } 
+                    }
                     current_row(bits.to_ulong()) = static_cast<double>(count) / n_shots;
                 }
-                //assign row vector of confusion matrix 
+                //assign row vector of confusion matrix
                 confusion.row(bitstring) = current_row;
             }
             return confusion;
@@ -65,7 +65,7 @@ namespace qristal
                 for (size_t i = 0; i < b.size(); ++i) {
                     bvec[i] = b[i];
                 }
-                const std::map<std::vector<bool>, int> m = {{ bvec, workflow.get_session().get_sns()[0][0] }};
+                const std::map<std::vector<bool>, int> m = {{ bvec, workflow.get_session().sn }};
                 ideal_results.push_back(m);
             }
             workflow.serialize_ideal_counts(ideal_results, timestamp);

@@ -1,13 +1,18 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include <gtest/gtest.h>
+
+// Qristal
+#include <qristal/core/session.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+
+// STL
 #include <iostream>
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
+// Gtest
+#include <gtest/gtest.h>
 
 using namespace qristal::benchmark;
 
@@ -20,11 +25,10 @@ TEST(QuantumStateTomographyTester, checkSPAM) {
     const std::set<size_t> qubits = {0, 1, 2};
 
     //define session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qsim");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    qristal::session sim;
+    sim.acc = "qsim";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
     //define workflow
     SPAMBenchmark workflow(qubits, sim);
@@ -72,11 +76,10 @@ TEST(QuantumStateTomographyTester, checkRotationSweep) {
     const std::set<size_t> qubits = {0, 1, 2};
 
     //define session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qsim");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    qristal::session sim;
+    sim.acc = "qsim";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
     //define workflow
     RotationSweep workflow(
@@ -111,11 +114,10 @@ TEST(QuantumStateTomographyTester, checkMLE) {
     const std::set<size_t> qubits = {0, 1, 2};
 
     //define session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qsim");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    qristal::session sim;
+    sim.acc = "qsim";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
     //define workflow
     RotationSweep workflow(

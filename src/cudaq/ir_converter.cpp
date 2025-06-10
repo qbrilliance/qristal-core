@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/cudaq/ir_converter.hpp"
-#include "cudaq/utils/cudaq_utils.h"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/cudaq/ir_converter.hpp>
+#include <cudaq/utils/cudaq_utils.h>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <cassert>
 
 namespace qristal {

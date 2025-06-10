@@ -1,6 +1,6 @@
 #pragma once
-#include "AllGateVisitor.hpp"
-#include "NoiseModel.hpp"
+#include <AllGateVisitor.hpp>
+#include <NoiseModel.hpp>
 #include <sstream>
 #include <unordered_map>
 

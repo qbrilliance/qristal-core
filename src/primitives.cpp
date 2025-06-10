@@ -1,7 +1,7 @@
 #include <numbers>
 
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/primitives.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/primitives.hpp>
 
 namespace qristal {    
 

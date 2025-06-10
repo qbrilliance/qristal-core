@@ -2,10 +2,10 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
-#include "qristal/core/algorithms/exponential_search/exponential_search.hpp"
+#include <cppmicroservices/BundleActivator.h>
+#include <cppmicroservices/BundleContext.h>
+#include <cppmicroservices/ServiceProperties.h>
+#include <qristal/core/algorithms/exponential_search/exponential_search.hpp>
 
 using namespace cppmicroservices;
 

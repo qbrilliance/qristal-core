@@ -2,9 +2,9 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/q_prime_unitary.hpp"
-#include "CommonGates.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/q_prime_unitary.hpp>
+#include <CommonGates.hpp>
+#include <xacc_service.hpp>
 //#include <array>
 #include <assert.h>
 #include <bits/c++config.h>
@@ -15,7 +15,7 @@
 //#include <iterator>
 //#include <optional>
 //#include <ostream>
-#include "IRProvider.hpp"
+#include <IRProvider.hpp>
 
 namespace qristal {
 bool QPrime::expand(const xacc::HeterogeneousMap &runtimeOptions) {

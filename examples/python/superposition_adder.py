@@ -4,7 +4,6 @@ import numpy as np
 s = qristal.core.session()
 s.acc = "sparse-sim"
 s.sn = 1024
-s.init()
 s.qn = 32
 
 #Inputs
@@ -101,9 +100,9 @@ for i in range(len(qubits_superfluous_flags)):
 #circ.print()
 
 #Run
-s.ir_target = circ
+s.irtarget = circ
 s.run()
-res = s.results[0][0]
+res = s.results
 print(res)
 assert(res[[0,0,0,0,0,1,1,1,1]] > 0)
 assert(res[[0,0,1,1,0,1,0,0,1]] > 0)

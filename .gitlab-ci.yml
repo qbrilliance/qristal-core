@@ -172,7 +172,7 @@ ci-build:
       -DTNQVM_DIR=${QB_DIR}/xacc
       -DWITH_TKET=ON
       -DTKET_DIR=${QB_DIR}/tket
-      -DENABLE_MPI_IN_DEPS=$USE_MPI
+      -DENABLE_MPI_IN_DEPS=OFF
       -DWITH_MPI=ON
     - cmake --build build -- -j`nproc`
     - mkdir core_artefacts
@@ -449,7 +449,7 @@ trigger-emulator:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: trigger-emulator
-    QCSTACK_TAG: develop
+    QCSTACK_TAG: $QCSTACK_TRIGGER_BRANCH
 
 # Trigger downstream emulator build and run benchmark.
 trigger-emulator-benchmark:

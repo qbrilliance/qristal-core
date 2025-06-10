@@ -1,7 +1,7 @@
 // Copyright Quantum Brilliance Pty Ltd
 
 #pragma once
-#include "IRTransformation.hpp"
+#include <IRTransformation.hpp>
 
 namespace qristal {
 

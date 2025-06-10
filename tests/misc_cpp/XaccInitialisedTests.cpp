@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <gtest/gtest.h>
 
 int main(int argc, char **argv) {

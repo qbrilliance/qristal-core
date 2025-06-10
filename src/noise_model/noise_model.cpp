@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <qristal/core/noise_model/noise_model.hpp>
 #include <dlfcn.h>
 #include <vector>
 #include <algorithm>
@@ -200,7 +200,7 @@ namespace qristal
                     SUPPORTED_QOBJ_COMPILERS.end(),
                     qobj_compiler) == SUPPORTED_QOBJ_COMPILERS.end()) {
         std::stringstream error_msg;
-        error_msg << "Invalid qobj_compiler. The followings are supported:\n";
+        error_msg << "Invalid qobj_compiler. The following compilers are supported:\n";
         for (const auto &name : SUPPORTED_QOBJ_COMPILERS) {
           error_msg << " - " << name << "\n";
         }

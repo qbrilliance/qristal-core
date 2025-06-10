@@ -2,10 +2,10 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/compare_beam_oracle.hpp"
-#include "CommonGates.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/compare_beam_oracle.hpp>
+#include <CommonGates.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <CompositeInstruction.hpp>
 #include <assert.h>
 #include <vector>

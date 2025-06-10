@@ -19,12 +19,11 @@ params_list = circuit.param_dict_to_list(params_map)
 
 # Create the executor object
 my_sim = qristal.core.session()
-my_sim.init()
 my_sim.qn = circuit.num_qubits()
 my_sim.sn = 1000
-my_sim.parameter_list = params_list
-my_sim.calc_jacobian = True
-my_sim.ir_target = circuit
+my_sim.circuit_parameters = params_list
+my_sim.calc_gradients = True
+my_sim.irtarget = circuit
 
 print("About to run circuit...")
 my_sim.run()
@@ -32,12 +31,12 @@ print("Ran successfully!")
 
 # Print the counts of the executed circuit
 print("Direct results:")
-print(my_sim.results[0][0])
-print("Results via out_counts:")
+print(my_sim.results)
+print("Results via all_bitstring_counts:")
 import itertools
 for bits in itertools.product([0, 1], repeat=circuit.num_qubits()):
   reversed_bitstring = ''.join([str(x) for x in reversed(bits)])
-  print(f'{reversed_bitstring}: {my_sim.out_counts[0][0][my_sim.bitstring_index(bits)]}')
+  print(f'{reversed_bitstring}: {my_sim.all_bitstring_counts[my_sim.bitstring_index(bits)]}')
 
 # Print the probability jacobian as well
-print("Jacobian:\n", my_sim.out_prob_jacobians[0][0])
+print("Probability gradients:\n", my_sim.all_bitstring_probability_gradients)

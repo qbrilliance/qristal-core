@@ -49,23 +49,22 @@ params_list = circuit.param_dict_to_list(params_map)
 my_sim = qristal.core.session()
 
 #Define settings
-my_sim.init()
 my_sim.qn = 2
 my_sim.sn = 1000
-my_sim.parameter_list = params_list
-my_sim.calc_jacobian = True
-my_sim.ir_target = circuit
+my_sim.circuit_parameters = params_list
+my_sim.calc_gradients = True
+my_sim.irtarget = circuit
 
 print("About to run circuit...")
 my_sim.run()
 print("Ran successfully!")
 ```
 
-In the above example, we assign the runtime values of `params` to the `parameter_list` property of the executor, and tell it to calculate gradients as well by setting the `calc_jacobian` property to `True`.
+In the above example, we assign the runtime values of `params` to the `circuit_parameters` property of the executor, and tell it to calculate gradients as well by setting the `calc_gradients` property to `True`.
 
-**NB**: This will set the properties for all circuits being simulated with this `session` object, so when setting the parameters and enabling/disabling gradient calculations for multiple circuits in C++, ensure it is passed in the correct format using the properties `parameter_vectors` and `calc_jacobians`.
+**NB**: This will set the properties for all circuits being simulated with this `session` object, so when setting the parameters and enabling/disabling gradient calculations for multiple circuits in C++, ensure it is passed in the correct format using the properties `circuit_parameters` and `calc_gradients`.
 
-Finally, we execute the circuit by invoking `my_sim.run()`. This populates the output fields of the executor; the ones we are interested in for now are the `out_counts` and `out_prob_jacobians`, which contain the output counts for each bitstring and the output probability jacobian (with respect to the runtime parameters) respectively.
+Finally, we execute the circuit by invoking `my_sim.run()`. This populates the output fields of the executor; the ones we are interested in for now are the `all_bitstring_counts` and `all_bitstring_probability_gradients`, which contain the output counts for each bitstring and the output probability jacobian (with respect to the runtime parameters) respectively.
 
 ### Obtaining results
 
@@ -75,10 +74,10 @@ One can obtain the results simply by retrieving the aforementioned objects.
 # Print the statistics of the executed circuit
 print("Results:")
 for x in ["00", "01", "10", "11"]:
-  print(x, ": ", my_sim.out_counts[0][0][my_sim.bitstring_index(x, 0, 0)])
+  print(x, ": ", my_sim.all_bitstring_counts[my_sim.bitstring_index(x)])
 
 # Print the probability jacobian as well
-print("Jacobian:\n", my_sim.out_prob_jacobians[0][0])
+print("Jacobian:\n", my_sim.all_bitstring_probability_gradients)
 ```
 
 This will give the following terminal output showing both the probabilities and jacobian of the circuit when executed with the defined parameters:
@@ -95,4 +94,4 @@ This will give the following terminal output showing both the probabilities and 
      [[-0.012499999999999997, 0.016500000000000015, -0.004999999999999977, 0.0010000000000000009], [-0.067, 0.1905, -0.20550000000000002, 0.082], [-0.244, 0.22499999999999998, 0.22999999999999998, -0.211], [0.0, 0.0, 0.0, 0.0]]
 
 
-The above code can be found at `examples/python/parametrization_demo.py`. For a C++-based example, `examples/cpp/parametrization/parametrization_demo.cpp` also describes the same process but with 2 different circuits using the same executor.
+The above code can be found at `examples/python/parametrization_demo.py`. For a C++-based example, `examples/cpp/parametrization/parametrization_demo.cpp` also describes the same process but with 2 different circuits.

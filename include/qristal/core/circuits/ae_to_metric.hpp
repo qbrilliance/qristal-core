@@ -2,7 +2,7 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 #pragma once 
-#include "Circuit.hpp"
+#include <Circuit.hpp>
 namespace qristal {
 class AEtoMetric : public xacc::quantum::Circuit {
 public:

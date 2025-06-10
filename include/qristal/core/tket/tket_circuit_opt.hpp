@@ -2,17 +2,17 @@
 #include <array>
 
 // XACC
-#include "IRTransformation.hpp"
+#include <IRTransformation.hpp>
 
 // TKET
-#include "Circuit/CircPool.hpp"
-#include "Transformations/BasicOptimisation.hpp"
-#include "Transformations/ContextualReduction.hpp"
-#include "Transformations/OptimisationPass.hpp"
-#include "Transformations/Rebase.hpp"
-#include "Transformations/Replacement.hpp"
+#include <Circuit/CircPool.hpp>
+#include <Transformations/BasicOptimisation.hpp>
+#include <Transformations/ContextualReduction.hpp>
+#include <Transformations/OptimisationPass.hpp>
+#include <Transformations/Rebase.hpp>
+#include <Transformations/Replacement.hpp>
 
-#include "tket_ir_converter.hpp"
+#include <qristal/core/tket/tket_ir_converter.hpp>
 
 namespace qristal {
   /// Tket transform pass factory function type

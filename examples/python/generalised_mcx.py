@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1024
 
 # In this test we use generalised mcx to
 # perform mcx on all possible 3-qubit bit strings (|000>,...,|111>)
@@ -50,14 +50,15 @@ for condition in conditions:
         circ.measure_all()
 
         # Run the circuit and check results
-        s.ir_target = circ
+        s.irtarget = circ
+        s.qn = circ.num_qubits()
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        res = s.results[0][0]
+        res = s.results
         expected_output = [int(x) for x in input_bitstring[0:2]]
         if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:
             if input_bitstring[2] == "0":

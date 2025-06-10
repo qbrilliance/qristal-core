@@ -1,5 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp"
+#include <qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp>
 
 namespace qristal {
 

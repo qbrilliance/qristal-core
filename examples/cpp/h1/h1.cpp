@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 #include <string>
 #include <iostream>
 
@@ -26,35 +26,31 @@ int main(int argc, char **argv)
   std::vector<std::string> arguments(argv + 1, argv + argc);
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
-
-  // Set up sensible default parameters
-  my_sim.init();
+  auto my_sim = qristal::session();
 
   // Choose a simulator backend
   for (int i = 0; i < arguments.size(); i++) {
     if (arguments[i] == "--qdk") {
-      my_sim.set_acc("qdk_gen1");
+      my_sim.acc = "qdk_gen1";
     } else {
-      my_sim.set_acc("qpp");
+      my_sim.acc = "qpp";
     }
   }
 
   // Choose how many qubits to simulate
-  my_sim.set_qn(2);
+  my_sim.qn = 2;
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(32);
-
+  my_sim.sn = 32;
 
   // Hand the kernel over to the sim object
-  my_sim.set_instring(targetCircuit);
+  my_sim.instring = targetCircuit;
 
   // std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.results()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.results() << std::endl;
   // Print the walltime used to execute the quantum circuit
-  std::cout << "\n" << "* Time used for circuit execution, in ms: " << (my_sim.get_out_total_init_maxgate_readout_times()[0][0]).at(4)<< "\n";
+  std::cout << "\n" << "* Time used for circuit execution, in ms: " << my_sim.timing_estimates().at(4)<< "\n";
 }

@@ -44,7 +44,6 @@ The Emulator plugin for Qristal `can be obtained in binary form from Quantum Bri
 
    rst/getting_started
    rst/examples
-   rst/cli
    rst/backends
    rst/emulator
    rst/vqpu

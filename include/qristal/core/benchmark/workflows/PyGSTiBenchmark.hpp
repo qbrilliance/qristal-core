@@ -4,9 +4,9 @@
 
 #include <regex>
 
-#include "qristal/core/benchmark/Serializer.hpp" // contains "qristal/core/session.hpp" & typedefs
-#include "qristal/core/benchmark/Task.hpp"
-#include "qristal/core/circuit_builder.hpp"
+#include <qristal/core/benchmark/Serializer.hpp> // contains <qristal/core/session.hpp> & typedefs
+#include <qristal/core/benchmark/Task.hpp>
+#include <qristal/core/circuit_builder.hpp>
 
 namespace qristal
 {

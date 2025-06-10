@@ -1,12 +1,12 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/circuits/w_prime_unitary.hpp"
-#include "Circuit.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/w_prime_unitary.hpp>
+#include <Circuit.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <iostream>
 #include <bitset>
 #include <math.h>
-#include "IRProvider.hpp"
+#include <IRProvider.hpp>
 //#include <array>
 #include <gtest/gtest.h>
 

@@ -3,25 +3,24 @@ import qristal.core.benchmark as benchmark
 
 from datetime import datetime, timezone
 
-n_qubits = 2 
+n_qubits = 2
 n_shots = 1000
 
 #(1) define session
-sim = qristal.core.session(False)
-sim.init() 
+sim = qristal.core.session()
 sim.acc = "qpp"
-sim.sn = n_shots 
-sim.qn = n_qubits 
+sim.sn = n_shots
+sim.qn = n_qubits
 
 #(2) define workflow
 workflow = benchmark.RotationSweep(['X', 'I'], -180, +180, 5, sim)
 qstworkflow = benchmark.QuantumStateTomography(workflow)
 qptworkflow = benchmark.QuantumProcessTomography(qstworkflow)
 
-#(3) pass to metric 
+#(3) pass to metric
 metric = benchmark.QuantumProcessFidelity(qptworkflow)
 
-#(4) evaluate and print 
+#(4) evaluate and print
 results = metric.evaluate()
 for timestamp, fidelities in results.items():
     # Convert timestamp to UTC and local time

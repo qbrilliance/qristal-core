@@ -2,25 +2,25 @@
 #include <gtest/gtest.h>
 #include <sstream>
 #include <iostream>
-#include <unistd.h>    
+#include <unistd.h>
 
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
-#include "qristal/core/benchmark/workflows/RuntimeAnalyzer.hpp"
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
+#include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
+#include <qristal/core/benchmark/workflows/RuntimeAnalyzer.hpp>
 
-#include "qristal/core/benchmark/metrics/CircuitFidelity.hpp"
-#include "qristal/core/benchmark/metrics/QuantumStateDensity.hpp"
-#include "qristal/core/benchmark/metrics/QuantumProcessMatrix.hpp"
+#include <qristal/core/benchmark/metrics/CircuitFidelity.hpp>
+#include <qristal/core/benchmark/metrics/QuantumStateDensity.hpp>
+#include <qristal/core/benchmark/metrics/QuantumProcessMatrix.hpp>
 
 using namespace qristal::benchmark;
 
 TEST(RuntimeAnalyzerTester, checkcppuprofileinstantiate) {
-    std::stringstream ss; 
+    std::stringstream ss;
     ss << "cppuprofile_test.out";
     const size_t interval = 500; //in milliseconds
     const size_t profiling_time = 3; // in seconds
@@ -43,20 +43,19 @@ TEST(RuntimeAnalyzerTester, checkcppuprofileinstantiate) {
 TEST(RuntimeAnalyzerTester, checkSPAM) {
     const std::set<size_t> qubits{0, 1};
 
-    //define session  
-    qristal::session sim(false); 
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    //define session
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
-    //define workflow 
+    //define workflow
     SPAMBenchmark workflow(qubits, sim);
     // wrap into RuntimeAnalyzer and set profiling interval
     const size_t profiling_interval_ms = 500;
     RuntimeAnalyzer<SPAMBenchmark> wrapped_workflow(workflow, profiling_interval_ms);
 
-    //evaluate metric 
+    //evaluate metric
     CircuitFidelity<RuntimeAnalyzer<SPAMBenchmark>> metric(wrapped_workflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {
@@ -70,26 +69,25 @@ TEST(RuntimeAnalyzerTester, checkSPAM) {
 TEST(RuntimeAnalyzerTester, checkRotationSweep) {
     const std::vector<size_t> qubits{0, 1, 2};
 
-    //define session  
-    qristal::session sim(false); 
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    //define session
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
-    //define workflow 
+    //define workflow
     RotationSweep workflow(
-        std::vector<char>{'Z', 'X', 'Y'}, 
+        std::vector<char>{'Z', 'X', 'Y'},
         -90,
         +90,
-        9, 
+        9,
         sim
     );
     // wrap into RuntimeAnalyzer and set profiling interval
     const size_t profiling_interval_ms = 500;
     RuntimeAnalyzer<RotationSweep> wrapped_workflow(workflow, profiling_interval_ms);
 
-    //evaluate metric 
+    //evaluate metric
     CircuitFidelity<RuntimeAnalyzer<RotationSweep>> metric(wrapped_workflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {
@@ -103,22 +101,21 @@ TEST(RuntimeAnalyzerTester, checkRotationSweep) {
 TEST(RuntimeAnalyzerTester, checkQST) {
     Eigen::MatrixXcd ideal_density(4, 4); //ideal Bell state density
     ideal_density << 0.5, 0.0, 0.0, 0.5,
-                     0.0, 0.0, 0.0, 0.0, 
-                     0.0, 0.0, 0.0, 0.0, 
+                     0.0, 0.0, 0.0, 0.0,
+                     0.0, 0.0, 0.0, 0.0,
                      0.5, 0.0, 0.0, 0.5;
 
     const size_t n_qubits = 2;
     const size_t n_shots = 1000000;
 
-    // define session  
-    qristal::session sim(false); 
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(n_shots);
-    sim.set_qn(n_qubits);
+    // define session
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = n_shots;
+    sim.qn = n_qubits;
 
     // define workflow
-    qristal::CircuitBuilder circuit; 
+    qristal::CircuitBuilder circuit;
     circuit.H(0);
     circuit.CNOT(0, 1);
     SimpleCircuitExecution workflow(
@@ -134,20 +131,20 @@ TEST(RuntimeAnalyzerTester, checkQST) {
     QuantumStateDensity<RuntimeAnalyzer<QuantumStateTomography<SimpleCircuitExecution>>> metric(wrapped_workflow);
 
     //(4) evaluate and check
-    auto density = metric.evaluate(true).begin()->second.front(); //optional bool will enforce new execution 
+    auto density = metric.evaluate(true).begin()->second.front(); //optional bool will enforce new execution
     EXPECT_TRUE(density.isApprox(ideal_density, 1e-2));
 }
 
 TEST(RuntimeAnalyzerTester, checkQPT) {
     /*
-    assemble ideal CNOT process: 
+    assemble ideal CNOT process:
     CNOT = 1/2 ( II + IX + ZI - ZX ) * rho * 1/2 ( II + IX + ZI - ZX )
 
-    = 1/4 * ( 
+    = 1/4 * (
         IIrII + IIrIX + IIrZI - IIrZX +
         IXrII + IXrIX + IXrZI - IXrZX +
         ZIrII + ZIrIX + ZIrZI - ZIrZX +
-        -ZXrII - ZXrIX - ZXrZI + ZXrZX 
+        -ZXrII - ZXrIX - ZXrZI + ZXrZX
     )
 
     with indices: II : 0; IX : 1; ZI: 12; ZX: 13
@@ -176,15 +173,14 @@ TEST(RuntimeAnalyzerTester, checkQPT) {
     const size_t n_qubits = 2;
     const size_t n_shots = 1000000;
 
-    //(1) define session  
-    qristal::session sim(false); 
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(n_shots);
-    sim.set_qn(n_qubits);
+    //(1) define session
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = n_shots;
+    sim.qn = n_qubits;
 
     //(2) define workflow
-    qristal::CircuitBuilder circuit; 
+    qristal::CircuitBuilder circuit;
     circuit.CNOT(1, 0); //right to left odering of qubit indices!
     SimpleCircuitExecution workflow(
         std::vector<qristal::CircuitBuilder>{circuit},
@@ -202,6 +198,6 @@ TEST(RuntimeAnalyzerTester, checkQPT) {
     QuantumProcessMatrix<RuntimeAnalyzer<QPT>> metric(wrapped_workflow);
 
     //(4) evaluate and check
-    auto process = metric.evaluate(true).begin()->second.front(); //optional bool will enforce new execution 
+    auto process = metric.evaluate(true).begin()->second.front(); //optional bool will enforce new execution
     EXPECT_TRUE(process.isApprox(ideal_process, 1e-2));
 }

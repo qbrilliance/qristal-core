@@ -77,7 +77,6 @@ file(GLOB EXTRA_MARKDOWN_FILES ${SPHINX_SOURCE_DIR}/md/*.md)
 file(GLOB EXTRA_STATIC_IMAGE_FILES ${SPHINX_SOURCE_DIR}/static/img/*)
 file(GLOB EXTRA_STATIC_STYLE_FILES ${SPHINX_SOURCE_DIR}/static/styles/*)
 list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/README.md)
-list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/cpp/qristal_cli/README.md)
 list(APPEND EXTRA_MARKDOWN_FILES ${PROJECT_SOURCE_DIR}/examples/cpp/vqeeCalculator/README.md)
 
 #Replace variables inside @@ with the current values

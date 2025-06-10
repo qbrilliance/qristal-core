@@ -65,16 +65,16 @@ The Qristal vQPU offers many of the same options and settings as the Qristal SDK
   - `"assignment-error-kernel"`:  SPAM correction
 
 * `placement`: *string*. Optional. The name of the circuit placement method to apply to circuits to be executed by the vQPU.  Valid values:
-  - `"None"` or `""`:             No placement (default)
-  - `"swap-shortest-path"`:       Shortest-path topological placement only
-  - `"noise-aware"`:              Noise-aware placement (includes topological placement).  Requires `noise = True`.
+  - `"None"` or `""`:             No placement (default; this is currently the only valid value if `noise = False`)
+  - `"swap-shortest-path"`:       Shortest-path topological placement only.
+  - `"noise-aware"`:              Noise-aware placement (includes topological placement).
 
 * `qristal_seed`: *integer or 'null'*. Optional. The random seed to pass to Qristal to seed the vQPU. The default value (`null`) causes the vQPU to choose its own seed from the system clock.
 
-* `gpu_device_id`: *Vector of integers*. Optional. The GPU device IDs to use when running the simulation (for GPU-enabled accelerators only).
+* `gpu_device_ids`: *Vector of integers*. Optional. The GPU device IDs to use when running the simulation (for GPU-enabled accelerators only).
 
 * `backend`: *string*. The simulator backend to use for QPU virtualisation. Valid values:
-  - `"qsim"`: [Quantum Brilliance state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-state-vector-qsim)
+  - `"qsim"`: [Qsim state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#qsim-state-vector-qsim)
   - `"sparse-sim"`: [Microsoft sparse state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#microsoft-sparse-state-vector-sparse-sim)
   - `"qpp"`: [Quantum++ state-vector simulator (via XACC IR)](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-state-vector-simulator-qpp-and-cudaq-qpp)
   - `"cudaq:qpp"`: [Quantum++ state-vector simulator (via QIR)](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-state-vector-simulator-qpp-and-cudaq-qpp)
@@ -82,6 +82,7 @@ The Qristal vQPU offers many of the same options and settings as the Qristal SDK
   - `"custatevec:fp64"`: [cuQuantum state-vector simulator (double precision)](https://qristal.readthedocs.io/en/latest/rst/backends.html#cuquantum-state-vector-simulators-custatevec-fp32-and-custatevec-fp64)
   - `"aer"`: Qiskit Aer. The actual simulator chosen is set via the option `aer_sim_type`.
   - `"aws-braket"`: Amazon Braket. The actual simulator chosen is set by the `device` field of the `aws-braket` node in the file `remote_backends.yaml` within the Qristal installation directory.  Valid values are: [SV1](https://qristal.readthedocs.io/en/latest/rst/backends.html#amazon-braket-sv1-aws-braket-sv1), [TN1](https://qristal.readthedocs.io/en/latest/rst/backends.html#amazon-braket-tn1-aws-braket-tn1) and [DM1](https://qristal.readthedocs.io/en/latest/rst/backends.html#amazon-braket-dm1-aws-braket-dm1).
+  - `"qb-statevector"`: [Quantum Brilliance state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-state-vector-qb-statevector)
   - `"qb-mpdo"`: [Quantum Brilliance Matrix-Product Density Operator (via XACC IR)](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-matrix-product-density-operator-qb-mpdo-and-cudaq-qb-mpdo)
   - `"cudaq:qb_mpdo"`: [Quantum Brilliance Matrix-Product Density Operator (via QIR)](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-matrix-product-density-operator-qb-mpdo-and-cudaq-qb-mpdo)
   - `"qb-purification"`: [Quantum Brilliance purification (via XACC IR)](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-purification-qb-purification-and-cudaq-qb-purification)

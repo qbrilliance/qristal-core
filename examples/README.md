@@ -135,7 +135,7 @@ _qubits_: 2
 _gate depth_: 6
 _noise_: false
 
-An example of asynchronous circuit execution, using 32 workers to perform 200 circuit executions.
+An example of asynchronous execution of a single circuit.
 
 `async_example_2.py`
 
@@ -143,7 +143,7 @@ _qubits_: 2
 _gate depth_: 6
 _noise_: false
 
-An example of asynchronous circuit execution, using 32 workers to perform 3200 circuit executions.
+An example of asynchronous execution of 100 circuits, using Qristal's thread pool. Note that this uses Python's co-operative multitasking to manage the threads, so it doesn't actually parallelise the execution of the circuits across the threads, as each thread needs to uniquely acquire the global interpreter lock (GIL) in order to execute the circuit. To see how to parallelise circuit execution, please refer to qft.py.
 
 `benchmark/pyGSTi.py`
 
@@ -347,26 +347,12 @@ _noise_: false
 
 Example of proper fraction division. This example performs every 3-qubit proper fraction division with 3 precision bits.
 
-`qaoa_example.py`
-
-_qubits_: 5
-_noise_: false
-
-Demonstrates the use of Qristal's built-in implementation of the QAOA algorithm. This example may take some time to run.
-
-`qaoa_API_demo.py`
-
-_qubits_: 9
-_noise_: false
-
-Demonstrates the use of the QAOA and QUBO APIs at a QAP problem. This example may take some time to run.
-
 `qft.py`
 
 _qubits_: 5
 _noise_: false
 
-Example of a quantum Fourier transform. This example runs 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) in parallel.
+Example of a quantum Fourier transform. This example runs 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) in parallel using Python's multithreading library.
 
 `qpe.py`
 
@@ -376,13 +362,13 @@ _noise_: false
 
 Example of a quantum phase estimation, $\hat{O}\ket{\psi} = e^{i\phi}\ket{\psi}$, where the goal is to estimate the phase $\phi$. The oracle operator $\hat{O}$ in this case is a general $U1$ rotation, i.e. $U1(\theta) \ket{1} = e^{i\theta}\ket{1}$. Test value: $-5\pi/8$.
 
-`qsim_noisy.py`
+`qb_statevector_noisy.py`
 
 _qubits_: 3
 _gate depth_: 46
 _noise_: true
 
-A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$.  The basic version of the example does not include noise. If you have the Qristal Emulator installed, two lines in the example file can be uncommented to convert it into an example of a simulation in a noisy environment, using noise models provided by the emulator. Details about the noise model are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
+An example of how to use the QB statevector backend from the Qristal emulator, with noise. A generalized mcx gate operates on a target qubit in the state $\ket{1}$ conditioned on 2 control qubits in the state $\ket{11}$. This flips the target qubit to $\ket{0}$. Details about the noise model used are available [here](https://qristal.readthedocs.io/en/latest/rst/noise_models.html) .
 
 `set_circuit.py`
 
@@ -489,7 +475,7 @@ Valid AWS credentials are required to run the example.
 _qubits_: 4
 _noise_: true
 
-A simple example demonstrating asynchronous circuit execution on AWS Braket. Note that currently only asynchronous circuit execution (via `run_async`) is supported for AWS Braket. To run on AWS Braket:
+A simple example demonstrating both synchronous and asynchronous circuit execution on AWS Braket. To run on AWS Braket:
 * Set up AWS account (e.g., using CLI) and enable AWS Braket;
 * Use an AWS Region that supports AWS Braket (e.g., us-east-1);
 * Create an S3 Bucket with prefix `amazon-braket-*` and create a folder inside the S3 bucket to store results.
@@ -521,29 +507,12 @@ _noise_: false
 
 This example allows you to quickly switch circuit execution between a hardware QPU and a simulator.  See cpp/h1/README.md for more information.
 
-`qaoa`
-
-_qubits_: 3
-_qaoa_steps_: 2
-_noise_: false
-
-Demonstrates the use of Qristal's built-in implementation of the QAOA simple algorithm. This example may take some time to run.
-
 `qft`
 
 _qubits_: 5
 _noise_: false
 
-Example of a quantum Fourier transform using 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) in parallel.
-
-`qristal_cli`
-
-A command-line interface to Qristal.  A simple invocation after compiling the CLI is:
-```
-./qristal_cli -q2 --random=2
-```
-which will run a random circuit on 2 qubits, with gate depth of 2. Further details can be found <a href="cli.html">here</a>.
-%Special note only for markdown readers: see <a href="cpp/qristal_cli/README.md">examples/cpp/qristal_cli/README.md</a> instead for further details.
+Example of a quantum Fourier transform using 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) running in parallel via a thread pool.
 
 `noise_model`
 
@@ -600,11 +569,11 @@ _qubits_: 4
 _gate depth_: 83
 _noise_: false
 
-Demonstrates the use of Qristal's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms.
+Demonstrates the use of Qristal's built-in VQE routines. Can be built with MPI support and parallelization over Pauli terms. Requires a functional installation of pyscf to run.
 
 `vqeeCalculator`
 
-`vqeeCalculator` is a C++ compiled executable that enables command-line access to the functionality in `vqee`.
+`vqeeCalculator` is a C++ compiled executable that enables command-line access to the functionality in `vqee`. Requires a functional installation of pyscf in order to run.
 
 ```{toctree}
 vqeeCalculator.md
@@ -647,7 +616,7 @@ An example demonstrating setting up a pipeline of circuit optimization passes wh
 
 `cudaq_qft.py`
 
-Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum simulator backend. Required CUDA Quantum support.
+Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum simulator backend. Requires CUDA Quantum support.
 
 `qst`
 

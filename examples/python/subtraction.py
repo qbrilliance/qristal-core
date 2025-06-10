@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1024
 s.qn = 10
 
 ###
@@ -35,16 +35,15 @@ for i in range(32):
         for k in range(10):
             circ.measure(k)
 
-        s.ir_target = circ
+        s.irtarget = circ
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
         s.output_oqm_enabled = False
         s.acc = "qsim"
         s.run()
-        res = s.results[0][0]
 
         expected_result = i-j
         expected_result_bin = bin(expected_result)[2:].zfill(5)
         expected_output = [int(x) for x in (expected_result_bin + bin_j)]
-        assert(res[expected_output] == 1024)
+        assert(s.results[expected_output] == 1024)

@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/python/py_optimization.hpp"
-#include "qristal/core/python/py_stl_containers.hpp"
-#include "qristal/core/optimization/vqee/vqee.hpp"
+#include <qristal/core/python/py_optimization.hpp>
+#include <qristal/core/python/py_stl_containers.hpp>
+#include <qristal/core/optimization/vqee/vqee.hpp>
 
 namespace qristal {
 void bind_vqee(pybind11::module &opt_m) {

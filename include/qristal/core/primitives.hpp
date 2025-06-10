@@ -1,12 +1,13 @@
+// Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#include <Eigen/Dense>
-#include <unsupported/Eigen/KroneckerProduct>
 #include <map>
 #include <numeric>
+#include <ranges>
+#include <range/v3/view/zip.hpp>
+#include <Eigen/Dense>
+#include <unsupported/Eigen/KroneckerProduct>
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
 
 namespace qristal {
 

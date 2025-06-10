@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/optimization/vqee/vqee.hpp"
-#include "qristal/core/utils.hpp"
+#include <qristal/core/optimization/vqee/vqee.hpp>
+#include <qristal/core/utils.hpp>
 
 #include <iomanip>
 #include <iostream>

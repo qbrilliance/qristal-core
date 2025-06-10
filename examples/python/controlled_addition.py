@@ -3,7 +3,7 @@ import numpy as np
 import timeit
 
 s = qristal.core.session()
-s.init()
+s.sn = 1024
 s.qn = 7
 
 ###
@@ -35,7 +35,7 @@ circ1.controlled_ripple_carry_adder(qubits_adder, qubits_sum, c_in, flags_on = f
 for i in range(len(qubits_sum)):
     circ1.measure(qubits_sum[i])
 
-s.ir_target = circ1
+s.irtarget = circ1
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
@@ -45,8 +45,7 @@ start = timeit.default_timer()
 s.run()
 end = timeit.default_timer()
 print("runtime " + str(end-start))
-res = s.results[0][0]
-assert(res[[0,0,0]] == 1024)
+assert(s.results[[0,0,0]] == 1024)
 
 ###
 # Test 2: flag off
@@ -67,12 +66,11 @@ circ2.controlled_ripple_carry_adder(qubits_adder, qubits_sum, c_in, flags_on = f
 for i in range(len(qubits_sum)):
     circ2.measure(qubits_sum[i])
 
-s.ir_target = circ2
+s.irtarget = circ2
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-res = s.results[0][0]
-assert(res[[1,0,0]] == 1024)
+assert(s.results[[1,0,0]] == 1024)

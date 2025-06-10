@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "qristal/core/benchmark/Serializer.hpp" // contains "qristal/core/session.hpp" & typedefs
-#include "qristal/core/benchmark/Task.hpp"
+#include <qristal/core/benchmark/Serializer.hpp> // contains <qristal/core/session.hpp> & typedefs
+#include <qristal/core/benchmark/Task.hpp>
 
 namespace qristal
 {
@@ -102,7 +102,7 @@ namespace qristal
                 * @brief Helper function to compute the confusion matrix for the given SPAM workflow.
                 *
                 * Arguments:
-                * @param counts : The measured counts for all SPAM circuits. 
+                * @param counts : The measured counts for all SPAM circuits.
                 *
                 * @return Eigen::MatrixXd : The assembled confusion matrix.
                 */

@@ -4,11 +4,11 @@
 
  ***/
 
-#include "qristal/core/circuits/inverse_circuit.hpp"
-#include "CommonGates.hpp"
-#include "IRProvider.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/inverse_circuit.hpp>
+#include <CommonGates.hpp>
+#include <IRProvider.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <algorithm>
 #include <assert.h>
 #include <bitset>

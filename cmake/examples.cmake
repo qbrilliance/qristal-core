@@ -41,8 +41,6 @@ if(WITH_EXAMPLES)
   add_example(h1 SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/h1/h1.cpp)
   add_example(noise_model SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model/noise_model.cpp)
   add_example(noise_model_custom_channel SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/noise_model_custom_channel/noise_model_custom_channel.cpp)
-  add_example(qaoa SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qaoa/qaoa_example.cpp)
-  add_example(qristal_cli SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qristal_cli/qristal_cli.cpp)
   add_example(vqee SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqee/vqee_example.cpp)
   add_example(vqeeCalculator SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/vqeeCalculator/vqee_calculator.cpp)
   add_example(qb_mpdo_noisy SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qb_mpdo_noisy/qb_mpdo_noisy.cpp)
@@ -78,7 +76,7 @@ if(WITH_EXAMPLES)
   if (WITH_MPI)
     add_example(mpi_demo SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_demo/mpi_demo.cpp)
   endif()
-  
+
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/examples/python
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples
@@ -87,11 +85,6 @@ if(WITH_EXAMPLES)
   install(
     FILES ${CMAKE_CURRENT_SOURCE_DIR}/examples/README.md
     DESTINATION ${CMAKE_INSTALL_PREFIX}/examples
-  )
-
-  install(
-    FILES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/qristal_cli/README.md
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/examples/cpp/qristal_cli
   )
 
 endif()

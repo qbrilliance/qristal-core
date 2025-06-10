@@ -73,12 +73,12 @@ circ.cnot(0, 1)
 circ.measure_all()
 
 s = qristal.core.session()
-s.init()
+s.sn = 1000
 s.qn = nb_qubits
 s.noise = True
 s.noise_model = nm
-s.ir_target = circ
+s.irtarget = circ
 s.acc = "aer"
 s.run()
 print("Results:")
-print(s.results[0][0])
+print(s.results)

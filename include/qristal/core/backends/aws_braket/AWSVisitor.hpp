@@ -5,9 +5,9 @@
 #ifndef QUANTUM_GATE_ACCELERATORS_QUANTUMBRILLIANCEVISITOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_QUANTUMBRILLIANCEVISITOR_HPP_
 
-#include "AllGateVisitor.hpp"
-#include "CommonGates.hpp"
-#include "xacc.hpp"
+#include <AllGateVisitor.hpp>
+#include <CommonGates.hpp>
+#include <xacc.hpp>
 #include <memory>
 #include <sstream>
 

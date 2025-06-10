@@ -1,7 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
+#include <string>
+
 #pragma once
 
-#define SDK_VERSION "@PROJECT_VERSION@"
-#define SDK_SOURCE_DIR "@CMAKE_CURRENT_SOURCE_DIR@"
-#define SDK_DIR "@CMAKE_INSTALL_PREFIX@"
+const std::string QRISTAL_VERSION = "@PROJECT_VERSION@";
+const std::string QRISTAL_SOURCE_DIR = "@CMAKE_CURRENT_SOURCE_DIR@";
+const std::string QRISTAL_DIR = "@CMAKE_INSTALL_PREFIX@";

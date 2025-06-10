@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
-#include "Accelerator.hpp"
+#include <Accelerator.hpp>
 #include <memory>
 
 /// Define generic/abstract interface for remotely-hosted accelerators
@@ -13,6 +13,7 @@ namespace qristal
   {
     /// Default poll interval (in milliseconds) for blocking wait for completion.
     static constexpr int DEFAULT_RESULTS_POLL_INTERVAL_MS = 100;
+
     /// Cancel the async. task.
     virtual void cancel() = 0;
 
@@ -32,8 +33,8 @@ namespace qristal
   /// Abstract interface for remote Accelerators that support async. (non-blocking) job offloading.
   class remote_accelerator : public xacc::Accelerator
   {
-  public:
-    virtual std::shared_ptr<qristal::async_job_handle> async_execute(
-        const std::shared_ptr<xacc::CompositeInstruction> CompositeInstruction) = 0;
+    public:
+      virtual std::shared_ptr<qristal::async_job_handle> async_execute(
+       const std::shared_ptr<xacc::CompositeInstruction> CompositeInstruction) = 0;
   };
 }

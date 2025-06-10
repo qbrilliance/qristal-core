@@ -1,6 +1,5 @@
 import qristal.core
 s = qristal.core.session()
-s.init()
 s.noise = True
 s.nooptimise = True
 s.noplacement = True
@@ -16,9 +15,9 @@ s.qn = 2
 s.instring = circ.openqasm()
 s.run()
 print("Without mitigation:")
-print(s.results[0][0])
+print(s.results)
 
 s.noise_mitigation = "assignment-error-kernel"
 s.run()
 print("With mitigation:")
-print(s.results[0][0])
+print(s.results)

@@ -2,13 +2,13 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/phase_estimation.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "CommonGates.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/phase_estimation.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <CommonGates.hpp>
+#include <xacc_service.hpp>
 #include <assert.h>
 #include <optional>
-#include "IRProvider.hpp"
+#include <IRProvider.hpp>
 #include <vector>
 #include <string>
 

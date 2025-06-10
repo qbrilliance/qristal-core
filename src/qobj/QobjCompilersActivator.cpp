@@ -1,11 +1,11 @@
 // Copyright Quantum Brilliance
-#include "qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp"
+#include <qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp>
 
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
+#include <cppmicroservices/BundleActivator.h>
+#include <cppmicroservices/BundleContext.h>
+#include <cppmicroservices/ServiceProperties.h>
 
-#include "xacc.hpp"
+#include <xacc.hpp>
 
 namespace qristal {
 /// Simple Pimpl wrapper for the default XACC's QObj generator,

@@ -46,11 +46,6 @@ Create a quantum computing session using Qristal:
 my_sim = qristal.core.session()
 ```
 
-Choose some default session parameters:
-```python
-my_sim.init()
-```
-
 Set the number of shots to run through the circuit:
 ```python
 my_sim.sn = 1024
@@ -89,6 +84,6 @@ my_sim.run()
 
 Print the cumulative results in each of the classical registers:
 ```python
-print(my_sim.results[0][0])
+print(my_sim.results)
 ```
 

@@ -2,15 +2,15 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/circuits/canonical_amplitude_estimation.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
-#include "xacc.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/circuits/canonical_amplitude_estimation.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
+#include <xacc.hpp>
 #include <assert.h>
-#include "xacc.hpp"
-#include "Circuit.hpp"
-#include "GateModifier.hpp"
+#include <xacc.hpp>
+#include <Circuit.hpp>
+#include <GateModifier.hpp>
 
 namespace qristal {
 bool CanonicalAmplitudeEstimation::expand(const xacc::HeterogeneousMap &runtimeOptions) {

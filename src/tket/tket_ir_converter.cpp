@@ -1,8 +1,8 @@
 // Copyright Quantum Brilliance Pty Ltd
 
-#include "qristal/core/tket/tket_ir_converter.hpp"
-#include "AllGateVisitor.hpp"
-#include "Circuit/Circuit.hpp"
+#include <qristal/core/tket/tket_ir_converter.hpp>
+#include <AllGateVisitor.hpp>
+#include <Circuit/Circuit.hpp>
 
 namespace {
 using namespace xacc::quantum;

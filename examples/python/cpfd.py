@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1024
 s.qn = 13
 
 ###
@@ -55,15 +55,14 @@ for c in range(4):
             for k in qubits_ancilla:
                 circ.measure(k)
 
-            s.ir_target = circ
+            s.irtarget = circ
             s.nooptimise = True
             s.noplacement = True
             s.notiming = True
             s.output_oqm_enabled = False
             s.acc = "qsim"
             s.run()
-            res = s.results[0][0]
-            assert(len(res) == 1)
+            assert(len(s.results) == 1)
 
             if c == 1:
                 if j != 0:
@@ -85,7 +84,7 @@ for c in range(4):
                 for k in range(len(qubits_ancilla)):
                     expected_output += "0"
 
-                assert(res[[int(x) for x in expected_output]] == 1024)
+                assert(s.results[[int(x) for x in expected_output]] == 1024)
 
             else:
                 expected_output = bin_i + bin_j
@@ -94,4 +93,4 @@ for c in range(4):
                 for k in range(len(qubits_ancilla)):
                     expected_output += "0"
 
-                assert(res[[int(x) for x in expected_output]] == 1024)
+                assert(s.results[[int(x) for x in expected_output]] == 1024)

@@ -2,7 +2,7 @@
 import pytest
 import numpy as np
 import math
-import qristal.core 
+import qristal.core
 import qristal.core.benchmark as benchmark
 
 def test_SPAMBenchmark_circuit_construction():
@@ -12,7 +12,7 @@ def test_SPAMBenchmark_circuit_construction():
     correct_circuits = []
     for i in range(9):
         cb = qristal.core.Circuit()
-        correct_circuits.append(cb)  
+        correct_circuits.append(cb)
 
     correct_circuits[1].x(0)
     correct_circuits[2].x(2)
@@ -28,7 +28,7 @@ def test_SPAMBenchmark_circuit_construction():
     correct_circuits[7].x(7)
 
     sim = qristal.core.session()
-    sim.init()
+    sim.sn = 1024
     sim.acc = "qpp"
     sim.qn = n_qubits
 
@@ -67,7 +67,7 @@ def test_RotationSweep_circuit_construction():
     correct_circuits[4].rz(3, np.pi);
 
     sim = qristal.core.session()
-    sim.init()
+    sim.sn = 1024
     sim.acc='qpp'
     sim.qn = 4
 
@@ -82,7 +82,7 @@ def test_RotationSweep_circuit_construction():
 def test_PyGSTiBenchmark_circuit_readin():
     n_qubits = 11
 
-    sim = qristal.core.session(False)
+    sim = qristal.core.session()
     sim.acc = 'qpp'
     sim.sn = 1000
     sim.qn = n_qubits
@@ -103,7 +103,7 @@ def test_PyGSTiBenchmark_circuit_readin():
       "Gxxpi2:0:1Gyypi2:0:1Gzzpi2:0:1@(0,1)",
       "Gxx:9:10Gxpi2:7Gcz:0:2Gzzpi2:4:3@(0,1,2,3,4,5,6,7,8,9,10)"
     ])
-    
+
     correct_circuits = []
     cb = qristal.core.Circuit()
     correct_circuits.append(cb)
@@ -174,13 +174,13 @@ def test_PyGSTiBenchmark_circuit_readin():
     cb.ry(1, np.pi / 2.0)
     cb.x(1)
     correct_circuits.append(cb)
-    
+
     cb = qristal.core.Circuit()
     cb.ry(0, np.pi / 2.0)
     cb.x(0)
-    cb.cz(0, 1) 
+    cb.cz(0, 1)
     cb.rx(1, np.pi / 2.0)
-    cb.cz(0, 1) 
+    cb.cz(0, 1)
     cb.ry(0, np.pi / 2.0)
     cb.x(0)
 
@@ -202,13 +202,13 @@ def test_PyGSTiBenchmark_circuit_readin():
     cb.ry(1, np.pi / 2.0)
     cb.x(1)
     correct_circuits.append(cb)
-    
+
     cb = qristal.core.Circuit()
-    cb.ry(9, np.pi / 2.0); 
+    cb.ry(9, np.pi / 2.0);
     cb.x(9)
-    cb.cz(9, 10); 
+    cb.cz(9, 10);
     cb.rx(10, -1.0 * np.pi)
-    cb.cz(9, 10); 
+    cb.cz(9, 10);
     cb.ry(9, np.pi / 2.0)
     cb.x(9)
 
@@ -235,8 +235,7 @@ def test_PyGSTiBenchmark_circuit_readin():
 def test_QuantumStateTomography_checkSPAM():
     qubits = {0, 1, 2}
 
-    sim = qristal.core.session(False)
-    sim.init()
+    sim = qristal.core.session()
     sim.acc = "qsim"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -251,7 +250,7 @@ def test_QuantumStateTomography_checkSPAM():
     #00, 01, 00, 01, 10, 11, 10, 11
     ideal_densities = []
     dim = 2**len(measure_qst_qubits)
-    for i in range(2**len(qubits)): 
+    for i in range(2**len(qubits)):
         ideal_densities.append(np.zeros((dim, dim), dtype=complex))
     ideal_densities[0][0][0] = 1.0
     ideal_densities[1][1][1] = 1.0
@@ -265,7 +264,7 @@ def test_QuantumStateTomography_checkSPAM():
     metric = benchmark.QuantumStateDensity(qstworkflow)
     results = metric.evaluate(True)
     _, measured_densities = next(iter(results.items()))
-    for ideal, density in zip(ideal_densities, measured_densities): 
+    for ideal, density in zip(ideal_densities, measured_densities):
         assert np.all(np.isclose(ideal, density, atol=1e-2))
 
 def get_ideal_rotation_density(rotation:chr, angle:float):
@@ -282,15 +281,14 @@ def get_ideal_rotation_density(rotation:chr, angle:float):
         density[0][1] = c*s
         density[1][0] = c*s
         density[1][1] = s**2
-    else: #Z or I 
+    else: #Z or I
         density[0][0] = 1.0
     return density
 
 def test_QuantumStateTomography_checkRotationSweep():
     qubits = {0, 1}
 
-    sim = qristal.core.session(False)
-    sim.init() 
+    sim = qristal.core.session()
     sim.acc = "qsim"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -301,7 +299,7 @@ def test_QuantumStateTomography_checkRotationSweep():
     #assemble ideal densities
     ideal_densities = []
     current_rad = workflow.start_rad()
-    while current_rad <= workflow.end_rad(): 
+    while current_rad <= workflow.end_rad():
         d = np.ones((1, 1), dtype=complex)
         for rot in workflow.get_rotations_per_qubit():
              d = np.kron(get_ideal_rotation_density(rot, current_rad), d)
@@ -312,16 +310,15 @@ def test_QuantumStateTomography_checkRotationSweep():
     metric = benchmark.QuantumStateDensity(qstworkflow)
     results = metric.evaluate(True)
 
-    #compare 
+    #compare
     _, measured_densities = next(iter(results.items()))
-    for ideal, density in zip(ideal_densities, measured_densities): 
+    for ideal, density in zip(ideal_densities, measured_densities):
         assert np.all(np.isclose(ideal, density, atol=1e-2))
 
 def test_QuantumStateTomography_checkMLE():
     qubits = {0, 1}
 
-    sim = qristal.core.session(False) 
-    sim.init()
+    sim = qristal.core.session()
     sim.acc = "qsim"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -333,7 +330,7 @@ def test_QuantumStateTomography_checkMLE():
     #assemble ideal densities
     ideal_densities = []
     current_rad = workflow.start_rad()
-    while current_rad <= workflow.end_rad(): 
+    while current_rad <= workflow.end_rad():
         d = np.ones((1, 1), dtype=complex)
         for rot in workflow.get_rotations_per_qubit():
              d = np.kron(get_ideal_rotation_density(rot, current_rad), d)
@@ -344,16 +341,15 @@ def test_QuantumStateTomography_checkMLE():
     metric = benchmark.QuantumStateDensity(qstworkflow)
     results = metric.evaluate(True)
 
-    #compare 
+    #compare
     _, measured_densities = next(iter(results.items()))
-    for ideal, density in zip(ideal_densities, measured_densities): 
+    for ideal, density in zip(ideal_densities, measured_densities):
         assert np.all(np.isclose(ideal, density, atol=1e-2))
 
 def test_QuantumProcessTomography_checkSPAM():
     qubits = {0}
 
     sim = qristal.core.session()
-    sim.init()
     sim.acc="qsim"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -362,13 +358,13 @@ def test_QuantumProcessTomography_checkSPAM():
     qstworkflow = benchmark.QuantumStateTomography(workflow)
     qptworkflow = benchmark.QuantumProcessTomography(qstworkflow)
 
-    #build ideal processes 
+    #build ideal processes
     ideal_processes = []
     p1 = np.zeros((4**len(qubits), 4**len(qubits)), dtype=complex)
-    p1[0][0] = 1.0 
+    p1[0][0] = 1.0
     ideal_processes.append(p1)
     p2 = np.zeros((4**len(qubits), 4**len(qubits)), dtype=complex)
-    p2[1][1] = 1.0 
+    p2[1][1] = 1.0
     ideal_processes.append(p2)
 
     #measure processes
@@ -377,7 +373,7 @@ def test_QuantumProcessTomography_checkSPAM():
 
     #compare
     _, measured_processes = next(iter(results.items()))
-    for ideal, process in zip(ideal_processes, measured_processes): 
+    for ideal, process in zip(ideal_processes, measured_processes):
         assert(np.all(np.isclose(ideal, process, atol=1e-2)))
 
 def get_ideal_rotation_process(rotation:chr, angle:float):
@@ -389,19 +385,18 @@ def get_ideal_rotation_process(rotation:chr, angle:float):
         index = 1
     elif rotation == 'Y' or rotation == 'y':
         index = 2
-    elif rotation == 'Z' or rotation == 'z': 
-        index = 3 
+    elif rotation == 'Z' or rotation == 'z':
+        index = 3
     process[0][0] = c**2
     process[0][index] = complex(0, c*s)
     process[index][0] = complex(0, -1.0*c*s)
     process[index][index] = s**2
     return process
 
-def test_QuantumProcessTomography_checkRotationSweep(): 
+def test_QuantumProcessTomography_checkRotationSweep():
     qubits = {0}
 
-    sim = qristal.core.session(False)
-    sim.init() 
+    sim = qristal.core.session()
     sim.acc = "aer"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -410,10 +405,10 @@ def test_QuantumProcessTomography_checkRotationSweep():
     qstworkflow = benchmark.QuantumStateTomography(workflow)
     qptworkflow = benchmark.QuantumProcessTomography(qstworkflow)
 
-    #assemble ideal processes 
+    #assemble ideal processes
     ideal_processes = []
     current_rad = workflow.start_rad()
-    while current_rad <= workflow.end_rad(): 
+    while current_rad <= workflow.end_rad():
         p = np.ones((1, 1), dtype=complex)
         for rot in workflow.get_rotations_per_qubit():
              p = np.kron(get_ideal_rotation_process(rot, current_rad), p)
@@ -426,25 +421,24 @@ def test_QuantumProcessTomography_checkRotationSweep():
 
     #compare
     _, measured_processes = next(iter(results.items()))
-    for ideal, process in zip(ideal_processes, measured_processes): 
+    for ideal, process in zip(ideal_processes, measured_processes):
         assert(np.all(np.isclose(ideal, process, atol=1e-2)))
 
-def test_QuantumProcessTomography_checkSimpleCircuitExecution(): 
+def test_QuantumProcessTomography_checkSimpleCircuitExecution():
     qubits = {0, 1}
 
-    sim = qristal.core.session(False)
-    sim.init() 
+    sim = qristal.core.session()
     sim.acc = "qpp"
     sim.sn = 1000000
     sim.qn = len(qubits)
 
     #define two identical (but differently compiled circuits)
-    angle = np.pi 
+    angle = np.pi
     #circuit 1
-    circuit_native = qristal.core.Circuit() 
+    circuit_native = qristal.core.Circuit()
     circuit_native.cphase(0, 1, angle)
     #circuit 2
-    circuit_transpiled = qristal.core.Circuit() 
+    circuit_transpiled = qristal.core.Circuit()
     circuit_transpiled.rx(0, np.pi / 2.0)
     circuit_transpiled.ry(0, -1.0 * angle / 2.0)
     circuit_transpiled.rx(0, -1.0 * np.pi / 2.0)
@@ -454,7 +448,7 @@ def test_QuantumProcessTomography_checkSimpleCircuitExecution():
     circuit_transpiled.rx(1, -1.0 * angle / 2.0)
     circuit_transpiled.cz(0, 1)
     l = np.fabs(angle) / 2.0 - np.pi
-    if angle < 0.0: 
+    if angle < 0.0:
         l = -1.0 * l
     circuit_transpiled.rx(1, l)
     circuit_transpiled.ry(1, -1.0 * np.pi / 2.0)
@@ -475,7 +469,6 @@ def test_CircuitFidelity_checkSPAM():
     qubits = {0, 1}
 
     sim = qristal.core.session()
-    sim.init()
     sim.acc = "qpp"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -490,8 +483,7 @@ def test_CircuitFidelity_checkSPAM():
             assert fidelity == pytest.approx(1.0,1e-2)
 
 def test_CircuitFidelity_RotationSweep():
-    sim = qristal.core.session(False)
-    sim.init()
+    sim = qristal.core.session()
     sim.acc = 'qpp'
     sim.sn= 1000000
     sim.qn = 3
@@ -512,8 +504,7 @@ def test_ConfusionMatrix_no_noise():
         dim = 2**n_qubits
         ideal = np.identity(dim)
 
-        sim = qristal.core.session(False)
-        sim.init()
+        sim = qristal.core.session()
         sim.acc = 'qpp'
         sim.sn = 100
         sim.qn = n_qubits
@@ -553,7 +544,6 @@ def test_ConfusionMatrix_noisy():
                 SPAM_error.add_qubit_connectivity(q,qq)
 
         sim = qristal.core.session()
-        sim.init()
         sim.qn = len(qubits)
         sim.sn = 1000000
         sim.acc = 'aer'
@@ -568,8 +558,8 @@ def test_ConfusionMatrix_noisy():
             for i in range(confusion.shape[0]):
                  assert np.sum(confusion, axis=1) == pytest.approx(1.0, 1e-2)
 
-            sim.SPAM_confusion=confusion            
-            corrected_results = metric.evaluate(True) 
+            sim.SPAM_confusion_matrix=confusion
+            corrected_results = metric.evaluate(True)
             _, corrected_confusion = next(iter(corrected_results.items()))
             assert np.all(np.isclose(ideal,confusion, atol=1e-2))
 
@@ -577,7 +567,6 @@ def test_QuantumStateFidelity_checkSPAM():
     qubits = {0, 1}
 
     sim = qristal.core.session()
-    sim.init()
     sim.acc="qpp"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -595,7 +584,6 @@ def test_QuantumStateFidelity_checkRotationSweep():
     qubits = {0, 1}
 
     sim = qristal.core.session()
-    sim.init()
     sim.acc="qpp"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -613,7 +601,6 @@ def test_QuantumProcessFidelity_checkSPAM():
     qubits = {0}
 
     sim = qristal.core.session()
-    sim.init()
     sim.acc="qsim"
     sim.sn = 1000000
     sim.qn = len(qubits)
@@ -632,7 +619,6 @@ def test_QuantumProcessFidelity_checkRotationSweep():
     qubits = {0}
 
     sim = qristal.core.session()
-    sim.init()
     sim.acc="qpp"
     sim.sn = 1000000
     sim.qn = len(qubits)

@@ -6,7 +6,12 @@ import qristal.core
 import timeit
 
 s = qristal.core.session()
-s.init()
+s.sn = 1000
+s.nooptimise = True
+s.noplacement = True
+s.notiming = True
+s.output_oqm_enabled = False
+s.acc = "qpp"
 
 num_qubits = 5
 control_bits = range(num_qubits-1)
@@ -31,14 +36,10 @@ for i in range(2**num_qubits):
     for j in range(num_qubits):
         circ.measure(j)
 
-    s.ir_target = circ
-    s.nooptimise = True
-    s.noplacement = True
-    s.notiming = True
-    s.output_oqm_enabled = False
-    s.acc = "qpp"
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.run()
-    res = s.results[0][0]
+    res = s.results
 
     if bitstring == [1,1,1,1,1]:
         assert([1,1,1,1,0] in res)

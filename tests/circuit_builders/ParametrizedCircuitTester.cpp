@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/noise_model/noise_channel.hpp"
-#include "qristal/core/session.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/noise_model/noise_channel.hpp>
+#include <qristal/core/session.hpp>
 
 #include <gtest/gtest.h>
 #include <unsupported/Eigen/KroneckerProduct>
@@ -17,31 +17,31 @@ Eigen::MatrixXcd U3(double theta, double phi, double lambda) {
   std::complex<double> plambda = std::complex<double>(cos(lambda), sin(lambda));
   result << c, -1.0*plambda*s,
             pphi*s, pphi*plambda*c;
-  return result; 
+  return result;
 }
 
 //helper function returning the CRX gate unitary
 Eigen::MatrixXcd CRX(double angle) {
-  Eigen::MatrixXcd result(4, 4); 
+  Eigen::MatrixXcd result(4, 4);
   double c = cos(angle / 2.0);
   double s = sin(angle / 2.0);
-  result << 1, 0, 0, 0, 
+  result << 1, 0, 0, 0,
             0, c, 0, std::complex<double>(0, -1.0*s),
-            0, 0, 1, 0, 
+            0, 0, 1, 0,
             0, std::complex<double>(0, -1.0*s), 0, c;
-  return result;   
+  return result;
 }
 
 //helper function returning the CRY gate unitary
 Eigen::MatrixXcd CRY(double angle) {
-  Eigen::MatrixXcd result(4, 4); 
+  Eigen::MatrixXcd result(4, 4);
   double c = cos(angle / 2.0);
   double s = sin(angle / 2.0);
-  result << 1, 0, 0, 0, 
+  result << 1, 0, 0, 0,
             0, c, 0, -1.0*s,
-            0, 0, 1, 0, 
+            0, 0, 1, 0,
             0, s, 0, c;
-  return result;   
+  return result;
 }
 
 TEST(ParametrizedCircuitTester, test_crx) {
@@ -49,7 +49,7 @@ TEST(ParametrizedCircuitTester, test_crx) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(-2*M_PI, 2*M_PI);
 
-  //(1) Generate random U3 and CRX angles and calculate ideal state vector 
+  //(1) Generate random U3 and CRX angles and calculate ideal state vector
   std::vector<double> U3_0, U3_1;
   for (size_t i = 0; i < 3; ++i) {
     U3_0.push_back(dis(gen));
@@ -65,39 +65,38 @@ TEST(ParametrizedCircuitTester, test_crx) {
 
   //(2) Construct fixed and parameterized circuit
   auto circuit_1 = qristal::CircuitBuilder();
-  circuit_1.U3(0, U3_0[0], U3_0[1], U3_0[2]); 
-  circuit_1.U3(1, U3_1[0], U3_1[1], U3_1[2]); 
+  circuit_1.U3(0, U3_0[0], U3_0[1], U3_0[2]);
+  circuit_1.U3(1, U3_1[0], U3_1[1], U3_1[2]);
   circuit_1.CRX(0, 1, crx_angle);
   circuit_1.MeasureAll(2);
   auto circuit_2 = qristal::CircuitBuilder();
-  circuit_2.U3(0, U3_0[0], U3_0[1], U3_0[2]); 
-  circuit_2.U3(1, U3_1[0], U3_1[1], U3_1[2]); 
+  circuit_2.U3(0, U3_0[0], U3_0[1], U3_0[2]);
+  circuit_2.U3(1, U3_1[0], U3_1[1], U3_1[2]);
   circuit_2.CRX(0, 1, "theta");
   circuit_2.MeasureAll(2);
 
   //(3) Obtain simulated state vector from both circuits
-  auto my_sim = qristal::session(false);
-  my_sim.init();
-  my_sim.set_acc("qpp");
-  my_sim.set_qn(2);
-  my_sim.set_sn(1);
-  my_sim.get_state_vec(true);
+  qristal::session my_sim;
+  my_sim.acc = "qpp";
+  my_sim.qn = 2;
+  my_sim.sn = 1;
+  my_sim.calc_state_vec = true;
   //non-parameterized circuit
-  my_sim.set_irtarget_m(circuit_1.get());
+  my_sim.irtarget = circuit_1.get();
   my_sim.run();
-  auto statevec_1 = my_sim.get_state_vec_raw();
-  //parameterized circuit 
-  my_sim.set_irtarget_m(circuit_2.get());
-  my_sim.set_parameter_vector({crx_angle}); 
+  auto statevec_1 = my_sim.state_vec();
+  //parameterized circuit
+  my_sim.irtarget = circuit_2.get();
+  my_sim.circuit_parameters = std::vector<double>{crx_angle};
   my_sim.run();
-  auto statevec_2 = my_sim.get_state_vec_raw();
-  
-  //(4) Compare both state vectors to the ideal (correct) one 
-  for (size_t i = 0; i < statevec_1->size(); ++i) {
-    EXPECT_NEAR(ideal_state(i).real(), statevec_1->at(i).real(), 1e-5);
-    EXPECT_NEAR(ideal_state(i).imag(), statevec_1->at(i).imag(), 1e-5);
-    EXPECT_NEAR(ideal_state(i).real(), statevec_2->at(i).real(), 1e-5);
-    EXPECT_NEAR(ideal_state(i).imag(), statevec_2->at(i).imag(), 1e-5);
+  auto statevec_2 = my_sim.state_vec();
+
+  //(4) Compare both state vectors to the ideal (correct) one
+  for (size_t i = 0; i < statevec_1.size(); ++i) {
+    EXPECT_NEAR(ideal_state(i).real(), statevec_1.at(i).real(), 1e-5);
+    EXPECT_NEAR(ideal_state(i).imag(), statevec_1.at(i).imag(), 1e-5);
+    EXPECT_NEAR(ideal_state(i).real(), statevec_2.at(i).real(), 1e-5);
+    EXPECT_NEAR(ideal_state(i).imag(), statevec_2.at(i).imag(), 1e-5);
   }
 }
 
@@ -106,7 +105,7 @@ TEST(ParametrizedCircuitTester, test_cry) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(-2*M_PI, 2*M_PI);
 
-  //(1) Generate random U3 and CRX angles and calculate ideal state vector 
+  //(1) Generate random U3 and CRX angles and calculate ideal state vector
   std::vector<double> U3_0, U3_1;
   for (size_t i = 0; i < 3; ++i) {
     U3_0.push_back(dis(gen));
@@ -122,39 +121,38 @@ TEST(ParametrizedCircuitTester, test_cry) {
 
   //(2) Construct fixed and parameterized circuit
   auto circuit_1 = qristal::CircuitBuilder();
-  circuit_1.U3(0, U3_0[0], U3_0[1], U3_0[2]); 
-  circuit_1.U3(1, U3_1[0], U3_1[1], U3_1[2]); 
+  circuit_1.U3(0, U3_0[0], U3_0[1], U3_0[2]);
+  circuit_1.U3(1, U3_1[0], U3_1[1], U3_1[2]);
   circuit_1.CRY(0, 1, cry_angle);
   circuit_1.MeasureAll(2);
   auto circuit_2 = qristal::CircuitBuilder();
-  circuit_2.U3(0, U3_0[0], U3_0[1], U3_0[2]); 
-  circuit_2.U3(1, U3_1[0], U3_1[1], U3_1[2]); 
+  circuit_2.U3(0, U3_0[0], U3_0[1], U3_0[2]);
+  circuit_2.U3(1, U3_1[0], U3_1[1], U3_1[2]);
   circuit_2.CRY(0, 1, "theta");
   circuit_2.MeasureAll(2);
 
   //(3) Obtain simulated state vector from both circuits
-  auto my_sim = qristal::session(false);
-  my_sim.init();
-  my_sim.set_acc("qpp");
-  my_sim.set_qn(2);
-  my_sim.set_sn(1);
-  my_sim.get_state_vec(true);
+  qristal::session my_sim;
+  my_sim.acc = "qpp";
+  my_sim.qn = 2;
+  my_sim.sn = 1;
+  my_sim.calc_state_vec = true;
   //non-parameterized circuit
-  my_sim.set_irtarget_m(circuit_1.get());
+  my_sim.irtarget = circuit_1.get();
   my_sim.run();
-  auto statevec_1 = my_sim.get_state_vec_raw();
-  //parameterized circuit 
-  my_sim.set_irtarget_m(circuit_2.get());
-  my_sim.set_parameter_vector({cry_angle}); 
+  auto statevec_1 = my_sim.state_vec();
+  //parameterized circuit
+  my_sim.irtarget = circuit_2.get();
+  my_sim.circuit_parameters = std::vector<double>{cry_angle};
   my_sim.run();
-  auto statevec_2 = my_sim.get_state_vec_raw();
-  
-  //(4) Compare both state vectors to the ideal (correct) one 
-  for (size_t i = 0; i < statevec_1->size(); ++i) {
-    EXPECT_NEAR(ideal_state(i).real(), statevec_1->at(i).real(), 1e-5);
-    EXPECT_NEAR(ideal_state(i).imag(), statevec_1->at(i).imag(), 1e-5);
-    EXPECT_NEAR(ideal_state(i).real(), statevec_2->at(i).real(), 1e-5);
-    EXPECT_NEAR(ideal_state(i).imag(), statevec_2->at(i).imag(), 1e-5);
+  auto statevec_2 = my_sim.state_vec();
+
+  //(4) Compare both state vectors to the ideal (correct) one
+  for (size_t i = 0; i < statevec_1.size(); ++i) {
+    EXPECT_NEAR(ideal_state(i).real(), statevec_1.at(i).real(), 1e-5);
+    EXPECT_NEAR(ideal_state(i).imag(), statevec_1.at(i).imag(), 1e-5);
+    EXPECT_NEAR(ideal_state(i).real(), statevec_2.at(i).real(), 1e-5);
+    EXPECT_NEAR(ideal_state(i).imag(), statevec_2.at(i).imag(), 1e-5);
   }
 }
 
@@ -218,7 +216,7 @@ TEST(ParametrizedCircuitTester, test_circuit_append_to_repeated_param) {
   circ1.RX(0, "beta");
   circ1.Measure(0);
 
-  auto circ2 = qristal::CircuitBuilder(); 
+  auto circ2 = qristal::CircuitBuilder();
   circ2.RY(0, "alpha");
   EXPECT_NO_THROW(circ2.append(circ1));
   std::vector<std::string> expected_free_params = {(std::string) "alpha", (std::string) "beta"};
@@ -241,7 +239,7 @@ TEST(ParametrizedCircuitTester, test_circuit_append_to_new_param) {
   circ1.RX(0, "beta");
   circ1.Measure(0);
 
-  auto circ2 = qristal::CircuitBuilder(); 
+  auto circ2 = qristal::CircuitBuilder();
   circ2.RY(0, "gamma");
   EXPECT_NO_THROW(circ2.append(circ1));
   std::vector<std::string> expected_free_params = {(std::string) "gamma", (std::string) "alpha", (std::string) "beta"};

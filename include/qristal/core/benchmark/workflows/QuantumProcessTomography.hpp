@@ -8,7 +8,7 @@
 #include <map>
 #include <sstream>
 
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
 
 namespace qristal
 {
@@ -90,7 +90,7 @@ namespace qristal
                         std::vector<size_t> indices = convert_decimal(n_qubit_state_index, n_states, n_qubits); //convert to x-nary number
                         qristal::CircuitBuilder cb;
                         //add initial state
-                        for (const auto& [xnary_index, qubit_index] : std::ranges::views::zip(indices, qstworkflow_.get_qubits())) {
+                        for (const auto& [xnary_index, qubit_index] : ::ranges::views::zip(indices, qstworkflow_.get_qubits())) {
                             states_[xnary_index].append_circuit(cb, qubit_index);
                         }
                         //add workflow_circuit
@@ -289,12 +289,12 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased QuantumProcessTomography handle exposed in the python bindings. 
+        * @brief The type-erased QuantumProcessTomography handle exposed in the python bindings.
         */
         class QuantumProcessTomographyPython {
             public:
                 //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumStateTomographyPython
-                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessTomography objects. 
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessTomography objects.
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumProcessTomographyPython(
                     QuantumStateTomographyPython& qstpython,
@@ -322,7 +322,7 @@ namespace qristal
                 }
 
             private:
-                std::unique_ptr<QuantumProcessTomographyPythonBase> workflow_ptr_; 
+                std::unique_ptr<QuantumProcessTomographyPythonBase> workflow_ptr_;
         };
 
 
@@ -356,9 +356,9 @@ namespace qristal
                                     iwb.Measure(qubit);
                                 }
                                 //add target to session and push results
-                                qpt.get_qst().get_wrapped_workflow().set_session().set_irtarget_m(iwb.get());
+                                qpt.get_qst().get_wrapped_workflow().set_session().irtarget = iwb.get();
                                 qpt.get_qst().get_wrapped_workflow().set_session().run();
-                                measured_results.push_back(qpt.get_qst().get_wrapped_workflow().get_session().results()[0][0]);
+                                measured_results.push_back(qpt.get_qst().get_wrapped_workflow().get_session().results());
                             }
                         }
                     }

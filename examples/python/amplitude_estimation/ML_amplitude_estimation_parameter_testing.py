@@ -11,8 +11,6 @@ import ast
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 from matplotlib import cm
-s = qristal.core.session()
-s.init()
 
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))

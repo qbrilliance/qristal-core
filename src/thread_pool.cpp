@@ -1,5 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/thread_pool.hpp"
+#include <qristal/core/thread_pool.hpp>
 
 #include <iostream>
 

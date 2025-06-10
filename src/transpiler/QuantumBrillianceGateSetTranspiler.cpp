@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
-#include "xacc_plugin.hpp"
+#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
+#include <xacc_plugin.hpp>
 
 namespace qristal {
 /**

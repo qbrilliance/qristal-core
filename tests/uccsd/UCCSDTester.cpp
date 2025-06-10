@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "Instruction.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "qristal/core/uccsd/fermionic_excitation_generator.hpp"
+#include <Instruction.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <qristal/core/uccsd/fermionic_excitation_generator.hpp>
 using namespace xacc;
 
 TEST(UCCSDTester, generateFermionicExcitations) {

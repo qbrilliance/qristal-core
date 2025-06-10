@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 #include <gtest/gtest.h>
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/backends/qb_hardware/qb_visitor.hpp"
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
 #include <nlohmann/json.hpp>
 namespace {
 std::shared_ptr<xacc::Compiler> get_qb_qobj_compiler() {
@@ -218,6 +218,9 @@ TEST(transpilationTester, checkAerNoiseSim2) {
 
 TEST(transpilationTester, checkSubsetMeasure) {
   auto xasmCompiler = xacc::getCompiler("xasm");
+  xacc::HeterogeneousMap config;
+  const int shots = 1000;
+  config.insert("shots", shots);
   auto program_measure01 = xasmCompiler->compile(R"(__qpu__ void test1(qbit q) {
       H(q[0]);
       Rx(q[1], pi);
@@ -239,6 +242,7 @@ TEST(transpilationTester, checkSubsetMeasure) {
 
   { // Check with Xacc QObj generator (default): Measure both qubits
     auto accelerator = xacc::getAccelerator("aer");
+    accelerator->updateConfiguration(config);
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure01);
     buffer->print();
@@ -248,6 +252,7 @@ TEST(transpilationTester, checkSubsetMeasure) {
 
   { // Check with Xacc QObj generator (default): Measure qubit 0 only
     auto accelerator = xacc::getAccelerator("aer");
+    accelerator->updateConfiguration(config);
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure0);
     buffer->print();
@@ -257,14 +262,16 @@ TEST(transpilationTester, checkSubsetMeasure) {
 
   { // Check with Xacc QObj generator (default): Measure qubit 1 only
     auto accelerator = xacc::getAccelerator("aer");
+    accelerator->updateConfiguration(config);
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure1);
     buffer->print();
-    EXPECT_EQ(buffer->getMeasurementCounts()["1"], 1024);
+    EXPECT_EQ(buffer->getMeasurementCounts()["1"], 1000);
   }
 
   { // Check with qristal QObj generator: Measure both qubits
     auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    accelerator->updateConfiguration(config);
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure01);
     buffer->print();
@@ -274,6 +281,7 @@ TEST(transpilationTester, checkSubsetMeasure) {
 
   { // Check with qristal QObj generator: Measure qubit 0 only
     auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    accelerator->updateConfiguration(config);
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure0);
     buffer->print();
@@ -283,10 +291,11 @@ TEST(transpilationTester, checkSubsetMeasure) {
 
   { // Check with qristal QObj generator: Measure qubit 1 only
     auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+    accelerator->updateConfiguration(config);
     auto buffer = xacc::qalloc(2);
     accelerator->execute(buffer, program_measure1);
     buffer->print();
-    EXPECT_EQ(buffer->getMeasurementCounts()["1"], 1024);
+    EXPECT_EQ(buffer->getMeasurementCounts()["1"], 1000);
   }
 }
 

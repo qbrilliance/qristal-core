@@ -1,11 +1,11 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/python/py_middleware.hpp"
-#include "qristal/core/python/py_stl_containers.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/passes/noise_aware_placement_config.hpp"
-#include "qristal/core/passes/noise_aware_placement_pass.hpp"
-#include "qristal/core/passes/swap_placement_pass.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <qristal/core/python/py_middleware.hpp>
+#include <qristal/core/python/py_stl_containers.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/passes/noise_aware_placement_config.hpp>
+#include <qristal/core/passes/noise_aware_placement_pass.hpp>
+#include <qristal/core/passes/swap_placement_pass.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
 #include <pybind11/stl_bind.h>
 
 

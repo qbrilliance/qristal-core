@@ -1,15 +1,18 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/noise_model/noise_channel.hpp"
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
+// Qristal
+#include <qristal/core/noise_model/noise_channel.hpp>
+#include <qristal/core/primitives.hpp>
 
+// STL
 #include <numeric>
 #include <random>
-#include <unsupported/Eigen/KroneckerProduct>
-#include "qristal/core/primitives.hpp"
 
-namespace 
+// Eigen
+#include <unsupported/Eigen/KroneckerProduct>
+
+
+namespace
 {
     using eigen_cmat = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>;
     using eigen_cvec = Eigen::Vector<std::complex<double>, Eigen::Dynamic>;
@@ -26,7 +29,7 @@ namespace
       return eigen_mat;
     }
 
-    /// Convert an eigen matrix to an STL-based matrix 
+    /// Convert an eigen matrix to an STL-based matrix
     qristal::KrausOperator::Matrix eigen_to_matrix(const eigen_cmat &eigen_mat) {
       qristal::KrausOperator::Matrix mat;
       for (Eigen::Index i = 0; i < eigen_mat.rows(); ++i) {
@@ -203,7 +206,7 @@ namespace qristal
     }
 
     /// Helper to convert a noise channel into a list of Kraus ops as Eigen matrices
-    static std::vector<eigen_cmat> noise_channel_to_eigen(const NoiseChannel &noise_channel) 
+    static std::vector<eigen_cmat> noise_channel_to_eigen(const NoiseChannel &noise_channel)
     {
       assert(!noise_channel.empty());
       std::vector<eigen_cmat> kraus_mats;
@@ -216,7 +219,7 @@ namespace qristal
     /// Apply sqrt to singular values of a matrix.
     /// i.e., returns U * sqrt(S) * V^T
     /// where S is the diagonal matrix of singular values
-    static eigen_cmat sqrt_svd_transform(const eigen_cmat &matrix) 
+    static eigen_cmat sqrt_svd_transform(const eigen_cmat &matrix)
     {
       Eigen::JacobiSVD<eigen_cmat> svd(matrix, Eigen::ComputeFullU | Eigen::ComputeFullV);
       eigen_cmat unitary1 = svd.matrixU();
@@ -227,7 +230,7 @@ namespace qristal
       return unitary1 * sqrt_singular_values.asDiagonal() * unitary2.transpose();
     }
 
-    /// Compute the fidelity of two normalized CPTP maps 
+    /// Compute the fidelity of two normalized CPTP maps
     /// Returns a value in the range of [0.0, 1.0], assuming that these matrices have been normalized.
     static double compute_fidelity(const eigen_cmat &mat1, const eigen_cmat &mat2) {
       /// Ref: https://qiskit.org/documentation/stubs/qiskit.quantum_info.process_fidelity.html#qiskit.quantum_info.process_fidelity
@@ -240,14 +243,14 @@ namespace qristal
       };
       return std::pow(compute_nuclear_norm(s1sq * s2sq), 2.0);
     }
-    
+
 
     Eigen::MatrixXcd get_computational_to_pauli_transform(const size_t n_qubits) {
       std::vector<qristal::Pauli> basis{
         qristal::Pauli::Symbol::I,
         qristal::Pauli::Symbol::X,
         qristal::Pauli::Symbol::Y,
-        qristal::Pauli::Symbol::Z 
+        qristal::Pauli::Symbol::Z
       };
       const size_t dim = std::pow(basis.size(), n_qubits);
       Eigen::MatrixXcd conversion_mat = Eigen::MatrixXcd::Zero(dim, dim);
@@ -309,7 +312,7 @@ namespace qristal
       std::vector<Eigen::MatrixXcd> result;
       const size_t n_qubits = std::log2(choi_matrix.rows()) / 2;
       const size_t dim = std::pow(2, n_qubits);
-      Eigen::ComplexEigenSolver<Eigen::MatrixXcd> solver(choi_matrix); 
+      Eigen::ComplexEigenSolver<Eigen::MatrixXcd> solver(choi_matrix);
       for (Eigen::Index i = 0; i < solver.eigenvalues().size(); ++i) {
         if (std::abs(solver.eigenvalues()[i]) > 1e-14) { //only add non-zero channels
           Eigen::MatrixXcd eigenvec = solver.eigenvectors().col(i);
@@ -325,7 +328,7 @@ namespace qristal
     }
 
     //------------------------------------------- Transformations from superoperator matrix ------------------------------------------
-    
+
     Eigen::MatrixXcd superoperator_to_choi(const Eigen::MatrixXcd& superop) {
       size_t dim = std::pow(2, log2(superop.rows())/2); //retrieve density matrix dimensions from superoperator matrix
       Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(superop.rows(), superop.cols());
@@ -356,7 +359,7 @@ namespace qristal
     /// can be converted into a single Choi matrix representing that map.
     /// Note: Kraus matrices acting on N qubits have dimension (2^N, 2^N);
     /// the corresponding Choi matrix has dimension (4^N, 4^N).
-    Eigen::MatrixXcd kraus_to_choi(const std::vector<Eigen::MatrixXcd> &kraus_mats) 
+    Eigen::MatrixXcd kraus_to_choi(const std::vector<Eigen::MatrixXcd> &kraus_mats)
     {
       const std::size_t input_dim = kraus_mats[0].cols();
       const std::size_t output_dim = kraus_mats[0].rows();
@@ -396,7 +399,7 @@ namespace qristal
     KrausOperator::Matrix kraus_to_superoperator(const NoiseChannel& noise_channel) {
       return eigen_to_matrix(kraus_to_superoperator(noise_channel_to_eigen(noise_channel)));
     }
-    
+
     Eigen::MatrixXcd choi_to_process(const Eigen::MatrixXcd &choi){
       //transform choi matrix in computational basis (|0..0><0..0|, ..., |1..1><1..1|) to Pauli basis (II..I, II..X, ..., ZZ..Z)
       const size_t n_qubits = std::log2(choi.rows()) / 2;
@@ -410,12 +413,12 @@ namespace qristal
     //================================================================================================================================
 
     NoiseChannel eigen_to_noisechannel(const std::vector<Eigen::MatrixXcd>& kraus_mats) {
-      NoiseChannel result; 
+      NoiseChannel result;
       for (const auto & kraus_mat : kraus_mats) {
         const size_t n_qubits = std::log2(kraus_mat.rows());
         std::vector<size_t> qubits(n_qubits);
         std::iota(qubits.begin(), qubits.end(), 0);
-        KrausOperator ko; 
+        KrausOperator ko;
         ko.matrix = eigen_to_matrix(kraus_mat);
         ko.qubits = qubits;
         result.push_back(ko);
@@ -741,24 +744,24 @@ namespace qristal
     }
 
     NoiseChannelInterpolator::NoiseChannelInterpolator(
-      const std::vector<Eigen::VectorXd>& noise_params, 
-      const std::vector<U3Angle>& rotation_angles, 
+      const std::vector<Eigen::VectorXd>& noise_params,
+      const std::vector<U3Angle>& rotation_angles,
       const std::vector<InterpolationModel>& models
     ) {
-      //for each interpolation model 
+      //for each interpolation model
       for (size_t i = 0; i < models.size(); ++i) {
         switch (models[i].type()) {
           case InterpolationModel::Type::Average: {
-            //just compute the average of all i-th noise channel parameters 
-            double average = 0.0; 
+            //just compute the average of all i-th noise channel parameters
+            double average = 0.0;
             for (Eigen::Index a = 0; a < rotation_angles.size(); ++a) {
               average += noise_params[a](i);
             }
             average /= static_cast<double>(rotation_angles.size());
-            //and push lambda  
+            //and push lambda
             interpolationFunctions_.push_back(
               [average, i](const U3Angle& target, Eigen::VectorXd& params) {
-                params(i) = average; 
+                params(i) = average;
               }
             );
             break;
@@ -766,25 +769,25 @@ namespace qristal
           case InterpolationModel::Type::Linear:
           case InterpolationModel::Type::Polynomial: {
             //(1) build design matrix of all rotation angles and noise channel param targets
-            //first compute the number of terms in the polynomial basis 
-            size_t num_terms = 0; 
+            //first compute the number of terms in the polynomial basis
+            size_t num_terms = 0;
             const size_t polynomial_degree = (models[i].type() == InterpolationModel::Type::Linear ? 1 : models[i].polynomial_degree().value());
             for (size_t n = 0; n <= polynomial_degree; ++n) {
-              num_terms += (n + 1) * (n + 2) / 2; //number of terms for degree n 
+              num_terms += (n + 1) * (n + 2) / 2; //number of terms for degree n
             }
-            Eigen::MatrixXd X = Eigen::MatrixXd::Zero(rotation_angles.size(), num_terms); 
+            Eigen::MatrixXd X = Eigen::MatrixXd::Zero(rotation_angles.size(), num_terms);
             Eigen::VectorXd f = Eigen::VectorXd::Zero(rotation_angles.size());
             for (size_t angle = 0; angle < rotation_angles.size(); ++angle) {
               f(angle) = noise_params[angle](i);
-              double theta = std::get<0>(rotation_angles[angle]); 
+              double theta = std::get<0>(rotation_angles[angle]);
               double phi = std::get<1>(rotation_angles[angle]);
               double lamb = std::get<2>(rotation_angles[angle]);
-              size_t col = 0; 
+              size_t col = 0;
               //for all possible degrees up to maximum polynomial_degree
               for (int n = 0; n <= polynomial_degree; ++n) {
                 //generate all polynomial terms theta^j phi^k lamb^l such that j + k + l = n
                 for (int j = 0; j <= n; ++j) { //theta^j
-                  for (int k = 0; k <= n - j; ++k) { //phi^k 
+                  for (int k = 0; k <= n - j; ++k) { //phi^k
                     int l = n - j - k; //lamb^k
                     X(angle, col) = std::pow(theta, j) * std::pow(phi, k) * std::pow(lamb, l);
                     ++col;
@@ -792,61 +795,61 @@ namespace qristal
                 }
               }
             }
-            
-            //(2) Fit the model 
+
+            //(2) Fit the model
             Eigen::MatrixXd XtX = X.transpose() * X;
             //use pseudo inverse to circumvent numerical instabilities for singular matrices
-            Eigen::VectorXd coeffs = XtX.completeOrthogonalDecomposition().pseudoInverse() * X.transpose() * f; 
+            Eigen::VectorXd coeffs = XtX.completeOrthogonalDecomposition().pseudoInverse() * X.transpose() * f;
 
-            //(3) and push lambda passing the coefficients 
+            //(3) and push lambda passing the coefficients
             interpolationFunctions_.push_back(
               [coeffs, i, polynomial_degree](const U3Angle& target, Eigen::VectorXd& params) {
                 //(3.1) compute the representation of target in polynomial basis
                 double theta = std::get<0>(target);
                 double phi = std::get<1>(target);
-                double lamb = std::get<2>(target); 
-                size_t col = 0; 
+                double lamb = std::get<2>(target);
+                size_t col = 0;
                 Eigen::VectorXd a(coeffs.size());
                 for (int n = 0; n <= polynomial_degree; ++n) {
                   for (int j = 0; j <= n; ++j) { //theta^j
-                    for (int k = 0; k <= n - j; ++k) { //phi^k 
+                    for (int k = 0; k <= n - j; ++k) { //phi^k
                       int l = n - j - k; //lamb^k
                       a(col) = std::pow(theta, j) * std::pow(phi, k) * std::pow(lamb, l);
                       ++col;
                     }
                   }
                 }
-                //(3.2) contract with coefficients to get the interpolated parameter  
+                //(3.2) contract with coefficients to get the interpolated parameter
                 params(i) = coeffs.transpose() * a;
               }
             );
             break;
           }
           case InterpolationModel::Type::Exponential: {
-            //(1) Set up design matrix for log target 
-            Eigen::MatrixXd X = Eigen::MatrixXd::Zero(rotation_angles.size(), 4); 
+            //(1) Set up design matrix for log target
+            Eigen::MatrixXd X = Eigen::MatrixXd::Zero(rotation_angles.size(), 4);
             Eigen::VectorXd f = Eigen::VectorXd::Zero(rotation_angles.size());
             for (size_t angle = 0; angle < rotation_angles.size(); ++angle) {
               if (noise_params[angle](i) <= 0.0) {
                 throw std::runtime_error("Exponential interpolation is only possible for positive noise channel parameters!");
               }
               f(angle) = std::log(noise_params[angle](i));
-              X(angle, 0) = 1.0; 
-              X(angle, 1) = std::get<0>(rotation_angles[angle]); 
+              X(angle, 0) = 1.0;
+              X(angle, 1) = std::get<0>(rotation_angles[angle]);
               X(angle, 2) = std::get<1>(rotation_angles[angle]);
               X(angle, 3) = std::get<2>(rotation_angles[angle]);
             }
 
-            //(2) Fit the model 
+            //(2) Fit the model
             Eigen::MatrixXd XtX = X.transpose() * X;
             //use pseudo inverse to circumvent numerical instabilities for singular matrices
-            Eigen::VectorXd coeffs = XtX.completeOrthogonalDecomposition().pseudoInverse() * X.transpose() * f; 
+            Eigen::VectorXd coeffs = XtX.completeOrthogonalDecomposition().pseudoInverse() * X.transpose() * f;
 
-            //(3) and push lambda passing the coefficients 
+            //(3) and push lambda passing the coefficients
             interpolationFunctions_.push_back(
               [coeffs, i](const U3Angle& target, Eigen::VectorXd& params) {
                 params(i) = std::exp(coeffs[0]) * std::exp(
-                    coeffs[1] * std::get<0>(target) + 
+                    coeffs[1] * std::get<0>(target) +
                     coeffs[2] * std::get<1>(target) +
                     coeffs[3] * std::get<2>(target)
                 );
@@ -855,7 +858,7 @@ namespace qristal
             break;
           }
         }
-      } 
+      }
     }
 
     std::vector<Eigen::MatrixXcd> setChannelMatrices(const std::vector<noiseChannelSymbol>& channel_list,
@@ -1003,13 +1006,13 @@ namespace qristal
 
   //internal partial trace function called by the exposed partialTraceProcessMatrixKeep and partialTraceProcessMatrixRemove
   Eigen::MatrixXcd partialTraceProcessMatrix(
-      const Eigen::MatrixXcd& full, 
-      const std::set<size_t>& kept_indices, 
+      const Eigen::MatrixXcd& full,
+      const std::set<size_t>& kept_indices,
       const std::set<size_t>& removed_indices
   ) {
     //initialize result matrix
     size_t new_size = std::pow(2, 2*kept_indices.size());
-    size_t n_qubits = std::log2(full.rows())/2; 
+    size_t n_qubits = std::log2(full.rows())/2;
     Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(new_size, new_size);
 
     //perform partial trace
@@ -1022,8 +1025,8 @@ namespace qristal
           size_t index_out = get_index(n_qubits, removed_indices, k);
           size_t left = index_i + index_out;
           size_t right = index_j + index_out;
-          result(i,j) += full(left, right); 
-        } 
+          result(i,j) += full(left, right);
+        }
       }
     }
     return result;
@@ -1039,13 +1042,13 @@ namespace qristal
     return complement;
   }
 
-  Eigen::MatrixXcd partialTraceProcessMatrixKeep(const Eigen::MatrixXcd& full, const std::set<size_t>& indices) {    
-    size_t n_qubits = std::log2(full.rows())/2; 
+  Eigen::MatrixXcd partialTraceProcessMatrixKeep(const Eigen::MatrixXcd& full, const std::set<size_t>& indices) {
+    size_t n_qubits = std::log2(full.rows())/2;
     return partialTraceProcessMatrix(full, indices, getComplementarySet(n_qubits, indices));
   }
 
   Eigen::MatrixXcd partialTraceProcessMatrixRemove(const Eigen::MatrixXcd& full, const std::set<size_t>& indices) {
-    size_t n_qubits = std::log2(full.rows())/2; 
+    size_t n_qubits = std::log2(full.rows())/2;
     return partialTraceProcessMatrix(full, getComplementarySet(n_qubits, indices), indices);
   }
 

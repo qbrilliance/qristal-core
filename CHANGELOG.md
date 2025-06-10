@@ -6,9 +6,19 @@ Qristal is a full-stack SDK for quantum accelerators.
 ## [X.X.X] - YYYY-MM-DD
 
 ### Breaking
--
+
+- Renamed cirq-qsim emulator qsim backend variant qb-statevector
+- Removed commandline interface and associated qristal_cli example
+- Removed all job array machinery in session class, including Table2d typedef
+- Removed session.init function, which was previously used to set default values for session properties such as number of shots and qubits
+- Removed almost all setters and getters for session class, in favour of direct public access to member variables with sensible defaults
+- Removed QAOA routines
+- Shifted Jensen-Shannon functionality out of session class
+- General simplifications of API
 
 ### Added
+
+- Updated cppuprofile dependency to 1.2.0
 - Direct control of the number of OpenMP threads used by aer backend via new aer_omp_threads option.
 - Added user-specified GPU device index for GPU-enabled accelerators. This allows users to select specific GPU device(s) to execute simulations on.
 - Added MPI support to cmake configuration
@@ -18,13 +28,17 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added integration tests for circuit shot parallelisation via MPI
 
 ### Fixed
+
+- Added further checks for compatibility of noise settings with chosen backend, preventing silent noiseless execution when using noise=true with backends incapable of noisy simulation.
+- Removed limit QB_SAFE_LIMIT_SHOTS on number of shots requested from hardware.
 - Now passing Python executable to py_packages_path.cmake, allowing for full installation using non-system Python.
 - CMake configuration: Python package warning was incorrectly being displayed if the installed version didn't *exactly* match the required version. E.g. if numpy version 1.26 is required and version 1.26.2 is installed, a warning was previously incorrectly displayed during CMake configuration
 - Fixed a minor issue where a folder named `_deps` would appear in the user's current working directory during cmake configuration when building the repo.
 - Fixed issue with dependencies preventing the building of docs on some systems.
-- Fixed eigen not being found when building examples after building Qristal with `-DINSTALL_MISSING=ON`
+- Fixed Eigen not being found when building examples after building Qristal with `-DINSTALL_MISSING=ON`
 - CMake configuration: Python package automatic install failed when not specifying the version to install
-- CMake configuration: sometimes "pooly behaved" dependencies were not found due to an edge case when the commit hash length for the version of the package is different to that which is tested against
+- CMake configuration: sometimes "pooly behaved" dependencies were not found due to an edge case when the commit hash length for the version of the package was different to that tested against
+- Consolidated disparate session validation functions into single session::validate() function
 
 
 ## [1.7.0] - 2025-03-13

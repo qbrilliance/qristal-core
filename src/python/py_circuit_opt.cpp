@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/python/py_middleware.hpp"
-#include "qristal/core/python/py_stl_containers.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/passes/circuit_opt_passes.hpp"
+#include <qristal/core/python/py_middleware.hpp>
+#include <qristal/core/python/py_stl_containers.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/passes/circuit_opt_passes.hpp>
 
 namespace qristal {
 void bind_circuit_opt_passes(pybind11::module &m) {

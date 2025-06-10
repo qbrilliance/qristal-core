@@ -2,12 +2,12 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/ripple_adder.hpp"
-#include "CommonGates.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/ripple_adder.hpp>
+#include <CommonGates.hpp>
+#include <xacc_service.hpp>
 #include <CompositeInstruction.hpp>
 #include <assert.h>
-#include "IRProvider.hpp"
+#include <IRProvider.hpp>
 
 namespace qristal {
 bool RippleCarryAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "base_pass.hpp"
-#include "noise_aware_placement_config.hpp"
+#include <qristal/core/passes/base_pass.hpp>
+#include <qristal/core/passes/noise_aware_placement_config.hpp>
 
 #include <memory>
 #include <optional>

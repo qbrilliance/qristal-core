@@ -1,11 +1,11 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qristal/core/backend.hpp"
+#include <qristal/core/backend.hpp>
 
 // XACC
-#include "InstructionIterator.hpp"
-#include "xacc.hpp"
+#include <InstructionIterator.hpp>
+#include <xacc.hpp>
 
 // STL
 #include <fstream>
@@ -65,9 +65,9 @@ namespace qristal
   xacc::HeterogeneousMap backend::getProperties()
   {
     xacc::HeterogeneousMap m;
-    m.insert("shots", shots);
+    m.insert("shots", static_cast<int>(shots));
+    m.insert("n_qubits", static_cast<int>(n_qubits));
     m.insert("output_oqm", output_oqm);
-    m.insert("n_qubits", n_qubits);
     m.insert("m_connectivity", m_connectivity);
     m.insert("output_oqm_enabled", output_oqm_enabled_);
     return m;

@@ -2,14 +2,14 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "CompositeInstruction.hpp"
-#include "CommonGates.hpp"
-#include "Algorithm.hpp"
-#include "xacc.hpp"
-#include "xacc_plugin.hpp"
-#include "xacc_service.hpp"
-#include "qristal/core/circuits/w_prime_unitary.hpp"
-#include "IRProvider.hpp"
+#include <CompositeInstruction.hpp>
+#include <CommonGates.hpp>
+#include <Algorithm.hpp>
+#include <xacc.hpp>
+#include <xacc_plugin.hpp>
+#include <xacc_service.hpp>
+#include <qristal/core/circuits/w_prime_unitary.hpp>
+#include <IRProvider.hpp>
 #include <iostream>
 
 namespace qristal{

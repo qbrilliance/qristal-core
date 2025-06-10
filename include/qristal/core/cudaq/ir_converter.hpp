@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
-#include "AllGateVisitor.hpp"
-#include "CommonGates.hpp"
-#include "cudaq/builder/kernel_builder.h"
+#include <AllGateVisitor.hpp>
+#include <CommonGates.hpp>
+#include <cudaq/builder/kernel_builder.h>
 #include <memory>
 
 namespace qristal {

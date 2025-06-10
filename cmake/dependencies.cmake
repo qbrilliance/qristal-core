@@ -11,6 +11,9 @@ if(NOT WIN32)
   set(BoldBlue "${Esc}[1;34m")
 endif()
 
+# Python 3 interpreter and libraries
+find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
+
 # add compatibility for user provided boost
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27.0")
   cmake_policy(SET CMP0144 NEW)
@@ -87,9 +90,6 @@ add_poorly_behaved_dependency(xacc 1.0.0
     "THREAD_SANITIZER_AVAILABLE OFF"
     "ADDRESS_SANITIZER_AVAILABLE OFF"
 )
-
-# Python 3 interpreter and libraries
-find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
 
 # Pybind11.
 set(pybind11_VERSION "2.10.0")
@@ -180,7 +180,8 @@ add_dependency(fmt ${fmt_VERSION}
     "FMT_TEST OFF"
     "FMT_DOC OFF"
     "CMAKE_POSITION_INDEPENDENT_CODE ON"
-    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
+    "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
+    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}"
 )
 if(fmt_ADDED)
   set(fmt_DIR ${CMAKE_INSTALL_PREFIX}/cmake/fmt)
@@ -334,7 +335,7 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   else()
     set(EXATN_C_COMPILER "gcc")
   endif()
-  set(exatn_options 
+  set(exatn_options
     "BLAS_LIB OPENBLAS"
     "BLAS_PATH @BLAS_PATH@"
     "EXATN_BUILD_TESTS OFF"
@@ -485,7 +486,7 @@ endif ()
 
 # cppuprofile
 if (WITH_PROFILING)
-  set(cppuprofile_VERSION "1.1.1")
+  set(cppuprofile_VERSION "1.2.0")
 
   #look for nvidia-smi binary (necessary to conduct Nvidia GPU profiling)
   find_program(_nvidia_smi "nvidia-smi")
@@ -495,12 +496,8 @@ if (WITH_PROFILING)
   endif()
 
   add_dependency(cppuprofile ${cppuprofile_VERSION}
-    GITHUB_REPOSITORY herrnils/cppuprofile
-    GIT_TAG master
-    #GITHUB_REPOSITORY Orange-OpenSource/cppuprofile #Change back after pull request was merged
-    #GIT_TAG ${cppuprofile_VERSION}
-    OPTIONS
-      "BUILD_SHARED_LIBS OFF"
+    GITHUB_REPOSITORY Orange-OpenSource/cppuprofile #Change back after pull request was merged
+    GIT_TAG ${cppuprofile_VERSION}
   )
 
   if(cppuprofile_ADDED) #check if CPM successfully added cppuprofile

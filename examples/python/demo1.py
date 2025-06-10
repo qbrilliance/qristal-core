@@ -6,9 +6,6 @@ import qristal.core
 # Create a quantum computing session using Qristal
 my_sim = qristal.core.session()
 
-# Set up meaningful defaults for session parameters
-my_sim.init()
-
 # Choose a simulator backend
 my_sim.acc = "qpp"
 
@@ -39,5 +36,5 @@ print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
 print("Results:")
-print(my_sim.results[0][0])
+print(my_sim.results)
 

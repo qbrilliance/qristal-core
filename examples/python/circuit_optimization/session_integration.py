@@ -24,10 +24,7 @@ print("Original circuit:")
 circ.print()
 
 # Create a quantum computing session using Qristal
-my_sim = qristal.core.session(True)
-
-# Set up meaningful defaults for session parameters
-my_sim.init()
+my_sim = qristal.core.session()
 
 # Choose a simulator backend
 my_sim.acc = "qpp"
@@ -39,12 +36,12 @@ my_sim.qn = 2
 my_sim.sn = 100
 
 # Set the quantum program to run
-my_sim.ir_target = circ
+my_sim.irtarget = circ
 
 # Set the circuit optimization pipeline:
 # I want to apply two-qubit squash then remove any redundant gates!
-my_sim.circuit_optimization = [qristal.core.two_qubit_squash(), qristal.core.redundancy_removal()]
-# Make sure we run those passes..
+my_sim.circuit_opts = [qristal.core.two_qubit_squash(), qristal.core.redundancy_removal()]
+# Make sure we run those passes...
 my_sim.nooptimise = False
 # Run the circuit 100 times and count up the results in each of the classical registers
 print("About to run quantum program...")
@@ -53,5 +50,5 @@ print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
 print("Results:")
-print(my_sim.results[0][0])
+print(my_sim.results)
 

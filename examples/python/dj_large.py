@@ -1,7 +1,7 @@
 import qristal.core
-s = qristal.core.session(True)
-s.init()
-s.xasm = True
+s = qristal.core.session()
+s.debug = True
+s.input_language = qristal.core.circuit_language.XASM
 s.acc = "aer"
 s.aer_sim_type = "matrix_product_state"
 s.sn = 1000
@@ -49,6 +49,6 @@ print("DJ -", nb_qubits, ";Total Number of qubits:", nb_qubits + 1)
 s.qn = nb_qubits + 1
 s.instring = qbdj(nb_qubits)
 s.run()
-print(s.results[0][0])
+print(s.results)
 print("==================================")
 

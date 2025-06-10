@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "CommonGates.hpp"
-#include "Optimizer.hpp"
-#include "xacc.hpp"
-#include "xacc_observable.hpp"
-#include "xacc_service.hpp"
+#include <CommonGates.hpp>
+#include <Optimizer.hpp>
+#include <xacc.hpp>
+#include <xacc_observable.hpp>
+#include <xacc_service.hpp>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <random>

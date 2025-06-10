@@ -1,5 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp"
+#include <qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp>
 #include <algorithm>
 #include <cmath>
 #include <functional>

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "qristal/core/passes/noise_aware_placement_config.hpp"
+#include <qristal/core/passes/noise_aware_placement_config.hpp>
 
 #include <map>
 #include <string>

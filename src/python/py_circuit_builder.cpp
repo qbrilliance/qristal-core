@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/python/py_circuit_builder.hpp"
-#include "qristal/core/python/py_stl_containers.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/circuit_builders/exponent.hpp"
+#include <qristal/core/python/py_circuit_builder.hpp>
+#include <qristal/core/python/py_stl_containers.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/circuit_builders/exponent.hpp>
 
 namespace qristal {
 void bind_circuit_builder(pybind11::module &m) {

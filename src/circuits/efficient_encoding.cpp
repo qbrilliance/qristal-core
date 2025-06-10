@@ -2,10 +2,10 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/efficient_encoding.hpp"
-#include "CommonGates.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/efficient_encoding.hpp>
+#include <CommonGates.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <algorithm>
 #include <assert.h>
 #include <bitset>

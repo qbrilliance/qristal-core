@@ -1,47 +1,38 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 #include <string>
 #include <iostream>
 
 int main()
 {
   // Make a Qristal session
-  auto s = qristal::session(false);
-
-  // Set up default parameters
-  s.init();
+  qristal::session s;
 
   // Set the number of qubits
-  const int n_qubits = 2;
-  s.set_qn(n_qubits);
+  s.qn = 2;
 
   // Set the number of shots
-  const int n_shots = 1000;
-  s.set_sn(n_shots);
+  s.sn = 1000;
 
   // Use the MPS emulator backend.
   // You will need to have the Qristal emulator installed for this to work.
-  s.set_acc("qb-mps");
+  s.acc = "qb-mps";
 
   // Set backend parameters
-  s.set_initial_bond_dimension(1);
-  s.set_max_bond_dimension(256);
-  std::map<int, double> scut{{0, 1.0e-6}};
-  s.set_svd_cutoff(scut);
-  std::map<int, double> rel_scut{{0, 1.0e-3}};
-  s.set_rel_svd_cutoff(rel_scut);
-  s.set_measure_sample_method("auto");
-  s.set_gpu_device_id({0});
+  s.initial_bond_dimension = 1;
+  s.max_bond_dimension = 256;
+  s.svd_cutoff = 1.0e-6;
+  s.rel_svd_cutoff = 1.0e-3;
+  s.measure_sample_method = "auto";
+  s.gpu_device_ids = {0};
 
   // Set the noise model
   // Uncomment the following lines to introduce noise to the simulation.
-  // You will need to have the Qristal emulator installed for this to work.
-  // s.set_noise(true);
-  // qristal::NoiseModel nm("qb-nm1", n_qubits);
-  // s.set_noise_model(nm);
+  // s.noise = true;
+  // s.noise_model = std::make_shared<qristal::NoiseModel>("qb-nm1", s.qn);
 
   // Define the circuit
-  const std::string targetCircuit = R"(
+  s.instring = R"(
     __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
     {
       OPENQASM 2.0;
@@ -53,28 +44,25 @@ int main()
       measure q[1] -> c[1];
     }
     )";
-  // Hand over the circuit to the sim object
-  s.set_instring(targetCircuit);
 
   // CudaQ has no transpiler, so we need to transpile the circuit to QB's native gate set {rx, ry, cz} first.
-  if (s.get_accs()[0][0] == "cudaq:qb_mps" && s.get_noises()[0][0] == true) {
+  if (s.acc == "cudaq:qb_mps" && s.noise == true) {
     // To do this, we simply run the program without executing the circuit, i.e. by setting execute_circuit = false
-    s.set_execute_circuit(false);
+    s.execute_circuit = false;
     s.run();
 
-    // Now we can get the transpiled circuit using "out_transpiled_circuit"
-    std::string circ_qasm = s.get_out_transpiled_circuits()[0][0];
-    std::cout << circ_qasm << "\n";
+    // Now we can get the transpiled circuit
+    std::cout << s.transpiled_circuit() << "\n";
     // The transpiled circuit is in openQasm, so we feed it back into session via "instring"
-    s.set_instring(circ_qasm);
+    s.instring = s.transpiled_circuit();
 
-    // Execute the transpiled circuit by setting execute_circuit = true
-    s.set_execute_circuit(true);
+    // Execute the transpiled circuit by setting execute_circuit back to true
+    s.execute_circuit = true;
   }
 
   // Run the circuit
   s.run();
 
   // Print out results
-  std::cout << "Results:" << std::endl << s.results()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << s.results() << std::endl;
 }

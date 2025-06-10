@@ -1,14 +1,20 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include <gtest/gtest.h>
+
+// Qristal
+#include <qristal/core/session.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+
+// STL
 #include <iostream>
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
-#include "qristal/core/session.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
+// range v3
+#include <range/v3/view/zip.hpp>
+
+// Gtest
+#include <gtest/gtest.h>
 
 using namespace qristal::benchmark;
 
@@ -36,11 +42,10 @@ TEST(SPAMBenchmarkTester, check_circuit_construction) {
     correct_circuits[7].X(7);
 
     //define session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000);
-    sim.set_qn(n_qubits);
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000;
+    sim.qn = n_qubits;
 
     //generate circuits through SPAMBenchmark
     SPAMBenchmark workflow(qubits, sim);
@@ -60,14 +65,12 @@ TEST(SPAMBenchmarkTester, check_serialization) {
 
     //define serializable objects
     //(1) session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000);
-    sim.set_qn(3);
-    sim.set_noise_mitigations(qristal::Table2d<std::string>{std::vector<std::string>{"assignment-error-kernel", "rich-extrap"}, std::vector<std::string>{"ro-error"}});
-    qristal::NoiseModel nm("default");
-    sim.set_noise_model(nm);
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000;
+    sim.qn = 3;
+    sim.noise_mitigation = "rich-extrap";
+    sim.noise_model = std::make_shared<qristal::NoiseModel>("default", sim.qn);
 
     //(2) bit string counts
     std::vector<std::map<std::vector<bool>, int>> counts {{{{0,0,0}, 1}},
@@ -98,12 +101,11 @@ TEST(SPAMBenchmarkTester, check_serialization) {
     dlg.set_timestamps(std::vector<std::time_t>{t});
 
     auto session_info = dlg.obtain_session_infos()[0];
-    EXPECT_EQ(session_info.accs_, sim.get_accs());
-    EXPECT_EQ(session_info.noise_mitigations_, sim.get_noise_mitigations());
-    auto nms = sim.get_noise_models()[0][0]->to_json();
-    EXPECT_EQ(session_info.noise_models_, std::vector<std::vector<std::string>>{std::vector<std::string>{nms}});
-    EXPECT_EQ(session_info.qns_, sim.get_qns());
-    EXPECT_EQ(session_info.sns_, sim.get_sns());
+    EXPECT_EQ(session_info.acc, sim.acc);
+    EXPECT_EQ(session_info.noise_mitigation, sim.noise_mitigation);
+    EXPECT_EQ(session_info.noise_model, sim.noise_model->to_json());
+    EXPECT_EQ(session_info.qn, sim.qn);
+    EXPECT_EQ(session_info.sn, sim.sn);
 
     auto measured_counts = dlg.obtain_measured_counts()[0];
     EXPECT_EQ(measured_counts, counts);
@@ -112,7 +114,7 @@ TEST(SPAMBenchmarkTester, check_serialization) {
     EXPECT_EQ(ideal_counts, counts);
 
     auto ideal_densities = dlg.obtain_ideal_densities()[0];
-    for (const auto& [mat, ideal_density] : std::ranges::views::zip(mats, ideal_densities)) {
+    for (const auto& [mat, ideal_density] : ::ranges::views::zip(mats, ideal_densities)) {
         for (size_t row = 0; row < mat.rows(); ++row) {
             for (size_t col = 0; col < mat.cols(); ++col) {
                 EXPECT_EQ(mat(row, col), ideal_density(row, col));
@@ -121,7 +123,7 @@ TEST(SPAMBenchmarkTester, check_serialization) {
     }
 
     auto ideal_processes = dlg.obtain_ideal_processes()[0];
-    for (const auto& [mat, ideal_process] : std::ranges::views::zip(mats, ideal_processes)) {
+    for (const auto& [mat, ideal_process] : ::ranges::views::zip(mats, ideal_processes)) {
         for (size_t row = 0; row < mat.rows(); ++row) {
             for (size_t col = 0; col < mat.cols(); ++col) {
                 EXPECT_EQ(mat(row, col), ideal_process(row, col));

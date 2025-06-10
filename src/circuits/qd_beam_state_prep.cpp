@@ -1,4 +1,4 @@
-#include "qristal/core/circuits/qd_beam_state_prep.hpp"
+#include <qristal/core/circuits/qd_beam_state_prep.hpp>
 #include <memory>
 
 namespace qristal {

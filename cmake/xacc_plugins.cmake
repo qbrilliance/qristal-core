@@ -23,17 +23,6 @@ add_xacc_plugin(qb_qobj_compiler
 
 if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
 
-# optimization modules
-add_xacc_plugin(optimizationModules
-  SOURCES
-    src/optimization/qaoa/qaoa_warmStart_activator.cpp
-    src/optimization/qaoa/qaoa_warmStart_algorithm.cpp
-    src/optimization/qaoa/qaoa_warmStart_circuit.cpp
-  HEADERS
-    include/qristal/core/optimization/qaoa/qaoa_warmStart_algorithm.hpp
-    include/qristal/core/optimization/qaoa/qaoa_warmStart_circuit.hpp
-)
-
 # Amplitude estimation
 add_xacc_plugin(algorithm_ae
   SOURCES

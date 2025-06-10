@@ -2,11 +2,11 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp"
-#include "qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp"
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
+#include <qristal/core/algorithms/amplitude_estimation/canonical_amplitude_estimation.hpp>
+#include <qristal/core/algorithms/amplitude_estimation/ML_amplitude_estimation.hpp>
+#include <cppmicroservices/BundleActivator.h>
+#include <cppmicroservices/BundleContext.h>
+#include <cppmicroservices/ServiceProperties.h>
 
 using namespace cppmicroservices;
 

@@ -14,12 +14,14 @@ circ.print()
 
 # Create a session object
 s = qristal.core.session()
-s.init()
+s.sn = 100
 
 # Set the circuit
-s.ir_target = circ
+s.irtarget = circ
+s.qn = circ.num_qubits()
 # Use qristal noise-aware placement
 s.noplacement = False
+s.noise = True
 s.placement = "noise-aware"
 
 # Use AWS Rigetti backend (hardware)

@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/passes/circuit_opt_passes.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "xacc.hpp"
+#include <qristal/core/passes/circuit_opt_passes.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <xacc.hpp>
 
 namespace qristal {
 

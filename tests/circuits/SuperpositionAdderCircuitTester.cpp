@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/circuit_builder.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "Circuit.hpp"
-#include "GateModifier.hpp"
-#include "boost/math/special_functions/next.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <Circuit.hpp>
+#include <GateModifier.hpp>
+#include <boost/math/special_functions/next.hpp>
 #include <gtest/gtest.h>
 #include <memory>
 

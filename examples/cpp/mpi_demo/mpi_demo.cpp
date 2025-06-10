@@ -11,22 +11,19 @@ int main()
     // Make a Qristal session
   auto my_sim = qristal::session(false);
 
-  // Set up sensible default parameters
-  my_sim.init();
-
   my_sim.supervisor_print("Executing Qristal MPI Demo...");
 
   // Choose a simulator backend
-  my_sim.set_acc("qpp");
+  my_sim.acc = "qpp";
 
   // Choose how many qubits to simulate
-  my_sim.set_qn(2);
+  my_sim.qn = 2;
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(1000000);
+  my_sim.sn = 1000000;
 
   // Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit') and hand the kernel over to the sim object
-  my_sim.set_instring(R"(
+  my_sim.instring = R"(
     __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
     {
       OPENQASM 2.0;
@@ -37,7 +34,7 @@ int main()
       measure q[0] -> c[0];
       measure q[1] -> c[1];
     }
-    )");
+    )";
 
   // Run the circuit and count up the results in each of the classical
   // registers
@@ -46,5 +43,5 @@ int main()
   my_sim.supervisor_print("Ran successfully!\n");
 
   // Print the cumulative results in each of the classical registers
-  my_sim.supervisor_print("Results:\n{}\n", my_sim.results()[0][0]);
+  my_sim.supervisor_print("Results:\n{}\n", my_sim.results());
 }

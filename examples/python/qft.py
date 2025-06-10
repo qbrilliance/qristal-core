@@ -22,10 +22,9 @@ backends = ["aer_mps", "aer_dm", "tnqvm", "cudaq:dm"]
 sessions = []
 for backend in backends:
     s = qristal.core.session()
-    s.init()
     s.qn = nb_qubits
     s.sn = nb_shots
-    s.ir_target = circ
+    s.irtarget = circ
 
     if backend == "aer_mps":
         s.acc = "aer"
@@ -36,7 +35,7 @@ for backend in backends:
         s.aer_sim_type = "density_matrix"
         s.aer_omp_threads = 4
     elif backend == "cudaq:dm" :
-        s.gpu_device_id = [0]
+        s.gpu_device_ids = [0]
     else:
         s.acc = backend
     sessions.append(s)
@@ -45,8 +44,8 @@ for backend in backends:
 def get_prob_dist(sim, results):
     s.run()
     measured_probs_dict = {}
-    for i in s.results[0][0]:
-        measured_probs_dict[str(i)[::-1]] = s.results[0][0][i] / s.results[0][0].total_counts()
+    for i in s.results:
+        measured_probs_dict[str(i)[::-1]] = s.results[i] / s.results.total_counts()
     results.append(measured_probs_dict)
 
 # Execute backends in parallel

@@ -8,25 +8,14 @@
 #include <sstream>
 
 // YAML
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 
 // XACC
-#include "heterogeneous.hpp"
-
-// Qristal
-#include "qristal/core/session_utils.hpp"
+#include <heterogeneous.hpp>
 
 
 namespace qristal
 {
-
-  /**
-  * @brief Combine all backend options into a dict (xacc::HeterogeneousMap).
-  *
-  * @return A xacc::HeterogeneousMap containing the settings for the backend in use.
-  */
-  xacc::HeterogeneousMap backend_config(const YAML::Node& rbdb, const run_i_j_config &run_config);
-
 
   namespace setting
   {

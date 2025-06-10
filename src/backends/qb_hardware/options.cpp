@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qristal/core/backend_utils.hpp"
+#include <qristal/core/backend_utils.hpp>
 
 namespace qristal
 {
@@ -9,7 +9,7 @@ namespace qristal
   /// Set QB hardware options
   void add_qb_hardware_options(xacc::HeterogeneousMap& m,
                                YAML::Node& y,
-                               const run_i_j_config& run_config)
+                               size_t num_qubits)
   {
     using namespace setting;
 
@@ -25,7 +25,7 @@ namespace qristal
     required<double>("poll_secs", y, m);
     required<uint>("poll_retries", y, m);
     optional<bool>("exclusive_access", false, y, m);
-    optional<std::vector<uint>>("init", std::vector<uint>(run_config.num_qubits, 0), y, m);
+    optional<std::vector<uint>>("init", std::vector<uint>(num_qubits, 0), y, m);
     optional<bool>("use_default_contrast_settings", true, y, m);
 
     // Options setting the balanced SSR contrast below which a shot will be ignored.

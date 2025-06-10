@@ -1,4 +1,4 @@
-#   Copyright (c) Quantum Brilliance Pty Ltd (2022)
+#   Copyright (c) Quantum Brilliance Pty Ltd
 #
 #   topology.py
 #
@@ -7,10 +7,6 @@
 #
 ####################################################
 
-import sys
-import os
-import numpy as np
-import qristal.core
 
 def connections(circuit_string) :
     gates = circuit_string.splitlines()

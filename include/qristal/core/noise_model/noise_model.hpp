@@ -6,11 +6,11 @@
 #include <optional>
 #include <functional>
 
-#include "qristal/core/noise_model/json_complex_convert.hpp"
-#include "qristal/core/noise_model/noise_channel.hpp"
-#include "qristal/core/noise_model/noise_properties.hpp"
-#include "qristal/core/noise_model/readout_error.hpp"
-#include "qristal/core/passes/noise_aware_placement_config.hpp"
+#include <qristal/core/noise_model/json_complex_convert.hpp>
+#include <qristal/core/noise_model/noise_channel.hpp>
+#include <qristal/core/noise_model/noise_properties.hpp>
+#include <qristal/core/noise_model/readout_error.hpp>
+#include <qristal/core/passes/noise_aware_placement_config.hpp>
 
 namespace qristal
 {

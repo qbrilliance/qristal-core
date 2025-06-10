@@ -1,11 +1,13 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
-#include "qristal/core/benchmark/Serializer.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
-#include "qristal/core/primitives.hpp"
+// Qristal
+#include <qristal/core/benchmark/Serializer.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+#include <qristal/core/primitives.hpp>
+
+// range v3
+#include <range/v3/view/zip.hpp>
 
 namespace qristal
 {
@@ -16,8 +18,8 @@ namespace qristal
         * @brief Pure virtual python bindings helper class not used in the C++ implementation.
         */
         class CircuitFidelityPythonBase {
-            public: 
-                virtual ~CircuitFidelityPythonBase() = default; 
+            public:
+                virtual ~CircuitFidelityPythonBase() = default;
                 virtual std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const = 0;
         };
 
@@ -63,10 +65,10 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased CircuitFidelity handle exposed in the python bindings. 
+        * @brief The type-erased CircuitFidelity handle exposed in the python bindings.
         */
         class CircuitFidelityPython {
-            public: 
+            public:
                 template <ExecutableWorkflow WORKFLOW>
                 requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreIdealCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
                 CircuitFidelityPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<CircuitFidelity<WORKFLOW>>(workflow)) {}
@@ -75,7 +77,7 @@ namespace qristal
                     return workflow_ptr_->evaluate(force_new);
                 }
 
-            private: 
+            private:
                 std::unique_ptr<CircuitFidelityPythonBase> workflow_ptr_;
         };
 
@@ -151,10 +153,10 @@ namespace qristal
             //where p_ideal and p_meas are given by measured_bitcounts and ideal_bitcounts, and p_uni is the uniform distribution
             //with p_uni(x) = p_uni(y) for all x,y
             //Fc is the classical fidelity given by Fc(P, Q) = (sum_x sqrt(P(x)Q(x)))^2
-            for (const auto & [session_info, measured_bitcounts, ideal_bitcounts, timestamp] : std::ranges::views::zip(session_infos, measured_bitcounts_collection, ideal_bitcounts_collection, timestamps)) {
+            for (const auto & [session_info, measured_bitcounts, ideal_bitcounts, timestamp] : ::ranges::views::zip(session_infos, measured_bitcounts_collection, ideal_bitcounts_collection, timestamps)) {
                 std::vector<double> fidelities;
-                size_t n_qubits = session_info.qns_[0][0];
-                for (const auto & [measured_bitcount, ideal_bitcount] : std::ranges::views::zip(measured_bitcounts, ideal_bitcounts)) {
+                size_t n_qubits = session_info.qn;
+                for (const auto & [measured_bitcount, ideal_bitcount] : ::ranges::views::zip(measured_bitcounts, ideal_bitcounts)) {
                     double fc_ideal_meas = classical_fidelity(measured_bitcount, ideal_bitcount);
                     double fc_ideal_uni = classical_fidelity_to_uni(ideal_bitcount, n_qubits);
                     //Circuit fidelity is not well-defined for ideal targets close to the uniform distribution!

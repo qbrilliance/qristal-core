@@ -1,15 +1,15 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "AllGateVisitor.hpp"
-#include "CountGatesOfTypeVisitor.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <AllGateVisitor.hpp>
+#include <CountGatesOfTypeVisitor.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <fstream>
 #include <gtest/gtest.h>
 #include <utility>
 #include <random>
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/passes/noise_aware_placement_pass.hpp"
-#include "qristal/core/circuit_builder.hpp"
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/passes/noise_aware_placement_pass.hpp>
+#include <qristal/core/circuit_builder.hpp>
 
 TEST(QBTketTester, checkSimple) {
   auto xasmCompiler = xacc::getCompiler("xasm");

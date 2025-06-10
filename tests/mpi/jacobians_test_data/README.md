@@ -24,14 +24,12 @@ The simple jacobian calculation program is below:
 int main(int argc, char** argv)
 {
   qristal::session session;
-  session.init();
-
-  session.set_acc("aer");
+  session.acc = "aer";
   constexpr int32_t number_of_qubits = 2;
-  session.set_qn(number_of_qubits);
+  session.qn = number_of_qubits;
   constexpr int32_t number_of_shots = 1000000;
-  session.set_sn(number_of_shots);
-  session.set_calc_jacobian(true);
+  session.sn = number_of_shots;
+  session.calc_gradients = true;
 
   auto circuit = qristal::CircuitBuilder();
   circuit.RX(0, "alpha");
@@ -41,13 +39,13 @@ int main(int argc, char** argv)
   constexpr double beta = 2 * M_PI / 7;
   std::vector<double> circuit_param_vec = {alpha, beta};
   const int32_t number_of_parameters = circuit_param_vec.size();
-  session.set_irtarget_ms({{circuit.get()}});
-  session.set_parameter_vectors({{circuit_param_vec}});
+  session.irtarget = circuit.get();
+  session.circuit_parameters = circuit_param_vec;
 
   session.run();
 
   const qristal::session::OutProbabilityGradientsType &out_prob_jacobians =
-    session.get_out_prob_jacobians()[0][0];
+    session.all_bitstring_probability_gradients();
 
   std::fstream file(fmt::format("jacobians_{}.txt", argv[1]), std::ios::app);
   file << fmt::format("{}\n", fmt::join(out_prob_jacobians, " "));

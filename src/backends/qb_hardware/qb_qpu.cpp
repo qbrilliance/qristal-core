@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
+#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
 
 // STL
 #include <sstream>
@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 // CPR
-#include "cpr/cpr.h"
+#include <cpr/cpr.h>
 
 // JSON
 #include <nlohmann/json.hpp>
@@ -27,13 +27,13 @@ namespace qristal
   void execute_on_qb_hardware(
       std::shared_ptr<xacc::quantum::qb_qpu> hardware_device,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer,
-      std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
-      const run_i_j_config &run_config,
+      std::shared_ptr<xacc::CompositeInstruction>& circuit,
+      bool execute_circuit,
       bool debug)
   {
-    hardware_device->setup_hardware(run_config.execute_circuit);
-    hardware_device->execute(buffer, circuits, run_config.execute_circuit);
-    if (run_config.execute_circuit)
+    hardware_device->setup_hardware(execute_circuit);
+    hardware_device->execute(buffer, circuit, execute_circuit);
+    if (execute_circuit)
     {
       std::map<std::string, int> counts = hardware_device->poll_for_results();
       // Store the counts in the buffer
@@ -87,8 +87,8 @@ namespace xacc
       HeterogeneousMap m;
       m.insert("command", command);
       m.insert("init", init);
-      m.insert("n_qubits", n_qubits);
-      m.insert("shots", shots);
+      m.insert("n_qubits", static_cast<int>(n_qubits));
+      m.insert("shots", static_cast<int>(shots));
       m.insert("poll_secs", poll_secs);
       m.insert("poll_retries", poll_retries);
       m.insert("use_default_contrast_settings", use_default_contrast_settings);
@@ -131,8 +131,6 @@ namespace xacc
       };
       update("command", command);
       update("init", init);
-      update("shots", shots);
-      update("n_qubits", n_qubits);
       update("poll_secs", poll_secs);
       update("poll_retries", poll_retries);
       update("use_default_contrast_settings", use_default_contrast_settings);
@@ -142,6 +140,8 @@ namespace xacc
       update("url", remoteUrl);
       update("exclusive_access", exclusive_access);
       update("exclusive_access_token", exclusive_access_token);
+      if (config.keyExists<int>("shots")) shots = config.get<int>("shots");
+      if (config.keyExists<int>("n_qubits")) n_qubits = config.get<int>("n_qubits");
     }
 
     // Initialize the configuration of QB hardware
@@ -292,29 +292,19 @@ namespace xacc
 
     void qb_qpu::execute(
         std::shared_ptr<AcceleratorBuffer> buffer,
-        const std::vector<std::shared_ptr<CompositeInstruction>> functions,
+        const std::shared_ptr<CompositeInstruction> function,
         bool execute_circuit)
     {
       try
       {
-        int counter = 0;
-        std::vector<std::shared_ptr<AcceleratorBuffer>> tmpBuffers;
-        for (auto f : functions)
+        if (debug) std::cout << "QB QDK executing kernel: " + function->name() << std::endl;
+        qbjson = processInput(buffer, std::vector<std::shared_ptr<CompositeInstruction>>{function});
+        // Output the JSON sent to the QB hardware if debug is turned on.
+        if (debug) std::cout << "* JSON to be sent to QB hardware: " << std::endl << qbjson << std::endl;
+        if (execute_circuit)
         {
-          if (debug) std::cout << "* Executing circuit number " << counter + 1 << std::endl;
-          xacc::info("QB QDK executing kernel: " + f->name());
-          auto tmpBuffer = std::make_shared<AcceleratorBuffer>(buffer->name() + std::to_string(counter), buffer->size());
-          qbjson = processInput(tmpBuffer, std::vector<std::shared_ptr<CompositeInstruction>>{f});
-          // Output the JSON sent to the QB hardware if debug is turned on.
-          if (debug) std::cout << "* JSON to be sent to QB hardware: " << std::endl << qbjson << std::endl;
-          if (execute_circuit)
-          {
-            std::string responseStr = Post(remoteUrl, circuitEndpoint, qbjson, http_header);
-            processResponse(tmpBuffer, responseStr);
-          }
-          tmpBuffers.push_back(tmpBuffer);
-          buffer->appendChild(tmpBuffer->name(), tmpBuffer);
-          counter++;
+          std::string responseStr = Post(remoteUrl, circuitEndpoint, qbjson, http_header);
+          processResponse(buffer, responseStr);
         }
       }
       catch (std::exception& e)
@@ -336,19 +326,7 @@ namespace xacc
       // QB metadata
       json jsel;
       jsel["command"] = command;
-
-      // Safe operating limit enforced here
-      if (shots <= QB_SAFE_LIMIT_SHOTS)
-      {
-          jsel["settings"]["shots"] = shots;
-      }
-      else
-      {
-          std::cout << "* The requested number of shots [" << shots << "] exceeds QB_SAFE_LIMIT_SHOTS [" << QB_SAFE_LIMIT_SHOTS
-                    << "] - only QB_SAFE_LIMIT_SHOTS will be requested" << std::endl;
-          jsel["settings"]["shots"] = QB_SAFE_LIMIT_SHOTS;
-      }
-
+      jsel["settings"]["shots"] = shots;
       jsel["settings"]["results"] = results; // default: "normal"
       if (!use_default_contrast_settings)
       {
@@ -397,7 +375,6 @@ namespace xacc
       jsel["measure"] = measjs;
       return jsel.dump();
     }
-
 
     // Handle the response to the initial POST (circuit submission)
     void qb_qpu::processResponse(std::shared_ptr<AcceleratorBuffer> , const std::string &response)

@@ -1,8 +1,8 @@
-#include "qristal/core/benchmark/metrics/QuantumStateDensity.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp"
+#include <qristal/core/benchmark/metrics/QuantumStateDensity.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
 
 namespace qristal {
   namespace benchmark {

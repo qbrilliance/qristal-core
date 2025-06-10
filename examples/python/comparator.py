@@ -35,18 +35,6 @@ for i in range(0,4):
         # Measure flag qubit
         circ.measure_all()
 
-        # Check the circuit:
-        #print("OpenQASM:\n", circ.openqasm())
-
-        # Run:
-        # s.ir_target = circ
-        # s.nooptimise = True
-        # s.noplacement = True
-        # s.notiming = True
-        # s.output_oqm_enabled = False
-        # s.acc = "qpp"
-        # s.run()
-
         # Get results
         result = circ.execute()
         res = ast.literal_eval(result)["AcceleratorBuffer"]["Measurements"]
@@ -88,13 +76,11 @@ for i in range(0,4):
         # Measure flag qubit
         circ.measure(flag_qubit)
 
-        # Check the circuit:
-        #print("OpenQASM:\n", circ.openqasm())
-
         # Run:
         s = qristal.core.session()
-        s.init()
-        s.ir_target = circ
+        s.sn = 1024
+        s.qn = circ.num_qubits()
+        s.irtarget = circ
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
@@ -107,4 +93,4 @@ for i in range(0,4):
             expected_bit_string = [1]
         if j <= i:
             expected_bit_string = [0]
-        assert(s.results[0][0][expected_bit_string] == 1024)
+        assert(s.results[expected_bit_string] == 1024)

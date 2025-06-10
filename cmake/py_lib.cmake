@@ -5,15 +5,12 @@ pybind11_add_module (py${PROJECT_NAME}
   src/python/py_circuit_builder.cpp
   src/python/py_job_handle.cpp
   src/python/py_noise_model.cpp
-  src/python/py_optimization_qaoa_recursive.cpp
-  src/python/py_optimization_qaoa_simple.cpp
-  src/python/py_optimization_qaoa_warm_start.cpp
   src/python/py_optimization_vqee.cpp
   src/python/py_placement.cpp
   src/python/py_session.cpp
   src/python/py_stl_containers.cpp
   src/python/py_benchmark.cpp
-  src/python/py_benchmark_workflows.cpp 
+  src/python/py_benchmark_workflows.cpp
   src/python/py_benchmark_metrics.cpp
 )
 

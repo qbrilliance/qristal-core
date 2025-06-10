@@ -54,18 +54,16 @@ set(test_sources
   tests/circuits/UQPrimeTester.cpp
   tests/circuits/WPrimeTester.cpp
   tests/misc_cpp/backendTester.cpp
-  tests/misc_cpp/coreCLITester.cpp
   tests/misc_cpp/error_mitigation.cpp
   tests/misc_cpp/jensen_shannon.cpp
   tests/misc_cpp/sessionTester.cpp
   tests/misc_cpp/transpilationTester.cpp
   tests/misc_cpp/XaccInitialisedTests.cpp
   tests/noise_model/NoiseModelTester.cpp
-  tests/optimization/qaoaTester.cpp
   tests/optimization/vqeeTester.cpp
   tests/qobj/qobjTester.cpp
   tests/sparse_simulator/QBSparseSimTester.cpp
-  #tests/test_async/test_async.cpp
+  tests/test_async/test_async.cpp
   tests/uccsd/UCCSDTester.cpp
   tests/vqe/VqeGenTester.cpp
 )

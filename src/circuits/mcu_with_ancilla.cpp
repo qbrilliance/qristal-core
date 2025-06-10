@@ -2,11 +2,11 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/mcu_with_ancilla.hpp"
-#include "CommonGates.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
-#include "xacc.hpp"
+#include <qristal/core/circuits/mcu_with_ancilla.hpp>
+#include <CommonGates.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
+#include <xacc.hpp>
 #include <CompositeInstruction.hpp>
 #include <Instruction.hpp>
 #include <assert.h>

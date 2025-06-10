@@ -1,1 +1,0 @@
-../../examples/cpp/qristal_cli/README.md

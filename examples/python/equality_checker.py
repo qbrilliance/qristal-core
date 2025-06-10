@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1024
 
 ###
 # Testing equality checker
@@ -35,7 +35,8 @@ for i in range(8):
         # Measure flag
         circ.measure(flag)
         # Run
-        s.ir_target = circ
+        s.irtarget = circ
+        s.qn = circ.num_qubits()
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
@@ -43,11 +44,10 @@ for i in range(8):
         s.acc = "qpp"
         s.run()
         # Check results
-        res = s.results[0][0]
         if i == j:
-            assert([1] in res)
+            assert([1] in s.results)
         else:
-            assert([0] in res)
+            assert([0] in s.results)
 
 # Now the ancilla version
 for i in range(8):
@@ -66,7 +66,8 @@ for i in range(8):
         # Measure flag
         circ.measure(flag)
         # Run
-        s.ir_target = circ
+        s.irtarget = circ
+        s.qn = circ.num_qubits()
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
@@ -74,8 +75,7 @@ for i in range(8):
         s.acc = "qpp"
         s.run()
         # Check results
-        res = s.results[0][0]
         if i == j:
-            assert([1] in res)
+            assert([1] in s.results)
         else:
-            assert([0] in res)
+            assert([0] in s.results)

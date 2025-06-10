@@ -73,22 +73,35 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 ## State-vector simulators
 
-### Quantum Brilliance state vector: `qsim`
+### Quantum Brilliance state vector: `qb-statevector`
 
 **Description**: A noise-aware, GPU-enabled state-vector simulator developed by Quantum Brilliance, built atop the Google Cirq qsim simulator.
 
-**Provided by**: Open-source Qristal SDK (CPU version), Qristal Emulator (GPU version)
+**Provided by**: Qristal Emulator
 
 **Executes on**: CPU or GPU
 
 **Parameters**:
 
-* `noise`: *boolean*, optional. Include noise in the circuit simulation.
-* `gpu_device_id`: *Vector of integers*. GPU device IDs. Only for GPU version
+* `noise`: *boolean*, must be set `true`. Include noise in the circuit simulation.
+* `gpu_device_ids`: *Vector of integers*, optional. GPU device IDs. Used only by the GPU version of this backend.
 
 These parameters are currently `qristal.core.session` attributes.
 
-**Example**: `qsim_noisy.py`
+**Example**: `qb_statevector_noisy.py`
+
+
+### Qsim state vector: `qsim`
+
+**Description**: The Google Cirq qsim simulator.
+
+**Provided by**: Open-source Qristal SDK
+
+**Executes on**: CPU
+
+**Parameters**: None
+
+**Example**: `multiplication.py`
 
 
 ### Microsoft sparse state vector: `sparse-sim`
@@ -136,7 +149,7 @@ These parameters are currently `qristal.core.session` attributes.
 **Requires**: CUDA Quantum
 
 **Parameters**:
-* `gpu_device_id`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
+* `gpu_device_ids`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
 
 **Example**: `cudaq_qft.py`
 
@@ -207,22 +220,11 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
-* `gpu_device_id`: *Vector of integers*. GPU device IDs.
+* `gpu_device_ids`: *Vector of integers*. GPU device IDs.
 
 These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qb_mps_noisy.py`
-
-**Notes**:
-
-In a `qristal.core.session`, the `init()` method sets the following parameters:
-
-* `max_bond_dimension`: 256
-* `initial_bond_dimension`: 1
-* `svd_cutoff`: 1.0e-6
-* `rel_svd_cutoff`: 1.0e-3
-* `noise`: `false`
-* `measure_sample_method`: `auto`
 
 ### Quantum Brilliance Matrix-Product Density Operator: `qb-mpdo` and `cudaq:qb_mpdo`
 
@@ -242,22 +244,11 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
-* `gpu_device_id`: *Vector of integers*. GPU device IDs.
+* `gpu_device_ids`: *Vector of integers*. GPU device IDs.
 
 These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qb_mpdo_noisy.py`
-
-**Notes**:
-
-In a `qristal.core.session`, the `init()` method sets the following parameters:
-
-* `max_bond_dimension`: 256
-* `initial_bond_dimension`: 1
-* `svd_cutoff`: 1.0e-6
-* `rel_svd_cutoff`: 1.0e-3
-* `noise`: `false`
-* `measure_sample_method`: `auto`
 
 ### Quantum Brilliance purification: `qb-purification` and `cudaq:qb_purification`
 
@@ -279,24 +270,11 @@ In a `qristal.core.session`, the `init()` method sets the following parameters:
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
-* `gpu_device_id`: *Vector of integers*. GPU device IDs.
+* `gpu_device_ids`: *Vector of integers*. GPU device IDs.
 
 These parameters are currently `qristal.core.session` attributes.
 
 **Example**: `qb_purification_noisy.py`
-
-**Notes**:
-
-In a `qristal.core.session`, the `init()` method sets the following parameters:
-
-* `max_bond_dimension`: 256
-* `initial_bond_dimension`: 1
-* `max_kraus_dimension`: 256
-* `initial_kraus_dimension`: 1
-* `svd_cutoff`: 1.0e-6
-* `rel_svd_cutoff`: 1.0e-3
-* `noise`: `false`
-* `measure_sample_method`: `auto`
 
 
 ### TNQVM-ExaTN MPS: `tnqvm`
@@ -375,7 +353,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 **Requires**: CUDA Quantum
 
 **Parameters**:
-* `gpu_device_id`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
+* `gpu_device_ids`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
 
 **Example**: `qft.py`
 

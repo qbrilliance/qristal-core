@@ -2,7 +2,7 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 #pragma once 
-#include "Circuit.hpp"
+#include <Circuit.hpp>
 namespace qristal {
 
 // This module takes a composite object input and

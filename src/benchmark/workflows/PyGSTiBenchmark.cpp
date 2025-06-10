@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp"
+#include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
 
 namespace qristal
 {

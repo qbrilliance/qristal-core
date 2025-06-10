@@ -13,10 +13,10 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     qubit_1_thresh = 0.05
 
     s = qristal.core.session()
-    s.init()
     s.qn = 2
     s.sn = 32
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
@@ -43,7 +43,7 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
 
     # Run the circuit on the backend
     s.run()
-    res = json.loads(s.out_qbjson[0][0])
+    res = json.loads(s.qbjson)
     assert(res['settings'].keys().__contains__('readout_contrast_threshold') == True)
     assert(res['settings']['readout_contrast_threshold']['init'] == init_thresh)
     assert(res['settings']['readout_contrast_threshold']['qubits'][0] == qubit_0_thresh)
@@ -55,19 +55,19 @@ def test_CI_230208_simple_setters_for_contrast_thresholds():
     dump({'example_hardware_device': db}, stream)
     stream.close()
     s.run()
-    res = json.loads(s.out_qbjson[0][0])
+    res = json.loads(s.qbjson)
     assert(res['settings'].keys().__contains__('readout_contrast_threshold') == False)
 
 def test_CI_230131_cz_arbitrary_rotation():
     print("Checks CZ and Ry at arbitrary rotation angle.  Verifies that the requested number of shots is actually performed.")
     import qristal.core
     from yaml import safe_load, dump
+
     s = qristal.core.session()
-    s.init()
     s.qn = 2
     s.sn = 64
-
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
@@ -83,18 +83,18 @@ def test_CI_230131_cz_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    assert(s.results[0][0].total_counts() == s.sn[0][0])
+    assert(s.results.total_counts() == s.sn)
 
 def test_CI_230131_arbitrary_rotation():
     print("Checks Rx and Ry arbitrary rotation angles.  Verifies that the requested number of shots is actually performed.")
     import qristal.core
     from yaml import safe_load, dump
+
     s = qristal.core.session()
-    s.init()
     s.qn = 2
     s.sn = 64
-
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
@@ -111,18 +111,19 @@ def test_CI_230131_arbitrary_rotation():
 
     # Run the circuit on the back-end
     s.run()
-    assert(s.results[0][0].total_counts() == s.sn[0][0])
+    assert(s.results.total_counts() == s.sn)
 
 def test_CI_230106_1_example_hardware_device_6s():
     print("Check 2s and 6s polling interval.")
     import qristal.core
     from yaml import safe_load, dump
     import timeit
+
     s = qristal.core.session()
-    s.init()
     s.qn = 1
     s.sn = 32
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
@@ -161,11 +162,10 @@ def test_CI_220225_1_init_measure_no_gates() :
     import json
 
     s = qristal.core.session()
-    s.init()
-
     s.qn = 1
     s.sn = 32
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
@@ -178,7 +178,7 @@ def test_CI_220225_1_init_measure_no_gates() :
 
     # Run the circuit on the backend
     s.run()
-    res = json.loads(s.out_qbjson[0][0])
+    res = json.loads(s.qbjson)
     assert(len(res["circuit"]) == 0)
 
     # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -192,7 +192,7 @@ def test_CI_220225_1_init_measure_no_gates() :
 
     # Run the circuit on the backend
     s.run()
-    res = json.loads(s.out_qbjson[0][0])
+    res = json.loads(s.qbjson)
     assert(len(res["circuit"]) == 2)
 
 # Note that the reservation is not released after this test, so the qcstack server
@@ -202,19 +202,22 @@ def test_reservation():
     print("Using json web token to reserve qcstack for exclusive access")
     import qristal.core
     from yaml import safe_load, dump
+
     s = qristal.core.session()
-    s.init()
     s.qn=2
-    s.acc='example_hardware_device'
-    s.xasm = True
-    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
     s.sn=16
+    s.acc='example_hardware_device'
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
+    s.instring = '''__qpu__ void qristal_circuit(qreg q) { X(q[0]); H(q[1]); Measure(q[0]); }'''
+
     stream = open(s.remote_backend_database_path, 'r')
     db = safe_load(stream)["example_hardware_device"]
     db["exclusive_access"] = True
     stream = open(s.remote_backend_database_path + ".temp", 'w')
     dump({'example_hardware_device': db}, stream)
     s.remote_backend_database_path = s.remote_backend_database_path + ".temp"
+
     s.run()
-    assert(s.results[0][0].total_counts() <= s.sn[0][0])
+    assert(s.results.total_counts() == s.sn)
 

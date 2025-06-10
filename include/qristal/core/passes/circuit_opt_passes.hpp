@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 #pragma once
-#include "base_pass.hpp"
+#include <qristal/core/passes/base_pass.hpp>
 #include <memory>
 #include <string>
 

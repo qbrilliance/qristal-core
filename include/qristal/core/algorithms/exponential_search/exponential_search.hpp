@@ -1,12 +1,12 @@
 #pragma once
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "Algorithm.hpp"
-#include "IRProvider.hpp"
-#include "InstructionIterator.hpp"
-#include "xacc.hpp"
-#include "xacc_plugin.hpp"
-#include "xacc_service.hpp"
-#include "qristal/core/circuit_builder.hpp"
+#include <Algorithm.hpp>
+#include <IRProvider.hpp>
+#include <InstructionIterator.hpp>
+#include <xacc.hpp>
+#include <xacc_plugin.hpp>
+#include <xacc_service.hpp>
+#include <qristal/core/circuit_builder.hpp>
 #include <assert.h>
 #include <cmath>
 #include <iomanip>

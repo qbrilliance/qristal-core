@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <Circuit.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <gtest/gtest.h>
 
 TEST(AmplitudeAmplificationTester, checkSimple) {

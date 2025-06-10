@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/backends/qb_hardware/qb_visitor.hpp"
+#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
 
 
 /**

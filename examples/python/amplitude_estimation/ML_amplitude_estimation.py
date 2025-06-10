@@ -44,7 +44,7 @@ print("OpenQASM:\n", oracle.openqasm())
 
 print("Lastly, we need to define a few more inputs for the amplitude estimation module.")
 num_runs = int(input("How many runs should we use? (6 would be good) "))
-shots = int(input("HOw many shots should we use? (100 would be good) "))
+shots = int(input("How many shots should we use? (100 would be good) "))
 
 def is_in_good_subspace(s,x):
     if int(s[0]) == 1:

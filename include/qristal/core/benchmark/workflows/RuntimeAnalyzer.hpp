@@ -4,11 +4,11 @@
 
 #include <string>
 
-#include "cppuprofile/uprofile.h"
-#include "cppuprofile/monitors/nvidiamonitor.h"
+#include <cppuprofile/uprofile.h>
+#include <cppuprofile/monitors/nvidiamonitor.h>
 
-#include "qristal/core/benchmark/Serializer.hpp" // contains "qb/core/session.hpp" & typedefs
-#include "qristal/core/benchmark/Concepts.hpp"
+#include <qristal/core/benchmark/Serializer.hpp> // contains <qb/core/session.hpp> & typedefs
+#include <qristal/core/benchmark/Concepts.hpp>
 
 namespace qristal
 {
@@ -67,7 +67,7 @@ namespace qristal
                         uprofile::startProcessMemoryMonitoring(sleep_);
                         uprofile::startSystemMemoryMonitoring(sleep_);
                         uprofile::startCPUUsageMonitoring(sleep_);
-                        #ifdef GPU_MONITOR_NVIDIA 
+                        #ifdef GPU_MONITOR_NVIDIA
                             uprofile::addGPUMonitor(new uprofile::NvidiaMonitor);
                             uprofile::startGPUMemoryMonitoring(sleep_);
                             uprofile::startGPUUsageMonitoring(sleep_);

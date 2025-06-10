@@ -1,6 +1,5 @@
 set(source_files
   # C++ library source files in alphabetical order
-  src/async_executor.cpp
   src/backend_utils.cpp
   src/backend.cpp
   src/backends/aws_braket/options.cpp
@@ -17,10 +16,7 @@ set(source_files
   src/benchmark/workflows/RotationSweep.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
   src/circuit_builder.cpp
-  src/optimization/qaoa/qaoa_base.cpp
-  src/optimization/qaoa/qaoa_recursive.cpp
-  src/optimization/qaoa/qaoa_simple.cpp
-  src/optimization/qaoa/qaoa_warmStart.cpp
+  src/jensen_shannon.cpp
   src/optimization/vqee/case_generator.cpp
   src/optimization/vqee/vqee_mlpack.cpp
   src/optimization/vqee/vqee_nlopt.cpp
@@ -32,7 +28,7 @@ set(source_files
   src/primitives.cpp
   src/profiler.cpp
   src/session_getter_setter.cpp
-  src/session_validators.cpp
+  src/session_parameter_string_constants.cpp
   src/session.cpp
   src/thread_pool.cpp
   src/utils.cpp
@@ -47,8 +43,7 @@ if (WITH_CUDAQ)
 endif()
 
 set(headers
-  # C++ library header files in alphabetical order
-  include/qristal/core/async_executor.hpp
+  # C++ and OpenQASM header files in alphabetical order
   include/qristal/core/backend_utils.hpp
   include/qristal/core/backend.hpp
   include/qristal/core/backends/qb_hardware/qb_qpu.hpp
@@ -73,8 +68,9 @@ set(headers
   include/qristal/core/circuit_builder.hpp
   include/qristal/core/circuit_builders/exponent.hpp
   include/qristal/core/circuit_builders/ry_encoding.hpp
+  include/qristal/core/circuit_language.hpp
   include/qristal/core/cmake_variables.hpp
-  include/qristal/core/optimization/qaoa/qaoa.hpp
+  include/qristal/core/jensen_shannon.hpp
   include/qristal/core/optimization/vqee/vqee.hpp
   include/qristal/core/passes/base_pass.hpp
   include/qristal/core/passes/circuit_opt_passes.hpp
@@ -86,17 +82,14 @@ set(headers
   include/qristal/core/profiler.hpp
   include/qristal/core/qristal.inc
   include/qristal/core/remote_async_accelerator.hpp
-  include/qristal/core/session_utils.hpp
   include/qristal/core/session.hpp
   include/qristal/core/thread_pool.hpp
-  include/qristal/core/tools/wait_until.hpp
-  include/qristal/core/tools/zip_tool.hpp
-  include/qristal/core/typedefs.hpp
   include/qristal/core/utils.hpp
+  include/qristal/core/wait_until.hpp
 )
 
 if (WITH_PROFILING)
-  # Add code that requires profiling library dependencies 
+  # Add code that requires profiling library dependencies
   list(APPEND headers include/qristal/core/benchmark/workflows/RuntimeAnalyzer.hpp)
 endif()
 

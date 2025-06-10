@@ -60,11 +60,11 @@ def main(arguments):
   # Create a quantum computing session using Qristal
   my_sim = qristal.core.session()
 
-  # Set up meaningful defaults for session parameters
-  my_sim.init()
-
   # 2 qubits
   my_sim.qn = 2
+
+  # 1000 shots
+  my_sim.sn = 1000
 
   # Aer simulator selected
   my_sim.acc = "aer"
@@ -73,7 +73,7 @@ def main(arguments):
   my_sim.noise = True
 
   # Create the noise model and hand it over to the session.
-  nm = ring_noise_model(my_sim.qn[0][0])
+  nm = ring_noise_model(my_sim.qn)
   my_sim.noise_model = nm
 
   # Define the kernel
@@ -94,7 +94,7 @@ def main(arguments):
   my_sim.run()
 
   # Lookee
-  print(my_sim.results[0][0])
+  print(my_sim.results)
 
 #Actual program launched on invocation
 main(sys.argv)

@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qristal/core/backend_utils.hpp"
+#include <qristal/core/backend_utils.hpp>
 
 // STL
 #include <cstdlib>
@@ -10,10 +10,6 @@
 
 namespace qristal
 {
-
-  // Forward declarations of all backend option-setting functions
-  void add_qb_hardware_options(xacc::HeterogeneousMap&, YAML::Node& be_info, const run_i_j_config&);
-  void add_aws_braket_options(xacc::HeterogeneousMap&, YAML::Node& be_info, const run_i_j_config&);
 
   namespace setting
   {
@@ -47,47 +43,6 @@ namespace qristal
       return s;
     }
 
-  }
-
-  // Combine all backend options into a dict (xacc::HeterogeneousMap)
-  // Note: this dict is a 'kitchen sink' of all configurations.
-  // The xacc::Accelerator may or may not use these configurations.
-  xacc::HeterogeneousMap backend_config(const YAML::Node& rbdb, const run_i_j_config& run_config)
-  {
-    xacc::HeterogeneousMap m;
-
-    // Generic options
-    m.insert("n_qubits", static_cast<size_t>(run_config.num_qubits));
-    m.insert("shots", run_config.num_shots);
-    m.insert("output_oqm_enabled", run_config.oqm_enabled);
-    if (run_config.noise) {
-      m.insert("noise-model", run_config.noise_model->to_json());
-      m.insert("noise-model-name", run_config.noise_model->name);
-      m.insert("m_connectivity", run_config.noise_model->get_connectivity());
-    }
-
-    // User-provided random seed
-    if (run_config.simulator_seed.has_value())
-    {
-      m.insert("seed", run_config.simulator_seed.value());
-    }
-
-    // Attempt to get the entry from the remote backend yaml file corresponding to the user's chosen backend
-    YAML::Node be_info = rbdb[run_config.acc_name];
-
-    // If successful, use it to populate the remote backend settings
-    if (be_info)
-    {
-      // Backend-specific options
-      if (run_config.acc_name=="aws-braket") {
-        add_aws_braket_options(m, be_info, run_config);
-      }
-      else {
-        add_qb_hardware_options(m, be_info, run_config);
-      }
-    }
-
-    return m;
   }
 
 }

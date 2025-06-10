@@ -3,7 +3,7 @@ import numpy as np
 s = qristal.core.session()
 s.acc = "qpp"
 s.sn = 1024
-s.init()
+s.qn = 11
 s.nooptimise = True
 s.noplacement = True
 
@@ -36,10 +36,10 @@ circ.measure(q2)
 # circ.print()
 
 #Run
-s.ir_target = circ
+s.irtarget = circ
 s.run()
-print(s.results[0][0])
-assert(s.results[0][0][(0,1,0)] == 1024)
+print(s.results)
+assert(s.results[(0,1,0)] == 1024)
 
 ##########################################################################
 #Test 2: SA = |1111>, FA = |01>, FB = |01>
@@ -68,7 +68,7 @@ circ.measure(q1)
 circ.measure(q2)
 
 #Run
-s.ir_target = circ
+s.irtarget = circ
 s.run()
-print(s.results[0][0])
-assert(s.results[0][0][[1,1,1]] == 1024)
+print(s.results)
+assert(s.results[[1,1,1]] == 1024)

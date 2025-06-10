@@ -5,8 +5,8 @@
 #include <vector>
 #include <numeric>
 #include <optional>
-#include "Utils.hpp"
-#include "itertools.hpp"
+#include <Utils.hpp>
+#include <itertools.hpp>
 
 namespace xacc {
 

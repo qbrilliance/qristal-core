@@ -1,8 +1,8 @@
-#include "qristal/core/python/py_benchmark.hpp"
-#include "qristal/core/python/py_help_strings_benchmark.hpp"
+#include <qristal/core/python/py_benchmark.hpp>
+#include <qristal/core/python/py_help_strings_benchmark.hpp>
 
-#include "qristal/core/benchmark/Task.hpp"
-#include "qristal/core/primitives.hpp"
+#include <qristal/core/benchmark/Task.hpp>
+#include <qristal/core/primitives.hpp>
 
 using namespace qristal::benchmark;
 namespace py = pybind11;

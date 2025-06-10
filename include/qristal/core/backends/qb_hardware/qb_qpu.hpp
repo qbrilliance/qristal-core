@@ -2,12 +2,11 @@
 #pragma once
 
 // Qristal
-#include "qristal/core/backends/qb_hardware/qb_visitor.hpp"
-#include "qristal/core/session_utils.hpp"
+#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
 
 // XACC
-#include "RemoteAccelerator.hpp"
-#include "InstructionIterator.hpp"
+#include <RemoteAccelerator.hpp>
+#include <InstructionIterator.hpp>
 
 // STL
 #include <cstdint>
@@ -32,9 +31,6 @@ namespace xacc
     {
 
       public:
-
-        /// Safe limit for QB hardware
-        const int QB_SAFE_LIMIT_SHOTS = 512;
 
         /// Default constructor that just inits the parent class
         qb_qpu(const std::string name, const bool debug_flag = false) : RemoteAccelerator(), debug(debug_flag), qpu_name(name) {}
@@ -79,11 +75,11 @@ namespace xacc
         /// @brief Submit the circuit with HTTP POST to QB hardware and poll for results with HTTP GET
         ///
         /// @param buffer Output location and storage of intermediate results
-        /// @param functions Input circuit in XACC IR format
+        /// @param function Input circuit in XACC IR format
         /// @param execute_circuit Actually send the circuit to the hardware for execution
         ///
         void execute(std::shared_ptr<AcceleratorBuffer> buffer,
-         const std::vector<std::shared_ptr<CompositeInstruction>> functions,
+         const std::shared_ptr<CompositeInstruction> function,
          bool execute_circuit);
 
         /// @brief Converts the circuit to a representation that QB hardware accepts
@@ -120,7 +116,7 @@ namespace xacc
         std::string command = "circuit";
 
         /// Number of shots in a cycle
-        int shots = 0;
+        size_t shots = 0;
 
         /// Poll seconds
         double poll_secs = 0;
@@ -199,7 +195,7 @@ namespace qristal
   void execute_on_qb_hardware(
       std::shared_ptr<xacc::quantum::qb_qpu> qdk,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
-      std::vector<std::shared_ptr<xacc::CompositeInstruction>> &circuits,
-      const run_i_j_config &run_config,
+      std::shared_ptr<xacc::CompositeInstruction>& circuit,
+      bool execute_circuit,
       bool debug);
 }

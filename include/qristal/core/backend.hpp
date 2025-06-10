@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "Accelerator.hpp"
+#include <Accelerator.hpp>
 
 namespace qristal
 {
@@ -41,9 +41,9 @@ namespace qristal
     protected:
 
       /// Number of shots (repeats) over which to collect statistics
-      int shots = 1024;
+      size_t shots;
 
-      int n_qubits = 2;
+      size_t n_qubits;
 
       std::string qpuQasmStr_;
 

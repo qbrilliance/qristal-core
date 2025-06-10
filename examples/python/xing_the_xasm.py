@@ -4,9 +4,6 @@ import qristal.core
 # Create a quantum computing session using Qristal
 my_sim = qristal.core.session()
 
-# Set up meaningful defaults for session parameters
-my_sim.init()
-
 # Tell Qristal not to actually execute the circuit
 my_sim.execute_circuit = False
 
@@ -35,4 +32,4 @@ my_sim.run()
 
 # Get it back in XASM
 import json
-print("Circuit in XASM: ", json.loads(my_sim.out_qbjson[0][0])["circuit"])
+print("Circuit in XASM: ", json.loads(my_sim.qbjson)["circuit"])

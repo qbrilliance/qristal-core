@@ -4,7 +4,6 @@ import qristal.core
 # Define a Qristal session
 n_qubits = 2
 my_sim = qristal.core.session()
-my_sim.init()
 my_sim.acc = "aer"
 my_sim.qn = n_qubits
 my_sim.sn = 100
@@ -31,15 +30,17 @@ circ.cnot(0, 1)
 circ.measure_all()
 
 # Hand the kernel over to the my_sim object
-my_sim.ir_target = circ
+my_sim.irtarget = circ
 
 # Automatically measure a SPAM benchmark for 1000 shots, and enable automatic SPAM correction
 # then run the Bell circuit for the requested 100 shots
 print("About to run quantum program...")
 my_sim.run_with_SPAM(1000)
 print("Ran successfully!")
-print("The following SPAM correction matrix was used:\n", my_sim.SPAM_confusion)
+print("The following SPAM correction matrix was used:\n", my_sim.SPAM_correction_matrix)
 
 # Print the cumulative results in each of the classical registers
-print("Native Results:\n", my_sim.results_native[0][0])
-print("SPAM-corrected Results:\n", my_sim.results[0][0])
+print("Native Results:")
+print(my_sim.results_native)
+print("SPAM-corrected Results:")
+print(my_sim.results)

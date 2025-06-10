@@ -1,14 +1,16 @@
 # Test cases for circuit execution: e.g., qasm compilation and run
 
 import pytest
+import qristal.core
 
 def test_CI_210826_15_qb_c5_ry_theta() :
     print("* CI_210826_15_qb_c5_ry_theta:")
-    print("* With default init settings, check the functionality of Qristal's custom 5-control Ry(theta) gate")
-    import qristal.core, ast
+    print("* With default settings, check the functionality of Qristal's custom 5-control Ry(theta) gate")
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+    s.qn = 6
     s.acc = "aer"
+    s.nooptimise = True
     s.instring = '''
     __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0;
@@ -29,16 +31,17 @@ def test_CI_210826_15_qb_c5_ry_theta() :
         measure q[5] -> c[5];
     }'''
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert (res[[1,1,1,1,1,0]] == 1024)
 
 def test_CI_210826_16_qb_c5_off_ry_theta() :
     print("* CI_210826_16_qb_c5_off_ry_theta:")
-    print("* With default init settings, check the functionality of Qristal's custom 5-control Ry(theta) gate, where 1 control input is |0>")
-    import qristal.core, ast
+    print("* With default settings, check the functionality of Qristal's custom 5-control Ry(theta) gate, where 1 control input is |0>")
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+    s.qn = 6
     s.acc = "aer"
+    s.nooptimise = True
     s.instring = '''
     __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0;
@@ -59,16 +62,17 @@ def test_CI_210826_16_qb_c5_off_ry_theta() :
         measure q[5] -> c[5];
     }'''
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert (res[[1,0,1,1,1,1]] == 1024)
 
 def test_CI_210826_17_qb_c5_alloff_ry_theta() :
     print("* CI_210826_17_qb_c5_alloff_ry_theta:")
-    print("* With default init settings, check the functionality of Qristal's custom 5-control Ry(theta) gate, where all control inputs are |0>")
-    import qristal.core, ast
+    print("* With default settings, check the functionality of Qristal's custom 5-control Ry(theta) gate, where all control inputs are |0>")
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+    s.qn = 6
     s.acc = "aer"
+    s.nooptimise = True
     s.instring = '''
     __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0;
@@ -89,16 +93,17 @@ def test_CI_210826_17_qb_c5_alloff_ry_theta() :
         measure q[5] -> c[5];
     }'''
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert (res[[0,0,0,0,0,1]] == 1024)
 
 def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
     print("* CI_210826_18_qb_c7_ry_ry_dag_theta:")
-    print("* With default init settings, check the functionality of Qristal's custom 7-control Ry(theta) gate, and its inverse gate")
-    import qristal.core, ast
+    print("* With default settings, check the functionality of Qristal's custom 7-control Ry(theta) gate, and its inverse gate")
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+    s.qn = 8
     s.acc = "aer"
+    s.nooptimise = True
     s.instring = '''
     __qpu__ void qristal_circuit(qreg q) {
         OPENQASM 2.0;
@@ -123,15 +128,15 @@ def test_CI_210826_18_qb_c7_ry_ry_dag_theta() :
         measure q[7] -> c[7];
     }'''
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert (res[[1,1,1,1,1,1,1,0]] == 1024)
 
 def test_CI_210826_19_qb_c2_x_x_dag() :
     print("* CI_210826_19_qb_c2_x_x_dag:")
-    print("* With default init settings, check the functionality of Qristal's custom Toffoli gate, and its inverse gate")
-    import qristal.core, ast
+    print("* With default settings, check the functionality of Qristal's custom Toffoli gate, and its inverse gate")
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+    s.qn = 3
     s.acc = "aer"
     s.instring = '''
     __qpu__ void qristal_circuit(qreg q) {
@@ -147,23 +152,23 @@ def test_CI_210826_19_qb_c2_x_x_dag() :
         measure q[2] -> c[2];
     }'''
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert (res[[1,1,0]] == 1024)
 
 def test_qft4() :
     print("* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, ExaTN-MPS")
-    import qristal.core
 
     # Instantiate an object instance
     s = qristal.core.session()
-    s.init()   # setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps back-end
 
-    # Override defaults
+    # Settings
+    s.acc = "tnqvm"
     n_qubits = 4
     n_shots = 1024
     s.qn = n_qubits      # We only need 4 qubits here
     s.sn = n_shots       # Explicitly use 1024 shots
-    s.xasm = True        # Use XASM circuit format to access XACC's qft()
+    s.input_language = qristal.core.circuit_language.XASM  # Use XASM circuit format to access XACC's qft()
+    s.nooptimise = True
     s.seed = 123
     # targetCircuit: contains the quantum circuit that will be processed/executed
     targetCircuit = '''
@@ -181,7 +186,7 @@ def test_qft4() :
     s.run()
 
     # Get the Z-operator expectation value
-    expectation_v = s.out_z_op_expect[0][0][0]
+    expectation_v = s.z_op_expectation
 
     # Test the value against assertions
     out_str = '''* Using %d shots, Z-operator expectation value: %f''' % (n_shots, expectation_v)
@@ -190,17 +195,16 @@ def test_qft4() :
 
 def test_aer_matrix_product_state_method() :
     print("* Aer: MPS, noise modelling enabled")
-    import qristal.core
 
     # Instantiate an object instance
     s=qristal.core.session()
-    s.init()
 
     # Use the aer accelerator
     s.acc = "aer"
     # Simulation method = MPS
     s.aer_sim_type = "matrix_product_state"
     s.sn = 1024       # Explicitly use 1024 shots
+    s.qn = 3
     s.noise = True
 
     s.instring='''
@@ -216,18 +220,16 @@ def test_aer_matrix_product_state_method() :
     '''
 
     s.run()
-    res = s.results[0][0]
+    res = s.results
     print(res)
     # Expect noisy results: majority is bell pairs (00 and 11), but non-zero error states
     assert all([res[[0,0]]>450, res[[1,1]]>450, res[[0,0]] + res[[1,1]] < 1024])
 
 def test_aer_matrix_product_state_method_large_circuit() :
     print("* Aer: MPS, noise modelling enabled, large number of qubits")
-    import qristal.core
 
     # Instantiate an object instance
-    s=qristal.core.session()
-    s.init()
+    s = qristal.core.session()
     s.nooptimise = True
     s.noplacement = True
     s.output_oqm_enabled = False
@@ -236,7 +238,7 @@ def test_aer_matrix_product_state_method_large_circuit() :
     # Simulation method = MPS
     s.aer_sim_type = "matrix_product_state"
     s.sn = 1024       # Explicitly use 1024 shots
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
     s.noise = True
 
     # Generate DJ Circuit
@@ -277,7 +279,7 @@ def test_aer_matrix_product_state_method_large_circuit() :
     s.qn = nb_qubits + 1
     s.instring = qbdj(nb_qubits)
     s.run()
-    res = s.results[0][0]
+    res = s.results
     print(res)
     expected_bitstring = nb_qubits * [1]
     # Expect noisy results
@@ -285,10 +287,10 @@ def test_aer_matrix_product_state_method_large_circuit() :
 
 def test_qblib_custom_gates() :
     print("* qblib.inc : include file for custom OpenQASM QB gates")
-    print("* With default init settings, check the functionality of Qristal's custom controlled Ry gate")
-    import qristal.core
+    print("* With default settings, check the functionality of Qristal's custom controlled Ry gate")
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+    s.qn = 2
     s.acc = "aer"
     import os
     s.include_qb = os.path.dirname(os.path.abspath(__file__)) + "/qblib.inc"
@@ -305,27 +307,16 @@ def test_qblib_custom_gates() :
         measure q[1] -> c[1];
     }'''
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert (res[[1,0]] == 1024)
 
 def test_async_run_and_wait():
     print(" Testing asynchronous job runs ")
-    import qristal.core
     import json
     import numpy as np
-    s = qristal.core.session()
-    s.init()
-    qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
-    s.set_parallel_run_config(json.dumps(qpu_configs))
-    nb_jobs = 2
-    s.qn[0].clear()
-    s.sns[0].clear()
-    for i in range(nb_jobs):
-        # All circuits use 4 qubits
-        s.qn[0].append(16)
-        s.sns[0].append(1024)
-
-    openQASM = '''
+    n_jobs = 50
+    s = [qristal.core.session()] * n_jobs
+    circ = '''
     OPENQASM 2.0;
     include "qelib1.inc";
     qreg q[16];
@@ -348,123 +339,28 @@ def test_async_run_and_wait():
     cx q[14],q[15];
     measure q -> c;
     '''
-    s.instrings.clear()
-    s.xasms[0].clear()
-    s.quil1s[0].clear()
-    for i in range(nb_jobs):
-        s.instrings.append(qristal.core.VectorString())
-        s.instrings[i].append(openQASM)
-        s.xasms[0].append(False)
-        s.quil1s[0].append(False)
+    for ses in s:
+      ses.acc = "aer"
+      ses.qn = 16
+      ses.sn = 1024
+      ses.instring = circ
+    # Just for something different
+    s[0].acc = "qpp"
 
-    all_handles = []
-    for i in range(nb_jobs):
-        handle = s.run_async(i, 0)
-        all_handles.append(handle)
-    print("Complete posting all", nb_jobs, "jobs")
+    handles = []
+    for i in range(n_jobs):
+        handles.append(s[i].run_async())
+    print("Complete posting all ", n_jobs, " jobs")
 
-    import time
-    all_done = False
-    while (not all_done):
-        all_done = True
-        complete_count = 0
-        for handle in all_handles:
-            completed = handle.complete()
-            if not completed:
-                all_done = False
-            else:
-                complete_count = complete_count + 1
-        if not all_done:
-            time.sleep(1)
+    while (not all(x.complete() for x in handles)):
+        print("Still computing...")
 
-    res1 = s.results[0][0]
-    res2 = s.results[1][0]
     # Bell States
-    assert(len(res1) == 2)
-    assert(len(res2) == 2)
-
-def test_potential_async_deadlock():
-    print("Test dispatching a large number of async jobs")
-    import qristal.core
-    import json
-    s = qristal.core.session()
-    s.init()
-    qpu_configs = {"accs": [{"acc": "aer"}, {"acc": "qpp"}]}
-    s.set_parallel_run_config(json.dumps(qpu_configs))
-    # Quite a large number of jobs
-    nb_jobs = 50
-    s.qn[0].clear()
-    s.sns[0].clear()
-    for i in range(nb_jobs):
-        # All circuits use 4 qubits
-        s.qn[0].append(4)
-        s.sns[0].append(1024)
-    openQASM = '''
-    OPENQASM 2.0;
-    include "qelib1.inc";
-    qreg q[4];
-    creg c[4];
-    x q[0];
-    x q[2];
-    h q[0];
-    cu1(pi/2) q[1],q[0];
-    h q[1];
-    cu1(pi/4) q[2],q[0];
-    cu1(pi/2) q[2],q[1];
-    h q[2];
-    cu1(pi/8) q[3],q[0];
-    cu1(pi/4) q[3],q[1];
-    cu1(pi/2) q[3],q[2];
-    h q[3];
-    measure q -> c;
-    '''
-    s.instrings.clear()
-    s.xasms[0].clear()
-    s.quil1s[0].clear()
-    for i in range(nb_jobs):
-        s.instrings.append(qristal.core.VectorString())
-        s.instrings[i].append(openQASM)
-        s.xasms[0].append(False)
-        s.quil1s[0].append(False)
-
-    all_handles = []
-    for i in range(nb_jobs):
-        handle = s.run_async(i, 0)
-        all_handles.append(handle)
-    print("Complete posting all", nb_jobs, "jobs")
-
-    import time
-    all_done = False
-    while (not all_done):
-        all_done = True
-        complete_count = 0
-        for handle in all_handles:
-            completed = handle.complete()
-            if not completed:
-                all_done = False
-            else:
-                complete_count = complete_count + 1
-        if not all_done:
-            print(complete_count, "/", nb_jobs, "complete.")
-            time.sleep(2)
-        else:
-            print("ALL DONE")
-
-    count_qpp = 0
-    count_aer = 0
-    for handle in all_handles:
-        if handle.qpu_name() == "qpp":
-           count_qpp += 1
-        if handle.qpu_name() == "aer":
-           count_aer += 1
-    assert(count_qpp > 0)
-    assert(count_aer > 0)
-    assert(count_qpp + count_aer == nb_jobs)
+    for ses in s:
+      assert(len(ses.results) == 2)
 
 def test_noise_mitigation():
-    import qristal.core
     s = qristal.core.session()
-    s.init()
     s.noise = True
     s.nooptimise = True
     s.noplacement = True
@@ -480,29 +376,28 @@ def test_noise_mitigation():
     s.instring = circ.openqasm()
     s.run()
     print("Without mitigation:")
-    print(s.results[0][0])
+    print(s.results)
     # Copy the counts to a new dict, as assignment just references the underlying results object and deepcopy fails on opaque types.
     no_mitigation = dict()
     # Must use tuples here for the bitstrings as lists are mutable so can't be keys
     bitstrings = [(0,1), (1,0)]
     for bs in bitstrings:
-      no_mitigation[bs] = s.results[0][0][bs]
+      no_mitigation[bs] = s.results[bs]
 
     s.noise_mitigation = "assignment-error-kernel"
     s.run()
     print("With mitigation:")
-    mitigation = s.results[0][0]
+    mitigation = s.results
     print(mitigation)
     for bs in bitstrings:
       assert(mitigation[bs] < no_mitigation[bs])
 
 def test_sparse_sim():
-    import qristal.core
     import numpy as np
 
     s = qristal.core.session()
-    s.init()
-    s.xasm = True
+    s.input_language = qristal.core.circuit_language.XASM
+    s.nooptimise = True
     num_shots = 8192
     s.sn = num_shots
     s.acc = "sparse-sim"
@@ -547,7 +442,7 @@ def test_sparse_sim():
     s.qn = nb_qubits + 1
     s.instring = qbdj(nb_qubits)
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[1]*nb_qubits] == num_shots)
 
 def test_random_seed():
@@ -559,15 +454,13 @@ def test_random_seed():
         previous_result = None
         for i in range(num_runs):
             import xacc
-            import qristal.core
             s = qristal.core.session()
-            s.init()
-            # Override defaults
             n_qubits = 4
             n_shots = 1024
             s.qn = n_qubits      # We only need 4 qubits here
             s.sn = n_shots       # Explicitly use 1024 shots
-            s.xasm = True        # Use XASM circuit format to access XACC's qft()
+            s.input_language = qristal.core.circuit_language.XASM  # Use XASM circuit format to access XACC's qft()
+            s.nooptimise = True
             s.seed = 1234
             s.acc = acc
             # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -586,7 +479,7 @@ def test_random_seed():
             s.run()
 
             # Get the Z-operator expectation value
-            expectation_v = s.out_z_op_expect[0][0][0]
+            expectation_v = s.z_op_expectation
 
             # Test the value against assertions
             out_str = '''* Using %s accelerator with %d shots, Z-operator expectation value: %f''' % (acc, n_shots, expectation_v)
@@ -608,15 +501,13 @@ def test_random_seed_tnqvm():
     num_runs = 5
     for i in range(num_runs):
         for seed in seeds:
-            import qristal.core
             s = qristal.core.session()
-            s.init()
-            # Override defaults
             n_qubits = 4
             n_shots = 1024
             s.qn = n_qubits      # We only need 4 qubits here
             s.sn = n_shots       # Explicitly use 1024 shots
-            s.xasm = True        # Use XASM circuit format to access XACC's qft()
+            s.input_language = qristal.core.circuit_language.XASM # Use XASM circuit format to access XACC's qft()
+            s.nooptimise = True
             s.seed = seed
             s.acc = "tnqvm"
             # targetCircuit: contains the quantum circuit that will be processed/executed
@@ -635,7 +526,7 @@ def test_random_seed_tnqvm():
             s.run()
 
             # Get the Z-operator expectation value
-            expectation_v = s.out_z_op_expect[0][0][0]
+            expectation_v = s.z_op_expectation
 
             # Test the value against assertions
             out_str = '''* Using %s accelerator with %d shots, Z-operator expectation value: %f''' % ("tnqvm", n_shots, expectation_v)
@@ -650,29 +541,31 @@ def test_random_seed_tnqvm():
 
 def test_randomized_stats():
     # https://qbau.atlassian.net/browse/SWA-154
-    import qristal.core
-    s = qristal.core.session()
-    s.init()
-    s.qn = 2
-    s.sn = 1024
-    s.instring = '''
-__qpu__ void qristal_circuit(qreg q) {
-OPENQASM 2.0;
-include "qelib1.inc";
-creg c[2];
-x q[0];
-h q[1];
-measure q[1] -> c[1];
-measure q[0] -> c[0];
-}'''
+
     nb_runs = 10
-    for _ in range(nb_runs - 1):
-        s.acc[0].append("tnqvm")
-    s.run()
-    ref = s.results[0][0]
+    sessions = [qristal.core.session() for _ in range(nb_runs)]
+    all_results = []
+    for s in sessions:
+        s.qn = 2
+        s.sn = 1024
+        s.acc = "tnqvm"
+        s.instring = '''
+        __qpu__ void qristal_circuit(qreg q) {
+        OPENQASM 2.0;
+        include "qelib1.inc";
+        creg c[2];
+        x q[0];
+        h q[1];
+        measure q[1] -> c[1];
+        measure q[0] -> c[0];
+        }'''
+        s.run()
+        print(s.results)
+        all_results.append(s.results)
+
+    ref = sessions[0].results
     all_equal = True
-    print(s.results[0])
-    for dist in s.results[0]:
+    for dist in all_results:
         if dist != ref:
             all_equal = False
 
@@ -680,37 +573,36 @@ measure q[0] -> c[0];
 
 def test_clear_random_seed():
     # https://qbau.atlassian.net/browse/SWA-155
-    import qristal.core
     import itertools
     num_qubits = 2
     s = qristal.core.session()
-    s.init()
     s.qn = num_qubits
+    s.sn = 1024
     s.seed = 123
     s.instring = '''
-__qpu__ void qristal_circuit(qreg q) {
-OPENQASM 2.0;
-include "qelib1.inc";
-creg c[2];
-x q[0];
-h q[1];
-measure q[0] -> c[0];
-measure q[1] -> c[1];
-}'''
+    __qpu__ void qristal_circuit(qreg q) {
+    OPENQASM 2.0;
+    include "qelib1.inc";
+    creg c[2];
+    x q[0];
+    h q[1];
+    measure q[0] -> c[0];
+    measure q[1] -> c[1];
+    }'''
     s.run()
-    print(s.results[0][0])
+    print(s.results)
     # Copy the counts to a new dict, as assignment just references the underlying results object and deepcopy fails on opaque types.
     ref = dict()
     # Must use tuples here for the bitstrings as lists are mutable so can't be keys
     for bits in itertools.product((0, 1), repeat=num_qubits):
-        if bits in s.results[0][0]:
-            ref[bits] = s.results[0][0][bits]
+        if bits in s.results:
+            ref[bits] = s.results[bits]
     nb_runs = 3
-    s.seed.clear()
+    s.seed = 0
     see_new_random_results = False
     for _ in range(nb_runs):
         s.run()
-        new_result = s.results[0][0]
+        new_result = s.results
         print(new_result)
         if new_result != ref:
             see_new_random_results = True

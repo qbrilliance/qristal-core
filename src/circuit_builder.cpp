@@ -1,17 +1,20 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/circuit_builder.hpp"
+#include <qristal/core/circuit_builder.hpp>
 
 namespace qristal
 {
 
-  CircuitBuilder::CircuitBuilder()
-      : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")),
-        circuit_(gate_provider_->createComposite("QBSDK_circuit")) {}
+  CircuitBuilder::CircuitBuilder() {
+    xacc::Initialize();
+    gate_provider_ = xacc::getService<xacc::IRProvider>("quantum");
+    circuit_ = gate_provider_->createComposite("QBSDK_circuit");
+  }
 
   CircuitBuilder::CircuitBuilder(std::shared_ptr<xacc::CompositeInstruction> &composite,
-                  bool copy_nodes)
-      : gate_provider_(xacc::getService<xacc::IRProvider>("quantum")) {
+                  bool copy_nodes) {
+    xacc::Initialize();
+    gate_provider_ = xacc::getService<xacc::IRProvider>("quantum");
     if (copy_nodes) {
       circuit_ = gate_provider_->createComposite("QBSDK_circuit");
       circuit_->addVariables(composite->getVariables());

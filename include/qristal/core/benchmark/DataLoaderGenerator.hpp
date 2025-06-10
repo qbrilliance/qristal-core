@@ -8,8 +8,8 @@
 #include <regex>
 #include <ranges>
 
-#include "qristal/core/benchmark/Serializer.hpp" // contains session & typedefs
-#include "qristal/core/benchmark/Concepts.hpp"
+#include <qristal/core/benchmark/Serializer.hpp> // contains session & typedefs
+#include <qristal/core/benchmark/Concepts.hpp>
 
 namespace qristal
 {

@@ -1,11 +1,10 @@
 # Test cases for quantum circuit library
 import pytest
+import qristal.core
 
 def test_cz_optimization():
     print(" Testing CZ optimization ")
-    import qristal.core
     s = qristal.core.session()
-    s.init()
     circ = qristal.core.Circuit()
     # Check this circuit is optimized to a single CZ gate
     # Check for this pattern
@@ -16,43 +15,44 @@ def test_cz_optimization():
     circ.h(1)
     circ.cnot(0, 1)
     circ.h(1)
-    s.ir_target = circ
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.nooptimise = False
     s.noplacement = True
     s.notiming = True
     s.execute_circuit = False
     s.run()
-    print(s.out_transpiled_circuit[0][0])
+    print(s.transpiled_circuit)
     # Use xacc to recompile the transpiled qasm for validation
     import xacc
     compiler = xacc.getCompiler("staq")
-    ir = compiler.compile(s.out_transpiled_circuit[0][0]).getComposites()[0]
+    ir = compiler.compile(s.transpiled_circuit).getComposites()[0]
     assert(ir.nInstructions() == 1)
     assert(ir.getInstruction(0).name() == "CZ")
 
 def test_cz_placement():
     print(" Testing placement of CZ gate ")
-    import qristal.core
     s = qristal.core.session()
-    s.init()
     circ = qristal.core.Circuit()
     circ.cz(0, 1)
-    s.ir_target = circ
+    s.acc = "aer"
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.nooptimise = True
     s.noplacement = False
     s.notiming = True
     s.execute_circuit = False
+    s.noise = True
     s.run()
-    print(s.out_transpiled_circuit[0][0])
+    print(s.transpiled_circuit)
     # Use xacc to recompile the transpiled qasm for validation
     import xacc
     compiler = xacc.getCompiler("staq")
-    ir = compiler.compile(s.out_transpiled_circuit[0][0]).getComposites()[0]
+    ir = compiler.compile(s.transpiled_circuit).getComposites()[0]
     assert(ir.nInstructions() == 1)
     assert(ir.getInstruction(0).name() == "CZ")
 
 def test_cphase_simple():
-    import qristal.core
     import math
     import random
 
@@ -76,17 +76,16 @@ def test_cphase_simple():
 
     # Get transpiled circuit from qb_visitor
     my_sim = qristal.core.session()
-    my_sim.init()
     my_sim.qn = 2
     my_sim.acc = "qpp"
     my_sim.noplacement = True
 
     circ_qristal = qristal.core.Circuit()
     circ_qristal.cphase(0, 1, theta)
-    my_sim.ir_target = circ_qristal
+    my_sim.irtarget = circ_qristal
     my_sim.execute_circuit = False
     my_sim.run()
-    transpiled_circ_qristal = my_sim.out_transpiled_circuit[0][0]
+    transpiled_circ_qristal = my_sim.transpiled_circuit
 
     # Check that both transpiled circuits are the same
     compiler = xacc.getCompiler("staq")
@@ -105,10 +104,8 @@ def test_cphase_simple():
 
 def test_xasm_output():
     print(" Testing QB machine code (XASM) output.")
-    import qristal.core
     import json
     my_sim = qristal.core.session()
-    my_sim.init()
     my_sim.execute_circuit = False
     my_sim.acc = "example_hardware_device"
     my_sim.qn = 2
@@ -125,4 +122,4 @@ def test_xasm_output():
     }
     '''
     my_sim.run()
-    assert(json.loads(my_sim.out_qbjson[0][0])["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'CZ(q[1],q[0])', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)'])
+    assert(json.loads(my_sim.qbjson)["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'CZ(q[1],q[0])', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)'])

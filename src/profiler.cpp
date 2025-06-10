@@ -1,8 +1,8 @@
 // Copyright Quantum Brilliance Pty Ltd
 
-#include "qristal/core/profiler.hpp"
-#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
-#include "CompositeInstruction.hpp"
+#include <qristal/core/profiler.hpp>
+#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
+#include <CompositeInstruction.hpp>
 
 namespace qristal {
 //

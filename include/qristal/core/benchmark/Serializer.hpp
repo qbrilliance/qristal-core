@@ -1,16 +1,14 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#ifndef _QB_BENCHMARK_SERIALIZER_
-#define _QB_BENCHMARK_SERIALIZER_
+#pragma once
 
 #include <cereal/archives/binary.hpp>
-#include "cereal/types/map.hpp"
-#include "cereal/types/vector.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/tuple.hpp"
-#include "cereal/types/complex.hpp"
+#include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/tuple.hpp>
+#include <cereal/types/complex.hpp>
 
-#include "qristal/core/typedefs.hpp"
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 
 #include <string>
 #include <ctime>
@@ -28,31 +26,31 @@ namespace qristal
 
         /**
         * @brief Helper function attempting to cast a qristal::benchmark python binding metric pointer to
-        * a pointer of the templated base Metric with a compatible workflow. 
+        * a pointer of the templated base Metric with a compatible workflow.
         *
-        * Template Arguments: 
-        * @tparam Metric : The C++ base metric template class, e.g., `QuantumStateFidelity`. 
-        * @tparam BindingMetricBase : The python binding base class for the metric, e.g., `QuantumStateFidelityPythonBase`. 
-        * @tparam BindingWorkflow : The python binding class for the wrapped workflow, e.g., `QuantumStateTomographyPython`. 
+        * Template Arguments:
+        * @tparam Metric : The C++ base metric template class, e.g., `QuantumStateFidelity`.
+        * @tparam BindingMetricBase : The python binding base class for the metric, e.g., `QuantumStateFidelityPythonBase`.
+        * @tparam BindingWorkflow : The python binding class for the wrapped workflow, e.g., `QuantumStateTomographyPython`.
         * @tparam CompatibleWorkflows : Variadic template of all C++ workflow classes to be tested, e.g., `QuantumStateTomography<RotationSweep>`.
-        * @tparam AdditionalArgs : Optional variadic template for additional required arguments to construct a `Metric` object. 
+        * @tparam AdditionalArgs : Optional variadic template for additional required arguments to construct a `Metric` object.
         *
         * Arguments:
-        * @param workflow_ptr : std::unique_ptr to the BindingMetric to be casted.  
-        * @param workflow : A reference to the BindingWorkflow to be wrapped inside. 
+        * @param workflow_ptr : std::unique_ptr to the BindingMetric to be casted.
+        * @param workflow : A reference to the BindingWorkflow to be wrapped inside.
         * @param args : A forward reference to AdditionalArgs passed to the `Metric` constructor
         *
         * @return ---
         */
         template <
-            template <typename, typename...> class Metric, 
-            typename BindingMetricBase, 
-            typename BindingWorkflow, 
-            typename... CompatibleWorkflows, 
+            template <typename, typename...> class Metric,
+            typename BindingMetricBase,
+            typename BindingWorkflow,
+            typename... CompatibleWorkflows,
             typename... AdditionalArgs>
         void cast_python_metric_pointer(
-            std::unique_ptr<BindingMetricBase>& workflow_ptr, 
-            BindingWorkflow& workflow, 
+            std::unique_ptr<BindingMetricBase>& workflow_ptr,
+            BindingWorkflow& workflow,
             AdditionalArgs&&... args
         ) {
             bool matched = false;
@@ -169,24 +167,18 @@ namespace qristal
             public:
                 SessionInfo() {}
                 SessionInfo(const qristal::session& session) :
-                    accs_(session.get_accs()),
-                    noise_mitigations_(session.get_noise_mitigations()),
-                    qns_(session.get_qns()),
-                    sns_(session.get_sns())
+                    noise_mitigation(session.noise_mitigation),
+                    acc(session.acc),
+                    qn(session.qn),
+                    sn(session.sn)
                 {
                     //store noise model info as json string
-                    for ( const auto& vecnm : session.get_noise_models() ) {
-                        std::vector<std::string> temp;
-                        for (const auto& nm : vecnm) {
-                            temp.push_back(nm->to_json());
-                        }
-                        noise_models_.push_back(temp);
-                    }
+                    if (session.noise_model) noise_model = session.noise_model->to_json();
                 }
 
-                qristal::Table2d<std::string> accs_, noise_mitigations_;
-                std::vector<std::vector<std::string>> noise_models_; //stored in json format
-                qristal::Table2d<size_t> qns_, sns_;
+                std::string acc, noise_mitigation;
+                std::string noise_model; //stored in json format
+                size_t qn, sn;
 
                 /**
                 * @brief Dump function to copy SessionInfo object
@@ -206,7 +198,7 @@ namespace qristal
                 template <typename Archive>
                 void save( Archive& ar ) const {
                     //store important session information, no results!
-                    ar(accs_, noise_models_, noise_mitigations_, qns_, sns_);
+                    ar(acc, noise_model, noise_mitigation, qn, sn);
                 }
 
                 /**
@@ -218,7 +210,7 @@ namespace qristal
                 template <typename Archive>
                 void load( Archive& ar ) {
                     //load important session information, no results!
-                    ar(accs_, noise_models_, noise_mitigations_, qns_, sns_);
+                    ar(acc, noise_model, noise_mitigation, qn, sn);
                 }
         };
 
@@ -355,5 +347,3 @@ namespace qristal
         // ...
     }
 }
-
-#endif

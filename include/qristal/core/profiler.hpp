@@ -1,7 +1,6 @@
 // Copyright Quantum Brilliance Pty Ltd
 
 #pragma once
-#include "qristal/core/typedefs.hpp"
 #include <memory>
 #include <unordered_map>
 #include <map>

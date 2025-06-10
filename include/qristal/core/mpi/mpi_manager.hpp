@@ -1,7 +1,7 @@
 #pragma once
 
 #include <qristal/core/mpi/message_types.hpp>
-#include <qristal/core/tools/wait_until.hpp>
+#include <qristal/core/wait_until.hpp>
 
 #include <mpi.h>
 

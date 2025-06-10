@@ -1,14 +1,14 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "cudaq/algorithm.h"
-#include "cudaq/gradients/central_difference.h"
-#include "cudaq/optimizers.h"
-#include "cudaq/spin_op.h"
-#include "qristal/core/cudaq/ir_converter.hpp"
-#include "qristal/core/session.hpp"
-#include "qristal/core/circuit_builder.hpp"
+#include <cudaq/algorithm.h>
+#include <cudaq/gradients/central_difference.h>
+#include <cudaq/optimizers.h>
+#include <cudaq/spin_op.h>
+#include <qristal/core/cudaq/ir_converter.hpp>
+#include <qristal/core/session.hpp>
+#include <qristal/core/circuit_builder.hpp>
 
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <cudaq.h>
 #include <gtest/gtest.h>
 
@@ -29,28 +29,24 @@ TEST(CudaqTester, check_kernel_execution) {
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
+  qristal::session my_sim;
 
   // Number of qubits we want to run
   constexpr int NB_QUBITS = 20;
 
   // Add CUDAQ ghz kernel to the current session
-  my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
+  my_sim.cudaq_kernel = ghz<NB_QUBITS>{};
   // Use CUDAQ qpp backend
-  my_sim.set_acc("cudaq:qpp");
-  // Set up sensible default parameters
-  my_sim.init();
-
+  my_sim.acc = "cudaq:qpp";
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(20000);
-  my_sim.set_qn(NB_QUBITS);
+  my_sim.sn = 20000;
+  my_sim.qn = NB_QUBITS;
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
   // Print the cumulative results
-  std::cout << "Results:" << std::endl
-            << my_sim.results()[0][0] << std::endl;
-  const auto& res = my_sim.results()[0][0];
+  const auto& res = my_sim.results();
+  std::cout << "Results:" << std::endl << res << std::endl;
   EXPECT_EQ(res.size(), 2);
   int sum = std::accumulate(res.begin(), res.end(), 0,
              [](auto prev_sum, auto &entry) { return prev_sum + entry.second; });
@@ -147,29 +143,30 @@ TEST(CudaqTester, check_kernel_execution_custatevec) {
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(true);
+  qristal::session my_sim;
+
+  // Enable debug output
+  my_sim.debug = true;
 
   // Number of qubits we want to run
   // Large number of qubits, since we are using GPUs!
   constexpr int NB_QUBITS = 31;
 
   // Add CUDAQ ghz kernel to the current session
-  my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
+  my_sim.cudaq_kernel = ghz<NB_QUBITS>{};
 
-  // Set up sensible default parameters
-  my_sim.init();
   // Both custatevec_fp32 and custatevec_fp64 are okay,
   // use f32 to speed up the test.
-  my_sim.set_acc("cudaq:custatevec_fp32");
-  my_sim.set_gpu_device_id({0});
+  my_sim.acc = "cudaq:custatevec_fp32";
+  my_sim.gpu_device_ids = {0};
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(20000);
-  my_sim.set_qn(NB_QUBITS);
+  my_sim.sn = 20000;
+  my_sim.qn = NB_QUBITS;
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
   // Print the cumulative results
-  const auto& res = my_sim.results()[0][0];
+  const auto& res = my_sim.results();
   std::cout << "Results:" << std::endl << res << std::endl;
   EXPECT_EQ(res.size(), 2);
   int sum = std::accumulate(res.begin(), res.end(), 0,
@@ -183,11 +180,11 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
+  qristal::session my_sim;
 
   // Define the quantum program to run (aka 'quantum kernel' aka 'quantum
   // circuit')
-  const std::string targetCircuit = R"(
+  my_sim.instring = R"(
     __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
     {
       OPENQASM 2.0;
@@ -200,22 +197,16 @@ TEST(CudaqTester, check_openqasm_on_cudaq_backend) {
     }
     )";
 
-  // Hand the kernel over to the sim object
-  my_sim.set_instring(targetCircuit);
-
-  // Set up sensible default parameters
-  my_sim.init();
-
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(100);
-  my_sim.set_qn(2);
+  my_sim.sn = 100;
+  my_sim.qn = 2;
   // Use CUDAQ "dm" backend
-  my_sim.set_acc("cudaq:dm");
-  my_sim.set_gpu_device_id({0});
+  my_sim.acc ="cudaq:dm";
+  my_sim.gpu_device_ids = {0};
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
   // Print the cumulative results
-  const auto& res = my_sim.results()[0][0];
+  const auto& res = my_sim.results();
   std::cout << "Results:" << std::endl  << res << std::endl;
   EXPECT_EQ(res.size(), 2);
   int sum = std::accumulate(res.begin(), res.end(), 0,
@@ -228,28 +219,25 @@ TEST(CudaqTester, check_circuit_builder_on_cudaq_backend) {
   std::cout << "Executing C++ CUDAQ test..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
+  qristal::session my_sim;
 
   qristal::CircuitBuilder circ;
   circ.H(0);
   circ.CNOT(0, 1);
   circ.MeasureAll(2);
-  // Hand the CircuitBuilder over to the sim object
-  my_sim.set_irtarget_m(circ.get());
 
-  // Set up sensible default parameters
-  my_sim.init();
-
+  // Hand the circuit over to the sim object
+  my_sim.irtarget = circ.get();
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(100);
-  my_sim.set_qn(2);
+  my_sim.sn = 100;
+  my_sim.qn = 2;
   // Use CUDAQ "dm" backend
-  my_sim.set_acc("cudaq:dm");
-  my_sim.set_gpu_device_id({0});
+  my_sim.acc = "cudaq:dm";
+  my_sim.gpu_device_ids = {0};
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
   // Print the cumulative results
-  const auto& res = my_sim.results()[0][0];
+  const auto& res = my_sim.results();
   std::cout << "Results:" << std::endl << res << std::endl;
   EXPECT_EQ(res.size(), 2);
   int sum = std::accumulate(res.begin(), res.end(), 0,

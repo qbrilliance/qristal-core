@@ -2,13 +2,13 @@
 #include <gtest/gtest.h>
 #include <random>
 
-#include "xacc.hpp"
-#include "Accelerator.hpp"
-#include "Eigen/Dense"
+#include <xacc.hpp>
+#include <Accelerator.hpp>
+#include <Eigen/Dense>
 #include <unsupported/Eigen/KroneckerProduct>
 
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/primitives.hpp"
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/primitives.hpp>
 
 TEST(NoiseModelTester, checkReadoutErrors)
 {

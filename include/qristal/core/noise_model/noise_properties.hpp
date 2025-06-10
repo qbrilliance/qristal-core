@@ -4,7 +4,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
-#include "qristal/core/noise_model/readout_error.hpp"
+#include <qristal/core/noise_model/readout_error.hpp>
 
 namespace qristal
 {

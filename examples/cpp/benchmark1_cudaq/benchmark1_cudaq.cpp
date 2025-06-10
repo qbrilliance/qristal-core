@@ -1,5 +1,5 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 #include <string>
 #include <iostream>
 #include <cudaq.h>
@@ -23,29 +23,26 @@ int main()
   std::cout << "Executing C++ demo..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
+  qristal::session my_sim;
 
   // Number of qubits we want to run
   constexpr int NB_QUBITS = 20;
 
   // Choose a CUDAQ simulator backend, e.g., qpp
-  my_sim.set_acc("cudaq:qpp");
+  my_sim.acc = "cudaq:qpp";
 
   // Add CUDAQ ghz kernel to the current session
-  my_sim.set_cudaq_kernel(ghz<NB_QUBITS>{});
+  my_sim.cudaq_kernel = ghz<NB_QUBITS>{};
 
-  // Set up sensible default parameters
-  my_sim.init();
-
-  // Add more qubits
-  my_sim.set_qn(NB_QUBITS);
+  // Set qubits
+  my_sim.qn = NB_QUBITS;
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(20000);
+  my_sim.sn = 20000;
 
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
   // Print the cumulative results
-  std::cout << "Results:" << std::endl << my_sim.results()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.results() << std::endl;
 }

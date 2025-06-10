@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/session.hpp"
-#include "qristal/core/cmake_variables.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/session.hpp>
+#include <qristal/core/cmake_variables.hpp>
 #include <iostream>
 #include <string>
 #include <pybind11/embed.h>
@@ -13,29 +13,26 @@ int main() {
   std::cout << "Executing C++ placement demo..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
-
-  // Set up sensible default parameters
-  my_sim.init();
+  qristal::session my_sim;
 
   // Choose a AWS backend, set device to "Rigetti" to use its hardware info for
   // noise-aware placement
-  my_sim.set_acc("aws-braket");
-  my_sim.set_remote_backend_database_path(SDK_DIR "/examples/cpp/noise_aware_placement_aws/aws_rigetti.yaml");
+  my_sim.acc = "aws-braket";
+  my_sim.remote_backend_database_path = QRISTAL_DIR + "/examples/cpp/noise_aware_placement_aws/aws_rigetti.yaml";
   // Don't submit the circuit to AWS for execution.
   // Note: there is no charge when querying backend information (still needs a
   // valid AWS Braket account). Actual circuit execution, on the other hand,
   // will incur a cost.
-  my_sim.set_execute_circuit(false);
+  my_sim.execute_circuit = false;
 
   // Choose noise-aware placement strategy
-  my_sim.set_placement("noise-aware");
+  my_sim.placement = "noise-aware";
 
   // Choose how many qubits to simulate
-  my_sim.set_qn(2);
+  my_sim.qn = 2;
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(100);
+  my_sim.sn = 100;
 
   qristal::CircuitBuilder my_circuit;
   // Create a simple Bell state circuit.
@@ -46,7 +43,7 @@ int main() {
   my_circuit.print();
 
   // Set the input circuit
-  my_sim.set_irtarget_m(my_circuit.get());
+  my_sim.irtarget = my_circuit.get();
   my_sim.run();
   std::cout << "Ran successfully!" << std::endl;
   std::cout << "Placed circuit (for Rigetti device):" << std::endl;

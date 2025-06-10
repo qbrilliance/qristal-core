@@ -13,8 +13,6 @@ import timeit
 import ast
 print("Libraries imported successfully!")
 
-s = qristal.core.session()
-
 print("In this example, we want to use CQAE to estimate the amplitude of the |1> state")
 print("in the superposition state |psi> = sqrt(1-p)|0> + sqrt(p)|1>.")
 print("Begin demonstration!")

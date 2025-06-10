@@ -2,7 +2,6 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
 
 # Quantum Phase Estimation: Oracle(|State>) = exp(i*Phase)*|State>
 # and we need to estimate that Phase value.
@@ -38,7 +37,9 @@ for i in range(nb_bits_precision):
 print("OpenQASM:\n", circ.openqasm())
 
 # Run:
-s.ir_target = circ
+s.irtarget = circ
+s.qn = circ.num_qubits()
+s.sn = 1024
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
@@ -46,4 +47,4 @@ s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
 print("Result:")
-print(s.results[0][0])
+print(s.results)

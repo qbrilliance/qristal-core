@@ -2,11 +2,11 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/proper_fraction_division.hpp"
-#include "qristal/core/circuits/subtraction.hpp"
-#include "CommonGates.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/proper_fraction_division.hpp>
+#include <qristal/core/circuits/subtraction.hpp>
+#include <CommonGates.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <CompositeInstruction.hpp>
 #include <assert.h>
 #include <memory>

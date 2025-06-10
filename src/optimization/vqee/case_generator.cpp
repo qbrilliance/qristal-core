@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/optimization/vqee/case_generator.hpp"
+#include <qristal/core/optimization/vqee/case_generator.hpp>
 #include <exception>
 #include <iomanip>
 

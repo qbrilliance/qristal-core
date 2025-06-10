@@ -2,11 +2,13 @@
 #ifndef _QB_BENCHMARK_QUANTUMPROCESSFIDELITY_
 #define _QB_BENCHMARK_QUANTUMPROCESSFIDELITY_
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
-#include "qristal/core/benchmark/Serializer.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
-#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+// Qristal
+#include <qristal/core/benchmark/Serializer.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+#include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
+
+// range v3
+#include <range/v3/view/zip.hpp>
 
 namespace qristal
 {
@@ -17,8 +19,8 @@ namespace qristal
         * @brief Pure virtual python bindings helper class not used in the C++ implementation.
         */
         class QuantumProcessFidelityPythonBase {
-            public: 
-                virtual ~QuantumProcessFidelityPythonBase() = default; 
+            public:
+                virtual ~QuantumProcessFidelityPythonBase() = default;
                 virtual std::map< std::time_t, std::vector<double> >  evaluate(const bool force_new = false) const = 0;
         };
 
@@ -65,12 +67,12 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased QuantumProcessMatrix handle exposed in the python bindings. 
+        * @brief The type-erased QuantumProcessMatrix handle exposed in the python bindings.
         */
         class QuantumProcessFidelityPython {
             public:
                 //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumProcessTomographyPython
-                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessFidelity objects. 
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessFidelity objects.
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumProcessFidelityPython(QuantumProcessTomographyPython& qstpython);
 
@@ -79,7 +81,7 @@ namespace qristal
                 }
 
             private:
-                std::unique_ptr<QuantumProcessFidelityPythonBase> workflow_ptr_; 
+                std::unique_ptr<QuantumProcessFidelityPythonBase> workflow_ptr_;
         };
 
         /**
@@ -116,13 +118,13 @@ namespace qristal
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 
             //(3) evaluate state fidelity for each circuit in each timestamp
-            for (const auto & [measured_bitcounts, ideal_processes, timestamp] : std::ranges::views::zip(measured_bitcounts_collection, ideal_processes_collection, timestamps)) {
+            for (const auto & [measured_bitcounts, ideal_processes, timestamp] : ::ranges::views::zip(measured_bitcounts_collection, ideal_processes_collection, timestamps)) {
                 std::vector<double> fidelities;
                 //obtain measured densities using quantum state tomography (from within QPT object)
                 //and pass these on to the QPT parent to assemble superoperator representations of the quantum process
                 std::vector<ComplexMatrix> measured_processes = qptworkflow_.assemble_processes(qptworkflow_.get_qst().assemble_densities(measured_bitcounts));
                 //finally compute a process fidelity for each superoperator matrix
-                for (const auto & [measured_process, ideal_process] : std::ranges::views::zip(measured_processes, ideal_processes)) {
+                for (const auto & [measured_process, ideal_process] : ::ranges::views::zip(measured_processes, ideal_processes)) {
                     fidelities.push_back(calculate_process_fidelity(measured_process, ideal_process));
                 }
                 timestamp2fidelities.insert(std::make_pair(timestamp, fidelities));

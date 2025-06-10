@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/cudaq/cudaq_acc.hpp"
-#include "cudaq/algorithms/sample.h"
-#include "qristal/core/cudaq/ir_converter.hpp"
-#include "qristal/core/cudaq/sim_pool.hpp"
+#include <qristal/core/cudaq/cudaq_acc.hpp>
+#include <cudaq/algorithms/sample.h>
+#include <qristal/core/cudaq/ir_converter.hpp>
+#include <qristal/core/cudaq/sim_pool.hpp>
 #include <cudaq.h>
 
 namespace qristal {
@@ -60,9 +60,9 @@ void cudaq_acc::updateConfiguration(const xacc::HeterogeneousMap &config) {
     m_measure_sample_method = config.getString("measurement-sampling-method");
     setEnvVar(m_measure_sample_method, "CUDAQ_MEASURE_SAMPLING_METHOD");
   }
-  if (config.keyExists<std::vector<size_t>>("gpu-device-id")) {
-    m_gpu_device_id = config.get<std::vector<size_t>>("gpu-device-id");
-    setEnvVar(m_gpu_device_id, "CUDAQ_GPU_DEVICE_ID");
+  if (config.keyExists<std::vector<size_t>>("gpu-device-ids")) {
+    m_gpu_device_ids = config.get<std::vector<size_t>>("gpu-device-ids");
+    setEnvVar(m_gpu_device_ids, "CUDAQ_GPU_DEVICE_IDS");
   }
 }
 
@@ -74,13 +74,13 @@ void cudaq_acc::freeEnvVars() {
   unsetenv("CUDAQ_ABS_CUTOFF");
   unsetenv("CUDAQ_RELATIVE_CUTOFF");
   unsetenv("CUDAQ_MEASURE_SAMPLING_METHOD");
-  unsetenv("CUDAQ_GPU_DEVICE_ID");
+  unsetenv("CUDAQ_GPU_DEVICE_IDS");
 }
 
 const std::vector<std::string> cudaq_acc::configurationKeys() {
   return {"shots", "initial-bond-dim", "initial-kraus-dim", "max-bond-dim", "max-kraus-dim",
           "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-method",
-          "noise-model", "gpu-device-id"};
+          "noise-model", "gpu-device-ids"};
 }
 
 void cudaq_acc::execute(

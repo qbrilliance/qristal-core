@@ -2,12 +2,12 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/circuits/amplitude_amplification.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/circuits/amplitude_amplification.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <assert.h>
-#include "xacc.hpp"
+#include <xacc.hpp>
 
 namespace qristal {
 bool AmplitudeAmplification::expand(

@@ -91,16 +91,15 @@ This model is applicable to:
 ### C++
 This example can be found at `examples/cpp/noise_model`, along with a `CMakeLists.txt` file for building it.
 ```C++
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 int main(int argc, char * argv[])
 {
-    auto my_sim = qristal::session();
-    my_sim.init();          // Set up meaningful defaults
-    my_sim.set_qn(2);       // 2 qubits
-    my_sim.set_acc("aer");  // Aer simulator selected
-    my_sim.set_noise(true); // Set this to true for noise models to be active
-    my_sim.set_noise_model("default"); // Also available from the Qristal Emulator: "qb-nm1" , "qb-nm2" , "qb-qdk1"
-    my_sim.set_instring(R"(
+    qristal::session my_sim;
+    my_sim.qn = 2;       // 2 qubits
+    my_sim.acc = "aer";  // Aer simulator selected
+    my_sim.noise = true; // Set this to true for noise models to be active
+    my_sim.noise_model = std::make_shared<qristal::NoiseModel>("default", my_sim.qn); // Also available from the Qristal Emulator: "qb-nm1" , "qb-nm2", "qb-nm3", "qb-qdk1"
+    my_sim.instring = R"(
        OPENQASM 2.0;
        include "qelib1.inc";
        creg c[2];
@@ -108,9 +107,9 @@ int main(int argc, char * argv[])
        cx q[0],q[1];
        measure q[1] -> c[1];
        measure q[0] -> c[0];
-       )");
+       )";
     my_sim.run();
-    std::cout << my_sim.results()[0][0] << std::endl;
+    std::cout << my_sim.results() << std::endl;
     return 0;
 }
 ```
@@ -119,11 +118,10 @@ This example can be found at `examples/python/noise_model.py`.
 ```python
 import qristal.core
 my_sim = qristal.core.session()
-my_sim.init()
 my_sim.qn = 2
 my_sim.acc = "aer"
 my_sim.noise = True
-my_sim.noise_model = "default"
+my_sim.noise_model = qristal.core.NoiseModel("default", my_sim.qn)
 my_sim.instring = '''
     OPENQASM 2.0;
     include "qelib1.inc";
@@ -134,7 +132,7 @@ my_sim.instring = '''
     measure q[0] -> c[0];
 '''
 my_sim.run()
-print(my_sim.results[0][0])
+print(my_sim.results)
 ```
 
 # User defined noise models

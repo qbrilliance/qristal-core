@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
-#include "qristal/core/cudaq/sim_pool.hpp"
-#include "common/PluginUtils.h"
-#include "nvqir/CircuitSimulator.h"
+#include <qristal/core/cudaq/sim_pool.hpp>
+#include <common/PluginUtils.h>
+#include <nvqir/CircuitSimulator.h>
 #include <filesystem>
 #include <iostream>
 #include <link.h>

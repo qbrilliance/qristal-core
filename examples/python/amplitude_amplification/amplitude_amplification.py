@@ -7,7 +7,7 @@ import numpy as np
 import timeit
 print("Libraries imported successfully!")
 s = qristal.core.session()
-s.init()
+s.sn = 1000
 
 print("In this example we want to use amplitude amplification to search for")
 print("the state |psi> = |101> - |110> within the equal superposition state.")
@@ -61,7 +61,8 @@ print("Measurements added!")
 print("Running circuit...")
 
 start = timeit.default_timer()
-s.ir_target = full_circuit
+s.irtarget = full_circuit
+s.qn = full_circuit.num_qubits()
 s.run()
 end = timeit.default_timer()
 print("Circuit executed!")
@@ -71,7 +72,7 @@ print("Now let's see the results. We want to measure the state |psi>,")
 print("so we expect measurements of '101' and '110' to dominate.")
 
 print("Result:")
-print(s.results[0][0])
+print(s.results)
 
 print("Success!")
 

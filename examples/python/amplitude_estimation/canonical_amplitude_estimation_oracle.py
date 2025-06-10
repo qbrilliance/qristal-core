@@ -8,8 +8,6 @@ import numpy as np
 import qristal.core
 from qristal.core import run_canonical_ae_with_oracle
 
-s = qristal.core.session()
-s.init()
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))
 

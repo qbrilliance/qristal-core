@@ -1,8 +1,8 @@
 #pragma once
 #include <pybind11/pybind11.h>
 
-#include "qristal/core/python/py_benchmark_workflows.hpp"
-#include "qristal/core/python/py_benchmark_metrics.hpp"
+#include <qristal/core/python/py_benchmark_workflows.hpp>
+#include <qristal/core/python/py_benchmark_metrics.hpp>
 
 namespace qristal {
   // Bind qristal::benchmark::Task class to Python API.

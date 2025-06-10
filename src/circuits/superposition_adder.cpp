@@ -2,12 +2,12 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/superposition_adder.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/superposition_adder.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <assert.h>
 #include <memory>
-#include "xacc.hpp"
+#include <xacc.hpp>
 
 namespace qristal {
 bool SuperpositionAdder::expand(const xacc::HeterogeneousMap &runtimeOptions) {

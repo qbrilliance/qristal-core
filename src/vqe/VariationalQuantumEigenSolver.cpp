@@ -1,10 +1,10 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "Algorithm.hpp"
-#include "AlgorithmGradientStrategy.hpp"
-#include "ObservableTransform.hpp"
-#include "xacc.hpp"
-#include "xacc_plugin.hpp"
-#include "xacc_service.hpp"
+#include <Algorithm.hpp>
+#include <AlgorithmGradientStrategy.hpp>
+#include <ObservableTransform.hpp>
+#include <xacc.hpp>
+#include <xacc_plugin.hpp>
+#include <xacc_service.hpp>
 #include <complex>
 #include <iomanip>
 #include <cassert>

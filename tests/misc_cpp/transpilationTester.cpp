@@ -1,41 +1,36 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/session.hpp"
+#include <qristal/core/session.hpp>
 #include <gtest/gtest.h>
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/backends/qb_hardware/qb_visitor.hpp"
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
 
 TEST(transpilationTester, checkCZOptimization) {
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
-  // Set up sensible default parameters
-  my_sim.init();
-  my_sim.set_qn(2);
-  my_sim.set_instring(R"(
-OPENQASM 2.0;
-include "qelib1.inc";
-qreg q[2];
-h q[1];
-CX q[0], q[1];
-h q[1];
-)");
-  // Only optimization is enabled: check that it can optimize this circuit to a
-  // single CZ.
-  my_sim.set_nooptimise(false);
-  my_sim.set_noplacement(true);
-  my_sim.set_execute_circuit(false);
+  auto my_sim = qristal::session();
+  my_sim.qn = 2;
+  my_sim.instring = R"(
+    OPENQASM 2.0;
+    include "qelib1.inc";
+    qreg q[2];
+    h q[1];
+    CX q[0], q[1];
+    h q[1];
+    )";
+  // Only optimization is enabled: check that it can optimize this circuit to a single CZ.
+  my_sim.nooptimise = false;
+  my_sim.noplacement = true;
+  my_sim.execute_circuit = false;
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
-  const std::string transpiled_circuit_qasm =
-      my_sim.get_out_transpiled_circuits()[0][0];
+  const std::string transpiled_circuit_qasm = my_sim.transpiled_circuit();
   std::cout << "Transpiled circuit: \n" << transpiled_circuit_qasm << "\n";
   // recompile the qasm string for validation
   auto compiler = xacc::getCompiler("staq");
-  auto program =
-      compiler->compile(transpiled_circuit_qasm, nullptr)->getComposites()[0];
+  auto program = compiler->compile(transpiled_circuit_qasm, nullptr)->getComposites()[0];
   // Expect a single "CZ" gate
   EXPECT_EQ(program->nInstructions(), 1);
   EXPECT_EQ(program->getInstruction(0)->name(), "CZ");
@@ -43,30 +38,28 @@ h q[1];
 
 TEST(transpilationTester, checkCZPlacement) {
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
-  // Set up sensible default parameters
-  my_sim.init();
-  my_sim.set_qn(2);
-  my_sim.set_instring(R"(
-OPENQASM 2.0;
-include "qelib1.inc";
-qreg q[2];
-cz q[0], q[1];
-)");
+  auto my_sim = qristal::session();
+  my_sim.qn = 2;
+  my_sim.acc = "aer";
+  my_sim.instring = R"(
+    OPENQASM 2.0;
+    include "qelib1.inc";
+    qreg q[2];
+    cz q[0], q[1];
+    )";
   // Enable only placement
-  my_sim.set_nooptimise(true);
-  my_sim.set_noplacement(false);
-  my_sim.set_execute_circuit(false);
+  my_sim.nooptimise = true;
+  my_sim.noise = true;
+  my_sim.noplacement = false;
+  my_sim.execute_circuit = false;
   std::cout << "About to run quantum program..." << std::endl;
   my_sim.run();
 
-  const std::string transpiled_circuit_qasm =
-      my_sim.get_out_transpiled_circuits()[0][0];
+  const std::string transpiled_circuit_qasm = my_sim.transpiled_circuit();
   std::cout << "Transpiled circuit: \n" << transpiled_circuit_qasm << "\n";
   // recompile the qasm string for validation
   auto compiler = xacc::getCompiler("staq");
-  auto program =
-      compiler->compile(transpiled_circuit_qasm, nullptr)->getComposites()[0];
+  auto program = compiler->compile(transpiled_circuit_qasm, nullptr)->getComposites()[0];
   // Expect it is still a single "CZ" gate
   EXPECT_EQ(program->nInstructions(), 1);
   EXPECT_EQ(program->getInstruction(0)->name(), "CZ");

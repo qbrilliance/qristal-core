@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/passes/swap_placement_pass.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "xacc.hpp"
+#include <qristal/core/passes/swap_placement_pass.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <xacc.hpp>
 
 namespace {
 class DummyAccelerator : public xacc::Accelerator {

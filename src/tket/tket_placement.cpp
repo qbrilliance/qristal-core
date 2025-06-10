@@ -7,23 +7,23 @@
 #include <nlohmann/json.hpp>
 
 // XACC
-#include "IRTransformation.hpp"
-#include "NoiseModel.hpp"
-#include "xacc_plugin.hpp"
-#include "xacc_service.hpp"
+#include <IRTransformation.hpp>
+#include <NoiseModel.hpp>
+#include <xacc_plugin.hpp>
+#include <xacc_service.hpp>
 
 // TKET
-#include "Mapping/MappingManager.hpp"
-#include "Mapping/RoutingMethod.hpp"
-#include "Placement/Placement.hpp"
-#include "Predicates/CompilerPass.hpp"
-#include "Predicates/PassGenerators.hpp"
-#include "Predicates/PassLibrary.hpp"
+#include <Mapping/MappingManager.hpp>
+#include <Mapping/RoutingMethod.hpp>
+#include <Placement/Placement.hpp>
+#include <Predicates/CompilerPass.hpp>
+#include <Predicates/PassGenerators.hpp>
+#include <Predicates/PassLibrary.hpp>
 
 // Qristal
-#include "qristal/core/passes/noise_aware_placement_config.hpp"
-#include "qristal/core/tket/tket_ir_converter.hpp"
-#include "qristal/core/tket/tket_placement.hpp"
+#include <qristal/core/passes/noise_aware_placement_config.hpp>
+#include <qristal/core/tket/tket_ir_converter.hpp>
+#include <qristal/core/tket/tket_placement.hpp>
 
 namespace qristal {
 

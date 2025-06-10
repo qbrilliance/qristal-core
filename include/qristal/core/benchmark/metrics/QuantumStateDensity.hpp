@@ -2,13 +2,16 @@
 #ifndef _QB_BENCHMARK_QUANTUMSTATEDENSITY_
 #define _QB_BENCHMARK_QUANTUMSTATEDENSITY_
 
-#include <ranges>
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
+// Qristal
+#include <qristal/core/benchmark/Serializer.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
 
-#include "qristal/core/benchmark/Serializer.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+// STL
+#include <ranges>
+
+// range v3
+#include <range/v3/view/zip.hpp>
 
 namespace qristal
 {
@@ -18,8 +21,8 @@ namespace qristal
         * @brief Pure virtual python bindings helper class not used in the C++ implementation.
         */
         class QuantumStateDensityPythonBase {
-            public: 
-                virtual ~QuantumStateDensityPythonBase() = default; 
+            public:
+                virtual ~QuantumStateDensityPythonBase() = default;
                 virtual std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const = 0;
         };
 
@@ -67,12 +70,12 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased QuantumStateDensity handle exposed in the python bindings. 
+        * @brief The type-erased QuantumStateDensity handle exposed in the python bindings.
         */
         class QuantumStateDensityPython {
             public:
                 //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumStateTomographyPython
-                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessTomography objects. 
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumProcessTomography objects.
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumStateDensityPython(QuantumStateTomographyPython& qstpython);
 
@@ -81,7 +84,7 @@ namespace qristal
                 }
 
             private:
-                std::unique_ptr<QuantumStateDensityPythonBase> workflow_ptr_; 
+                std::unique_ptr<QuantumStateDensityPythonBase> workflow_ptr_;
         };
 
         template <QSTWorkflow QSTWORKFLOW>
@@ -100,7 +103,7 @@ namespace qristal
 
             //(3) assemble density matrix for each workflow circuit of each selected timestamp
             std::vector<ComplexMatrix> densities;
-            for (const auto & [measured_bitcounts, timestamp] : std::ranges::views::zip(measured_bitcounts_collection, timestamps)) {
+            for (const auto & [measured_bitcounts, timestamp] : ::ranges::views::zip(measured_bitcounts_collection, timestamps)) {
                 timestamp2densities[timestamp] = workflow_.assemble_densities(measured_bitcounts);
             }
             return timestamp2densities;

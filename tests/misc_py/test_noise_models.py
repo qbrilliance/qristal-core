@@ -158,7 +158,6 @@ def qb_pauli_measurement_matrix(label: str, outcome: int) -> np.array:
 
 def get_session_from_qiskit_circuits(circuits, backend, no_shots):
     s = qristal.core.session()
-    s.init()
     s.sn = no_shots
     s.acc = backend
     s.instring.clear()

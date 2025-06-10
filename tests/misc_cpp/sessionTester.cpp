@@ -1,15 +1,14 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/session.hpp"
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/session.hpp>
 #include <gtest/gtest.h>
-#include "qristal/core/circuit_builder.hpp"
 #include <random>
 
 TEST(sessionTester, test_small_angles_xasm_compilation) {
-  auto my_sim = qristal::session(false);
-  // Set up sensible default parameters
-  my_sim.init();
-  my_sim.set_qn(1);
-  my_sim.set_acc("aer");
+  auto my_sim = qristal::session();
+  my_sim.sn = 1000;
+  my_sim.qn = 1;
+  my_sim.acc = "aer";
   qristal::CircuitBuilder my_circuit;
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -24,30 +23,25 @@ TEST(sessionTester, test_small_angles_xasm_compilation) {
   }
   my_circuit.Measure(0);
   // Set the input circuit
-  my_sim.set_irtarget_m(my_circuit.get());
-  my_sim.set_nooptimise(true);
-  my_sim.set_noplacement(true);
+  my_sim.irtarget = my_circuit.get();
+  my_sim.nooptimise = true;
+  my_sim.noplacement = true;
   EXPECT_NO_THROW(my_sim.run());
 }
 
 TEST(sessionTester, test_qft4) {
-  std::cout << "* qft4: Execute 4-qubit Quantum Fourier Transform, noiseless, "
-               "ExaTN-MPS"
-            << std::endl;
+  std::cout << "* qft4: Execute noiseless 4-qubit Quantum Fourier Transform and test seed setting." << std::endl;
 
   // Start a Qristal session.
-  auto s = qristal::session(false);
-
-  s.init(); // setup defaults = 12 qubits, 1024 shots, tnqvm-exatn-mps
-            // back-end
-
+  auto s = qristal::session();
   // Override defaults
-  s.set_qn(4);
-  s.set_sn(1024);
-  s.set_xasm(true);  // Use XASM circuit format to access XACC's qft()
-  s.set_seed(23);
-  // targetCircuit: contains the quantum circuit that will be processed/executed
-  auto targetCircuit = R"(
+  s.debug = true;
+  s.qn = 4;
+  s.sn = 1024;
+  s.input_language = qristal::circuit_language::XASM;  // Use XASM circuit format to access XACC's qft()
+  s.nooptimise = true;
+  s.seed = 23;
+  s.instring = R"(
     __qpu__ void qristal_circuit(qbit q) {
           qft(q, {{"nq",4}});
           Measure(q[3]);
@@ -56,25 +50,20 @@ TEST(sessionTester, test_qft4) {
           Measure(q[0]);
     }
   )";
-  s.set_instring(targetCircuit);
-  // Run the circuit on the back-end
+  // Run the circuit on the backend
   s.run();
 
   // Get the Z-operator expectation value
-  auto iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
-  double exp_val = iter->second;
+  double exp_val = s.z_op_expectation();
   // Test the value against assertions
-  std::cout << "4-qubit noiseless QFT Z-operator expectation value: " << exp_val
-            << std::endl;
-  assert(std::abs(-0.0390625 - exp_val) < 1e-9);
-
+  std::cout << "4-qubit noiseless QFT Z-operator expectation value: " << exp_val << std::endl;
+  EXPECT_DOUBLE_EQ(-0.0390625, exp_val);
 }
 
 TEST(sessionTester, test_parametrized_run_1) {
   /***
   Tests the run method with parametrized circuits in the session class
-  Also tests the get_out_probs getter function
+  Also tests the prob_vector getter function
   Input state: |00>
   All parameters set to 0
   Circuit: "yz" ansatz with 2 reps
@@ -93,27 +82,26 @@ TEST(sessionTester, test_parametrized_run_1) {
   std::vector<double> param_vec(circuit.num_free_params());
 
   qristal::session my_sim;
-  my_sim.init();
-  my_sim.set_qn(num_qubits);
-  my_sim.set_sn(1000);
-  my_sim.set_acc("qpp");
-  my_sim.set_seed(1000);
-  my_sim.set_irtarget_m(circuit.get());
-  my_sim.set_calc_jacobian(true);
-  my_sim.set_parameter_vector(param_vec);
+  my_sim.qn = num_qubits;
+  my_sim.sn = 1000;
+  my_sim.acc = "qpp";
+  my_sim.seed = 1000;
+  my_sim.irtarget = circuit.get();
+  my_sim.calc_gradients = true;
+  my_sim.circuit_parameters = param_vec;
   my_sim.run();
-  std::vector<double> stats =  my_sim.get_out_probs()[0][0];
+  std::vector<double> bitstring_probabilities = my_sim.all_bitstring_probabilities();
 
-  EXPECT_NEAR(std::accumulate(stats.begin(), stats.end(), 0.0),
+  EXPECT_NEAR(std::accumulate(bitstring_probabilities.begin(), bitstring_probabilities.end(), 0.0),
                    1.0, 1e-6);  // probs sum to 1
 
   // Verify run
-  EXPECT_NEAR(stats[0], 1.0, 1e-6);
+  EXPECT_NEAR(bitstring_probabilities[0], 1.0, 1e-6);
 }
 
 TEST(sessionTester, test_parametrized_run_2) {
   /***./CI
-  Tests the run method and the get_out_counts methods in the session class with pre-determined parameters
+  Tests the run method and the all_bitstring_counts methods in the session class with pre-determined parameters
 
   Input state: |++>
   RX Parameter Values: pi/2
@@ -145,20 +133,19 @@ TEST(sessionTester, test_parametrized_run_2) {
     param_vec[i] = M_PI_4;
   }
 
-  // Repeat all tests with out_counts et al indexed by both MSB and LSB, to show that it has no effect.
+  // Repeat all tests with all_bitstring_counts et al indexed by both MSB and LSB, to show that it has no effect.
   for (bool MSB : {true, false}) {
-    qristal::session my_sim(false, MSB);
-    my_sim.init();
-    my_sim.set_qn(num_qubits);
-    my_sim.set_sn(shots);
-    my_sim.set_acc("qpp");
-    my_sim.set_seed(1000);
-    my_sim.set_irtarget_m(circuit.get());
-    my_sim.set_parameter_vector(param_vec);
-    my_sim.set_calc_out_counts(true);
+    qristal::session my_sim(MSB);
+    my_sim.qn = num_qubits;
+    my_sim.sn = shots;
+    my_sim.acc = "qpp";
+    my_sim.seed = 1000;
+    my_sim.irtarget = circuit.get();
+    my_sim.circuit_parameters = param_vec;
+    my_sim.calc_all_bitstring_counts = true;
     my_sim.run();
-    std::vector<int> counts = my_sim.get_out_counts()[0][0];
-    std::map<std::vector<bool>,int> results = my_sim.results()[0][0];
+    std::vector<int> counts = my_sim.all_bitstring_counts();
+    std::map<std::vector<bool>,int> results = my_sim.results();
 
     // Verify that get_counts has an entry for every possible bitstring
     EXPECT_EQ(counts.size(), std::pow(2, num_qubits));  // 2^n outcomes
@@ -181,7 +168,7 @@ TEST(sessionTester, test_parametrized_run_2) {
 
 TEST(sessionTester, test_gradients) {
   /***
-  Tests running gradient calculations and the get_out_prob_jacobians methods in the session
+  Tests running gradient calculations and the all_bitstring_probability_gradients methods in the session
   class
 
   Input state is |00>
@@ -211,19 +198,18 @@ TEST(sessionTester, test_gradients) {
   }
 
   qristal::session my_sim;
-  my_sim.init();
-  my_sim.set_qn(num_qubits);
-  my_sim.set_sn(1000);
-  my_sim.set_acc("qpp");
-  my_sim.set_calc_jacobian(true);
-  my_sim.set_seed(1000);
-  my_sim.set_irtarget_m(circuit.get());
-  my_sim.set_parameter_vector(param_vec);
+  my_sim.qn = num_qubits;
+  my_sim.sn = 1000;
+  my_sim.acc = "qpp";
+  my_sim.calc_gradients = true;
+  my_sim.seed = 1000;
+  my_sim.irtarget = circuit.get();
+  my_sim.circuit_parameters = param_vec;
 
   my_sim.run();
-  qristal::Table2d<double> gradients = my_sim.get_out_prob_jacobians()[0][0];
+  std::vector<std::vector<double>> gradients = my_sim.all_bitstring_probability_gradients();
 
-  // Verify get_out_prob_jacobians
+  // Verify all_bitstring_probability_gradients
   size_t num_outputs = std::pow(2, num_qubits);
   EXPECT_EQ(gradients.size(), num_free_params);
   for (auto row: gradients) {
@@ -255,12 +241,10 @@ TEST(sessionTester, test_draw_shot) {
   using qristal::operator <<;
 
   qristal::session my_sim;
-  my_sim.init();
-  my_sim.set_acc("qpp");
-  my_sim.set_qn(4);
-  my_sim.set_sn(1000);
-
-  const std::string targetCircuit = R"(
+  my_sim.acc = "qpp";
+  my_sim.qn = 4;
+  my_sim.sn = 1000;
+  my_sim.instring = R"(
     __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
     {
       OPENQASM 2.0;
@@ -276,14 +260,12 @@ TEST(sessionTester, test_draw_shot) {
       measure q[3] -> c[3];
     }
     )";
-  my_sim.set_instring(targetCircuit);
-
   my_sim.run();
-  std::map<std::vector<bool>, int> qristal_results = my_sim.results()[0][0];
+  std::map<std::vector<bool>, int> qristal_results = my_sim.results();
   std::map<std::vector<bool>, int> my_results;
-  for (int i = 0; i < my_sim.get_sns()[0][0]; i++) my_results[my_sim.draw_shot(0,0)]++;
+  for (int i = 0; i < my_sim.sn; i++) my_results[my_sim.draw_shot()]++;
   EXPECT_EQ(qristal_results, my_results);
-  EXPECT_THROW(my_sim.draw_shot(0,0), std::out_of_range);
+  EXPECT_THROW(my_sim.draw_shot(), std::out_of_range);
 }
 
 TEST(sessionTester, test_state_vec_order) {
@@ -294,24 +276,23 @@ TEST(sessionTester, test_state_vec_order) {
   circuit.X(0);
   circuit.MeasureAll(num_qubits);
 
-  // Repeat all tests with out_counts and state vector indexed by both MSB and LSB, to show that it has no effect.
+  // Repeat all tests with all_bitstring_counts and state vector indexed by both MSB and LSB, to show that it has no effect.
   for (bool MSB : {true, false}) {
-    qristal::session my_sim(false, MSB);
-    my_sim.init();
-    my_sim.set_qn(num_qubits);
-    my_sim.set_sn(shots);
-    my_sim.set_acc("qpp");
-    my_sim.set_seed(1000);
-    my_sim.set_irtarget_m(circuit.get());
-    my_sim.set_calc_out_counts(true);
-    my_sim.get_state_vec(true);
+    qristal::session my_sim(MSB);
+    my_sim.qn = num_qubits;
+    my_sim.sn = shots;
+    my_sim.acc = "qpp";
+    my_sim.seed = 1000;
+    my_sim.irtarget = circuit.get();
+    my_sim.calc_all_bitstring_counts = true;
+    my_sim.calc_state_vec = true;
     my_sim.run();
 
     // Check that the state vector and counts for MSB and LSB have the same non-zero valued index
-    std::shared_ptr<std::vector<std::complex<double>>> stateVec = my_sim.get_state_vec_raw();
-    std::vector<int> counts = my_sim.get_out_counts()[0][0];
+    std::vector<std::complex<double>> stateVec = my_sim.state_vec();
+    std::vector<int> counts = my_sim.all_bitstring_counts();
     for (size_t i = 0; i < counts.size(); i++) {
-      EXPECT_EQ(shots * stateVec->at(i).real(), counts[i]);
+      EXPECT_EQ(shots * stateVec.at(i).real(), counts[i]);
     }
   }
 }

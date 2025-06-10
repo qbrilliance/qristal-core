@@ -111,11 +111,11 @@ def main(arguments):
   # 4 qubits
   n = 4
 
-  # Set up meaningful defaults
-  my_sim.init()
-
   # Set the number of qubits
   my_sim.qn = n
+
+  # Set the number of shots
+  my_sim.sn = 1000
 
   # Aer simulator selected
   my_sim.acc = "aer"
@@ -145,7 +145,7 @@ def main(arguments):
   my_sim.run()
 
   # Print results
-  print(my_sim.results[0][0])
+  print(my_sim.results)
 
 #Actual program launched on invocation
 main(sys.argv)

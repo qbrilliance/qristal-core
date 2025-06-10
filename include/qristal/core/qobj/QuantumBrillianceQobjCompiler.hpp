@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "AllGateVisitor.hpp"
-#include "Compiler.hpp"
+#include <AllGateVisitor.hpp>
+#include <Compiler.hpp>
 
 namespace qristal {
 

@@ -4,8 +4,8 @@
  * parameters to generate a noise model object.
  */
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
 
 int main(int argc, char * argv[])
 {
@@ -65,18 +65,15 @@ int main(int argc, char * argv[])
   // Qubit topology
   device_properties.qubit_topology = qubit_topology_list;
 
-  // Create noise model using device properties
-  auto nm = qristal::NoiseModel(device_properties);
-
-  auto s = qristal::session(false);
-  s.init();
-  s.set_qn(nb_qubits);
-  s.set_noise(true);
-  s.set_noise_model(nm);
-  s.set_acc("aer");
+  qristal::session s;
+  s.qn = nb_qubits;
+  s.sn = 100;
+  s.noise = true;
+  s.noise_model = std::make_shared<qristal::NoiseModel>(device_properties);
+  s.acc = "aer";
 
   // Simple Bell circuit
-  s.set_instring(R"(
+  s.instring = R"(
     OPENQASM 2.0;
     include "qelib1.inc";
     creg c[2];
@@ -84,11 +81,11 @@ int main(int argc, char * argv[])
     cx q[0],q[1];
     measure q[1] -> c[1];
     measure q[0] -> c[0];
-    )");
+    )";
 
   // Execute circuit
   s.run();
 
   // Print results
-  std::cout << "Results:" << std::endl << s.results()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << s.results() << std::endl;
 }

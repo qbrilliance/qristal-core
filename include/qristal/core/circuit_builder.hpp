@@ -1,14 +1,14 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "CompositeInstruction.hpp"
-#include "IRProvider.hpp"
-#include "InstructionIterator.hpp"
-#include "Accelerator.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "Circuit.hpp"
-#include "GateModifier.hpp"
+#include <CompositeInstruction.hpp>
+#include <IRProvider.hpp>
+#include <InstructionIterator.hpp>
+#include <Accelerator.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <Circuit.hpp>
+#include <GateModifier.hpp>
 #include <assert.h>
 #include <string>
 

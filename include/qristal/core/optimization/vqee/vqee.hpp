@@ -14,17 +14,17 @@
 #include <iomanip>
 
 // XACC
-#include "PauliOperator.hpp"
-#include "ObservableTransform.hpp"
-#include "Utils.hpp"
-#include "xacc.hpp"
-#include "xacc_observable.hpp"
-#include "xacc_service.hpp"
-#include "AcceleratorDecorator.hpp"
+#include <PauliOperator.hpp>
+#include <ObservableTransform.hpp>
+#include <Utils.hpp>
+#include <xacc.hpp>
+#include <xacc_observable.hpp>
+#include <xacc_service.hpp>
+#include <AcceleratorDecorator.hpp>
 
 // Qristal
-#include "qristal/core/optimization/vqee/mpi_wrapper.hpp"
-#include "qristal/core/optimization/vqee/case_generator.hpp"
+#include <qristal/core/optimization/vqee/mpi_wrapper.hpp>
+#include <qristal/core/optimization/vqee/case_generator.hpp>
 
 namespace qristal::vqee {
 

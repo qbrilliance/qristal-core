@@ -2,19 +2,21 @@ import qristal.core
 import numpy as np
 import timeit
 
-n_qbits = 3
 s = qristal.core.session()
-s.init()
 s.sn = 1024
-s.qn = n_qbits
-s.acc = "qsim"
+s.qn = 3
 
-# Uncomment the following lines to introduce noise to the simulation.
+# Use the statevector emulator backend.
 # You will need to have the Qristal emulator installed for this to work.
-#s.noise = True
-#nm = qristal.core.NoiseModel("qb-nm1", n_qbits)
-#s.noise_model = nm
-#s.gpu_device_id = [0] # Uncomment to use GPU-enabled cirq-qsim, otherwise cirq-qsim will use its CPU backend
+s.acc = "qb-statevector"
+
+# Noise modelling
+s.noise = True
+nm = qristal.core.NoiseModel("qb-nm1", s.qn)
+s.noise_model = nm
+
+# Uncomment to use GPU-enabled qb-statevector, otherwise qb-statevector will use its CPU backend
+#s.gpu_device_ids = [0]
 
 # In this test we use generalised mcx to
 # perform a standard mcx on |111>
@@ -33,11 +35,13 @@ circ.x(2)
 
 # add generalised mcx
 circ.generalised_mcx(target_qubit, control_qubits)
+# turn off circuit optimisation, as it fails for the generalised_mcx gate.
+s.nooptimise = True
 
 # measure
 circ.measure_all()
 
 # run the circuit and check results
-s.ir_target = circ
+s.irtarget = circ
 s.run()
-print(s.results[0][0])
+print(s.results)

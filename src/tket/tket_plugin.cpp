@@ -1,12 +1,12 @@
 
 // Copyright Quantum Brilliance Pty Ltd
 
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
+#include <cppmicroservices/BundleActivator.h>
+#include <cppmicroservices/BundleContext.h>
+#include <cppmicroservices/ServiceProperties.h>
 
-#include "qristal/core/tket/tket_circuit_opt.hpp"
-#include "qristal/core/tket/tket_placement.hpp"
+#include <qristal/core/tket/tket_circuit_opt.hpp>
+#include <qristal/core/tket/tket_placement.hpp>
 
 using namespace cppmicroservices;
 

@@ -1,7 +1,7 @@
-#include "qristal/core/circuits/pseudo_trace_amplitude_estimation.hpp"
-#include "xacc.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/pseudo_trace_amplitude_estimation.hpp>
+#include <xacc.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <assert.h>
 
 namespace qristal {

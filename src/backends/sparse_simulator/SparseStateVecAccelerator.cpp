@@ -1,17 +1,17 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qristal/core/backends/sparse_simulator/SparseSimulator.h"
-#include "qristal/core/backends/sparse_simulator/types.h"
+#include <qristal/core/backends/sparse_simulator/SparseSimulator.h>
+#include <qristal/core/backends/sparse_simulator/types.h>
 
 // XACC
-#include "Accelerator.hpp"
-#include "AllGateVisitor.hpp"
-#include "CommonGates.hpp"
-#include "CountGatesOfTypeVisitor.hpp"
-#include "GateModifier.hpp"
-#include "xacc.hpp"
-#include "xacc_plugin.hpp"
+#include <Accelerator.hpp>
+#include <AllGateVisitor.hpp>
+#include <CommonGates.hpp>
+#include <CountGatesOfTypeVisitor.hpp>
+#include <GateModifier.hpp>
+#include <xacc.hpp>
+#include <xacc_plugin.hpp>
 
 // STL
 #include <cassert>
@@ -237,7 +237,7 @@ private:
 class SparseSimAccelerator : public xacc::Accelerator,
                              public xacc::Cloneable<xacc::Accelerator> {
 private:
-  int m_shots = 1024;
+  size_t m_shots = 0;
 
 public:
   virtual const std::string name() const override { return "sparse-sim"; }
@@ -246,7 +246,6 @@ public:
            "representation.";
   }
   virtual void initialize(const xacc::HeterogeneousMap &params = {}) override {
-    m_shots = 1024;
     if (params.keyExists<int>("shots")) {
       m_shots = params.get<int>("shots");
     }

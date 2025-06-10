@@ -1,15 +1,16 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-//#include "Circuit.hpp"
-#include "qristal/core/circuit_builders/exponent.hpp"
-//#include "xacc.hpp"
-//#include "xacc_service.hpp"
+
+#include <qristal/core/circuit_builders/exponent.hpp>
+
 #include <cassert>
 #include <cstdlib>
-#include <gtest/gtest.h>
 #include <iostream>
 #include <ostream>
 #include <random>
-//#include <bitset>
+
+#include <gtest/gtest.h>
+
+using namespace std;
 
 TEST(ExponentCircuitTester_1, checkSimple) {
   // Test Exponent: input a bitstring to compare to BestScore.

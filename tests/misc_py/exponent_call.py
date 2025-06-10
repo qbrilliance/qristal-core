@@ -38,8 +38,7 @@ def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_
     print("HOWDY: Comparator circuit:\n")
     print("Testing log_value:", log_value)
     #print(circuit->toString(), '\n'
-    s.ir_target = circ
-    s.init()
+    s.irtarget = circ
     #s.nooptimise = True
     #s.noplacement = True
     #s.notiming = True
@@ -49,7 +48,7 @@ def call_circuit(log_value,qubits_log,qubits_exponent=[],qubits_ancilla=[], min_
     s.rn = 1
     s.qn = nb_qubits
     s.run()
-    res = s.results[0][0]
+    res = s.results
 
     expected_measurement = ""
     exp_value = pow(2,log_value)

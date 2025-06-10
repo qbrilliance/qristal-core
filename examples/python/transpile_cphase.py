@@ -22,16 +22,16 @@ transpiled_circ_aer = transpile(circ_aer, basis_gates =["rx","ry","cz"], optimiz
 
 # Get transpiled circuit from qb_visitor
 my_sim = qristal.core.session()
-my_sim.init()
 my_sim.qn = 2
 my_sim.acc = "qpp"
 my_sim.noplacement = True
 
 circ_qristal = qristal.core.Circuit()
 circ_qristal.cphase(0, 1, theta)
-my_sim.ir_target = circ_qristal
+my_sim.irtarget = circ_qristal
+my_sim.execute_circuit = False
 my_sim.run()
-transpiled_circ_qristal = my_sim.out_transpiled_circuit[0][0]
+transpiled_circ_qristal = my_sim.transpiled_circuit
 
 # Check that both transpiled circuits are the same
 compiler = xacc.getCompiler("staq")

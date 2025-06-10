@@ -3,9 +3,8 @@
  * This example shows how to make your own noise model.
  */
 
-
-#include "qristal/core/session.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
 
 // Build and return a noise model for an n-qubit ring
 qristal::NoiseModel ring_noise_model(size_t nb_qubits)
@@ -55,27 +54,23 @@ int main(int argc, char * argv[])
 {
     qristal::session my_sim;
 
-    // 2 qubits
-    const int n = 2;
-
-    // Set up meaningful defaults
-    my_sim.init();
-
     // Set the number of qubits
-    my_sim.set_qn(n);
+    my_sim.qn = 2;
+
+    // Set the number of shots
+    my_sim.sn = 100;
 
     // Aer simulator selected
-    my_sim.set_acc("aer");
+    my_sim.acc = "aer";
 
     // Set this to true to include noise
-    my_sim.set_noise(true);
+    my_sim.noise = true;
 
     // Create the noise model and hand it over to the session.
-    qristal::NoiseModel my_noise_model = ring_noise_model(n);
-    my_sim.set_noise_model(my_noise_model);
+    my_sim.noise_model = std::make_shared<qristal::NoiseModel>(ring_noise_model(my_sim.qn));
 
     // Define the kernel
-    my_sim.set_instring(R"(
+    my_sim.instring = R"(
        OPENQASM 2.0;
        include "qelib1.inc";
        creg c[2];
@@ -83,13 +78,13 @@ int main(int argc, char * argv[])
        cx q[0],q[1];
        measure q[1] -> c[1];
        measure q[0] -> c[0];
-       )");
+       )";
 
     // Hit it.
     my_sim.run();
 
     // Lookee.
-    std::cout << my_sim.results()[0][0] << std::endl;
+    std::cout << my_sim.results() << std::endl;
 
     // Bye.
     return 0;

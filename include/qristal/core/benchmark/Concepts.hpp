@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "qristal/core/typedefs.hpp"
-#include "qristal/core/benchmark/Task.hpp"
+#include <qristal/core/benchmark/Task.hpp>
 
 namespace qristal
 {
@@ -14,7 +13,7 @@ namespace qristal
         * @brief Concept for the bare minimum executable workflow usable in qristal::benchmark
         *
         * @details Each metric usable in qb::benchmark will require an executable workflow. The latter should contain member functions to
-        * -> execute a set of Task's given as std::vector<Task>  
+        * -> execute a set of Task's given as std::vector<Task>
         */
         template <typename WORKFLOW>
         concept ExecutableWorkflow = requires( WORKFLOW w, std::vector<Task> tasks ) {

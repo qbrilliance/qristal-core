@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "AllGateVisitor.hpp"
-#include "CommonGates.hpp"
-#include "xacc.hpp"
+#include <AllGateVisitor.hpp>
+#include <CommonGates.hpp>
+#include <xacc.hpp>
 
 #include <nlohmann/json.hpp>
 #include <memory>

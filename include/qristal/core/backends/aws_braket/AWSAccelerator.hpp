@@ -4,11 +4,11 @@
 #ifndef QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
 #define QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
 
-#include "qristal/core/remote_async_accelerator.hpp"
-#include "qristal/core/backends/aws_braket/AWSVisitor.hpp"
+#include <qristal/core/remote_async_accelerator.hpp>
+#include <qristal/core/backends/aws_braket/AWSVisitor.hpp>
 
-#include "Accelerator.hpp"
-#include "InstructionIterator.hpp"
+#include <Accelerator.hpp>
+#include <InstructionIterator.hpp>
 
 #include <cstdint>
 #include <fstream>
@@ -43,7 +43,7 @@ namespace xacc
         std::vector<std::pair<int, int>> m_connectivity;
       protected:
 
-        int m_shots;
+        size_t m_shots;
         std::string device_properties_json;
 
       public:
@@ -91,11 +91,11 @@ namespace xacc
         /// Clone the accelerator
         virtual std::shared_ptr<xacc::Accelerator> clone() override;
 
-        /// Return the connectivity graph of the backend 
+        /// Return the connectivity graph of the backend
         virtual std::vector<std::pair<int, int>> getConnectivity() override;
 
         /// Parse connectivity data from device JSON
-        void parseRigettiDeviceConnectivity(const std::string &props_json_str); 
+        void parseRigettiDeviceConnectivity(const std::string &props_json_str);
 
         /// Retrieve properties from Rigetti hardware on AWS
         std::string queryRigettiHardwareProperties(const std::string &backend_arn) const;

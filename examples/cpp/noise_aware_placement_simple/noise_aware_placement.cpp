@@ -1,13 +1,13 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/passes/noise_aware_placement_pass.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "qristal/core/session.hpp"
+#include <qristal/core/passes/noise_aware_placement_pass.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/session.hpp>
 #include <string>
 #include <iostream>
 
 int main()
 {
-  auto my_sim = qristal::session(false);
+  qristal::session my_sim;
   qristal::CircuitBuilder my_circuit;
   // Create a simple Bell state circuit.
   my_circuit.H(0);

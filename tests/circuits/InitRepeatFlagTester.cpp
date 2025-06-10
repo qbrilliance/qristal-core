@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/circuits/init_rep_flag.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "Circuit.hpp"
+#include <qristal/core/circuits/init_rep_flag.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <Circuit.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <bitset>

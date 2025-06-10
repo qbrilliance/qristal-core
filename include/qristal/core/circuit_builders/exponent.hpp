@@ -1,20 +1,22 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-#include "../circuit_builder.hpp"
-#include "CompositeInstruction.hpp"
-#include "Circuit.hpp"
-#include "IRProvider.hpp"
-#include "InstructionIterator.hpp"
-#include "Accelerator.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuit_builder.hpp>
+
+#include <CompositeInstruction.hpp>
+#include <Circuit.hpp>
+#include <IRProvider.hpp>
+#include <InstructionIterator.hpp>
+#include <Accelerator.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <utility>
 #include <vector>
-using namespace std;
+
 
 namespace qristal {
 

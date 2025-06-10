@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1024
 s.qn = 14
 
 # Efficient Encoding: given the input |state>|00...0>
@@ -55,14 +55,13 @@ circ.measure_all()
 #print("OpenQASM:\n", circ.openqasm())
 
 # Run:
-s.ir_target = circ
+s.irtarget = circ
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-res = s.results[0][0]
 
 ###
 # Example 2: use ancilla
@@ -109,14 +108,13 @@ for i in scoring_qubits:
 #print("OpenQASM:\n", circ.openqasm())
 
 # Run:
-s.ir_target = circ
+s.irtarget = circ
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-res = s.results[0][0]
 
 
 # ###

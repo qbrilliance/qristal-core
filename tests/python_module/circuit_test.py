@@ -2,6 +2,7 @@
 
 import pytest
 import numpy as np
+import qristal.core
 
 #helper function returning the U3 gate unitary
 def U3(theta, phi, lamb):
@@ -25,7 +26,7 @@ def CRX(angle):
     [0, 0, 1, 0],
     [0, complex(0, -1.0*s), 0, c]
   ])
-  return result  
+  return result
 
 #helper function returning the CRY gate unitary
 def CRY(angle):
@@ -37,12 +38,11 @@ def CRY(angle):
     [0, 0, 1, 0],
     [0, s, 0, c]
   ])
-  return result   
+  return result
 
 def test_crx():
-  import qristal.core
 
-  #(1) Generate random U3 and CRX angles and calculate ideal state vector 
+  #(1) Generate random U3 and CRX angles and calculate ideal state vector
   U3_0 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
   U3_1 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
   crx_angle = 4 * np.pi * np.random.rand() - 2 * np.pi
@@ -66,23 +66,22 @@ def test_crx():
   circuit_2.measure_all()
 
   # (3) Obtain simulated state vector from both circuits
-  my_sim = qristal.core.session(False)
-  my_sim.init()
+  my_sim = qristal.core.session()
   my_sim.acc = "qpp"
   my_sim.qn = 2
   my_sim.sn = 1
-  my_sim.get_state_vec = True
+  my_sim.calc_state_vec = True
   # non-parameterized circuit
-  my_sim.ir_target = circuit_1
+  my_sim.irtarget = circuit_1
   my_sim.run()
-  statevec_1 = my_sim.get_state_vec_raw
-  # parameterized circuit 
-  my_sim.ir_target = circuit_2
-  my_sim.parameter_list = [crx_angle] 
+  statevec_1 = my_sim.state_vec
+  # parameterized circuit
+  my_sim.irtarget = circuit_2
+  my_sim.circuit_parameters = [crx_angle]
   my_sim.run()
-  statevec_2 = my_sim.get_state_vec_raw
-  
-  # (4) Compare both state vectors to the ideal (correct) one 
+  statevec_2 = my_sim.state_vec
+
+  # (4) Compare both state vectors to the ideal (correct) one
   for i in range(len(ideal_state)):
     assert ideal_state[i].real == pytest.approx(statevec_1[i].real, 1e-3)
     assert ideal_state[i].imag == pytest.approx(statevec_1[i].imag, 1e-3)
@@ -90,9 +89,8 @@ def test_crx():
     assert ideal_state[i].imag == pytest.approx(statevec_2[i].imag, 1e-3)
 
 def test_cry():
-  import qristal.core
 
-  #(1) Generate random U3 and CRX angles and calculate ideal state vector 
+  #(1) Generate random U3 and CRX angles and calculate ideal state vector
   U3_0 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
   U3_1 = 4 * np.pi * np.random.rand(3) - 2 * np.pi
   cry_angle = 4 * np.pi * np.random.rand() - 2 * np.pi
@@ -116,23 +114,22 @@ def test_cry():
   circuit_2.measure_all()
 
   # (3) Obtain simulated state vector from both circuits
-  my_sim = qristal.core.session(False)
-  my_sim.init()
+  my_sim = qristal.core.session()
   my_sim.acc = "qpp"
   my_sim.qn = 2
   my_sim.sn = 1
-  my_sim.get_state_vec = True
+  my_sim.calc_state_vec = True
   # non-parameterized circuit
-  my_sim.ir_target = circuit_1
+  my_sim.irtarget = circuit_1
   my_sim.run()
-  statevec_1 = my_sim.get_state_vec_raw
-  # parameterized circuit 
-  my_sim.ir_target = circuit_2
-  my_sim.parameter_list = [cry_angle] 
+  statevec_1 = my_sim.state_vec
+  # parameterized circuit
+  my_sim.irtarget = circuit_2
+  my_sim.circuit_parameters = [cry_angle]
   my_sim.run()
-  statevec_2 = my_sim.get_state_vec_raw
-  
-  # (4) Compare both state vectors to the ideal (correct) one 
+  statevec_2 = my_sim.state_vec
+
+  # (4) Compare both state vectors to the ideal (correct) one
   for i in range(len(ideal_state)):
     assert ideal_state[i].real == pytest.approx(statevec_1[i].real, 1e-3)
     assert ideal_state[i].imag == pytest.approx(statevec_1[i].imag, 1e-3)
@@ -141,10 +138,8 @@ def test_cry():
 
 def test_qpe():
     print(" Testing Quantum Phase Estimation ")
-    import qristal.core
 
     s = qristal.core.session()
-    s.init()
 
     # Oracle
     oracle = qristal.core.Circuit()
@@ -164,7 +159,9 @@ def test_qpe():
     for i in range(nb_bits_precision):
         circ.measure(i + 1)
     # Run:
-    s.ir_target = circ
+    s.sn = 1024
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
@@ -172,16 +169,15 @@ def test_qpe():
     s.acc = "qpp"
     s.run()
     # Expect that the result is [1,1,0,1] => estimate the phase value of -1.96349540849
-    good_count = s.results[0][0][[1,1,0,1]]
+    good_count = s.results[[1,1,0,1]]
     # Very high count
     assert (good_count > 1000)
 
 def test_amcu():
     print("Testing Multi-Controlled-U With Ancilla")
     import numpy as np
-    import qristal.core
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     # In this example, we perform an mcx gate on all possible bitstrings
     num_qubits = 5
@@ -206,14 +202,15 @@ def test_amcu():
         # Measure and check results
         for j in range(num_qubits):
             circ.measure(j)
-        s.ir_target = circ
+        s.irtarget = circ
+        s.qn = circ.num_qubits()
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        res = s.results[0][0]
+        res = s.results
 
         if bitstring == [1,1,1,1,1]:
             assert([1,1,1,1,0] in res)
@@ -224,11 +221,9 @@ def test_amcu():
 
 def test_equality_checker():
     print(" Testing Equality Checker Circuit")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     ###
     # Testing equality checker
@@ -257,14 +252,15 @@ def test_equality_checker():
             # Measure flag
             circ.measure(flag)
             # Run
-            s.ir_target = circ
+            s.irtarget = circ
+            s.qn = circ.num_qubits()
             s.nooptimise = True
             s.noplacement = True
             s.notiming = True
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            res = s.results[0][0]
+            res = s.results
             # Check results
             assert(len(res) == 1)
             if i == j:
@@ -274,12 +270,9 @@ def test_equality_checker():
 
 def test_canonical_ae():
     print(" Testing Canonical Quantum Amplitude Estimation ")
-    import qristal.core
-    import numpy as np
-    from qristal.core import run_canonical_ae_with_oracle
     import json
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
@@ -294,7 +287,7 @@ def test_canonical_ae():
     bits_precision = 8
 
     # Execute:
-    result = run_canonical_ae_with_oracle(state_prep, oracle, bits_precision,1,1)
+    result = qristal.core.run_canonical_ae_with_oracle(state_prep, oracle, bits_precision,1,1)
     res = json.loads(result)
 
     amplitude_estimate = float(res["AcceleratorBuffer"]["Information"]["amplitude-estimation"])
@@ -302,11 +295,9 @@ def test_canonical_ae():
 
 def test_controlled_swap():
     print("Testing controlled swap")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     ###
     # Testing controlled swap
@@ -346,14 +337,15 @@ def test_controlled_swap():
         circ.measure(qubits_string[i])
 
     # Execute circuit
-    s.ir_target = circ
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(len(res) == 1)
     output_measurement = list(next(iter(res)))
 
@@ -378,11 +370,9 @@ def test_controlled_swap():
 
 def test_controlled_addition():
     print("Testing controlled ripple carry adder")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     ###
     # Testing controlled addition.
@@ -413,14 +403,15 @@ def test_controlled_addition():
     for i in range(len(qubits_sum)):
         circ1.measure(qubits_sum[i])
 
-    s.ir_target = circ1
+    s.irtarget = circ1
+    s.qn = circ1.num_qubits()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[0,0,0]] == 1024)
 
     ###
@@ -442,23 +433,21 @@ def test_controlled_addition():
     for i in range(len(qubits_sum)):
         circ2.measure(qubits_sum[i])
 
-    s.ir_target = circ2
+    s.irtarget = circ2
+    s.qn = circ2.num_qubits()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qpp"
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[1,0,0]] == 1024)
 
 def test_generalised_mcx():
     print("Testing generalised MCX")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
     s.sn = 1024
 
     # In this test we use generalised mcx to
@@ -507,14 +496,15 @@ def test_generalised_mcx():
             circ.measure_all()
 
             # Run the circuit and check results
-            s.ir_target = circ
+            s.irtarget = circ
+            s.qn = circ.num_qubits()
             s.nooptimise = True
             s.noplacement = True
             s.notiming = True
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            res = s.results[0][0]
+            res = s.results
             expected_output = [int(x) for x in input_bitstring[0:2]]
             if int(input_bitstring[0]) == condition[0] and int(input_bitstring[1]) == condition[1]:
                 if input_bitstring[2] == "0":
@@ -533,13 +523,10 @@ def test_MLQAE():
     # https://qiskit.org/documentation/finance/tutorials/00_amplitude_estimation.html
     # i.e., estimate the amplitude of the state:
     # sqrt(1-p)|0> + sqrt(p)|1>
-    import numpy as np
-    import qristal.core
-    from qristal.core import run_MLQAE
     import ast
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     p = 0.24
     theta_p = 2 * np.arcsin(np.sqrt(p))
 
@@ -562,7 +549,7 @@ def test_MLQAE():
     score_qubits = [0]
 
     # Execute:
-    result = run_MLQAE(state_prep, oracle, is_in_good_subspace, score_qubits, total_num_qubits, num_runs, shots)
+    result = qristal.core.run_MLQAE(state_prep, oracle, is_in_good_subspace, score_qubits, total_num_qubits, num_runs, shots)
     res = ast.literal_eval(result)
     amplitude_estimate = float(res["AcceleratorBuffer"]["Information"]["amplitude-estimation"])
     assert(abs(amplitude_estimate-np.sqrt(p)) < 0.01)
@@ -570,11 +557,9 @@ def test_MLQAE():
 
 def test_qaa():
     print(" Testing Quantum Amplitude Amplification (Grover's algorithm) ")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     oracle = qristal.core.Circuit()
     oracle.z(0)
 
@@ -597,14 +582,15 @@ def test_qaa():
         full_circuit.measure_all()
 
         # Run the full amplitude estimation procedure:
-        s.ir_target = full_circuit
+        s.irtarget = full_circuit
+        s.qn = full_circuit.num_qubits()
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
         s.output_oqm_enabled = False
         s.acc = "qpp"
         s.run()
-        res = s.results[0][0]
+        res = s.results
         # Calculate the probability of the marked state
         good_count = 0
         # Must check if "1" is present
@@ -622,11 +608,10 @@ def test_qaa():
 
 def test_ripple_adder():
     print(" Testing Ripple Carry Adder Circuit ")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
+
     # Testing a simple integer adding, checking the full truth table.
 
     # Helper to set the input register to an integer value
@@ -659,14 +644,15 @@ def test_ripple_adder():
             # Measure the result register
             for q in b:
                 circ.measure(q)
-            s.ir_target = circ
+            s.irtarget = circ
+            s.qn = circ.num_qubits()
             s.nooptimise = True
             s.noplacement = True
             s.notiming = True
             s.output_oqm_enabled = False
             s.acc = "qpp"
             s.run()
-            res = s.results[0][0]
+            res = s.results
             # Expected sum result
             expected = i + j
             expected_bit_string = [int(x) for x in f'{expected:0{3}b}'[::-1]]
@@ -676,10 +662,8 @@ def test_ripple_adder():
 
 def test_ripple_adder_superposition():
     print(" Testing Ripple Carry Adder Circuit for superposition ")
-    import qristal.core
-    import numpy as np
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     # Let's do a 2-qubit adder
     nb_qubits = 2
     # partition the qubit indices:
@@ -702,7 +686,8 @@ def test_ripple_adder_superposition():
         circ.measure(q)
     # Check the circuit:
     # circ.print()
-    s.ir_target = circ
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
@@ -710,15 +695,13 @@ def test_ripple_adder_superposition():
     s.acc = "qpp"
     s.run()
     # Expected sum result to be a superposition of 4 values:
-    assert(len(s.results[0][0]) == 4)
+    assert(len(s.results) == 4)
 
 def test_comparator():
     print("Testing quantum bit string comparator")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     # Comparator: compare two bitstrings |BestScore> and |TrialScore>
     # within the quantum register |TrialScore>|flag>|BestScore>|ancilla>
@@ -759,7 +742,8 @@ def test_comparator():
             #print("OpenQASM:\n", circ.openqasm())
 
             # Run:
-            s.ir_target = circ
+            s.irtarget = circ
+            s.qn = circ.num_qubits()
             s.nooptimise = True
             s.noplacement = True
             s.notiming = True
@@ -767,7 +751,7 @@ def test_comparator():
             s.acc = "qpp"
             s.run()
 
-            res = s.results[0][0]
+            res = s.results
             if j > i:
                 expected_bit_string = [1]
             if j <= i:
@@ -778,11 +762,9 @@ def test_comparator():
 
 def test_efficient_encoding():
     print("Testing Efficient Encoding")
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     # Efficient Encoding: given the input |state>|00...0>
     # produces the output |state>|score> where the score for
@@ -816,7 +798,8 @@ def test_efficient_encoding():
     #print("OpenQASM:\n", circ.openqasm())
 
     # Run:
-    s.ir_target = circ
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
@@ -825,19 +808,16 @@ def test_efficient_encoding():
     s.run()
 
     # Get results
-    res = s.results[0][0]
+    res = s.results
     allowed_outputs = [[0,0,0,0,0,0], [1,1,1,1,1,1]]
     for measurement in res:
         assert(list(measurement) in allowed_outputs)
 
 def test_compare_beam_oracle():
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
     s.acc = "aer"
     s.sn = 1024
-    s.init()
 
     ##########################################################################
     #Test 1: SA = |0111>, FA = |01>, FB = |01>
@@ -867,8 +847,9 @@ def test_compare_beam_oracle():
 
     #Run
     s.instring = circ.openqasm()
+    s.qn = circ.num_qubits()
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[0,1,0]] == 1024)
 
     ##########################################################################
@@ -899,18 +880,16 @@ def test_compare_beam_oracle():
 
     #Run
     s.instring = circ.openqasm()
+    s.qn = circ.num_qubits()
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[1,1,1]] == 1024)
 
 def test_multiplication():
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
     s.acc = "qsim"
     s.sn = 1024
-    s.init()
     s.qn = 9
 
     ##########################################################################
@@ -940,22 +919,19 @@ def test_multiplication():
         circ.measure(qubits_result[i])
 
     # Run circuit
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[1,0,1,1,1,1,0,0]] == 1024)
 
 def test_controlled_multiplication():
-    import qristal.core
-    import numpy as np
     s = qristal.core.session()
     s.acc = "qsim"
     s.sn = 1024
-    s.init()
     s.qn = 10
 
     ##########################################################################
@@ -988,20 +964,18 @@ def test_controlled_multiplication():
         circ.measure(qubits_result[i])
 
     # Run circuit
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[1,0,1,1,1,1,0,0]] == 1024)
 
 def test_inverse_circuit():
-    import qristal.core
 
     s = qristal.core.session()
-    s.init()
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
@@ -1020,17 +994,16 @@ def test_inverse_circuit():
     for i in qubits:
         circ.measure(i)
 
-    s.ir_target = circ
+    s.irtarget = circ
+    s.qn = circ.num_qubits()
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(res[[0,0,0,0]] == 1024)
 
 def test_subtraction():
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     s.qn = 7
 
     ###
@@ -1065,14 +1038,14 @@ def test_subtraction():
     for k in range(6):
         circ.measure(k)
 
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    res = s.results[0][0]
+    res = s.results
 
     expected_result = i-j
     expected_result_bin = bin(expected_result)[2:].zfill(3)
@@ -1080,11 +1053,9 @@ def test_subtraction():
     assert(res[expected_output] == 1024)
 
 def test_controlled_subtraction():
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     s.qn = 8
 
     ###
@@ -1122,14 +1093,14 @@ def test_controlled_subtraction():
     for k in range(6):
         circ.measure(k)
 
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    res = s.results[0][0]
+    res = s.results
 
     expected_result = i-j
     expected_result_bin = bin(expected_result)[2:].zfill(3)
@@ -1137,11 +1108,9 @@ def test_controlled_subtraction():
     assert(res[expected_output] == 1024)
 
 def test_proper_fraction_division():
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     s.qn = 11
 
     ###
@@ -1182,14 +1151,14 @@ def test_proper_fraction_division():
     for k in qubits_ancilla:
         circ.measure(k)
 
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(len(res) == 1)
 
     if j != 0:
@@ -1213,11 +1182,9 @@ def test_proper_fraction_division():
     assert(res[[int(x) for x in expected_output]] == 1024)
 
 def test_controlled_proper_fraction_division():
-    import qristal.core
-    import numpy as np
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
     s.qn = 12
 
     ###
@@ -1261,14 +1228,14 @@ def test_controlled_proper_fraction_division():
     for k in qubits_ancilla:
         circ.measure(k)
 
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
     s.output_oqm_enabled = False
     s.acc = "qsim"
     s.run()
-    res = s.results[0][0]
+    res = s.results
     assert(len(res) == 1)
 
     if j != 0:
@@ -1292,10 +1259,9 @@ def test_controlled_proper_fraction_division():
     assert(res[[int(x) for x in expected_output]] == 1024)
 
 def test_compare_gt():
-    import qristal.core
 
     s = qristal.core.session()
-    s.init()
+    s.sn = 1024
 
     i = 3
     j = 2
@@ -1322,7 +1288,7 @@ def test_compare_gt():
 
     circ.measure_all()
 
-    s.ir_target = circ
+    s.irtarget = circ
     s.nooptimise = True
     s.noplacement = True
     s.notiming = True
@@ -1331,7 +1297,7 @@ def test_compare_gt():
     s.sn = 1024
     s.acc = "qsim"
     s.run()
-    res = s.results[0][0]
+    res = s.results
 
     expected_output = a_bin + b_bin
     if i > j:

@@ -7,13 +7,10 @@ import qristal.core
 # Create a quantum computing session using Qristal
 my_sim = qristal.core.session()
 
-# Set up meaningful defaults for session parameters
-my_sim.init()
-
 # Choose a simulator backend from CUDA Quantum,
 # e.g., custatevec_fp32 (single-precision)
 my_sim.acc = "cudaq:custatevec_fp32"
-my_sim.gpu_device_id = [0]
+my_sim.gpu_device_ids = [0]
 
 # Choose how many qubits to simulate
 num_qubits = 10
@@ -28,7 +25,7 @@ circ = qristal.core.Circuit()
 circ.qft(range(num_qubits))
 circ.measure_all()
 # Set the circuit
-my_sim.ir_target = circ
+my_sim.irtarget = circ
 # Run the circuit 'shots' times and count up the results in each of the classical registers
 print("About to run quantum program...")
 my_sim.run()
@@ -36,5 +33,5 @@ print("Ran successfully!")
 
 # Print the cumulative results in each of the classical registers
 print("Results:")
-print(my_sim.results[0][0])
+print(my_sim.results)
 

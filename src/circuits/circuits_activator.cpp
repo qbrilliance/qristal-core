@@ -2,40 +2,40 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/amplitude_amplification.hpp"
-#include "qristal/core/circuits/canonical_amplitude_estimation.hpp"
-#include "qristal/core/circuits/comparator.hpp"
-#include "qristal/core/circuits/efficient_encoding.hpp"
-#include "qristal/core/circuits/mcu_with_ancilla.hpp"
-#include "qristal/core/circuits/phase_estimation.hpp"
-#include "qristal/core/circuits/equality_checker.hpp"
-#include "qristal/core/circuits/q_prime_unitary.hpp"
-#include "qristal/core/circuits/ripple_adder.hpp"
-#include "qristal/core/circuits/u_prime_unitary.hpp"
-#include "qristal/core/circuits/uq_prime_unitary.hpp"
-#include "qristal/core/circuits/w_prime_unitary.hpp"
-#include "qristal/core/circuits/controlled_swap.hpp"
-#include "qristal/core/circuits/controlled_addition.hpp"
-#include "qristal/core/circuits/generalised_mcx.hpp"
-#include "qristal/core/circuits/compare_beam_oracle.hpp"
-#include "qristal/core/circuits/inverse_circuit.hpp"
-#include "qristal/core/circuits/init_rep_flag.hpp"
-#include "qristal/core/circuits/ae_to_metric.hpp"
-#include "qristal/core/circuits/qd_beam_state_prep.hpp"
-#include "qristal/core/circuits/superposition_adder.hpp"
-#include "qristal/core/circuits/pseudo_trace_amplitude_estimation.hpp"
-#include "qristal/core/circuits/subtraction.hpp"
-#include "qristal/core/circuits/controlled_subtraction.hpp"
-#include "qristal/core/circuits/proper_fraction_division.hpp"
-#include "qristal/core/circuits/controlled_proper_fraction_division.hpp"
-#include "qristal/core/circuits/compare_gt.hpp"
-#include "qristal/core/circuits/multiplication.hpp"
-#include "qristal/core/circuits/controlled_multiplication.hpp"
-#include "qristal/core/circuits/mean_value_finder.hpp"
+#include <qristal/core/circuits/amplitude_amplification.hpp>
+#include <qristal/core/circuits/canonical_amplitude_estimation.hpp>
+#include <qristal/core/circuits/comparator.hpp>
+#include <qristal/core/circuits/efficient_encoding.hpp>
+#include <qristal/core/circuits/mcu_with_ancilla.hpp>
+#include <qristal/core/circuits/phase_estimation.hpp>
+#include <qristal/core/circuits/equality_checker.hpp>
+#include <qristal/core/circuits/q_prime_unitary.hpp>
+#include <qristal/core/circuits/ripple_adder.hpp>
+#include <qristal/core/circuits/u_prime_unitary.hpp>
+#include <qristal/core/circuits/uq_prime_unitary.hpp>
+#include <qristal/core/circuits/w_prime_unitary.hpp>
+#include <qristal/core/circuits/controlled_swap.hpp>
+#include <qristal/core/circuits/controlled_addition.hpp>
+#include <qristal/core/circuits/generalised_mcx.hpp>
+#include <qristal/core/circuits/compare_beam_oracle.hpp>
+#include <qristal/core/circuits/inverse_circuit.hpp>
+#include <qristal/core/circuits/init_rep_flag.hpp>
+#include <qristal/core/circuits/ae_to_metric.hpp>
+#include <qristal/core/circuits/qd_beam_state_prep.hpp>
+#include <qristal/core/circuits/superposition_adder.hpp>
+#include <qristal/core/circuits/pseudo_trace_amplitude_estimation.hpp>
+#include <qristal/core/circuits/subtraction.hpp>
+#include <qristal/core/circuits/controlled_subtraction.hpp>
+#include <qristal/core/circuits/proper_fraction_division.hpp>
+#include <qristal/core/circuits/controlled_proper_fraction_division.hpp>
+#include <qristal/core/circuits/compare_gt.hpp>
+#include <qristal/core/circuits/multiplication.hpp>
+#include <qristal/core/circuits/controlled_multiplication.hpp>
+#include <qristal/core/circuits/mean_value_finder.hpp>
 
-#include "cppmicroservices/BundleActivator.h"
-#include "cppmicroservices/BundleContext.h"
-#include "cppmicroservices/ServiceProperties.h"
+#include <cppmicroservices/BundleActivator.h>
+#include <cppmicroservices/BundleContext.h>
+#include <cppmicroservices/ServiceProperties.h>
 using namespace cppmicroservices;
 
 class US_ABI_LOCAL CircuitGenActivator : public BundleActivator {

@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #include <gtest/gtest.h>
-#include "qristal/core/optimization/vqee/vqee.hpp"
+#include <qristal/core/optimization/vqee/vqee.hpp>
 
 TEST(vqeeTester, checkH2_UCCSD) {
     xacc::external::load_external_language_plugins();

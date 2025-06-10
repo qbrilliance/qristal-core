@@ -10,8 +10,7 @@ from qristal.core import run_MLQAE
 from qristal.core import run_canonical_ae_with_oracle
 import ast
 import timeit
-s = qristal.core.session()
-s.init()
+
 p = 0.24
 theta_p = 2 * np.arcsin(np.sqrt(p))
 

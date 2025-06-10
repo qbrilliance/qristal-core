@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "xacc.hpp"
-#include "xacc_service.hpp"
-#include "Circuit.hpp"
-#include "CompositeInstruction.hpp"
+#include <xacc.hpp>
+#include <xacc_service.hpp>
+#include <Circuit.hpp>
+#include <CompositeInstruction.hpp>
 #include <gtest/gtest.h>
 #include <bitset>
 #include <memory>

@@ -3,18 +3,18 @@
 #include <random>
 #include <gtest/gtest.h>
 #include <unsupported/Eigen/KroneckerProduct>
-#include "qristal/core/session.hpp"
-#include "qristal/core/circuit_builder.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/circuit_builder.hpp>
 
 TEST(TestErrorMitigation, test_SPAM_correction_fixed) {
-  //using fixed counts map from the QDK 1.1 measurements 
+  //using fixed counts map from the QDK 1.1 measurements
   std::vector<std::map<std::vector<bool>, int>> list_measured_counts{
     {{{0, 0}, 317}, {{0, 1}, 270}, {{1, 0}, 223}, {{1, 1}, 246}},
-    {{{0, 0}, 560}, {{0, 1}, 555}, {{1, 0}, 40}, {{1, 1}, 38}}, 
+    {{{0, 0}, 560}, {{0, 1}, 555}, {{1, 0}, 40}, {{1, 1}, 38}},
     {{{0, 0}, 512}, {{0, 1}, 50}, {{1, 0}, 414}, {{1, 1}, 28}},
-    {{{0, 0}, 1008}, {{0, 1}, 69}, {{1, 0}, 69}, {{1, 1}, 6}}, 
+    {{{0, 0}, 1008}, {{0, 1}, 69}, {{1, 0}, 69}, {{1, 1}, 6}},
     {{{0, 0}, 51}, {{0, 1}, 43}, {{1, 0}, 426}, {{1, 1}, 403}}
-  }; 
+  };
   //and the (by hand) SPAM-corrected results to check
   std::vector<std::map<std::vector<bool>, int>> list_corrected_counts{
     {{{0, 0}, 328}, {{0, 1}, 271}, {{1, 0}, 211}, {{1, 1}, 246}},
@@ -39,17 +39,17 @@ TEST(TestErrorMitigation, test_SPAM_correction_fixed) {
 
 TEST(TestErrorMitigation, test_SPAM_correction_random) {
   std::cout << "* Test SPAM correction *" << std::endl;
-  size_t n_qubits = 2; 
+  size_t n_qubits = 2;
   size_t n_shots = 1024;
 
   //(1) Build random noise model using readout errors only
-  std::random_device rd; 
+  std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(0.0, 1.0/n_qubits);
+  std::uniform_real_distribution<> dis(0.0, 0.25);
   std::vector<std::pair<double, double>> ro_errors_per_qubit;
   qristal::NoiseModel SPAM_error;
   for (size_t q = 0; q < n_qubits; ++q) {
-    double p_01 = dis(gen); 
+    double p_01 = dis(gen);
     double p_10 = dis(gen);
     SPAM_error.set_qubit_readout_error(q, qristal::ReadoutError(p_01, p_10));
     for (size_t qq = q+1; qq < n_qubits; ++qq) {
@@ -62,36 +62,35 @@ TEST(TestErrorMitigation, test_SPAM_correction_random) {
   Eigen::MatrixXd confusion_mat = Eigen::MatrixXd::Ones(1,1);
   for (auto const & [p_01, p_10] : ro_errors_per_qubit) {
     Eigen::MatrixXd temp(2, 2);
-    temp << 1.0 - p_01, p_01, 
+    temp << 1.0 - p_01, p_01,
             p_10, 1.0-p_10;
     confusion_mat = Eigen::kroneckerProduct(confusion_mat, temp).eval();
   }
 
   //(3) Construct session
-  auto s = qristal::session(false);
-  s.init();
-  s.set_qn(n_qubits);
-  s.set_sn(n_shots);
-  s.set_acc("aer");
-  qristal::CircuitBuilder circuit; 
+  auto s = qristal::session();
+  s.qn = n_qubits;
+  s.sn = n_shots;
+  s.acc = "aer";
+  qristal::CircuitBuilder circuit;
   circuit.H(0);
   circuit.CNOT(0, 1);
   circuit.MeasureAll(2);
-  s.set_irtarget_m(circuit.get());
-  s.set_noise(true);
-  s.set_noise_model(SPAM_error);
+  s.irtarget = circuit.get();
+  s.noise = true;
+  s.noise_model = std::make_shared<qristal::NoiseModel>(SPAM_error);
 
-  //(4) Set SPAM confusion matrix and run 
+  //(4) Set SPAM confusion matrix and run
   s.set_SPAM_confusion_matrix(confusion_mat);
   s.run();
 
   //(5) Obtain SPAM-corrected and native <ZZ>
   double native_ZZ = 0.0;
-  for (const auto& [bitstring, counts] : s.results_native()[0][0]) {
+  for (const auto& [bitstring, counts] : s.results_native()) {
     native_ZZ += (bitstring[0] == bitstring[1] ? +1.0 : -1.0) * static_cast<double>(counts) / static_cast<double>(n_shots);
   }
   double corrected_ZZ = 0.0;
-  for (const auto& [bitstring, counts] : s.results()[0][0]) {
+  for (const auto& [bitstring, counts] : s.results()) {
     corrected_ZZ += (bitstring[0] == bitstring[1] ? +1.0 : -1.0) * static_cast<double>(counts) / static_cast<double>(n_shots);
   }
   std::cout << "Error mitigated exp-val = " << corrected_ZZ
@@ -104,34 +103,29 @@ TEST(TestErrorMitigation, test_readout_error_mitigation) {
   std::cout << "* Test readout error mitigation *" << std::endl;
 
   // Start a session.
-  auto s = qristal::session(false);
-  // Default parameters
-  s.init();
+  auto s = qristal::session();
 
   // Override defaults
   int n_shots = 1024;
-  s.set_qn(1);
-  s.set_sn(n_shots);
-  s.set_xasm(true);
-  s.set_noise(true);
-  s.set_nooptimise(true);
-  s.set_noplacement(true);
-  s.set_noise_mitigation("ro-error");
-  s.set_acc("aer");
-  auto targetCircuit = R"(
+  s.qn = 1;
+  s.sn = n_shots;
+  s.input_language = qristal::circuit_language::XASM;
+  s.noise = true;
+  s.nooptimise = true;
+  s.noplacement = true;
+  s.noise_mitigation = "ro-error";
+  s.acc = "aer";
+  s.instring = R"(
     __qpu__ void qristal_circuit(qbit q) {
         X(q[0]);
         Measure(q[0]);
     }
   )";
-  s.set_instring(targetCircuit);
   // Run the circuit on the back-end
   s.run();
   // Get Z expectation
-  auto iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
-  const double exp_val = iter->second;
-  const auto& res = s.results()[0][0];
+  const double exp_val = s.z_op_expectation();
+  const auto& res = s.results();
   double raw_exp_val = (res.at({0}) - res.at({1})) / (1.0 * n_shots);
   std::cout << "Error mitigated exp-val = " << exp_val
             << " vs. raw exp-val = " << raw_exp_val << "\n";
@@ -145,19 +139,18 @@ TEST(TestErrorMitigation, test_readout_error_mitigation) {
 TEST(TestErrorMitigation, test_richardson_error_mitigation) {
   std::cout << "* Test Richardson error mitigation *" << std::endl;
   // Start a Qristal session.
-  auto s = qristal::session(false);
-  s.init();
+  auto s = qristal::session();
   // Fix random seed
-  s.set_seed(1);
+  s.seed = 1;
   // Override defaults
-  s.set_qn(2);
-  s.set_sn(1024);
-  s.set_xasm(true);
-  s.set_noise(true);
-  s.set_nooptimise(true);
-  s.set_noplacement(true);
-  s.set_acc("aer");
-  auto targetCircuit = R"(
+  s.qn = 2;
+  s.sn = 1024;
+  s.input_language = qristal::circuit_language::XASM;
+  s.noise = true;
+  s.nooptimise = true;
+  s.noplacement = true;
+  s.acc = "aer";
+  s.instring = R"(
     __qpu__ void qristal_circuit(qbit q) {
         H(q[0]);
         CNOT(q[0],q[1]);
@@ -165,19 +158,14 @@ TEST(TestErrorMitigation, test_richardson_error_mitigation) {
         Measure(q[1]);
     }
   )";
-  s.set_instring(targetCircuit);
   // Run the circuit on the back-end
   s.run();
-  auto raw_iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(raw_iter != s.get_out_z_op_expects()[0][0].end());
-  double raw_exp_val = raw_iter->second;
+  double raw_exp_val = s.z_op_expectation();
   std::cout << "Raw exp-val-z = " << raw_exp_val << "\n";
   // Set noise mitigation and re-run simulation
-  s.set_noise_mitigation("rich-extrap");
+  s.noise_mitigation = "rich-extrap";
   s.run();
-  auto iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
-  double exp_val = iter->second;
+  double exp_val = s.z_op_expectation();
   std::cout << "Richardson extrapolation error mitigated exp-val-z = " << exp_val << "\n";
 
   // Ideal result is 1.0
@@ -193,39 +181,33 @@ TEST(TestErrorMitigation, test_assignment_kernel_error_mitigation) {
             << std::endl;
 
   // Start a Qristal session.
-  auto s = qristal::session(false);
-  s.init();
+  auto s = qristal::session();
   // Fix random seed
-  s.set_seed(1);
+  s.seed = 1;
 
   // Override defaults
-  s.set_qn(1);
-  s.set_sn(1024);
-  s.set_xasm(true);
-  s.set_noise(true);
-  s.set_nooptimise(true);
-  s.set_noplacement(true);
-  s.set_acc("aer");
-  auto targetCircuit = R"(
+  s.qn = 1;
+  s.sn = 1024;
+  s.input_language = qristal::circuit_language::XASM;
+  s.noise = true;
+  s.nooptimise = true;
+  s.noplacement = true;
+  s.acc = "aer";
+  s.instring = R"(
     __qpu__ void qristal_circuit(qbit q) {
         X(q[0]);
         Measure(q[0]);
     }
   )";
-  s.set_instring(targetCircuit);
   // Run the circuit on the back-end
   s.run();
-  auto raw_iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(raw_iter != s.get_out_z_op_expects()[0][0].end());
-  double raw_exp_val = raw_iter->second;
+  double raw_exp_val = s.z_op_expectation();
   std::cout << "Raw exp-val-z = " << raw_exp_val << "\n";
 
   // Use error mitigation and re-run simulation
-  s.set_noise_mitigation("assignment-error-kernel");
+  s.noise_mitigation = "assignment-error-kernel";
   s.run();
-  auto iter = s.get_out_z_op_expects()[0][0].find(0);
-  EXPECT_TRUE(iter != s.get_out_z_op_expects()[0][0].end());
-  double exp_val = iter->second;
+  double exp_val = s.z_op_expectation();
   std::cout << "Assignment-error-kernel mitigation exp-val-z = " << exp_val << "\n";
 
   // Ideal result is -1.0

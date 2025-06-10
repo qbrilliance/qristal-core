@@ -1,14 +1,14 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include "qristal/core/cmake_variables.hpp"
-#include "qristal/core/backends/aws_braket/AWSAccelerator.hpp"
-#include "qristal/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp"
-#include "qristal/core/backends/aws_braket/AWSQuantumTask.hpp"
+#include <qristal/core/cmake_variables.hpp>
+#include <qristal/core/backends/aws_braket/AWSAccelerator.hpp>
+#include <qristal/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp>
+#include <qristal/core/backends/aws_braket/AWSQuantumTask.hpp>
 
 // XACC
-#include "xacc_plugin.hpp"
-#include "AcceleratorBuffer.hpp"
+#include <xacc_plugin.hpp>
+#include <AcceleratorBuffer.hpp>
 
 // dlopen
 #include <dlfcn.h>
@@ -267,7 +267,7 @@ namespace xacc
       if (params.keyExists<bool>("noise"))       m_noise = params.get<bool>("noise");
       if (params.keyExists<bool>("verbatim")) m_verbatim = params.get<bool>("verbatim");
       // Hardware device name, we allow user to specify it in the format "<vendor>[:<backend>]",
-      // e.g. "rigetti:Aspen-10" or "rigetti:Aspen-M-3", 
+      // e.g. "rigetti:Aspen-10" or "rigetti:Aspen-M-3",
       // <backend> is optional, we will pick a suitable one from that vendor (based on availability).
       if (m_device.rfind("Rigetti") == 0) {
         // device name starts with "Rigetti"
@@ -280,7 +280,7 @@ namespace xacc
               "No Rigetti backend device is currently available.");
         }
         if (delim_pos != std::string::npos) {
-          const auto backend_name = m_device.substr(delim_pos + 1); 
+          const auto backend_name = m_device.substr(delim_pos + 1);
           const auto iter = available_backends.find(backend_name);
           if (iter == available_backends.end()) {
             std::cout << "The requested backend '" << backend_name << "' is not available.\n Available: \n";
@@ -318,8 +318,8 @@ namespace xacc
           py::module_ sys = py::module_::import("sys");
           if (debug_aws_) std::cout << "# Importing Python path" << "\n";
           auto path = sys.attr("path");
-          if (debug_aws_) std::cout << "# Inserting " << SDK_DIR << " into path" << "\n";
-          path.attr("insert")(0, SDK_DIR);
+          if (debug_aws_) std::cout << "# Inserting " << QRISTAL_DIR << " into path" << "\n";
+          path.attr("insert")(0, QRISTAL_DIR);
           if (debug_aws_) std::cout << "# Importing aws_python_script" << "\n";
           py::module_ qb_aws_mod = py::module_::import("aws_python_script");
         }
@@ -345,13 +345,13 @@ namespace xacc
     HeterogeneousMap AWSAccelerator::getProperties()
     {
       HeterogeneousMap m;
-      m.insert("m_device", m_device);
-      m.insert("m_format", m_format);
-      m.insert("m_s3", m_s3);
-      m.insert("m_path", m_path);
-      m.insert("m_noise", m_noise);
-      m.insert("m_verbatim", m_verbatim);
-      m.insert("m_shots", m_shots);
+      m.insert("device", m_device);
+      m.insert("format", m_format);
+      m.insert("s3", m_s3);
+      m.insert("path", m_path);
+      m.insert("noise", m_noise);
+      m.insert("verbatim", m_verbatim);
+      m.insert("shots", static_cast<int>(m_shots));
       m.insert("device_properties", device_properties_json);
       return m;
     }
@@ -363,8 +363,8 @@ namespace xacc
       return std::make_shared<xacc::quantum::AWSAccelerator>();
     }
 
-    /// Return the connectivity graph of the backend 
-    std::vector<std::pair<int, int>> AWSAccelerator::getConnectivity() 
+    /// Return the connectivity graph of the backend
+    std::vector<std::pair<int, int>> AWSAccelerator::getConnectivity()
     {
       return m_connectivity;
     }
@@ -391,7 +391,7 @@ namespace xacc
         }
       }
     }
-    
+
     /// Retrieve properties from Rigetti hardware on AWS
     std::string AWSAccelerator::queryRigettiHardwareProperties(const std::string &backend_arn) const
     {
@@ -406,7 +406,7 @@ namespace xacc
           metadata.attr("get")("deviceCapabilities").cast<std::string>();
       return qpu_properties;
     }
-    
+
 
     std::unordered_map<std::string, std::string> AWSAccelerator::getAvailableBackends(const std::string &provider_name) const {
       try

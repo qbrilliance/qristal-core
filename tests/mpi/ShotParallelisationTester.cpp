@@ -21,21 +21,19 @@ constexpr int32_t CIRCUIT_NUMBER_OF_SHOTS = 1000000;
 constexpr int32_t CIRCUIT_NUMBER_OF_QUBITS = 2;
 
 void setup_and_run_circuit(session &session) {
-  session.init();
 
-  session.set_acc("aer");
-  session.set_qn(CIRCUIT_NUMBER_OF_QUBITS);
-  session.set_sn(CIRCUIT_NUMBER_OF_SHOTS);
-  session.set_calc_jacobian(true);
+  session.acc = "aer";
+  session.qn = CIRCUIT_NUMBER_OF_QUBITS;
+  session.sn = CIRCUIT_NUMBER_OF_SHOTS;
+  session.calc_gradients = true;
 
   auto circuit = CircuitBuilder();
   circuit.RX(0, "alpha");
   circuit.RX(1, "beta");
   circuit.MeasureAll(-1);
 
-  std::vector<double> circuit_param_vec = {CIRCUIT_PARAM_ALPHA, CIRCUIT_PARAM_BETA};
-  session.set_irtarget_ms({{circuit.get()}});
-  session.set_parameter_vectors({{circuit_param_vec}});
+  session.irtarget = circuit.get();
+  session.circuit_parameters = {CIRCUIT_PARAM_ALPHA, CIRCUIT_PARAM_BETA};
 
   session.run();
 }
@@ -57,13 +55,13 @@ int32_t one_in_n_expected_failures(int32_t number_standard_deviations) {
   return static_cast<int32_t>(std::round(1.0 / p_at_least_one_bitstring_outside));
 }
 
-void check_out_probs(const session::OutProbabilitiesType &out_probs, const session::OutCountsType &out_counts) {
-  EXPECT_FLOAT_EQ(std::accumulate(out_probs.begin(), out_probs.end(), 0.0), 1.0);
-  auto counts_from_probs = out_probs | std::views::transform([](session::ProbabilityType prob) {
+void check_all_bitstring_probabilities(const session::OutProbabilitiesType &all_bitstring_probabilities, const session::OutCountsType &all_bitstring_counts) {
+  EXPECT_FLOAT_EQ(std::accumulate(all_bitstring_probabilities.begin(), all_bitstring_probabilities.end(), 0.0), 1.0);
+  auto counts_from_probs = all_bitstring_probabilities | std::views::transform([](session::ProbabilityType prob) {
                              return static_cast<int32_t>(std::round(prob * CIRCUIT_NUMBER_OF_SHOTS));
                            });
   EXPECT_THAT(std::vector<int32_t>(counts_from_probs.begin(), counts_from_probs.end()),
-              testing::ContainerEq(out_counts));
+              testing::ContainerEq(all_bitstring_counts));
 
   // Check that the probabilities are what are expected for the input circuit.
   // The below expected probabilities were obtained using the circuit and its
@@ -95,7 +93,7 @@ void check_out_probs(const session::OutProbabilitiesType &out_probs, const sessi
     return std::sqrt(prob * (1 - prob) / CIRCUIT_NUMBER_OF_SHOTS);
   };
 
-  auto expected_probs_calculated_probs = ::ranges::views::zip(expected_probs, out_probs);
+  auto expected_probs_calculated_probs = ::ranges::views::zip(expected_probs, all_bitstring_probabilities);
   for (auto expected_prob_calculated_prob : expected_probs_calculated_probs) {
     auto &[expected_prob, calculated_prob] = expected_prob_calculated_prob;
     constexpr int32_t number_standard_deviations_tolerance = 5;
@@ -107,8 +105,8 @@ void check_out_probs(const session::OutProbabilitiesType &out_probs, const sessi
   }
 }
 
-void check_out_prob_jacobians(const session::OutProbabilityGradientsType &out_prob_jacobians, const session &session) {
-  // The below jacobian values were calculated using an analytical method based on the circuit parameters and circuit
+void check_all_bitstring_probability_gradients(const session::OutProbabilityGradientsType &all_bitstring_probability_gradients, const session &session) {
+  // The below gradient values were calculated using an analytical method based on the circuit parameters and circuit
   // itself dP_00/d_alpha = -1/2*sin(alpha)*pow(cos(beta/2),2)
   const double expected_prob_gradient_alpha_00 =
       -0.5 * std::sin(CIRCUIT_PARAM_ALPHA) * std::pow(std::cos(CIRCUIT_PARAM_BETA / 2.0), 2.0);
@@ -142,7 +140,7 @@ void check_out_prob_jacobians(const session::OutProbabilityGradientsType &out_pr
       0.5 * std::sin(CIRCUIT_PARAM_BETA) * std::pow(std::sin(CIRCUIT_PARAM_ALPHA / 2.0), 2.0);
   ASSERT_FLOAT_EQ(expected_prob_gradient_beta_11, 0.0977289353085037);
 
-  // Tolerances were calculated using the pre-determined standard deviation of the calculated jacobians from ~16,000
+  // Tolerances were calculated using the pre-determined standard deviation of the calculated gradients from ~16,000
   // runs of the circuit
   constexpr int32_t number_standard_deviations_tolerance = 5;
   constexpr double expected_prob_gradient_alpha_00_tolerance = number_standard_deviations_tolerance * 0.00024648;
@@ -155,11 +153,11 @@ void check_out_prob_jacobians(const session::OutProbabilityGradientsType &out_pr
   constexpr double expected_prob_gradient_beta_11_tolerance = number_standard_deviations_tolerance * 0.00022249;
 
   // Group into vectors for checks
-  std::vector<double> expected_prob_jacobians{expected_prob_gradient_alpha_00, expected_prob_gradient_alpha_10,
+  std::vector<double> expected_prob_gradients{expected_prob_gradient_alpha_00, expected_prob_gradient_alpha_10,
                                               expected_prob_gradient_alpha_01, expected_prob_gradient_alpha_11,
                                               expected_prob_gradient_beta_00,  expected_prob_gradient_beta_10,
                                               expected_prob_gradient_beta_01,  expected_prob_gradient_beta_11};
-  std::vector<double> prob_jacobians_tolerances{
+  std::vector<double> prob_gradients_tolerances{
       expected_prob_gradient_alpha_00_tolerance, expected_prob_gradient_alpha_10_tolerance,
       expected_prob_gradient_alpha_01_tolerance, expected_prob_gradient_alpha_11_tolerance,
       expected_prob_gradient_beta_00_tolerance,  expected_prob_gradient_beta_10_tolerance,
@@ -167,23 +165,23 @@ void check_out_prob_jacobians(const session::OutProbabilityGradientsType &out_pr
 
   // Perform checks
   // The outer vector size should be the number of parameters
-  EXPECT_EQ(out_prob_jacobians.size(), session.get_parameter_vectors()[0][0].size());
+  EXPECT_EQ(all_bitstring_probability_gradients.size(), session.circuit_parameters.size());
 
-  // The sum of jacobians for each parameter should be 0
-  for (const auto &out_prob_jacobian : out_prob_jacobians) {
-    constexpr double jacobian_sum_tolerance = 1e-12;
-    EXPECT_NEAR(std::accumulate(out_prob_jacobian.begin(), out_prob_jacobian.end(), 0.0), 0.0, jacobian_sum_tolerance);
+  // The sum of gradients for each parameter should be 0
+  for (const auto &gradient : all_bitstring_probability_gradients) {
+    constexpr double gradient_sum_tolerance = 1e-12;
+    EXPECT_NEAR(std::accumulate(gradient.begin(), gradient.end(), 0.0), 0.0, gradient_sum_tolerance);
 
     // Each inner vector size should be 2 raised to the number of qubits
-    EXPECT_EQ(out_prob_jacobian.size(), std::pow(2, CIRCUIT_NUMBER_OF_QUBITS));
+    EXPECT_EQ(gradient.size(), std::pow(2, CIRCUIT_NUMBER_OF_QUBITS));
   }
 
-  auto expecteds_tolerances_calculateds = ::ranges::views::zip(expected_prob_jacobians, prob_jacobians_tolerances,
-                                                               ::ranges::views::join(out_prob_jacobians));
+  auto expecteds_tolerances_calculateds = ::ranges::views::zip(expected_prob_gradients, prob_gradients_tolerances,
+                                                               ::ranges::views::join(all_bitstring_probability_gradients));
   for (const auto &expected_tolerance_calculated : expecteds_tolerances_calculateds) {
     auto &[expected, tolerance, calculated] = expected_tolerance_calculated;
 
-    // The actual jacobian element should be within the tolerance limits of the analytically calculated value
+    // The actual gradient should be within the tolerance limits of the analytically calculated value
     EXPECT_NEAR(expected, calculated, tolerance) << fmt::format(
         TOLERANCE_CHECK_ERROR_MSG, std::abs(calculated - expected) / (tolerance / number_standard_deviations_tolerance),
         number_standard_deviations_tolerance, one_in_n_expected_failures(number_standard_deviations_tolerance));
@@ -195,16 +193,16 @@ TEST(ShotParallelisationTester, ChecksShotsParallelisedCorrectly) {
 
   setup_and_run_circuit(session);
 
-  const session::ResultsMapType &results = session.results()[0][0];
-  const session::OutCountsType &out_counts = session.get_out_counts()[0][0];
-  const session::OutProbabilitiesType &out_probs = session.get_out_probs()[0][0];
-  const session::OutProbabilityGradientsType &out_prob_jacobians = session.get_out_prob_jacobians()[0][0];
+  const session::ResultsMapType &results = session.results();
+  const session::OutCountsType &all_bitstring_counts = session.all_bitstring_counts();
+  const session::OutProbabilitiesType &all_bitstring_probabilities = session.all_bitstring_probabilities();
+  const session::OutProbabilityGradientsType &all_bitstring_probability_gradients = session.all_bitstring_probability_gradients();
 
   auto shots_from_results = [](const mpi::ResultsMap &results) {
     return std::accumulate(std::views::values(results).begin(), std::views::values(results).end(), INT32_C(0));
   };
-  auto shots_from_out_counts = [](const session::OutCountsType &out_counts) {
-    return std::accumulate(out_counts.begin(), out_counts.end(), INT32_C(0));
+  auto shots_from_all_bitstring_counts = [](const session::OutCountsType &all_bitstring_counts) {
+    return std::accumulate(all_bitstring_counts.begin(), all_bitstring_counts.end(), INT32_C(0));
   };
 
   if (session.get_mpi_process_id() == 0) {
@@ -214,21 +212,21 @@ TEST(ShotParallelisationTester, ChecksShotsParallelisedCorrectly) {
     EXPECT_EQ(shots_from_results(results), CIRCUIT_NUMBER_OF_SHOTS);
 
     // Check counts
-    EXPECT_EQ(shots_from_out_counts(out_counts), CIRCUIT_NUMBER_OF_SHOTS);
+    EXPECT_EQ(shots_from_all_bitstring_counts(all_bitstring_counts), CIRCUIT_NUMBER_OF_SHOTS);
 
     // Check probs
-    check_out_probs(out_probs, out_counts);
+    check_all_bitstring_probabilities(all_bitstring_probabilities, all_bitstring_counts);
 
-    // Check out_prob_jacobians
-    check_out_prob_jacobians(out_prob_jacobians, session);
+    // Check all_bitstring_probability_gradients
+    check_all_bitstring_probability_gradients(all_bitstring_probability_gradients, session);
   } else {
     // Check worker processes only completed its assigned processes
     const int32_t expected_shots = mpi::shots_for_mpi_process(session.get_total_mpi_processes(),
                                                               CIRCUIT_NUMBER_OF_SHOTS, session.get_mpi_process_id());
     EXPECT_EQ(shots_from_results(results), expected_shots);
-    EXPECT_EQ(shots_from_out_counts(out_counts), expected_shots);
-    // out_probs and out_prob_jacobians are calculated off the out_counts so
-    // validating shot count from the results and out_counts is sufficient to
+    EXPECT_EQ(shots_from_all_bitstring_counts(all_bitstring_counts), expected_shots);
+    // all_bitstring_probabilities and all_bitstring_probability_gradients are calculated off the all_bitstring_counts so
+    // validating shot count from the results and all_bitstring_counts is sufficient to
     // test MPI shot parallelisation in the worker processes
   }
 }

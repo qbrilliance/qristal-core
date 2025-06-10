@@ -1,10 +1,10 @@
 #pragma once
 
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp"
-#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
 
 
 namespace qristal {

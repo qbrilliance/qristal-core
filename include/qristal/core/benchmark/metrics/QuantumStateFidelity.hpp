@@ -2,13 +2,16 @@
 #ifndef _QB_BENCHMARK_QUANTUMSTATEFIDELITY_
 #define _QB_BENCHMARK_QUANTUMSTATEFIDELITY_
 
+// Qristal
+#include <qristal/core/benchmark/Serializer.hpp>
+#include <qristal/core/benchmark/DataLoaderGenerator.hpp>
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
+
+// Eigen
 #include <unsupported/Eigen/MatrixFunctions>
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
-#include "qristal/core/benchmark/Serializer.hpp"
-#include "qristal/core/benchmark/DataLoaderGenerator.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
+// range v3
+#include <range/v3/view/zip.hpp>
 
 namespace qristal
 {
@@ -19,8 +22,8 @@ namespace qristal
         * @brief Pure virtual python bindings helper class not used in the C++ implementation.
         */
         class QuantumStateFidelityPythonBase {
-            public: 
-                virtual ~QuantumStateFidelityPythonBase() = default; 
+            public:
+                virtual ~QuantumStateFidelityPythonBase() = default;
                 virtual std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const = 0;
         };
 
@@ -67,12 +70,12 @@ namespace qristal
         };
 
         /**
-        * @brief The type-erased QuantumStateDensity handle exposed in the python bindings. 
+        * @brief The type-erased QuantumStateDensity handle exposed in the python bindings.
         */
         class QuantumStateFidelityPython {
             public:
                 //Due to the doubly nested template, it is necessary to implement a new constructor which takes in the python exposed type QuantumStateTomographyPython
-                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumStateFidelity objects. 
+                //This requires a runtime check (via dynamic_cast) for compatible workflows, to construct the right QuantumStateFidelity objects.
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumStateFidelityPython(QuantumStateTomographyPython& qstpython);
 
@@ -81,7 +84,7 @@ namespace qristal
                 }
 
             private:
-                std::unique_ptr<QuantumStateFidelityPythonBase> workflow_ptr_; 
+                std::unique_ptr<QuantumStateFidelityPythonBase> workflow_ptr_;
         };
 
         /**
@@ -117,10 +120,10 @@ namespace qristal
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 
             //(3) evaluate state fidelity for each circuit in each timestamp
-            for (const auto & [measured_bitcounts, ideal_densities, timestamp] : std::ranges::views::zip(measured_bitcounts_collection, ideal_densities_collection, timestamps)) {
+            for (const auto & [measured_bitcounts, ideal_densities, timestamp] : ::ranges::views::zip(measured_bitcounts_collection, ideal_densities_collection, timestamps)) {
                 std::vector<double> fidelities;
                 std::vector<ComplexMatrix> measured_densities = qstworkflow_.assemble_densities(measured_bitcounts);
-                for (const auto & [measured_density, ideal_density] : std::ranges::views::zip(measured_densities, ideal_densities)) {
+                for (const auto & [measured_density, ideal_density] : ::ranges::views::zip(measured_densities, ideal_densities)) {
                     fidelities.push_back(calculate_state_fidelity(measured_density, ideal_density));
                 }
                 timestamp2fidelities.insert(std::make_pair(timestamp, fidelities));

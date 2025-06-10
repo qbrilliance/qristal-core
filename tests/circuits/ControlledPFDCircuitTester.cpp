@@ -1,6 +1,6 @@
-// #include "Circuit.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+// #include <Circuit.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <gtest/gtest.h>
 #include <bitset>
 ////////////////////////

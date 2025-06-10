@@ -2,15 +2,12 @@
 
 import pytest
 import os
+import qristal.core
 
 def run_circuit(num_threads, pass_via_OMP_NUM_THREADS = False):
-  import qristal.core
 
   # Create a quantum computing session using Qristal
   my_sim = qristal.core.session()
-
-  # Set up meaningful defaults for session parameters
-  my_sim.init()
 
   # Choose aer backend
   my_sim.acc = "aer"
@@ -20,6 +17,9 @@ def run_circuit(num_threads, pass_via_OMP_NUM_THREADS = False):
 
   # Choose how many shots to run through the circuit
   my_sim.sn = 1000
+
+  # Keep things simple by turning off circuit optimisation
+  my_sim.nooptimise = True
 
   # Choose how many OpenMP threads to use to run the AER simulator
   if (pass_via_OMP_NUM_THREADS):

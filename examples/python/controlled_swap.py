@@ -2,7 +2,7 @@ import qristal.core
 import numpy as np
 
 s = qristal.core.session()
-s.init()
+s.sn = 1000
 
 ###
 # Testing controlled swap
@@ -43,16 +43,16 @@ for i in range(len(input_string)):
 
 # Execute circuit
 
-s.ir_target = circ
+s.irtarget = circ
+s.qn = circ.num_qubits()
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
 s.output_oqm_enabled = False
 s.acc = "qpp"
 s.run()
-res = s.results[0][0]
-assert(len(res) == 1)
-output_measurement = list(next(iter(res)))
+assert(len(s.results) == 1)
+output_measurement = list(next(iter(s.results)))
 
 output_string = ""
 for x in output_measurement:

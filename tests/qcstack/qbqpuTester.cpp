@@ -1,11 +1,12 @@
 // Copyright Quantum Brilliance
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/backends/qb_hardware/qb_qpu.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
 #include <chrono>
+#include <thread>
 using json = nlohmann::json;
 
 TEST(qbqpuTester, testInstantiation)
@@ -89,7 +90,8 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   hardware_device->setup_hardware(true);
 
   // Proceed to RemoteAccelerator::execute(buffer, ir->getComposites())
-  hardware_device->execute(buffer, ir->getComposites(), true);
+  std::cout << ir->getComposites() << std::endl;
+  hardware_device->execute(buffer, ir->getComposites()[0], true);
   std::cout << "* HTTP POST done..." << std::endl;
 
   // Delay until it is time to poll for results

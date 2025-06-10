@@ -1,9 +1,9 @@
 /**
  * Copyright Quantum Brilliance
  */
-#include "qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp"
+#include <qristal/core/qobj/QuantumBrillianceQobjCompiler.hpp>
 #include <nlohmann/json.hpp>
-#include "xacc.hpp"
+#include <xacc.hpp>
 
 namespace qristal {
 struct QobjOp {

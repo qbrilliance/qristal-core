@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <qristal/core/noise_model/noise_model.hpp>
 
 namespace qristal
 {

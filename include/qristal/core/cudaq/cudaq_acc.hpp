@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
-#include "Accelerator.hpp"
-#include "qristal/core/utils.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <Accelerator.hpp>
+#include <qristal/core/utils.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
 #include <cudaq.h>
 
 namespace qristal {
@@ -31,11 +31,11 @@ class cudaq_acc : public xacc::Accelerator {
   /// Singular values relative cutoff threshold
   double m_rel_svd_cutoff;
   /// Measurement sampling method
-  std::string m_measure_sample_method; 
+  std::string m_measure_sample_method;
   /// CudaQ's struct containing sampling function's members: number of shots and noise model
   cudaq::sample_options sample_ops;
   /// GPU device IDs
-  std::vector<size_t> m_gpu_device_id; 
+  std::vector<size_t> m_gpu_device_ids;
 
 public:
   /// Constructor

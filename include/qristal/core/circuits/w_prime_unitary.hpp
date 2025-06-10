@@ -3,7 +3,7 @@
  ***/
 #pragma once 
 
-#include "Circuit.hpp"
+#include <Circuit.hpp>
 
 namespace qristal {
 

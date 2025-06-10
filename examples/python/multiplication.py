@@ -4,7 +4,6 @@ import numpy as np
 s = qristal.core.session()
 s.acc = "qsim"
 s.sn = 1024
-s.init()
 s.qn = 9
 
 ##########################################################################
@@ -36,12 +35,11 @@ for i in range(len(qubits_result)):
 circ.print()
 
 # Run circuit
-s.ir_target = circ
+s.irtarget = circ
 s.nooptimise = True
 s.noplacement = True
 s.notiming = True
 s.output_oqm_enabled = False
 s.run()
-res = s.results[0][0]
-print(res)
-assert(res[[1,0,1,1,1,1,0,0]] == 1024)
+print(s.results)
+assert(s.results[[1,0,1,1,1,1,0,0]] == 1024)

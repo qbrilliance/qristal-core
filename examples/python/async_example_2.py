@@ -8,24 +8,9 @@ import qristal.core
 import json as json
 import time as time
 
-s = qristal.core.session()
-s.init()
+NJ = 100 # number of jobs
 
-NOL = 50   # number of outer loops
-NW = 32    # number of async workers
-NJ = NW*20 # number of jobs
-ss = 2     # seconds to sleep between progress
-
-# Set up workers
-
-# Set up the pool of QPUs for parallel task distribution
-qpu_config = {"accs": NW*[{"acc": "aer"}]}
-s.set_parallel_run_config(json.dumps(qpu_config))
-s.acc = "aer"
-
-
-#%% set up jobs
-circuit_str='''
+circuit = '''
 __qpu__ void qristal_circuit(qreg q) {
 OPENQASM 2.0;
 include "qelib1.inc";
@@ -37,37 +22,32 @@ measure q[0] -> c[0];
 }
 '''
 
-for outerLoop in range(NOL):
-  print("\nOuterLoop: (",outerLoop+1,"/",NOL,")")
+# Set NJ circuits off async
+handles = []
+s = []
+for i in range(NJ):
+    s.append(qristal.core.session())
+    s[i].acc = "aer"
+    s[i].sn = 100000
+    s[i].qn = 2
+    s[i].instring = circuit
+    handles.append(s[i].run_async())
+print("Complete posting all", NJ,"jobs")
 
-  s.instring.clear()
-  for i in range(NJ):
-    s.instring.append(qristal.core.VectorString([circuit_str]))
-
-  handles = []
-  for i in range(NJ):
-    handles.append(s.run_async(i, 0))
-    time.sleep(0.0001)
-  print("\tComplete posting all", NJ,"jobs")
-
-  all_done = False
-  loopCounter = 0
-  while (not all_done):
-    time.sleep(ss)
+all_done = False
+completed_counter_prev = 0
+while (not all_done):
     all_done = True
     completed_counter = 0
     for handle in handles:
-      if (not handle.complete()):
-        all_done = False
-      else:
-        completed_counter = completed_counter + 1
-    loopCounter = loopCounter + 1
+        if (not handle.complete()):
+            all_done = False
+        else:
+            completed_counter = completed_counter + 1
     if (not all_done):
-      print("\tWorkers ready: (",completed_counter,"/",NJ,")")
+        if (completed_counter_prev != completed_counter):
+            print(completed_counter,  "/", NJ,"completed")
+            completed_counter_prev = completed_counter
     else:
-      print("finished all workers in ",loopCounter," iterations!")
+        print("All done!")
 
-print("End")
-
-#print([s.run_complete(i,0) for i in range(NJ)])
-#print([handles[i].get() for i in range(NJ)])

@@ -1,3 +1,4 @@
+// Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
 #include <chrono>

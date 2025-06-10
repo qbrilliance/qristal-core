@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
-#include "Algorithm.hpp"
-#include "xacc.hpp"
-#include "xacc_plugin.hpp"
-#include "xacc_service.hpp"
+#include <Algorithm.hpp>
+#include <xacc.hpp>
+#include <xacc_plugin.hpp>
+#include <xacc_service.hpp>
 #include <assert.h>
 #include <iomanip>
 #include <iterator>

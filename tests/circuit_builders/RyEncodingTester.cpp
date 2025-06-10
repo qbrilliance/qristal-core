@@ -1,9 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "Circuit.hpp"
-#include "qristal/core/circuit_builders/ry_encoding.hpp"
-#include "qristal/core/circuit_builder.hpp"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <Circuit.hpp>
+#include <qristal/core/circuit_builders/ry_encoding.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>

@@ -4,12 +4,12 @@
 #include <filesystem>
 #include <sstream>
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qristal/core/benchmark/metrics/QuantumStateFidelity.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
+#include <qristal/core/benchmark/metrics/QuantumStateFidelity.hpp>
 
 using namespace qristal::benchmark;
 
@@ -17,11 +17,10 @@ TEST(QuantumStateFidelityTester, checkSPAM) {
     const std::set<size_t> qubits{0, 1};
 
     //define session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
     //define workflow
     SPAMBenchmark workflow(qubits, sim);
@@ -42,11 +41,10 @@ TEST(QuantumStateFidelityTester, checkRotationSweep) {
     const std::set<size_t> qubits{0, 1};
 
     //define session
-    qristal::session sim(false);
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
     //define workflow
     RotationSweep workflow(

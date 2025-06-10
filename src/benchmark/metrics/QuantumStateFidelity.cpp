@@ -1,6 +1,6 @@
-#include "qristal/core/benchmark/metrics/QuantumStateFidelity.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+#include <qristal/core/benchmark/metrics/QuantumStateFidelity.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
 
 namespace qristal {
   namespace benchmark {

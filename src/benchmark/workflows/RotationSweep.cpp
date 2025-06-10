@@ -1,13 +1,18 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
+
+// Qristal
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+
+// STL
 #include <numbers>
 #include <cmath>
 #include <complex>
-#include <boost/dynamic_bitset.hpp>
-#include <unsupported/Eigen/KroneckerProduct>
 
-#define ZIP_VIEW_INJECT_STD_VIEWS_NAMESPACE //to add zip to the std namespace
-#include "qristal/core/tools/zip_tool.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
+// Boost
+#include <boost/dynamic_bitset.hpp>
+
+// Eigen
+#include <unsupported/Eigen/KroneckerProduct>
 
 
 namespace qristal
@@ -28,7 +33,7 @@ namespace qristal
         {
             assert( (start_degree < end_degree) && "start_degree has to be smaller than end_degree!");
             assert( (n_points > 1) && "Specify at least two points!");
-            session_.set_qn(rotations_per_qubit_.size());
+            session_.qn = rotations_per_qubit_.size();
         }
 
         std::vector<qristal::CircuitBuilder> RotationSweep::get_circuits() const
@@ -68,7 +73,7 @@ namespace qristal
         }
 
         void executeWorkflowTask<RotationSweep, Task::IdealCounts>::operator()(RotationSweep & workflow, std::time_t timestamp) const {
-            size_t n_shots = workflow.get_session().get_sns()[0][0];
+            size_t n_shots = workflow.get_session().sn;
             size_t n_bitstrings = std::pow(2, workflow.get_rotations_per_qubit().size());
             std::vector<std::map<std::vector<bool>, int>> ideal_results;
             //no need to build the circuits at all! Just calculate the probabilities and set exact counts

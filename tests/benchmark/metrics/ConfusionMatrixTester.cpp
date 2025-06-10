@@ -2,10 +2,10 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/metrics/ConfusionMatrix.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/metrics/ConfusionMatrix.hpp>
 
 using namespace qristal::benchmark;
 
@@ -13,16 +13,15 @@ TEST(ConfusionMatrixTester, check_no_noise) {
     const std::vector<size_t> n_qubits_list{1, 2, 3, 4, 5};
 
     for (auto const & n_qubits : n_qubits_list) {
-        //ideal confusion matrix is just the identity 
+        //ideal confusion matrix is just the identity
         size_t dim = std::pow(2, n_qubits);
         Eigen::MatrixXd ideal = Eigen::MatrixXd::Identity(dim, dim);
 
         //define session
-        qristal::session sim(false);
-        sim.init();
-        sim.set_acc("qpp");
-        sim.set_sn(100);
-        sim.set_qn(n_qubits);
+        qristal::session sim;
+        sim.acc = "qpp";
+        sim.sn = 100;
+        sim.qn = n_qubits;
 
         //define workflow
         std::set<size_t> qubits;
@@ -44,7 +43,7 @@ TEST(ConfusionMatrixTester, check_noisy) {
     std::vector<size_t> n_qubits_list{1, 2};
 
     for (auto const & n_qubits : n_qubits_list) {
-        //(0) ideal confusion matrix is just the identity 
+        //(0) ideal confusion matrix is just the identity
         size_t dim = std::pow(2, n_qubits);
         Eigen::MatrixXd ideal = Eigen::MatrixXd::Identity(dim, dim);
 
@@ -55,7 +54,7 @@ TEST(ConfusionMatrixTester, check_noisy) {
         }
 
         //(2) Build noise model using fixed readout errors only
-        const double p_01 = 0.05; 
+        const double p_01 = 0.05;
         const double p_10 = 0.05;
         qristal::NoiseModel SPAM_error;
         for (size_t q = 0; q < qubits.size(); ++q) {
@@ -67,12 +66,11 @@ TEST(ConfusionMatrixTester, check_noisy) {
 
         //(3) define session
         auto sim = qristal::session();
-        sim.init();
-        sim.set_qn(qubits.size());
-        sim.set_sn(1e6);
-        sim.set_acc("aer");
-        sim.set_noise(true);
-        sim.set_noise_model(SPAM_error);
+        sim.qn = qubits.size();
+        sim.sn = 1e6;
+        sim.acc = "aer";
+        sim.noise = true;
+        sim.noise_model = std::make_shared<qristal::NoiseModel>(SPAM_error);
 
         //(3) define workflow
         SPAMBenchmark workflow(qubits, sim);

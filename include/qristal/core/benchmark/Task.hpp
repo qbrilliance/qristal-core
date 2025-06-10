@@ -1,6 +1,6 @@
 #pragma once
 
-#include "qristal/core/circuit_builder.hpp"
+#include <qristal/core/circuit_builder.hpp>
 
 namespace qristal {
     namespace benchmark {
@@ -84,9 +84,9 @@ namespace qristal {
                         for (auto const & q : workflow.get_qubits()) {
                             circuit.Measure(q);
                         }
-                        workflow.set_session().set_irtarget_m(circuit.get());
+                        workflow.set_session().irtarget = circuit.get();
                         workflow.set_session().run();
-                        measured_results.push_back(workflow.get_session().results()[0][0]);
+                        measured_results.push_back(workflow.get_session().results());
                     }
                     workflow.serialize_measured_counts(measured_results, timestamp);
                 }
@@ -115,10 +115,10 @@ namespace qristal {
                     std::vector<std::map<std::vector<bool>, int>> measured_results;
                     std::vector<qristal::CircuitBuilder> circuits = workflow.get_circuits();
                     for ( auto& circuit : circuits ) {
-                        circuit.MeasureAll(workflow.get_session().get_qns()[0][0]);
-                        workflow.set_session().set_irtarget_m(circuit.get());
+                        circuit.MeasureAll(workflow.get_session().qn);
+                        workflow.set_session().irtarget = circuit.get();
                         workflow.set_session().run();
-                        measured_results.push_back(workflow.get_session().results()[0][0]);
+                        measured_results.push_back(workflow.get_session().results());
                     }
                     workflow.serialize_measured_counts(measured_results, timestamp);
                 }

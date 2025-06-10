@@ -1,8 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/python/py_noise_model.hpp"
-#include "qristal/core/python/py_stl_containers.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
+#include <qristal/core/python/py_noise_model.hpp>
+#include <qristal/core/python/py_stl_containers.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
 #include <pybind11/stl_bind.h>
 
 namespace qristal {
@@ -36,7 +36,7 @@ void bind_noise_model(pybind11::module &m) {
 
       Create single-qubit depolarizing channel (balanced/symmetric)
 
-      Parameters: 
+      Parameters:
 
       - *q* Qubit index
       - *p* Total depolarizing probability
@@ -49,7 +49,7 @@ void bind_noise_model(pybind11::module &m) {
 
       Create two-qubit depolarizing channel (balanced/symmetric)
 
-      Parameters: 
+      Parameters:
 
       - *q1* First qubit
       - *q2* Second qubit
@@ -73,7 +73,7 @@ void bind_noise_model(pybind11::module &m) {
       - *excited_state_population* Excited state population
       - *param_amp* Amplitude damping parameter
       - *param_phase* Phase damping parameter
-    
+
     )");
 
   py::class_<qristal::GeneralizedAmplitudeDampingChannel>(
@@ -91,7 +91,7 @@ void bind_noise_model(pybind11::module &m) {
       - *q* Qubit
       - *excited_state_population* Excited state population
       - *param_amp* Amplitude damping parameter
-    
+
     )");
 
   py::class_<qristal::krausOpToChannel>(m, "krausOpToChannel", R"(krausOpToChannel channel factory)")
@@ -152,7 +152,7 @@ void bind_noise_model(pybind11::module &m) {
       - Qubit topology
       - Time duration of quantum gate operations
       - Parameters for quantum noise channels and classical errors
-    
+
     )")
       .def(py::init<>())
       .def_readwrite("t1_us", &qristal::NoiseProperties::t1_us, R"(
@@ -161,14 +161,14 @@ void bind_noise_model(pybind11::module &m) {
         For a qubit register, with individual qubits zero-indexed by `i`; `t1_us` is a map from qubit[i] -> T1[i].
 
         Unit: microseconds
-        
+
         Code example: 4 qubits all with T1 = 1.5us::
-          
+
           # Initialize an empty NoiseProperties
           t_qbnp = NoiseProperties()
           # Set T1 of qubits (all with 1.5 us)
           for i in range(4):
-            t_qbnp.t1_us[i] =  1.5 
+            t_qbnp.t1_us[i] =  1.5
       )")
       .def_readwrite("t2_us", &qristal::NoiseProperties::t2_us, R"(
         :math:`T_2` is the *qubit dephasing time*.
@@ -176,25 +176,25 @@ void bind_noise_model(pybind11::module &m) {
         For a qubit register, with individual qubits zero-indexed by `i`; `t2_us` is a map from qubit[i] -> T2[i].
 
         Unit: microseconds
-        
+
         Code example: 4 qubits all with T2 = 0.15us::
-          
+
           # Initialize an empty NoiseProperties
           t_qbnp = NoiseProperties()
           # Set T2 of qubits (all with 0.15 us)
           for i in range(4):
-            t_qbnp.t2_us[i] =  0.15 
+            t_qbnp.t2_us[i] =  0.15
       )")
       .def_readwrite("readout_errors", &qristal::NoiseProperties::readout_errors, R"(
-        `readout_errors` is the *classical readout error* (off-diagonal elements of the confusion matrix).  
-        
+        `readout_errors` is the *classical readout error* (off-diagonal elements of the confusion matrix).
+
         For a qubit register, with individual qubits zero-indexed by i, `readout_errors` is a map from qubit[i] -> `ReadoutError[i]`.
 
         Unit: none (quantities are probabilities).
-        
-        Code example: 4-qubit device: 2 qubits (Q0 and Q1) with p(0|1) = p(1|0) = 0.05, 
+
+        Code example: 4-qubit device: 2 qubits (Q0 and Q1) with p(0|1) = p(1|0) = 0.05,
         2 qubits (Q2 and Q3) with p(0|1) = 0.1 and p(1|0) = 0.08::
-          
+
           # Initialize an empty NoiseProperties
           t_qbnp = NoiseProperties()
           t_qbnpro_balanced = ReadoutError()
@@ -212,11 +212,11 @@ void bind_noise_model(pybind11::module &m) {
       )")
       .def_readwrite("gate_time_us", &qristal::NoiseProperties::gate_time_us, R"(
         `gate_time_us` is the duration for a quantum gate operation when applied at a target set of qubits.
-        
+
         Unit: microseconds
-        
+
         Code example: 4 qubits: "u3" single-qubit gate, uniform duration of 5.2us; "cx" between neighboring qubits (on a line), uniform duration of 20us::
-          
+
           # Initialize an empty NoiseProperties
           t_qbnp = NoiseProperties()
           t_qbnp.gate_time_us["u3"] = {}
@@ -237,9 +237,9 @@ void bind_noise_model(pybind11::module &m) {
         `gate_pauli_errors` is the parameter for gate error derived from randomized benchmarking of a quantum gate operation that is applied at a target set of qubits.
 
         Unit: none (range: [0.0, 1.0])
-        
+
         Code example: 4 qubits: "u3" single-qubit gate, uniform gate error parameter = 0.03 (3%); "cx" between neighboring qubits (on a line), gate error parameter = 0.1 (10%)::
-          
+
           # Initialize an empty NoiseProperties
           t_qbnp = NoiseProperties()
           t_qbnp.gate_pauli_errors["u3"] = {}
@@ -256,10 +256,10 @@ void bind_noise_model(pybind11::module &m) {
       )")
       .def_readwrite("qubit_topology", &qristal::NoiseProperties::qubit_topology, R"(
         `qubit_topology` is a graph comprised of directed edges {control qubit, target qubit} with control qubit as the source of the edge -> target qubit as the destination of the edge.
-        
+
         Code example: "cx" symmetrical two-qubit gate with 4 qubits in the topology below::
-          
-          # Topology 
+
+          # Topology
           #    q0 <--cx--> q1
           #     ^           ^
           #     |           |
@@ -308,37 +308,37 @@ void bind_noise_model(pybind11::module &m) {
               v.emplace_back(py::cast<size_t>(x));
             model->add_gate_error(noise_channel, gate_name, v);
           }, R"(
-  
+
         Add a gate error channel for a gate operation
-  
-        Parameters: 
-        
-        - *noise_channel* Noise channel to be associated with the gate [List(KraussOperator)]
+
+        Parameters:
+
+        - *noise_channel* Noise channel to be associated with the gate [List(KrausOperator)]
         - *gate_name* Name of the gates [String]
         - *qubits* Qubit indices of the gate. [List(Integer)]
-  
+
         )")
       .def("set_qubit_readout_error", &qristal::NoiseModel::set_qubit_readout_error,
            R"(
-  
-        Set the qubit readout error 
-  
-        Parameters: 
-        
+
+        Set the qubit readout error
+
+        Parameters:
+
         - *qubitIdx* Qubit to set [Integer]
         - *ro_error* Readout error [ReadoutError]
-  
+
         )")
       .def("add_qubit_connectivity", &qristal::NoiseModel::add_qubit_connectivity,
            R"(
-  
+
         Add a connected qubit pair to the topology model
-  
-        Parameters: 
-        
+
+        Parameters:
+
         - *q1* First qubit index [Integer]
         - *q2* Second qubit index [Integer]
-  
+
         )")
       .def_property_readonly(
           "connectivity", &qristal::NoiseModel::get_connectivity,

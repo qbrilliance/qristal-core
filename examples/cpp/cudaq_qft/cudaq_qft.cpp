@@ -1,7 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/circuit_builder.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/circuit_builder.hpp>
 
 #include <string>
 #include <iostream>
@@ -13,21 +13,18 @@ int main()
   std::cout << "Executing C++ demo..." << std::endl;
 
   // Make a Qristal session
-  auto my_sim = qristal::session(false);
-
-  // Set up sensible default parameters
-  my_sim.init();
+  qristal::session my_sim;
 
   // Choose a CUDAQ simulator backend, e.g., custatevec_fp32 (single-precision)
-  my_sim.set_acc("cudaq:custatevec_fp32");
-  my_sim.set_gpu_device_id({0});
+  my_sim.acc = "cudaq:custatevec_fp32";
+  my_sim.gpu_device_ids = {0};
 
   // Choose how many qubits to simulate
   constexpr int num_qubits = 10;
-  my_sim.set_qn(num_qubits);
+  my_sim.qn = num_qubits;
 
   // Choose how many 'shots' to run through the circuit
-  my_sim.set_sn(1024);
+  my_sim.sn = 1024;
 
   qristal::CircuitBuilder circ;
   std::vector<int> qft_qubits(num_qubits);
@@ -38,7 +35,7 @@ int main()
   circ.QFT(qft_qubits);
   circ.MeasureAll(num_qubits);
   // Hand the CircuitBuilder over to the sim object
-  my_sim.set_irtarget_m(circ.get());
+  my_sim.irtarget = circ.get();
 
   // Run the circuit 1024 times and count up the results in each of the classical registers
   std::cout << "About to run quantum program..." << std::endl;
@@ -46,6 +43,6 @@ int main()
   std::cout << "Ran successfully!" << std::endl;
 
   // Print the cumulative results in each of the classical registers
-  std::cout << "Results:" << std::endl << my_sim.results()[0][0] << std::endl;
+  std::cout << "Results:" << std::endl << my_sim.results() << std::endl;
 
 }

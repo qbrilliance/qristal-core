@@ -1,7 +1,6 @@
 import qristal.core
 
 s = qristal.core.session()
-s.init()
 
 for i in range(32):
     for j in range(32):
@@ -28,7 +27,7 @@ for i in range(32):
 
         circ.measure_all()
 
-        s.ir_target = circ
+        s.irtarget = circ
         s.nooptimise = True
         s.noplacement = True
         s.notiming = True
@@ -37,7 +36,6 @@ for i in range(32):
         s.sn = 1024
         s.acc = "qsim"
         s.run()
-        res = s.results[0][0]
 
         expected_output = a_bin + b_bin
         if i > j:
@@ -46,4 +44,4 @@ for i in range(32):
             expected_output += "0"
         expected_output += "0"
 
-        assert(res[[int(x) for x in expected_output]] == 1024)
+        assert(s.results[[int(x) for x in expected_output]] == 1024)

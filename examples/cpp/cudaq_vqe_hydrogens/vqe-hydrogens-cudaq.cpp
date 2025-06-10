@@ -1,12 +1,12 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
-#include "qristal/core/cudaq/ir_converter.hpp"
-#include "qristal/core/cudaq/sim_pool.hpp"
-#include "cudaq/algorithm.h"
-#include "cudaq/gradients/central_difference.h"
-#include "cudaq/optimizers.h"
-#include "cudaq/spin_op.h"
-#include "xacc.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/cudaq/ir_converter.hpp>
+#include <qristal/core/cudaq/sim_pool.hpp>
+#include <cudaq/algorithm.h>
+#include <cudaq/gradients/central_difference.h>
+#include <cudaq/optimizers.h>
+#include <cudaq/spin_op.h>
+#include <xacc.hpp>
+#include <xacc_service.hpp>
 #include <filesystem>
 
 int main() {

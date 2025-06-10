@@ -4,32 +4,31 @@
 #include <filesystem>
 #include <sstream>
 
-#include "qristal/core/session.hpp"
-#include "qristal/core/noise_model/noise_model.hpp"
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp"
+#include <qristal/core/session.hpp>
+#include <qristal/core/noise_model/noise_model.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp>
 
 using namespace qristal::benchmark;
 
 TEST(QuantumProcessFidelityTester, checkSPAM) {
     const std::set<size_t> qubits{0};
 
-    //define session  
-    qristal::session sim(false); 
-    sim.init();
-    sim.set_acc("qsim");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    //define session
+    qristal::session sim;
+    sim.acc = "qsim";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
-    //define workflow 
+    //define workflow
     SPAMBenchmark workflow(qubits, sim);
     using QST = QuantumStateTomography<SPAMBenchmark>;
     QST qstworkflow(workflow); //wrap circuit execution into QST object
     using QPT = QuantumProcessTomography<QST>;
     QPT qptworkflow(qstworkflow); //wrap QST into QPT object
 
-    //evaluate metric 
+    //evaluate metric
     QuantumProcessFidelity<QPT> metric(qptworkflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {
@@ -43,19 +42,18 @@ TEST(QuantumProcessFidelityTester, checkSPAM) {
 TEST(QuantumProcessFidelityTester, checkRotationSweep) {
     const std::set<size_t> qubits{0, 1};
 
-    //define session  
-    qristal::session sim(false); 
-    sim.init();
-    sim.set_acc("qpp");
-    sim.set_sn(1000000);
-    sim.set_qn(qubits.size());
+    //define session
+    qristal::session sim;
+    sim.acc = "qpp";
+    sim.sn = 1000000;
+    sim.qn = qubits.size();
 
-    //define workflow 
+    //define workflow
     RotationSweep workflow(
-        std::vector<char>{'Y', 'X'}, 
+        std::vector<char>{'Y', 'X'},
         -90,
         +90,
-        2, 
+        2,
         sim
     );
     using QST = QuantumStateTomography<RotationSweep>;
@@ -63,7 +61,7 @@ TEST(QuantumProcessFidelityTester, checkRotationSweep) {
     using QPT = QuantumProcessTomography<QST>;
     QPT qptworkflow(qstworkflow); //wrap QST into QPT object
 
-    //evaluate metric 
+    //evaluate metric
     QuantumProcessFidelity<QPT> metric(qptworkflow);
     std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
     for (auto const & t2v : results) {

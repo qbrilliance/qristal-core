@@ -1,14 +1,14 @@
-#include "qristal/core/python/py_benchmark_workflows.hpp"
-#include "qristal/core/python/py_help_strings_benchmark_workflows.hpp"
-#include "qristal/core/python/py_stl_containers.hpp"
+#include <qristal/core/python/py_benchmark_workflows.hpp>
+#include <qristal/core/python/py_help_strings_benchmark_workflows.hpp>
+#include <qristal/core/python/py_stl_containers.hpp>
 
 //workflows
-#include "qristal/core/benchmark/workflows/SPAMBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/RotationSweep.hpp"
-#include "qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp"
-#include "qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp"
-#include "qristal/core/benchmark/workflows/QuantumStateTomography.hpp"
-#include "qristal/core/benchmark/workflows/QuantumProcessTomography.hpp"
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
+#include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
 
 #include <pybind11/eigen.h>
 

@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include "qristal/core/pretranspiler.hpp"
+#include <qristal/core/pretranspiler.hpp>
 #include <regex>
 
 namespace qristal {

@@ -2,10 +2,10 @@
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
 
-#include "qristal/core/circuits/equality_checker.hpp"
-#include "CommonGates.hpp"
-#include "IRProvider.hpp"
-#include "xacc_service.hpp"
+#include <qristal/core/circuits/equality_checker.hpp>
+#include <CommonGates.hpp>
+#include <IRProvider.hpp>
+#include <xacc_service.hpp>
 #include <assert.h>
 #include <bitset>
 #include <functional>

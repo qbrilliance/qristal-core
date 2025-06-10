@@ -10,17 +10,15 @@ import pytest
 #     print("* With default init settings, with the default (TNQVM-ExaTN-MPS) backend, run a depth 5 circuit, check the length of the results set is >0")
 #     import qristal.core, ast
 #     s = qristal.core.session()
-#     s.init()
 #     s.random = 5
 #     s.run()
-#     assert (len(s.results[0][0]) > 0, "Failed test: CI_210826_3_init_random_5 - TNQVM-ExaTN-MPS"
+#     assert (len(s.results) > 0, "Failed test: CI_210826_3_init_random_5 - TNQVM-ExaTN-MPS"
 
 def test_example_hardware_device_rx_ry_rz() :
     print(" Loopback QCStack check transpiling into discrete angles")
     import qristal.core
     import json
     s = qristal.core.session()
-    s.init()
     s.qn = 1
     s.sn = 2
     s.xasm = True
@@ -39,6 +37,6 @@ def test_example_hardware_device_rx_ry_rz() :
 
     # Run the circuit on the back-end
     s.run()
-    trj = json.loads(s.out_qbjson[0][0])
+    trj = json.loads(s.qbjson)
     assert (trj['circuit'][0] == "Rx(q[0],0.392699)")
     assert (trj['circuit'][-1] == "Rx(q[0],3.14159)")
