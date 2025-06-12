@@ -4,7 +4,7 @@
 
 namespace qristal {
 
-  /// Emulator backends
+  /// Emulator backends (cudaq-wrapped emulator backends do not have to be in this list)
   const std::unordered_set<std::string_view> session::EMULATOR_BACKENDS = {
     "qb-statevector",
     "qb-mps",
@@ -28,6 +28,9 @@ namespace qristal {
       "qb-mps",
       "qb-purification",
       "qb-mpdo",
+      "cudaq:qb_mps",
+      "cudaq:qb_purification",
+      "cudaq:qb_mpdo",
       "aws-braket"
   };
 
