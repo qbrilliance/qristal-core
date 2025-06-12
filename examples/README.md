@@ -362,6 +362,30 @@ _noise_: false
 
 Example of a quantum phase estimation, $\hat{O}\ket{\psi} = e^{i\phi}\ket{\psi}$, where the goal is to estimate the phase $\phi$. The oracle operator $\hat{O}$ in this case is a general $U1$ rotation, i.e. $U1(\theta) \ket{1} = e^{i\theta}\ket{1}$. Test value: $-5\pi/8$.
 
+`qb_mpdo_noisy.py`
+
+_qubits_: 3
+_gate depth_: 2
+_noise_: false
+
+Example of how to use the Qristal Emulator's matrix product density operator backend to execute a 3-qubit circuit consisting of $X$ and $CX$ gates. Details of this backend are available [here](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-matrix-product-density-operator-qb-mpdo-and-cudaq-qb-mpdo) .
+
+`qb_mps_noisy.py`
+
+_qubits_: 3
+_gate depth_: 2
+_noise_: false
+
+Example of how to use the Qristal Emulator's matrix product state backend to execute a 3-qubit circuit consisting of $X$ and $CX$ gates. Details of this backend are available [here](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-matrix-product-state-mps-qb-mps-and-cudaq-qb-mps) .
+
+`qb_purification_noisy.py`
+
+_qubits_: 3
+_gate depth_: 2
+_noise_: false
+
+Example of how to use the Qristal Emulator's purification backend to execute a 3-qubit circuit consisting of $X$ and $CX$ gates. Details of this backend are available [here](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-purification-qb-purification-and-cudaq-qb-purification) .
+
 `qb_statevector_noisy.py`
 
 _qubits_: 3
@@ -481,6 +505,7 @@ A simple example demonstrating both synchronous and asynchronous circuit executi
 * Create an S3 Bucket with prefix `amazon-braket-*` and create a folder inside the S3 bucket to store results.
 
 
+
 ## C++ ##
 
 `demo1`
@@ -513,6 +538,30 @@ _qubits_: 5
 _noise_: false
 
 Example of a quantum Fourier transform using 4 different accelerator backends (aer `density_matrix`, aer `matrix_product_state`, `cudaq:dm` and `tnqvm`) running in parallel via a thread pool.
+
+`qb_mpdo_noisy`
+
+_qubits_: 2
+_gate depth_: 2
+_noise_: false
+
+Example of how to use the Qristal Emulator's matrix product density operator backend to create a Bell state. Details of this backend are available [here](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-matrix-product-density-operator-qb-mpdo-and-cudaq-qb-mpdo) .
+
+`qb_mps_noisy`
+
+_qubits_: 2
+_gate depth_: 2
+_noise_: false
+
+Example of how to use the Qristal Emulator's matrix product state backend to create a Bell state. Details of this backend are available [here](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-matrix-product-state-mps-qb-mps-and-cudaq-qb-mps) .
+
+`qb_purification_noisy`
+
+_qubits_: 2
+_gate depth_: 2
+_noise_: false
+
+Example of how to use the Qristal Emulator's purification backend to create a Bell state. Details of this backend are available [here](https://qristal.readthedocs.io/en/latest/rst/backends.html#quantum-brilliance-purification-qb-purification-and-cudaq-qb-purification) .
 
 `noise_model`
 
