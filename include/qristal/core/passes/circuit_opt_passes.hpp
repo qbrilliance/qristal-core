@@ -15,6 +15,7 @@ namespace qristal {
     public:
       /// Constructor
       optimization_pass(const std::string &name);
+
       /// Returns name of the pass
       virtual std::string get_name() const override;
 
@@ -25,6 +26,24 @@ namespace qristal {
       virtual void apply(CircuitBuilder &circuit) override;
   };
 
+  /// @brief Sequence pass
+  class sequence_pass : public CircuitPass{
+    private:
+      /// List of IR Transformation plugin
+      std::vector<std::string> m_pass_list;
+    public:
+      /// Constructor
+      sequence_pass(const std::vector<std::string> &pass_list);
+    
+      /// Returns name of the pass
+      virtual std::string get_name() const override;
+
+      /// Returns the pass description
+      virtual std::string get_description() const override;
+
+      /// Runs the pass over the circuit IR node
+      virtual void apply(CircuitBuilder &circuit) override; 
+  };
 
   /// Pattern-based circuit optimization pass
   inline std::shared_ptr<CircuitPass> create_circuit_optimizer_pass() {
@@ -57,5 +76,4 @@ namespace qristal {
   inline std::shared_ptr<CircuitPass> create_initial_state_simplify_pass() {
     return std::make_shared<optimization_pass>("simplify-initial");
   }
-
 }

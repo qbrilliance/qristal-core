@@ -3,6 +3,7 @@
 
 // XACC
 #include <IRTransformation.hpp>
+#include <xacc.hpp>
 
 // TKET
 #include <Circuit/CircPool.hpp>
@@ -11,7 +12,6 @@
 #include <Transformations/OptimisationPass.hpp>
 #include <Transformations/Rebase.hpp>
 #include <Transformations/Replacement.hpp>
-
 #include <qristal/core/tket/tket_ir_converter.hpp>
 
 namespace qristal {
@@ -101,6 +101,40 @@ namespace qristal {
       }
   };
 
+class SequencePass : public xacc::IRTransformation {
+  public:
+      SequencePass() {}
+  
+      void apply(std::shared_ptr<xacc::CompositeInstruction> program,
+                 const std::shared_ptr<xacc::Accelerator> acc,
+                 const xacc::HeterogeneousMap& options) override {
+          
+          auto passList = options.get<std::vector<std::string>>("passes");
+          for (const auto& passName : passList) {
+              auto pass = xacc::getIRTransformation(passName);
+              if (pass) {
+                  pass->apply(program, acc, options);
+              } 
+          }
+      }
+  
+      const xacc::IRTransformationType type() const override {
+          return xacc::IRTransformationType::Optimization;
+      }
+  
+      const std::string name() const override {
+          return "sequence-pass";
+      }
+  
+      const std::string description() const override {
+          return "Optimization pass that applies multiple passes in sequence.";
+      }
+  
+      std::shared_ptr<xacc::IRTransformation> clone() {
+          return std::make_shared<SequencePass>();
+      }
+  };
+                    
   /// Remove gate-inverse pairs, merges rotations, removes identity rotations,
   /// and removes redundant gates before measure.
   using tket_redundancy_removal_plugin = TketCircuitTransformPlugin<

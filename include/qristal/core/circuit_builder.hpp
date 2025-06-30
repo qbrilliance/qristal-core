@@ -112,6 +112,25 @@ namespace qristal {
       }
 
       /**
+       * @brief Copy constructor
+       *
+       * Creates a deep copy of another CircuitBuilder, including its circuit,
+       * variables, and configuration.
+       *
+       * @param other The CircuitBuilder to copy.
+       */
+      CircuitBuilder(const CircuitBuilder& other);
+      
+      /**
+       * @brief Create a deep copy of this CircuitBuilder.
+       *
+       * @return A new CircuitBuilder instance with copied data.
+       */
+      CircuitBuilder copy() const {
+        return CircuitBuilder(*this);
+      }
+
+      /**
        * @brief Get the names of the free parameters.
        *
        * @return Names of the free parameters as a vector of strings

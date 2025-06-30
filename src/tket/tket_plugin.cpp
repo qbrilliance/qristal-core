@@ -18,6 +18,8 @@ public:
     context.RegisterService<xacc::IRTransformation>(
         std::make_shared<qristal::TketPlacement>());
     context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::SequencePass>()); 
+    context.RegisterService<xacc::IRTransformation>(
         std::make_shared<qristal::tket_redundancy_removal_plugin>());
     context.RegisterService<xacc::IRTransformation>(
         std::make_shared<qristal::tket_two_qubit_squash_plugin>());

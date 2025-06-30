@@ -16,6 +16,7 @@ void bind_circuit_builder(pybind11::module &m) {
       .def(py::init())
       .def("print", &qristal::CircuitBuilder::print,
            "Print the quantum circuit that has been built")
+      .def("copy", &CircuitBuilder::copy) 
       .def(
           "openqasm",
           [&](qristal::CircuitBuilder &this_) {

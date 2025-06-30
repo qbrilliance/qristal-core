@@ -663,6 +663,10 @@ An example demonstrating the contextual circuit optimization pass, which optimiz
 
 An example demonstrating setting up a pipeline of circuit optimization passes when using Qristal.
 
+`circuit_optimization/sequence_pass.py`
+
+An example demonstrating the use of a sequence of circuit optimisation passes. The different orderings of circuit passes in a sequence result in different optimised circuits
+
 `cudaq_qft.py`
 
 Running QFT circuit constructed by the Qristal circuit builder on a CUDA Quantum simulator backend. Requires CUDA Quantum support.

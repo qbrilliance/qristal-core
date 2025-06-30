@@ -15,6 +15,16 @@ void bind_circuit_opt_passes(pybind11::module &m) {
            "  circuit: Circuit to be optimized",
            pybind11::arg("circuit"));
 
+  pybind11::class_<sequence_pass, std::shared_ptr<sequence_pass>>(
+      m, "sequence_pass","Sequence optimization")
+      .def(pybind11::init<const std::vector<std::string> &>(),
+            "Construct a sequence pass object.\n",
+            pybind11::arg("pass_list"))
+      .def("apply", &sequence_pass::apply,
+            "Apply sequence optimization placement on the input circuit.\n"
+            "\nArgs:\n",
+            pybind11::arg("circuit"));
+            
   m.def("circuit_optimizer", &qristal::create_circuit_optimizer_pass,
         "Generic pattern-based circuit optimization pass.");
   m.def("redundancy_removal", &qristal::create_remove_redundancies_pass,

@@ -10,6 +10,7 @@
 #include <qristal/core/noise_model/noise_model.hpp>
 #include <qristal/core/passes/noise_aware_placement_pass.hpp>
 #include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/passes/circuit_opt_passes.hpp>
 
 TEST(QBTketTester, checkSimple) {
   auto xasmCompiler = xacc::getCompiler("xasm");
@@ -291,6 +292,60 @@ TEST(QBTketTester, checkTwoQubitSquash) {
     // Only 2 CNOT gate remains 
     EXPECT_EQ(vis.countGates(), 2);
   }
+}
+
+TEST(QBTketTester, checkSequencePass) {
+  // Tester for SequencePass plugin
+  auto provider = xacc::getIRProvider("quantum");
+  auto program = provider->createComposite("test");
+  
+  program->addInstruction(std::make_shared<xacc::quantum::X>(0));
+  program->addInstruction(std::make_shared<xacc::quantum::CNOT>(0, 1));
+  program->addInstruction(std::make_shared<xacc::quantum::Hadamard>(0));
+  program->addInstruction(std::make_shared<xacc::quantum::Hadamard>(0));
+
+  std::cout << "Before optimization:\n" << program->toString() << "\n";
+
+  // List of optimization passes
+  std::vector<std::string> passSequence = {"redundancy-removal", "simplify-initial"};
+
+  auto acc = xacc::getAccelerator("qpp");
+  auto compositePass = xacc::getIRTransformation("sequence-pass");
+  xacc::HeterogeneousMap opts;
+  opts.insert("passes", passSequence);
+  compositePass->apply(program, acc, opts);
+  std::cout << "After optimization:\n" << program->toString() << "\n";
+
+  xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::CNOT> vis(program);
+  EXPECT_EQ(vis.countGates(), 0);
+  EXPECT_EQ(program->nInstructions(), 2);
+
+  // Tester for sequence_pass
+  qristal::CircuitBuilder circuit;
+  circuit.X(0);
+  circuit.CNOT(0, 1);   
+  circuit.H(0);
+  circuit.H(0); 
+
+  // Helper lambda to count gates in the circuit
+  auto count_gates = [](qristal::CircuitBuilder& circ) -> size_t {
+    std::shared_ptr<xacc::CompositeInstruction> circuit = circ.get();
+    if (!circuit) return 0;
+    return circuit->nInstructions();
+  };
+
+  std::cout << "Original Circuit:\n";
+  circuit.print();  
+  qristal::sequence_pass seqPass(passSequence);
+
+  seqPass.apply(circuit);
+
+  std::cout << "\nOptimized Circuit:\n";
+  circuit.print();
+
+  size_t optimized_gate_count = count_gates(circuit);
+  std::cout << "Number of gates after optimization: " << optimized_gate_count << "\n";
+  EXPECT_EQ(optimized_gate_count, 2);
 }
 
 TEST(QBTketTester, checkPeepHoleOptimise) {

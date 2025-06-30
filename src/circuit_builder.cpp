@@ -29,6 +29,21 @@ namespace qristal
     }
   }
 
+  CircuitBuilder::CircuitBuilder(const CircuitBuilder& other) {
+    xacc::Initialize();
+    gate_provider_ = xacc::getService<xacc::IRProvider>("quantum");
+  
+    // Deep copy the circuit
+    circuit_ = gate_provider_->createComposite("QBSDK_circuit_copy");
+    circuit_->addVariables(other.circuit_->getVariables());
+    circuit_->addInstructions(other.circuit_->getInstructions());
+  
+    // Copy other members
+    num_qubits_ = other.num_qubits_;
+    free_params_ = other.free_params_;
+    is_parametrized_ = other.is_parametrized_;
+  }
+
   void CircuitBuilder::append(CircuitBuilder &other) {
     xacc::InstructionIterator it(other.get());
     while (it.hasNext()) {
