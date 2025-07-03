@@ -649,23 +649,32 @@ An example demonstrating the pattern-based circuit optimization pass.
 
 `circuit_optimization/remove_redundant_gates.py`
 
-An example demonstrating the redundant gate removal circuit optimization pass.
+An example demonstrating the redundant gate removal circuit optimization pass. This example requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
 
 `circuit_optimization/two_qubit_squash.py`
 
-An example demonstrating the two-qubit gate synthesis (squash) circuit optimization pass.
+An example demonstrating the two-qubit gate synthesis (squash) circuit optimization pass. This example requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
 
 `circuit_optimization/simplify_initial_conditions.py`
 
-An example demonstrating the contextual circuit optimization pass, which optimizes the circuit based on the knowledge of its initial state.
+An example demonstrating the contextual circuit optimization pass, which optimizes the circuit based on the knowledge of its initial state. This example requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
 
 `circuit_optimization/session_integration.py`
 
 An example demonstrating setting up a pipeline of circuit optimization passes when using Qristal.
 
+<<<<<<< HEAD
 `circuit_optimization/sequence_pass.py`
 
 An example demonstrating the use of a sequence of circuit optimisation passes. The different orderings of circuit passes in a sequence result in different optimised circuits
+=======
+`circuit_optimization/sequence_pass.py`
+
+An example demonstrating the use of a sequence of circuit optimisation passes. The different orderings of circuit passes in a sequence result in different optimised circuits
+>>>>>>> 7166b85a (Arinta/swa2231/sequence)
+
+`circuit_optimization/peephole_optimization.py`
+An example demonstrating the full peephole optimization circuit pass that removes redundancies and merges rotations. This example requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
 
 `cudaq_qft.py`
 

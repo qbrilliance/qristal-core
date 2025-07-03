@@ -28,6 +28,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added integration tests for circuit shot parallelisation via MPI
 - Added sequence_pass class to support applying multiple optimization passes in sequence
 - Added Python example demonstrating the use of sequence_pass
+- Added `peephole_optimization` example
 
 ### Fixed
 
