@@ -1,0 +1,167 @@
+vqpu_localhost1:
+  url: http://localhost:5511
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost2:
+  url: http://localhost:5512
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost3:
+  url: http://localhost:5513
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost4:
+  url: http://localhost:5514
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost5:
+  url: http://localhost:5515
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost6:
+  url: http://localhost:5516
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost7:
+  url: http://localhost:5517
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost8:
+  url: http://localhost:5518
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost9:
+  url: http://localhost:5519
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost10:
+  url: http://localhost:5520
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost11:
+  url: http://localhost:5521
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost12:
+  url: http://localhost:5522
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost13:
+  url: http://localhost:5523
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost14:
+  url: http://localhost:5524
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost15:
+  url: http://localhost:5525
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost16:
+  url: http://localhost:5526
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost17:
+  url: http://localhost:5527
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost18:
+  url: http://localhost:5528
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost19:
+  url: http://localhost:5529
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost20:
+  url: http://localhost:5530
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost21:
+  url: http://localhost:5531
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost22:
+  url: http://localhost:5532
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost23:
+  url: http://localhost:5533
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true
+
+vqpu_localhost24:
+  url: http://localhost:5534
+  poll_secs: 2
+  poll_retries: 100
+  exclusive_access: false
+  use_default_contrast_settings: true

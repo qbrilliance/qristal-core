@@ -516,6 +516,22 @@ _noise_: false
 
 A C++ implementation of `demo1.py`.
 
+`mpi_demo`
+
+_qubits_: 20
+_shot count_: 100000
+_noise_: true
+
+An example of how to use MPI parallelisation in Qristal to achieve a significant speed up on a single system. Requires Qristal be built with `-DWITH_MPI=ON`.
+
+`mpi_multi_qpu_demo`
+
+_qubits_: 2
+_gate depth_: 3
+_noise_: false
+
+Extends `mpi_demo` by showing how to configure Qristal to use a different vQPU for each MPI process. The configuration can be used as a template for assigning each MPI process different instances of the same type of hardware backend (e.g. QB's QPU or AWS Rigetti). Requires Qristal be built with `-DWITH_MPI=ON`.
+
 `bell_with_SPAM`
 
 _qubits_: 2

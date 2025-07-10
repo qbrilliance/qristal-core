@@ -68,13 +68,6 @@ set(test_sources
   tests/vqe/VqeGenTester.cpp
 )
 
-if(WITH_MPI)
-  # When you add a new test, please keep the alphabetical ordering!
-  list(APPEND test_sources
-    tests/mpi/SerialisationTester.cpp
-  )
-endif()
-
 add_executable(CITests ${test_sources})
 
 add_executable(HardwareTests
@@ -198,7 +191,11 @@ if (WITH_PROFILING)
 endif()
 
 if(WITH_MPI)
-  add_executable(MPICITests tests/mpi/ShotParallelisationTester.cpp)
+  add_executable(MPICITests
+    tests/mpi/SerialisationTester.cpp
+    tests/mpi/SessionConfigurationTester.cpp
+    tests/mpi/ShotParallelisationTester.cpp
+  )
   target_link_libraries(MPICITests PRIVATE
     qristal::core
     GTest::gtest

@@ -35,6 +35,7 @@
 #include <stdexcept>
 #include <thread>
 #include <vector>
+#include <string_view>
 
 // XACC
 #include <AcceleratorBuffer.hpp>
@@ -94,6 +95,11 @@ namespace
       }
     }
     return aver;
+  }
+
+  bool is_hardware_accelerator(std::string_view accelerator, const YAML::Node& remote_backend_database)
+  {
+      return accelerator != "aws-braket" && remote_backend_database[accelerator.data()];
   }
 }
 
@@ -503,6 +509,53 @@ namespace qristal
     throw std::range_error(err.str());
   }
 
+#ifdef USE_MPI
+  void validate_mpi_config(int32_t num_mpi_processes, int32_t mpi_process_id,
+                           const std::vector<std::string> &mpi_hardware_accelerators, std::string &session_accelerator,
+                           const YAML::Node &remote_backend_database) {
+    const bool mpi_hardware_accelerators_populated = !mpi_hardware_accelerators.empty();
+    if (mpi_hardware_accelerators_populated) {
+      session_accelerator = mpi_hardware_accelerators.at(mpi_process_id);
+      if (!is_hardware_accelerator(session_accelerator, remote_backend_database)) {
+        // Do not allow backends which aren't remote as results may not make sense
+        throw std::runtime_error(
+            fmt::format("Configured backend ({}) must be a hardware backend (or vQPU) when "
+                        "populating session::mpi_hardware_accelerators.",
+                        session_accelerator));
+      }
+    }
+
+    if (num_mpi_processes == 1) {
+      // Other checks need to be skipped as they are only applicable when running as a part of an MPI pool.
+      return;
+    }
+
+    if (!mpi_hardware_accelerators_populated && is_hardware_accelerator(session_accelerator, remote_backend_database)) {
+      // If the user hasn't defined any MPI hardware accelerators, all MPI processes will use the
+      // same accelerator. MPI can only be used with simulator backends in this instance as it currently
+      // doesn't make sense for multiple MPI processes to share a single hardware device or vQPU.
+      throw std::runtime_error(fmt::format("A hardware backend has been configured ({}) and the "
+                                           "session is being run with multiple MPI "
+                                           "processes. Either a simulator backend must be "
+                                           "configured in session::acc or each MPI process "
+                                           "must have a unique hardware backend defined in "
+                                           "session::mpi_hardware_accelerators.",
+                                           session_accelerator));
+    }
+
+    const int32_t num_available_mpi_accelerators = mpi_hardware_accelerators.size();
+    if (mpi_hardware_accelerators_populated && num_mpi_processes > num_available_mpi_accelerators) {
+      // If the user has defined MPI hardware accelerators, each MPI process will use a different accelerator.
+      // The number of MPI processes must not exceed the number of assigned accelerators
+      throw std::runtime_error(
+          fmt::format("Session has been configured to run with {} MPI processes but there are only {} available "
+                      "accelerators. Please ensure there are at least as many accelerators as MPI processes as each "
+                      "MPI process will be assigned one of these accelerators.",
+                      num_mpi_processes, num_available_mpi_accelerators));
+    }
+  }
+#endif
+
   // Check that a session object is consistently configured.
   void session::validate() {
 
@@ -517,25 +570,34 @@ namespace qristal
 
     // Load the remote backend database and add names of hardware devices to valid backends
     remote_backend_database_ = YAML::LoadFile(remote_backend_database_path);
-    std::unordered_set<std::string> REMOTE_BACKENDS;
+    std::unordered_set<std::string> remote_backends;
     for (YAML::const_iterator it = remote_backend_database_.begin(); it != remote_backend_database_.end(); ++it) {
-      REMOTE_BACKENDS.emplace(it->first.as<std::string>());
+      remote_backends.emplace(it->first.as<std::string>());
     }
-    std::unordered_set<std::string_view> VALID_BACKENDS = EMULATOR_BACKENDS;
-    VALID_BACKENDS.insert(NON_EMULATOR_BACKENDS.begin(), NON_EMULATOR_BACKENDS.end());
-    VALID_BACKENDS.insert(REMOTE_BACKENDS.begin(), REMOTE_BACKENDS.end());
+    std::unordered_set<std::string_view> valid_backends = EMULATOR_BACKENDS;
+    valid_backends.insert(NON_EMULATOR_BACKENDS.begin(), NON_EMULATOR_BACKENDS.end());
+    valid_backends.insert(remote_backends.begin(), remote_backends.end());
 
-    // Add CUDAQ backends to VALID_BACKENDS
+    std::unordered_set<std::string_view> simulator_backends = EMULATOR_BACKENDS;
+    simulator_backends.insert(NON_EMULATOR_BACKENDS.begin(), NON_EMULATOR_BACKENDS.end());
+
+    // Add CUDAQ backends to valid_backends
     #ifdef WITH_CUDAQ
-      std::unordered_set<std::string> CUDAQ_BACKENDS;
+      std::unordered_set<std::string> cudaq_backends;
       for (const auto &cudaq_sim : cudaq_sim_pool::get_instance().available_simulators()) {
-        CUDAQ_BACKENDS.emplace(cudaq_sim);
+        cudaq_backends.emplace(cudaq_sim);
       }
-      VALID_BACKENDS.insert(CUDAQ_BACKENDS.begin(), CUDAQ_BACKENDS.end());
+      valid_backends.insert(cudaq_backends.begin(), cudaq_backends.end());
+      simulator_backends.insert(cudaq_backends.begin(), cudaq_backends.end());
     #endif
 
+#ifdef USE_MPI
+    validate_mpi_config(get_total_mpi_processes(), get_mpi_process_id(), mpi_hardware_accelerators,
+                        acc, remote_backend_database_);
+#endif
+
     // Check that chosen options are allowed
-    check_allowed(VALID_BACKENDS, acc, "acc");
+    check_allowed(valid_backends, acc, "acc");
     check_allowed(VALID_AER_SIM_TYPES, aer_sim_type, "aer_sim_type");
     check_allowed(VALID_MEASURE_SAMPLING_OPTIONS, measure_sample_method, "measure_sample_method");
     check_allowed(VALID_NOISE_MITIGATIONS, noise_mitigation, "noise_mitigation");
@@ -954,7 +1016,7 @@ namespace qristal
     }
 
     // Has the user asked for a hardware backend?  Check that the backend is in the remote backend database, but not AWS.
-    const bool exec_on_hardware = acc != "aws-braket" and remote_backend_database_[acc];
+    const bool exec_on_hardware = is_hardware_accelerator(acc, remote_backend_database_);
 
     // Collect all the simulator options
     const xacc::HeterogeneousMap mqbacc = configure_backend(remote_backend_database_);

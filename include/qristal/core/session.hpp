@@ -44,6 +44,17 @@ namespace qristal { class backend; }
 namespace qristal
 {
 
+  #ifdef USE_MPI
+  /**
+   * @brief Checks the configuration of the session is valid for MPI-related runs.
+   *
+   * @note @ref acc is modified depending on whether @ref mpi_hardware_accelerators is set.
+   */
+  void validate_mpi_config(int32_t num_mpi_processes, int32_t mpi_process_id,
+                           const std::vector<std::string> &mpi_hardware_accelerators, std::string &session_accelerator,
+                           const YAML::Node &remote_backend_database);
+#endif
+
   /// A session of the Qristal SDK.
   class session
   {
@@ -231,6 +242,19 @@ namespace qristal
            * mind.
            */
           bool mpi_acceleration_enabled{true};
+
+          /**
+           * @brief Sets the accelerators for running with MPI. Each MPI process
+           * uses its rank to index into this array to set its accelerator backend.
+           *
+           * @note If a single process is running and this is set, @ref acc will be ignored.
+           * @note If this is not set, then all MPI processes will use the same backend accelerator
+           * configured in @ref acc.
+           * @note Only hardware backends can be used to partition workloads across MPI as results may
+           * be misleading or cause errors when combining different backends.
+           *
+           */
+          std::vector<std::string> mpi_hardware_accelerators;
 
           /**
            * @brief Light-weight convenience wrapper function for fmt::print that

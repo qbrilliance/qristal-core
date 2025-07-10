@@ -20,6 +20,10 @@ const std::string circuitEndpoint = "api/v1/circuits";
 const std::string nativeGateEndpoint = "api/v1/native-gates";
 const std::string reservationEndpoint = "api/v1/reservations";
 
+namespace {
+  constexpr int32_t HTTP_TIMEOUT = 5000;
+}
+
 namespace qristal
 {
 
@@ -238,7 +242,9 @@ namespace xacc
         const std::string &remoteUrl, const std::string &path,
         const std::string &postStr, std::map<std::string, std::string> headers)
     {
-      auto f = [&](cpr::Url a, cpr::Header b) { return cpr::Post(a, cpr::Body(postStr), b, cpr::VerifySsl(false)); };
+      auto f = [&](cpr::Url a, cpr::Header b) {
+        return cpr::Post(a, cpr::Body(postStr), b, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
+      };
       return HTTP("POST", f, remoteUrl, path, headers, *this, debug);
     }
 
@@ -249,8 +255,10 @@ namespace xacc
         std::map<std::string, std::string> extraParams)
     {
       cpr::Parameters cprParams;
-      for (auto &kv : extraParams) cprParams.AddParameter({kv.first, kv.second});
-      auto f = [&](cpr::Url a, cpr::Header b) { return cpr::Get(a, b, cprParams, cpr::VerifySsl(false)); };
+      for (const auto& kv : extraParams) { cprParams.AddParameter({kv.first, kv.second}); }
+      auto f = [&cprParams](cpr::Url a, cpr::Header b) {
+        return cpr::Get(a, b, cprParams, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
+      };
       return HTTP("GET", f, remoteUrl, path, headers, *this, debug);
     }
 
@@ -259,7 +267,9 @@ namespace xacc
         const std::string &remoteUrl, const std::string &path,
         const std::string &putStr, std::map<std::string, std::string> headers)
     {
-      auto f = [&](cpr::Url a, cpr::Header b) { return cpr::Put(a, cpr::Body(putStr), b, cpr::VerifySsl(false)); };
+      auto f = [&putStr](cpr::Url a, cpr::Header b) {
+        return cpr::Put(a, cpr::Body(putStr), b, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
+      };
       return HTTP("PUT", f, remoteUrl, path, headers, *this, debug);
     }
 

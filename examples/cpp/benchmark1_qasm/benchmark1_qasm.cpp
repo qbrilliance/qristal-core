@@ -21,7 +21,7 @@ int main()
   // Choose how many 'shots' to run through the circuit
   my_sim.sn = 20000;
 
-  // Define the quantum program to run (aka 'quantum kernel' aka 'quantum circuit')
+  // Define the quantum program (ghz) to run (aka 'quantum kernel' aka 'quantum circuit')
   my_sim.instring = R"(
     __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
     {

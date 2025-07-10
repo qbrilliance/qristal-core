@@ -1,0 +1,48 @@
+{
+  "system_name": "vQPU",
+  "metadata": {
+    "purpose": "Use a Qristal backend instead of a real one",
+    "contact": ["pat.scott@quantum-brilliance.com"],
+    "project_description": "A virtual QPU backend",
+    "tags": ["vQPU", "testing"]
+  },
+  "location": {
+    "country": "Australia",
+    "city": "Cloud"
+  },
+  "diamond": {
+    "code_name": "no diamond"
+  },
+  "qcstack_server_config": {
+    "task_manager_config": {
+      "circuit_result_polling_interval": 0.1,
+      "max_circuit_depth": 500,
+      "calibration_enabled": "false"
+    }
+  },
+  "circuit_executor": {
+    "path_to_class": "qb.circuit_handler.vqpu_circuit_executor.VirtualQPUCircuitExecutor",
+    "constructor_parameters": {
+      "options": {
+        "debug": false,
+        "qubits": 25,
+        "noise": true,
+        "noise_model": "default",
+        "mitigation": "ro-error",
+        "placement": "noise-aware",
+        "backend": "aer",
+        "qristal_seed": null,
+        "initial_bond_dimension": 1,
+        "initial_kraus_dimension": 1,
+        "max_bond_dimension": 256,
+        "max_kraus_dimension": 256,
+        "svd_cutoff": 1e-6,
+        "rel_svd_cutoff": 1e-3,
+        "measure_sample_method": "auto",
+        "aer_sim_type": "statevector",
+        "gpu_device_ids": [0]
+      }
+    }
+  },
+  "hal_name": "vqpu"
+}

@@ -1,0 +1,25 @@
+accelerators:
+  - vqpu_localhost1
+  - vqpu_localhost2
+  - vqpu_localhost3
+  - vqpu_localhost4
+  - vqpu_localhost5
+  - vqpu_localhost6
+  - vqpu_localhost7
+  - vqpu_localhost8
+  - vqpu_localhost9
+  - vqpu_localhost10
+  - vqpu_localhost11
+  - vqpu_localhost12
+  - vqpu_localhost13
+  - vqpu_localhost14
+  - vqpu_localhost15
+  - vqpu_localhost16
+  - vqpu_localhost17
+  - vqpu_localhost18
+  - vqpu_localhost19
+  - vqpu_localhost20
+  - vqpu_localhost21
+  - vqpu_localhost22
+  - vqpu_localhost23
+  - vqpu_localhost24

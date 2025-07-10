@@ -5,6 +5,10 @@ Qristal can execute circuits on a wide variety of hardware and simulator backend
 
 ## Hardware backends
 
+**Parallelism**
+
+Note that Qristal supports parallel execution on multiple quantum hardware devices, using MPI. To make use of this feature, each MPI process must be configured to use a different physical hardware accelerator. For maximum performance, we recommend using the same model of quantum hardware device for each accelerator.  See {cpp:member}`session::mpi_accelerators` for more info.
+
 ### Quantum Brilliance
 
 **Description**: Quantum Brilliance room-temperature QPUs based on diamond NV technology.  Includes all rack-mounted Quantum Development Kit (QDK) and desktop quantum computer (DQC) iterations, as well as virtualised instances.

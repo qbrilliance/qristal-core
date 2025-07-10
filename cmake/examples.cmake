@@ -74,7 +74,18 @@ if(WITH_EXAMPLES)
   endif()
 
   if (WITH_MPI)
-    add_example(mpi_demo SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_demo/mpi_demo.cpp)
+    add_example(mpi_demo
+        SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_demo/mpi_demo.cpp
+    )
+    add_example(mpi_multi_qpu_demo
+      SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_multi_qpu_demo/mpi_multi_qpu_demo.cpp
+      EXTRAS
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_multi_qpu_demo/docker-compose.yaml
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_multi_qpu_demo/localhost_vqpus.yaml
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_multi_qpu_demo/mpi_process_accelerators.yaml
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_multi_qpu_demo/vqpu.system_config.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/cpp/mpi_multi_qpu_demo/README.md
+    )
   endif()
 
   install(

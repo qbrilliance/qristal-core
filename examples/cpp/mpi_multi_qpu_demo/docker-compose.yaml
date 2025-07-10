@@ -1,0 +1,264 @@
+services:
+  vqpu_5511:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5511
+    ports:
+      - "5511:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5512:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5512
+    ports:
+      - "5512:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5513:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5513
+    ports:
+      - "5513:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5514:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5514
+    ports:
+      - "5514:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5515:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5515
+    ports:
+      - "5515:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5516:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5516
+    ports:
+      - "5516:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5517:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5517
+    ports:
+      - "5517:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5518:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5518
+    ports:
+      - "5518:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5519:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5519
+    ports:
+      - "5519:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5520:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5520
+    ports:
+      - "5520:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5521:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5521
+    ports:
+      - "5521:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5522:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5522
+    ports:
+      - "5522:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5523:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5523
+    ports:
+      - "5523:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5524:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5524
+    ports:
+      - "5524:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5525:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5525
+    ports:
+      - "5525:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5526:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5526
+    ports:
+      - "5526:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5527:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5527
+    ports:
+      - "5527:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5528:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5528
+    ports:
+      - "5528:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5529:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5529
+    ports:
+      - "5529:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5530:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5530
+    ports:
+      - "5530:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5531:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5531
+    ports:
+      - "5531:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5532:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5532
+    ports:
+      - "5532:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5533:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5533
+    ports:
+      - "5533:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1
+
+  vqpu_5534:
+    image: $MPI_COMPATIBLE_VQPU_IMAGE
+    container_name: vqpu_5534
+    ports:
+      - "5534:8080"
+    volumes:
+      - "./vqpu.system_config.json:/mnt/qb/qcstack/packages/system/qb/system/configs/experiment_configs/vqpu.system_config.json"
+    restart: unless-stopped
+    environment:
+      - OMP_NUM_THREADS=1

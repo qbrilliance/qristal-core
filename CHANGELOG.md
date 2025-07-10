@@ -29,6 +29,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added sequence_pass class to support applying multiple optimization passes in sequence
 - Added Python example demonstrating the use of sequence_pass
 - Added `peephole_optimization` example
+- Added functionality to enable assigning MPI processes to different accelerator backends
 
 ### Fixed
 
@@ -42,6 +43,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - CMake configuration: Python package automatic install failed when not specifying the version to install
 - CMake configuration: sometimes "pooly behaved" dependencies were not found due to an edge case when the commit hash length for the version of the package was different to that tested against
 - Consolidated disparate session validation functions into single session::validate() function
+- Fixed Qristal hanging indefinitely when using the QB QPU (including vQPU) and leaking memory until exhaustion by adding timeouts to all HTTP requests
 
 
 ## [1.7.0] - 2025-03-13

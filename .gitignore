@@ -72,3 +72,12 @@ qristal_circuit.inc
 # will be when the intergrations repo is merged with this one
 .devcontainer/
 .vscode/
+
+# Formatting-related config files. Note: this is not currently tracked but eventually
+# will be when the codebase has formatting properly implemented
+.clang-format
+
+# Python Virtual Environments
+venv
+.venv
+

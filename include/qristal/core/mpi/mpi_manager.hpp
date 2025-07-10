@@ -140,14 +140,14 @@ public:
    *
    * @return decltype(mpi_process_id_) The current process's id
    */
-  decltype(mpi_process_id_) get_process_id() { return mpi_process_id_; }
+  decltype(mpi_process_id_) get_process_id() const { return mpi_process_id_; }
 
   /**
    * @brief Get the total number of MPI processes
    *
    * @return decltype(total_processes_) The total number of MPI processes
    */
-  decltype(total_processes_) get_total_processes() { return total_processes_; }
+  decltype(total_processes_) get_total_processes() const { return total_processes_; }
 
   /**
    * @brief Sends data to the supervisor MPI process
