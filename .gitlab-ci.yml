@@ -437,19 +437,25 @@ trigger-decoder:
   variables:
     UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
 
-# If this branch is part of a merge request, trigger downstream emulator build and test.
+# Trigger downstream emulator build and test.
 trigger-emulator:
   stage: downstream
   needs: ["ci-build-cuda"]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
+    - if: $CI_PIPELINE_SOURCE != "schedule" && $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: manual
+      variables:
+        UPSTREAM_REF: $CI_COMMIT_BRANCH
   trigger:
     project: qbau/software-and-apps/emulator
     branch: $EMULATOR_TRIGGER_BRANCH
   variables:
-    UPSTREAM_REF: $CI_MERGE_REQUEST_REF_PATH
     UPSTREAM_JOB: trigger-emulator
     QCSTACK_TAG: $QCSTACK_TRIGGER_BRANCH
+    TRIGGER_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE
 
 # Trigger downstream emulator build and run benchmark.
 trigger-emulator-benchmark:
