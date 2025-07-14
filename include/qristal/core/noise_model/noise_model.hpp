@@ -190,6 +190,9 @@ namespace qristal
         /// If the noise is uniform (qubit independent), use empty vector for qubit operands.
         std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<NoiseChannel>>> m_noise_channels;
 
+        /// @brief Create qristal noise properties and channels from type nlohmann::json
+        void initialise_noise_properties_from_json(const nlohmann::json &js);
+
         /// @brief Readout errors
         std::unordered_map<size_t, ReadoutError> m_readout_errors;
 

@@ -289,7 +289,13 @@ void bind_noise_model(pybind11::module &m) {
       m, "NoiseModel",
       R"(Noise model class allowing specification of noise parameters and connectivity for each gate.)");
   nm.def(py::init<>())
-      //.def(py::init<const nlohmann::json&>())
+      .def(py::init( // Python json is a dictionary, so we have to convert it to nlohmann::json
+        [](const py::dict &dict) { 
+          py::str py_str = py::module_::import("json").attr("dumps")(dict);
+          nlohmann::json js = nlohmann::json::parse((std::string) py_str);
+          qristal::NoiseModel nm(js);
+          return nm;
+        }))
       .def(py::init<const NoiseProperties &>())
       .def(py::init<const std::string &, size_t,
                     std::optional<qristal::NoiseModel::QubitConnectivity>,

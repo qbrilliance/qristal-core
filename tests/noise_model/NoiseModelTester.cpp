@@ -253,6 +253,62 @@ TEST(NoiseModelTester, checkFidelityCalc)
 }
 
 
+using eigen_cmat = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>;
+using eigen_cvec = Eigen::Vector<std::complex<double>, Eigen::Dynamic>;
+/// Convert an STL-based matrix to an eigen matrix
+eigen_cmat matrix_to_eigen(const qristal::KrausOperator::Matrix &mat) {
+  assert(!mat.empty());
+  const size_t rows = mat.size();
+  const size_t cols = mat.at(0).size();
+  eigen_cmat eigen_mat(rows, cols);
+  for (size_t i = 0; i < rows; ++i) {
+    eigen_mat.row(i) = eigen_cvec::Map(&mat[i][0], mat[i].size());
+  }
+  return eigen_mat;
+}
+
+TEST(NoiseModelTester, checkJsonNoiseModel) {
+  // Create the "default" noise model
+  size_t nb_qubits = 2;
+  qristal::NoiseModel nm1 = qristal::NoiseModel("default", nb_qubits);
+
+  // Convert noise model to json
+  std::string nm1_str = nm1.to_json();
+  nlohmann::json nm1_json = nlohmann::json::parse(nm1_str);
+
+  // Create noise model from json
+  qristal::NoiseModel nm2 = qristal::NoiseModel(nm1_json);
+
+  // Check that both noise models are the same
+  // 1. Check the readout errors
+  std::unordered_map<size_t, qristal::ReadoutError> ro1 = nm1.get_readout_errors();
+  std::unordered_map<size_t, qristal::ReadoutError> ro2 = nm2.get_readout_errors();
+  for (size_t i = 0; i < nb_qubits; i++) {
+    EXPECT_EQ(ro1[i].p_01, ro2[i].p_01);
+    EXPECT_EQ(ro1[i].p_10, ro2[i].p_10);
+  }
+
+  // 2. Check the noise channels
+  std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<qristal::NoiseChannel>>> channels1 = nm1.get_noise_channels();
+  std::unordered_map<std::string, std::map<std::vector<size_t>, std::vector<qristal::NoiseChannel>>> channels2 = nm2.get_noise_channels();
+  for (const auto &gate : {"u1", "u2", "u3", "cx"}) {
+    for (const auto [qubits1, channel1] : channels1[gate]) {
+      std::vector<qristal::NoiseChannel> channel2 = channels2[gate][qubits1];
+      assert(channel1.size() == channel2.size());
+      for (size_t i = 0; i < channel1.size(); i++) {
+        qristal::NoiseChannel kraus_matrices1 = channel1[i];
+        qristal::NoiseChannel kraus_matrices2 = channel2[i];
+        assert(kraus_matrices1.size() == kraus_matrices2.size());
+        for (size_t j = 0; j < kraus_matrices1.size(); j++) {
+          auto kraus_matrix1 = matrix_to_eigen(kraus_matrices1[j].matrix);
+          auto kraus_matrix2 = matrix_to_eigen(kraus_matrices2[j].matrix);
+          EXPECT_EQ(kraus_matrix1, kraus_matrix2);
+        }
+      }
+    }
+  }
+}
+
 Eigen::MatrixXcd evolve_density_process(const Eigen::MatrixXcd& process_matrix, const Eigen::MatrixXcd& density) {
   size_t n_qubits = std::log2(density.rows());
   Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> result = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>::Zero(density.rows(), density.cols());

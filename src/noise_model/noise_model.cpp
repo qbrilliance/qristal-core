@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <unsupported/Eigen/KroneckerProduct>
 
-
 namespace {
 // Kron combine 2 noise channels
 qristal::NoiseChannel noise_channel_expand(const qristal::NoiseChannel& noise_channel_1,
@@ -60,9 +59,8 @@ qristal::NoiseChannel noise_channel_expand(const qristal::NoiseChannel& noise_ch
 }
 namespace qristal
 {
-    NoiseModel::NoiseModel(const nlohmann::json &js) : m_qobj_noise_model(js)
-    {
-        // TODO: parse qubit connectivity topology from qObj
+    NoiseModel::NoiseModel(const nlohmann::json &js) {
+      initialise_noise_properties_from_json(js);
     }
 
     NoiseModel::NoiseModel(const NoiseProperties &noise_props)
@@ -411,5 +409,58 @@ namespace qristal
     void NoiseModel::add_qubit_connectivity(int q1, int q2)
     {
         m_qubit_topology.emplace_back(std::make_pair(q1, q2));
+    }
+
+    void NoiseModel::initialise_noise_properties_from_json(const nlohmann::json &js) {
+      for (const auto& item : js["errors"]) {
+        auto type = item["type"];
+        // Readout error
+        if (type == "roerror") {
+          int qubit = item["gate_qubits"][0][0];
+          ReadoutError ro_error;
+          ro_error.p_01 = item["probabilities"][0][1];
+          ro_error.p_10 = item["probabilities"][1][0];
+          m_readout_errors[qubit] = ro_error;
+        }
+
+        // Gate error
+        if (type == "qerror") {
+          std::vector<size_t> qubits = item["gate_qubits"][0];
+          auto instructions = item["instructions"];
+          std::string gate_name = item["operations"][0];
+          auto params = instructions[0][0]["params"];
+
+          // Convert json to EigenMatrix
+          std::vector<Eigen::MatrixXcd> kraus_matrices(params.size());
+          size_t num_kraus_matrices = params.size();
+          size_t num_rows = params[0].size();
+          size_t num_cols = num_rows;
+          for (size_t i = 0; i < num_kraus_matrices; i++) {
+            Eigen::MatrixXcd kraus_matrix(num_rows, num_cols);
+            for (size_t j = 0; j < num_rows; j++) {
+              for (size_t k = 0; k < num_cols; k++) {
+                kraus_matrix(j, k) = std::complex<double>(params[i][j][k][0], params[i][j][k][1]);
+              }
+            }
+            kraus_matrices[i] = kraus_matrix;
+          }
+
+          // Create noise channel from Kraus matrices and add it to the noise model
+          add_gate_error(qristal::krausOpToChannel::Create(qubits, kraus_matrices), gate_name, qubits);
+
+          // Qubits' topology
+          if (qubits.size() == 2) {
+            std::sort(qubits.begin(), qubits.end());
+            m_qubit_topology.emplace_back(std::make_pair(qubits[0], qubits[1]));
+          }
+        }
+
+        // Remove duplicate connected qubits
+        if (!m_qubit_topology.empty()) {
+          std::sort(m_qubit_topology.begin(), m_qubit_topology.end());
+          auto newEnd = std::unique(m_qubit_topology.begin(), m_qubit_topology.end());
+          m_qubit_topology.erase(newEnd, m_qubit_topology.end());
+        }
+      }
     }
 }
