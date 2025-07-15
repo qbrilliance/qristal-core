@@ -7,6 +7,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Breaking
 
+- Split qb-statevector backend into qb-statevector-cpu and qb-statevector-gpu
 - Renamed cirq-qsim emulator qsim backend variant qb-statevector
 - Removed commandline interface and associated qristal_cli example
 - Removed all job array machinery in session class, including Table2d typedef

@@ -470,7 +470,7 @@ namespace qristal
     // Additional settings for emulator backends
     if (EMULATOR_BACKENDS.count(sim_acc) != 0) {
       // Tensor network settings
-      if (sim_acc != "qb-statevector") {
+      if (sim_acc != "qb-statevector-cpu" && sim_acc != "qb-statevector-gpu") {
         if (gpu_device_ids.empty()) throw std::invalid_argument("Please specify GPU devices in gpu_device_ids option.");
         qpu_options.insert("initial-bond-dim", initial_bond_dimension);
         qpu_options.insert("max-bond-dim", max_bond_dimension);
@@ -643,10 +643,7 @@ namespace qristal
     if (debug) std::cout << "# Seed value: " << seed << std::endl;
 
     // Emit a warning if the user's choice of backend and number of qubits runs the risk of overflowing memory
-    std::string acc_annotated = acc;
-    if (acc == "qb-statevector") acc_annotated += (gpu_device_ids.empty() ? "-cpu" : "-gpu");
-    if (acc == "aer") acc_annotated += ("-" + aer_sim_type);
-    auto it = MAX_QUBITS_ACCS.find(acc_annotated);
+    auto it = MAX_QUBITS_ACCS.find(acc + (acc == "aer" ? "-" + aer_sim_type : ""));
     if (it != MAX_QUBITS_ACCS.end() and qn > it->second) {
       std::cout << "Warning: The selected accelerator may not support the requested number of qubits." << std::endl;
     }

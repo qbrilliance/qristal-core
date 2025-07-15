@@ -6,17 +6,17 @@ s = qristal.core.session()
 s.sn = 1024
 s.qn = 3
 
-# Use the statevector emulator backend.
+# Use the CPU version of the statevector emulator backend.
 # You will need to have the Qristal emulator installed for this to work.
-s.acc = "qb-statevector"
+s.acc = "qb-statevector-cpu"
+# To instead use GPU-enabled qb-statevector, replace the above line with:
+#s.acc = "qb-statevector-gpu"
+#s.gpu_device_ids = [0]
 
 # Noise modelling
 s.noise = True
 nm = qristal.core.NoiseModel("qb-nm1", s.qn)
 s.noise_model = nm
-
-# Uncomment to use GPU-enabled qb-statevector, otherwise qb-statevector will use its CPU backend
-#s.gpu_device_ids = [0]
 
 # In this test we use generalised mcx to
 # perform a standard mcx on |111>

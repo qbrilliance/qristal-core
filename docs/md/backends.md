@@ -77,18 +77,35 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 ## State-vector simulators
 
-### Quantum Brilliance state vector: `qb-statevector`
+### Quantum Brilliance CPU state vector: `qb-statevector-cpu`
+
+**Description**: A noise-aware, state-vector simulator developed by Quantum Brilliance, built atop the Google Cirq qsim simulator.
+
+**Provided by**: Qristal Emulator
+
+**Executes on**: CPU
+
+**Parameters**:
+
+* `noise`: *boolean*, must be set `true`. Include noise in the circuit simulation.
+
+These parameters are currently `qristal.core.session` attributes.
+
+**Example**: `qb_statevector_noisy.py`
+
+
+### Quantum Brilliance GPU state vector: `qb-statevector-gpu`
 
 **Description**: A noise-aware, GPU-enabled state-vector simulator developed by Quantum Brilliance, built atop the Google Cirq qsim simulator.
 
 **Provided by**: Qristal Emulator
 
-**Executes on**: CPU or GPU
+**Executes on**: GPU
 
 **Parameters**:
 
 * `noise`: *boolean*, must be set `true`. Include noise in the circuit simulation.
-* `gpu_device_ids`: *Vector of integers*, optional. GPU device IDs. Used only by the GPU version of this backend.
+* `gpu_device_ids`: *Vector of integers*, optional. Device IDs of GPUs to run on.
 
 These parameters are currently `qristal.core.session` attributes.
 

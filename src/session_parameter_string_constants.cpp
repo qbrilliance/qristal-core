@@ -6,7 +6,8 @@ namespace qristal {
 
   /// Emulator backends (cudaq-wrapped emulator backends do not have to be in this list)
   const std::unordered_set<std::string_view> session::EMULATOR_BACKENDS = {
-    "qb-statevector",
+    "qb-statevector-cpu",
+    "qb-statevector-gpu",
     "qb-mps",
     "qb-purification",
     "qb-mpdo"
@@ -21,10 +22,22 @@ namespace qristal {
       "sparse-sim"
   };
 
+  /// Backends that support GPU execution
+  const std::unordered_set<std::string_view> session::GPU_BACKENDS = {
+    "qb-statevector-gpu",
+    "qb-mps",
+    "qb-purification",
+    "qb-mpdo"
+    "cudaq:qb-mps",
+    "cudaq:qb-purification",
+    "cudaq:qb-mpdo"
+  };
+
   /// Backends that support noise
   const std::unordered_set<std::string_view> session::NOISY_BACKENDS = {
       "aer",
-      "qb-statevector",
+      "qb-statevector-cpu",
+      "qb-statevector-gpu",
       "qb-mps",
       "qb-purification",
       "qb-mpdo",
@@ -36,7 +49,8 @@ namespace qristal {
 
   /// Backends that *only* support noise, i.e. will not run with noise = false
   const std::unordered_set<std::string_view> session::EXCLUSIVELY_NOISY_BACKENDS = {
-      "qb-statevector"
+      "qb-statevector-cpu"
+      "qb-statevector-gpu"
   };
 
   /// Valid AER simulator types

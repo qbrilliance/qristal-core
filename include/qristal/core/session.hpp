@@ -210,6 +210,8 @@ namespace qristal
       static const std::unordered_set<std::string_view> EMULATOR_BACKENDS;
       /// Non-emulator backends
       static const std::unordered_set<std::string_view> NON_EMULATOR_BACKENDS;
+      /// Backends that support GPU execution
+      static const std::unordered_set<std::string_view> GPU_BACKENDS;
       /// Backends that support noise
       static const std::unordered_set<std::string_view> NOISY_BACKENDS;
       /// Backends that *only* support noise, i.e. will not run with noise = false
