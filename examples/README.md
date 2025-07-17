@@ -679,18 +679,30 @@ An example demonstrating the contextual circuit optimization pass, which optimiz
 
 An example demonstrating setting up a pipeline of circuit optimization passes when using Qristal.
 
-<<<<<<< HEAD
 `circuit_optimization/sequence_pass.py`
 
 An example demonstrating the use of a sequence of circuit optimisation passes. The different orderings of circuit passes in a sequence result in different optimised circuits
-=======
-`circuit_optimization/sequence_pass.py`
-
-An example demonstrating the use of a sequence of circuit optimisation passes. The different orderings of circuit passes in a sequence result in different optimised circuits
->>>>>>> 7166b85a (Arinta/swa2231/sequence)
 
 `circuit_optimization/peephole_optimization.py`
 An example demonstrating the full peephole optimization circuit pass that removes redundancies and merges rotations. This example requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
+
+`circuit_optimization/decompose_swap.py`
+An example demonstrating the decomposition of each SWAP gate into three CNOT gates. This example is using [DecomposeSWAPtoCX](https://docs.quantinuum.com/tket/api-docs/transform.html#pytket.transform.Transform.DecomposeSWAPtoCX) and requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
+
+`circuit_optimization/commute_through_multis.py`
+An example demonstrating the application of commutation rules to move single-qubit gates past multi-qubit gates with which they commute. The transformation pushes single-qubit operations towards the front of the circuit. This example is using [CommuteThroughMultis](https://docs.quantinuum.com/tket/api-docs/transform.html#pytket.transform.Transform.CommuteThroughMultis) and requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
+
+`circuit_optimization/optimise_clifford.py`
+An example demonstrating an optimisation pass that applies a number of rewrite rules for simplifying Clifford gate sequences. This example is using [OptimiseCliffords](https://docs.quantinuum.com/tket/api-docs/transform.html#pytket.transform.Transform.OptimiseCliffords) and requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
+
+`circuit_optimization/optimise_post_routing.py`
+An example demonstrating the post-routing optimization pass that removes redundant gates and simplifies circuits after qubit routing. This example is using [OptimisePostRouting](https://docs.quantinuum.com/tket/api-docs/transform.html#pytket.transform.Transform.OptimisePostRouting) and requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
+
+`circuit_optimization/rebase_to_clifford.py`
+An example demonstrating how the rebasing of a quantum circuit to Clifford gates, decomposing gates into sequences of Clifford operations. This example is using [RebaseToCliffordSingles](https://docs.quantinuum.com/tket/api-docs/transform.html#pytket.transform.Transform.RebaseToCliffordSingles) and requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
+
+`circuit_optimization/rebase_to_rzrx.py`
+An example demonstrating the rebase of a circuit to use only Rz and Rx rotations. This example is using [RebaseToRzRx](https://docs.quantinuum.com/tket/api-docs/transform.html#pytket.transform.Transform.RebaseToRzRx) and requires TKET support to be enabled by setting -DWITH_TKET=ON at build time.
 
 `cudaq_qft.py`
 

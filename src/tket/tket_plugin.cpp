@@ -27,6 +27,18 @@ public:
         std::make_shared<qristal::tket_full_peephole_plugin>());
     context.RegisterService<xacc::IRTransformation>(
         std::make_shared<qristal::tket_simplify_initial_plugin>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::tket_decompose_swap_plugin>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::tket_commute_through_multis>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::tket_optimise_post_routing>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::tket_decompose_ZX>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::tket_rebase_to_clifford>());
+    context.RegisterService<xacc::IRTransformation>(
+        std::make_shared<qristal::tket_optimise_cliffords>());
   }
 
   void Stop(BundleContext context) {}

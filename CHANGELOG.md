@@ -31,6 +31,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added Python example demonstrating the use of sequence_pass
 - Added `peephole_optimization` example
 - Added functionality to enable assigning MPI processes to different accelerator backends
+- Added decompose_swap, commute_through_multis, optimise_post_routing, decompose_zx, rebase_to_clifford, optimise_cliffords passes
 
 ### Fixed
 

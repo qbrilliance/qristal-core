@@ -42,5 +42,21 @@ void bind_circuit_opt_passes(pybind11::module &m) {
       "dependent, thus this pass should **only** be used on the entire circuit "
       "(i.e., the qubit register is at the all 0's state) and should **not** "
       "be used on sub-circuits.");
+  m.def("decompose_swap", &qristal::create_decompose_swap_pass,
+      "Decomposes all SWAP gates into triples of CX gates.");
+  m.def("commute_through_multis", &qristal::create_commute_through_multis_pass,
+      "Moves single-qubit gates forward past multi-qubit gates they commute with, "
+      "simplifying the circuit.");
+  m.def("optimise_post_routing", &qristal::create_optimise_post_routing_pass,
+      "Optimises the circuit after qubit routing by removing redundant gates and "
+      "simplifying sequences, preserving hardware connectivity.");
+  m.def("rebase_to_rzrx", &qristal::create_decompose_ZX_pass,
+        "Rebases single-qubit gates into equivalent sequences of Rz and Rx gates.");
+  m.def("rebase_to_clifford", &qristal::create_rebase_to_clifford_pass,
+        "Replaces single-qubit gates that are Clifford but not in the basic set "
+        "{Z, X, S, V} with equivalent gate sequences only using those four.");
+  m.def("optimise_cliffords", &qristal::create_optimise_cliffords_pass,
+        "Optimizes Clifford gate sequences using rewrite rules to reduce circuit "
+        "depth and size");
 }
 }

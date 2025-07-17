@@ -76,4 +76,37 @@ namespace qristal {
   inline std::shared_ptr<CircuitPass> create_initial_state_simplify_pass() {
     return std::make_shared<optimization_pass>("simplify-initial");
   }
+
+  /// Decomposes each SWAP gates into three CNOT gates
+  inline std::shared_ptr<CircuitPass> create_decompose_swap_pass() {
+    return std::make_shared<optimization_pass>("decompose-swap");
+  }
+
+  /// Applies a collection of commutation rules to move single qubit operations 
+  /// past multiqubit operations they commute with, towards the front of the circuit
+  inline std::shared_ptr<CircuitPass> create_commute_through_multis_pass() {
+    return std::make_shared<optimization_pass>("commute-through-multis");
+  }
+
+  /// Removes redundant gates and simplifies circuits after qubit routing 
+  inline std::shared_ptr<CircuitPass> create_optimise_post_routing_pass() {
+    return std::make_shared<optimization_pass>("optimise-post-routing");
+  }
+
+  /// Rebase of a circuit to use only Rz and Rx rotations
+  inline std::shared_ptr<CircuitPass> create_decompose_ZX_pass() {
+    return std::make_shared<optimization_pass>("decompose-zx");
+  }
+
+  /// Rebase of a quantum circuit to Clifford gates, decomposing gates into 
+  /// sequences of Clifford operations
+  inline std::shared_ptr<CircuitPass> create_rebase_to_clifford_pass() {
+    return std::make_shared<optimization_pass>("rebase-to-clifford");
+  } 
+
+  /// Applies a number of rewrite rules for simplifying Clifford gate sequences, 
+  /// similar to Duncan & Fagan (https://arxiv.org/abs/1901.10114)
+  inline std::shared_ptr<CircuitPass> create_optimise_cliffords_pass() {
+    return std::make_shared<optimization_pass>("optimise-cliffords");
+  }  
 }

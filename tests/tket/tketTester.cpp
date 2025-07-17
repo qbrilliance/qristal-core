@@ -493,3 +493,293 @@ TEST(QBTketTester, checkNoiseAwarePlacementFromNoiseModel) {
   EXPECT_EQ(xacc_ir->getInstruction(2)->bits()[0], 1);
   EXPECT_EQ(xacc_ir->getInstruction(2)->bits()[1], 2);
 }
+
+TEST(QBTketTester, checkDecomposeSwap) {
+  auto provider = xacc::getIRProvider("quantum");
+  auto program = provider->createComposite("test_decompose_swap");
+
+  // Add only a SWAP gate
+  program->addInstruction(std::make_shared<xacc::quantum::Swap>(0, 1));
+
+  std::cout << "Before decomposition:\n" << program->toString() << "\n";
+
+  {
+    // Verify 1 SWAP gate exists
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::Swap> vis(program);
+    EXPECT_EQ(vis.countGates(), 1);
+  }
+
+  // Apply the decompose-swap transformation
+  auto decompose_swap = xacc::getIRTransformation("decompose-swap");
+  decompose_swap->apply(program, nullptr);
+
+  std::cout << "After decomposition:\n" << program->toString() << "\n";
+
+  {
+    // Ensure all SWAP gates have been removed
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::Swap> vis(program);
+    EXPECT_EQ(vis.countGates(), 0);
+  }
+
+  {
+    // Ensure 3 CNOTs have replaced the SWAP
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::CNOT> vis(program);
+    EXPECT_EQ(vis.countGates(), 3);
+  }
+
+  // Check the exact control/target qubit pairs of each CX gate
+  std::vector<std::pair<int, int>> expected_cnots = {
+    {0, 1},
+    {1, 0},
+    {0, 1}
+  };
+
+  int cnot_idx = 0;
+  for (const auto& inst : program->getInstructions()) {
+    if (inst->name() == "CNOT") {
+      auto qubits = inst->bits();
+      ASSERT_EQ(qubits.size(), 2); 
+      int control = qubits[0];
+      int target = qubits[1];
+      EXPECT_EQ(std::make_pair(control, target), expected_cnots[cnot_idx]);
+      ++cnot_idx;
+    }
+  }
+  EXPECT_EQ(cnot_idx, 3);
+}
+
+TEST(QBTketTester, checkCommuteThroughMultis) {
+  auto provider = xacc::getIRProvider("quantum");
+  auto program = provider->createComposite("test_commute_through_multis");
+
+  // Construct a circuit where some single-qubit gates can commute through multi-qubit gates
+  program->addInstruction(std::make_shared<xacc::quantum::Rz>(0, 0.5));   
+  program->addInstruction(std::make_shared<xacc::quantum::CNOT>(0, 1));
+  program->addInstruction(std::make_shared<xacc::quantum::Z>(0));          
+
+  std::cout << "Before commute-through-multis:\n" << program->toString() << "\n";
+
+  // Apply the transformation
+  auto commute_pass = xacc::getIRTransformation("commute-through-multis");
+  commute_pass->apply(program, nullptr);
+
+  std::cout << "After commute-through-multis:\n" << program->toString() << "\n";
+
+  // Check that Z moved before the CNOT
+  const auto& insts = program->getInstructions();
+  EXPECT_EQ(insts[0]->name(), "Rz");
+  EXPECT_EQ(insts[1]->name(), "Z");    // Z should move earlier
+  EXPECT_EQ(insts[2]->name(), "CNOT");
+
+  // Check qubit targets
+  EXPECT_EQ(insts[0]->bits()[0], 0);  // Rz should still act on qubit 0
+  EXPECT_EQ(insts[1]->bits()[0], 0);  // Z should still act on qubit 0
+  EXPECT_EQ(insts[2]->bits()[0], 0);  // CNOT control
+  EXPECT_EQ(insts[2]->bits()[1], 1);  // CNOT target
+}
+
+TEST(QBTketTester, checkOptimisePostRouting) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+
+  // Define simple connectivity (linear 0-1-2)
+  const std::vector<std::pair<int, int>> connectivity({{0, 1}, {1, 2}});
+  auto acc = xacc::getAccelerator("qpp", {{"connectivity", connectivity}});
+
+  // Create a circuit with CNOT(0,2)
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void test_cnot(qbit q) {
+    Swap(q[0],q[1]);
+    CX(q[0], q[2]);
+    Swap(q[0],q[2]);
+  })", nullptr)
+                     ->getComposites()[0];
+
+  std::cout << "Original circuit:\n" << program->toString() << "\n";
+
+  // Placement pass (routing)
+  auto placement = xacc::getIRTransformation("swap-shortest-path");
+  placement->apply(program, acc);
+
+  // Post-routing optimisation: optimise-post-routing
+  auto post_opt = xacc::getIRTransformation("optimise-post-routing");
+  post_opt->apply(program, acc);
+
+  std::cout << "\nAfter optimise_post_routing (post-routing):\n" << program->toString() << "\n";
+
+  // Count final CNOT gates
+  {
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::CNOT> vis(program);
+    EXPECT_EQ(vis.countGates(), 2);
+  }
+
+  // Check gate types and qubit targets
+  const auto& insts = program->getInstructions();
+  
+  std::cout << "\nFinal instructions:\n";
+  for (const auto& inst : insts) {
+    std::cout << inst->name() << " on qubits ";
+    for (auto b : inst->bits()) std::cout << b << " ";
+    std::cout << "\n";
+  }
+
+  // Check that all gates are CNOTs
+  EXPECT_EQ(insts.size(), 2);
+  EXPECT_EQ(insts[0]->name(), "CNOT");
+  EXPECT_EQ(insts[1]->name(), "CNOT");
+
+  // Check qubit targets 
+  auto cnot0_bits = insts[0]->bits();
+  auto cnot1_bits = insts[1]->bits();
+
+  EXPECT_TRUE(
+    (cnot0_bits[0] == 1 && cnot0_bits[1] == 2) ||
+    (cnot0_bits[0] == 2 && cnot0_bits[1] == 1));
+
+  EXPECT_TRUE(
+      (cnot1_bits[0] == 1 && cnot1_bits[1] == 2) ||
+      (cnot1_bits[0] == 2 && cnot1_bits[1] == 1));
+}
+
+TEST(QBTketTester, checkDecomposeZX) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  auto program = xasmCompiler
+                     ->compile(R"(__qpu__ void test_decompose_zx(qbit q) {
+    H(q[0]);
+    S(q[0]);
+    T(q[0]);
+  })")
+                     ->getComposites()[0];
+
+  std::cout << "Original circuit:\n" << program->toString() << "\n";
+
+  // Apply the decompose-zx transform (rebases single-qubit gates to Rz and Rx)
+  auto decomposeZX = xacc::getIRTransformation("decompose-zx");
+  decomposeZX->apply(program, nullptr);
+
+  std::cout << "\nAfter decompose-zx:\n" << program->toString() << "\n";
+
+  // Check that no H, S, or T gates remain by counting those gates
+  int hCount = 0, sCount = 0, tCount = 0;
+  for (const auto& inst : program->getInstructions()) {
+    if (inst->name() == "H") ++hCount;
+    if (inst->name() == "S") ++sCount;
+    if (inst->name() == "T") ++tCount;
+  }
+
+  EXPECT_EQ(hCount, 0);
+  EXPECT_EQ(sCount, 0);
+  EXPECT_EQ(tCount, 0);
+
+  // Check that Rz and Rx gates are present
+  int rzCount = 0, rxCount = 0;
+  for (const auto& inst : program->getInstructions()) {
+    if (inst->name() == "Rz") ++rzCount;
+    if (inst->name() == "Rx") ++rxCount;
+  }
+
+  EXPECT_GT(rzCount, 0);
+  EXPECT_GT(rxCount, 0);
+}
+
+TEST(QBTketTester, checkRebaseToRzRx) {
+  auto provider = xacc::getIRProvider("quantum");
+  auto program = provider->createComposite("test_rebase_rzrx");
+
+  program->addInstruction(std::make_shared<xacc::quantum::Hadamard>(0));
+  program->addInstruction(std::make_shared<xacc::quantum::S>(0));
+  program->addInstruction(std::make_shared<xacc::quantum::T>(0));
+
+  std::cout << "Original circuit:\n" << program->toString() << "\n";
+  const auto originalGateCount = program->nInstructions();
+
+  // Apply the rebase-to-rzrx transformation
+  auto rebase = xacc::getIRTransformation("decompose-zx");
+  rebase->apply(program, nullptr);
+
+  std::cout << "\nAfter rebase-to-rzrx:\n" << program->toString() << "\n";
+
+  // Count the resulting gate types
+  int count_Rz = 0, count_Rx = 0, count_H = 0, count_S = 0, count_T = 0;
+  for (const auto& inst : program->getInstructions()) {
+    auto name = inst->name();
+    if (name == "Rz") count_Rz++;
+    if (name == "Rx") count_Rx++;
+    if (name == "H") count_H++;
+    if (name == "S") count_S++;
+    if (name == "T") count_T++;
+  }
+
+  EXPECT_EQ(count_H, 0);  // H should be decomposed
+  EXPECT_EQ(count_S, 0);  // S should be decomposed
+  EXPECT_EQ(count_T, 0);  // T should be decomposed
+  EXPECT_GE(count_Rz, 1); // Rz gates
+  EXPECT_GE(count_Rx, 1); // Rx gates
+  EXPECT_GT(program->nInstructions(), 0);
+  EXPECT_GE(program->nInstructions(), originalGateCount); 
+}
+
+TEST(QBTketTester, checkRebaseToClifford) {
+  auto provider = xacc::getIRProvider("quantum");
+  auto program = provider->createComposite("test_rebase_to_clifford");
+
+  program->addInstruction(std::make_shared<xacc::quantum::Sdg>(0));
+  program->addInstruction(std::make_shared<xacc::quantum::Hadamard>(0));
+  program->addInstruction(std::make_shared<xacc::quantum::T>(0));
+
+  std::cout << "Before rebase_to_clifford:\n" << program->toString() << "\n";
+
+  auto rebase = xacc::getIRTransformation("rebase-to-clifford");
+  rebase->apply(program, nullptr);
+
+  std::cout << "\nAfter rebase_to_clifford:\n" << program->toString() << "\n";
+  {
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::S> vis(program);
+    EXPECT_GE(vis.countGates(), 2);
+  } 
+  {
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::Z> vis(program);
+    EXPECT_GE(vis.countGates(), 1);
+  }
+  {
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::Rx> vis(program);
+    EXPECT_GE(vis.countGates(), 1);
+  }
+  {
+    xacc::quantum::CountGatesOfTypeVisitor<xacc::quantum::T> vis(program);
+    EXPECT_GE(vis.countGates(), 1);
+  }
+}
+
+TEST(QBTketTester, checkOptimiseCliffords) {
+  auto xasmCompiler = xacc::getCompiler("xasm");
+  ASSERT_NE(xasmCompiler, nullptr);
+
+  // Input circuit with simplifiable Clifford sequences
+  const std::string src = R"(__qpu__ void test(qbit q) {
+    H(q[0]);
+    S(q[0]);
+    H(q[0]);
+    CNOT(q[0], q[1]);
+    S(q[1]);
+    Sdg(q[1]);
+    H(q[1]);
+    H(q[1]);
+    CNOT(q[0], q[1]);
+  })";
+
+  auto program = xasmCompiler->compile(src)->getComposites()[0];
+
+  const auto originalGateCount = program->nInstructions();
+  std::cout << "Original circuit (" << originalGateCount << " gates):\n" << program->toString() << "\n";
+
+  // Apply optimise-cliffords pass
+  auto optCliffords = xacc::getIRTransformation("optimise-cliffords");
+  optCliffords->apply(program, nullptr);
+
+  const auto newGateCount = program->nInstructions();
+  std::cout << "\nAfter optimise-cliffords (" << newGateCount << " gates):\n" << program->toString() << "\n";
+
+  EXPECT_LT(newGateCount, originalGateCount);  // Circuit was simplified
+  EXPECT_GT(newGateCount, 0);                  
+
+}

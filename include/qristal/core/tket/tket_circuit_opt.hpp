@@ -8,10 +8,13 @@
 // TKET
 #include <Circuit/CircPool.hpp>
 #include <Transformations/BasicOptimisation.hpp>
+#include <Transformations/CliffordOptimisation.hpp>
 #include <Transformations/ContextualReduction.hpp>
 #include <Transformations/OptimisationPass.hpp>
 #include <Transformations/Rebase.hpp>
 #include <Transformations/Replacement.hpp>
+#include <Transformations/Decomposition.hpp>
+#include <Transformations/Combinator.hpp>
 #include <qristal/core/tket/tket_ir_converter.hpp>
 
 namespace qristal {
@@ -165,5 +168,37 @@ class SequencePass : public xacc::IRTransformation {
       []() { return tket::Transforms::simplify_initial(); },
       constexpr_str("simplify-initial"),
       constexpr_str("Simplify the circuit where it acts on known basis states")>;
-
+  /// Decomposes all SWAP gates into triples of CX gates
+  using tket_decompose_swap_plugin = TketCircuitTransformPlugin<
+      []() { return tket::Transforms::decompose_SWAP_to_CX(); }, constexpr_str("decompose-swap"),
+      constexpr_str("Decomposes all SWAP gates into triples of CX gates")>;
+  /// Moves single qubit operations past multiqubit operations they commute with, 
+  /// towards the front of the circuit
+  using tket_commute_through_multis = TketCircuitTransformPlugin<
+      tket::Transforms::commute_through_multis, constexpr_str("commute-through-multis"),
+      constexpr_str("Commutes single-qubit gates through multi-qubit gates to simplify circuits")>;
+  /// Performs optimizations on the circuit after qubit routing
+  /// Cleans up and simplifies the circuit while respecting hardware connectivity             
+  using tket_optimise_post_routing = TketCircuitTransformPlugin<
+      tket::Transforms::synthesise_tket, constexpr_str("optimise-post-routing"),
+      constexpr_str("Optimises the circuit after qubit routing by removing redundant gates"
+                    "and simplifying sequences"
+                    "Preserves hardware connectivity constraints")>;
+  /// Rebases multiple single-qubit gates into equivalent sequences of Rz and Rx gates
+  using tket_decompose_ZX = TketCircuitTransformPlugin<
+      tket::Transforms::decompose_ZX, constexpr_str("decompose-zx"),
+      constexpr_str("Rebase single qubit gates into Rz, Rx")>;
+  /// Rewrites single-qubit Clifford gates using only {Z, X, S, V}
+  /// Non-Clifford gates (e.g., T) are left unchanged
+  using tket_rebase_to_clifford = TketCircuitTransformPlugin<
+      tket::Transforms::decompose_cliffords_std, constexpr_str("rebase-to-clifford"),
+      constexpr_str("Replaces single-qubit gates that are Clifford but not in the basic"
+                    "set {Z, X, S, V} with equivalent gate sequences only using those four")>;
+  /// Simplifies Clifford gate sequences using standard rewrite rules,
+  /// similar to Duncan & Fagan (arXiv:1901.10114)
+  /// May reorder CX gates or introduce wire swaps.
+  using tket_optimise_cliffords = TketCircuitTransformPlugin<
+      []() { return tket::Transforms::clifford_simp(); }, constexpr_str("optimise-cliffords"),
+      constexpr_str("Optimizes Clifford gate sequences using rewrite rules to reduce circuit "
+                  "depth and size")>;
 }
