@@ -35,6 +35,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Fixed
 
+- Upgraded pybind11 dependency to from 2.10.0 to 2.12.0 to avoid NumPy-Eigen conversion bug
 - Added further checks for compatibility of noise settings with chosen backend, preventing silent noiseless execution when using noise=true with backends incapable of noisy simulation.
 - Removed limit QB_SAFE_LIMIT_SHOTS on number of shots requested from hardware.
 - Now passing Python executable to py_packages_path.cmake, allowing for full installation using non-system Python.

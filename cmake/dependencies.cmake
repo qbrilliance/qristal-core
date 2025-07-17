@@ -92,7 +92,7 @@ add_poorly_behaved_dependency(xacc 1.0.0
 )
 
 # Pybind11.
-set(pybind11_VERSION "2.10.0")
+set(pybind11_VERSION "2.12.0")
 add_dependency(pybind11 ${pybind11_VERSION}
   GITHUB_REPOSITORY pybind/pybind11
   OPTIONS
