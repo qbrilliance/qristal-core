@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <sstream>
 #include <ranges>
 
 using namespace qristal;
@@ -38,14 +39,6 @@ void setup_and_run_circuit(session &session) {
   session.run();
 }
 
-constexpr std::string_view TOLERANCE_CHECK_ERROR_MSG =
-    "The calculated probability is {} standard deviations away from the expected probability. Note that the tolerance "
-    "used for this test is {} standard deviations from the calculated expected probability for the bitstring. Whilst "
-    "unlikely (1 in {} test runs) it is possible this failure was just because this run happened to fall outside of "
-    "the tolerance limits. Unless you've changed MPI shot parallelisation-related code, this is a might be the reason "
-    "for the test failing. Try re-running the test a few more times so see whether this is the explanation for the "
-    "current failure.";
-
 int32_t one_in_n_expected_failures(int32_t number_standard_deviations) {
   const double z = static_cast<double>(number_standard_deviations);
   // Calculate the proportion outside the input number of standard deviations
@@ -53,6 +46,18 @@ int32_t one_in_n_expected_failures(int32_t number_standard_deviations) {
   const double number_of_possible_bitstrings = static_cast<double>(std::pow(2, CIRCUIT_NUMBER_OF_QUBITS));
   const double p_at_least_one_bitstring_outside = p_outside * number_of_possible_bitstrings;
   return static_cast<int32_t>(std::round(1.0 / p_at_least_one_bitstring_outside));
+}
+
+std::string tolerance_check_error_msg(double probability, double tolerance_stddev) {
+    std::stringstream ss;
+    ss << "The calculated probability is " << probability << " standard deviations away from the expected "
+          "probability. Note that the tolerance used for this test is " << tolerance_stddev << " standard "
+          "deviations from the calculated expected probability for the bitstring. Whilst unlikely (1 in " <<
+          one_in_n_expected_failures(tolerance_stddev) << " test runs) it is possible this failure was "
+          "just because this run happened to fall outside of the tolerance limits. Unless you've changed "
+          "MPI shot parallelisation-related code, this might be the reason for the test failing. Try "
+          "re-running the test a few more times to see whether this is the explanation for the current failure.";
+    return ss.str();
 }
 
 void check_all_bitstring_probabilities(const session::OutProbabilitiesType &all_bitstring_probabilities, const session::OutCountsType &all_bitstring_counts) {
@@ -98,10 +103,10 @@ void check_all_bitstring_probabilities(const session::OutProbabilitiesType &all_
     auto &[expected_prob, calculated_prob] = expected_prob_calculated_prob;
     constexpr int32_t number_standard_deviations_tolerance = 5;
     const double tolerance_prob = number_standard_deviations_tolerance * probability_standard_deviation(expected_prob);
-    EXPECT_NEAR(calculated_prob, expected_prob, tolerance_prob) << fmt::format(
-        TOLERANCE_CHECK_ERROR_MSG,
+    EXPECT_NEAR(calculated_prob, expected_prob, tolerance_prob) << 
+      tolerance_check_error_msg(
         std::abs(calculated_prob - expected_prob) / probability_standard_deviation(expected_prob),
-        number_standard_deviations_tolerance, one_in_n_expected_failures(number_standard_deviations_tolerance));
+        number_standard_deviations_tolerance);
   }
 }
 
@@ -182,9 +187,9 @@ void check_all_bitstring_probability_gradients(const session::OutProbabilityGrad
     auto &[expected, tolerance, calculated] = expected_tolerance_calculated;
 
     // The actual gradient should be within the tolerance limits of the analytically calculated value
-    EXPECT_NEAR(expected, calculated, tolerance) << fmt::format(
-        TOLERANCE_CHECK_ERROR_MSG, std::abs(calculated - expected) / (tolerance / number_standard_deviations_tolerance),
-        number_standard_deviations_tolerance, one_in_n_expected_failures(number_standard_deviations_tolerance));
+    EXPECT_NEAR(expected, calculated, tolerance) <<
+      tolerance_check_error_msg(std::abs(calculated - expected) / (tolerance / number_standard_deviations_tolerance),
+        number_standard_deviations_tolerance);
   }
 }
 

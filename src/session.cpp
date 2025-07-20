@@ -48,9 +48,6 @@
 // dlopen
 #include <dlfcn.h>
 
-// fmt
-#include <fmt/format.h>
-
 // range v3
 #include <range/v3/view/zip.hpp>
 
@@ -518,10 +515,10 @@ namespace qristal
       session_accelerator = mpi_hardware_accelerators.at(mpi_process_id);
       if (!is_hardware_accelerator(session_accelerator, remote_backend_database)) {
         // Do not allow backends which aren't remote as results may not make sense
-        throw std::runtime_error(
-            fmt::format("Configured backend ({}) must be a hardware backend (or vQPU) when "
-                        "populating session::mpi_hardware_accelerators.",
-                        session_accelerator));
+        std::stringstream ss;
+        ss << "Configured backend (" << session_accelerator << ") must be a hardware backend (or vQPU) when "
+              "populating session::mpi_hardware_accelerators.";
+        throw std::runtime_error(ss.str());
       }
     }
 
@@ -534,24 +531,23 @@ namespace qristal
       // If the user hasn't defined any MPI hardware accelerators, all MPI processes will use the
       // same accelerator. MPI can only be used with simulator backends in this instance as it currently
       // doesn't make sense for multiple MPI processes to share a single hardware device or vQPU.
-      throw std::runtime_error(fmt::format("A hardware backend has been configured ({}) and the "
-                                           "session is being run with multiple MPI "
-                                           "processes. Either a simulator backend must be "
-                                           "configured in session::acc or each MPI process "
-                                           "must have a unique hardware backend defined in "
-                                           "session::mpi_hardware_accelerators.",
-                                           session_accelerator));
+      std::stringstream ss;
+      ss << "A hardware backend has been configured (" << session_accelerator << ") and the session "
+            "is being run with multiple MPI processes. Either a simulator backend must be configured in "
+            "session::acc or each MPI process must have a unique hardware backend defined in "
+            "session::mpi_hardware_accelerators.";
+      throw std::runtime_error(ss.str());
     }
 
     const int32_t num_available_mpi_accelerators = mpi_hardware_accelerators.size();
     if (mpi_hardware_accelerators_populated && num_mpi_processes > num_available_mpi_accelerators) {
       // If the user has defined MPI hardware accelerators, each MPI process will use a different accelerator.
       // The number of MPI processes must not exceed the number of assigned accelerators
-      throw std::runtime_error(
-          fmt::format("Session has been configured to run with {} MPI processes but there are only {} available "
-                      "accelerators. Please ensure there are at least as many accelerators as MPI processes as each "
-                      "MPI process will be assigned one of these accelerators.",
-                      num_mpi_processes, num_available_mpi_accelerators));
+      std::stringstream ss;
+      ss << "Session has been configured to run with " << num_mpi_processes << " MPI processes but there are only "
+            << num_available_mpi_accelerators << " available accelerators. Please ensure there are at least as many "
+            "accelerators as MPI processes as each MPI process will be assigned one of these accelerators.";
+      throw std::runtime_error(ss.str());
     }
   }
 #endif
@@ -665,10 +661,15 @@ namespace qristal
       for (const auto &[gate, channel] : noise_channels) {
         auto it = std::find(basis_gates.begin(), basis_gates.end(), gate);
         if (it == basis_gates.end()) {
-          std::cout << "Warning: Supplied gate " << gate << " is not a basis gate of the chosen backend; noise "
-                    << "will not be applied to this gate. Please set the correct qobj_compiler." << std::endl
-                    << "Current qobj_compiler " << noise_model->get_qobj_compiler() << " has basis gates: { "
-                    << fmt::to_string(fmt::join(basis_gates, " ")) << "}" << std::endl;
+          std::stringstream ss;
+          ss << "Warning: Supplied gate " << gate << " is not a basis gate of the chosen backend; noise "
+             << "will not be applied to this gate. Please set the correct qobj_compiler.\n"
+             << "Current qobj_compiler " << noise_model->get_qobj_compiler() << " has basis gates: { ";
+          for (const auto& g : basis_gates) {
+             ss << g << " ";
+          }
+          ss << "}";
+          std::cout << ss.str() << std::endl;
         }
       }
 

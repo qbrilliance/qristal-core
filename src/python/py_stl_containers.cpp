@@ -148,7 +148,7 @@ namespace qristal {
                  out << ": " << count << std::endl;
                }
                std::string result = out.str();
-               result.pop_back();
+               if (!result.empty()) { result.pop_back(); }
                return result;
              })
         .def("__getitem__",

@@ -1,8 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #include <qristal/core/session.hpp>
 
-#include <fmt/base.h>
 #include <yaml-cpp/yaml.h>
+
+#include <string>
 
 int main() {
   // Make a Qristal session
@@ -10,13 +11,10 @@ int main() {
 
   my_sim.supervisor_print("Executing Qristal MPI Demo...");
 
-  my_sim.remote_backend_database_path =
-      fmt::format("{}/examples/cpp/mpi_multi_qpu_demo/localhost_vqpus.yaml", QRISTAL_DIR);
+  my_sim.remote_backend_database_path = QRISTAL_DIR + std::string("/examples/cpp/mpi_multi_qpu_demo/localhost_vqpus.yaml");
 
   // Set up backends for MPI processes
-  YAML::Node config = YAML::LoadFile(
-    fmt::format("{}/examples/cpp/mpi_multi_qpu_demo/mpi_process_accelerators.yaml", QRISTAL_DIR)
-  );
+  YAML::Node config = YAML::LoadFile(QRISTAL_DIR + std::string("/examples/cpp/mpi_multi_qpu_demo/mpi_process_accelerators.yaml"));
 
   YAML::Node accelerators = config["accelerators"];
   for (const auto& accelerator : accelerators) {
@@ -48,5 +46,7 @@ int main() {
   my_sim.supervisor_print("Ran successfully!\n");
 
   // Print the cumulative results in each of the classical registers
-  my_sim.supervisor_print("Results:\n{}\n", my_sim.results());
+  std::stringstream ss;
+  ss << "Results:\n" << my_sim.results() << "\n";
+  my_sim.supervisor_print(ss.str());
 }

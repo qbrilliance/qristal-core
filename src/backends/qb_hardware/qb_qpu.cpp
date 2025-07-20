@@ -255,7 +255,7 @@ namespace xacc
         std::map<std::string, std::string> extraParams)
     {
       cpr::Parameters cprParams;
-      for (const auto& kv : extraParams) { cprParams.AddParameter({kv.first, kv.second}); }
+      for (const auto& kv : extraParams) { cprParams.Add(cpr::Parameter{kv.first, kv.second}); }
       auto f = [&cprParams](cpr::Url a, cpr::Header b) {
         return cpr::Get(a, b, cprParams, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
       };

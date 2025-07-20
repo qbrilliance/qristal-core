@@ -51,6 +51,7 @@ build*/
 
 # Clangd IntelliSense cached files
 .clangd/
+.clangd
 .cache/
 
 #Python cache

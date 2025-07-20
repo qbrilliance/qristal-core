@@ -21,10 +21,6 @@ endif()
 find_package(Boost 1.7.1 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
-# curl (needed by XACC and CPR)
-set(CURL_NO_CURL_CMAKE ON)
-find_package(CURL REQUIRED)
-
 # OpenSSL
 find_package(OpenSSL REQUIRED)
 if(OPENSSL_FOUND)
@@ -139,13 +135,12 @@ if(NOT yamlcpp_ADDED AND TARGET yaml-cpp)
 endif()
 
 # Gtest
-set(GTest_VERSION "1.12.1")
+set(GTest_VERSION "1.17.0")
 add_dependency(googletest ${GTest_VERSION}
   GITHUB_REPOSITORY google/googletest
   FIND_PACKAGE_NAME GTest
-  GIT_TAG release-1.12.1
   OPTIONS
-    "gtest_force_shared_crt ON"
+    "INSTALL_GTEST OFF"
 )
 
 # json library
@@ -168,23 +163,6 @@ if(nlohmann_json_ADDED)
     DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/nlohmann
   )
   install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_INSTALL_PREFIX}/lib/cmake/nlohmann_json)")
-endif()
-
-# fmt lib
-set(fmt_VERSION "11.1.4")
-add_dependency(fmt ${fmt_VERSION}
-  GIT_TAG ${fmt_VERSION}
-  GITHUB_REPOSITORY fmtlib/fmt
-  FIND_PACKAGE_ARGUMENTS "CONFIG"
-  OPTIONS
-    "FMT_TEST OFF"
-    "FMT_DOC OFF"
-    "CMAKE_POSITION_INDEPENDENT_CODE ON"
-    "CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE}"
-    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}"
-)
-if(fmt_ADDED)
-  set(fmt_DIR ${CMAKE_INSTALL_PREFIX}/cmake/fmt)
 endif()
 
 # range-v3 library
@@ -388,64 +366,17 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   endforeach()
 
   # CPR curl wrapper
-  IF( DEFINED ENV{CPR_DIR} )
-    SET( CPR_DIR "$ENV{CPR_DIR}" )
-  ENDIF()
-  find_path(CPR_INCLUDE_DIR
-                NAMES cpr/cpr.h
-                HINTS ${CPR_DIR}/include)
-  find_library(CPR_LIBRARY
-                NAMES cpr
-                HINTS ${CPR_DIR}/lib)
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(CPR REQUIRED_VARS CPR_LIBRARY CPR_INCLUDE_DIR)
-  if(CPR_FOUND)
-    set(CPR_LIBRARIES ${CPR_LIBRARY})
-    set(CPR_INCLUDE_DIRS ${CPR_INCLUDE_DIR})
-    add_library(cpr INTERFACE)
-    target_link_libraries(cpr INTERFACE ${CPR_LIBRARY})
-    message(STATUS "cpr system install found: ${CPR_LIBRARY}.")
-    message(STATUS "cpr include dir: ${CPR_INCLUDE_DIR}.")
-  else()
-    list(APPEND CMAKE_PREFIX_PATH "/usr/local/")
-    if(CMAKE_BUILD_TYPE STREQUAL "None")
-      set(cpr_CMAKE_BUILD_TYPE "Release")
-    else()
-      set(cpr_CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE})
-    endif()
-    add_dependency(cpr 1.3.0
-      GIT_TAG 2305262
-      GITHUB_REPOSITORY ornl-qci/cpr
-      FIND_PACKAGE_VERSION " " #for manual cmake build
-      OPTIONS
-        "CMAKE_BUILD_TYPE ${cpr_CMAKE_BUILD_TYPE}"
-        "USE_SYSTEM_CURL ON"
-        "BUILD_CPR_TESTS OFF"
-        "CMAKE_POSITION_INDEPENDENT_CODE ON"
-    )
-    # If cpr was not found by findPackage, fill in the install steps that are missing when it is added as a subdirectory.
-    if(cpr_ADDED)
-      # Remove the INTERFACE_INCLUDE_DIRECTORIES property erroneously added by cpr/CMakeLists.txt's use of target_include_directories with PUBLIC keyword.
-      set_target_properties(cpr PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "")
-      # Now do it properly.
-    endif()
-  endif()
-  if (TARGET cpr)
-    target_include_directories(cpr INTERFACE
-      $<BUILD_INTERFACE:${CPR_INCLUDE_DIRS}>
-      $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
-    )
-    install(TARGETS cpr EXPORT cpr-targets)
-    install(EXPORT cpr-targets
-        FILE cpr-config.cmake
-        NAMESPACE cpr::
-        DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
-    if (NOT qristal_core_LIBDIR STREQUAL "lib")
-      install(
-          FILES ${CPR_LIBRARIES}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
-      )
-    endif()
+  add_dependency(cpr 1.12.0
+    GIT_TAG 1.12.0
+    GITHUB_REPOSITORY libcpr/cpr
+    OPTIONS
+      "CMAKE_BUILD_TYPE Release"
+      "CMAKE_POSITION_INDEPENDENT_CODE ON"
+      "CPR_USE_SYSTEM_CURL ON"
+      "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}"
+  )
+  if(cpr_ADDED)
+    set(cpr_DIR ${CMAKE_INSTALL_PREFIX}/cmake/cpr)
   endif()
 
   # C++ itertools

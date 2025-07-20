@@ -1,7 +1,6 @@
 #include <qristal/core/mpi/mpi_manager.hpp>
 #include <qristal/core/session.hpp>
 
-#include <fmt/format.h>
 #include <gtest/gtest.h>
 #include <yaml-cpp/node/node.h>
 
@@ -99,7 +98,7 @@ TEST(SessionConfigurationTester, ProcessSelectsCorrectMpiHardwareAcceleratorInde
     test_data data = make_test_data("aer", mpi_accelerators);
     EXPECT_NO_THROW(qristal::validate_mpi_config(mpi_accelerators.size(), idx, data.session.mpi_hardware_accelerators,
                                                  data.session.acc, data.remote_backend_database));
-    EXPECT_EQ(data.session.acc, mpi_accelerators[idx])
-        << fmt::format("This process should have selected \"{}\"", mpi_accelerators[idx]);
+    EXPECT_EQ(data.session.acc, mpi_accelerators[idx]) 
+        << "This process should have selected \"" << mpi_accelerators[idx] << "\"";
   }
 }

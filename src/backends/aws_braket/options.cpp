@@ -3,9 +3,6 @@
 // Qristal
 #include <qristal/core/backend_utils.hpp>
 
-// fmt
-#include <fmt/core.h>
-
 
 // Valid AWS backend strings
 const std::unordered_set<std::string> VALID_AWS_DEVICES =
@@ -62,8 +59,10 @@ namespace qristal
       optional<bool>("noise", false, y, m);
       if (m.get<bool>("noise"))
       {
-        throw std::invalid_argument(fmt::format("Error in YAML snippet\n{}\n"
-          "Noise cannot be set to True when using a hardware backend.", y.as<std::string>()));
+      std::stringstream ss;
+      ss << "Error in YAML snippet\n" << y.as<std::string>() << "\n"
+         << "Noise cannot be set to True when using a hardware backend.";
+      throw std::invalid_argument(ss.str());
       }
     }
     else required<bool>("noise", y, m);
@@ -71,8 +70,10 @@ namespace qristal
     // Check that s3 starts with "amazon-braket"
     if (not m.get<std::string>("s3").starts_with("amazon-braket"))
     {
-      throw std::invalid_argument(fmt::format("Error in YAML snippet\n{}\n"
-        "The value of s3 must begin with \"amazon-braket\".", y.as<std::string>()));
+      std::stringstream ss;
+      ss << "Error in YAML snippet\n" << y.as<std::string>() << "\n"
+       << "The value of s3 must begin with \"amazon-braket\".";
+      throw std::invalid_argument(ss.str());
     }
 
     // Check that requested number of qubits and shots is in range for the chosen device

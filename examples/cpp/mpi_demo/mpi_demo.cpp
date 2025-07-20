@@ -1,6 +1,8 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #include <qristal/core/session.hpp>
 
+#include <sstream>
+#include <string>
 
 int main()
 {
@@ -82,10 +84,11 @@ int main()
   // Run the circuit and count up the results in each of the classical
   // registers
   my_sim.sn = 100000;
-  my_sim.supervisor_print("Running {} shots\n", my_sim.sn);
   my_sim.run();
   my_sim.supervisor_print("Ran successfully!\n");
 
   // Print the cumulative results in each of the classical registers
-  my_sim.supervisor_print("Results:\n{}\n", my_sim.results());
+  std::stringstream ss;
+  ss << "Results:\n" << my_sim.results() << "\n";
+  my_sim.supervisor_print(ss.str());
 }

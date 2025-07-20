@@ -564,6 +564,8 @@ def test_randomized_stats():
         all_results.append(s.results)
 
     ref = sessions[0].results
+    assert ref, "Results are empty"
+
     all_equal = True
     for dist in all_results:
         if dist != ref:

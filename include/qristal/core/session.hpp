@@ -33,13 +33,10 @@
 // YAML
 #include <yaml-cpp/yaml.h>
 
-// fmt
-#include <fmt/base.h>
 
 // Forward declarations
 namespace xacc::quantum { class qb_qpu; }
 namespace qristal { class backend; }
-
 
 namespace qristal
 {
@@ -259,35 +256,15 @@ namespace qristal
           std::vector<std::string> mpi_hardware_accelerators;
 
           /**
-           * @brief Light-weight convenience wrapper function for fmt::print that
-           * only prints when the process is the supervisor.
+           * @brief Light-weight convenience wrapper function for printing only from the MPI supervisor
+           * process.
            *
-           * @tparam T Format string argument parameter pack
-           * @param fmt Format string
-           * @param args Format string arguments
+           * @param output_stream Stream to print to (e.g. std::cout or std::cerr)
+           * @param message The message to print
            */
-          template <typename... T>
-          void supervisor_print(fmt::format_string<T...> fmt, T &&...args) {
+          void supervisor_print(const std::string& message, std::ostream& output_stream = std::cout) {
             if (mpi_manager_.get_process_id() == 0) {
-              fmt::print(std::forward<fmt::format_string<T...>>(fmt),
-                         std::forward<T>(args)...);
-            }
-          }
-
-          /**
-           * @brief Overload for supervisor_print which allows printing to stderr.
-           *
-           * @tparam T Format string argument parameter pack
-           * @param file File to print to
-           * @param fmt Format string
-           * @param args Format string arguments
-           */
-          template <typename... T>
-          void supervisor_print(FILE *file, fmt::format_string<T...> fmt,
-                                T &&...args) {
-            if (mpi_manager_.get_process_id() == 0) {
-              fmt::print(file, std::forward<fmt::format_string<T...>>(fmt),
-                         std::forward<T>(args)...);
+              output_stream << message;
             }
           }
 

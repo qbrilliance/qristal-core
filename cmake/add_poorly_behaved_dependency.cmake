@@ -26,7 +26,11 @@ function(find_package_dry_run NAME VERSION dir arg_FIND_PACKAGE_NAME arg_GIT_TAG
   execute_process(COMMAND ${CMAKE_COMMAND} -B${CMAKE_BINARY_DIR}/_dry_runs ${CMAKE_BINARY_DIR}/_dry_runs -D${arg_FIND_PACKAGE_NAME}_ROOT=${${arg_FIND_PACKAGE_NAME}_ROOT} -D${arg_FIND_PACKAGE_NAME}_DIR=${${arg_FIND_PACKAGE_NAME}_DIR} ERROR_VARIABLE DRY_RUN_RESULTS ERROR_STRIP_TRAILING_WHITESPACE OUTPUT_QUIET)
   execute_process(COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/_dry_runs)
 
-  string(REGEX REPLACE ".*poorly_behaved_dependency_dry_run: (.*)(\n|$)" "\\1" DRY_RUN_RESULTS "${DRY_RUN_RESULTS}")
+  string(REGEX
+    REPLACE ".*poorly_behaved_dependency_dry_run: (.*) :poorly_behaved_dependency_dry_run.*" "\\1"
+    DRY_RUN_RESULTS "${DRY_RUN_RESULTS}"
+  )
+
   if(DRY_RUN_RESULTS STREQUAL "Found")
     message(STATUS "System installation of ${NAME} found: version ${VERSION}-${arg_GIT_TAG}")
     set(${SUCCESS} True PARENT_SCOPE)

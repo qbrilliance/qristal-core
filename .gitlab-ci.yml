@@ -9,7 +9,7 @@ variables:
   EMULATOR_TRIGGER_BRANCH: main
   DECODER_TRIGGER_BRANCH: main
   SDK_TRIGGER_BRANCH: main
-  QCSTACK_TRIGGER_BRANCH: develop
+  QCSTACK_TRIGGER_BRANCH: main
 
 stages:
   - build
@@ -635,7 +635,8 @@ almalinux-power-cpp-tests:
   tags:
     - powerDocker
   script:
-    - ./build/CITests --test --gtest_output='xml:core_gtests.xml'
+    # vqeeTester tests are broken on PowerPC due to lack of proper ppc64le support for pyscf in Python 3.12
+    - ./build/CITests --test --gtest_output='xml:core_gtests.xml' --gtest_filter='-vqeeTester.*'
     - ./build/TketTests --test --gtest_output='xml:tket_gtests.xml'
     - rm -rf ${QB_DIR}/core
   artifacts:

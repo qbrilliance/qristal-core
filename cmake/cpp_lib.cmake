@@ -122,11 +122,9 @@ target_link_libraries(${PROJECT_NAME}
     yaml-cpp::yaml-cpp
     autodiff::autodiff
     cereal::cereal
-    CURL::libcurl
     range-v3::range-v3
-    fmt::fmt
   PRIVATE
-    cpr
+    cpr::cpr
   INTERFACE
     # The following are not strictly needed, but save dependent packages locating them themselves.
     Eigen3::Eigen
@@ -217,7 +215,6 @@ if(WITH_MPI)
     PUBLIC
       MPI::MPI_CXX
       range-v3::range-v3
-      fmt::fmt
   )
   list(APPEND targets ${MPI_SUPPORT_LIBRARY_NAME})
 
@@ -283,13 +280,9 @@ file(WRITE ${outfile} "# Import all transitive dependencies of qristal::core nee
                      \nset(cereal_DIR ${cereal_DIR})\
                      \nset(autodiff_DIR ${autodiff_DIR})\
                      \nfind_dependency(autodiff ${autodiff_VERSION})\
-                     \nset(CURL_NO_CURL_CMAKE ON)\
                      \nfind_dependency(cereal ${cereal_VERSION})\
-                     \nfind_dependency(CURL)\
                      \nset(range-v3_DIR ${range-v3_DIR})\
-                     \nfind_dependency(range-v3)\
-                     \nset(fmt_DIR ${fmt_DIR})\
-                     \nfind_dependency(fmt)")
+                     \nfind_dependency(range-v3)")
 if(EXISTS ${XACC_EIGEN_PATH})
   file(APPEND ${outfile} "\nset(XACC_EIGEN_PATH ${XACC_DIR}/include/eigen)\
                           \nadd_eigen_from_xacc()")

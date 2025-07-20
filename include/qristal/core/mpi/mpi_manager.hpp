@@ -5,8 +5,6 @@
 
 #include <mpi.h>
 
-#include <fmt/format.h>
-
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -14,6 +12,7 @@
 #include <ranges>
 #include <span>
 #include <stdexcept>
+#include <sstream>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
@@ -95,11 +94,11 @@ private:
         30s);
 
     if (!message_ready) {
-      throw std::runtime_error(
-          fmt::format("Timed out while probing for message from MPI process "
-                      "with ID: {} and Tag: {} (enumerator value of enum class "
-                      "MessageTags)",
-                      process_id, static_cast<int>(message_tag)));
+      std::ostringstream oss;
+      oss << "Timed out while probing for message from MPI process with ID: "
+          << process_id << " and Tag: " << static_cast<int>(message_tag)
+          << " (enumerator value of enum class MessageTags)";
+      throw std::runtime_error(oss.str());
     }
     int32_t data_size;
     MPI_Get_count(&status, MPI_TYPE_MAP.at(typeid(TData)), &data_size);
@@ -121,10 +120,10 @@ private:
     try {
       receive_buffer_.resize(memory_to_allocate);
     } catch (const std::bad_alloc &e) {
-      fmt::print(stderr,
-                 "Unable to allocate {}B of extra memory to receive data "
-                 "from other MPI processes.\n",
-                 memory_to_allocate);
+      std::stringstream ss;
+      ss << "Unable to allocate " << memory_to_allocate
+         << "B of extra memory to receive data from other MPI processes.\n";
+      std::fputs(ss.str().c_str(), stderr);
       throw e;
     }
 
