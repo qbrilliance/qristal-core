@@ -136,3 +136,23 @@ index 7026f728..6e9754e7 100644
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
  endif()
  
+diff --git a/quantum/plugins/optimizers/simple/CircuitOptimizer.cpp b/quantum/plugins/optimizers/simple/CircuitOptimizer.cpp
+index 59a8acf4..f7f3fddd 100644
+--- a/quantum/plugins/optimizers/simple/CircuitOptimizer.cpp
++++ b/quantum/plugins/optimizers/simple/CircuitOptimizer.cpp
+@@ -635,7 +635,14 @@ bool CircuitOptimizer::tryRotationMergingUsingPhasePolynomials(std::shared_ptr<C
+     }
+   }
+ 
++  size_t rotation_merger_counter = 0;
++  size_t rotation_merger_counter_max = 1e6;
+   for (int i = 1; i < graphView->order() - 1; /* increment in loop*/) {
++    rotation_merger_counter++;
++    if (rotation_merger_counter >= rotation_merger_counter_max) {
++      throw std::runtime_error("Circuit optimisation failed: Merging rotation gates using phase polynomial exceeded maximum number of steps.");
++    }
++
+     std::unordered_map<int, std::pair<int, int>> qubitToBoundary;
+     const auto node = graphView->getVertexProperties(i);
+     // Starting at a CNOT gate as anchor point
+

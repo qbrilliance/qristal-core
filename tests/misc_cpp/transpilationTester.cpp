@@ -1,11 +1,17 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include <qristal/core/session.hpp>
+// Gtest
 #include <gtest/gtest.h>
+
+// Qristal
+#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
+#include <qristal/core/circuit_builder.hpp>
+#include <qristal/core/passes/circuit_opt_passes.hpp>
+#include <qristal/core/session.hpp>
+
+// Xacc
 #include <xacc.hpp>
 #include <xacc_service.hpp>
-#include <qristal/core/noise_model/noise_model.hpp>
-#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
 
 TEST(transpilationTester, checkCZOptimization) {
   // Make a Qristal session
@@ -80,4 +86,14 @@ TEST(transpilationTester, checkAngleNorm) {
   EXPECT_DOUBLE_EQ(vis.norm(5.*pi+0.01), -pi+0.01);
   EXPECT_DOUBLE_EQ(vis.norm(-5.), 2*pi-5.);
   EXPECT_DOUBLE_EQ(vis.norm(5.), 5.-2.*pi);
+}
+
+TEST(transpilationTester, checkCircuitOptimisationFailure) {
+  qristal::CircuitBuilder circuit;
+  circuit.CNOT(0, 1);
+  circuit.CZ(0, 1);
+  circuit.CNOT(0, 1);
+
+  std::shared_ptr<qristal::CircuitPass> opt_pass = qristal::create_circuit_optimizer_pass();
+  ASSERT_THROW(opt_pass->apply(circuit), std::runtime_error);
 }

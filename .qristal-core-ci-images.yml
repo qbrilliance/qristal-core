@@ -1,6 +1,6 @@
 variables:
-  CI_IMAGE_UBUNTU_AMD64_CLANG:      registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_clang-4
-  CI_IMAGE_UBUNTU_AMD64_CLANG_CUDA: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_cuda-12.1.1_clang-4
-  CI_IMAGE_UBUNTU_AMD64_GCC:        registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_gcc-4
-  CI_IMAGE_ALMALINUX_AMD64:         registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/almalinux_amd64-8.10-20250411:all_dep_cuda-12.1.1_clang-4
-  CI_IMAGE_ALMALINUX_PPC:           registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/almalinux_ppc64le-8.10-20250411:all_dep_cuda-12.1.1_clang-4
+  CI_IMAGE_UBUNTU_AMD64_CLANG:      registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_clang-5
+  CI_IMAGE_UBUNTU_AMD64_CLANG_CUDA: registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_cuda-12.1.1_clang-5
+  CI_IMAGE_UBUNTU_AMD64_GCC:        registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/ubuntu_amd64-22.04:all_dep_gcc-5
+  CI_IMAGE_ALMALINUX_AMD64:         registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/almalinux_amd64-8.10-20250411:all_dep_cuda-12.1.1_clang-5
+  CI_IMAGE_ALMALINUX_PPC:           registry.gitlab.com/qbau/software-and-apps/ci-dockerfiles/almalinux_ppc64le-8.10-20250411:all_dep_cuda-12.1.1_clang-5
