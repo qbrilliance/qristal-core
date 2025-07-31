@@ -3,9 +3,11 @@
 #include <qristal/core/python/py_stl_containers.hpp>
 
 //workflows (needed for constructor specialization)
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
 #include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/RotationSweep.hpp>
 #include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
+#include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 
 //metrics 
 #include <qristal/core/benchmark/metrics/CircuitFidelity.hpp>
@@ -28,13 +30,15 @@ namespace qristal {
       //specialized constructors
       .def(py::init<SPAMBenchmark&>())
       .def(py::init<RotationSweep&>())
+      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts>&>())
       //type-erased member functions
       .def(
         "evaluate", 
-        [&](const CircuitFidelityPython& self, const bool force_new) {
-          return self.evaluate(force_new);
+        [&](const CircuitFidelityPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
         qristal::help::benchmark::evaluate_
       );
   }
@@ -46,12 +50,13 @@ namespace qristal {
       //type-erased member functions
       .def(
         "evaluate", 
-        [&](const PyGSTiResultsPython& self, const bool force_new, const bool verbose) {
-          return self.evaluate(force_new, verbose);
+        [&](const PyGSTiResultsPython& self, const bool force_new, const bool verbose, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, verbose, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
         py::arg("verbose") = false,
-        qristal::help::benchmark::evaluate_
+        py::arg("SPAM_confusion") = std::nullopt,
+        qristal::help::benchmark::evaluate_pyGSTiResults_
       );
   }
 
@@ -62,10 +67,11 @@ namespace qristal {
       //type-erased member functions
       .def(
         "evaluate", 
-        [&](const ConfusionMatrixPython& self, const bool force_new) {
-          return self.evaluate(force_new);
+        [&](const ConfusionMatrixPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
         qristal::help::benchmark::evaluate_
       );
   }
@@ -75,10 +81,11 @@ namespace qristal {
       .def(py::init<QuantumStateTomographyPython&>(), py::arg("qstworkflow"))
       .def(
         "evaluate", 
-        [&](const QuantumStateDensityPython& self, const bool force_new) {
-          return self.evaluate(force_new);
+        [&](const QuantumStateDensityPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
         qristal::help::benchmark::evaluate_
       );
   }
@@ -88,10 +95,11 @@ namespace qristal {
       .def(py::init<QuantumProcessTomographyPython&>(), py::arg("qptworkflow"))
       .def(
         "evaluate", 
-        [&](const QuantumProcessMatrixPython& self, const bool force_new) {
-          return self.evaluate(force_new);
+        [&](const QuantumProcessMatrixPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
         qristal::help::benchmark::evaluate_
       );
   }
@@ -101,10 +109,11 @@ namespace qristal {
       .def(py::init<QuantumStateTomographyPython&>(), py::arg("qstworkflow"))
       .def(
         "evaluate", 
-        [&](const QuantumStateFidelityPython& self, const bool force_new) {
-          return self.evaluate(force_new);
+        [&](const QuantumStateFidelityPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
         qristal::help::benchmark::evaluate_
       );
   }
@@ -114,12 +123,20 @@ namespace qristal {
       .def(py::init<QuantumProcessTomographyPython&>(), py::arg("qptworkflow"))
       .def(
         "evaluate", 
-        [&](const QuantumProcessFidelityPython& self, const bool force_new) {
-          return self.evaluate(force_new);
+        [&](const QuantumProcessFidelityPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
         }, 
         py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
         qristal::help::benchmark::evaluate_
       );
+    m.def(
+        "calculate_average_gate_fidelity",
+        &calculate_average_gate_fidelity,
+        py::arg("process_fidelity"),
+        py::arg("n_qubits"),
+        qristal::help::benchmark::calculate_average_gate_fidelity_
+    );
   }
 
 }

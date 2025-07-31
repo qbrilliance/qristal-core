@@ -21,7 +21,10 @@ namespace qristal
         class QuantumProcessFidelityPythonBase {
             public:
                 virtual ~QuantumProcessFidelityPythonBase() = default;
-                virtual std::map< std::time_t, std::vector<double> >  evaluate(const bool force_new = false) const = 0;
+                virtual std::map< std::time_t, std::vector<double> >  evaluate(
+                    const bool force_new = false,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const = 0;
         };
 
         /**
@@ -50,6 +53,7 @@ namespace qristal
                 *
                 * Arguments:
                 * @param force_new optional boolean flag forcing a new execution of the workflow. Defaults to false.
+                * @param SPAM_confusion optional SPAM confusion matrix to use in automatic SPAM correction of measured bit string counts.
                 *
                 * @return std::map<std::time_t, std::vector<double>> calculated quantum state fidelities mapped to the corresponding time stamp of the workflow execution.
                 *
@@ -59,7 +63,10 @@ namespace qristal
                 * for all workflow circuits are evaluated and returned in a std::map to the corresponding timestamp of
                 * execution.
                 */
-                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const;
+                std::map< std::time_t, std::vector<double> > evaluate(
+                    const bool force_new = false, 
+                    const std::optional<Eigen::MatrixXd>& = std::nullopt
+                ) const;
 
             private:
                 QPTWORKFLOW& qptworkflow_;
@@ -76,8 +83,8 @@ namespace qristal
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumProcessFidelityPython(QuantumProcessTomographyPython& qstpython);
 
-                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const {
-                    return workflow_ptr_->evaluate(force_new);
+                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false, const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt) const {
+                    return workflow_ptr_->evaluate(force_new, SPAM_confusion);
                 }
 
             private:
@@ -88,24 +95,37 @@ namespace qristal
         * @brief Helper function to evalute the process fidelity of two given complex-valued quantum process matrices.
         *
         * Arguments:
-        * @param a left complex process matrix of type Eigen::Matrix
-        * @param b right complex process matrix of type Eigen::Matrix.
+        * @param measured the measured complex process matrix of type Eigen::Matrix.
+        * @param ideal the ideal complex process matrix of type Eigen::Matrix.
         *
-        * @return double The quantum process fidelity f(a,b).
+        * @return double The quantum process fidelity.
         *
         * @details This function evaluates the quantum process fidelity f(a,b) = |trace(b' * a)|
         * for complex process matrices a and b..
         */
-        double calculate_process_fidelity(const ComplexMatrix& measured, const ComplexMatrix& ideal)
+        inline double calculate_process_fidelity(const ComplexMatrix& measured, const ComplexMatrix& ideal)
         {
             std::complex<double> HS = (ideal.adjoint() * measured).trace();
             return std::sqrt(HS.real() * HS.real() + HS.imag() * HS.imag());
         }
 
+        /**
+        * @brief Helper function to evalute the average gate fidelity given the quantum process fidelity.
+        *
+        * Arguments:
+        * @param process_fidelity the quantum process fidelity.
+        * @param n_qubits the number of qubits of the quantum channel.
+        *
+        * @return double The average gate fidelity.
+        */
+        inline double calculate_average_gate_fidelity(const double& process_fidelity, const size_t n_qubits) {
+            double dim = std::pow(2, n_qubits);  
+            return (dim * process_fidelity + 1.0) / (dim + 1.0);
+        }
 
         template <QPTWorkflow QPTWORKFLOW>
         requires CanStoreMeasuredCounts<QPTWORKFLOW> && CanStoreIdealProcesses<typename QPTWORKFLOW::QSTWorkflowType::ExecutableWorkflowType> && CanStoreSessionInfos<QPTWORKFLOW>
-        std::map<std::time_t, std::vector<double>> QuantumProcessFidelity<QPTWORKFLOW>::evaluate(const bool force_new) const {
+        std::map<std::time_t, std::vector<double>> QuantumProcessFidelity<QPTWORKFLOW>::evaluate(const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) const {
             std::map<std::time_t, std::vector<double>> timestamp2fidelities;
             //(1) initialize DataLoaderGenerator to either read in already stored results or generate new ones
             DataLoaderGenerator dlg(qptworkflow_.get_identifier(), tasks_, force_new);
@@ -113,7 +133,7 @@ namespace qristal
 
             //(2) obtain session info, measured bitcounts, and ideal processes
             std::vector<SessionInfo> session_infos = dlg.obtain_session_infos();
-            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts();
+            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts(SPAM_confusion);
             std::vector<std::vector<ComplexMatrix>> ideal_processes_collection = dlg.obtain_ideal_processes();
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 

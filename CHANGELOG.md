@@ -33,6 +33,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added functionality to enable assigning MPI processes to different accelerator backends
 - Added decompose_swap, commute_through_multis, optimise_post_routing, decompose_zx, rebase_to_clifford, optimise_cliffords passes
 - Updated Qristal's cpr and gtest versions to the latest release
+- Added new qristal::benchmark workflow wrapper `AddinFromIdealSimulation` to add in missing serialization functions from an ideal simulation. In C++, this is templated for arbitrary workflows. Python bindings were added for `SimpleCircuitExecution` only. 
+- Added capability to perform adhoc SPAM corrections in `qristal::benchmark` metric evaluations by passing a SPAM confusion matrix to the `evaluate` call.  
 
 ### Fixed
 

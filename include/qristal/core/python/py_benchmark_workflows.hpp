@@ -19,4 +19,7 @@ namespace qristal {
 
   // Bind qristal::benchmark::QuantumProcessTomography class to Python API.
   void bind_QuantumProcessTomography(pybind11::module &m);
+
+  // Bind qristal::benchmark::AddinFromIdealSimulation class to Python API. 
+  void bind_AddinFromIdealSimulation(pybind11::module &m);
 }

@@ -148,12 +148,27 @@ namespace qristal
                 /**
                 * @brief Deserialize measured bitstring count data from archived files for all stored time stamps
                 *
-                * Arguments: ---
-
-                * @return std::vector<std::vector<std::string>> a vector of bit strings (as std::string) for each stored time stamp.
+                * Arguments: 
+                * @param SPAM_confusion : optional SPAM confusion matrix to use for automatic SPAM correction.
+                *
+                * @return std::vector<std::vector<std::string>> a vector of bit strings (as std::string) for each stored time stamp. 
+                * If a SPAM confusion matrix was given, the deserialized measured bitstring counts are automatically SPAM-corrected. 
                 */
-                std::vector<std::vector<std::map<std::vector<bool>, int>>> obtain_measured_counts() const {
-                    return load_data<BitCounts, std::vector<std::map<std::vector<bool>, int>>>(workflow_identifier_, "_measured_", timestamps_);
+                std::vector<std::vector<std::map<std::vector<bool>, int>>> obtain_measured_counts(
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const {
+                    std::vector<std::vector<std::map<std::vector<bool>, int>>> counts = load_data<BitCounts, std::vector<std::map<std::vector<bool>, int>>>(workflow_identifier_, "_measured_", timestamps_);
+                    if (SPAM_confusion.has_value()) {
+                        const Eigen::MatrixXd correction = SPAM_confusion.value().inverse();
+                        std::cout << "Applying user-provided SPAM correction to serialized measured bit string data... " << std::flush;
+                        for (size_t i = 0; i < counts.size(); ++i) {
+                            for (size_t j = 0; j < counts[i].size(); ++j) {
+                                counts[i][j] = apply_SPAM_correction(counts[i][j], correction);
+                            }
+                        }
+                        std::cout << "done!" << std::endl;
+                    }
+                    return counts;
                 }
                 /**
                 * @brief Deserialize ideal bitstring count data from archived files for all stored time stamps

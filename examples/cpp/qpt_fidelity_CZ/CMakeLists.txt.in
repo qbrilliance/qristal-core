@@ -1,0 +1,24 @@
+# Copyright (c) Quantum Brilliance Pty Ltd
+#
+# Demonstration of a Quantum Process Tomography 
+# experiment of a simple CZ gate application 
+# evaluating the Quantum Process Fidelity
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(qpt_fidelity_CZ
+  DESCRIPTION "Quantum Brilliance QPT example"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+add_executable(qpt_fidelity_CZ qpt_fidelity_CZ_example.cpp)
+
+target_link_libraries(qpt_fidelity_CZ
+  PRIVATE
+    qristal::core
+)

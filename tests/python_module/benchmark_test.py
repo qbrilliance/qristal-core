@@ -4,6 +4,7 @@ import numpy as np
 import math
 import qristal.core
 import qristal.core.benchmark as benchmark
+import time
 
 def test_SPAMBenchmark_circuit_construction():
     n_qubits = 10
@@ -558,10 +559,16 @@ def test_ConfusionMatrix_noisy():
             for i in range(confusion.shape[0]):
                  assert np.sum(confusion, axis=1) == pytest.approx(1.0, 1e-2)
 
+            #check adhoc SPAM correction in evaluate 
+            corrected_results_1 = metric.evaluate(True, confusion)
+            _, corrected_confusion_1 = next(iter(corrected_results_1.items()))
+            assert np.all(np.isclose(ideal, corrected_confusion_1, atol=1e-2))
+
+            #check automatic SPAM correction in session
             sim.SPAM_confusion_matrix=confusion
-            corrected_results = metric.evaluate(True)
-            _, corrected_confusion = next(iter(corrected_results.items()))
-            assert np.all(np.isclose(ideal,confusion, atol=1e-2))
+            corrected_results_2 = metric.evaluate(True)
+            _, corrected_confusion_2 = next(iter(corrected_results_2.items()))
+            assert np.all(np.isclose(ideal, corrected_confusion_2, atol=1e-2))
 
 def test_QuantumStateFidelity_checkSPAM():
     qubits = {0, 1}
@@ -632,3 +639,82 @@ def test_QuantumProcessFidelity_checkRotationSweep():
     for _, fidelities in results.items():
         for fidelity in fidelities:
             assert fidelity == pytest.approx(1.0, 1e-2)
+
+
+# helper classes 
+class ParallelU3Circuit:
+    def __init__(self, u3angles):
+        self.u3angles = u3angles 
+        self.n_qubits = int(len(u3angles) // 3)
+        self.circuit = qristal.core.Circuit()
+        for i in range(self.n_qubits):
+            self.circuit.h(i)
+            self.circuit.u3(i, self.u3angles[3*i], self.u3angles[3*i + 1], self.u3angles[3*i + 2])
+
+def test_AddinIdealCountsFromIdealSimulation():
+    n_tests = 10
+    n_qubits = 3
+
+    sim = qristal.core.session()
+    sim.acc="qpp"
+    sim.sn = 10000
+    sim.qn = n_qubits
+
+    circuits = []
+    for test in range(n_tests):
+        random_values = np.random.uniform(-2 * np.pi, 2 * np.pi, 3 * n_qubits)
+        circuits.append(ParallelU3Circuit(random_values).circuit)
+    workflow = benchmark.SimpleCircuitExecution(circuits, sim)
+    workflow = benchmark.AddinIdealCountsFromIdealSimulation(workflow)
+
+    metric = benchmark.CircuitFidelity(workflow)
+    results = metric.evaluate(True)
+    for _, fidelities in results.items():
+        for fidelity in fidelities:
+            assert fidelity == pytest.approx(1.0, 5e-2)
+
+def test_AddinIdealDensityFromIdealSimulation():
+    n_qubits_list = [1, 2, 3]
+
+    for n_qubits in n_qubits_list:
+        sim = qristal.core.session()
+        sim.acc="qpp"
+        sim.sn = 10000
+        sim.qn = n_qubits
+
+        random_values = np.random.uniform(-2 * np.pi, 2 * np.pi, 3 * n_qubits)
+        circuit = ParallelU3Circuit(random_values).circuit
+        workflow = benchmark.SimpleCircuitExecution(circuit, sim)
+        workflow = benchmark.AddinIdealDensityFromIdealSimulation(workflow)
+        qst_workflow = benchmark.QuantumStateTomography(workflow)
+
+        time.sleep(1.0) #Make sure timestamp is different
+        metric = benchmark.QuantumStateFidelity(qst_workflow)
+        results = metric.evaluate(True)
+        for _, fidelities in results.items():
+            for fidelity in fidelities:
+                assert fidelity == pytest.approx(1.0, 5e-2)
+
+def test_AddinIdealProcessFromIdealSimulation():
+    n_qubits_list = [1, 2]
+
+    for n_qubits in n_qubits_list:
+        sim = qristal.core.session()
+        sim.acc="qpp"
+        sim.sn = 10000
+        sim.qn = n_qubits
+
+        random_values = np.random.uniform(-2 * np.pi, 2 * np.pi, 3 * n_qubits)
+        circuit = ParallelU3Circuit(random_values).circuit
+        workflow = benchmark.SimpleCircuitExecution(circuit, sim)
+        workflow = benchmark.AddinIdealProcessFromIdealSimulation(workflow)
+        qst_workflow = benchmark.QuantumStateTomography(workflow)
+        qpt_workflow = benchmark.QuantumProcessTomography(qst_workflow)
+
+        time.sleep(1.0) #Make sure timestamp is different
+        metric = benchmark.QuantumProcessFidelity(qpt_workflow)
+        results = metric.evaluate(True)
+        for _, fidelities in results.items():
+            for fidelity in fidelities:
+                assert fidelity == pytest.approx(1.0, 5e-2)
+  

@@ -4,6 +4,7 @@
 #include <qristal/core/benchmark/workflows/RotationSweep.hpp>
 #include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 #include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
 
 
@@ -20,7 +21,9 @@ namespace qristal {
                                  QuantumStateTomography<SPAMBenchmark>, //compatible workflows to check
                                  QuantumStateTomography<RotationSweep>, 
                                  QuantumStateTomography<PyGSTiBenchmark>, 
-                                 QuantumStateTomography<SimpleCircuitExecution>>(
+                                 QuantumStateTomography<SimpleCircuitExecution>,
+                                 QuantumStateTomography<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>>
+                                 >(
                                     workflow_ptr_, qstpython, states
                                  );
     }

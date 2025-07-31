@@ -23,7 +23,10 @@ namespace qristal
         class QuantumStateDensityPythonBase {
             public:
                 virtual ~QuantumStateDensityPythonBase() = default;
-                virtual std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const = 0;
+                virtual std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(
+                    const bool force_new = false,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const = 0;
         };
 
         /**
@@ -52,6 +55,7 @@ namespace qristal
                 *
                 * Arguments:
                 * @param force_new optional boolean flag forcing a new execution of the workflow. Defaults to false.
+                * @param SPAM_confusion optional SPAM confusion matrix to use in automatic SPAM correction of measured bit string counts.
                 *
                 * @return std::map<std::time_t, std::vector<ComplexMatrix>> of calculated quantum state densities mapped to the corresponding time stamp of the workflow execution.
                 *
@@ -61,7 +65,10 @@ namespace qristal
                 * for all workflow circuits are evaluated and returned in a std::map to the corresponding timestamp of
                 * execution.
                 */
-                std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const;
+                std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(
+                    const bool force_new = false,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const;
 
             private:
 
@@ -79,8 +86,8 @@ namespace qristal
                 //To not pollute the standalone header, this was moved to a cpp file.
                 QuantumStateDensityPython(QuantumStateTomographyPython& qstpython);
 
-                std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false) const {
-                    return workflow_ptr_->evaluate(force_new);
+                std::map< std::time_t, std::vector<ComplexMatrix> > evaluate(const bool force_new = false, const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt) const {
+                    return workflow_ptr_->evaluate(force_new, SPAM_confusion);
                 }
 
             private:
@@ -89,7 +96,7 @@ namespace qristal
 
         template <QSTWorkflow QSTWORKFLOW>
         requires CanStoreMeasuredCounts<QSTWORKFLOW> && CanStoreSessionInfos<QSTWORKFLOW>
-        std::map<std::time_t, std::vector<ComplexMatrix>> QuantumStateDensity<QSTWORKFLOW>::evaluate(const bool force_new) const {
+        std::map<std::time_t, std::vector<ComplexMatrix>> QuantumStateDensity<QSTWORKFLOW>::evaluate(const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) const {
             std::map<std::time_t, std::vector<ComplexMatrix>> timestamp2densities;
             std::cout << "Evaluating quantum state densities" << std::endl;
 
@@ -98,7 +105,7 @@ namespace qristal
             dlg.execute(workflow_);
 
             //(2) obtain session info and measured bitcounts
-            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts();
+            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts(SPAM_confusion);
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 
             //(3) assemble density matrix for each workflow circuit of each selected timestamp

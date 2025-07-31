@@ -20,7 +20,10 @@ namespace qristal
         class CircuitFidelityPythonBase {
             public:
                 virtual ~CircuitFidelityPythonBase() = default;
-                virtual std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const = 0;
+                virtual std::map< std::time_t, std::vector<double> > evaluate(
+                    const bool force_new = false,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const = 0;
         };
 
         /**
@@ -48,6 +51,7 @@ namespace qristal
                 *
                 * Arguments:
                 * @param force_new optional boolean flag forcing a new execution of the workflow. Defaults to false.
+                * @param SPAM_confusion optional SPAM confusion matrix to use in automatic SPAM correction of measured bit string counts.
                 *
                 * @return std::map<std::time_t, std::vector<double>> of calculated circuit fidelities mapped to the corresponding time stamp of the workflow execution.
                 *
@@ -57,7 +61,10 @@ namespace qristal
                 * for all workflow circuits is evaluated and returned in a std::map to the corresponding timestamp of
                 * execution.
                 */
-                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const;
+                std::map< std::time_t, std::vector<double> > evaluate(
+                    const bool force_new = false, 
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const;
 
             private:
                 WORKFLOW& workflow_;
@@ -73,8 +80,8 @@ namespace qristal
                 requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreIdealCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
                 CircuitFidelityPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<CircuitFidelity<WORKFLOW>>(workflow)) {}
 
-                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false) const {
-                    return workflow_ptr_->evaluate(force_new);
+                std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false, const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt) const {
+                    return workflow_ptr_->evaluate(force_new, SPAM_confusion);
                 }
 
             private:
@@ -134,7 +141,10 @@ namespace qristal
 
         template <ExecutableWorkflow WORKFLOW>
         requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreIdealCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
-        std::map<std::time_t, std::vector<double>> CircuitFidelity<WORKFLOW>::evaluate(const bool force_new) const {
+        std::map<std::time_t, std::vector<double>> CircuitFidelity<WORKFLOW>::evaluate(
+            const bool force_new,
+            const std::optional<Eigen::MatrixXd>& SPAM_confusion
+        ) const {
             std::map<std::time_t, std::vector<double>> timestamp2fidelities;
             std::cout << "Evaluating circuit fidelities" << std::endl;
 
@@ -144,7 +154,7 @@ namespace qristal
 
             //(2) obtain session info, ideal, and measured bitcounts
             std::vector<SessionInfo> session_infos = dlg.obtain_session_infos();
-            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts();
+            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts(SPAM_confusion);
             std::vector<std::vector<std::map<std::vector<bool>, int>>> ideal_bitcounts_collection = dlg.obtain_ideal_counts();
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 

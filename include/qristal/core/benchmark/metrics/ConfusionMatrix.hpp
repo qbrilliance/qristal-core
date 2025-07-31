@@ -29,7 +29,10 @@ namespace qristal
         class ConfusionMatrixPythonBase {
             public:
                 virtual ~ConfusionMatrixPythonBase() = default;
-                virtual std::map< std::time_t, Eigen::MatrixXd > evaluate(const bool force_new = false) const = 0;
+                virtual std::map< std::time_t, Eigen::MatrixXd > evaluate(
+                    const bool force_new = false,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const = 0;
         };
 
         /**
@@ -59,6 +62,7 @@ namespace qristal
                 *
                 * Arguments:
                 * @param force_new : Optional boolean flag forcing a new execution of the workflow. Defaults to false.
+                * @param SPAM_confusion optional SPAM confusion matrix to use in automatic SPAM correction of measured bit string counts.
                 *
                 * @return std::map<std::time_t, Eigen::MatrixXd> : Calculated confusion matrices mapped to the corresponding time stamp of the workflow execution.
                 *
@@ -68,7 +72,10 @@ namespace qristal
                 * for all selected SPAM workflows are evaluated and returned in a std::map to the corresponding timestamp of
                 * execution.
                 */
-                std::map< std::time_t, Eigen::MatrixXd > evaluate(const bool force_new = false) const;
+                std::map< std::time_t, Eigen::MatrixXd > evaluate(
+                    const bool force_new = false,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const;
 
             private:
                 WORKFLOW& workflow_;
@@ -84,8 +91,8 @@ namespace qristal
                 requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW> && CanCalculateConfusionMatrix<WORKFLOW>
                 ConfusionMatrixPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<ConfusionMatrix<WORKFLOW>>(workflow)) {}
 
-                std::map< std::time_t, Eigen::MatrixXd> evaluate(const bool force_new = false) const {
-                    return workflow_ptr_->evaluate(force_new);
+                std::map< std::time_t, Eigen::MatrixXd> evaluate(const bool force_new = false, const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt) const {
+                    return workflow_ptr_->evaluate(force_new, SPAM_confusion);
                 }
 
             private:
@@ -94,7 +101,7 @@ namespace qristal
 
         template <ExecutableWorkflow WORKFLOW>
         requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW> && CanCalculateConfusionMatrix<WORKFLOW>
-        std::map< std::time_t, Eigen::MatrixXd > ConfusionMatrix<WORKFLOW>::evaluate(const bool force_new) const {
+        std::map< std::time_t, Eigen::MatrixXd > ConfusionMatrix<WORKFLOW>::evaluate(const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) const {
             std::map< std::time_t, Eigen::MatrixXd > timestamp2confusion;
             std::cout << "Evaluating confusion matrices" << std::endl;
 
@@ -103,7 +110,7 @@ namespace qristal
             dlg.execute(workflow_);
 
             //(2) obtain measured bitcounts and timestamps
-            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts();
+            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts(SPAM_confusion);
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 
             //(3) evaluate confusion matrix for every timestamp

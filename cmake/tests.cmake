@@ -18,6 +18,7 @@ set(test_sources
   tests/benchmark/workflows/QuantumStateTomographyTester.cpp
   tests/benchmark/workflows/RotationSweepTester.cpp
   tests/benchmark/workflows/SPAMBenchmarkTester.cpp
+  tests/benchmark/workflows/WorkflowAddins.cpp
   tests/circuit_builders/ExponentBuilderTester.cpp
   tests/circuit_builders/ParametrizedCircuitTester.cpp
   #tests/circuit_builders/RyEncodingTester.cpp

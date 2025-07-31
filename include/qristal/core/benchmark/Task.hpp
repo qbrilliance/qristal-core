@@ -59,7 +59,9 @@ namespace qristal {
                 * @details This executor function is the main Task execution function. Specialize this for every workflow/task combination deviating from the templated
                 * implementation below.
                 */
-                void operator()(WORKFLOW& workflow, std::time_t timestamp) const {}
+                void operator()(WORKFLOW& workflow, std::time_t timestamp) const {
+                    std::cerr << "Warning: No specialization for your executed task at " << timestamp << " found!" << std::endl;
+                }
             private:
         };
 

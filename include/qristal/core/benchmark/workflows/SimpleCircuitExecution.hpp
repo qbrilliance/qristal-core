@@ -73,7 +73,7 @@ namespace qristal
                 * (ii) the relevant information contained in the passed qristal::session.
                 */
                 std::time_t execute_all() {
-                    std::time_t t = execute(std::vector<Task>{Task::MeasureCounts, Task::IdealCounts, Task::IdealDensity, Task::IdealProcess, Task::Session});
+                    std::time_t t = execute(std::vector<Task>{Task::MeasureCounts, Task::Session});
                     return t;
                 }
 

@@ -9,6 +9,7 @@
 #include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
 #include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
+#include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 
 #include <pybind11/eigen.h>
 
@@ -268,6 +269,46 @@ namespace qristal {
         py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
         py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
       )
+      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>&,
+                    const std::set<size_t>&,
+                    const bool,
+                    const std::vector<Pauli>&,
+                    const Pauli&>(),
+        py::arg("workflow"),
+        py::arg("qubits"),
+        py::arg("perform_maximum_likelihood_estimation") = false,
+        py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
+        py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
+      )
+      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>&,
+                    const bool,
+                    const std::vector<Pauli>&,
+                    const Pauli&>(),
+        py::arg("workflow"),
+        py::arg("perform_maximum_likelihood_estimation") = false,
+        py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
+        py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
+      )
+      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>&,
+                    const std::set<size_t>&,
+                    const bool,
+                    const std::vector<Pauli>&,
+                    const Pauli&>(),
+        py::arg("workflow"),
+        py::arg("qubits"),
+        py::arg("perform_maximum_likelihood_estimation") = false,
+        py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
+        py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
+      )
+      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>&,
+                    const bool,
+                    const std::vector<Pauli>&,
+                    const Pauli&>(),
+        py::arg("workflow"),
+        py::arg("perform_maximum_likelihood_estimation") = false,
+        py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
+        py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
+      )
       //type-erased member functions
       .def(
         "execute", 
@@ -360,6 +401,42 @@ namespace qristal {
           },
           py::arg("densities"),
           qristal::help::benchmark::QuantumProcessTomography_::assemble_processes_
+      );
+  }
+
+  void bind_AddinFromIdealSimulation(pybind11::module &m) {
+    //Task::IdealCounts
+    py::class_<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts>>(m, "AddinIdealCountsFromIdealSimulation")
+      .def(py::init<const SimpleCircuitExecution&>(), 
+        py::arg("workflow")
+      )
+      .def(
+        "execute", 
+        &AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts>::execute, 
+        py::arg("tasks"), 
+        qristal::help::benchmark::execute_
+      );
+    //Task::IdealDensity
+    py::class_<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>>(m, "AddinIdealDensityFromIdealSimulation")
+      .def(py::init<const SimpleCircuitExecution&>(), 
+        py::arg("workflow")
+      )
+      .def(
+        "execute", 
+        &AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>::execute, 
+        py::arg("tasks"), 
+        qristal::help::benchmark::execute_
+      );
+    //Task::IdealProcess
+    py::class_<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>>(m, "AddinIdealProcessFromIdealSimulation")
+      .def(py::init<const SimpleCircuitExecution&>(), 
+        py::arg("workflow")
+      )
+      .def(
+        "execute", 
+        &AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>::execute, 
+        py::arg("tasks"), 
+        qristal::help::benchmark::execute_
       );
   }
 

@@ -44,7 +44,11 @@ namespace qristal
         class PyGSTiResultsPythonBase {
             public:
                 virtual ~PyGSTiResultsPythonBase() = default;
-                virtual std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true) const = 0;
+                virtual std::map< std::time_t, std::vector<std::string> > evaluate(
+                    const bool force_new = false, 
+                    const bool verbose = true,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const = 0;
         };
 
         /**
@@ -75,6 +79,7 @@ namespace qristal
                 * Arguments:
                 * @param force_new optional boolean flag forcing a new execution of the workflow. Defaults to false.
                 * @param verbose optional boolean flag to print verbose messages to std::cout. Defaults to true
+                * @param SPAM_confusion optional SPAM confusion matrix to use in automatic SPAM correction of measured bit string counts.
                 *
                 * @return std::map<std::time_t, std::vector<std::string>> of pyGSTi readable circuit results (line by line) mapped to the corresponding time stamp of the workflow execution.
                 *
@@ -84,7 +89,11 @@ namespace qristal
                 * circuit results for all workflow circuits is compiled and returned in a std::map to the corresponding
                 * timestamp of execution.
                 */
-                std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true) const;
+                std::map< std::time_t, std::vector<std::string> > evaluate(
+                    const bool force_new = false, 
+                    const bool verbose = true,
+                    const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt
+                ) const;
 
             private:
                 WORKFLOW& workflow_;
@@ -100,8 +109,8 @@ namespace qristal
                 requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
                 PyGSTiResultsPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<PyGSTiResults<WORKFLOW>>(workflow)) {}
 
-                std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true) const {
-                    return workflow_ptr_->evaluate(force_new);
+                std::map< std::time_t, std::vector<std::string> > evaluate(const bool force_new = false, const bool verbose = true, const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt) const {
+                    return workflow_ptr_->evaluate(force_new, verbose, SPAM_confusion);
                 }
 
             private:
@@ -111,7 +120,7 @@ namespace qristal
 
         template <PyGSTiWorkflow WORKFLOW>
         requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
-        std::map<std::time_t, std::vector<std::string>> PyGSTiResults<WORKFLOW>::evaluate(const bool force_new, const bool verbose) const {
+        std::map<std::time_t, std::vector<std::string>> PyGSTiResults<WORKFLOW>::evaluate(const bool force_new, const bool verbose, const std::optional<Eigen::MatrixXd>& SPAM_confusion) const {
             std::map<std::time_t, std::vector<std::string>> timestamp2pyGSTiresults;
             if (verbose) {
                 std::cout << "Evaluating pyGSTi compatible results list" << std::endl;
@@ -123,7 +132,7 @@ namespace qristal
 
             //(2) obtain session info, measured bitcounts, and timestamps
             std::vector<SessionInfo> session_infos = dlg.obtain_session_infos();
-            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts();
+            std::vector<std::vector<std::map<std::vector<bool>, int>>> measured_bitcounts_collection = dlg.obtain_measured_counts(SPAM_confusion);
             std::vector<std::time_t> timestamps = dlg.get_timestamps();
 
             //(3) compile list of results in pyGSTi compatible format

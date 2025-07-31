@@ -60,6 +60,7 @@ PYBIND11_MODULE(core, m) {
   qristal::bind_PyGSTiBenchmark(m_benchmark); //PyGSTiBenchmark
   qristal::bind_QuantumStateTomography(m_benchmark); //QuantumStateTomography
   qristal::bind_QuantumProcessTomography(m_benchmark); //QuantumProcessTomography
+  qristal::bind_AddinFromIdealSimulation(m_benchmark); //AddinFromIdealSimulation
   //metrics
   qristal::bind_CircuitFidelity(m_benchmark); //CircuitFidelity
   qristal::bind_PyGSTiResults(m_benchmark); //PyGSTiResults

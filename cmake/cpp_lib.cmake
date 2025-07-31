@@ -65,6 +65,7 @@ set(headers
   include/qristal/core/benchmark/workflows/RotationSweep.hpp
   include/qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp
   include/qristal/core/benchmark/workflows/SPAMBenchmark.hpp
+  include/qristal/core/benchmark/workflows/WorkflowAddins.hpp
   include/qristal/core/circuit_builder.hpp
   include/qristal/core/circuit_builders/exponent.hpp
   include/qristal/core/circuit_builders/ry_encoding.hpp

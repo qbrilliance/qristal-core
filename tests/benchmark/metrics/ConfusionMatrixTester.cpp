@@ -84,10 +84,14 @@ TEST(ConfusionMatrixTester, check_noisy) {
               EXPECT_NEAR(confusion.row(i).sum(), 1.0, 1e-12);
             }
 
-            //enable automatic SPAM correction, rerun, and check against identity
+            //(4.1) check adhoc SPAM correction 
+            auto corrected_confusion_1 = metric.evaluate(true, confusion).begin()->second;
+            EXPECT_TRUE(ideal.isApprox(corrected_confusion_1, 1e-2));
+
+            //(4.2) enable automatic SPAM correction in session, rerun, and check against identity
             sim.set_SPAM_confusion_matrix(confusion);
-            auto corrected_confusion = metric.evaluate(true).begin()->second;
-            EXPECT_TRUE(ideal.isApprox(corrected_confusion, 1e-2));
+            auto corrected_confusion_2 = metric.evaluate(true).begin()->second;
+            EXPECT_TRUE(ideal.isApprox(corrected_confusion_2, 1e-2));
         }
     }
 }

@@ -1,6 +1,8 @@
 #include <qristal/core/benchmark/metrics/QuantumProcessFidelity.hpp>
 #include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 
 namespace qristal {
   namespace benchmark {
@@ -10,7 +12,9 @@ namespace qristal {
                                  QuantumProcessFidelityPythonBase, 
                                  QuantumProcessTomographyPython, 
                                  QuantumProcessTomography<QuantumStateTomography<SPAMBenchmark>>, //compatible workflows to check
-                                 QuantumProcessTomography<QuantumStateTomography<RotationSweep>>>(
+                                 QuantumProcessTomography<QuantumStateTomography<RotationSweep>>,
+                                 QuantumProcessTomography<QuantumStateTomography<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>>>
+                                 >(
                                     workflow_ptr_, qptpython
                                  );
     }

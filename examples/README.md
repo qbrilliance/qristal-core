@@ -177,13 +177,21 @@ _noise_: false
 
 Python implementation of the C++ example `qpt` demonstrating a quantum process tomography.
 
-`benchmark/qpt_fidelity.py`
+`benchmark/qpt_fidelity_rotation_sweep.py`
 
 _qubits_: 2
-_gate depth_: 1
+_gate depth_: 3
 _noise_: false
 
-Python implementation of the C++ example `qpt_fidelity` demonstrating a quantum process tomography experiment, evaluating the quantum process fidelity.
+Python implementation of the C++ example `qpt_fidelity_rotation_sweep` demonstrating a quantum process tomography experiment of a rotation sweep, evaluating the quantum process fidelity.
+
+`benchmark/qpt_fidelity_CZ.py`
+
+_qubits_: 2
+_gate depth_: 3
+_noise_: false
+
+Python implementation of the C++ example `qpt_fidelity_CZ` demonstrating a quantum process tomography experiment of a single CZ gate application, evaluating the quantum process fidelity.
 
 `comparator.py`
 
@@ -732,13 +740,21 @@ _noise_: false
 
 This example shows the execution of a standard quantum process tomography workflow for a single Rx(pi/2) gate, evaluating and printing the quantum process matrix.
 
-`qpt_fidelity`
+`qpt_fidelity_rotation_sweep`
 
 _qubits_: 2
-_gate depth_: 1
+_gate depth_: 3
 _noise_: false
 
 This example shows the execution of a standard quantum process tomography workflow wrapped around a rotation sweep benchmark rotating qubit 0 from -pi to +pi applying Rx gates in 5 steps. For each circuit, the quantum process fidelity metric is evaluated and printed.
+
+`qpt_fidelity_CZ`
+
+_qubits_: 2
+_gate depth_: 3
+_noise_: false
+
+This example shows the execution of a standard quantum process tomography workflow wrapped around a simple circuit execution applying a CZ gate. The quantum process fidelity as well as the average gate fidelity are evaluated and printed.
 
 
 ## C++ with CUDA Quantum ##
