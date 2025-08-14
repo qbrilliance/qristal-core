@@ -36,7 +36,7 @@ Note that this method requires access to QB internal repositories, and is theref
 4. Link `lib/qristal` from within your Qristal installation directory to `$QcStackPath/apps/qcstack_server/qristal`.
 6. Launch the vQPU by changing directory to `$QcStackPath/apps/qcstack_server` and running
 ```
-poetry run python3 -m qb.qcstack_server.qcstack_server --system vqpu --max-circuit-depth X --reservation-shared-secret Y --calibration False --benchmarking False
+poetry run python3 -m qb.qcstack_server.qcstack_server --system vqpu --max-circuit-depth X --reservation-shared-secret Y
 ```
   where `X` is the maximum circuit depth that you desire the vQPU to accept, and `Y` is the secret key that you wish to be required to reserve the vQPU for exclusive use.
 
@@ -98,6 +98,8 @@ The Qristal vQPU offers many of the same options and settings as the Qristal SDK
   - `"statevector"`: [state vector](https://qristal.readthedocs.io/en/latest/rst/backends.html#aer-state-vector-aer-statevector)
   - `"matrix_product_state"`: [matrix product state](https://qristal.readthedocs.io/en/latest/rst/backends.html#aer-mps-aer-matrix-product-state)
   - `"density_matrix"`: [density matrix](https://qristal.readthedocs.io/en/latest/rst/backends.html#aer-density-matrix-aer-density-matrix)
+
+* `aer_omp_threads`: *integer*. Optional. Used only if `backend = "aer"`. Force Qiskit Aer to use exactly the given number of OpenMP threads. If this option is not given, the number of threads is set to the value of the environment variable `OMP_NUM_THREADS`. If `OMP_NUM_THREADS` is not set, Aer chooses the number of OpenMP threads to use.
 
 Tensor network backend settings used if `backend` is one of `qb-mpdo`, `qb-mps`, `qb-purification`, `cudaq:qb-mpdo`, `cudaq:qb-mps` or `cudaq:qb-purification`:
 
