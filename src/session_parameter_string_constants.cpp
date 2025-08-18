@@ -15,41 +15,41 @@ namespace qristal {
 
   /// Non-emulator backends
   const std::unordered_set<std::string_view> session::NON_EMULATOR_BACKENDS = {
-      "aer",
-      "tnqvm",
-      "qpp",
-      "qsim",
-      "sparse-sim"
+    "aer",
+    "tnqvm",
+    "qpp",
+    "qsim",
+    "sparse-sim"
   };
 
-  /// Backends that support GPU execution
+  /// Backends that support GPU execution AND selection of the executing GPU device(s)
   const std::unordered_set<std::string_view> session::GPU_BACKENDS = {
     "qb-statevector-gpu",
     "qb-mps",
     "qb-purification",
-    "qb-mpdo"
-    "cudaq:qb-mps",
-    "cudaq:qb-purification",
-    "cudaq:qb-mpdo"
+    "qb-mpdo",
+    "cudaq:qb_mps",
+    "cudaq:qb_purification",
+    "cudaq:qb_mpdo"
   };
 
   /// Backends that support noise
   const std::unordered_set<std::string_view> session::NOISY_BACKENDS = {
-      "aer",
-      "qb-statevector-cpu",
-      "qb-statevector-gpu",
-      "qb-mps",
-      "qb-purification",
-      "qb-mpdo",
-      "cudaq:qb_mps",
-      "cudaq:qb_purification",
-      "cudaq:qb_mpdo",
-      "aws-braket"
+    "aer",
+    "qb-statevector-cpu",
+    "qb-statevector-gpu",
+    "qb-mps",
+    "qb-purification",
+    "qb-mpdo",
+    "cudaq:qb_mps",
+    "cudaq:qb_purification",
+    "cudaq:qb_mpdo",
+    "aws-braket"
   };
 
   /// Backends that *only* support noise, i.e. will not run with noise = false
   const std::unordered_set<std::string_view> session::EXCLUSIVELY_NOISY_BACKENDS = {
-      "qb-statevector-cpu"
+      "qb-statevector-cpu",
       "qb-statevector-gpu"
   };
 

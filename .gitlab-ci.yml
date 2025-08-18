@@ -6,7 +6,7 @@ include:
 
 variables:
   # Branches to use for downstream repo triggers (ubuntu-amd64, almalinux-amd64, almalinux-power). Default: "main"
-  EMULATOR_TRIGGER_BRANCH: main
+  EMULATOR_TRIGGER_BRANCH: validate_gpu_device_ids
   DECODER_TRIGGER_BRANCH: main
   SDK_TRIGGER_BRANCH: main
   QCSTACK_TRIGGER_BRANCH: main

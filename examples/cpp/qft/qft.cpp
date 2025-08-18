@@ -48,7 +48,6 @@ int main()
   my_sims[2].acc = "cudaq:dm";
   my_sims[3].acc = "tnqvm";
   for (auto& sim : my_sims) {
-    sim.gpu_device_ids = {0};
     sim.qn = num_qubits;
     sim.sn = num_shots;
     sim.aer_omp_threads = aer_instance_thread_limit;

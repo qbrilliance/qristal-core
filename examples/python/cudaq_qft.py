@@ -10,7 +10,6 @@ my_sim = qristal.core.session()
 # Choose a simulator backend from CUDA Quantum,
 # e.g., custatevec_fp32 (single-precision)
 my_sim.acc = "cudaq:custatevec_fp32"
-my_sim.gpu_device_ids = [0]
 
 # Choose how many qubits to simulate
 num_qubits = 10

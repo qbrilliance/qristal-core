@@ -9,7 +9,6 @@ def test_simple():
 
     # Choose a simulator backend from CUDA Quantum
     my_sim.acc = "cudaq:dm"
-    my_sim.gpu_device_ids = [0]
 
     # Set the number of qubits to simulate
     my_sim.qn = 2

@@ -8,6 +8,7 @@
 #include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
 #include <qristal/core/circuit_builder.hpp>
 #include <qristal/core/passes/circuit_opt_passes.hpp>
+#include <qristal/core/extension_loader.hpp>
 #include <qristal/core/pretranspiler.hpp>
 #include <qristal/core/profiler.hpp>
 #include <qristal/core/session.hpp>
@@ -28,6 +29,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <random>
 #include <regex>
@@ -44,9 +46,6 @@
 
 // Boost
 #include <boost/dynamic_bitset.hpp>
-
-// dlopen
-#include <dlfcn.h>
 
 // range v3
 #include <range/v3/view/zip.hpp>
@@ -346,9 +345,8 @@ namespace qristal
       }
 
       qpu->execute(buffer_b, circuit);
-    } catch (...) {
-      throw std::invalid_argument(
-          "The simulation of your input circuit failed");
+    } catch (std::exception& e) {
+      throw std::runtime_error("Error raised: " + std::string(e.what()) + "\nThe simulation of your input circuit failed.");
     }
   }
 
@@ -363,10 +361,6 @@ namespace qristal
       if (xacc::container::contains(cudaq_sim_pool::get_instance().available_simulators(), sim_acc)) {
 
         if (debug) std::cout << "# Using CUDA Quantum Simulator backend: " << sim_acc << std::endl;
-
-        if (sim_acc != "cudaq:qpp" && gpu_device_ids.empty()) {
-          throw std::invalid_argument("No GPU device specified. Please specify GPU devices in gpu_device_ids option.");
-        }
 
         xacc::HeterogeneousMap qpu_options {
           {"shots", static_cast<int>(sn_this_process)},
@@ -396,19 +390,9 @@ namespace qristal
       }
     #endif
 
-    // Load emulator if an emulator backend is selected.
-    if (EMULATOR_BACKENDS.count(sim_acc) != 0) {
-      // Load emulator library
-      static const char *EMULATOR_LIB_NAME = "libqristal_emulator.so";
-      void *handle = dlopen(EMULATOR_LIB_NAME, RTLD_LOCAL | RTLD_LAZY);
-      if (handle == NULL) {
-        std::cout
-            << "The accelerator you are searching for may be available in the "
-               "Qristal Emulator plugin. Please see "
-               "https://quantumbrilliance.com/quantum-brilliance-emulator."
-            << std::endl;
-      }
-    }
+    // Load emulator if found.
+    void* emulator = emulator_library();
+    if (debug) std::cout << "# Qristal emulator" << (emulator ? "" : " NOT") << " found and loaded.\n";
 
     // Set up the options for the accelerator
     xacc::HeterogeneousMap qpu_options {{"seed", static_cast<int>(seed)}};
@@ -468,7 +452,6 @@ namespace qristal
     if (EMULATOR_BACKENDS.count(sim_acc) != 0) {
       // Tensor network settings
       if (sim_acc != "qb-statevector-cpu" && sim_acc != "qb-statevector-gpu") {
-        if (gpu_device_ids.empty()) throw std::invalid_argument("Please specify GPU devices in gpu_device_ids option.");
         qpu_options.insert("initial-bond-dim", initial_bond_dimension);
         qpu_options.insert("max-bond-dim", max_bond_dimension);
         qpu_options.insert("abs-truncation-threshold", svd_cutoff);
@@ -564,35 +547,37 @@ namespace qristal
       calc_all_bitstring_counts = true;
     }
 
-    // Load the remote backend database and add names of hardware devices to valid backends
+    // Build the list of simulator backends
+    std::unordered_set<std::string_view> simulator_backends = EMULATOR_BACKENDS;
+    simulator_backends.insert(NON_EMULATOR_BACKENDS.begin(), NON_EMULATOR_BACKENDS.end());
+
+    // Add CUDAQ backends to simulator_backends
+    std::unordered_set<std::string> cudaq_backends;
+    #ifdef WITH_CUDAQ
+      for (const auto &cudaq_sim : cudaq_sim_pool::get_instance().available_simulators()) {
+        cudaq_backends.emplace(cudaq_sim);
+      }
+      simulator_backends.insert(cudaq_backends.begin(), cudaq_backends.end());
+    #endif
+
+    // Load the remote backend database and add names of hardware devices to simulator backends to create list of all valid backends
+    std::unordered_set<std::string_view> valid_backends = simulator_backends;
     remote_backend_database_ = YAML::LoadFile(remote_backend_database_path);
     std::unordered_set<std::string> remote_backends;
     for (YAML::const_iterator it = remote_backend_database_.begin(); it != remote_backend_database_.end(); ++it) {
       remote_backends.emplace(it->first.as<std::string>());
     }
-    std::unordered_set<std::string_view> valid_backends = EMULATOR_BACKENDS;
-    valid_backends.insert(NON_EMULATOR_BACKENDS.begin(), NON_EMULATOR_BACKENDS.end());
     valid_backends.insert(remote_backends.begin(), remote_backends.end());
 
-    std::unordered_set<std::string_view> simulator_backends = EMULATOR_BACKENDS;
-    simulator_backends.insert(NON_EMULATOR_BACKENDS.begin(), NON_EMULATOR_BACKENDS.end());
-
-    // Add CUDAQ backends to valid_backends
-    #ifdef WITH_CUDAQ
-      std::unordered_set<std::string> cudaq_backends;
-      for (const auto &cudaq_sim : cudaq_sim_pool::get_instance().available_simulators()) {
-        cudaq_backends.emplace(cudaq_sim);
-      }
-      valid_backends.insert(cudaq_backends.begin(), cudaq_backends.end());
-      simulator_backends.insert(cudaq_backends.begin(), cudaq_backends.end());
+    #ifdef USE_MPI
+      validate_mpi_config(get_total_mpi_processes(), get_mpi_process_id(), mpi_hardware_accelerators,
+                          acc, remote_backend_database_);
     #endif
 
-#ifdef USE_MPI
-    validate_mpi_config(get_total_mpi_processes(), get_mpi_process_id(), mpi_hardware_accelerators,
-                        acc, remote_backend_database_);
-#endif
-
-    // Check that chosen options are allowed
+    // Check that chosen options are allowed. First make sure the user hasn't asked for an emulator backend without the emulator.
+    if (EMULATOR_BACKENDS.find(acc) != EMULATOR_BACKENDS.end() and not emulator_library()) {
+      throw std::range_error("Emulator not found! Backend "+acc+" is only available from the Qristal Emulator.");
+    }
     check_allowed(valid_backends, acc, "acc");
     check_allowed(VALID_AER_SIM_TYPES, aer_sim_type, "aer_sim_type");
     check_allowed(VALID_MEASURE_SAMPLING_OPTIONS, measure_sample_method, "measure_sample_method");
@@ -625,6 +610,38 @@ namespace qristal
     check_bounds(svd_cutoff, svd_cutoff_bounds, "svd_cutoff");
     check_bounds(rel_svd_cutoff, svd_cutoff_bounds, "rel_svd_cutoff");
     check_bounds(random_circuit_depth, random_circuit_depth_bounds, "random_circuit_depth");
+
+    // Make sure that the chosen GPU configuration is valid.
+    if (gpu_device_ids.empty()) {
+
+      // Is the chosen backend one that executes on GPUs and allows selection of the executing GPU?
+      // Note that native cudaq backends do not allow selection of the executing GPU, so do not appear in GPU_BACKENDS.
+      if (GPU_BACKENDS.find(acc) != GPU_BACKENDS.end()) {
+        if (!emulator_supports_gpus()) throw std::invalid_argument("GPU backend selected, but GPU-enabled emulator library not present.");
+        if (available_gpus() == 0) throw std::invalid_argument("GPU backend selected, but no GPUs present on this system.");
+        // If the requested backend is a CUDAQ wrapper for a non-CUDAQ-native backend, choose a single GPU only. Otherwise, select all GPUs on the system.
+        if (cudaq_backends.find(acc) != cudaq_backends.end()) {
+          gpu_device_ids = {0};
+        } else {
+          gpu_device_ids.resize(available_gpus());
+          std::iota(gpu_device_ids.begin(), gpu_device_ids.end(), 0);
+        }
+      }
+
+    } else {
+
+      // Check that the chosen backend supports GPU execution and selection of the executing GPU device(s).
+      check_allowed(GPU_BACKENDS, acc, "acc when specifying GPUs via gpu_device_ids");
+      // Make sure that the emulator is present and supports GPU execution
+      if (!emulator_supports_gpus()) throw std::invalid_argument("gpu_device_ids given, but GPU-enabled emulator library not present.");
+      // Check that the requested GPU device IDs all exist on the system.
+      check_gpu_device_ids(gpu_device_ids);
+      // Make sure when using cudaq-wrapped TN backends, that only one gpu id has been chosen.
+      if (cudaq_backends.find(acc) != cudaq_backends.end() and gpu_device_ids.size() != 1) {
+        throw std::invalid_argument("CUDAQ-wrapped backends only support running on a single GPU. Please amend gpu_device_ids.");
+      }
+
+    }
 
     // Generate random seed if one has not been chosen.
     if (seed == 0) {
@@ -1119,9 +1136,9 @@ namespace qristal
       qbjson_ = hardware_device->get_qbjson();
 
     } else if (execute_circuit) {
-      try {
-        if (debug) std::cout << "# Prior to qpu_->execute..." << std::endl;
-        if (qpu_->name() == "aws-braket" && std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_)) {
+      if (debug) std::cout << "# Prior to qpu_->execute..." << std::endl;
+      if (qpu_->name() == "aws-braket" && std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_)) {
+        try {
           // Asynchronously offload the circuit to AWS Braket
           auto as_remote_acc = std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_);
           auto aws_job_handle = as_remote_acc->async_execute(citarget);
@@ -1132,12 +1149,12 @@ namespace qristal
             this->process_run_result(citarget, qpu_, mqbacc, buffer_temp, timer_for_qpu.getDurationMs(), qb_transpiler);
           });
           return aws_job_handle;
-        } else {
-          // Blocking (synchronous) execution of a local simulator instance
-          execute_on_simulator(qpu_, buffer_b, citarget);
+        } catch (std::exception& e) {
+          throw std::runtime_error("Error raised: " + std::string(e.what()) + "\nThe simulation of your input circuit failed.");
         }
-      } catch (...) {
-        throw std::invalid_argument("The simulation of your input circuit failed");
+      } else {
+        // Blocking (synchronous) execution of a local simulator instance
+        execute_on_simulator(qpu_, buffer_b, citarget);
       }
     }
 

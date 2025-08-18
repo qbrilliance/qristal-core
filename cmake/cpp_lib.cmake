@@ -24,6 +24,7 @@ set(source_files
   src/passes/circuit_opt_passes.cpp
   src/passes/noise_aware_placement_pass.cpp
   src/passes/swap_placement_pass.cpp
+  src/extension_loader.cpp
   src/pretranspiler.cpp
   src/primitives.cpp
   src/profiler.cpp
@@ -78,6 +79,7 @@ set(headers
   include/qristal/core/passes/noise_aware_placement_config.hpp
   include/qristal/core/passes/noise_aware_placement_pass.hpp
   include/qristal/core/passes/swap_placement_pass.hpp
+  include/qristal/core/extension_loader.hpp
   include/qristal/core/pretranspiler.hpp
   include/qristal/core/primitives.hpp
   include/qristal/core/profiler.hpp

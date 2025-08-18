@@ -40,7 +40,6 @@
         "rel_svd_cutoff": 1e-3,
         "measure_sample_method": "auto",
         "aer_sim_type": "statevector",
-        "gpu_device_ids": [0]
       }
     }
   },

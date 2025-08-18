@@ -159,18 +159,15 @@ These parameters are currently `qristal.core.session` attributes.
 **Example**: `demo1.py`
 
 
-### cuQuantum state-vector simulators: `custatevec:fp32` and `custatevec:fp64`
+### cuQuantum state-vector simulators: `cudaq:custatevec_fp32` and `cudaq:custatevec_fp64`
 
-**Description**: Single (`custatevec:fp32`) and double-precision (`custatevec:fp64`) versions of the CUDA Quantum state vector simulator, built on CuQuantum libraries.
+**Description**: Single (`cudaq:custatevec_fp32`) and double-precision (`cudaq:custatevec_fp64`) versions of the CUDA Quantum state vector simulator, built on CuQuantum libraries.
 
 **Provided by**: Open-source Qristal SDK
 
 **Executes on**: GPU
 
 **Requires**: CUDA Quantum
-
-**Parameters**:
-* `gpu_device_ids`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
 
 **Example**: `cudaq_qft.py`
 
@@ -241,7 +238,7 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
-* `gpu_device_ids`: *Vector of integers*. GPU device IDs.
+* `gpu_device_ids`: *Vector of integers*. GPU device IDs. Note that the `cudaq:qb_mps` version currently only supports execution on a single GPU.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -265,7 +262,7 @@ These parameters are currently `qristal.core.session` attributes.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
-* `gpu_device_ids`: *Vector of integers*. GPU device IDs.
+* `gpu_device_ids`: *Vector of integers*. GPU device IDs. Note that the `cudaq:qb_mpdo` version currently only supports execution on a single GPU.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -291,7 +288,7 @@ These parameters are currently `qristal.core.session` attributes.
 * `rel_svd_cutoff`: *floating-point*, optional, default: 1.0e-4. Smallest singular value, relative to the largest singular value, to keep.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
-* `gpu_device_ids`: *Vector of integers*. GPU device IDs.
+* `gpu_device_ids`: *Vector of integers*. GPU device IDs. Note that the `cudaq:purification` version currently only supports execution on a single GPU.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -369,12 +366,9 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 
 **Provided by**: Open-source Qristal SDK
 
-**Executes on**: GPU
+**Executes on**: CPU
 
 **Requires**: CUDA Quantum
-
-**Parameters**:
-* `gpu_device_ids`: *Vector of integers*. GPU device ID. Only single-GPU execution is currently supported.
 
 **Example**: `qft.py`
 

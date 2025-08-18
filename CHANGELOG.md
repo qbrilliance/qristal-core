@@ -19,6 +19,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Added code for validating GPU device selection
 - Updated cppuprofile dependency to 1.2.0
 - Direct control of the number of OpenMP threads used by aer backend via new aer_omp_threads option.
 - Added user-specified GPU device index for GPU-enabled accelerators. This allows users to select specific GPU device(s) to execute simulations on.
