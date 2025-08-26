@@ -9,7 +9,7 @@ variables:
   EMULATOR_TRIGGER_BRANCH: main
   DECODER_TRIGGER_BRANCH: main
   SDK_TRIGGER_BRANCH: main
-  QCSTACK_TRIGGER_BRANCH: main
+  QCSTACK_TRIGGER_BRANCH: develop
 
 stages:
   - build
