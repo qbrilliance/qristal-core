@@ -651,27 +651,31 @@ class ParallelU3Circuit:
             self.circuit.h(i)
             self.circuit.u3(i, self.u3angles[3*i], self.u3angles[3*i + 1], self.u3angles[3*i + 2])
 
+class GHZ:
+    def __init__(self, n_qubits = 2):
+        self.circuit = qristal.core.Circuit()
+        self.circuit.h(0)
+        for i in range(n_qubits - 1):
+            self.circuit.cnot(i, i+1)
+
 def test_AddinIdealCountsFromIdealSimulation():
-    n_tests = 10
-    n_qubits = 3
+    qubits = [2, 3, 4, 5]
 
-    sim = qristal.core.session()
-    sim.acc="qpp"
-    sim.sn = 10000
-    sim.qn = n_qubits
+    for n_qubits in qubits:
+        sim = qristal.core.session()
+        sim.acc="qpp"
+        sim.sn = 10000
+        sim.qn = n_qubits
 
-    circuits = []
-    for test in range(n_tests):
-        random_values = np.random.uniform(-2 * np.pi, 2 * np.pi, 3 * n_qubits)
-        circuits.append(ParallelU3Circuit(random_values).circuit)
-    workflow = benchmark.SimpleCircuitExecution(circuits, sim)
-    workflow = benchmark.AddinIdealCountsFromIdealSimulation(workflow)
+        circuit = GHZ(n_qubits).circuit
+        workflow = benchmark.SimpleCircuitExecution(circuit, sim)
+        workflow = benchmark.AddinIdealCountsFromIdealSimulation(workflow)
 
-    metric = benchmark.CircuitFidelity(workflow)
-    results = metric.evaluate(True)
-    for _, fidelities in results.items():
-        for fidelity in fidelities:
-            assert fidelity == pytest.approx(1.0, 5e-2)
+        metric = benchmark.CircuitFidelity(workflow)
+        results = metric.evaluate(True)
+        for _, fidelities in results.items():
+            for fidelity in fidelities:
+                assert fidelity == pytest.approx(1.0, 5e-2)
 
 def test_AddinIdealDensityFromIdealSimulation():
     n_qubits_list = [1, 2, 3]

@@ -132,42 +132,32 @@ class ParallelU3Circuit {
 
 // --- Unit tests ---
 
-TEST(WorkflowAddinsTester, checkIdealCountsParallelU3) {
-  const size_t n_tests = 10;
-  const size_t n_layers = 4;
-  const size_t n_qubits = 3; 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(-2.0 * std::numbers::pi, 2.0 * std::numbers::pi);
+TEST(WorkflowAddinsTester, checkIdealCountsGHZ) {
+  const std::vector<size_t> qubits{2, 3, 4, 5};
 
-  //(0) Define session 
-  qristal::session sim; 
-  sim.sn = 10000; 
-  sim.qn = n_qubits;
-  sim.acc = "qpp";
-  
-  //(1) Build random HEA circuits
-  std::vector<qristal::CircuitBuilder> circuits;
-  for (size_t test = 0; test < n_tests; ++test) {
-    std::vector<double> random_values;
-    for (int i = 0; i < 3 * n_qubits; ++i) {
-      random_values.push_back(dis(gen));
+  for (auto const & n_qubits : qubits) {
+    //(0) Define session 
+    qristal::session sim; 
+    sim.sn = 10000; 
+    sim.qn = n_qubits;
+    sim.acc = "qpp";
+
+    //(1) Build GHZ circuit 
+    qristal::CircuitBuilder circuit = GHZ(n_qubits).get_circuit();
+
+    //(2) Wrap into SimpleCircuitExecution and add in ideal counts prediction 
+    typedef AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts> Workflow;
+    Workflow workflow(SimpleCircuitExecution(circuit, sim));
+
+    //(3) Compute Circuit Fidelity and check against identity
+    CircuitFidelity<Workflow> metric(workflow);
+    std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
+    for (auto const & t2v : results) {
+        //check all fidelities
+        for (auto const & f : t2v.second) {
+            EXPECT_NEAR(f, 1.0, 5e-2);
+        }
     }
-    circuits.push_back(ParallelU3Circuit(random_values).get_circuit());
-  }
-
-  //(2) Wrap into SimpleCircuitExecution and add in ideal counts prediction 
-  typedef AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts> Workflow;
-  Workflow workflow(SimpleCircuitExecution(circuits, sim));
-
-  //(3) Compute Circuit Fidelity and check against identity
-  CircuitFidelity<Workflow> metric(workflow);
-  std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
-  for (auto const & t2v : results) {
-      //check all fidelities
-      for (auto const & f : t2v.second) {
-          EXPECT_NEAR(f, 1.0, 5e-2);
-      }
   }
 }
 
