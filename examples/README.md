@@ -193,6 +193,10 @@ _noise_: false
 
 Python implementation of the C++ example `qpt_fidelity_CZ` demonstrating a quantum process tomography experiment of a single CZ gate application, evaluating the quantum process fidelity.
 
+`circuit_optimization/gate_deferral.py`
+
+An example demonstrating the application of the gate deferral technique.
+
 `comparator.py`
 
 _qubits_: 9 (comparator), 2 (comparator_as_oracle)

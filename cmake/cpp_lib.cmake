@@ -22,6 +22,7 @@ set(source_files
   src/optimization/vqee/vqee_nlopt.cpp
   src/optimization/vqee/vqee.cpp
   src/passes/circuit_opt_passes.cpp
+  src/passes/gate_deferral_pass.cpp
   src/passes/noise_aware_placement_pass.cpp
   src/passes/swap_placement_pass.cpp
   src/extension_loader.cpp
@@ -76,6 +77,7 @@ set(headers
   include/qristal/core/optimization/vqee/vqee.hpp
   include/qristal/core/passes/base_pass.hpp
   include/qristal/core/passes/circuit_opt_passes.hpp
+  include/qristal/core/passes/gate_deferral_pass.hpp
   include/qristal/core/passes/noise_aware_placement_config.hpp
   include/qristal/core/passes/noise_aware_placement_pass.hpp
   include/qristal/core/passes/swap_placement_pass.hpp

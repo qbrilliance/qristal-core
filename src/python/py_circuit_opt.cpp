@@ -4,6 +4,7 @@
 #include <qristal/core/python/py_stl_containers.hpp>
 #include <qristal/core/circuit_builder.hpp>
 #include <qristal/core/passes/circuit_opt_passes.hpp>
+#include <qristal/core/passes/gate_deferral_pass.hpp>
 
 namespace qristal {
 void bind_circuit_opt_passes(pybind11::module &m) {
@@ -24,7 +25,7 @@ void bind_circuit_opt_passes(pybind11::module &m) {
             "Apply sequence optimization placement on the input circuit.\n"
             "\nArgs:\n",
             pybind11::arg("circuit"));
-            
+
   m.def("circuit_optimizer", &qristal::create_circuit_optimizer_pass,
         "Generic pattern-based circuit optimization pass.");
   m.def("redundancy_removal", &qristal::create_remove_redundancies_pass,
@@ -58,5 +59,13 @@ void bind_circuit_opt_passes(pybind11::module &m) {
   m.def("optimise_cliffords", &qristal::create_optimise_cliffords_pass,
         "Optimizes Clifford gate sequences using rewrite rules to reduce circuit "
         "depth and size");
+
+  m.def("gate_deferral_pass",
+      [](qristal::CircuitBuilder &circuit) {
+        std::shared_ptr<xacc::CompositeInstruction> circuit_xasm = qristal::gate_deferral_pass(circuit.get()).toXasm();
+        qristal::CircuitBuilder cb(circuit_xasm, true);
+        return cb;
+      },
+      "Apply gate deferral pass on circuit");
 }
 }

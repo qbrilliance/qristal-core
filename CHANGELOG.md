@@ -36,6 +36,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Updated Qristal's cpr and gtest versions to the latest release
 - Added new qristal::benchmark workflow wrapper `AddinFromIdealSimulation` to add in missing serialization functions from an ideal simulation. In C++, this is templated for arbitrary workflows. Python bindings were added for `SimpleCircuitExecution` only. 
 - Added capability to perform adhoc SPAM corrections in `qristal::benchmark` metric evaluations by passing a SPAM confusion matrix to the `evaluate` call.  
+- Added gate deferral circuit pass
 
 ### Fixed
 

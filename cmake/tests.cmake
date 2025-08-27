@@ -56,6 +56,7 @@ set(test_sources
   tests/circuits/WPrimeTester.cpp
   tests/misc_cpp/backendTester.cpp
   tests/misc_cpp/error_mitigation.cpp
+  tests/misc_cpp/gateDeferralTester.cpp
   tests/misc_cpp/jensen_shannon.cpp
   tests/misc_cpp/sessionTester.cpp
   tests/misc_cpp/transpilationTester.cpp
