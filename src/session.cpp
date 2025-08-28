@@ -1158,6 +1158,20 @@ namespace qristal
       }
     }
 
+    // Return identity gate if the circuit is empty
+    if (citarget->nInstructions()==0){
+      for (int i = 0; i < qn; ++i){
+        citarget->addInstruction(std::make_shared<xacc::quantum::Identity>(i));
+      }
+    }
+
+    // Return identity gate if the circuit is empty
+    if (citarget->nInstructions()==0){
+      for (int i = 0; i < qn; ++i){
+        citarget->addInstruction(std::make_shared<xacc::quantum::Identity>(i));
+      }
+    }
+
     // ==============================================
     // ------------  Post processing  ---------------
     // ==============================================

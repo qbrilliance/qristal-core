@@ -296,3 +296,91 @@ TEST(sessionTester, test_state_vec_order) {
     }
   }
 }
+
+TEST(sessionTester, test_infinite_shots) {
+  auto my_sim = qristal::session();
+  my_sim.acc = "qpp";
+  my_sim.sn = 100;
+  my_sim.calc_state_vec = true;
+
+  // Lambda to check that a state vector is exactly |0...0⟩ = (1,0),(0,0),...
+  auto check_identity_state_vector = [](const std::vector<std::complex<double>>& stateVec, size_t qn) {
+      ASSERT_EQ(stateVec.size(), 1 << qn) << "Unexpected state vector size";
+
+      EXPECT_EQ(stateVec[0], std::complex<double>(1.0, 0.0)) << "First amplitude is not (1, 0)";
+
+      for (size_t i = 1; i < stateVec.size(); ++i) {
+          EXPECT_EQ(stateVec[i], std::complex<double>(0.0, 0.0)) << "Non-zero amplitude at index " << i;
+      }
+  };
+
+  // First check: empty circuit
+  for (size_t qn = 1; qn < 5; ++qn) {
+    my_sim.qn = qn;
+    qristal::CircuitBuilder cb;
+    my_sim.irtarget = cb.get();
+    my_sim.run();
+
+    auto stateVec = my_sim.state_vec();
+    std::cout << "\nEmpty circuit state vector (qn = " << qn << "):\n";
+    for (const auto& val : stateVec) {
+        std::cout << val << "\n";
+    }
+    check_identity_state_vector(stateVec, qn);
+  }
+  
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dist_l(1, 10);  // Random circuit depth
+
+  // Second check: random circuits
+  for (size_t qn = 1; qn < 5; ++qn) {
+      my_sim.qn = qn;
+      std::uniform_int_distribution<> dist_q(0, static_cast<int>(qn - 1)); //qubit number
+      std::uniform_int_distribution<> dist_k(qn == 1 ? 0 : 0, qn == 1 ? 1 : 2); //choice of gate
+
+      qristal::CircuitBuilder cb;
+      int rand_l = dist_l(gen);  // circuit depth
+
+      for (int l = 0; l < rand_l; ++l) {
+        int q = dist_q(gen);
+        int k = dist_k(gen);
+
+        // Skip CNOT if only one qubit
+        if (qn == 1 && k == 0) {
+            continue;
+        }
+
+        switch (k) {
+          case 0:
+            cb.CNOT(q, (q + 1) % qn);
+            cb.CNOT(q, (q + 1) % qn);        
+            break;
+          case 1:
+            cb.H(q);
+            cb.H(q);
+            break;
+          case 2:
+            cb.X(q);        
+            cb.X(q); 
+            break;
+          default:
+            break;
+        }
+      }
+
+      std::cout<<"\nRandom Circuit (qn = " << qn << "):\n";
+      cb.print();
+
+      my_sim.irtarget = cb.get();
+      my_sim.run();
+
+      auto stateVec = my_sim.state_vec();
+      std::cout << "Random circuit state vector:\n";
+      for (const auto& val : stateVec) {
+          std::cout << val << "\n";
+      }
+
+      check_identity_state_vector(stateVec, qn);
+  }
+}
