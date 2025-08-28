@@ -19,6 +19,9 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Added gate deferral circuit pass
+- Added new qristal::benchmark workflow wrapper `AddinFromIdealSimulation` to add in missing serialization functions from an ideal simulation. In C++, this is templated for arbitrary workflows. Python bindings were added for `SimpleCircuitExecution` only.
+- Added capability to perform adhoc SPAM corrections in `qristal::benchmark` metric evaluations by passing a SPAM confusion matrix to the `evaluate` call.
 - Added code for validating GPU device selection
 - Updated cppuprofile dependency to 1.2.0
 - Direct control of the number of OpenMP threads used by aer backend via new aer_omp_threads option.
@@ -34,12 +37,10 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added functionality to enable assigning MPI processes to different accelerator backends
 - Added decompose_swap, commute_through_multis, optimise_post_routing, decompose_zx, rebase_to_clifford, optimise_cliffords passes
 - Updated Qristal's cpr and gtest versions to the latest release
-- Added new qristal::benchmark workflow wrapper `AddinFromIdealSimulation` to add in missing serialization functions from an ideal simulation. In C++, this is templated for arbitrary workflows. Python bindings were added for `SimpleCircuitExecution` only. 
-- Added capability to perform adhoc SPAM corrections in `qristal::benchmark` metric evaluations by passing a SPAM confusion matrix to the `evaluate` call.  
-- Added gate deferral circuit pass
 
 ### Fixed
 
+- Improved treatment of error codes coming from QB hardware.
 - Upgraded pybind11 dependency to from 2.10.0 to 2.12.0 to avoid NumPy-Eigen conversion bug
 - Added further checks for compatibility of noise settings with chosen backend, preventing silent noiseless execution when using noise=true with backends incapable of noisy simulation.
 - Removed limit QB_SAFE_LIMIT_SHOTS on number of shots requested from hardware.

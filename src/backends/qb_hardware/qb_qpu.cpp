@@ -196,31 +196,18 @@ namespace xacc
             throw std::runtime_error("Device " + qpu.name() + " at " + remoteUrl +
              " did not respond to HTTP " + operation + " operation.");
             break;
-          case 200:
+          case 200: // Success
             Response = (r.text == "null" ? response_is_status_code(r.status_code) : r.text);
-            break;
-          case 401:
-            throw std::runtime_error("Token rejected: expired token or incorrect shared secret.");
-            break;
-          case 403:
-            throw std::runtime_error("Token rejected: http header format invalid.");
-            break;
-          case 404:
-            throw std::runtime_error("QB hardware received an invalid command");
             break;
           case 425: // Continue polling
             Response = response_is_status_code(r.status_code);
             break;
-          case 500:
-            throw std::runtime_error("QB hardware process failure");
-            break;
-          case 503:
-            throw std::runtime_error("Token rejected. QB hardware already reserved using a different token.");
-            break;
-          default:
+          default:  // Error
             qpu.cancel();
-            throw std::runtime_error("Device " + qpu.name() + " failed HTTP " +
-             operation + ". Return code: " + std::to_string(r.status_code));
+            std::string detail = "not provided by hardware";
+            try { detail = json::parse(r.text)["detail"]; } catch (const json::type_error&) {}
+            throw std::runtime_error("Device " + qpu.name() + " failed HTTP " + operation +
+            ".\nReturn code: " + std::to_string(r.status_code) + "\nDetail: " + detail);
             break;
         }
       }
@@ -319,7 +306,7 @@ namespace xacc
       }
       catch (std::exception& e)
       {
-        throw std::runtime_error("Error raised: " + std::string(e.what()) + "\nThe execution on hardware of your input circuit failed.");
+        throw std::runtime_error(std::string(e.what()) + "\nThe execution on hardware of your input circuit failed.");
       }
       return;
     }
