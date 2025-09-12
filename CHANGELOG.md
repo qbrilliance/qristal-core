@@ -19,7 +19,9 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
-- Added unit test `test_infinite_shots` to verify simulation of empty circuits and circuits that optimize to identity without measurement statements.  
+- Added unit test `test_infinite_shots` to verify simulation of empty circuits and circuits that optimize to identity without measurement statements.
+- Added `test_append_parametrization_behavior` to verify the `is_parametrized()` behaviour after appending two circuits.
+- Added `circuit_append.py` to test that appending two circuits runs without error.
 - Added gate deferral circuit pass
 - Added new qristal::benchmark workflow wrapper `AddinFromIdealSimulation` to add in missing serialization functions from an ideal simulation. In C++, this is templated for arbitrary workflows. Python bindings were added for `SimpleCircuitExecution` only.
 - Added capability to perform adhoc SPAM corrections in `qristal::benchmark` metric evaluations by passing a SPAM confusion matrix to the `evaluate` call.
@@ -41,6 +43,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Fixed
 
+- Fixed `CircuitBuilder::append` to ensure `is_parametrized()` remains consistent after appending two circuits. Previously, appending a non-parametrized rotation circuit could incorrectly set `is_parametrized()` to true.
 - Inserted identity gates for each qubit if circuit is empty before calling XACC’s `Profiler` in `session::run()`
 - Improved treatment of error codes coming from QB hardware.
 - Upgraded pybind11 dependency to from 2.10.0 to 2.12.0 to avoid NumPy-Eigen conversion bug
@@ -58,6 +61,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed `add_poorly_behaved_dependency` not correctly detecting an already built local XACC installation because of invisible ASCII escape characters captured in the dry run results string
 - Simplified Qristal's cpr dependency install to fix an intermittent build issue
 - Fixed undefined behaviour in qristal's python binding for creating a printable string of the results map
+
 
 ## [1.7.0] - 2025-03-13
 

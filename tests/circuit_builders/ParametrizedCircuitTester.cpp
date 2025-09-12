@@ -250,3 +250,107 @@ TEST(ParametrizedCircuitTester, test_circuit_append_to_new_param) {
   }
 }
 
+TEST(ParametrizedCircuitTester, test_append_parametrization_behavior) {
+  // Case 1: Numeric-only circuit
+  {
+    qristal::CircuitBuilder c1;
+    c1.H(0);
+    std::cout << "[Case 1] c1 is parametrized: " << c1.is_parametrized() << "\n";
+
+    qristal::CircuitBuilder c2;
+    c2.RX(0, 0.12);
+    std::cout << "[Case 1] c2 is parametrized: " << c2.is_parametrized() << "\n";
+
+    c1.append(c2);
+    std::cout << "[Case 1] c1 after appending c2 is parametrized: " << c1.is_parametrized() << "\n";
+
+    EXPECT_FALSE(c1.is_parametrized());
+  }
+
+  // Case 2: Symbolic-only circuit
+  {
+    qristal::CircuitBuilder c1;
+    c1.H(0);
+    std::cout << "[Case 2] c1 is parametrized: " << c1.is_parametrized() << "\n";
+
+    qristal::CircuitBuilder c2;
+    c2.RX(0, "theta");
+    std::cout << "[Case 2] c2 is parametrized: " << c2.is_parametrized() << "\n";
+
+    c1.append(c2);
+    std::cout << "[Case 2] c1 after appending c2 is parametrized: " << c1.is_parametrized() << "\n";
+
+    EXPECT_TRUE(c1.is_parametrized());
+  }
+
+  // Case 3: Mixed parameters
+  {
+    qristal::CircuitBuilder c1;
+    c1.H(0);
+    std::cout << "[Case 3] c1 is parametrized: " << c1.is_parametrized() << "\n";
+
+    qristal::CircuitBuilder c2;
+    c2.RX(0, 0.5);
+    c2.RY(1, "phi");
+
+    std::cout << "[Case 3] c2 is parametrized: " << c2.is_parametrized() << "\n";
+    c1.append(c2);
+    std::cout << "[Case 3] c1 after appending c2 is parametrized: " << c1.is_parametrized() << "\n";
+
+    EXPECT_TRUE(c1.is_parametrized());
+  }
+
+  // Case 4: No parameter circuit
+  {
+    qristal::CircuitBuilder c1;
+    c1.X(0);
+    std::cout << "[Case 4] c1 is parametrized: " << c1.is_parametrized() << "\n";
+
+    qristal::CircuitBuilder c2;
+    c2.H(1);
+    c2.CNOT(0, 1);
+
+    std::cout << "[Case 4] c2 is parametrized: " << c2.is_parametrized() << "\n";
+    c1.append(c2);
+    std::cout << "[Case 4] c1 after appending c2 is parametrized: " << c1.is_parametrized() << "\n";
+
+    EXPECT_FALSE(c1.is_parametrized());
+  }
+
+  // Case 5: Free parameters
+  {
+    qristal::CircuitBuilder c1;
+    c1.RX(0, "alpha");
+    c1.RX(0, "beta");
+    std::cout << "[Case 5] c1 is parametrized: " << c1.is_parametrized() << "\n";
+
+    qristal::CircuitBuilder c2;
+    c2.RY(0, "gamma");
+    std::cout << "[Case 5] c2 is parametrized: " << c2.is_parametrized() << "\n";
+
+    std::cout << "[Case 5] c1 free params: ";
+    for (const auto& p : c1.get_free_params()) std::cout << p << " ";
+    std::cout << "\n";
+
+    std::cout << "[Case 5] c2 free params: ";
+    for (const auto& p : c2.get_free_params()) std::cout << p << " ";
+    std::cout << "\n";
+
+    c2.append(c1);
+
+    std::vector<std::string> expected = {"gamma", "alpha", "beta"};
+    auto actual = c2.get_free_params();
+
+    std::cout << "[Case 5] c2 after append free params: ";
+    for (const auto& p : actual) std::cout << p << " ";
+    std::cout << "\n";
+
+    EXPECT_EQ(c2.num_free_params(), expected.size());
+    for (size_t i = 0; i < expected.size(); ++i) {
+      EXPECT_EQ(expected[i], actual[i]);
+    }
+    std::cout << "[Case 5] c1 after appending c2 is parametrized: " << c1.is_parametrized() << "\n";
+
+    EXPECT_TRUE(c2.is_parametrized());
+  }
+}

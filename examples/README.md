@@ -516,7 +516,8 @@ A simple example demonstrating both synchronous and asynchronous circuit executi
 * Use an AWS Region that supports AWS Braket (e.g., us-east-1);
 * Create an S3 Bucket with prefix `amazon-braket-*` and create a folder inside the S3 bucket to store results.
 
-
+`circuit_append.py`
+A simple example demonstrating the use of append() to combine two circuits. Useful for verifying that circuit appending executes without error and produces correct OpenQASM output.
 
 ## C++ ##
 

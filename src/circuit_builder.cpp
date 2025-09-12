@@ -1,6 +1,7 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 #include <qristal/core/circuit_builder.hpp>
+#include <variant>
 
 namespace qristal
 {
@@ -49,13 +50,30 @@ namespace qristal
     while (it.hasNext()) {
       auto next_inst = it.next();
       if (next_inst->isEnabled() && !next_inst->isComposite()) {
-        std::shared_ptr<xacc::Instruction> new_inst = next_inst->clone();
+        auto new_inst = next_inst->clone();
+        if (!new_inst) {
+          throw std::runtime_error("CircuitBuilder::append error! Instruction " + next_inst->name() + " was not able to be cloned.");
+        }
         add_instruction_params_to_list(new_inst);
         circuit_->addInstruction(new_inst);
       }
     }
-  }
 
+    // Post-process to check for symbolic parameters
+    bool found_symbolic = false;
+    for (int i = 0; i < circuit_->nInstructions(); ++i) {
+      auto inst = circuit_->getInstruction(i);
+      for (const auto& param : inst->getParameters()) {
+        if (mpark::get_if<std::string>(&param)) {
+          found_symbolic = true;
+          break;
+        }
+      }
+      if (found_symbolic) break;
+    }
+    is_parametrized_ = found_symbolic;
+  }
+  
   const std::vector<double> CircuitBuilder::param_map_to_vec(const std::map<std::string, double> &param_map) const {
     std::vector<double> param_vec(param_map.size());
     // if (param_vec.size() < param_map.size()) param_vec.resize(param_map.size());
