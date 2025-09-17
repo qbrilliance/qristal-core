@@ -61,6 +61,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Fixed `add_poorly_behaved_dependency` not correctly detecting an already built local XACC installation because of invisible ASCII escape characters captured in the dry run results string
 - Simplified Qristal's cpr dependency install to fix an intermittent build issue
 - Fixed undefined behaviour in qristal's python binding for creating a printable string of the results map
+- Support compiler versions newer than gcc 12 and clang 16
 
 
 ## [1.7.0] - 2025-03-13

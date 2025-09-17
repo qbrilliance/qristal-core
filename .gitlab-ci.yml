@@ -359,7 +359,7 @@ ci-hardware-tests:
     - lambda
   variables:
     QCSTACK_REGISTRY: registry.gitlab.com/qbau/control/qcstack/qcstack_server
-    QCSTACK_TAG: "2025.1.1"
+    QCSTACK_TAG: "v2025.7.3"
     QCSTACK_ARGS: "--ssl-cert-dir /root/default_certs --system randomised-dummy --max-circuit-depth 1000  --reservation-shared-secret hello --calibration False"
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"

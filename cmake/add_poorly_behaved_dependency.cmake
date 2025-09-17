@@ -132,15 +132,34 @@ macro(add_poorly_behaved_dependency NAME VERSION)
         endforeach()
 
         # Start building the actual invocation of cmake.
+        # These defaults will be overriden by any options passed to add_poorly_behaved_dependency.
         set(cmake_invocation ${CMAKE_COMMAND})
         set(poorly_behaved_build_dir ${FETCHCONTENT_BASE_DIR}_custom)
-        list(APPEND cmake_invocation "-B${poorly_behaved_build_dir}/${NAME}/build" "${poorly_behaved_build_dir}/${NAME}" "-DCMAKE_INSTALL_PREFIX=${dir}" "-Wno-dev")
-
-        # Add default values of options
-        list(APPEND cmake_invocation "-DCMAKE_CXX_FLAGS=-w")
+        set(default_c_compiler_flags "${CMAKE_C_FLAGS} -w")
+        set(default_cxx_compiler_flags "${CMAKE_CXX_FLAGS} -w")
+        list(APPEND
+          cmake_invocation
+            "-B ${poorly_behaved_build_dir}/${NAME}/build"
+            "-S ${poorly_behaved_build_dir}/${NAME}"
+            "-Wno-dev"
+            "-DCMAKE_INSTALL_PREFIX=${dir}"
+            "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
+            "-DCMAKE_C_FLAGS='${default_c_compiler_flags}'"
+            "-DCMAKE_CXX_FLAGS='${default_cxx_compiler_flags}'"
+            "-DCMAKE_C_EXTENSIONS=OFF"
+            "-DCMAKE_CXX_EXTENSIONS=OFF"
+            "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}"
+        )
 
         # Add options that are always passed if they are non-empty in the cmake session.
-        set(OPTION_LIST CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_Fortran_COMPILER CMAKE_BUILD_TYPE)
+        set(OPTION_LIST
+          CMAKE_C_COMPILER
+          CMAKE_CXX_COMPILER
+          CMAKE_Fortran_COMPILER
+          CMAKE_BUILD_TYPE
+          CMAKE_CXX_STANDARD
+          CMAKE_EXPORT_COMPILE_COMMANDS
+        )
         foreach(option ${OPTION_LIST})
           if(${option})
             list(APPEND cmake_invocation "-D${option}=${${option}}")
@@ -150,10 +169,9 @@ macro(add_poorly_behaved_dependency NAME VERSION)
         # Add options that have been explicitly set in the call to add_poorly_behaved_dependency.
         # These override any defaults or values set due to the option being in OPTION_LIST.
         foreach(option ${arg_OPTIONS})
-          string(REPLACE " " "=" option "${option}")
           string(CONFIGURE ${option} option)
           # Add it to the invocation
-          list(APPEND cmake_invocation "-D${option}")
+          list(APPEND cmake_invocation "${option}")
         endforeach()
 
         # Checkout, cmake, build and install the pacakge.
@@ -183,17 +201,27 @@ macro(add_poorly_behaved_dependency NAME VERSION)
         if(arg_PATCH_FILE)
           execute_process(RESULT_VARIABLE result COMMAND ${CMAKE_COMMAND} -E chdir ${poorly_behaved_build_dir}/${NAME} git apply ${arg_PATCH_FILE})
           if(NOT ${result} STREQUAL "0")
-            message(FATAL_ERROR "Attemp to git apply ${PATCH_FILE} of ${NAME} failed.")
+            message(FATAL_ERROR "Attempt to git apply ${PATCH_FILE} of ${NAME} failed.")
           endif()
         endif()
         set(DEP_CMAKE_INSTALL_PREFIX ${dir} CACHE PATH "Installation path of badly-behaved dependency => Installation is not yet complete." FORCE)
+        string(REPLACE ";" " " formatted_cmake_invocation "${cmake_invocation}")
+        message(STATUS "Configuring dependency: " "${formatted_cmake_invocation}")
         execute_process(RESULT_VARIABLE result COMMAND ${cmake_invocation})
         if(NOT ${result} STREQUAL "0")
           message(FATAL_ERROR "Running cmake for ${NAME} failed.")
         endif()
-        execute_process(RESULT_VARIABLE result COMMAND ${CMAKE_COMMAND} -E chdir ${poorly_behaved_build_dir}/${NAME}/build ${MAKE_PARALLEL} install)
+        set(build_command ${CMAKE_COMMAND} --build ${poorly_behaved_build_dir}/${NAME}/build -j ${N_PROC})
+        message(STATUS "Building dependency: " "${build_command}")
+        execute_process(RESULT_VARIABLE result COMMAND ${build_command})
         if(NOT ${result} STREQUAL "0")
           message(FATAL_ERROR "Building ${NAME} failed.")
+        endif()
+        set(install_command  ${CMAKE_COMMAND} --install ${poorly_behaved_build_dir}/${NAME}/build)
+        message(STATUS "Installing dependency: " "${install_command}")
+        execute_process(RESULT_VARIABLE result COMMAND ${install_command})
+        if(NOT ${result} STREQUAL "0")
+          message(FATAL_ERROR "Installing ${NAME} failed.")
         endif()
         message("   ...done.")
 

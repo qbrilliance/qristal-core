@@ -6,8 +6,12 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR NOT DEFINED CMAKE_INSTALL_PREF
   set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Installation path." FORCE)
 endif()
 
-# Set the library dir to the value of CMAKE_INSTALL_LIBDIR
-set(qristal_core_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+# Customise generic GNU install locations
+set(CMAKE_INSTALL_DATADIR cmake)
+
+# Convenience variables
+set(qristal_core_LIBDIR ${CMAKE_INSTALL_LIBDIR}) # lib directory within CMAKE_INSTALL_PREFIX
+set(qristal_core_CMAKEDIR ${CMAKE_INSTALL_DATADIR}) # cmake config directory within CMAKE_INSTALL_PREFIX
 
 # Set default RPATH to the lib dir of the installation dir.  Must be done after default installation dir is set.
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR} CACHE PATH "Search path for shared libraries to encode into binaries." FORCE)
@@ -58,6 +62,7 @@ set(NAMESPACE qristal)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Set minimum compiler versions
 set(MIN_CLANG_VERSION 16.0.6)
@@ -98,14 +103,9 @@ if(WITH_COVERAGE)
   set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 endif()
 
-# Determine make command to use for external builds
+# Determine number of processors for external builds
 include(ProcessorCount)
-ProcessorCount(N)
-if(CMAKE_MAKE_PROGRAM MATCHES "make$")
-  set(MAKE_PARALLEL ${CMAKE_MAKE_PROGRAM} -j${N})
-else()
-  set(MAKE_PARALLEL ${CMAKE_MAKE_PROGRAM})
-endif()
+ProcessorCount(N_PROC)
 
 # Save the version numbers for use in the code.
 configure_file(cmake/cmake_variables.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/include/qristal/core/cmake_variables.hpp)

@@ -191,7 +191,7 @@ namespace qristal
       using ibounds = const std::pair<size_t, size_t>;
       using dbounds = const std::pair<double, double>;
       ibounds random_circuit_depth_bounds{0,1000};
-      ibounds sn_bounds{1,1000000};
+      ibounds sn_bounds{1,1000000000};
       ibounds qn_bounds{1,10000};
       ibounds max_bond_bounds{1,50000};
       ibounds initial_bond_bounds{1,50000};

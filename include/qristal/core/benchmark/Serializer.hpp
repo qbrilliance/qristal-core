@@ -87,8 +87,8 @@ namespace qristal
         */
         template <typename Container, typename Archive>
         concept Serializable = requires(Container c, Archive ar ) {
-            {c.template load(ar)} -> std::same_as<void>;
-            {c.template save(ar)} -> std::same_as<void>;
+            {c.load(ar)} -> std::same_as<void>;
+            {c.save(ar)} -> std::same_as<void>;
             {c.dump()};
         };
 

@@ -576,7 +576,9 @@ namespace qristal
 
     // Check that chosen options are allowed. First make sure the user hasn't asked for an emulator backend without the emulator.
     if (EMULATOR_BACKENDS.find(acc) != EMULATOR_BACKENDS.end() and not emulator_library()) {
-      throw std::range_error("Emulator not found! Backend "+acc+" is only available from the Qristal Emulator.");
+      throw std::range_error("Emulator not found! Backend "+acc+" is only available from the Qristal Emulator. If emulator is "
+        "installed, ensure it's location and all dependencies it needs are included in LD_LIBRARY_PATH "
+        "(run \"ldd libqristal_emulator.so\" to check dependencies).");
     }
     check_allowed(valid_backends, acc, "acc");
     check_allowed(VALID_AER_SIM_TYPES, aer_sim_type, "aer_sim_type");

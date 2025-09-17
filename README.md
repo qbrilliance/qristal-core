@@ -13,7 +13,9 @@ Before building Qristal, you must have the following packages already installed 
 
 - Python 3.8 or later
 
-- gcc, g++, and gfortran 11.4.0 or later. LLVM-Clang 16.0.6 or later is supported, but gcc/g++ is still required for building exatn and tnqvm.
+- gcc, g++, and gfortran 11.4.0 to 13 (inclusive)
+
+- LLVM-Clang 16.0.6 to 19 (inclusive) is optionally supported
 
 - cmake 3.20 or later
 
@@ -30,6 +32,12 @@ For example, on Ubuntu 22.04, you can use `apt` to install all of the above:
 
 ```
 sudo apt install build-essential cmake gfortran libboost-all-dev libcurl4-openssl-dev libssl-dev libopenblas-dev libpython3-dev python3 python3-pip
+```
+
+For clang, on Ubuntu 22.04, the following additional packages are needed:
+
+```
+sudo apt install llvm clang
 ```
 
 Qristal will be built with support for CUDA Quantum if and only if cmake detects that your system has a compatible CUDA Quantum installation.

@@ -63,15 +63,19 @@ function(check_mpi_configuration)
     # another location. As a result, the MPI implementation being used is not the one the
     # user expects and is likely to cause issues.
     set(ALL_FOUND_MPI_ITEMS ${MPI_CXX_INCLUDE_DIRS} ${MPI_CXX_LIBRARIES} ${MPIEXEC_EXECUTABLE} ${MPI_CXX_COMPILER})
-
+    if(MPI_HOME)
+        file(REAL_PATH ${MPI_HOME} MPI_HOME_RESOLVED)
+    endif()
     foreach(found_mpi_item ${ALL_FOUND_MPI_ITEMS})
-        if(NOT ${found_mpi_item} MATCHES ^${MPI_HOME})
+        set(found_in_mpi_home (${found_mpi_item} MATCHES ^${MPI_HOME}))
+        set(found_in_mpi_home_resolved (${found_mpi_item} MATCHES ^${MPI_HOME_RESOLVED}))
+        if(NOT found_in_mpi_home AND NOT found_in_mpi_home_resolved)
             message(WARNING "${found_mpi_item} is not a child of ${MPI_HOME}.")
-            set(WRONG_MPI_IMPLEMENTATION TRUE)
+            set(wrong_mpi_implementation TRUE)
         endif()
     endforeach()
 
-    if(WRONG_MPI_IMPLEMENTATION)
+    if(NOT IGNORE_MPI_HOME_CHECK AND wrong_mpi_implementation)
         message(FATAL_ERROR
             "Configuration will not continue as the found MPI implementation is not under the configured MPI_HOME "
             "(${MPI_HOME})."

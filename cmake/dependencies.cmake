@@ -30,13 +30,51 @@ else()
   message(FATAL_ERROR "System installation of OpenSSL not found. Please add the OpenSSL development package using the appropriate management tool for your system libraries.")
 endif()
 
-# OpenMP
-find_package(OpenMP)
-if(OPENMP_FOUND)
+# exatn contains a fortran dependency and as clang's fortran compiler is currently not mature enough to
+# build the project, gcc must be used for tnqvm and exatn when building core with clang.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # Use the same gnu compiler as specified by CMAKE_C*_COMPILER
+  set(EXATN_C_COMPILER ${CMAKE_C_COMPILER})
+  set(EXATN_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+  set(EXATN_FORTRAN_COMPILER ${CMAKE_Fortran_COMPILER})
+else()
+  set(EXATN_C_COMPILER gcc)
+  set(EXATN_CXX_COMPILER g++)
+  set(EXATN_FORTRAN_COMPILER gfortran)
+endif()
+
+# Compiler specific flags
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # Ensure clang builds use the same openmp runtime as gcc as we must always build exatn/tnqvm with gcc.
+  # find_package(OpenMP) cannot be used here as it always finds libomp - the clang openmp runtime.
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp=libgomp")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp=libgomp")
+
+  # Ensure clang builds use libstdc++ (gcc) for the same gcc being used to build exatn and tnqvm and not 
+  # libc++ (llvm) for ABI reasons
+  find_program(gcc_executable_path ${EXATN_C_COMPILER} REQUIRED)
+  find_program(gxx_executable_path ${EXATN_CXX_COMPILER} REQUIRED)
+  get_filename_component(gcc_bin_dir ${gcc_executable_path} DIRECTORY)
+  get_filename_component(gxx_bin_dir ${gxx_executable_path} DIRECTORY)
+  get_filename_component(gcc_toolchain_root ${gcc_bin_dir} DIRECTORY)
+  get_filename_component(gxx_toolchain_root ${gxx_bin_dir} DIRECTORY)
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --gcc-toolchain=${gcc_toolchain_root}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --gcc-toolchain=${gxx_toolchain_root}")
+
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  find_package(OpenMP REQUIRED)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
+# BLAS; used as a dependency for EXATN and Eigen.
+set(BLA_VENDOR OpenBLAS)
+find_package(BLAS)
+if(BLAS_FOUND)
+  cmake_path(GET BLAS_LIBRARIES PARENT_PATH BLAS_PATH)
 else()
-  message(STATUS "OpenMP was not detected... continuing without it...")
+  message(FATAL_ERROR "System installation of OpenBLAS not found. This is required for installing Eigen and EXATN.")
 endif()
 
 # Eigen
@@ -65,7 +103,7 @@ endif()
 message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
 
 # XACC
-set(XACC_TAG "05164c13")
+set(XACC_TAG "de8d8317")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
 else()
@@ -74,17 +112,16 @@ endif()
 add_poorly_behaved_dependency(xacc 1.0.0
   FIND_PACKAGE_NAME XACC
   GIT_TAG ${XACC_TAG}
-  GIT_REPOSITORY https://github.com/eclipse/xacc
-  PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/xacc.patch
+  GIT_REPOSITORY https://gitlab.com/qbau/software-and-apps/open-source/xacc.git
   OPTIONS
-    "XACC_ENABLE_MPI ${ENABLE_MPI_IN_DEPS}"
-    "COMPILE_FOR_LOCAL_ARCH ${COMPILE_FOR_LOCAL_ARCH}"
-    "CMAKE_BUILD_TYPE ${XACC_CMAKE_BUILD_TYPE}"
-    "OPENSSL_ROOT_DIR ${OPENSSL_INSTALL_DIR}"
-    "CMAKE_INSTALL_LIBDIR lib"
-    "Eigen3_DIR ${Eigen3_DIR}"
-    "THREAD_SANITIZER_AVAILABLE OFF"
-    "ADDRESS_SANITIZER_AVAILABLE OFF"
+    "-DXACC_ENABLE_MPI=${ENABLE_MPI_IN_DEPS}"
+    "-DCOMPILE_FOR_LOCAL_ARCH=${COMPILE_FOR_LOCAL_ARCH}"
+    "-DCMAKE_BUILD_TYPE=${XACC_CMAKE_BUILD_TYPE}"
+    "-DOPENSSL_ROOT_DIR=${OPENSSL_INSTALL_DIR}"
+    "-DXACC_BUILD_TESTS=FALSE"
+    "-DXACC_BUILD_EXAMPLES=FALSE"
+    "-DCMAKE_INSTALL_LIBDIR=lib"
+    "-DEigen3_DIR=${Eigen3_DIR}"
 )
 
 # Pybind11.
@@ -118,20 +155,15 @@ add_dependency(yamlcpp ${yamlcpp_VERSION}
   GITHUB_REPOSITORY jbeder/yaml-cpp
   FIND_PACKAGE_NAME yaml-cpp
   FIND_PACKAGE_VERSION " " #for manual cmake build
-  GIT_TAG b888265
-  PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/yaml-cpp.patch
+  GIT_TAG 2f86d137
   OPTIONS
     "YAML_BUILD_SHARED_LIBS ON"
     "YAML_CPP_INSTALL ON"
-    "CMAKE_INSTALL_CONFIG_NAME None"
-    "CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include"
-    "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}"
+    "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}"
+    "YAML_CPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_CMAKEDIR}/yaml-cpp"
   )
 if (NOT DEFINED yaml-cpp_DIR OR "${yaml-cpp_DIR}" STREQUAL "yaml-cpp_DIR-NOTFOUND")
-  set(yaml-cpp_DIR "${CMAKE_INSTALL_PREFIX}/cmake/yaml-cpp/yaml-cpp")
-endif()
-if(NOT yamlcpp_ADDED AND TARGET yaml-cpp)
-  add_library(yaml-cpp::yaml-cpp ALIAS yaml-cpp)
+  set(yaml-cpp_DIR "${CMAKE_INSTALL_PREFIX}/cmake/yaml-cpp")
 endif()
 
 # Gtest
@@ -179,20 +211,10 @@ add_dependency(range-v3 ${range-v3_VERSION}
     "RANGE_V3_DOCS OFF"
     "RANGES_BUILD_CALENDAR_EXAMPLE OFF"
     "RANGES_DEEP_STL_INTEGRATION ON" # Note this allows interoperability between std::ranges and range-v3 ranges
-    "CMAKE_POSITION_INDEPENDENT_CODE ON"
     "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}"
 )
 if(range-v3_ADDED)
   set(range-v3_DIR ${CMAKE_INSTALL_PREFIX}/cmake/range-v3)
-endif()
-
-# BLAS; used as a dependency for EXATN and Eigen.
-set(BLA_VENDOR OpenBLAS)
-find_package(BLAS)
-if(BLAS_FOUND)
-  cmake_path(GET BLAS_LIBRARIES PARENT_PATH BLAS_PATH)
-else()
-  message(FATAL_ERROR "System installation of OpenBLAS not found. This is required for installing Eigen and EXATN.")
 endif()
 
 # MPI
@@ -214,13 +236,12 @@ if(WITH_TKET)
     GIT_REPOSITORY https://github.com/CQCL/tket
     UPDATE_SUBMODULES True
     OPTIONS
-      "TKET_BUILD_TESTS OFF"
-      "CMAKE_BUILD_TYPE Release"
-      "CMAKE_EXPORT_COMPILE_COMMANDS ON"
-      "INSTALL_MISSING_CXX ON"
-      "JSON_VERSION ${nlohmann_json_VERSION}"
-      "XACC_DIR ${XACC_DIR}"
-      "Eigen3_DIR ${Eigen3_DIR}"
+      "-DTKET_BUILD_TESTS=OFF"
+      "-DCMAKE_BUILD_TYPE=Release"
+      "-DINSTALL_MISSING_CXX=ON"
+      "-DJSON_VERSION=${nlohmann_json_VERSION}"
+      "-DEigen3_DIR=${Eigen3_DIR}"
+      "-DCMAKE_INSTALL_LIBDIR=lib"
     PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/tket.patch
   )
 endif()
@@ -302,51 +323,58 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     # TODO (SWA-2341): sync packages installed here with those installed in the Qristal SDK image
   )
 
-  # EXATN
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(EXATN_CXX_COMPILER ${CMAKE_CXX_COMPILER})
-  else()
-    set(EXATN_CXX_COMPILER "g++")
-  endif()
-  if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set(EXATN_C_COMPILER ${CMAKE_C_COMPILER})
-  else()
-    set(EXATN_C_COMPILER "gcc")
-  endif()
+  # Remove clang flags to compile exatn and tnqvm
+  string(REPLACE "-fopenmp=libgomp" "-fopenmp" EXATN_C_FLAGS "${CMAKE_C_FLAGS}")
+  string(REPLACE "-fopenmp=libgomp" "-fopenmp" EXATN_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REGEX REPLACE "--gcc-toolchain=[^ ]*" "" EXATN_C_FLAGS "${EXATN_C_FLAGS}")
+  string(REGEX REPLACE "--gcc-toolchain=[^ ]*" "" EXATN_CXX_FLAGS "${EXATN_CXX_FLAGS}")
+  
+  # EXATN  
   set(exatn_options
-    "BLAS_LIB OPENBLAS"
-    "BLAS_PATH @BLAS_PATH@"
-    "EXATN_BUILD_TESTS OFF"
-    "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
-    "CMAKE_C_COMPILER ${EXATN_C_COMPILER}"
+    "-DCMAKE_C_COMPILER=${EXATN_C_COMPILER}"
+    "-DCMAKE_CXX_COMPILER=${EXATN_CXX_COMPILER}"
+    "-DCMAKE_Fortran_COMPILER=${EXATN_FORTRAN_COMPILER}"
+    "-DCMAKE_C_FLAGS='${EXATN_C_FLAGS}'"
+    "-DCMAKE_CXX_FLAGS='${EXATN_CXX_FLAGS}'"
+    "-DBLAS_LIB=OPENBLAS"
+    "-DBLAS_PATH=@BLAS_PATH@"
+    "-DEXATN_BUILD_TESTS=OFF"
     # Prevent exatn finding Python, as we don't need Python bindings and they fail to build with some versions of Python
-    "Python_LIBRARY /nope"
+    "-DPython_LIBRARY=/nope"
   )
   # exatn always runs find_package(MPI) then uses MPI_LIB STREQUAL NONE to determine whether to link against the MPI target.
   # We need to convert our MPI build control facility to exatn's.
   if(ENABLE_MPI_IN_DEPS)
-    list(APPEND exatn_options "MPI_HOME ${MPI_HOME}")
+    list(APPEND exatn_options "-DMPI_HOME=${MPI_HOME}")
   endif()
   add_poorly_behaved_dependency(exatn 1.0.0
     FIND_PACKAGE_NAME EXATN
-    GIT_TAG d8a15b1
-    GIT_REPOSITORY https://github.com/ornl-qci/exatn
+    GIT_TAG 1a2e8944
+    GIT_REPOSITORY https://gitlab.com/qbau/software-and-apps/open-source/exatn.git
     UPDATE_SUBMODULES True
     OPTIONS ${exatn_options}
   )
 
+  # exatn's config file alters CMAKE_CXX_FLAGS. When building with clang, this means -fopenmp is added and overrides
+  # -fopenmp=libgomp meaning libomp might be linked against. Linking against different openmp runtimes is unadvisable.
+  string(REPLACE " " ";" CXX_FLAGS_LIST "${CMAKE_CXX_FLAGS}")
+  list(REMOVE_ITEM CXX_FLAGS_LIST "-fopenmp")
+  string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS_LIST}")
+
   # TNQVM
   add_poorly_behaved_dependency(tnqvm 1.0.0
     FIND_PACKAGE_NAME TNQVM
-    GIT_TAG 1334763
-    GIT_REPOSITORY https://github.com/ornl-qci/tnqvm
+    GIT_TAG 8d8463ad
+    GIT_REPOSITORY https://gitlab.com/qbau/software-and-apps/open-source/tnqvm.git
     OPTIONS
-     "XACC_DIR ${XACC_ROOT}"
-     "EXATN_DIR ${EXATN_ROOT}"
-     "Eigen3_DIR ${Eigen3_DIR}"
-     "TNQVM_BUILD_TESTS OFF"
-     "CMAKE_CXX_COMPILER ${EXATN_CXX_COMPILER}"
-    PATCH_FILE ${CMAKE_CURRENT_LIST_DIR}/patches/tnqvm.patch
+      "-DCMAKE_C_COMPILER=${EXATN_C_COMPILER}"
+      "-DCMAKE_CXX_COMPILER=${EXATN_CXX_COMPILER}"
+      "-DCMAKE_C_FLAGS='${EXATN_C_FLAGS}'"
+      "-DCMAKE_CXX_FLAGS='${EXATN_CXX_FLAGS}'"
+      "-DXACC_DIR=${XACC_ROOT}"
+      "-DEXATN_DIR=${EXATN_ROOT}"
+      "-DEigen3_DIR=${Eigen3_DIR}"
+      "-DTNQVM_BUILD_TESTS=OFF"
   )
   # Add symlinks to {XACC_ROOT}/plugins where XACC finds its plugins by default.
   # Delete symlinks to all other versions of the plugin to avoid issues when upgrading to a new version.
@@ -371,7 +399,6 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
     GITHUB_REPOSITORY libcpr/cpr
     OPTIONS
       "CMAKE_BUILD_TYPE Release"
-      "CMAKE_POSITION_INDEPENDENT_CODE ON"
       "CPR_USE_SYSTEM_CURL ON"
       "CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}"
   )
