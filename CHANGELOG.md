@@ -3,7 +3,7 @@
 Qristal is a full-stack SDK for quantum accelerators.
 
 
-## [X.X.X] - YYYY-MM-DD
+## [1.8.0] - 2025-09-18
 
 ### Breaking
 
