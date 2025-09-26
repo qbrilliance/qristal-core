@@ -74,7 +74,7 @@ def test_cphase_simple():
     circ_aer.cp(theta, 0, 1, label=None, ctrl_state=None)
     transpiled_circ_aer = transpile(circ_aer, basis_gates =["rx","ry","cz"], optimization_level=3)
 
-    # Get transpiled circuit from qb_visitor
+    # Get transpiled circuit from Qristal
     my_sim = qristal.core.session()
     my_sim.qn = 2
     my_sim.acc = "qpp"

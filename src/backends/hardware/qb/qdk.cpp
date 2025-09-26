@@ -1,7 +1,9 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
 // Qristal
-#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
+#include <qristal/core/backends/hardware/qb/qdk.hpp>
+#include <qristal/core/backends/hardware/qb/visitor_CZ.hpp>
+#include <qristal/core/backends/hardware/qb/visitor_ACZ.hpp>
 
 // STL
 #include <sstream>
@@ -29,7 +31,7 @@ namespace qristal
 
   // Send a circuit for execution on QB hardware
   void execute_on_qb_hardware(
-      std::shared_ptr<xacc::quantum::qb_qpu> hardware_device,
+      std::shared_ptr<xacc::quantum::qdk> hardware_device,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer,
       std::shared_ptr<xacc::CompositeInstruction>& circuit,
       bool execute_circuit,
@@ -59,36 +61,37 @@ namespace xacc
     // Overrides of XACC RemoteAccelerator functionalities
 
     // Getters
-    const std::string qb_qpu::get_qbjson() const
+    const std::string qdk::get_qbjson() const
     {
       return qbjson;
     }
 
-    const std::string qb_qpu::getSignature()
+    const std::string qdk::getSignature()
     {
       return name() + ":";
     }
 
-    const std::string qb_qpu::name() const
+    const std::string qdk::name() const
     {
       return qpu_name;
     }
 
-    const std::string qb_qpu::description() const
+    const std::string qdk::description() const
     {
       return "The QB QPU backend interacts with QB hardware.";
     }
 
     // Indicate that this is indeed a remote XACC accelerator
-    bool qb_qpu::isRemote()
+    bool qdk::isRemote()
     {
       return true;
     }
 
     // Retrieve the properties of the backend
-    HeterogeneousMap qb_qpu::getProperties()
+    HeterogeneousMap qdk::getProperties()
     {
       HeterogeneousMap m;
+      m.insert("command", model);
       m.insert("command", command);
       m.insert("init", init);
       m.insert("n_qubits", static_cast<int>(n_qubits));
@@ -106,10 +109,11 @@ namespace xacc
     }
 
     // Get the available configuration settings
-    const std::vector<std::string> qb_qpu::configurationKeys()
+    const std::vector<std::string> qdk::configurationKeys()
     {
       return
       {
+        "model",
         "command",
         "init",
         "n_qubits",
@@ -127,12 +131,13 @@ namespace xacc
     }
 
     // Change the configuration of QB hardware
-    void qb_qpu::updateConfiguration(const HeterogeneousMap &config)
+    void qdk::updateConfiguration(const HeterogeneousMap &config)
     {
       auto update = [&]<typename T>(const std::string& key, T& var)
       {
         if (config.keyExists<T>(key)) var = config.get<T>(key);
       };
+      update("model", model);
       update("command", command);
       update("init", init);
       update("poll_secs", poll_secs);
@@ -149,7 +154,7 @@ namespace xacc
     }
 
     // Initialize the configuration of QB hardware
-    void qb_qpu::initialize(const HeterogeneousMap &params)
+    void qdk::initialize(const HeterogeneousMap &params)
     {
       updateConfiguration(params);
     }
@@ -161,7 +166,7 @@ namespace xacc
         const std::string& remoteUrl,
         const std::string& path,
         std::map<std::string, std::string>& headers,
-        qb_qpu& qpu,
+        qdk& qpu,
         bool debug)
     {
       std::string Response;
@@ -170,7 +175,7 @@ namespace xacc
       // Execute HTTP operation
       try
       {
-        if (debug) std::cout << "* qb_qpu::" << operation << " to " << remoteUrl << path << std::endl;
+        if (debug) std::cout << "* qdk::" << operation << " to " << remoteUrl << path << std::endl;
 
         if (headers.find("Content-type") == headers.end()) headers.insert(std::make_pair("Content-type", "application/json"));
         if (headers.find("Connection") == headers.end()) headers.insert(std::make_pair("Connection", "keep-alive"));
@@ -225,7 +230,7 @@ namespace xacc
     }
 
     // HTTP POST specialisation
-    std::string qb_qpu::Post(
+    std::string qdk::Post(
         const std::string &remoteUrl, const std::string &path,
         const std::string &postStr, std::map<std::string, std::string> headers)
     {
@@ -236,7 +241,7 @@ namespace xacc
     }
 
     // HTTP GET specialisation
-    std::string qb_qpu::Get(
+    std::string qdk::Get(
         const std::string &remoteUrl, const std::string &path,
         std::map<std::string, std::string> headers,
         std::map<std::string, std::string> extraParams)
@@ -250,7 +255,7 @@ namespace xacc
     }
 
     // HTTP PUT specialisation
-    std::string qb_qpu::Put(
+    std::string qdk::Put(
         const std::string &remoteUrl, const std::string &path,
         const std::string &putStr, std::map<std::string, std::string> headers)
     {
@@ -262,7 +267,7 @@ namespace xacc
 
 
     // Initialise the QB hardware (reserve, get native gateset, etc.)
-    void qb_qpu::setup_hardware(bool check_hardware_lifesigns)
+    void qdk::setup_hardware(bool check_hardware_lifesigns)
     {
       try
       {
@@ -287,7 +292,7 @@ namespace xacc
     };
 
 
-    void qb_qpu::execute(
+    void qdk::execute(
         std::shared_ptr<AcceleratorBuffer> buffer,
         const std::shared_ptr<CompositeInstruction> function,
         bool execute_circuit)
@@ -311,12 +316,20 @@ namespace xacc
       return;
     }
 
+    /// Helper function for finding a visitor class (=set of transpilation rules) for a given hardware model.
+    template<class first, class... others>
+    std::shared_ptr<xacc::quantum::visitor> make_visitor(std::string model, const int qubits) {
+      if (model == first::model) return std::make_shared<first>(qubits);
+      if constexpr (sizeof...(others) > 0) return make_visitor<others...>(model, qubits);
+      throw std::runtime_error("Unknown Quantum Brilliance hardware model: " + model);
+    }
+
     // Convert a circuit to a representation that QB hardware accepts.
     //
     // Sets up QB specific metadata, visits XACC IR to construct JSON strings
     // for the circuit +  required measurements, then combines both into the
     // HTTP POST request body.
-    const std::string qb_qpu::processInput(
+    const std::string qdk::processInput(
         std::shared_ptr<AcceleratorBuffer> buffer,
         std::vector<std::shared_ptr<CompositeInstruction>> functions)
     {
@@ -340,7 +353,8 @@ namespace xacc
       // Circuit
       // jsel["circuit"] is built from a visitor
       // Create the Instruction Visitor that is going to map the IR.
-      auto visitor_no_meas = std::make_shared<xacc::quantum::qb_visitor>(buffer->size());
+      // Here we select the visitor according to the model of hardware, in particular its native gateset.
+      auto visitor_no_meas = make_visitor<xacc::quantum::visitor_CZ, xacc::quantum::visitor_ACZ>(model, buffer->size());
       InstructionIterator it(functions[0]);
       order_of_m.clear();
       while (it.hasNext())
@@ -374,7 +388,7 @@ namespace xacc
     }
 
     // Handle the response to the initial POST (circuit submission)
-    void qb_qpu::processResponse(std::shared_ptr<AcceleratorBuffer> , const std::string &response)
+    void qdk::processResponse(std::shared_ptr<AcceleratorBuffer> , const std::string &response)
     {
       if (debug) std::cout << "* Response from HTTP POST: " << response << std::endl;
       circuit_id = json::parse(response)["id"].get<uint>();
@@ -388,7 +402,7 @@ namespace xacc
 
 
     // Polling for circuit execution results via HTTP GET
-    bool qb_qpu::resultsReady(std::map<std::string, int> &counts)
+    bool qdk::resultsReady(std::map<std::string, int> &counts)
     {
       std::string path = circuitEndpoint + "/" + std::to_string(circuit_id);
       if (debug) std::cout << "* Poll for results at path: " << remoteUrl << path << std::endl;
@@ -422,7 +436,7 @@ namespace xacc
 
 
     // Poll QB hardware for circuit results
-    std::map<std::string, int> qb_qpu::poll_for_results()
+    std::map<std::string, int> qdk::poll_for_results()
     {
       std::map<std::string, int> counts;
       for (int i = 0; i < poll_retries; i++)

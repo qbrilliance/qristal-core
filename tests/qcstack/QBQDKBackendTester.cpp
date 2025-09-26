@@ -1,7 +1,8 @@
 // Copyright Quantum Brilliance
 
 #include <qristal/core/session.hpp>
-#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
+#include <qristal/core/backends/hardware/qb/qdk.hpp>
+#include <xacc.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
@@ -9,14 +10,14 @@
 #include <thread>
 using json = nlohmann::json;
 
-TEST(qbqpuTester, testInstantiation)
+TEST(QBQDKBackendTester, testInstantiation)
 {
-  auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>("test_qbqpu", true);
+  auto hardware_device = std::make_shared<xacc::quantum::qdk>("test_qdk", true);
   std::cout << "* Signature: " << hardware_device->getSignature() << std::endl;
-  EXPECT_EQ(hardware_device->getSignature(), "test_qbqpu:");
+  EXPECT_EQ(hardware_device->getSignature(), "test_qdk:");
 }
 
-TEST(qbqpuTester, testInstantiationGetDetails)
+TEST(QBQDKBackendTester, testInstantiationGetDetails)
 {
   int delay = 20;
   int shots = 256;
@@ -25,16 +26,18 @@ TEST(qbqpuTester, testInstantiationGetDetails)
   int n_qubits = 4;
   std::vector<uint> init_qubits(n_qubits, 0);
 
-  auto hardware_device = std::make_shared<xacc::quantum::qb_qpu>("test_qbqpu", true);
-  std::vector<std::string> config_qb_qdk = hardware_device->configurationKeys();
+  auto hardware_device = std::make_shared<xacc::quantum::qdk>("test_qdk", true);
+  std::vector<std::string> config_qdk = hardware_device->configurationKeys();
   xacc::HeterogeneousMap mm = hardware_device->getProperties();
 
   std::cout << "* Keys:" << "\n";
-  for (std::string cel : config_qb_qdk) std::cout << "    " << cel << std::endl;
+  for (std::string cel : config_qdk) std::cout << "    " << cel << std::endl;
 
   YAML::Node db = YAML::LoadFile("remote_backends.yaml");
   const std::string url = db["example_hardware_device"]["url"].as<std::string>();
+  const std::string model = db["example_hardware_device"]["model"].as<std::string>();
   mm.insert("url", url.back() == '/' ? url : url + '/');
+  mm.insert("model", model);
   mm.insert("shots", shots);
   mm.insert("poll_secs", poll_secs);
   mm.insert("poll_retries", poll_retries);

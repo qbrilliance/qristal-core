@@ -2,10 +2,12 @@ set(source_files
   # C++ library source files in alphabetical order
   src/backend_utils.cpp
   src/backend.cpp
-  src/backends/aws_braket/options.cpp
-  src/backends/qb_hardware/options.cpp
-  src/backends/qb_hardware/qb_qpu.cpp
-  src/backends/qb_hardware/qb_visitor.cpp
+  src/backends/hardware/qb/options.cpp
+  src/backends/hardware/qb/qdk.cpp
+  src/backends/hardware/qb/visitor.cpp
+  src/backends/hardware/qb/visitor_ACZ.cpp
+  src/backends/hardware/qb/visitor_CZ.cpp
+  src/backends/sims/aws/braket/options.cpp
   src/benchmark/DataLoaderGenerator.cpp
   src/benchmark/metrics/QuantumProcessFidelity.cpp
   src/benchmark/metrics/QuantumProcessMatrix.cpp
@@ -48,8 +50,10 @@ set(headers
   # C++ and OpenQASM header files in alphabetical order
   include/qristal/core/backend_utils.hpp
   include/qristal/core/backend.hpp
-  include/qristal/core/backends/qb_hardware/qb_qpu.hpp
-  include/qristal/core/backends/qb_hardware/qb_visitor.hpp
+  include/qristal/core/backends/hardware/qb/qdk.hpp
+  include/qristal/core/backends/hardware/qb/visitor.hpp
+  include/qristal/core/backends/hardware/qb/visitor_ACZ.hpp
+  include/qristal/core/backends/hardware/qb/visitor_CZ.hpp
   include/qristal/core/benchmark/Concepts.hpp
   include/qristal/core/benchmark/DataLoaderGenerator.hpp
   include/qristal/core/benchmark/metrics/CircuitFidelity.hpp

@@ -8,7 +8,6 @@
 #include <string>
 #include <future>
 #include <chrono>
-#include <thread>
 #include <algorithm>
 
 // range v3
@@ -30,16 +29,16 @@ std::string run_async_internal(qristal::session& s) {
 };
 
 
-TEST(TestAsyncCircuitExecution, FourSessionsTwoThreads) {
+TEST(TestAsyncCircuitExecution, HundredSessionsTenThreads) {
 
   std::cout << "Execute async test" << std::endl;
 
   // Make Qristal sessions.
-  constexpr size_t n_jobs = 4;
+  constexpr size_t n_jobs = 100;
   std::array<qristal::session, n_jobs> sims;
 
   // Set number of threads available in thread pool
-  constexpr int threads = 2;
+  constexpr int threads = 10;
   qristal::thread_pool::set_num_threads(threads);
   std::cout << "Number of threads in thread pool: " << qristal::thread_pool::get_num_threads() << std::endl;
   EXPECT_EQ(qristal::thread_pool::get_num_threads(), threads);
@@ -48,7 +47,7 @@ TEST(TestAsyncCircuitExecution, FourSessionsTwoThreads) {
   std::cout << "\tsubmitting jobs..." << std::endl;
   std::array<std::future<std::string>, n_jobs> futures;
   for (auto&& [s, f] : ::ranges::views::zip(sims, futures)) {
-    s.acc = "aer";
+    s.acc = "sparse-sim";
     s.qn = 16;
     s.sn = 1000;
     s.instring = R"(
@@ -74,9 +73,9 @@ TEST(TestAsyncCircuitExecution, FourSessionsTwoThreads) {
       cx q[14],q[15];
       measure q -> c;
     )";
-    //f = std::async(std::launch::async, run_async_internal, std::ref(s)));
+    // Using std::async is slower, but it seems to be more stable against some residual threadsafety issues in third-party dependencies.
+    //f = std::async(std::launch::async, run_async_internal, std::ref(s));
     f = qristal::thread_pool::submit(run_async_internal, std::ref(s));
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   std::cout << "\tsubmitted all jobs. Computing...\n";

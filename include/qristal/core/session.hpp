@@ -24,6 +24,7 @@
 #include <complex>
 #include <functional>
 #include <map>
+#include <mutex>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -35,7 +36,7 @@
 
 
 // Forward declarations
-namespace xacc::quantum { class qb_qpu; }
+namespace xacc::quantum { class qdk; }
 namespace qristal { class backend; }
 
 namespace qristal
@@ -60,6 +61,9 @@ namespace qristal
 
       bool all_bitstring_counts_ordered_by_MSB_ = false;
       YAML::Node remote_backend_database_;
+
+      /// A mutex to lock access to non-threadsafe operations.
+      static std::mutex shared_mutex;
 
       /// The number of shots remaining to be drawn from \ref results_ using \ref draw_shot
       size_t shots_remaining_;

@@ -4,7 +4,8 @@
 add_xacc_plugin(qb_gateset_transpiler
   SOURCES
     src/transpiler/QuantumBrillianceGateSetTranspiler.cpp
-    src/backends/qb_hardware/qb_visitor.cpp
+    src/backends/hardware/qb/visitor.cpp
+    src/backends/hardware/qb/visitor_CZ.cpp
   DEPENDENCIES
     nlohmann::json
     Eigen3::Eigen
@@ -46,14 +47,14 @@ add_xacc_plugin(algorithm_es
 # Offload to AWS Braket
 add_xacc_plugin(aws_braket
   SOURCES
-    src/backends/aws_braket/AWSAccelerator.cpp
-    src/backends/aws_braket/aws_python_script.py
-    src/backends/aws_braket/AWSQuantumTask.cpp
+    src/backends/sims/aws/braket/AWSAccelerator.cpp
+    src/backends/sims/aws/braket/aws_python_script.py
+    src/backends/sims/aws/braket/AWSQuantumTask.cpp
   HEADERS
-    include/qristal/core/backends/aws_braket/AWSAccelerator.hpp
-    include/qristal/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp
-    include/qristal/core/backends/aws_braket/AWSQuantumTask.hpp
-    include/qristal/core/backends/aws_braket/AWSVisitor.hpp
+    include/qristal/core/backends/sims/aws/braket/AWSAccelerator.hpp
+    include/qristal/core/backends/sims/aws/braket/AWSOpenQasm3Visitor.hpp
+    include/qristal/core/backends/sims/aws/braket/AWSQuantumTask.hpp
+    include/qristal/core/backends/sims/aws/braket/AWSVisitor.hpp
   DEPENDENCIES
     Python::Python
     pybind11::pybind11
@@ -61,7 +62,7 @@ add_xacc_plugin(aws_braket
 )
 # Install additional runtime assets
 install(
-  FILES src/backends/aws_braket/aws_python_script.py
+  FILES src/backends/sims/aws/braket/aws_python_script.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${qristal_core_LIBDIR}
 )
 
@@ -135,13 +136,13 @@ add_xacc_plugin(circuits
 # Sparse simulator
 add_xacc_plugin(sparse_simulator
   SOURCES
-    src/backends/sparse_simulator/SparseStateVecAccelerator.cpp
+    src/backends/sims/microsoft/sparse-sim/SparseStateVecAccelerator.cpp
   HEADERS
-    include/qristal/core/backends/sparse_simulator/basic_quantum_state.hpp
-    include/qristal/core/backends/sparse_simulator/gates.h
-    include/qristal/core/backends/sparse_simulator/quantum_state.hpp
-    include/qristal/core/backends/sparse_simulator/SparseSimulator.h
-    include/qristal/core/backends/sparse_simulator/types.h
+    include/qristal/core/backends/sims/microsoft/sparse-sim/basic_quantum_state.hpp
+    include/qristal/core/backends/sims/microsoft/sparse-sim/gates.h
+    include/qristal/core/backends/sims/microsoft/sparse-sim/quantum_state.hpp
+    include/qristal/core/backends/sims/microsoft/sparse-sim/SparseSimulator.h
+    include/qristal/core/backends/sims/microsoft/sparse-sim/types.h
 )
 
 # UCSSD quantum chemistry

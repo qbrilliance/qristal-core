@@ -1,11 +1,11 @@
 /***
  *** Copyright (c) Quantum Brilliance Pty Ltd
  ***/
-#ifndef QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
-#define QUANTUM_GATE_ACCELERATORS_AWSACCELERATOR_HPP_
+
+#pragma once
 
 #include <qristal/core/remote_async_accelerator.hpp>
-#include <qristal/core/backends/aws_braket/AWSVisitor.hpp>
+#include <qristal/core/backends/sims/aws/braket/AWSVisitor.hpp>
 
 #include <Accelerator.hpp>
 #include <InstructionIterator.hpp>
@@ -114,6 +114,6 @@ namespace xacc
                                          const std::unordered_map<std::string, int>& count_map) const;
     };
 
-  } // namespace quantum
-} // namespace xacc
-#endif
+  }
+
+}

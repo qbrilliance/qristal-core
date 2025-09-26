@@ -1,7 +1,7 @@
 # Copyright (c) Quantum Brilliance Pty Ltd
 
 # When you add a new test, please keep the alphabetical ordering!
-set(test_sources 
+set(test_sources
   #tests/advice/QPrimeTester.cpp
   #tests/advice/UPrimeTester.cpp
   #tests/advice/UQPrimeTester.cpp
@@ -74,7 +74,7 @@ add_executable(CITests ${test_sources})
 
 add_executable(HardwareTests
   tests/misc_cpp/XaccInitialisedTests.cpp
-  tests/qcstack/qbqpuTester.cpp
+  tests/qcstack/QBQDKBackendTester.cpp
 )
 
 # This needs to be a separate test due to problems caused by restarting the python interpreter after it completes.

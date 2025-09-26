@@ -23,8 +23,10 @@ set(PUBLIC_HEADERS
   include/qristal/core/profiler.hpp
   include/qristal/core/session.hpp
   include/qristal/core/thread_pool.hpp
-  include/qristal/core/backends/qb_hardware/qb_qpu.hpp
-  include/qristal/core/backends/qb_hardware/qb_visitor.hpp
+  include/qristal/core/backends/hardware/qb/qdk.hpp
+  include/qristal/core/backends/hardware/qb/visitor.hpp
+  include/qristal/core/backends/hardware/qb/visitor_CZ.hpp
+  include/qristal/core/backends/hardware/qb/visitor_ACZ.hpp
   include/qristal/core/cudaq/ir_converter.hpp
   include/qristal/core/cudaq/sim_pool.hpp
   include/qristal/core/noise_model/noise_model.hpp

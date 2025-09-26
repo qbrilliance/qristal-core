@@ -21,6 +21,7 @@ namespace qristal
     }
 
     // Base settings
+    required<std::string>("model", y, m);
     required<std::string>("url", y, m);
     required<double>("poll_secs", y, m);
     required<uint>("poll_retries", y, m);

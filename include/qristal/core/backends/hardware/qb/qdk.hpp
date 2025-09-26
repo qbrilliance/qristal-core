@@ -1,9 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 #pragma once
 
-// Qristal
-#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
-
 // XACC
 #include <RemoteAccelerator.hpp>
 #include <InstructionIterator.hpp>
@@ -27,16 +24,16 @@ namespace xacc
     /// 1. Circuit submission via HTTP POST to QB hardware device
     /// 2. Using the returned ID, form a HTTP GET request and poll repeatedly until results are returned
     ///
-    class qb_qpu : virtual public RemoteAccelerator
+    class qdk : virtual public RemoteAccelerator
     {
 
       public:
 
         /// Default constructor that just inits the parent class
-        qb_qpu(const std::string name, const bool debug_flag = false) : RemoteAccelerator(), debug(debug_flag), qpu_name(name) {}
+        qdk(const std::string name, const bool debug_flag = false) : RemoteAccelerator(), debug(debug_flag), qpu_name(name) {}
 
         /// Destructor
-        virtual ~qb_qpu() {}
+        virtual ~qdk() {}
 
         /// @{ @brief Getters
         const std::string getSignature() override;
@@ -111,6 +108,9 @@ namespace xacc
 
         bool debug;
         std::string qpu_name;
+
+        /// Model number
+        std::string model;
 
         /// Command
         std::string command = "circuit";
@@ -193,7 +193,7 @@ namespace qristal
 {
   /// Execute the circuit on QB hardware
   void execute_on_qb_hardware(
-      std::shared_ptr<xacc::quantum::qb_qpu> qdk,
+      std::shared_ptr<xacc::quantum::qdk> hardware_device,
       std::shared_ptr<xacc::AcceleratorBuffer> buffer_b,
       std::shared_ptr<xacc::CompositeInstruction>& circuit,
       bool execute_circuit,

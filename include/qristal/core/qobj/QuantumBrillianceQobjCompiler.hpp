@@ -7,8 +7,7 @@
 namespace qristal {
 
   /**
-   * @brief Util class to map IR to QObj Json conforming to
-   * qb_qpu transpilation.
+   * @brief Util class to map IR to QObj Json conforming to qdk visitor transpilation.
    *
    */
   class QuantumBrillianceQobjCompiler : public xacc::Compiler,

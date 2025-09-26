@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <thread>
-#include <qristal/core/backends/aws_braket/AWSQuantumTask.hpp>
+#include <qristal/core/backends/sims/aws/braket/AWSQuantumTask.hpp>
 #include <qristal/core/thread_pool.hpp>
 
 namespace qristal

@@ -25,6 +25,8 @@ Note that Qristal supports parallel execution on multiple quantum hardware devic
 <br/><br/>
 * `init`: *vector of integers*, optional. Values to initialise the qubits to. Indexing of this list matches the indices of qubits in circuits. Default: all qubits initialised to 0.
 <br/><br/>
+* `model`: *string*, required. The model number of the hardware device to use. Currently recoginised models are "QB-QDK2-CZ" (QDK2 with traditional CZ native gate) and "QB-QDK2-ACZ" (QDK2 with higher-fidelity anti-CZ native gate).
+<br/><br/>
 * `poll_secs`: *floating-point*, required. Interval in seconds to wait between queries to the device about the completion status of a running circuit.
 <br/><br/>
 * `poll_retries`: *integer*, required. Maximum number of times to query the device about the completion status of a running circuit. If this many unsuccessful queries are made, return a timeout error.

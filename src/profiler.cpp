@@ -1,8 +1,13 @@
 // Copyright Quantum Brilliance Pty Ltd
 
 #include <qristal/core/profiler.hpp>
-#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
+#include <qristal/core/backends/hardware/qb/qdk.hpp>
+
 #include <CompositeInstruction.hpp>
+#include <xacc.hpp>
+
+#include <cassert>
+
 
 namespace qristal {
 //

@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 // Qristal
-#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
+#include <qristal/core/backends/hardware/qb/visitor_CZ.hpp>
 #include <qristal/core/circuit_builder.hpp>
 #include <qristal/core/passes/circuit_opt_passes.hpp>
 #include <qristal/core/session.hpp>
@@ -72,7 +72,7 @@ TEST(transpilationTester, checkCZPlacement) {
 }
 
 TEST(transpilationTester, checkAngleNorm) {
-  auto vis = xacc::quantum::qb_visitor(0);
+  auto vis = xacc::quantum::visitor_CZ(0);
   const double pi = xacc::constants::pi;
   EXPECT_DOUBLE_EQ(vis.norm(0.), 0.);
   EXPECT_DOUBLE_EQ(vis.norm(pi/3.), pi/3.);

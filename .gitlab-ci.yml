@@ -62,7 +62,7 @@ workflow:
 #    - core_artefacts/include
 #    - core_artefacts/examples
 #    - core_artefacts/remote_backends.yaml
-#    - core_artefacts/src/backends/aws_braket/aws_python_script.py
+#    - core_artefacts/src/backends/sims/aws/braket/aws_python_script.py
 #    - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 .paths:
   ci:
@@ -81,7 +81,7 @@ workflow:
     - core_artefacts/include
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
-    - core_artefacts/src/backends/aws_braket/aws_python_script.py
+    - core_artefacts/src/backends/sims/aws/braket/aws_python_script.py
     - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests
@@ -106,7 +106,7 @@ workflow:
     - core_artefacts/include
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
-    - core_artefacts/src/backends/aws_braket/aws_python_script.py
+    - core_artefacts/src/backends/sims/aws/braket/aws_python_script.py
     - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CudaqCITests
@@ -126,7 +126,7 @@ workflow:
     - core_artefacts/include
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
-    - core_artefacts/src/backends/aws_braket/aws_python_script.py
+    - core_artefacts/src/backends/sims/aws/braket/aws_python_script.py
     - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests
@@ -154,7 +154,7 @@ workflow:
     - core_artefacts/include
     - core_artefacts/examples
     - core_artefacts/remote_backends.yaml
-    - core_artefacts/src/backends/aws_braket/aws_python_script.py
+    - core_artefacts/src/backends/sims/aws/braket/aws_python_script.py
     - core_artefacts/tests/misc_cpp/XaccInitialisedTests.cpp
 #    - *artifacts_core
     - core_artefacts/build/CITests

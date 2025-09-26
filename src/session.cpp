@@ -3,7 +3,7 @@
 // Qristal
 #include <qristal/core/backend.hpp>
 #include <qristal/core/backend_utils.hpp>
-#include <qristal/core/backends/qb_hardware/qb_qpu.hpp>
+#include <qristal/core/backends/hardware/qb/qdk.hpp>
 #include <qristal/core/benchmark/metrics/ConfusionMatrix.hpp>
 #include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
 #include <qristal/core/circuit_builder.hpp>
@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <optional>
 #include <random>
@@ -41,6 +42,7 @@
 
 // XACC
 #include <AcceleratorBuffer.hpp>
+#include <CommonGates.hpp>
 #include <CompositeInstruction.hpp>
 #include <xacc.hpp>
 
@@ -102,6 +104,10 @@ namespace
 
 namespace qristal
 {
+
+  /// Static class member. A mutex to lock access to non-threadsafe operations.
+  std::mutex session::shared_mutex;
+
   /// Default session constructor
   session::session() {
     xacc::Initialize();
@@ -1038,125 +1044,133 @@ namespace qristal
     // Collect all the simulator options
     const xacc::HeterogeneousMap mqbacc = configure_backend(remote_backend_database_);
 
-    // ==============================================
-    // Construct/initialize the Accelerator instance
-    // ==============================================
-    qpu_ = get_sim_qpu(exec_on_hardware);
-    auto backend_instance = std::make_shared<qristal::backend>();
-    qpu_->updateConfiguration(mqbacc);
-    backend_instance->updateConfiguration(mqbacc);
-
     auto buffer_b = std::make_shared<xacc::AcceleratorBuffer>(qn);
     std::shared_ptr<xacc::CompositeInstruction> citarget;
+    xacc::ScopeTimer timer_for_qpu("Walltime, in ms, for simulator to execute quantum circuit", false);
 
     // ==============================================
-    // ----------------- Compilation ----------------
+    // Construct/initialize the backend instance
     // ==============================================
-    if (input_origin == circuit_origin::IR) {
-      // Direct IR input (e.g., circuit builder)
-      std::shared_ptr<xacc::CompositeInstruction> in_circ = irtarget;
-      if (in_circ->nVariables() > 0) {
-        in_circ = in_circ->operator()(circuit_parameters);
-      }
-      citarget = in_circ;
-    } else {
-      // String input -> compile
-      const std::string target_circuit = get_target_circuit_qasm_string(input_origin);
-      // Note: compile_input may not be thread-safe, e.g., XACC's staq
-      // compiler plugin was not defined as Clonable, hence only one instance
-      // is available from the service registry.
-      citarget = compile_input(target_circuit, qn, input_language);
-    }
+    auto backend_instance = std::make_shared<qristal::backend>();
+    backend_instance->updateConfiguration(mqbacc);
 
-    // ==============================================
-    // -----------------  Placement  ----------------
-    // ==============================================
-    // Transform the target to account for QB topology: XACC
-    if (!noplacement) {
-      if (debug) std::cout << "# Quantum Brilliance topological placement: enabled" << std::endl;
-      xacc::HeterogeneousMap m;
-      if (acc == "aws-braket") m.merge(qpu_->getProperties());
-      // Disable QASM inlining during placement.
-      // e.g., we don't want to map gates to the IBM gateset (defined in
-      // qelib1.inc) during placement.
-      m.insert("no-inline", true);
-      auto A = xacc::getIRTransformation(placement);
-      A->apply(citarget, backend_instance, m);
-    }
+    {
+      // Lock up during compilation, placement, optimization and execution if using aer or qpp, in order to avoid thread clashes.
+      std::mutex m;
+      std::scoped_lock lock((acc == "aer" or acc == "qpp" or acc == "tnqvm") ? shared_mutex : m);
 
-    // ==============================================
-    // ----------  Circuit Optimization  ------------
-    // ==============================================
-    // Perform circuit optimisation: XACC "circuit-optimizer"
-    if (!nooptimise) {
-      std::stringstream debug_msg;
-      if (debug) std::cout << "# Quantum Brilliance circuit optimiser: enabled" << std::endl;
-      for (const auto &pass : circuit_opts) {
-        if (debug) std::cout << "# Apply optimization pass: " << pass->get_name() << std::endl;
+      // ==============================================
+      // Construct/initialize the Accelerator instance
+      // ==============================================
+      qpu_ = get_sim_qpu(exec_on_hardware);
+      qpu_->updateConfiguration(mqbacc);
 
-        // Wrap the composite IR (citarget) as a CircuitBuilder to send on
-        // to the optimization pass. Set copy_nodes to false to keep the root
-        // node (citarget) intact.
-        CircuitBuilder ir_as_circuit(citarget, /*copy_nodes*/ false);
-
-        // Check if the circuit contains control-unitary (C-U) gates, which
-        // XACC's CircuitOptimizer is not able to correctly optimise.
-        std::shared_ptr<xacc::CompositeInstruction> circ = ir_as_circuit.get();
-        xacc::InstructionIterator iter(circ);
-        while (iter.hasNext()) {
-          xacc::InstPtr next = iter.next();
-          if (next->name() == "C-U") {
-            std::cout << "This circuit contains a control-unitary gate or a gate constructed from a control-unitary gate, " <<
-                         "e.g. a multi-control or generalised multi-control gate. " <<
-                         "Such a gate cannot be optimised by the circuit optimiser.\n";
-            throw std::runtime_error("Gate error");
-          }
+      // ==============================================
+      // ----------------- Compilation ----------------
+      // ==============================================
+      if (input_origin == circuit_origin::IR) {
+        // Direct IR input (e.g., circuit builder)
+        std::shared_ptr<xacc::CompositeInstruction> in_circ = irtarget;
+        if (in_circ->nVariables() > 0) {
+          in_circ = in_circ->operator()(circuit_parameters);
         }
-
-        pass->apply(ir_as_circuit);
-      }
-    }
-
-    // ==============================================
-    // ----------  Execution  ------------
-    // ==============================================
-    buffer_b->resetBuffer();
-
-    xacc::ScopeTimer timer_for_qpu(
-        "Walltime, in ms, for simulator to execute quantum circuit", false);
-
-    if (exec_on_hardware) {
-      // Hardware execution
-      std::shared_ptr<xacc::quantum::qb_qpu> hardware_device = std::make_shared<xacc::quantum::qb_qpu>(acc, debug);
-      hardware_device->updateConfiguration(mqbacc);
-      if (debug) std::cout << "# " << backend_instance << " accelerator: initialised" << std::endl;
-
-      // Execute (and polling wait)
-      execute_on_qb_hardware(hardware_device, buffer_b, citarget, execute_circuit, debug);
-
-      // Store the JSON sent to the QB hardware for the user to inspect
-      qbjson_ = hardware_device->get_qbjson();
-
-    } else if (execute_circuit) {
-      if (debug) std::cout << "# Prior to qpu_->execute..." << std::endl;
-      if (qpu_->name() == "aws-braket" && std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_)) {
-        try {
-          // Asynchronously offload the circuit to AWS Braket
-          auto as_remote_acc = std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_);
-          auto aws_job_handle = as_remote_acc->async_execute(citarget);
-          aws_job_handle->add_done_callback([=](auto &handle) {
-            auto buffer_temp = std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
-            handle.load_result(buffer_temp);
-            auto qb_transpiler = std::make_shared<qristal::backend>();
-            this->process_run_result(citarget, qpu_, mqbacc, buffer_temp, timer_for_qpu.getDurationMs(), qb_transpiler);
-          });
-          return aws_job_handle;
-        } catch (std::exception& e) {
-          throw std::runtime_error("Error raised: " + std::string(e.what()) + "\nThe simulation of your input circuit failed.");
-        }
+        citarget = in_circ;
       } else {
-        // Blocking (synchronous) execution of a local simulator instance
-        execute_on_simulator(qpu_, buffer_b, citarget);
+        // String input -> compile
+        const std::string target_circuit = get_target_circuit_qasm_string(input_origin);
+        // Note: compile_input may not be thread-safe, e.g., XACC's staq
+        // compiler plugin was not defined as Clonable, hence only one instance
+        // is available from the service registry.
+        citarget = compile_input(target_circuit, qn, input_language);
+      }
+
+      // ==============================================
+      // -----------------  Placement  ----------------
+      // ==============================================
+      // Transform the target to account for QB topology: XACC
+      if (!noplacement) {
+        if (debug) std::cout << "# Quantum Brilliance topological placement: enabled" << std::endl;
+        xacc::HeterogeneousMap m;
+        if (acc == "aws-braket") m.merge(qpu_->getProperties());
+        // Disable QASM inlining during placement.
+        // e.g., we don't want to map gates to the IBM gateset (defined in
+        // qelib1.inc) during placement.
+        m.insert("no-inline", true);
+        auto A = xacc::getIRTransformation(placement);
+        A->apply(citarget, backend_instance, m);
+      }
+
+      // ==============================================
+      // ----------  Circuit Optimization  ------------
+      // ==============================================
+      // Perform circuit optimisation: XACC "circuit-optimizer"
+      if (!nooptimise) {
+        std::stringstream debug_msg;
+        if (debug) std::cout << "# Quantum Brilliance circuit optimiser: enabled" << std::endl;
+        for (const auto &pass : circuit_opts) {
+          if (debug) std::cout << "# Apply optimization pass: " << pass->get_name() << std::endl;
+
+          // Wrap the composite IR (citarget) as a CircuitBuilder to send on
+          // to the optimization pass. Set copy_nodes to false to keep the root
+          // node (citarget) intact.
+          CircuitBuilder ir_as_circuit(citarget, /*copy_nodes*/ false);
+
+          // Check if the circuit contains control-unitary (C-U) gates, which
+          // XACC's CircuitOptimizer is not able to correctly optimise.
+          std::shared_ptr<xacc::CompositeInstruction> circ = ir_as_circuit.get();
+          xacc::InstructionIterator iter(circ);
+          while (iter.hasNext()) {
+            xacc::InstPtr next = iter.next();
+            if (next->name() == "C-U") {
+              std::cout << "This circuit contains a control-unitary gate or a gate constructed from a control-unitary gate, " <<
+                           "e.g. a multi-control or generalised multi-control gate. " <<
+                           "Such a gate cannot be optimised by the circuit optimiser.\n";
+              throw std::runtime_error("Gate error");
+            }
+          }
+
+          pass->apply(ir_as_circuit);
+        }
+      }
+
+      // ==============================================
+      // ----------  Execution  ------------
+      // ==============================================
+      buffer_b->resetBuffer();
+
+      if (exec_on_hardware) {
+        // Hardware execution
+        std::shared_ptr<xacc::quantum::qdk> hardware_device = std::make_shared<xacc::quantum::qdk>(acc, debug);
+        hardware_device->updateConfiguration(mqbacc);
+        if (debug) std::cout << "# " << backend_instance << " accelerator: initialised" << std::endl;
+
+        // Execute (and polling wait)
+        execute_on_qb_hardware(hardware_device, buffer_b, citarget, execute_circuit, debug);
+
+        // Store the JSON sent to the QB hardware for the user to inspect
+        qbjson_ = hardware_device->get_qbjson();
+
+      } else if (execute_circuit) {
+        if (debug) std::cout << "# Prior to qpu_->execute..." << std::endl;
+        if (qpu_->name() == "aws-braket" && std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_)) {
+          try {
+            // Asynchronously offload the circuit to AWS Braket
+            auto as_remote_acc = std::dynamic_pointer_cast<qristal::remote_accelerator>(qpu_);
+            auto aws_job_handle = as_remote_acc->async_execute(citarget);
+            aws_job_handle->add_done_callback([=](auto &handle) {
+              auto buffer_temp = std::make_shared<xacc::AcceleratorBuffer>(buffer_b->size());
+              handle.load_result(buffer_temp);
+              auto qb_transpiler = std::make_shared<qristal::backend>();
+              this->process_run_result(citarget, qpu_, mqbacc, buffer_temp, timer_for_qpu.getDurationMs(), qb_transpiler);
+            });
+            return aws_job_handle;
+          } catch (std::exception& e) {
+            throw std::runtime_error("Error raised: " + std::string(e.what()) + "\nThe simulation of your input circuit failed.");
+          }
+        } else {
+          // Blocking (synchronous) execution of a local simulator instance
+          execute_on_simulator(qpu_, buffer_b, citarget);
+        }
       }
     }
 

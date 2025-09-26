@@ -1,4 +1,5 @@
 example_hardware_device:
+  model: QB-QDK2-CZ
   url: https://localhost:8443
   poll_secs: 2
   poll_retries: 100

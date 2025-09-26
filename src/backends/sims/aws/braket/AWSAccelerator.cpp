@@ -2,9 +2,9 @@
 
 // Qristal
 #include <qristal/core/cmake_variables.hpp>
-#include <qristal/core/backends/aws_braket/AWSAccelerator.hpp>
-#include <qristal/core/backends/aws_braket/AWSOpenQasm3Visitor.hpp>
-#include <qristal/core/backends/aws_braket/AWSQuantumTask.hpp>
+#include <qristal/core/backends/sims/aws/braket/AWSAccelerator.hpp>
+#include <qristal/core/backends/sims/aws/braket/AWSOpenQasm3Visitor.hpp>
+#include <qristal/core/backends/sims/aws/braket/AWSQuantumTask.hpp>
 
 // XACC
 #include <xacc_plugin.hpp>

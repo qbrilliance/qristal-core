@@ -1,6 +1,6 @@
 // Copyright (c) Quantum Brilliance Pty Ltd
 
-#include <qristal/core/backends/qb_hardware/qb_visitor.hpp>
+#include <qristal/core/backends/hardware/qb/visitor.hpp>
 
 
 /**
@@ -20,7 +20,7 @@
 *
 * U2(phi, lambda) = Rz(phi + 0.5*pi)*Rx(0.5*pi)*Rz(lambda - 0.5*pi)
 *
-* 
+*
 * U1(lambda) = U3(0, 0, lambda) =
 *                 [  1.0     0.0;
 *                    0.0     exp(1.0im*lambda) ]
@@ -35,20 +35,8 @@ namespace xacc
   namespace quantum
   {
 
-    /// Return name of the visitor
-    const std::string qb_visitor::name() const
-    {
-      return "quantumbrilliance-remote-visitor";
-    }
-      
-    /// Return description of the visitor
-    const std::string qb_visitor::description() const
-    {
-      return "Maps XACC IR to QB XASM, output in JSON format";
-    }
-      
     /// Normalise angles to the interval [-pi,pi]
-    double qb_visitor::norm(const double& a)
+    double visitor::norm(const double& a)
     {
       if (not restrict_angles_to_pmpi_) return a;
       return std::fmod(a+std::copysign(pi,a),2*pi)-std::copysign(pi,a);
@@ -66,7 +54,7 @@ namespace xacc
     //
     // q0: --|I|--
     //
-    void qb_visitor::visit(Identity &id)
+    void visitor::visit(Identity &id)
     {
       std::stringstream ss;
       ss << "I"
@@ -89,7 +77,7 @@ namespace xacc
     //
     // q0: --|Rx(theta)|--
     //
-    void qb_visitor::visit(Rx &rx)
+    void visitor::visit(Rx &rx)
     {
       std::stringstream ss;
       // IMPORTANT: the XASM grammar only supports the fixed point format real
@@ -117,9 +105,9 @@ namespace xacc
     //
     // q0: --|Ry(theta)|--
     //
-    void qb_visitor::visit(Ry &ry)
+    void visitor::visit(Ry &ry)
     {
-      std::stringstream ss; 
+      std::stringstream ss;
       ss << std::fixed;
       double angle = norm(mpark::get<double>(ry.getParameter(0)));
         ss << "Ry"
@@ -128,34 +116,6 @@ namespace xacc
            << "[" << ry.bits()[0] << "]"  // target qubit
            << "," << angle << ")";
         sequence_.push_back(ss.str());
-    }
-
-    /**
-     * CZ - controlled Z
-     *
-     * Input: reference to IR object of class CZ
-     *
-     * Output: none
-     *
-     * Effect: push CZ to the back of JSON object: sequence_
-     *
-     **/
-    //
-    // q0: ------------|C|--------------
-    //
-    // q1: ------------|CZ|-------------
-    //
-    void qb_visitor::visit(CZ &cz)
-    {
-      std::stringstream ss;
-      ss << "CZ"
-         << "(" // CZ in OpenQASM macro format
-         << "q"
-         << "[" << cz.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cz.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(ss.str());
     }
 
     /**
@@ -171,7 +131,7 @@ namespace xacc
     // q0:
     // --|Ry(0.5*pi)--|Rx(theta)|--|Ry(-0.5*pi)|--
     //
-    void qb_visitor::visit(Rz &rz)
+    void visitor::visit(Rz &rz)
     {
       std::stringstream s1, s2, s3;
       double angle = norm(mpark::get<double>(rz.getParameter(0)));
@@ -211,7 +171,7 @@ namespace xacc
     //
     // q0: --|Ry(0.5*pi)|--|Rx(pi)|--
     //
-    void qb_visitor::visit(Hadamard &h)
+    void visitor::visit(Hadamard &h)
     {
       std::stringstream s1, s2;
 
@@ -234,53 +194,6 @@ namespace xacc
     }
 
     /**
-     * CNOT - controlled NOT
-     *
-     * Input: reference to IR object of class CNOT
-     *
-     * Output: none
-     *
-     * Effect: push CNOT to the back of JSON object: sequence_
-     *
-     **/
-    // Note: uses QB Escaped Gate Sequences
-    //
-    // q0: -------------------------|C|----------------------------
-    //
-    // q1: --|Rx(pi)|--|Ry(0.5*pi)|--|CZ|--|Rx(pi)|--|Ry(0.5*pi)|--
-    //
-    void qb_visitor::visit(CNOT &cn)
-    {
-      std::stringstream s1, s2, s3;
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << cn.bits()[1] << "]" // target qubit
-         << "," << (0.5 * pi) << ")";  // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << cn.bits()[1] << "]" // target qubit
-         << "," << (pi) << ")";        // theta=pi
-      sequence_.push_back(s1.str());
-
-      s3 << "CZ"
-         << "(" // CZ in OpenQASM macro format
-         << "q"
-         << "[" << cn.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cn.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(s3.str());
-      sequence_.push_back(s2.str()); // Ry(0.5*pi)
-      sequence_.push_back(s1.str()); // Rx(pi)
-    }
-
-    /**
      * S - rotate around the z-axis by 0.5*pi
      *
      * Input: reference to IR object of class S
@@ -289,7 +202,7 @@ namespace xacc
      *
      * Effect: push S to the back of JSON object: sequence_
      **/
-    void qb_visitor::visit(S &s)
+    void visitor::visit(S &s)
     {
       std::stringstream s1, s2, s3;
 
@@ -329,7 +242,7 @@ namespace xacc
      *
      * Effect: push Sdg to the back of JSON object: sequence_
      **/
-    void qb_visitor::visit(Sdg &sdg)
+    void visitor::visit(Sdg &sdg)
     {
       std::stringstream s1, s2, s3;
 
@@ -370,7 +283,7 @@ namespace xacc
      *
      * Effect: push T to the back of JSON object: sequence_
      **/
-    void qb_visitor::visit(T &t)
+    void visitor::visit(T &t)
     {
       std::stringstream s1, s2, s3;
 
@@ -410,7 +323,7 @@ namespace xacc
      *
      * Effect: push Tdg to the back of JSON object: sequence_
      **/
-    void qb_visitor::visit(Tdg &tdg)
+    void visitor::visit(Tdg &tdg)
     {
       std::stringstream s1, s2, s3;
 
@@ -453,7 +366,7 @@ namespace xacc
     //
     // q0: --|Rx(pi)|--
     //
-    void qb_visitor::visit(X &x)
+    void visitor::visit(X &x)
     {
       std::stringstream s1;
 
@@ -478,7 +391,7 @@ namespace xacc
     //
     // q0: --|Ry(pi)|--
     //
-    void qb_visitor::visit(Y &y)
+    void visitor::visit(Y &y)
     {
       std::stringstream s1;
 
@@ -503,7 +416,7 @@ namespace xacc
     //
     // q0: --|Rx(pi)|--|Ry(pi)|--
     //
-    void qb_visitor::visit(Z &z)
+    void visitor::visit(Z &z)
     {
       std::stringstream s1, s2;
 
@@ -525,120 +438,6 @@ namespace xacc
     }
 
     /**
-     * CPhase - controlled-phase
-     *
-     * Input: reference to IR object of class CPhase
-     *
-     * Output: none
-     *
-     * Effect: push CPhase to the back of JSON object: sequence_
-     **/
-    //
-    // q0: --|Rx(pi/2)|--|Ry(-theta/2)|--|Rx(-pi/2)|--|C|-------------------|C|--------------------------------
-    //                                                 |                     |
-    // q1: --|Ry(pi/2)|--|Rx(pi)|---------------------|CZ|--|Rx(-theta/2)|--|CZ|--|Rx(lambda)|--|Ry(-0.5*pi)|--
-    //
-    // lambda = sign(theta) * (|theta|/2 - pi)
-    //
-    void qb_visitor::visit(CPhase &cphase)
-    {
-      std::stringstream s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
-      double angle = mpark::get<double>(cphase.getParameter(0));
-      double lambda = (angle < 0.0 ? -1.0 : 1.0) * (0.5*std::abs(angle) - pi);
-
-      s1 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]" // control qubit
-         << "," << (0.5*pi) << ")";
-      sequence_.push_back(s1.str());
-
-      s2 << std::fixed
-         << "Ry"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]"  // control qubit
-         << "," << -0.5*angle << ")";
-      sequence_.push_back(s2.str());
-
-      s3 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]" // control qubit
-         << "," << (-0.5*pi) << ")";
-      sequence_.push_back(s3.str());
-
-      s4 << std::fixed
-         << "Ry"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (0.5*pi) << ")";
-      sequence_.push_back(s4.str());
-
-      s5 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (pi) << ")";
-      sequence_.push_back(s5.str());
-
-      s6 << "CZ"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(s6.str());
-
-      s7 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (-0.5*angle) << ")";
-      sequence_.push_back(s7.str());
-
-      s8 << "CZ"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(s8.str());
-
-      s9 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (lambda) << ")";
-      sequence_.push_back(s9.str());
-
-      s10 << std::fixed
-         << "Ry"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (-0.5*pi) << ")";
-      sequence_.push_back(s10.str());
-    }
-
-    /// Swap the values of two qubits
-    void qb_visitor::visit(Swap &s)
-    {
-      CNOT c1(s.bits()), c2(s.bits()[1], s.bits()[0]), c3(s.bits());
-      visit(c1);
-      visit(c2);
-      visit(c3);
-    }
-
-    /**
      * U - rotate in an arbitrary combination of (theta, phi, lambda)
      *
      * U3(theta, phi, lambda) =
@@ -653,7 +452,7 @@ namespace xacc
     // q0:
     // --Ry(pi/2)--Rx(lambda)--Ry(theta)--Rx(phi)--Ry(-pi/2)--
     //
-    void qb_visitor::visit(U &u)
+    void visitor::visit(U &u)
     {
       double theta = norm(mpark::get<double>(u.getParameter(0)));
       double phi = norm(mpark::get<double>(u.getParameter(1)));
@@ -673,25 +472,25 @@ namespace xacc
       if (lambda != 0.)              {Rx r(u.bits()[0], lambda);    visit(r);}
       if (theta != 0.)               {Ry r(u.bits()[0], theta);     visit(r);}
       if (phi != 0.)                 {Rx r(u.bits()[0], phi);       visit(r);}
-      if (phi != 0. or lambda != 0.) {Ry r(u.bits()[0], -0.5 * pi); visit(r);}     
+      if (phi != 0. or lambda != 0.) {Ry r(u.bits()[0], -0.5 * pi); visit(r);}
     }
 
-    /// Measure a qubit 
-    void qb_visitor::visit(Measure &m)
+    /// Measure a qubit
+    void visitor::visit(Measure &m)
     {
       unsigned int qubit = m.bits()[0];
-      if (qubit >= nQubits_) xacc::error("Requested to measure qubit that does not exist in this circuit.");  
+      if (qubit >= nQubits_) xacc::error("Requested to measure qubit that does not exist in this circuit.");
       qubitToClassicalBitIndex_.insert(std::make_pair(qubit, classicalBitCounter_));
       classicalBitCounter_++;
     }
 
     /// Return the finished qpu OpenQasm kernel
-    std::string qb_visitor::getXasmString()
+    std::string visitor::getXasmString()
     {
       return sequence_.dump(4);
     }
-    
-    std::shared_ptr<xacc::CompositeInstruction> qb_visitor::getTranspiledIR() const 
+
+    std::shared_ptr<xacc::CompositeInstruction> visitor::getTranspiledIR() const
     {
       std::stringstream ss;
       ss << "__qpu__ void __temp__xasm__kernel__(qbit q) {\n";

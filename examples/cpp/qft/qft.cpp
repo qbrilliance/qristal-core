@@ -52,8 +52,9 @@ int main()
     sim.sn = num_shots;
     sim.aer_omp_threads = aer_instance_thread_limit;
     sim.irtarget = circ.get();
-     // Run async jobs
+     // Run async jobs. Using std::async is slower, but it seems to be more stable against residual threadsafety issues in third-party dependencies. Take your pick.
     futures.push_back(qristal::thread_pool::submit(run_async, std::ref(sim)));
+    //futures.push_back(std::async(std::launch::async, run_async, std::ref(sim)));
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 

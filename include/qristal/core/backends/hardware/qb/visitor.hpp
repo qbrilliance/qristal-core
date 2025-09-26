@@ -16,45 +16,45 @@
 namespace xacc {
 
   namespace quantum {
-   
-    class qb_visitor : public AllGateVisitor {
-    
+
+    class visitor : public AllGateVisitor {
+
       protected:
-      
+
         /// Number of qubits
         int nQubits_;
-      
+
         /// Number of classical bit registers to which measurements have been assigned
         unsigned int classicalBitCounter_ = 0;
 
         /// Map from qubit indices to assigned classical readout bit indices
         std::map<unsigned int, unsigned int> qubitToClassicalBitIndex_;
-      
+
         /// JSON for sequence of gates (XASM format)
         nlohmann::json sequence_;
-      
-        /// No point reinventing the circle is there?     
+
+        /// No point reinventing the circle is there?
         const double pi = xacc::constants::pi;
 
         /// Restrict native gate rotation angles to (-pi,pi]
         bool restrict_angles_to_pmpi_;
 
       public:
-      
+
         /// Constructor
-        qb_visitor(const int nQubits, const bool cut_angles = true)
+        visitor(const int nQubits, const bool cut_angles = true)
             : nQubits_(nQubits),
               restrict_angles_to_pmpi_(cut_angles) {}
-      
+
         /// Destructor
-        virtual ~qb_visitor() {}
-      
-        /// Return name of the visitor 
-        virtual const std::string name() const;
-      
+        virtual ~visitor() {}
+
+        /// Return name of the visitor
+        virtual const std::string name() const = 0;
+
         /// Return description of the visitor
-        virtual const std::string description() const;
-          
+        virtual const std::string description() const = 0;
+
         /// Normalise angles to the interval (-pi,pi]
         double norm(const double&);
 
@@ -67,14 +67,10 @@ namespace xacc {
         void visit(Rx&)       override;
         /// Rotation about y axis
         void visit(Ry&)       override;
-        /// Controlled Z gate
-        void visit(CZ&)       override;
         /// Rotation about z axis
         void visit(Rz&)       override;
         /// Hadamard gate
         void visit(Hadamard&) override;
-        /// Controlled NOT gate
-        void visit(CNOT&)     override;
         /// S gate
         void visit(S&)        override;
         /// Inverse S gate
@@ -89,21 +85,26 @@ namespace xacc {
         void visit(Y&)        override;
         /// Pauli Z date
         void visit(Z&)        override;
-        /// Controlled phase gate
-        void visit(CPhase&)   override;
-        /// Swap the values of two qubits
-        void visit(Swap&)     override;
         /// General 1-qubit unitary
         void visit(U&)        override;
         /// Measure a single qubit
         void visit(Measure&)  override;
+
+        /// Controlled Z gate
+        virtual void visit(CZ&) override = 0;
+        /// Controlled NOT gate
+        virtual void visit(CNOT&) override = 0;
+        /// Controlled phase gate
+        virtual void visit(CPhase&) override = 0;
+        /// Swap the values of two qubits
+        virtual void visit(Swap&) override = 0;
 
         /// @}
 
         /// Return the finished qpu OpenQasm kernel
         std::string getXasmString();
 
-        /// Retrieved the IR tree in the basis gate set.
+        /// Retrieve the IR tree in the basis gate set.
         std::shared_ptr<xacc::CompositeInstruction> getTranspiledIR() const;
     };
 

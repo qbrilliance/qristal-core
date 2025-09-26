@@ -9,7 +9,7 @@ if(WITH_MPI OR DEFINED MPI_HOME)
 endif()
 # Controls whether to use MPI acceleration in third party dependencies.
 set(ENABLE_MPI_IN_DEPS OFF CACHE BOOL "MPI acceleration within xacc")
-# Option to ignore MPI home check 
+# Option to ignore MPI home check
 set(IGNORE_MPI_HOME_CHECK OFF CACHE BOOL "Whether to ignore the fatal error thrown when MPI home directory is not a parent of found MPI paths")
 
 # Get version number from git tag. Must be done before the project command is called.
