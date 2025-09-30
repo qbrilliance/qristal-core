@@ -15,7 +15,7 @@ circuit.cz(0, 1)
 # wrap circuit in SimpleCircuitExecution and tell qristal.core.benchmark to 
 # evaluate ideal process matrix from ideal simulation
 workflow = benchmark.SimpleCircuitExecution(circuit, sim)
-workflow = benchmark.AddinIdealProcessFromIdealSimulation(workflow)
+workflow = benchmark.AddinFromIdealSimulation(workflow, benchmark.Task.IdealProcess)
 qstworkflow = benchmark.QuantumStateTomography(workflow) #wrap workflow into QST object
 qptworkflow = benchmark.QuantumProcessTomography(qstworkflow) #wrap QST into QPT object
 

@@ -417,6 +417,7 @@ namespace qristal
         /**
         * @brief The type-erased QuantumStateTomography handle exposed in the python bindings.
         */
+        class AddinFromIdealSimulationPython; //forward declare 
         class QuantumStateTomographyPython {
             public:
                 template <ExecutableWorkflow EXECWORKFLOW, typename SYMBOL = Pauli>
@@ -439,6 +440,21 @@ namespace qristal
                     const SYMBOL& use_for_identity = Pauli::Symbol::Z
                 ) : workflow_ptr_(std::make_unique<QuantumStateTomography<EXECWORKFLOW, SYMBOL>>(workflow, perform_maximum_likelihood_estimation, basis, use_for_identity))
                 {}
+
+                QuantumStateTomographyPython(
+                    AddinFromIdealSimulationPython& workflow, 
+                    const std::set<size_t>& qubits,
+                    const bool perform_maximum_likelihood_estimation = false,
+                    const std::vector<Pauli>& basis = std::vector<Pauli>{Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z},
+                    const Pauli& use_for_identity = Pauli::Symbol::Z
+                );
+
+                QuantumStateTomographyPython(
+                    AddinFromIdealSimulationPython& workflow, 
+                    const bool perform_maximum_likelihood_estimation = false,
+                    const std::vector<Pauli>& basis = std::vector<Pauli>{Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z},
+                    const Pauli& use_for_identity = Pauli::Symbol::Z
+                );
 
                 template <typename SYMBOL>
                 requires MatrixTranslatable<SYMBOL> && CircuitAppendable<SYMBOL> && HasIdentity<SYMBOL>

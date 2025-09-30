@@ -50,6 +50,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added functionality to enable assigning MPI processes to different accelerator backends
 - Added decompose_swap, commute_through_multis, optimise_post_routing, decompose_zx, rebase_to_clifford, optimise_cliffords passes
 - Updated Qristal's cpr and gtest versions to the latest release
+- Added new benchmark workflow PreOrAppendWorkflow to prepend or append arbitrary quantum circuits to any given workflow. 
+- Added new benchmark metric BitstringCounts to extract the raw measured bit string counts from any executed workflow.
 
 ### Fixed
 

@@ -6,6 +6,154 @@ import qristal.core
 import qristal.core.benchmark as benchmark
 import time
 
+def test_PreOrAppendWorkflow_check_circuit_construction():
+    qubits = {0, 1}
+    sim = qristal.core.session()
+    sim.sn = 1000
+    sim.acc = "qpp"
+    sim.qn = len(qubits)
+
+    #dummy test workflows
+    #(Option 1) SimpleCircuitExecution 
+    cb = qristal.core.Circuit() 
+    cb.h(0) 
+    cb.cnot(0, 1)
+    workflow_1 = benchmark.SimpleCircuitExecution(cb, sim)
+    #(Option 2) SPAM 
+    workflow_2 = benchmark.SPAMBenchmark(qubits, sim)
+    #(Option 3) RotationSweep
+    workflow_3 = benchmark.RotationSweep(['X', 'Z'], -180, 180, 3, sim)
+
+    #Create pre- or appendable circuits
+    #(Option A) Standard circuits
+    IX = qristal.core.Circuit() 
+    IX.ry(1, 0.25)
+    YX = qristal.core.Circuit() 
+    YX.rx(0, -1.3)
+    YX.ry(1, 2.34)
+    circuits_A = [IX, YX]
+    #(Option B) Pauli primitives 
+    circuits_B = [
+        [benchmark.Pauli(benchmark.PauliSymbol.I), benchmark.Pauli(benchmark.PauliSymbol.X)], 
+        [benchmark.Pauli(benchmark.PauliSymbol.Y), benchmark.Pauli(benchmark.PauliSymbol.X)]
+    ]
+    #(Option C) BlochSphereUnitState primitives 
+    circuits_C = [
+        [benchmark.BlochSphereUnitState(benchmark.BlochSphereUnitStateSymbol.Zm), benchmark.BlochSphereUnitState(benchmark.BlochSphereUnitStateSymbol.Xp)], 
+        [benchmark.BlochSphereUnitState(benchmark.BlochSphereUnitStateSymbol.Zp), benchmark.BlochSphereUnitState(benchmark.BlochSphereUnitStateSymbol.Ym)]
+    ]
+
+    #Correct circuits (for comparison)
+    correct_circuits = []
+    #1A 
+    base = qristal.core.Circuit() 
+    base.h(0)
+    base.cnot(0, 1)
+    c1 = base.copy() 
+    c1.ry(1, 0.25)
+    c2 = base.copy() 
+    c2.rx(0, -1.3)
+    c2.ry(1, 2.34)
+    correct_circuits.append([c1, c2])
+
+    #2B 
+    II = qristal.core.Circuit()
+    XI = qristal.core.Circuit()
+    XI.x(0)
+    IX = qristal.core.Circuit()
+    IX.x(1)
+    XX = qristal.core.Circuit()
+    XX.x(0)
+    XX.x(1)
+    bases = [II, XI, IX, XX]
+    circuits = []
+    for base in bases: 
+        c1 = base.copy() 
+        c1.ry(1, -1.0 * np.pi / 2.0)
+        circuits.append(c1)
+        c2 = base.copy() 
+        c2.rx(0, np.pi / 2.0)
+        c2.ry(1, -1.0 * np.pi / 2.0)
+        circuits.append(c2)
+    correct_circuits.append(circuits)
+
+    #3C 
+    rm = qristal.core.Circuit()
+    rm.rx(0, -1.0 * np.pi)
+    rm.rz(1, -1.0 * np.pi)
+    r = qristal.core.Circuit()
+    r.rx(0, 0.0)
+    r.rz(1, 0.0)
+    rp = qristal.core.Circuit()
+    rp.rx(0, 1.0 * np.pi)
+    rp.rz(1, 1.0 * np.pi)
+    bases = [rm, r, rp]
+    circuits = []
+    for base in bases: 
+        c1 = qristal.core.Circuit()
+        c1.x(0)
+        c1.ry(1, np.pi / 2.0)
+        c1.append(base)
+        circuits.append(c1)
+        c2 = qristal.core.Circuit()
+        c2.rx(1, np.pi / 2.0)
+        c2.append(base)
+        circuits.append(c2)
+    correct_circuits.append(circuits)
+
+    #Wrap workflows in PreOrAppendWorkflow and check circuit construction
+    #1A
+    wworkflow_1 = benchmark.PreOrAppendWorkflow(workflow_1, circuits_A, benchmark.Placement.Append)
+    for correct, assembled in zip(correct_circuits[0], wworkflow_1.circuits):
+        assert correct.openqasm() == assembled.openqasm()
+    
+    #2B
+    wworkflow_2 = benchmark.PreOrAppendWorkflow(workflow_2, circuits_B, benchmark.Placement.Append)
+    for correct, assembled in zip(correct_circuits[1], wworkflow_2.circuits):
+        assert correct.openqasm() == assembled.openqasm()
+
+    #3C
+    wworkflow_3 = benchmark.PreOrAppendWorkflow(workflow_3, circuits_C, benchmark.Placement.Prepend)
+    for correct, assembled in zip(correct_circuits[2], wworkflow_3.circuits):
+        assert correct.openqasm() == assembled.openqasm()
+
+def test_BitstringCounts_checkSPAM():
+    qubits = {0, 1}
+    n_shots = 1000
+
+    sim = qristal.core.session()
+    sim.sn = n_shots
+    sim.acc = "qpp"
+    sim.qn = len(qubits)
+
+    workflow = benchmark.SPAMBenchmark(qubits, sim)
+
+    bitstrings = [[0,0], [1,0], [0,1], [1,1]]
+    metric = benchmark.BitstringCounts(workflow)
+    results = metric.evaluate(force_new = True)
+    _, counts_list = next(iter(results.items()))
+    for counts, ideal_bitstring in zip(counts_list, bitstrings):
+        assert counts[ideal_bitstring] == n_shots
+
+def test_BitstringCounts_checkRotationSweep():
+    n_shots = 1000
+
+    sim = qristal.core.session()
+    sim.sn = n_shots
+    sim.acc = "qpp"
+    sim.qn = 1
+
+    workflow = benchmark.RotationSweep(['X'], -180, +180, 9, sim)
+    circuit = [benchmark.Pauli(benchmark.PauliSymbol.X)]
+    wworkflow = benchmark.PreOrAppendWorkflow(workflow, circuit, benchmark.Placement.Prepend)
+    wwworkflow = benchmark.PreOrAppendWorkflow(wworkflow, circuit, benchmark.Placement.Append)
+
+    metric = benchmark.BitstringCounts(wwworkflow)
+    results = metric.evaluate(force_new = True)
+    _, counts_list = next(iter(results.items()))
+    for counts in counts_list:
+        assert counts[[True]] == n_shots
+
 def test_SPAMBenchmark_circuit_construction():
     n_qubits = 10
     qubits = {0, 2, 7}
@@ -51,21 +199,21 @@ def test_RotationSweep_circuit_construction():
         cb = qristal.core.Circuit()
         correct_circuits.append(cb)
 
-    correct_circuits[0].rx(1, -1.0 * np.pi);
-    correct_circuits[0].ry(2, -1.0 * np.pi);
-    correct_circuits[0].rz(3, -1.0 * np.pi);
-    correct_circuits[1].rx(1, -1.0/2.0 * np.pi);
-    correct_circuits[1].ry(2, -1.0/2.0 * np.pi);
-    correct_circuits[1].rz(3, -1.0/2.0 * np.pi);
-    correct_circuits[2].rx(1, 0.0);
-    correct_circuits[2].ry(2, 0.0);
-    correct_circuits[2].rz(3, 0.0);
-    correct_circuits[3].rx(1, 1.0/2.0 * np.pi);
-    correct_circuits[3].ry(2, 1.0/2.0 * np.pi);
-    correct_circuits[3].rz(3, 1.0/2.0 * np.pi);
-    correct_circuits[4].rx(1, np.pi);
-    correct_circuits[4].ry(2, np.pi);
-    correct_circuits[4].rz(3, np.pi);
+    correct_circuits[0].rx(1, -1.0 * np.pi)
+    correct_circuits[0].ry(2, -1.0 * np.pi)
+    correct_circuits[0].rz(3, -1.0 * np.pi)
+    correct_circuits[1].rx(1, -1.0/2.0 * np.pi)
+    correct_circuits[1].ry(2, -1.0/2.0 * np.pi)
+    correct_circuits[1].rz(3, -1.0/2.0 * np.pi)
+    correct_circuits[2].rx(1, 0.0)
+    correct_circuits[2].ry(2, 0.0)
+    correct_circuits[2].rz(3, 0.0)
+    correct_circuits[3].rx(1, 1.0/2.0 * np.pi)
+    correct_circuits[3].ry(2, 1.0/2.0 * np.pi)
+    correct_circuits[3].rz(3, 1.0/2.0 * np.pi)
+    correct_circuits[4].rx(1, np.pi)
+    correct_circuits[4].ry(2, np.pi)
+    correct_circuits[4].rz(3, np.pi)
 
     sim = qristal.core.session()
     sim.sn = 1024
@@ -669,7 +817,7 @@ def test_AddinIdealCountsFromIdealSimulation():
 
         circuit = GHZ(n_qubits).circuit
         workflow = benchmark.SimpleCircuitExecution(circuit, sim)
-        workflow = benchmark.AddinIdealCountsFromIdealSimulation(workflow)
+        workflow = benchmark.AddinFromIdealSimulation(workflow, benchmark.Task.IdealCounts)
 
         metric = benchmark.CircuitFidelity(workflow)
         results = metric.evaluate(True)
@@ -689,7 +837,7 @@ def test_AddinIdealDensityFromIdealSimulation():
         random_values = np.random.uniform(-2 * np.pi, 2 * np.pi, 3 * n_qubits)
         circuit = ParallelU3Circuit(random_values).circuit
         workflow = benchmark.SimpleCircuitExecution(circuit, sim)
-        workflow = benchmark.AddinIdealDensityFromIdealSimulation(workflow)
+        workflow = benchmark.AddinFromIdealSimulation(workflow, benchmark.Task.IdealDensity)
         qst_workflow = benchmark.QuantumStateTomography(workflow)
 
         time.sleep(1.0) #Make sure timestamp is different
@@ -711,7 +859,7 @@ def test_AddinIdealProcessFromIdealSimulation():
         random_values = np.random.uniform(-2 * np.pi, 2 * np.pi, 3 * n_qubits)
         circuit = ParallelU3Circuit(random_values).circuit
         workflow = benchmark.SimpleCircuitExecution(circuit, sim)
-        workflow = benchmark.AddinIdealProcessFromIdealSimulation(workflow)
+        workflow = benchmark.AddinFromIdealSimulation(workflow, benchmark.Task.IdealProcess)
         qst_workflow = benchmark.QuantumStateTomography(workflow)
         qpt_workflow = benchmark.QuantumProcessTomography(qst_workflow)
 
@@ -721,4 +869,24 @@ def test_AddinIdealProcessFromIdealSimulation():
         for _, fidelities in results.items():
             for fidelity in fidelities:
                 assert fidelity == pytest.approx(1.0, 5e-2)
+
+def test_AddinIdealDensityFromIdealSimulation_PreOrAppendWorkflow(): 
+    sim = qristal.core.session()
+    sim.acc="qpp"
+    sim.sn = 10000
+    sim.qn = 1
+
+    workflow = benchmark.RotationSweep(['X'], -180, 180, 9, sim)
+    pre = [benchmark.BlochSphereUnitState(benchmark.BlochSphereUnitStateSymbol.Xp)]
+    app = [benchmark.BlochSphereUnitState(benchmark.BlochSphereUnitStateSymbol.Xm)]
+    workflow_prepended = benchmark.PreOrAppendWorkflow(workflow, pre, benchmark.Placement.Append)
+    workflow_appended = benchmark.PreOrAppendWorkflow(workflow_prepended, app, benchmark.Placement.Prepend)
+    workflow_final = benchmark.AddinFromIdealSimulation(workflow_appended, benchmark.Task.IdealDensity)
+    workflow_qst = benchmark.QuantumStateTomography(workflow_final)
+
+    metric = benchmark.QuantumStateFidelity(workflow_qst)
+    results = metric.evaluate(True)
+    for _, fidelities in results.items():
+        for fidelity in fidelities:
+            assert fidelity == pytest.approx(1.0, 5e-2)
   

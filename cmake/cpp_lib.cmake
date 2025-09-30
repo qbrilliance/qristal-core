@@ -9,14 +9,19 @@ set(source_files
   src/backends/hardware/qb/visitor_CZ.cpp
   src/backends/sims/aws/braket/options.cpp
   src/benchmark/DataLoaderGenerator.cpp
+  src/benchmark/metrics/BitstringCounts.cpp
+  src/benchmark/metrics/CircuitFidelity.cpp
   src/benchmark/metrics/QuantumProcessFidelity.cpp
   src/benchmark/metrics/QuantumProcessMatrix.cpp
   src/benchmark/metrics/QuantumStateDensity.cpp
   src/benchmark/metrics/QuantumStateFidelity.cpp
+  src/benchmark/workflows/PreOrAppendWorkflow.cpp
   src/benchmark/workflows/PyGSTiBenchmark.cpp
   src/benchmark/workflows/QuantumProcessTomography.cpp
+  src/benchmark/workflows/QuantumStateTomography.cpp
   src/benchmark/workflows/RotationSweep.cpp
   src/benchmark/workflows/SPAMBenchmark.cpp
+  src/benchmark/workflows/WorkflowAddins.cpp
   src/circuit_builder.cpp
   src/jensen_shannon.cpp
   src/optimization/vqee/case_generator.cpp
@@ -56,6 +61,7 @@ set(headers
   include/qristal/core/backends/hardware/qb/visitor_CZ.hpp
   include/qristal/core/benchmark/Concepts.hpp
   include/qristal/core/benchmark/DataLoaderGenerator.hpp
+  include/qristal/core/benchmark/metrics/BitstringCounts.hpp
   include/qristal/core/benchmark/metrics/CircuitFidelity.hpp
   include/qristal/core/benchmark/metrics/ConfusionMatrix.hpp
   include/qristal/core/benchmark/metrics/PyGSTiResults.hpp
@@ -65,6 +71,7 @@ set(headers
   include/qristal/core/benchmark/metrics/QuantumStateFidelity.hpp
   include/qristal/core/benchmark/Serializer.hpp
   include/qristal/core/benchmark/Task.hpp
+  include/qristal/core/benchmark/workflows/PreOrAppendWorkflow.hpp
   include/qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp
   include/qristal/core/benchmark/workflows/QuantumProcessTomography.hpp
   include/qristal/core/benchmark/workflows/QuantumStateTomography.hpp

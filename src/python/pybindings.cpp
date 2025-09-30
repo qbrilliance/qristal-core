@@ -54,6 +54,7 @@ PYBIND11_MODULE(core, m) {
   qristal::bind_Pauli(m_benchmark); //Pauli
   qristal::bind_BlochSphereUnitState(m_benchmark); //BlochSphereUnitState
   //workflows
+  qristal::bind_PreOrAppendWorkflow(m_benchmark); //SPAMBenchmark
   qristal::bind_SPAMBenchmark(m_benchmark); //SPAMBenchmark
   qristal::bind_RotationSweep(m_benchmark); //RotationSweep
   qristal::bind_SimpleCircuitExecution(m_benchmark); //SimpleCircuitExecution
@@ -62,6 +63,7 @@ PYBIND11_MODULE(core, m) {
   qristal::bind_QuantumProcessTomography(m_benchmark); //QuantumProcessTomography
   qristal::bind_AddinFromIdealSimulation(m_benchmark); //AddinFromIdealSimulation
   //metrics
+  qristal::bind_BitstringCounts(m_benchmark); //BitstringCounts
   qristal::bind_CircuitFidelity(m_benchmark); //CircuitFidelity
   qristal::bind_PyGSTiResults(m_benchmark); //PyGSTiResults
   qristal::bind_ConfusionMatrix(m_benchmark); //ConfusionMatrix

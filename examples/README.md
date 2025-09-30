@@ -193,6 +193,14 @@ _noise_: false
 
 Python implementation of the C++ example `qpt_fidelity_CZ` demonstrating a quantum process tomography experiment of a single CZ gate application, evaluating the quantum process fidelity.
 
+`benchmark/rotation_sweep_custom.py`
+
+_qubits_: 1
+_gate depth_: 3
+_noise_: false
+
+Python implementation of the C++ example `rotation_sweep_custom` demonstrating the execution of a rotation sweep workflow prepended and appended by arbitrary state initialization and measurement bases. The measured bit string counts are evaluated and printed.
+
 `circuit_optimization/gate_deferral.py`
 
 An example demonstrating the application of the gate deferral technique.
@@ -761,6 +769,13 @@ _noise_: false
 
 This example shows the execution of a standard quantum process tomography workflow wrapped around a simple circuit execution applying a CZ gate. The quantum process fidelity as well as the average gate fidelity are evaluated and printed.
 
+`rotation_sweep_custom`
+
+_qubits_: 1
+_gate depth_: 3
+_noise_: false
+
+This example demonstrates the execution of a rotation sweep workflow prepended and appended by arbitrary state initialization and measurement bases. The measured bit string counts are evaluated and printed.
 
 ## C++ with CUDA Quantum ##
 

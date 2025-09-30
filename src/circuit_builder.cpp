@@ -45,7 +45,7 @@ namespace qristal
     is_parametrized_ = other.is_parametrized_;
   }
 
-  void CircuitBuilder::append(CircuitBuilder &other) {
+  void CircuitBuilder::append(const CircuitBuilder &other) {
     xacc::InstructionIterator it(other.get());
     while (it.hasNext()) {
       auto next_inst = it.next();

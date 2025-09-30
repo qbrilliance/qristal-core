@@ -8,6 +8,10 @@ namespace qristal
 {
     namespace benchmark
     {
+        template <typename WORKFLOW>
+        concept CircuitConstructingWorkflow = requires( WORKFLOW w ) {
+            {w.get_circuits()} -> std::same_as<std::vector<qristal::CircuitBuilder>>;
+        };
 
         /**
         * @brief Concept for the bare minimum executable workflow usable in qristal::benchmark

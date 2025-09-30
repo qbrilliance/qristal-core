@@ -3,12 +3,13 @@
 #include <qristal/core/python/py_stl_containers.hpp>
 
 //workflows
-#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
-#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
-#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/PreOrAppendWorkflow.hpp>
 #include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/QuantumStateTomography.hpp>
 #include <qristal/core/benchmark/workflows/QuantumProcessTomography.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 
 #include <pybind11/eigen.h>
@@ -147,6 +148,85 @@ namespace qristal {
       );
   }
 
+template <typename T>
+void helper_bind_PreOrAppendWorkflow(py::class_<PreOrAppendWorkflowPython>& pyclass) {
+    pyclass.def(py::init<T&,
+                  const std::vector<qristal::CircuitBuilder>&,
+                  const Placement>(),
+      py::arg("workflow"),
+      py::arg("circuits"),
+      py::arg("placement") = Placement::Prepend
+    )
+    .def(py::init<T&,
+                  const qristal::CircuitBuilder&,
+                  const Placement>(),
+      py::arg("workflow"),
+      py::arg("circuits"),
+      py::arg("placement") = Placement::Prepend
+    )
+    .def(py::init<T&,
+                  const std::vector<std::vector<Pauli>>&,
+                  const Placement>(),
+      py::arg("workflow"),
+      py::arg("circuits"),
+      py::arg("placement") = Placement::Prepend
+    )
+    .def(py::init<T&,
+                  const std::vector<Pauli>&,
+                  const Placement>(),
+      py::arg("workflow"),
+      py::arg("circuits"),
+      py::arg("placement") = Placement::Prepend
+    )
+    .def(py::init<T&,
+                  const std::vector<std::vector<BlochSphereUnitState>>&,
+                  const Placement>(),
+      py::arg("workflow"),
+      py::arg("circuits"),
+      py::arg("placement") = Placement::Prepend
+    )
+    .def(py::init<T&,
+                  const std::vector<BlochSphereUnitState>&,
+                  const Placement>(),
+      py::arg("workflow"),
+      py::arg("circuits"),
+      py::arg("placement") = Placement::Prepend
+    );
+}
+
+void bind_PreOrAppendWorkflow(pybind11::module &m) {
+    py::enum_<Placement>(m, "Placement")
+      .value("Prepend", Placement::Prepend)
+      .value("Append", Placement::Append)
+      .export_values(); 
+
+    py::class_<PreOrAppendWorkflowPython> pyclass(m, "PreOrAppendWorkflow");
+    //specialized constructors
+    helper_bind_PreOrAppendWorkflow<SPAMBenchmark>(pyclass);
+    helper_bind_PreOrAppendWorkflow<RotationSweep>(pyclass);
+    helper_bind_PreOrAppendWorkflow<PyGSTiBenchmark>(pyclass);
+    helper_bind_PreOrAppendWorkflow<SimpleCircuitExecution>(pyclass);
+    //only one layer of recursion necessary
+    helper_bind_PreOrAppendWorkflow<PreOrAppendWorkflowPython>(pyclass);
+
+    //type-erased member functions
+    pyclass.def(
+        "execute", 
+        &PreOrAppendWorkflowPython::execute, 
+        py::arg("tasks"), 
+        qristal::help::benchmark::execute_
+      )
+      .def_property_readonly(
+        "identifier",  
+        &PreOrAppendWorkflowPython::get_identifier, 
+        qristal::help::benchmark::identifier_
+      )
+      .def_property_readonly(
+        "circuits",
+        &PreOrAppendWorkflowPython::get_circuits, 
+        qristal::help::benchmark::circuits_
+      );
+  }
   
   void bind_PyGSTiBenchmark(pybind11::module &m) {
     py::class_<PyGSTiBenchmark>(m, "PyGSTiBenchmark")
@@ -269,7 +349,7 @@ namespace qristal {
         py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
         py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
       )
-      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>&,
+      .def(py::init<AddinFromIdealSimulationPython&, 
                     const std::set<size_t>&,
                     const bool,
                     const std::vector<Pauli>&,
@@ -280,27 +360,7 @@ namespace qristal {
         py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
         py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
       )
-      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>&,
-                    const bool,
-                    const std::vector<Pauli>&,
-                    const Pauli&>(),
-        py::arg("workflow"),
-        py::arg("perform_maximum_likelihood_estimation") = false,
-        py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
-        py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
-      )
-      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>&,
-                    const std::set<size_t>&,
-                    const bool,
-                    const std::vector<Pauli>&,
-                    const Pauli&>(),
-        py::arg("workflow"),
-        py::arg("qubits"),
-        py::arg("perform_maximum_likelihood_estimation") = false,
-        py::arg("basis") = std::vector<Pauli>({Pauli::Symbol::X, Pauli::Symbol::Y, Pauli::Symbol::Z}),
-        py::arg("use_for_identity") = Pauli(Pauli::Symbol::Z)
-      )
-      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>&,
+      .def(py::init<AddinFromIdealSimulationPython&, 
                     const bool,
                     const std::vector<Pauli>&,
                     const Pauli&>(),
@@ -405,39 +465,25 @@ namespace qristal {
   }
 
   void bind_AddinFromIdealSimulation(pybind11::module &m) {
-    //Task::IdealCounts
-    py::class_<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts>>(m, "AddinIdealCountsFromIdealSimulation")
-      .def(py::init<const SimpleCircuitExecution&>(), 
-        py::arg("workflow")
+    py::class_<AddinFromIdealSimulationPython>(m, "AddinFromIdealSimulation")
+      //specialized constructors
+      .def(py::init<const SimpleCircuitExecution&,
+                    const Task&>(),
+        py::arg("workflow"),
+        py::arg("task")
+      )
+      .def(py::init<PreOrAppendWorkflowPython&,
+                    const Task&>(),
+        py::arg("workflow"),
+        py::arg("task")
       )
       .def(
         "execute", 
-        &AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts>::execute, 
+        &AddinFromIdealSimulationPython::execute, 
         py::arg("tasks"), 
         qristal::help::benchmark::execute_
       );
-    //Task::IdealDensity
-    py::class_<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>>(m, "AddinIdealDensityFromIdealSimulation")
-      .def(py::init<const SimpleCircuitExecution&>(), 
-        py::arg("workflow")
-      )
-      .def(
-        "execute", 
-        &AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealDensity>::execute, 
-        py::arg("tasks"), 
-        qristal::help::benchmark::execute_
-      );
-    //Task::IdealProcess
-    py::class_<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>>(m, "AddinIdealProcessFromIdealSimulation")
-      .def(py::init<const SimpleCircuitExecution&>(), 
-        py::arg("workflow")
-      )
-      .def(
-        "execute", 
-        &AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealProcess>::execute, 
-        py::arg("tasks"), 
-        qristal::help::benchmark::execute_
-      );
+
   }
 
 

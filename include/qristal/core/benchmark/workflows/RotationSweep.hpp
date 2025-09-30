@@ -191,8 +191,6 @@ namespace qristal
                 const size_t n_points_;
                 qristal::session& session_;
 
-                CircuitBuilder initial_state_;
-
                 const std::string identifier_ = "RotationSweep";
         };
 

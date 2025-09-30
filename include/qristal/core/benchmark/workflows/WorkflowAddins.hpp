@@ -55,17 +55,23 @@ namespace qristal {
         return density;
     }
 
+    class AddinFromIdealSimulationPythonBase {
+    public:
+        virtual ~AddinFromIdealSimulationPythonBase() = default;
+        virtual std::time_t execute(const std::vector<Task>& tasks) = 0;
+    };
+
     /**
     * @brief Templated class prototype for workflow addins from ideal simulations. 
     */
     template <typename WORKFLOW, Task task>
-    class AddinFromIdealSimulation : public WORKFLOW {};
+    class AddinFromIdealSimulation : public WORKFLOW, public AddinFromIdealSimulationPythonBase {};
 
     /**
     * @brief Specialized workflow addin for adding ideal bit string counts from ideal simulation.
     */
     template <typename WORKFLOW>
-    class AddinFromIdealSimulation<WORKFLOW, Task::IdealCounts> : public WORKFLOW {
+    class AddinFromIdealSimulation<WORKFLOW, Task::IdealCounts> : public WORKFLOW, public AddinFromIdealSimulationPythonBase {
         public: 
             /**
             * @brief Constructor for workflow wrapper to add in ideal bit count generation from ideal simulations. 
@@ -109,7 +115,7 @@ namespace qristal {
     * @brief Specialized workflow addin for adding ideal densities from ideal simulation.
     */
     template <typename WORKFLOW>
-    class AddinFromIdealSimulation<WORKFLOW, Task::IdealDensity> : public WORKFLOW {
+    class AddinFromIdealSimulation<WORKFLOW, Task::IdealDensity> : public WORKFLOW, public AddinFromIdealSimulationPythonBase {
         public: 
             /**
             * @brief Constructor for workflow wrapper to add in ideal density generation from ideal simulations. 
@@ -153,7 +159,7 @@ namespace qristal {
     * @brief Specialized workflow addin for adding ideal process matrices from ideal simulation.
     */
     template <typename WORKFLOW>
-    class AddinFromIdealSimulation<WORKFLOW, Task::IdealProcess> : public WORKFLOW {
+    class AddinFromIdealSimulation<WORKFLOW, Task::IdealProcess> : public WORKFLOW, public AddinFromIdealSimulationPythonBase {
         public: 
             /**
             * @brief Constructor for workflow wrapper to add in ideal process matrix generation from ideal simulations. 
@@ -289,6 +295,50 @@ namespace qristal {
                 //(3) Serialize ideal processes
                 workflow.serialize_ideal_processes(processes, timestamp);
             }
+    };
+
+
+    class PreOrAppendWorkflowPython; //forward declare
+    class AddinFromIdealSimulationPython {
+        public:
+            //constructor overloads for plain workflows 
+            template <typename WORKFLOW> 
+            AddinFromIdealSimulationPython(
+                const WORKFLOW& workflow, 
+                const Task& task
+            ) : workflow_ptr_([&]() -> std::unique_ptr<AddinFromIdealSimulationPythonBase> {
+                switch (task) {
+                    case Task::IdealCounts:
+                        return std::unique_ptr<AddinFromIdealSimulationPythonBase>(
+                            new AddinFromIdealSimulation<WORKFLOW, Task::IdealCounts>(workflow));
+                    case Task::IdealDensity:
+                        return std::unique_ptr<AddinFromIdealSimulationPythonBase>(
+                            new AddinFromIdealSimulation<WORKFLOW, Task::IdealDensity>(workflow));
+                    case Task::IdealProcess:
+                        return std::unique_ptr<AddinFromIdealSimulationPythonBase>(
+                            new AddinFromIdealSimulation<WORKFLOW, Task::IdealProcess>(workflow));
+                    default:
+                        throw std::invalid_argument(
+                            "Allowed tasks: IdealCounts, IdealDensity, IdealProcess");
+                }
+            }()) {}
+
+            //Special constructor for arbitrary PreOrAppend workflows
+            AddinFromIdealSimulationPython(
+                PreOrAppendWorkflowPython& workflow, 
+                const Task& task
+            );
+
+            std::time_t execute(const std::vector<Task>& tasks) {
+                return workflow_ptr_->execute(tasks);
+            }
+
+            const std::unique_ptr<AddinFromIdealSimulationPythonBase>& get() const {
+                return workflow_ptr_;
+            }
+
+        private:
+            std::unique_ptr<AddinFromIdealSimulationPythonBase> workflow_ptr_;
     };
 
 

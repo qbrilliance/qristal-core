@@ -74,11 +74,14 @@ namespace qristal
         /**
         * @brief The type-erased CircuitFidelity handle exposed in the python bindings.
         */
+        class AddinFromIdealSimulationPython; //forward declare
         class CircuitFidelityPython {
             public:
                 template <ExecutableWorkflow WORKFLOW>
                 requires CanStoreMeasuredCounts<WORKFLOW> && CanStoreIdealCounts<WORKFLOW> && CanStoreSessionInfos<WORKFLOW>
                 CircuitFidelityPython(WORKFLOW& workflow) : workflow_ptr_(std::make_unique<CircuitFidelity<WORKFLOW>>(workflow)) {}
+
+                CircuitFidelityPython(AddinFromIdealSimulationPython& workflow);
 
                 std::map< std::time_t, std::vector<double> > evaluate(const bool force_new = false, const std::optional<Eigen::MatrixXd>& SPAM_confusion = std::nullopt) const {
                     return workflow_ptr_->evaluate(force_new, SPAM_confusion);

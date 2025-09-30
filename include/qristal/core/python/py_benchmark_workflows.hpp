@@ -2,6 +2,9 @@
 #include <pybind11/pybind11.h>
 
 namespace qristal {
+  // Bind qristal::benchmark::PreOrAppendWorkflow class to Python API.
+  void bind_PreOrAppendWorkflow(pybind11::module &m);
+
   // Bind qristal::benchmark::SPAMBenchmark class to Python API.
   void bind_SPAMBenchmark(pybind11::module &m);
 

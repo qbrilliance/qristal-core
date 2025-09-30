@@ -9,16 +9,18 @@ set(test_sources
   tests/algorithms/amplitude_estimation/CanonicalAmplitudeEstimationAlgorithmTester.cpp
   #tests/algorithms/amplitude_estimation/MLAmplitudeEstimationAlgorithmTester.cpp
   tests/algorithms/exponential_search/ExponentialSearchAlgorithmTester.cpp
+  tests/benchmark/metrics/BitstringCountsTester.cpp
   tests/benchmark/metrics/CircuitFidelityTester.cpp
   tests/benchmark/metrics/ConfusionMatrixTester.cpp
   tests/benchmark/metrics/QuantumProcessFidelityTester.cpp
   tests/benchmark/metrics/QuantumStateFidelityTester.cpp
+  tests/benchmark/workflows/PreOrAppendTester.cpp
   tests/benchmark/workflows/PyGSTiBenchmarkTester.cpp
   tests/benchmark/workflows/QuantumProcessTomographyTester.cpp
   tests/benchmark/workflows/QuantumStateTomographyTester.cpp
   tests/benchmark/workflows/RotationSweepTester.cpp
   tests/benchmark/workflows/SPAMBenchmarkTester.cpp
-  tests/benchmark/workflows/WorkflowAddins.cpp
+  tests/benchmark/workflows/WorkflowAddinsTester.cpp
   tests/circuit_builders/ExponentBuilderTester.cpp
   tests/circuit_builders/ParametrizedCircuitTester.cpp
   #tests/circuit_builders/RyEncodingTester.cpp

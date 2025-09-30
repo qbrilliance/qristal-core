@@ -2,6 +2,8 @@
 
 // Qristal
 #include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
+#include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/PreOrAppendWorkflow.hpp>
 #include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 #include <qristal/core/benchmark/metrics/CircuitFidelity.hpp>
 #include <qristal/core/benchmark/metrics/QuantumStateFidelity.hpp>
@@ -373,5 +375,48 @@ TEST(WorkflowAddinsTester, checkIdealProcessBitstring) {
             EXPECT_NEAR(f, 1.0, 5e-2);
         }
     }
+  }
+}
+
+TEST(WorkflowAddinsTester, check_pre_appended_workflow) {
+  //(0) Define session
+  qristal::session sim; 
+  sim.sn = 10000;
+  sim.qn = 1;
+  sim.acc = "qpp";
+
+  //(1) Create workflow: RotationSweep in X pre & appended by Ry(pi/2) 
+  RotationSweep workflow({{'X'}}, -180, +180, 9, sim);
+  std::vector<qristal::BlochSphereUnitState> pre, app; 
+  pre.push_back(qristal::BlochSphereUnitState::Symbol::Xp);
+  app.push_back(qristal::BlochSphereUnitState::Symbol::Xm);
+  PreOrAppendWorkflow<RotationSweep> wworkflow(workflow, pre, Placement::Prepend);
+  PreOrAppendWorkflow<PreOrAppendWorkflow<RotationSweep>> wwworkflow(wworkflow, app, Placement::Append);
+  //add in ideal density prediction 
+  typedef AddinFromIdealSimulation<PreOrAppendWorkflow<PreOrAppendWorkflow<RotationSweep>>, Task::IdealDensity> Workflow;
+  Workflow final_workflow(wwworkflow);
+
+  //(2) First test: Get ideal densities and compare to expected result 
+  ComplexMatrix ideal_density = ComplexMatrix::Zero(2, 2);
+  ideal_density(0, 0) = 1.0;
+  std::time_t t = final_workflow.execute({Task::IdealDensity});
+  DataLoaderGenerator dlg(final_workflow.get_identifier(), std::vector<Task>{Task::IdealDensity});
+  dlg.set_timestamps(std::vector<std::time_t>{t});
+  std::vector<ComplexMatrix> densities = dlg.obtain_ideal_densities()[0];
+  for (size_t i = 0; i < densities.size(); ++i) {
+    EXPECT_TRUE(ideal_density.isApprox(densities[i], 1e-12));
+  }
+
+  //(3) Second test: Compute state fidelity and check against 1.0 
+  std::this_thread::sleep_for(std::chrono::seconds(1)); //make sure generated timestamps are different
+  typedef QuantumStateTomography<Workflow> QST;
+  QST qst_workflow(final_workflow);
+  QuantumStateFidelity<QST> metric(qst_workflow);
+  std::map<std::time_t, std::vector<double>> results = metric.evaluate(true); //optional bool will force new execution
+  for (auto const & t2v : results) {
+      //check all fidelities
+      for (auto const & f : t2v.second) {
+          EXPECT_NEAR(f, 1.0, 5e-2);
+      }
   }
 }

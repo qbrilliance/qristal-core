@@ -2,6 +2,9 @@
 #include <pybind11/pybind11.h>
 
 namespace qristal {
+  // Bind qristal::benchmark::BitstringCounts class to Python API.
+  void bind_BitstringCounts(pybind11::module &m);
+
   // Bind qristal::benchmark::CircuitFidelity class to Python API.
   void bind_CircuitFidelity(pybind11::module &m);
 

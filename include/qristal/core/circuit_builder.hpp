@@ -164,7 +164,7 @@ namespace qristal {
       *
       * @return A pointer to the xacc::CompositeInstruction (list of instructions) that defines the circuit.
       */
-      std::shared_ptr<xacc::CompositeInstruction> get() { return circuit_; }
+      std::shared_ptr<xacc::CompositeInstruction> get() const { return circuit_; }
 
       /**
       * @brief print the list of instructions comprising the circuit
@@ -176,7 +176,7 @@ namespace qristal {
       *
       * @param other the circuit to be appended [CircuitBuilder]
       */
-      void append(CircuitBuilder &other);
+      void append(const CircuitBuilder &other);
 
       // Gates:
       /**

@@ -1,0 +1,24 @@
+# Copyright (c) Quantum Brilliance Pty Ltd
+#
+# Demonstration of a custom rotation sweep with 
+# prepended and appended gates, reading out the raw 
+# measured bit string counts. 
+#
+###############################################
+
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+
+project(rotation_sweep_custom
+  DESCRIPTION "Quantum Brilliance custom rotation sweep example"
+  LANGUAGES CXX
+)
+
+set(qristal_core_DIR ${CMAKE_CURRENT_LIST_DIR}/../../../)
+find_package(qristal_core)
+
+add_executable(rotation_sweep_custom rotation_sweep_custom_example.cpp)
+
+target_link_libraries(rotation_sweep_custom
+  PRIVATE
+    qristal::core
+)

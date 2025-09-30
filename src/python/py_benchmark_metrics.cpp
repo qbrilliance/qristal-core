@@ -6,10 +6,12 @@
 #include <qristal/core/benchmark/workflows/SimpleCircuitExecution.hpp>
 #include <qristal/core/benchmark/workflows/SPAMBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/RotationSweep.hpp>
+#include <qristal/core/benchmark/workflows/PreOrAppendWorkflow.hpp>
 #include <qristal/core/benchmark/workflows/PyGSTiBenchmark.hpp>
 #include <qristal/core/benchmark/workflows/WorkflowAddins.hpp>
 
 //metrics 
+#include <qristal/core/benchmark/metrics/BitstringCounts.hpp>
 #include <qristal/core/benchmark/metrics/CircuitFidelity.hpp>
 #include <qristal/core/benchmark/metrics/PyGSTiResults.hpp>
 #include <qristal/core/benchmark/metrics/ConfusionMatrix.hpp>
@@ -25,12 +27,34 @@ using namespace qristal::benchmark;
 
 namespace qristal {
 
+  void bind_BitstringCounts(pybind11::module &m) {
+    py::class_<BitstringCountsPython>(m, "BitstringCounts")
+      //specialized constructors
+      .def(py::init<SimpleCircuitExecution&>())
+      .def(py::init<SPAMBenchmark&>())
+      .def(py::init<RotationSweep&>())
+      .def(py::init<PyGSTiBenchmark&>())
+      .def(py::init<PreOrAppendWorkflowPython&>())
+      .def(py::init<QuantumStateTomographyPython&>())
+      .def(py::init<QuantumProcessTomographyPython&>())
+      //type-erased member functions
+      .def(
+        "evaluate", 
+        [&](const BitstringCountsPython& self, const bool force_new, const std::optional<Eigen::MatrixXd>& SPAM_confusion) {
+          return self.evaluate(force_new, SPAM_confusion);
+        }, 
+        py::arg("force_new") = false,
+        py::arg("SPAM_confusion") = std::nullopt,
+        qristal::help::benchmark::evaluate_
+      );
+  }
+
   void bind_CircuitFidelity(pybind11::module &m) {
     py::class_<CircuitFidelityPython>(m, "CircuitFidelity")
       //specialized constructors
       .def(py::init<SPAMBenchmark&>())
       .def(py::init<RotationSweep&>())
-      .def(py::init<AddinFromIdealSimulation<SimpleCircuitExecution, Task::IdealCounts>&>())
+      .def(py::init<AddinFromIdealSimulationPython&>())
       //type-erased member functions
       .def(
         "evaluate", 
