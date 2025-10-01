@@ -2,6 +2,7 @@
 
 #include <qristal/core/backends/hardware/qb/visitor.hpp>
 
+#include <cmath>
 
 /**
 * Useful reference for U3-gate (the most general of all single-qubit quantum gates)
@@ -79,17 +80,17 @@ namespace xacc
     //
     void visitor::visit(Rx &rx)
     {
-      std::stringstream ss;
+      double angle = norm(mpark::get<double>(rx.getParameter(0)));
       // IMPORTANT: the XASM grammar only supports the fixed point format real
       // numbers, e.g., "0.0123", not "1.23e-2", hence, we use std::fixed format
       // for the stringstream when constructing XASM.
-      ss << std::fixed;
-      double angle = norm(mpark::get<double>(rx.getParameter(0)));
-      ss << "Rx"
-           << "("  // Rx in XASM format
-           << "q"
-           << "[" << rx.bits()[0] << "]"  // target qubit
-           << "," << angle << ")";
+      std::stringstream ss;
+      ss << std::fixed
+         << "Rx"
+         << "("  // Rx in XASM format
+         << "q"
+         << "[" << rx.bits()[0] << "]"  // target qubit
+         << "," << angle << ")";
       sequence_.push_back(ss.str());
     }
 
@@ -107,15 +108,18 @@ namespace xacc
     //
     void visitor::visit(Ry &ry)
     {
-      std::stringstream ss;
-      ss << std::fixed;
       double angle = norm(mpark::get<double>(ry.getParameter(0)));
-        ss << "Ry"
-           << "("  // Ry in XASM format
-           << "q"
-           << "[" << ry.bits()[0] << "]"  // target qubit
-           << "," << angle << ")";
-        sequence_.push_back(ss.str());
+      // IMPORTANT: the XASM grammar only supports the fixed point format real
+      // numbers, e.g., "0.0123", not "1.23e-2", hence, we use std::fixed format
+      // for the stringstream when constructing XASM.
+      std::stringstream ss;
+      ss << std::fixed
+         << "Ry"
+         << "("  // Ry in XASM format
+         << "q"
+         << "[" << ry.bits()[0] << "]"  // target qubit
+         << "," << angle << ")";
+      sequence_.push_back(ss.str());
     }
 
     /**
@@ -133,30 +137,12 @@ namespace xacc
     //
     void visitor::visit(Rz &rz)
     {
-      std::stringstream s1, s2, s3;
-      double angle = norm(mpark::get<double>(rz.getParameter(0)));
-
-      s1 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << rz.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")"; // theta=pi/2
-      s2 << std::fixed
-         << "Rx"
-         << "("  // Rx in XASM format
-         << "q"
-         << "[" << rz.bits()[0] << "]"  // target qubit
-         << "," << angle << ")";
-      s3 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << rz.bits()[0] << "]" // target qubit
-         << "," << (-0.5 * pi) << ")";  // theta=-pi/2
-      sequence_.push_back(s1.str());
-      sequence_.push_back(s2.str());
-      sequence_.push_back(s3.str());
+      Ry r1(rz.bits()[0], 0.5 * pi);
+      Rx r2(rz.bits()[0], norm(mpark::get<double>(rz.getParameter(0))));
+      Ry r3(rz.bits()[0], -0.5 * pi);
+      visit(r1);
+      visit(r2);
+      visit(r3);
     }
 
     /**
@@ -173,24 +159,10 @@ namespace xacc
     //
     void visitor::visit(Hadamard &h)
     {
-      std::stringstream s1, s2;
-
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << h.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")"; // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << h.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s1.str());
-
+      Ry r1(h.bits()[0], 0.5 * pi);
+      Rx r2(h.bits()[0], pi);
+      visit(r1);
+      visit(r2);
     }
 
     /**
@@ -204,33 +176,8 @@ namespace xacc
      **/
     void visitor::visit(S &s)
     {
-      std::stringstream s1, s2, s3;
-
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << s.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")"; // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << s.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s1.str());
-
-      s3 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << s.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")"; // theta=pi/2
-      sequence_.push_back(s3.str());
-      sequence_.push_back(s2.str()); // Ry(0.5*pi)
-      sequence_.push_back(s1.str()); // Rx(pi)
+      Rz r(s.bits()[0], 0.5 * pi);
+      visit(r);
     }
 
     /**
@@ -244,34 +191,8 @@ namespace xacc
      **/
     void visitor::visit(Sdg &sdg)
     {
-      std::stringstream s1, s2, s3;
-
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << sdg.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")";   // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << sdg.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";         // theta=pi
-      sequence_.push_back(s1.str());
-
-
-      s3 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << sdg.bits()[0] << "]" // target qubit
-         << "," << (-0.5 * pi) << ")";  // theta=-pi/2
-      sequence_.push_back(s3.str());
-      sequence_.push_back(s2.str()); // Ry(0.5*pi)
-      sequence_.push_back(s1.str()); // Rx(pi)
+      Rz r(sdg.bits()[0], -0.5 * pi);
+      visit(r);
     }
 
     /**
@@ -285,33 +206,8 @@ namespace xacc
      **/
     void visitor::visit(T &t)
     {
-      std::stringstream s1, s2, s3;
-
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << t.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")"; // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << t.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s1.str());
-
-      s3 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << t.bits()[0] << "]"  // target qubit
-         << "," << (0.25 * pi) << ")"; // theta=pi/4
-      sequence_.push_back(s3.str());
-      sequence_.push_back(s2.str()); // Ry(0.5*pi)
-      sequence_.push_back(s1.str()); // Rx(pi)
+      Rz r(t.bits()[0], 0.25 * pi);
+      visit(r);
     }
 
     /**
@@ -325,33 +221,8 @@ namespace xacc
      **/
     void visitor::visit(Tdg &tdg)
     {
-      std::stringstream s1, s2, s3;
-
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << tdg.bits()[0] << "]" // target qubit
-         << "," << (0.5 * pi) << ")";   // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << tdg.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";         // theta=pi
-      sequence_.push_back(s1.str());
-
-      s3 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << tdg.bits()[0] << "]" // target qubit
-         << "," << (-0.25 * pi) << ")"; // theta=-pi/4
-      sequence_.push_back(s3.str());
-      sequence_.push_back(s2.str()); // Ry(0.5*pi)
-      sequence_.push_back(s1.str()); // Rx(pi)
+      Rz r(tdg.bits()[0], -0.25 * pi);
+      visit(r);
     }
 
     /**
@@ -368,15 +239,8 @@ namespace xacc
     //
     void visitor::visit(X &x)
     {
-      std::stringstream s1;
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << x.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s1.str());
+      Rx r(x.bits()[0], pi);
+      visit(r);
     }
 
     /**
@@ -393,15 +257,8 @@ namespace xacc
     //
     void visitor::visit(Y &y)
     {
-      std::stringstream s1;
-
-      s1 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << y.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s1.str());
+      Ry r(y.bits()[0], pi);
+      visit(r);
     }
 
     /**
@@ -418,61 +275,75 @@ namespace xacc
     //
     void visitor::visit(Z &z)
     {
-      std::stringstream s1, s2;
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << z.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s1.str());
-
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << z.bits()[0] << "]" // target qubit
-         << "," << (pi) << ")";       // theta=pi
-      sequence_.push_back(s2.str());
+      Rx r1(z.bits()[0], pi);
+      Ry r2(z.bits()[0], pi);
+      visit(r1);
+      visit(r2);
     }
 
     /**
      * U - rotate in an arbitrary combination of (theta, phi, lambda)
      *
-     * U3(theta, phi, lambda) =
-     * Ry(-pi/2)*Rx(phi)*Ry(theta)*Rx(lambda)*Ry(pi/2)
+     * U3(theta, phi, lambda) = Rx(alpha)*Ry(beta)*Ry(gamma)
+     * for appropriate alpha, beta, gamma as functions of theta, phi, lambda.
+     * Note that this also introduces a global phase delta = (lambda + phi)/2.
      *
      * Input: reference to IR object of class Z
      *
      * Output: none
      *
-     * Effect: push U to the back of JSON object: sequence_
+     * Effect: push U to the back of JSON object: sequence_.
      **/
-    // q0:
-    // --Ry(pi/2)--Rx(lambda)--Ry(theta)--Rx(phi)--Ry(-pi/2)--
+    //
+    // q0: --|Rx(t1+t2)|--|Ry(beta)|--|Rx(t1-t2)|--
+    // See code for definitions of t1, t2 and beta.
     //
     void visitor::visit(U &u)
     {
-      double theta = norm(mpark::get<double>(u.getParameter(0)));
-      double phi = norm(mpark::get<double>(u.getParameter(1)));
-      double lambda = norm(mpark::get<double>(u.getParameter(2)));
+      using namespace std;
+      double theta = mpark::get<double>(u.getParameter(0));
+      double phi = mpark::get<double>(u.getParameter(1));
+      double lambda = mpark::get<double>(u.getParameter(2));
 
-      // Special case Rx(theta) = U(theta, -0.5pi, 0.5pi)
       double tol = 1e-5;
+      // Special case Rx(theta) = U(theta, -0.5pi, 0.5pi)
       if (std::abs(lambda + phi) < tol and std::abs(lambda - 0.5*pi) < tol)
       {
         Rx r(u.bits()[0], theta);
         visit(r);
         return;
       }
+      // Special case Ry(theta) = U(theta, 0, 0)
+      if (std::abs(phi) < tol and std::abs(lambda) < tol)
+      {
+        Ry r(u.bits()[0], theta);
+        visit(r);
+        return;
+      }
 
-      // General case + special cases Ry(theta) = U(theta, 0, 0) and Rz(theta) = U(0, theta, 0) = U (0, 0, theta)
-      if (phi != 0. or lambda != 0.) {Ry r(u.bits()[0], 0.5 * pi);  visit(r);}
-      if (lambda != 0.)              {Rx r(u.bits()[0], lambda);    visit(r);}
-      if (theta != 0.)               {Ry r(u.bits()[0], theta);     visit(r);}
-      if (phi != 0.)                 {Rx r(u.bits()[0], phi);       visit(r);}
-      if (phi != 0. or lambda != 0.) {Ry r(u.bits()[0], -0.5 * pi); visit(r);}
+      // General case + special case Rz(theta) = U(0, theta, 0) = U (0, 0, theta).
+      //
+      // The following expressions follow from setting
+      //                          ╭                                                                                ╮
+      // U3(theta, phi, lambda) = |         cos(0.5*theta)           -exp(1.0im*lambda)*sin(0.5*theta)             | = exp(1.0im*delta)*Rx(alpha)*Ry(beta)*Rx(gamma)
+      //                          |  exp(1.0im*phi)*sin(0.5*theta)    exp(1.0im*lambda + 1.0im*phi)*cos(0.5*theta) |
+      //                          ╰                                                                                ╯
+      // and then solving for alpha, beta, gamma and delta, where delta is a global phase that we can eventually ignore. The
+      // derivation is long and not very illuminating, but comes from solving the 8 implied equations (4 matrix entries, each
+      // with real and imaginary parts) simultaneously. The solution turns out to be of the form alpha = t1 - t2, gamma = t1 + t2.
+      double delta = 0.5*(lambda + phi);
+      double delta_prime = 0.5*(lambda - phi);
+      double beta = 2.0*acos(pow(pow(cos(delta),2)*pow(cos(0.5*theta),2) + pow(sin(delta_prime),2)*pow(sin(0.5*theta),2),0.5));
+      double term1 = atan(sin(delta_prime)*tan(0.5*theta)/cos(delta));
+      double term2 = atan(-sin(delta)/(cos(delta_prime)*tan(0.5*theta)));
+      if (cos(delta)*cos(0.5*theta)/(cos(0.5*beta)*cos(term1)) < 0) term1 -= copysign(pi, term1);
+      if (cos(delta_prime)*sin(0.5*theta)/(sin(0.5*beta)*cos(term2)) < 0) term2 -= copysign(pi, term2);
+      Rx r1(u.bits()[0], term1 + term2);
+      Ry r2(u.bits()[0], beta);
+      Rx r3(u.bits()[0], term1 - term2);
+      visit(r1);
+      visit(r2);
+      visit(r3);
     }
 
     /// Measure a qubit

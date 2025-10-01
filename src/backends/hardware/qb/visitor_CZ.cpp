@@ -33,14 +33,14 @@ namespace xacc
      **/
     //
     // q0: ------------|C|--------------
-    //
-    // q1: ------------|CZ|-------------
+    //                  |
+    // q1: ------------|Z|--------------
     //
     void visitor_CZ::visit(CZ &cz)
     {
       std::stringstream ss;
       ss << "CZ"
-         << "(" // CZ in OpenQASM macro format
+         << "(" // CZ in XASM
          << "q"
          << "[" << cz.bits()[0] << "]," // control qubit
          << "q"
@@ -59,41 +59,21 @@ namespace xacc
      * Effect: push CNOT to the back of JSON object: sequence_
      *
      **/
-    // Note: uses QB Escaped Gate Sequences
     //
-    // q0: -------------------------|C|----------------------------
-    //
-    // q1: --|Rx(pi)|--|Ry(0.5*pi)|--|CZ|--|Rx(pi)|--|Ry(0.5*pi)|--
+    // q0: --------------------------|C|---------------------------
+    //                                |
+    // q1: --|Ry(0.5*pi)|--|Rx(pi)|--|Z|--|Ry(0.5*pi)|--|Rx(pi)|--
     //
     void visitor_CZ::visit(CNOT &cn)
     {
-      std::stringstream s1, s2, s3;
-      s2 << std::fixed
-         << "Ry"
-         << "(" // Ry in XASM format
-         << "q"
-         << "[" << cn.bits()[1] << "]" // target qubit
-         << "," << (0.5 * pi) << ")";  // theta=pi/2
-      sequence_.push_back(s2.str());
-
-      s1 << std::fixed
-         << "Rx"
-         << "(" // Rx in XASM format
-         << "q"
-         << "[" << cn.bits()[1] << "]" // target qubit
-         << "," << (pi) << ")";        // theta=pi
-      sequence_.push_back(s1.str());
-
-      s3 << "CZ"
-         << "(" // CZ in OpenQASM macro format
-         << "q"
-         << "[" << cn.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cn.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(s3.str());
-      sequence_.push_back(s2.str()); // Ry(0.5*pi)
-      sequence_.push_back(s1.str()); // Rx(pi)
+      Ry r1(cn.bits()[1], 0.5 * pi);
+      Rx r2(cn.bits()[1], pi);
+      CZ cz(cn.bits()[0], cn.bits()[1]);
+      visitor::visit(r1);
+      visitor::visit(r2);
+      visit(cz);
+      visitor::visit(r1);
+      visitor::visit(r2);
     }
 
     /**
@@ -106,108 +86,60 @@ namespace xacc
      * Effect: push CPhase to the back of JSON object: sequence_
      **/
     //
-    // q0: --|Rx(pi/2)|--|Ry(-theta/2)|--|Rx(-pi/2)|--|C|-------------------|C|--------------------------------
-    //                                                 |                     |
-    // q1: --|Ry(pi/2)|--|Rx(pi)|---------------------|CZ|--|Rx(-theta/2)|--|CZ|--|Rx(lambda)|--|Ry(-0.5*pi)|--
+    // q0: --|Rx(pi/2)|--|Ry(-theta/2)|--|Rx(-pi/2)|--|C|------------------|C|--------------------------------
+    //                                                 |                    |
+    // q1: --|Ry(pi/2)|--|Rx(pi)|---------------------|Z|--|Rx(-theta/2)|--|Z|--|Rx(lambda)|--|Ry(-0.5*pi)|--
     //
     // lambda = sign(theta) * (|theta|/2 - pi)
     //
     void visitor_CZ::visit(CPhase &cphase)
     {
-      std::stringstream s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
       double angle = mpark::get<double>(cphase.getParameter(0));
       double lambda = (angle < 0.0 ? -1.0 : 1.0) * (0.5*std::abs(angle) - pi);
-
-      s1 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]" // control qubit
-         << "," << (0.5*pi) << ")";
-      sequence_.push_back(s1.str());
-
-      s2 << std::fixed
-         << "Ry"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]"  // control qubit
-         << "," << -0.5*angle << ")";
-      sequence_.push_back(s2.str());
-
-      s3 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]" // control qubit
-         << "," << (-0.5*pi) << ")";
-      sequence_.push_back(s3.str());
-
-      s4 << std::fixed
-         << "Ry"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (0.5*pi) << ")";
-      sequence_.push_back(s4.str());
-
-      s5 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (pi) << ")";
-      sequence_.push_back(s5.str());
-
-      s6 << "CZ"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(s6.str());
-
-      s7 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (-0.5*angle) << ")";
-      sequence_.push_back(s7.str());
-
-      s8 << "CZ"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[0] << "]," // control qubit
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << ")";
-      sequence_.push_back(s8.str());
-
-      s9 << std::fixed
-         << "Rx"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (lambda) << ")";
-      sequence_.push_back(s9.str());
-
-      s10 << std::fixed
-         << "Ry"
-         << "("
-         << "q"
-         << "[" << cphase.bits()[1] << "]" // target qubit
-         << "," << (-0.5*pi) << ")";
-      sequence_.push_back(s10.str());
+      Rx r1(cphase.bits()[0], 0.5 * pi);
+      Ry r2(cphase.bits()[0], -0.5 * angle);
+      Rx r3(cphase.bits()[0], -0.5 * pi);
+      Ry r4(cphase.bits()[1], 0.5 * pi);
+      Rx r5(cphase.bits()[1], pi);
+      Rx r6(cphase.bits()[1], -0.5 * angle);
+      Rx r7(cphase.bits()[1], lambda);
+      Ry r8(cphase.bits()[1], -0.5 * pi);
+      CZ cz(cphase.bits()[0], cphase.bits()[1]);
+      visitor::visit(r1);
+      visitor::visit(r2);
+      visitor::visit(r3);
+      visitor::visit(r4);
+      visitor::visit(r5);
+      visit(cz);
+      visitor::visit(r6);
+      visit(cz);
+      visitor::visit(r7);
+      visitor::visit(r8);
     }
 
-    /// Swap the values of two qubits
+    /**
+     * Swap - Swap the values of two qubits
+     *
+     * Input: reference to IR object of class Swap
+     *
+     * Output: none
+     *
+     * Effect: push Swap to the back of JSON object: sequence_
+     **/
+    //
+    // q0: --|Rx(pi/2)|--|C|--|Rx(pi/2)|--|C|--|Rx(pi/2)|--|C|--
+    //                    |                |                |
+    // q1: --|Ry(pi/2)|--|Z|--|Rx(pi/2)|--|Z|--|Rx(pi/2)|--|Z|--
     void visitor_CZ::visit(Swap &s)
     {
-      CNOT c1(s.bits()), c2(s.bits()[1], s.bits()[0]), c3(s.bits());
-      visit(c1);
-      visit(c2);
-      visit(c3);
+      Rx r1(s.bits()[0], 0.5 * pi);
+      Rx r2(s.bits()[1], 0.5 * pi);
+      CZ cz(s.bits()[0], s.bits()[1]);
+      for (int i=0; i<3; i++) {
+        visitor::visit(r1);
+        visitor::visit(r2);
+        visit(cz);
+      }
     }
 
   }

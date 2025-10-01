@@ -106,29 +106,13 @@ TEST(backendTester, checkSessionIntegration2) {
   my_sim.run();
 
   std::cout << "Transpiled circuit: \n" << my_sim.transpiled_circuit() << "\n";
-  // Check profiling: expected native gate transpilation
-  // ry(1.5708000000000000) q[1];
-  // rx(3.1415899999999999) q[1];
-  // cz q[0], q[1];
-  // ry(1.5708000000000000) q[1];
-  // rx(3.1415899999999999) q[1];
-  // ry(1.5708000000000000) q[0];
-  // rx(3.1415899999999999) q[0];
-  // cz q[1], q[0];
-  // ry(1.5708000000000000) q[0];
-  // rx(3.1415899999999999) q[0];
-  // ry(1.5708000000000000) q[1];
-  // rx(3.1415899999999999) q[1];
-  // cz q[0], q[1];
-  // ry(1.5708000000000000) q[1];
-  // rx(3.1415899999999999) q[1];
 
   // Check single qubit gate counts
   EXPECT_EQ(my_sim.one_qubit_gate_depths().size(), 2);
-  // 4 single qubit gates on Q0
-  EXPECT_EQ(my_sim.one_qubit_gate_depths().at(0), 4);
-  // 8 single qubit gates on Q1
-  EXPECT_EQ(my_sim.one_qubit_gate_depths().at(1), 8);
+  // 3 single qubit gates on Q0
+  EXPECT_EQ(my_sim.one_qubit_gate_depths().at(0), 3);
+  // 3 single qubit gates on Q1
+  EXPECT_EQ(my_sim.one_qubit_gate_depths().at(1), 3);
 
   // Check two qubit gate counts
   EXPECT_EQ(my_sim.two_qubit_gate_depths().size(), 2);

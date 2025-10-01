@@ -10,6 +10,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Added optimised transpilation rules for {Rx, Ry, CZ} and {Rx, Ry, ACZ} gatesets
 - Added ability to specify alternative hardware models with different transpilation rules and native gatesets
 
 

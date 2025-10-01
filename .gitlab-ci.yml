@@ -310,6 +310,7 @@ ci-py-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
+    - python3 -m pip install pyyaml
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml" --ignore aer_thread_test.py
     - rm -rf ${QB_DIR}/core
   artifacts:
@@ -575,6 +576,7 @@ almalinux-amd64-py-tests:
   rules:
     - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "schedule"
   script:
+    - python3 -m pip install pyyaml
     - cd tests/python_module && python3 -m pytest --junitxml="report.xml" --ignore aer_thread_test.py
     - rm -rf ${QB_DIR}/core
   artifacts:

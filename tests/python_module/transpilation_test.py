@@ -97,12 +97,13 @@ def test_cphase_simple():
         if ir_aer.getInstruction(i).name() == "Rx" or ir_aer.getInstruction(i).name() == "Ry":
             assert(ir_aer.getInstruction(i).name() == ir_qristal.getInstruction(i).name())
             assert(ir_aer.getInstruction(i).bits() == ir_qristal.getInstruction(i).bits())
-            assert(math.isclose(ir_aer.getInstruction(i).getParameter(0), ir_qristal.getInstruction(i).getParameter(0), abs_tol=1.0e-6))
+            assert(math.isclose(ir_aer.getInstruction(i).getParameter(0), ir_qristal.getInstruction(i).getParameter(0), abs_tol=1.0e-6) or
+                   math.isclose(abs(ir_aer.getInstruction(i).getParameter(0)-ir_qristal.getInstruction(i).getParameter(0)), 2*math.pi, abs_tol=1.0e-6))
         elif ir_aer.getInstruction(i).name() == "CZ":
             assert(ir_aer.getInstruction(i).name() == ir_qristal.getInstruction(i).name())
             assert(ir_aer.getInstruction(i).bits() == ir_qristal.getInstruction(i).bits())
 
-def test_xasm_output():
+def test_xasm_output_CZ():
     print(" Testing QB machine code (XASM) output.")
     import json
     my_sim = qristal.core.session()
@@ -122,4 +123,34 @@ def test_xasm_output():
     }
     '''
     my_sim.run()
-    assert(json.loads(my_sim.qbjson)["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)', 'CZ(q[1],q[0])', 'Ry(q[0],1.570796)', 'Rx(q[0],3.141593)'])
+    assert(json.loads(my_sim.qbjson)["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],-3.141593)', 'Ry(q[0],1.570796)', 'Rx(q[0],-3.141593)', 'CZ(q[1],q[0])', 'Ry(q[0],1.570796)', 'Rx(q[0],-3.141593)'])
+
+def test_xasm_output_ACZ():
+    print(" Testing QB machine code (XASM) output.")
+    from yaml import safe_load, dump
+    import json
+    my_sim = qristal.core.session()
+    my_sim.execute_circuit = False
+    my_sim.acc = "example_hardware_device"
+    my_sim.qn = 2
+    my_sim.instring = '''
+    __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
+    {
+      OPENQASM 2.0;
+      include "qelib1.inc";
+      creg c[2];
+      h q[0];
+      cx q[1],q[0];
+      measure q[0] -> c[0];
+      measure q[1] -> c[1];
+    }
+    '''
+    stream = open(my_sim.remote_backend_database_path, 'r')
+    db = safe_load(stream)["example_hardware_device"]
+    db["model"] = "QB-QDK2-ACZ"
+    stream = open(my_sim.remote_backend_database_path + ".temp", 'w')
+    dump({'example_hardware_device': db}, stream)
+    stream.close()
+    my_sim.remote_backend_database_path = my_sim.remote_backend_database_path + ".temp"
+    my_sim.run()
+    assert(json.loads(my_sim.qbjson)["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],-3.141593)', 'Ry(q[0],1.570796)', 'CZ(q[0],q[1],c[01])', 'Ry(q[0],-1.570796)'])

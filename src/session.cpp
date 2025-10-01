@@ -1056,8 +1056,8 @@ namespace qristal
 
     {
       // Lock up during compilation, placement, optimization and execution if using aer or qpp, in order to avoid thread clashes.
-      std::mutex m;
-      std::scoped_lock lock((acc == "aer" or acc == "qpp" or acc == "tnqvm") ? shared_mutex : m);
+      std::unique_lock guard(shared_mutex, std::defer_lock);
+      if (acc == "aer" or acc == "qpp" or acc == "tnqvm") guard.lock();
 
       // ==============================================
       // Construct/initialize the Accelerator instance

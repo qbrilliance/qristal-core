@@ -195,6 +195,36 @@ def test_CI_220225_1_init_measure_no_gates() :
     res = json.loads(s.qbjson)
     assert(len(res["circuit"]) == 2)
 
+def test_ACZ_native_gate_execution() :
+    print("Using (Rx, Ry, ACZ) native gateset.")
+    import qristal.core
+    from yaml import safe_load, dump
+    my_sim = qristal.core.session()
+    my_sim.acc = "example_hardware_device"
+    my_sim.qn = 2
+    my_sim.sn = 20
+    my_sim.instring = '''
+    __qpu__ void MY_QUANTUM_CIRCUIT(qreg q)
+    {
+      OPENQASM 2.0;
+      include "qelib1.inc";
+      creg c[2];
+      h q[0];
+      cx q[1],q[0];
+      measure q[0] -> c[0];
+      measure q[1] -> c[1];
+    }
+    '''
+    stream = open(my_sim.remote_backend_database_path, 'r')
+    db = safe_load(stream)["example_hardware_device"]
+    db["model"] = "QB-QDK2-ACZ"
+    stream = open(my_sim.remote_backend_database_path + ".temp", 'w')
+    dump({'example_hardware_device': db}, stream)
+    stream.close()
+    my_sim.remote_backend_database_path = my_sim.remote_backend_database_path + ".temp"
+    my_sim.run()
+    assert(my_sim.results.total_counts() == my_sim.sn)
+
 # Note that the reservation is not released after this test, so the qcstack server
 # remains in exclusive access mode afterwards -- so this test must run after all
 # others that don't use exclusive access mode!

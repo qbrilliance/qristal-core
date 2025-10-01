@@ -43,12 +43,11 @@ TEST(transpilationTester, checkQBAccTranspile) {
 
 TEST(transpilationTester, checkQObjTranspile) {
   auto xasmCompiler = xacc::getCompiler("xasm");
-  auto program = xasmCompiler
-                     ->compile(R"(__qpu__ void test1(qbit q) {
+  auto program = xasmCompiler->compile(
+  R"(__qpu__ void test1(qbit q) {
       H(q[0]);
     })",
-                               nullptr)
-                     ->getComposites()[0];
+  nullptr)->getComposites()[0];
 
   auto compiler = get_qb_qobj_compiler();
   const auto qobj_str = compiler->translate(program);
@@ -59,27 +58,23 @@ TEST(transpilationTester, checkQObjTranspile) {
   EXPECT_EQ(insts_json[0]["name"], "ry");
   EXPECT_NEAR(insts_json[0]["params"][0].get<double>(), M_PI_2, 1e-3);
   EXPECT_EQ(insts_json[1]["name"], "rx");
-  EXPECT_NEAR(insts_json[1]["params"][0].get<double>(), M_PI, 1e-3);
+  EXPECT_NEAR(std::abs(insts_json[1]["params"][0].get<double>()), M_PI, 1e-3);
 }
 
 TEST(transpilationTester, checkAerSim) {
   auto xasmCompiler = xacc::getCompiler("xasm");
-  auto program = xasmCompiler
-                     ->compile(R"(__qpu__ void test1(qbit q) {
+  auto program = xasmCompiler->compile(
+  R"(__qpu__ void test1(qbit q) {
       X(q[0]);
       Measure(q[0]);
     })",
-                               nullptr)
-                     ->getComposites()[0];
+  nullptr)->getComposites()[0];
 
-  auto accelerator = xacc::getAccelerator(
-      "aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
+  auto accelerator = xacc::getAccelerator("aer", {{"qobj-compiler", get_qb_qobj_compiler()->name()}});
   auto qobj = nlohmann::json::parse(accelerator->getNativeCode(program));
   // X -> Rx(pi)
   EXPECT_EQ(qobj["experiments"][0]["instructions"][0]["name"], "rx");
-  EXPECT_NEAR(
-      qobj["experiments"][0]["instructions"][0]["params"][0].get<double>(),
-      M_PI, 1e-3);
+  EXPECT_NEAR(std::abs(qobj["experiments"][0]["instructions"][0]["params"][0].get<double>()), M_PI, 1e-3);
 }
 
 TEST(transpilationTester, checkAerNoiseSim1) {
