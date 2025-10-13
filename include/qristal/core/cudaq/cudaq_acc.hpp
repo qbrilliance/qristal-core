@@ -36,6 +36,12 @@ class cudaq_acc : public xacc::Accelerator {
   cudaq::sample_options sample_ops;
   /// GPU device IDs
   std::vector<size_t> m_gpu_device_ids;
+  /// SVD type
+  std::string m_svd_type;
+  /// Jacobian SVD accuracy tolerance
+  double m_svdj_tol;
+  /// SVD type
+  int m_svdj_max_sweeps;
 
 public:
   /// Constructor

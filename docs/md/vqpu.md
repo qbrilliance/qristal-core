@@ -113,6 +113,12 @@ Tensor network backend settings used if `backend` is one of `qb-mpdo`, `qb-mps`,
 
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 
+* `svd_type`: *string*, optional. Type of singular value decomposition: `QR` for QR iterative SVD, `Jacobian` (default) for Jacobian based SVD.
+
+* `svdj_tol`: *floating-point*, optional, default: 1.0e-3. Accuracy tolerance for Jacobian based SVD.
+
+* `svdj_max_sweeps`: *integer*, optional, default: 80. Maximum number of Jacobian iteration sweeps.
+
 Settings used if `backend` is `qb-purification` or `cudaq:qb-purification`:
 
 * `initial_kraus_dimension`: *integer*, range: [1, 50000]. Initial number of singular values in the Kraus index/dimension. Can be used to speed up simulation if final state's Kraus dimension is known.

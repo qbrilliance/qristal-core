@@ -177,6 +177,15 @@ namespace qristal {
     if (config.count("gpu-device-ids")) {
         output_to_js["gpu_device_ids"] = config["gpu-device-ids"];
     }
+    if (config.count("svd-type")) {
+        output_to_js["svd_type"] = config["svd-type"];
+    }
+    if (config.count("svdj-tol")) {
+        output_to_js["svdj_tol"] = config["svdj-tol"];
+    }
+    if (config.count("svdj-max-sweeps")) {
+        output_to_js["svdj_max_sweeps"] = config["svdj-max-sweeps"];
+    }
     if (config.count("vqe-aswap-particles")) {
       output_to_js["vqe_aswap_particles"] = config["vqe-aswap-particles"];
     }

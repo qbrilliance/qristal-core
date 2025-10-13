@@ -21,10 +21,15 @@ int main()
   // Set backend parameters
   s.initial_bond_dimension = 1;
   s.max_bond_dimension = 256;
+  s.initial_kraus_dimension = 1;
+  s.max_kraus_dimension = 256;
   s.svd_cutoff = 1.0e-15;
   s.rel_svd_cutoff = 1.0e-10;
   s.measure_sample_method = "auto";
   s.gpu_device_ids = {0};
+  s.svd_type = "Jacobian";
+  s.svdj_tol = 1.0e-3;
+  s.svdj_max_sweeps = 80;
 
   // Set the noise model
   // Uncomment the following lines to introduce noise to the simulation.

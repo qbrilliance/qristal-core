@@ -265,6 +265,24 @@ namespace qristal {
         Set list of GPU device IDs to use with GPU-enabled backends.
     )";
 
+    const char* svd_type = R"(
+        svd_type:
+
+        Set the singular value decomposition method (QB emulator tensor network simulator).
+    )";
+
+    const char* svdj_tol = R"(
+        svdj_tol:
+
+        Set the Jacobian singular value decomposition accuracy tolerance (QB emulator tensor network simulator).
+    )";
+
+    const char* svdj_max_sweeps = R"(
+        svdj_max_sweeps:
+
+        Set the Jacobian singular value decomposition maximum iteration sweeps (QB emulator tensor network simulator).
+    )";
+
     const char* noise_model = R"(
         noise_model:
 

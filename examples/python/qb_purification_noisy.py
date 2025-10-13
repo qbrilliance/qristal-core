@@ -20,6 +20,9 @@ s.svd_cutoff = 1.0e-6 # Set the absolute SVD cut-off
 s.rel_svd_cutoff = 1.0e-3 # Set the relative SVD cut-off
 s.measure_sample_method = "auto"
 s.gpu_device_ids = [0]
+s.svd_type = "Jacobian"
+s.svdj_tol = 1.0e-3
+s.svdj_max_sweeps = 80
 
 # Uncomment the following lines to introduce noise to the simulation.
 #s.noise = True

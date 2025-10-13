@@ -64,6 +64,18 @@ void cudaq_acc::updateConfiguration(const xacc::HeterogeneousMap &config) {
     m_gpu_device_ids = config.get<std::vector<size_t>>("gpu-device-ids");
     setEnvVar(m_gpu_device_ids, "CUDAQ_GPU_DEVICE_IDS");
   }
+  if (config.stringExists("svd-type")) {
+    m_svd_type = config.getString("svd-type");
+    setEnvVar(m_svd_type, "CUDAQ_SVD_TYPE");
+  }
+  if (config.keyExists<double>("svdj-tol")) {
+    m_svdj_tol = config.get<double>("svdj-tol");
+    setEnvVar(m_svdj_tol, "CUDAQ_SVDJ_TOL");
+  }
+  if (config.keyExists<size_t>("svdj-max-sweeps")) {
+    m_svdj_max_sweeps = config.get<size_t>("svdj-max-sweeps");
+    setEnvVar(m_svdj_max_sweeps, "CUDAQ_SVDJ_MAX_SWEEPS");
+  }
 }
 
 void cudaq_acc::freeEnvVars() {
@@ -75,12 +87,15 @@ void cudaq_acc::freeEnvVars() {
   unsetenv("CUDAQ_RELATIVE_CUTOFF");
   unsetenv("CUDAQ_MEASURE_SAMPLING_METHOD");
   unsetenv("CUDAQ_GPU_DEVICE_IDS");
+  unsetenv("CUDAQ_SVD_TYPE");
+  unsetenv("CUDAQ_SVDJ_TOL");
+  unsetenv("CUDAQ_SVDJ_MAX_SWEEPS");
 }
 
 const std::vector<std::string> cudaq_acc::configurationKeys() {
   return {"shots", "initial-bond-dim", "initial-kraus-dim", "max-bond-dim", "max-kraus-dim",
           "abs-truncation-threshold", "rel-truncation-threshold", "measurement-sampling-method",
-          "noise-model", "gpu-device-ids"};
+          "noise-model", "gpu-device-ids", "svd-type", "svdj-tol", "svdj-max-sweeps"};
 }
 
 void cudaq_acc::execute(

@@ -375,7 +375,10 @@ namespace qristal
           {"abs-truncation-threshold", svd_cutoff},
           {"rel-truncation-threshold", rel_svd_cutoff},
           {"measurement-sampling-method", measure_sample_method},
-          {"gpu-device-ids", gpu_device_ids}
+          {"gpu-device-ids", gpu_device_ids},
+          {"svd-type", svd_type},
+          {"svdj-tol", svdj_tol},
+          {"svdj-max-sweeps", svdj_max_sweeps}
         };
 
         // Additional options for qb-purification
@@ -463,6 +466,10 @@ namespace qristal
         qpu_options.insert("abs-truncation-threshold", svd_cutoff);
         qpu_options.insert("rel-truncation-threshold", rel_svd_cutoff);
         qpu_options.insert("measurement-sampling-method", measure_sample_method);
+        qpu_options.insert("svd-type", svd_type);
+        qpu_options.insert("svdj-tol", svdj_tol);
+        qpu_options.insert("svdj-max-sweeps", svdj_max_sweeps);
+
         if (sim_acc == "qb-purification") { // Additional options for qb-purification
           qpu_options.insert("initial-kraus-dim", initial_kraus_dimension);
           qpu_options.insert("max-kraus-dim", max_kraus_dimension);
@@ -589,6 +596,7 @@ namespace qristal
     check_allowed(valid_backends, acc, "acc");
     check_allowed(VALID_AER_SIM_TYPES, aer_sim_type, "aer_sim_type");
     check_allowed(VALID_MEASURE_SAMPLING_OPTIONS, measure_sample_method, "measure_sample_method");
+    check_allowed(VALID_SVD_TYPE_OPTIONS, svd_type, "svd_type");
     check_allowed(VALID_NOISE_MITIGATIONS, noise_mitigation, "noise_mitigation");
 
     // Check that the chosen placement options are allowed
@@ -617,6 +625,8 @@ namespace qristal
     check_bounds(max_kraus_dimension, max_kraus_bounds, "max_kraus_dimension");
     check_bounds(svd_cutoff, svd_cutoff_bounds, "svd_cutoff");
     check_bounds(rel_svd_cutoff, svd_cutoff_bounds, "rel_svd_cutoff");
+    check_bounds(svdj_tol, svdj_tol_bounds, "svdj_tol");
+    check_bounds(svdj_max_sweeps, svdj_max_sweeps_bounds, "svdj_max_sweeps");
     check_bounds(random_circuit_depth, random_circuit_depth_bounds, "random_circuit_depth");
 
     // Make sure that the chosen GPU configuration is valid.

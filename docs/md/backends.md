@@ -241,6 +241,9 @@ These parameters are set under the `aws-braket` heading in the `remote_backends.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 * `gpu_device_ids`: *Vector of integers*. GPU device IDs. Note that the `cudaq:qb_mps` version currently only supports execution on a single GPU.
+* `svd_type`: *string*, optional. Type of singular value decomposition: `QR` for QR iterative SVD, `Jacobian` (default) for Jacobian based SVD.
+* `svdj_tol`: *floating-point*, optional, default: 1.0e-3. Accuracy tolerance for Jacobian based SVD.
+* `svdj_max_sweeps`: *integer*, optional, default: 80. Maximum number of Jacobian iteration sweeps.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -265,6 +268,9 @@ These parameters are currently `qristal.core.session` attributes.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 * `gpu_device_ids`: *Vector of integers*. GPU device IDs. Note that the `cudaq:qb_mpdo` version currently only supports execution on a single GPU.
+* `svd_type`: *string*, optional. Type of singular value decomposition: `QR` for QR iterative SVD, `Jacobian` (default) for Jacobian based SVD.
+* `svdj_tol`: *floating-point*, optional, default: 1.0e-3. Accuracy tolerance for Jacobian based SVD.
+* `svdj_max_sweeps`: *integer*, optional, default: 80. Maximum number of Jacobian iteration sweeps.
 
 These parameters are currently `qristal.core.session` attributes.
 
@@ -291,6 +297,9 @@ These parameters are currently `qristal.core.session` attributes.
 * `noise`: *boolean*, optional. Include noise in the circuit simulation.
 * `measure_sample_method`: *string*, optional. Measurement sampling modes: `sequential` for sequential cutensor-based sampling, `cutensornet` for single-shot cutensornet-based sampling, `cutensornet_multishot` for multi-shot cutensornet-based sampling, `auto` (default) for single-shot cutensornet-based sampling with cutensor-based sampling as fallback.
 * `gpu_device_ids`: *Vector of integers*. GPU device IDs. Note that the `cudaq:purification` version currently only supports execution on a single GPU.
+* `svd_type`: *string*, optional. Type of singular value decomposition: `QR` for QR iterative SVD, `Jacobian` (default) for Jacobian based SVD.
+* `svdj_tol`: *floating-point*, optional, default: 1.0e-3. Accuracy tolerance for Jacobian based SVD.
+* `svdj_max_sweeps`: *integer*, optional, default: 80. Maximum number of Jacobian iteration sweeps.
 
 These parameters are currently `qristal.core.session` attributes.
 

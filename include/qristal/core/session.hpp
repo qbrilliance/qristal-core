@@ -202,6 +202,8 @@ namespace qristal
       ibounds max_kraus_bounds{1,50000};
       ibounds initial_kraus_bounds{1,50000};
       dbounds svd_cutoff_bounds{0, 1e9};
+      dbounds svdj_tol_bounds{0, 1.0};
+      ibounds svdj_max_sweeps_bounds{1, 10000};
       /// @}
 
 
@@ -227,6 +229,8 @@ namespace qristal
       static const std::unordered_set<std::string_view> VALID_HARDWARE_PLACEMENTS;
       /// Valid measurement sampling options
       static const std::unordered_set<std::string_view> VALID_MEASURE_SAMPLING_OPTIONS;
+      /// Valid singular value decomposition type options
+      static const std::unordered_set<std::string_view> VALID_SVD_TYPE_OPTIONS;
       /// @}
 
       #ifdef USE_MPI
@@ -483,6 +487,24 @@ namespace qristal
        * @note This is only needed if using a tensor network accelerator
        */
       std::string measure_sample_method = "auto";
+
+      /**
+       * @brief Type of singular value decomposition (SVD) method. Options:
+       * "QR": Iterative QR based SVD
+       * "Jacobian": Jacobian based SVD
+       * @note This is only needed if using a tensor network accelerator
+       */
+      std::string svd_type = "Jacobian";
+
+      /**
+       * @brief Accuracy tolerance for Jacobian based SVD method
+       */
+      double svdj_tol = 1.0e-3;
+
+      /**
+       * @brief Maximum number of iterative sweeps for Jacobian based SVD method
+       */
+      size_t svdj_max_sweeps = 80;
 
       /// Noise model to use when noise = true
       std::shared_ptr<NoiseModel> noise_model;

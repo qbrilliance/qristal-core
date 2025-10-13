@@ -101,5 +101,10 @@ namespace qristal {
     "cutensornet_multishot"
   };
 
+  /// Valid singular value decomposition type
+  const std::unordered_set<std::string_view> session::VALID_SVD_TYPE_OPTIONS = {
+    "QR",
+    "Jacobian"
+  };
 }
 
