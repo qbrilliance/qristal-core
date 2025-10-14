@@ -19,7 +19,6 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.27.0")
   cmake_policy(SET CMP0144 NEW)
 endif()
 find_package(Boost 1.7.1 REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
 
 # OpenSSL
 find_package(OpenSSL REQUIRED)

@@ -14,6 +14,9 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added ability to specify alternative hardware models with different transpilation rules and native gatesets
 - Added options for selecting QR-based and Jacobian-based SVD methods for emulator tensor network backends 
 
+### Fixed
+- Fix boost not being added to some targets on some systems
+
 
 ## [1.8.0] - 2025-09-18
 

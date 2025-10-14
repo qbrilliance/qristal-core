@@ -20,7 +20,7 @@ if (WITH_TKET)
   )
   # Use C++20 (TKET requirement)
   set_property(TARGET ${TKET_PLACEMENT_LIB} PROPERTY CXX_STANDARD 20)
-  target_link_libraries(${TKET_PLACEMENT_LIB} PRIVATE Eigen3::Eigen xacc::xacc xacc::quantum_gate nlohmann::json)
+  target_link_libraries(${TKET_PLACEMENT_LIB} PRIVATE Eigen3::Eigen xacc::xacc xacc::quantum_gate nlohmann::json Boost::boost)
 
   # tket was added as dependency. Check if the installation is valid
   if(EXISTS "${TKET_DIR}" AND EXISTS "${TKET_DIR}/lib" AND EXISTS "${TKET_DIR}/include")
