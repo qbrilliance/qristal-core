@@ -182,6 +182,27 @@ This section provides a quick reference on common quantum gates.
 
         where q0 is the control qubit and q1 is the target qubit.
 
+- ACZ - anti-controlled-Z
+    - Unitary Description and Decomposition Rules
+
+        As per CZ, but acting on the opposite control state, i.e. applies a Z operation to the target qubit if the control qubit is zero.
+
+    - OpenQASM
+
+        Not supported.
+
+    - QB-extended XASM
+
+        Gate format: `CZ(<control_qubit>,<target_qubit>,c[01]));`
+
+    - QB Native Transpilation
+
+        ```python
+        acz(q0, q1)
+        ```
+
+        where q0 is the control qubit and q1 is the target qubit.
+
 - $R_x(\theta)$ - Pauli rotation on *X*-axis by $\theta$
     - Unitary Description and Decomposition Rules
 

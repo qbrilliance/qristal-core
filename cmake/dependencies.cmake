@@ -49,7 +49,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp=libgomp")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp=libgomp")
 
-  # Ensure clang builds use libstdc++ (gcc) for the same gcc being used to build exatn and tnqvm and not 
+  # Ensure clang builds use libstdc++ (gcc) for the same gcc being used to build exatn and tnqvm and not
   # libc++ (llvm) for ABI reasons
   find_program(gcc_executable_path ${EXATN_C_COMPILER} REQUIRED)
   find_program(gxx_executable_path ${EXATN_CXX_COMPILER} REQUIRED)
@@ -102,7 +102,7 @@ endif()
 message(STATUS "${BoldGreen}Eigen3: Found system installation (version ${EIGEN3_VERSION_STRING}) config at ${Eigen3_DIR}; include directory: ${EIGEN3_INCLUDE_DIR}${ColorReset}")
 
 # XACC
-set(XACC_TAG "de8d8317")
+set(XACC_TAG "01053824")
 if(CMAKE_BUILD_TYPE STREQUAL "None")
   set(XACC_CMAKE_BUILD_TYPE "Release")
 else()
@@ -327,8 +327,8 @@ if (NOT SUPPORT_EMULATOR_BUILD_ONLY)
   string(REPLACE "-fopenmp=libgomp" "-fopenmp" EXATN_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   string(REGEX REPLACE "--gcc-toolchain=[^ ]*" "" EXATN_C_FLAGS "${EXATN_C_FLAGS}")
   string(REGEX REPLACE "--gcc-toolchain=[^ ]*" "" EXATN_CXX_FLAGS "${EXATN_CXX_FLAGS}")
-  
-  # EXATN  
+
+  # EXATN
   set(exatn_options
     "-DCMAKE_C_COMPILER=${EXATN_C_COMPILER}"
     "-DCMAKE_CXX_COMPILER=${EXATN_CXX_COMPILER}"

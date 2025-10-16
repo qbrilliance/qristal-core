@@ -154,3 +154,26 @@ def test_xasm_output_ACZ():
     my_sim.remote_backend_database_path = my_sim.remote_backend_database_path + ".temp"
     my_sim.run()
     assert(json.loads(my_sim.qbjson)["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],-3.141593)', 'Ry(q[0],1.570796)', 'CZ(q[0],q[1],c[01])', 'Ry(q[0],-1.570796)'])
+
+def test_xasm_output_ACZ_circuit_builder():
+    print(" Testing QB machine code (XASM) output and ACZ gate in CircuitBuilder.")
+    from yaml import safe_load, dump
+    import json
+    my_sim = qristal.core.session()
+    my_sim.execute_circuit = False
+    my_sim.acc = "example_hardware_device"
+    my_sim.qn = 2
+    circ = qristal.core.Circuit()
+    circ.h(0)
+    circ.acz(0,1)
+    circ.measure_all()
+    my_sim.irtarget = circ
+    stream = open(my_sim.remote_backend_database_path, 'r')
+    db = safe_load(stream)["example_hardware_device"]
+    db["model"] = "QB-QDK2-ACZ"
+    stream = open(my_sim.remote_backend_database_path + ".temp", 'w')
+    dump({'example_hardware_device': db}, stream)
+    stream.close()
+    my_sim.remote_backend_database_path = my_sim.remote_backend_database_path + ".temp"
+    my_sim.run()
+    assert(json.loads(my_sim.qbjson)["circuit"] == ['Ry(q[0],1.570796)', 'Rx(q[0],-3.141593)', 'CZ(q[0],q[1],c[01])'])

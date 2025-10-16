@@ -33,12 +33,12 @@ namespace qristal
   CircuitBuilder::CircuitBuilder(const CircuitBuilder& other) {
     xacc::Initialize();
     gate_provider_ = xacc::getService<xacc::IRProvider>("quantum");
-  
+
     // Deep copy the circuit
     circuit_ = gate_provider_->createComposite("QBSDK_circuit_copy");
     circuit_->addVariables(other.circuit_->getVariables());
     circuit_->addInstructions(other.circuit_->getInstructions());
-  
+
     // Copy other members
     num_qubits_ = other.num_qubits_;
     free_params_ = other.free_params_;
@@ -73,7 +73,7 @@ namespace qristal
     }
     is_parametrized_ = found_symbolic;
   }
-  
+
   const std::vector<double> CircuitBuilder::param_map_to_vec(const std::map<std::string, double> &param_map) const {
     std::vector<double> param_vec(param_map.size());
     // if (param_vec.size() < param_map.size()) param_vec.resize(param_map.size());
@@ -229,6 +229,11 @@ namespace qristal
   void CircuitBuilder::CZ(size_t ctrl_idx, size_t target_idx) {
     circuit_->addInstruction(
         gate_provider_->createInstruction("CZ", {ctrl_idx, target_idx}));
+  }
+
+  void CircuitBuilder::ACZ(size_t ctrl_idx, size_t target_idx) {
+    circuit_->addInstruction(
+        gate_provider_->createInstruction("ACZ", {ctrl_idx, target_idx}));
   }
 
   void CircuitBuilder::CH(size_t ctrl_idx, size_t target_idx) {

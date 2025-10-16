@@ -16,11 +16,11 @@ void bind_circuit_builder(pybind11::module &m) {
       .def(py::init())
       .def("print", &qristal::CircuitBuilder::print,
            "Print the quantum circuit that has been built")
-      .def("copy", &CircuitBuilder::copy) 
+      .def("copy", &CircuitBuilder::copy)
       .def(
           "openqasm",
           [&](qristal::CircuitBuilder &this_) {
-            if (this_.is_parametrized()) 
+            if (this_.is_parametrized())
             {
               throw std::runtime_error("Cannot convert parametrized circuit to OpenQASM!");
             }
@@ -73,21 +73,21 @@ void bind_circuit_builder(pybind11::module &m) {
       Returns the number of free parameters in the (parametrized) circuit.
     )")
       .def(
-          "param_dict_to_list", 
+          "param_dict_to_list",
           [&](qristal::CircuitBuilder &builder, std::map<std::string, double> param_dict) {
             return builder.param_map_to_vec(param_dict);
           }, R"(
-      Convert a dictionary that defines parameter assignments to a vector for 
-      input to the session object. The vector will be ordered according to 
-      the definition of the free parameter in the circuit; for example, if 
-      a gate is defined with the free parameter "alpha" in an empty circuit, 
-      its mapped parameter will be at index 0 in the vector. If another gate 
-      exists in this circuit with the parameter "beta", the value for this 
+      Convert a dictionary that defines parameter assignments to a vector for
+      input to the session object. The vector will be ordered according to
+      the definition of the free parameter in the circuit; for example, if
+      a gate is defined with the free parameter "alpha" in an empty circuit,
+      its mapped parameter will be at index 0 in the vector. If another gate
+      exists in this circuit with the parameter "beta", the value for this
       mapped parameter will be at index 1, and so on.
 
       Parameters:
 
-      - **param_dict** the dictionary 
+      - **param_dict** the dictionary
 
       Returns:
 
@@ -98,9 +98,9 @@ void bind_circuit_builder(pybind11::module &m) {
           "h", [&](qristal::CircuitBuilder &builder, int idx) { builder.H(idx); },
           py::arg("idx"), R"(
     Hadamard gate
-  
-   This method adds a Hadamard (H) gate to the circuit. 
-   
+
+   This method adds a Hadamard (H) gate to the circuit.
+
    Parameters:
 
    - **idx** the index of the qubit being acted on [int]
@@ -436,6 +436,25 @@ void bind_circuit_builder(pybind11::module &m) {
 
     )")
       .def(
+          "acz",
+          [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx) {
+            builder.ACZ(ctrl_idx, target_idx);
+          },
+          py::arg("ctrl_idx"), py::arg("target_idx"), R"(
+      ACZ gate
+
+     This method adds an anti-controlled-Z (ACZ) gate to the circuit.
+
+     The ACZ gate performs a Z gate on the target qubit
+     conditional on the control qubit being in the 0 state.
+
+     Parameters:
+
+     - **ctrl_idx** the index of the control qubit [int]
+     - **target_idx** the index of the target qubit [int]
+
+    )")
+      .def(
           "crz",
           [&](qristal::CircuitBuilder &builder, int ctrl_idx, int target_idx,
               double theta) { builder.CRZ(ctrl_idx, target_idx, theta); },
@@ -605,7 +624,7 @@ void bind_circuit_builder(pybind11::module &m) {
      Parameters:
 
      - **idx** the index of the qubit being acted on [int]
-     - **param_1** the name of the 1st free parameter (theta) [string] 
+     - **param_1** the name of the 1st free parameter (theta) [string]
      - **param_2** the name of the 2nd free parameter (phi) [string]
      - **param_3** the name of the 3rd free parameter (lambda) [string]
 
@@ -617,7 +636,7 @@ void bind_circuit_builder(pybind11::module &m) {
           py::arg("idx"), py::arg("theta"), py::arg("phi"), py::arg("lambda"),
           R"(
      U3 gate
-     
+
      This method adds an arbitrary single qubit gate (U3) to the circuit, shown as U at https://qristal.readthedocs.io/en/latest/rst/quantum_gates.html
 
      Parameters:
@@ -718,7 +737,7 @@ void bind_circuit_builder(pybind11::module &m) {
                 Exponent Base 2
 
                 This method adds an exponent to the circuit. This is used to replace some value
-                by its exponent base 2. 
+                by its exponent base 2.
 
                 Parameters:
 
@@ -789,7 +808,7 @@ void bind_circuit_builder(pybind11::module &m) {
      This method adds the canonical version of Quantum Amplitude Estimation
      (QAE) to the circuit.
 
-     Given a quantum state split into a good subspace and a bad subspace, 
+     Given a quantum state split into a good subspace and a bad subspace,
      the QAE sub-routine provides a k-bit approximation to the amplitude of
      the good subspace, a.
 
@@ -992,7 +1011,7 @@ void bind_circuit_builder(pybind11::module &m) {
      This method adds a number of Grovers operators to the circuit.
 
      Grovers operators are used to amplify the amplitude of some desired
-     subspace of your quantum state. 
+     subspace of your quantum state.
 
      Parameters:
 
@@ -1014,7 +1033,7 @@ void bind_circuit_builder(pybind11::module &m) {
      This method adds a ripple carry adder to the circuit.
 
      The ripple carry adder is an efficient in-line addition operation
-     with a carry-in bit. 
+     with a carry-in bit.
 
      Parameters:
 

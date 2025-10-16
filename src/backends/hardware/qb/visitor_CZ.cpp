@@ -50,6 +50,30 @@ namespace xacc
     }
 
     /**
+     * ACZ - anti-controlled Z
+     *
+     * Input: reference to IR object of class ACZ
+     *
+     * Output: none
+     *
+     * Effect: push ACZ to the back of JSON object: sequence_
+     *
+     **/
+    //
+    // q0: -------|X|--|C|--|X|---------
+    //                  |
+    // q1: ------------|Z|--------------
+    //
+    void visitor_CZ::visit(ACZ &acz)
+    {
+      X x(acz.bits()[0]);
+      CZ cz(acz.bits()[0], acz.bits()[1]);
+      visitor::visit(x);
+      visit(cz);
+      visitor::visit(x);
+    }
+
+    /**
      * CNOT - controlled NOT
      *
      * Input: reference to IR object of class CNOT

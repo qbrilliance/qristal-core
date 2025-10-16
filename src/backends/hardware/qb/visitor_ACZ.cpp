@@ -22,7 +22,7 @@ namespace xacc
     }
 
     /**
-     * ACZ - anti-controlled Z
+     * ACZ - anti-controlled Z as a QB-extended XASM string
      *
      * Input: q0: control bit
      *        q1: target bit
@@ -30,7 +30,7 @@ namespace xacc
      * Output: ACZ gate string in QB extended XASM format
      *
      **/
-    std::string acz(uint q0, uint q1)
+    std::string acz_qb_xasm(uint q0, uint q1)
     {
       std::stringstream ss;
       // The third optional argument to CZ() is the control state. It is used to select a specific implementation of the CZ gate
@@ -62,8 +62,28 @@ namespace xacc
     {
       X x(cz.bits()[0]);
       visitor::visit(x);
-      sequence_.push_back(acz(cz.bits()[0], cz.bits()[1]));
+      sequence_.push_back(acz_qb_xasm(cz.bits()[0], cz.bits()[1]));
       visitor::visit(x);
+    }
+
+    /**
+     * ACZ - anti-controlled Z
+     *
+     * Input: reference to IR object of class ACZ
+     *
+     * Output: none
+     *
+     * Effect: push ACZ to the back of JSON object: sequence_
+     *
+     **/
+    //
+    // q0: -----------|AC|--------------
+    //                  |
+    // q1: ------------|Z|--------------
+    //
+    void visitor_ACZ::visit(ACZ &acz)
+    {
+      sequence_.push_back(acz_qb_xasm(acz.bits()[0], acz.bits()[1]));
     }
 
     /**
@@ -86,7 +106,7 @@ namespace xacc
       Ry r1(cn.bits()[1], 0.5*pi);
       Ry r2(cn.bits()[1], -0.5*pi);
       visitor::visit(r1);
-      sequence_.push_back(acz(cn.bits()[1], cn.bits()[0]));
+      sequence_.push_back(acz_qb_xasm(cn.bits()[1], cn.bits()[0]));
       visitor::visit(r2);
     }
 
@@ -118,9 +138,9 @@ namespace xacc
       visitor::visit(r2);
       visitor::visit(r3);
       visitor::visit(r4);
-      sequence_.push_back(acz(cphase.bits()[1], cphase.bits()[0]));
+      sequence_.push_back(acz_qb_xasm(cphase.bits()[1], cphase.bits()[0]));
       visitor::visit(r5);
-      sequence_.push_back(acz(cphase.bits()[1], cphase.bits()[0]));
+      sequence_.push_back(acz_qb_xasm(cphase.bits()[1], cphase.bits()[0]));
       visitor::visit(r6);
       visitor::visit(r7);
     }
@@ -146,11 +166,11 @@ namespace xacc
       X x(s.bits()[1]);
       visitor::visit(r1);
       visitor::visit(r2);
-      sequence_.push_back(acz(s.bits()[1], s.bits()[0]));
+      sequence_.push_back(acz_qb_xasm(s.bits()[1], s.bits()[0]));
       for (int i=0; i<2; i++) {
         visitor::visit(r1);
         visitor::visit(r3);
-        sequence_.push_back(acz(s.bits()[1], s.bits()[0]));
+        sequence_.push_back(acz_qb_xasm(s.bits()[1], s.bits()[0]));
       }
       visitor::visit(x);
     }

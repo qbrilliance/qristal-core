@@ -24,6 +24,7 @@ const std::string reservationEndpoint = "api/v1/reservations";
 
 namespace {
   constexpr int32_t HTTP_TIMEOUT = 5000;
+  constexpr int32_t HTTP_NUM_RETRIES = 10;
 }
 
 namespace qristal
@@ -167,10 +168,10 @@ namespace xacc
         const std::string& path,
         std::map<std::string, std::string>& headers,
         qdk& qpu,
+        uint32_t retry_count,
         bool debug)
     {
       std::string Response;
-      bool succeeded = false;
 
       // Execute HTTP operation
       try
@@ -197,9 +198,10 @@ namespace xacc
         if (debug) std::cout << "* Status code " << r.status_code << std::endl;
         switch (r.status_code)
         {
-          case 0:
-            throw std::runtime_error("Device " + qpu.name() + " at " + remoteUrl +
-             " did not respond to HTTP " + operation + " operation.");
+          case 0:  // No response. Automatically retry unless the retry count exceeds HTTP_NUM_RETRIES
+            if (retry_count < HTTP_NUM_RETRIES) return HTTP(operation, f, remoteUrl, path, headers, qpu, retry_count + 1, debug);
+            throw std::runtime_error("Device " + qpu.name() + " at " + remoteUrl + " did not respond to HTTP " +
+             operation + " operation after " + std::to_string(HTTP_NUM_RETRIES+1) + " attempts.\nError: " + r.error.message);
             break;
           case 200: // Success
             Response = (r.text == "null" ? response_is_status_code(r.status_code) : r.text);
@@ -211,20 +213,19 @@ namespace xacc
             qpu.cancel();
             std::string detail = "not provided by hardware";
             try { detail = json::parse(r.text)["detail"]; } catch (const json::type_error&) {}
-            throw std::runtime_error("Device " + qpu.name() + " failed HTTP " + operation +
+            throw std::runtime_error("\nDevice " + qpu.name() + " failed HTTP " + operation +
             ".\nReturn code: " + std::to_string(r.status_code) + "\nDetail: " + detail);
             break;
         }
       }
       catch (std::exception &e)
       {
-        if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos)
+        qpu.cancel();
+        if (std::string(e.what()).find("Caught CTRL-C") != std::string::npos or retry_count > 0)
         {
-          qpu.cancel();
           throw std::runtime_error(std::string(e.what()));
         }
-        throw std::runtime_error(qpu.name() + " raised exception in " +
-         operation + ": " + std::string(e.what()));
+        throw std::runtime_error(qpu.name() + " raised exception in " + operation + ". " + std::string(e.what()));
       }
       return Response;
     }
@@ -237,7 +238,7 @@ namespace xacc
       auto f = [&](cpr::Url a, cpr::Header b) {
         return cpr::Post(a, cpr::Body(postStr), b, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
       };
-      return HTTP("POST", f, remoteUrl, path, headers, *this, debug);
+      return HTTP("POST", f, remoteUrl, path, headers, *this, 0, debug);
     }
 
     // HTTP GET specialisation
@@ -251,7 +252,7 @@ namespace xacc
       auto f = [&cprParams](cpr::Url a, cpr::Header b) {
         return cpr::Get(a, b, cprParams, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
       };
-      return HTTP("GET", f, remoteUrl, path, headers, *this, debug);
+      return HTTP("GET", f, remoteUrl, path, headers, *this, 0, debug);
     }
 
     // HTTP PUT specialisation
@@ -262,7 +263,7 @@ namespace xacc
       auto f = [&putStr](cpr::Url a, cpr::Header b) {
         return cpr::Put(a, cpr::Body(putStr), b, cpr::VerifySsl(false), cpr::Timeout{HTTP_TIMEOUT});
       };
-      return HTTP("PUT", f, remoteUrl, path, headers, *this, debug);
+      return HTTP("PUT", f, remoteUrl, path, headers, *this, 0, debug);
     }
 
 

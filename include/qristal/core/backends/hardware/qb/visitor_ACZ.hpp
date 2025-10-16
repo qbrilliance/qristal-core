@@ -43,6 +43,8 @@ namespace xacc {
         /// @{
         /// Controlled Z gate
         void visit(CZ&)       override;
+        /// Anti-controlled Z gate
+        virtual void visit(ACZ&) override;
         /// Controlled NOT gate
         void visit(CNOT&)     override;
         /// Controlled phase gate

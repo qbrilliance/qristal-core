@@ -120,7 +120,7 @@ namespace qristal {
        * @param other The CircuitBuilder to copy.
        */
       CircuitBuilder(const CircuitBuilder& other);
-      
+
       /**
        * @brief Create a deep copy of this CircuitBuilder.
        *
@@ -543,6 +543,25 @@ namespace qristal {
       void CZ(size_t ctrl_idx, size_t target_idx);
 
       /**
+      * @brief ACZ gate
+      *
+      * This method adds an anti-controlled-Z (ACZ) gate to the circuit.
+      *
+      * The ACZ gate performs a Z gate on the target qubit
+      * conditional on the control qubit being in the \f$\ket{0}\f$ state. That is
+      *
+      * \f[
+      *
+      * CZ\ket{ab} \rightarrow \ket{a}Z^{a+1} \ket{b}
+      *
+      * \f]
+      *
+      * @param ctrl_idx the index of the control qubit [size_t]
+      * @param target_idx the index of the target qubit [size_t]
+      */
+      void ACZ(size_t ctrl_idx, size_t target_idx);
+
+      /**
       * @brief CH gate
       *
       * This method adds a controlled-H (CH) gate to the circuit.
@@ -659,7 +678,7 @@ namespace qristal {
       */
       void CRX(size_t ctrl_idx, size_t target_idx, double theta);
 
-     /** 
+     /**
       * This method adds an x-axis rotation (CRX) gate with a free
       * parameter to the circuit.
       * The name of the free parameter must be passed to the method.

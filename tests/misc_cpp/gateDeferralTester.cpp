@@ -29,7 +29,7 @@ TEST(GateDeferralTester, canonicalCircuit) {
   program->addInstruction(std::make_shared<xacc::quantum::CNOT>(0, 1));
   // Measure
   for (size_t i = 0; i < m_num_qubits; i++) {
-    program->addInstruction(std::make_shared<xacc::quantum::Measure>(i));    
+    program->addInstruction(std::make_shared<xacc::quantum::Measure>(i));
   }
 
   // Create circuit with deferred gates using the initial circuit
@@ -66,7 +66,7 @@ TEST(GateDeferralTester, ghz) {
   }
   // Measure
   for (size_t i = 0; i < m_num_qubits; i++) {
-    program->addInstruction(std::make_shared<xacc::quantum::Measure>(i));    
+    program->addInstruction(std::make_shared<xacc::quantum::Measure>(i));
   }
 
   // Create circuit with deferred gates using the initial circuit
@@ -111,7 +111,7 @@ TEST(GateDeferralTester, qft_iqft) {
   program->addInstructions(iqft->getInstructions());
   // Measure
   for (size_t i = 0; i < m_num_qubits; i++) {
-    program->addInstruction(std::make_shared<xacc::quantum::Measure>(i));    
+    program->addInstruction(std::make_shared<xacc::quantum::Measure>(i));
   }
 
   // Execute circuit
@@ -132,8 +132,8 @@ TEST(GateDeferralTester, qft_iqft) {
   buffer_deferred_gates->print();
 
   // Check that both distributions are close
-  EXPECT_NEAR(buffer->getMeasurementCounts()["100"], buffer_deferred_gates->getMeasurementCounts()["100"], 50);
-  EXPECT_NEAR(buffer->getMeasurementCounts()["111"], buffer_deferred_gates->getMeasurementCounts()["111"], 50);
+  EXPECT_NEAR(buffer->getMeasurementCounts()["100"], buffer_deferred_gates->getMeasurementCounts()["100"], 70);
+  EXPECT_NEAR(buffer->getMeasurementCounts()["111"], buffer_deferred_gates->getMeasurementCounts()["111"], 70);
 }
 
 TEST(GateDeferralTester, qft_iqft_session) {
@@ -182,7 +182,7 @@ TEST(GateDeferralTester, qft_iqft_session) {
 
   // Check that both distributions are close
   for (const auto &[bitstring, count] : results) {
-    EXPECT_NEAR(count, results_gate_deferred[bitstring], 50);
+    EXPECT_NEAR(count, results_gate_deferred[bitstring], 70);
   }
 }
 

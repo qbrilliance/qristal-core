@@ -2,7 +2,7 @@
 
 Qristal is a full-stack SDK for quantum accelerators.
 
-## [x.x.x] - 202x-0x-xx
+## [1.8.1] - 202x-0x-xx
 
 ### Breaking
 
@@ -10,6 +10,8 @@ Qristal is a full-stack SDK for quantum accelerators.
 
 ### Added
 
+- Added support for explicit ACZ gates in CircuitBuilder and XACC IR
+- Added automatic retry on http failures in QB hardware backend (up to a certain number of attempts)
 - Added optimised transpilation rules for {Rx, Ry, CZ} and {Rx, Ry, ACZ} gatesets
 - Added ability to specify alternative hardware models with different transpilation rules and native gatesets
 - Added options for selecting QR-based and Jacobian-based SVD methods for emulator tensor network backends 
@@ -55,7 +57,7 @@ Qristal is a full-stack SDK for quantum accelerators.
 - Added functionality to enable assigning MPI processes to different accelerator backends
 - Added decompose_swap, commute_through_multis, optimise_post_routing, decompose_zx, rebase_to_clifford, optimise_cliffords passes
 - Updated Qristal's cpr and gtest versions to the latest release
-- Added new benchmark workflow PreOrAppendWorkflow to prepend or append arbitrary quantum circuits to any given workflow. 
+- Added new benchmark workflow PreOrAppendWorkflow to prepend or append arbitrary quantum circuits to any given workflow.
 - Added new benchmark metric BitstringCounts to extract the raw measured bit string counts from any executed workflow.
 
 ### Fixed
